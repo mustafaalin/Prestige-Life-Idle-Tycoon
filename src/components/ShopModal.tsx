@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Gift, DollarSign, Gem, Play, Lock } from 'lucide-react';
+import { X, Gift, DollarSign, Gem, Play, Lock, Monitor } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { deviceIdentity } from '../lib/deviceIdentity';
 
@@ -13,6 +13,7 @@ interface ShopModalProps {
   dailyClaimedTotal: number;
   onClaimDaily: () => Promise<boolean>;
   onClaimMoney: (isTriple: boolean) => Promise<boolean>;
+  onWatchAd: () => Promise<{ success: boolean; reward: number; cooldown: number }>;
 }
 
 const DAILY_REWARDS = [
@@ -35,11 +36,14 @@ export function ShopModal({
   dailyClaimedTotal,
   onClaimDaily,
   onClaimMoney,
+  onWatchAd,
 }: ShopModalProps) {
   const [accumulatedMoney, setAccumulatedMoney] = useState(0);
   const [timeUntilFull, setTimeUntilFull] = useState(0);
   const [timeUntilUnlock, setTimeUntilUnlock] = useState(0);
   const [notification, setNotification] = useState<string | null>(null);
+  const [isWatchingAd, setIsWatchingAd] = useState(false);
+  const [adCooldown, setAdCooldown] = useState(0);
   const [dailyRewardStatus, setDailyRewardStatus] = useState<{
     canClaim: boolean;
     currentStreak: number;
@@ -149,6 +153,16 @@ export function ShopModal({
     return () => clearInterval(interval);
   }, [isOpen, claimLockedUntil]);
 
+  useEffect(() => {
+    if (!isOpen || adCooldown <= 0) return;
+
+    const interval = setInterval(() => {
+      setAdCooldown(prev => Math.max(0, prev - 1));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isOpen, adCooldown]);
+
   if (!isOpen) return null;
 
   const formatMoney = (amount: number) => {
@@ -194,6 +208,23 @@ export function ShopModal({
     if (success) {
       const amount = isTriple ? accumulatedMoney * 3 : accumulatedMoney;
       showNotification(`Claimed ${formatMoney(amount)}!`);
+    }
+  };
+
+  const handleWatchAd = async () => {
+    setIsWatchingAd(true);
+
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    const result = await onWatchAd();
+    setIsWatchingAd(false);
+
+    if (result.success) {
+      showNotification(`Ad reward: ${formatMoney(result.reward)}!`);
+      setAdCooldown(result.cooldown);
+    } else if (result.cooldown > 0) {
+      setAdCooldown(result.cooldown);
+      showNotification('Please wait before watching another ad');
     }
   };
 
@@ -419,6 +450,71 @@ export function ShopModal({
                   Keep playing to accumulate earnings
                 </p>
               )}
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-5 border-2 border-purple-200 shadow-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <Monitor className="w-5 h-5 text-purple-600" />
+              <h3 className="text-base font-black text-purple-700">Watch Ad</h3>
+            </div>
+
+            <div className="bg-white rounded-xl p-4 border-2 border-purple-100">
+              <div className="text-center mb-3">
+                <p className="text-xs font-bold text-slate-500 mb-1">Earn money by watching ads</p>
+                <p className="text-2xl font-black text-purple-600">
+                  {formatMoney(hourlyIncome / 2)}
+                </p>
+                <p className="text-[10px] text-slate-400 font-bold">per ad</p>
+              </div>
+
+              {isWatchingAd && (
+                <div className="mb-3 bg-purple-50 border-2 border-purple-200 rounded-lg p-4">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                    <p className="text-xs font-bold text-purple-700">Watching ad...</p>
+                  </div>
+                </div>
+              )}
+
+              {adCooldown > 0 && !isWatchingAd && (
+                <div className="mb-3 bg-orange-50 border-2 border-orange-200 rounded-lg p-3 flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-orange-700">Ad cooldown</p>
+                    <p className="text-[10px] text-orange-600">Available in {formatTime(adCooldown)}</p>
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={handleWatchAd}
+                disabled={isWatchingAd || adCooldown > 0}
+                className={`
+                  w-full py-3 rounded-lg font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2
+                  ${isWatchingAd || adCooldown > 0
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white active:scale-95'
+                  }
+                `}
+              >
+                {isWatchingAd ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Watching...
+                  </>
+                ) : adCooldown > 0 ? (
+                  <>
+                    <Lock className="w-4 h-4" />
+                    Locked
+                  </>
+                ) : (
+                  <>
+                    <Monitor className="w-4 h-4" />
+                    Watch Ad
+                  </>
+                )}
+              </button>
             </div>
           </div>
 

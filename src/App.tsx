@@ -164,6 +164,7 @@ function App() {
         dailyClaimedTotal={gameState.dailyClaimedTotal}
         onClaimDaily={gameState.claimDailyReward}
         onClaimMoney={gameState.claimAccumulatedMoney}
+        onWatchAd={gameState.watchAd}
       />
 
       <JobsModal

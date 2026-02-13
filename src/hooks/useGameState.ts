@@ -710,6 +710,68 @@ export function useGameState(deviceId: string) {
     }
   }, [gameState.profile, saveToLocalStorage]);
 
+  const watchAd = useCallback(async () => {
+    const profileId = deviceIdentity.getProfileId();
+    if (!profileId || !gameState.profile) return { success: false, reward: 0, cooldown: 0 };
+
+    try {
+      const { data, error } = await supabase
+        .rpc('claim_ad_reward', {
+          p_profile_id: profileId
+        } as any);
+
+      if (error) {
+        console.error('Error claiming ad reward:', error);
+        return { success: false, reward: 0, cooldown: 0 };
+      }
+
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        return { success: false, reward: 0, cooldown: 0 };
+      }
+
+      const result = data[0] as {
+        total_money: number;
+        lifetime_earnings: number;
+        last_ad_watch_time: string;
+        reward_amount: number;
+        can_watch: boolean;
+        seconds_until_next: number;
+      };
+
+      if (!result.can_watch && result.seconds_until_next > 0) {
+        return { success: false, reward: 0, cooldown: result.seconds_until_next };
+      }
+
+      setGameState(prev => ({
+        ...prev,
+        profile: prev.profile ? {
+          ...prev.profile,
+          total_money: Number(result.total_money),
+          lifetime_earnings: Number(result.lifetime_earnings),
+        } : null,
+      }));
+
+      if (gameState.profile) {
+        saveToLocalStorage({
+          profile: {
+            ...gameState.profile,
+            total_money: Number(result.total_money),
+            lifetime_earnings: Number(result.lifetime_earnings),
+          }
+        });
+      }
+
+      return {
+        success: true,
+        reward: Number(result.reward_amount),
+        cooldown: result.seconds_until_next
+      };
+    } catch (error) {
+      console.error('Error watching ad:', error);
+      return { success: false, reward: 0, cooldown: 0 };
+    }
+  }, [gameState.profile, saveToLocalStorage]);
+
   return {
     ...gameState,
     handleClick,
@@ -723,6 +785,7 @@ export function useGameState(deviceId: string) {
     selectJob,
     claimDailyReward,
     claimAccumulatedMoney,
+    watchAd,
     reload: () => loadGameData(false),
   };
 }
