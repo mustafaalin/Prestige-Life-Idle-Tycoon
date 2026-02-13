@@ -39,12 +39,12 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
                 <img
                   src={item.iconUrl}
                   alt={item.label}
-                  className="w-6 h-6 transition-all duration-200"
+                  className="w-8 h-8 transition-all duration-200"
                 />
               ) : (
                 <Briefcase
                   className={`
-                    w-6 h-6 transition-all duration-200
+                    w-8 h-8 transition-all duration-200
                     ${isActive ? 'text-white stroke-[2.5]' : 'text-teal-800 stroke-[2]'}
                   `}
                 />
