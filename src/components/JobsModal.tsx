@@ -104,12 +104,12 @@ export function JobsModal({
         <div className="flex items-center justify-between p-4 border-b border-teal-50 bg-slate-50/50">
           <div>
             <h2 className="text-xl font-black bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
-              İş İlanları
+              Jobs
             </h2>
             {remainingTime > 0 && (
               <p className="text-[10px] text-orange-600 font-bold mt-0.5 flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                Süre: {formatTime(remainingTime)}
+                Time: {formatTime(remainingTime)}
               </p>
             )}
           </div>
@@ -173,9 +173,9 @@ export function JobsModal({
                       </div>
 
                       <div className="text-right flex-shrink-0">
-                        <p className="text-[10px] text-slate-400 font-bold uppercase">Kazanç</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Income</p>
                         <p className="text-sm font-black text-green-600">
-                          {formatMoney(job.hourly_income)}/sa
+                          {formatMoney(job.hourly_income)}/hr
                         </p>
                       </div>
                     </div>
@@ -183,14 +183,14 @@ export function JobsModal({
                     {!isUnlocked && (
                       <div className="mt-2 flex items-center justify-between gap-2">
                         <span className="text-[10px] font-bold text-orange-600">
-                          Gereken: {formatMoney(job.unlock_requirement_money)}
+                          Required: {formatMoney(job.unlock_requirement_money)}
                         </span>
                         {canUnlock && (
                           <button
                             onClick={() => handleUnlock(job.id)}
                             className="px-3 py-1 bg-green-500 text-white text-[10px] font-bold rounded-md shadow-sm active:scale-95"
                           >
-                            Kilidi Aç
+                            Unlock
                           </button>
                         )}
                       </div>
@@ -209,14 +209,14 @@ export function JobsModal({
                             }
                           `}
                         >
-                          {remainingTime > 0 ? 'Bekle...' : 'İşe Gir'}
+                          {remainingTime > 0 ? 'Wait...' : 'Select Job'}
                         </button>
                       </div>
                     )}
                     
                     {isActive && (
                       <div className="mt-1.5 text-center text-[9px] font-bold text-blue-500 uppercase tracking-widest">
-                        Aktif İşin
+                        Active Job
                       </div>
                     )}
                   </div>
