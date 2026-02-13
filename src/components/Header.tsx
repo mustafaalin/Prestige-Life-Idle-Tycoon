@@ -40,7 +40,7 @@ export function Header({
   };
 
   return (
-    <header className="bg-gradient-to-br from-cyan-400/80 via-teal-500/80 to-emerald-600/80 backdrop-blur-xl text-white shadow-2xl relative overflow-hidden w-full border-b border-white/30">
+    <header className="bg-gradient-to-br from-cyan-400/80 via-teal-500/80 to-emerald-600/80 backdrop-blur-xl text-white shadow-2xl relative overflow-hidden w-full border-b border-white/30 z-20">
       {/* Arka plan efekti */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none"></div>
       

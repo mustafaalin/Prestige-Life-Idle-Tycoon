@@ -97,7 +97,13 @@ function App() {
   const currentCar = gameState.cars.find((c) => c.id === gameState.profile?.selected_car_id);
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-gradient-to-br from-cyan-50 to-teal-50">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      {currentHouse?.image_url && (
+        <div
+          className="fixed inset-0 bg-cover bg-center z-0"
+          style={{ backgroundImage: `url(${currentHouse.image_url})` }}
+        />
+      )}
 
       <Header
         totalMoney={gameState.profile.total_money}
@@ -119,7 +125,6 @@ function App() {
         <CharacterDisplay
           characterImage={currentCharacter?.image_url || ''}
           characterName={currentCharacter?.name || 'Character'}
-          houseImage={currentHouse?.image_url}
           onClickCharacter={gameState.handleClick}
         />
       </main>
