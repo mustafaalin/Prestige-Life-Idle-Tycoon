@@ -127,7 +127,17 @@ export function JobsModal({
             const playerJob = playerJobs.find(pj => pj.job_id === job.id);
             const isUnlocked = playerJob?.is_unlocked || false;
             const isActive = playerJob?.is_active || false;
-            const canUnlock = !isUnlocked && totalMoney >= job.unlock_requirement_money;
+
+            // Find the active job to determine level restriction
+            const activePlayerJob = playerJobs.find(pj => pj.is_active);
+            const activeJob = activePlayerJob ? jobs.find(j => j.id === activePlayerJob.job_id) : null;
+            const activeJobLevel = activeJob?.level || 0;
+
+            // Check if this job can be unlocked based on level and money
+            const hasEnoughMoney = totalMoney >= job.unlock_requirement_money;
+            const isLevelAllowed = job.level <= activeJobLevel + 1;
+            const canUnlock = !isUnlocked && hasEnoughMoney && isLevelAllowed;
+
             const canSelect = isUnlocked && !isActive && remainingTime === 0;
             const Icon = getIconComponent(job.icon_name);
 
@@ -142,6 +152,8 @@ export function JobsModal({
                     ? 'bg-emerald-50/30 border-emerald-100 hover:shadow-sm'
                     : canUnlock
                     ? 'bg-yellow-50/30 border-yellow-100'
+                    : hasEnoughMoney && !isLevelAllowed
+                    ? 'bg-red-50/30 border-red-100 opacity-75'
                     : 'bg-gray-50 border-gray-100 opacity-75'
                   }
                 `}
@@ -181,17 +193,24 @@ export function JobsModal({
                     </div>
 
                     {!isUnlocked && (
-                      <div className="mt-2 flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-bold text-orange-600">
-                          Required: {formatMoney(job.unlock_requirement_money)}
-                        </span>
-                        {canUnlock && (
-                          <button
-                            onClick={() => handleUnlock(job.id)}
-                            className="px-3 py-1 bg-green-500 text-white text-[10px] font-bold rounded-md shadow-sm active:scale-95"
-                          >
-                            Unlock
-                          </button>
+                      <div className="mt-2 space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-bold text-orange-600">
+                            Required: {formatMoney(job.unlock_requirement_money)}
+                          </span>
+                          {canUnlock && (
+                            <button
+                              onClick={() => handleUnlock(job.id)}
+                              className="px-3 py-1 bg-green-500 text-white text-[10px] font-bold rounded-md shadow-sm active:scale-95"
+                            >
+                              Unlock
+                            </button>
+                          )}
+                        </div>
+                        {hasEnoughMoney && !isLevelAllowed && (
+                          <div className="text-[9px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded">
+                            Complete Level {activeJobLevel + 1} job first
+                          </div>
                         )}
                       </div>
                     )}
