@@ -601,63 +601,29 @@ export function useGameState(deviceId: string) {
     if (!profileId || !gameState.profile || !gameState.gameStats) return false;
 
     try {
-      const now = new Date();
-      const lastReward = gameState.gameStats.last_daily_reward
-        ? new Date(gameState.gameStats.last_daily_reward)
-        : null;
+      const { data, error } = await supabase
+        .rpc('claim_daily_reward', {
+          p_player_id: profileId
+        } as any);
 
-      let newStreak = gameState.gameStats.daily_login_streak;
-
-      if (lastReward) {
-        const hoursSince = (now.getTime() - lastReward.getTime()) / 1000 / 60 / 60;
-
-        if (hoursSince < 24) {
-          return false;
-        }
-
-        if (hoursSince > 48) {
-          newStreak = 1;
-        } else {
-          newStreak = newStreak + 1;
-        }
-      } else {
-        newStreak = 1;
+      if (error) {
+        console.error('Error claiming daily reward:', error);
+        return false;
       }
 
-      const currentDay = ((newStreak - 1) % 7) + 1;
-      const rewards = [
-        { day: 1, money: 1000, gems: 0 },
-        { day: 2, money: 3000, gems: 0 },
-        { day: 3, money: 10000, gems: 0 },
-        { day: 4, money: 15000, gems: 5 },
-        { day: 5, money: 25000, gems: 0 },
-        { day: 6, money: 50000, gems: 0 },
-        { day: 7, money: 100000, gems: 0 },
-      ];
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        return false;
+      }
 
-      const todayReward = rewards[currentDay - 1];
+      const result = data[0] as {
+        success: boolean;
+        message: string;
+      };
 
-      const newTotalMoney = gameState.profile.total_money + todayReward.money;
-      const newLifetimeEarnings = gameState.profile.lifetime_earnings + todayReward.money;
-      const newGems = (gameState.profile.gems || 0) + todayReward.gems;
-
-      await supabase
-        .from('player_profiles')
-        .update({
-          total_money: newTotalMoney,
-          lifetime_earnings: newLifetimeEarnings,
-          gems: newGems,
-        })
-        .eq('id', profileId);
-
-      await supabase
-        .from('game_stats')
-        .update({
-          daily_login_streak: newStreak,
-          last_daily_reward: now.toISOString(),
-          updated_at: now.toISOString(),
-        })
-        .eq('player_id', profileId);
+      if (!result.success) {
+        console.log('Cannot claim reward:', result.message);
+        return false;
+      }
 
       await loadGameData(false);
       return true;
@@ -672,25 +638,27 @@ export function useGameState(deviceId: string) {
     if (!profileId || !gameState.profile) return false;
 
     try {
-      // Call the atomic RPC function to claim money with profile_id
       const { data, error } = await supabase
         .rpc('claim_accumulated_money', {
           p_profile_id: profileId,
           is_triple: isTriple
-        });
+        } as any);
 
       if (error) {
         console.error('Error claiming accumulated money:', error);
         return false;
       }
 
-      // If no data returned, there was no money to claim
-      if (!data || data.length === 0) {
+      if (!data || !Array.isArray(data) || data.length === 0) {
         return false;
       }
 
-      // Update local state immediately with the new values from database
-      const updatedProfile = data[0];
+      const updatedProfile = data[0] as {
+        total_money: number;
+        lifetime_earnings: number;
+        last_claim_time: string;
+      };
+
       setGameState(prev => ({
         ...prev,
         profile: prev.profile ? {
@@ -701,7 +669,6 @@ export function useGameState(deviceId: string) {
         } : null,
       }));
 
-      // Save to local storage
       if (gameState.profile) {
         saveToLocalStorage({
           profile: {

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { X, Gift, DollarSign, Gem, Play } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { deviceIdentity } from '../lib/deviceIdentity';
 
 interface ShopModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentStreak: number;
-  lastDailyReward: string | null;
   hourlyIncome: number;
   lastClaimTime: string | null;
   gems: number;
@@ -26,8 +26,6 @@ const DAILY_REWARDS = [
 export function ShopModal({
   isOpen,
   onClose,
-  currentStreak,
-  lastDailyReward,
   hourlyIncome,
   lastClaimTime,
   gems,
@@ -37,6 +35,55 @@ export function ShopModal({
   const [accumulatedMoney, setAccumulatedMoney] = useState(0);
   const [timeUntilFull, setTimeUntilFull] = useState(0);
   const [notification, setNotification] = useState<string | null>(null);
+  const [dailyRewardStatus, setDailyRewardStatus] = useState<{
+    canClaim: boolean;
+    currentStreak: number;
+    nextRewardDay: number;
+    hoursUntilReset: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchDailyRewardStatus = async () => {
+      const profileId = deviceIdentity.getProfileId();
+      if (!profileId) return;
+
+      try {
+        const { data, error } = await supabase
+          .rpc('get_daily_reward_status', {
+            p_player_id: profileId
+          } as any);
+
+        if (error) {
+          console.error('Error fetching daily reward status:', error);
+          return;
+        }
+
+        if (data && Array.isArray(data) && data.length > 0) {
+          const status = data[0] as {
+            can_claim: boolean;
+            current_streak: number;
+            next_reward_day: number;
+            hours_until_reset: number;
+          };
+          setDailyRewardStatus({
+            canClaim: status.can_claim,
+            currentStreak: status.current_streak,
+            nextRewardDay: status.next_reward_day,
+            hoursUntilReset: status.hours_until_reset,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching daily reward status:', error);
+      }
+    };
+
+    fetchDailyRewardStatus();
+    const interval = setInterval(fetchDailyRewardStatus, 5000);
+
+    return () => clearInterval(interval);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen || !lastClaimTime || !hourlyIncome) {
@@ -91,26 +138,11 @@ export function ShopModal({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const canClaimDaily = () => {
-    if (!lastDailyReward) return true;
-
-    const lastReward = new Date(lastDailyReward);
-    const now = new Date();
-    const hoursSince = (now.getTime() - lastReward.getTime()) / 1000 / 60 / 60;
-
-    return hoursSince >= 24;
-  };
-
-  const getCurrentDay = () => {
-    if (currentStreak <= 0) return 1;
-    return ((currentStreak - 1) % 7) + 1;
-  };
 
   const handleClaimDaily = async () => {
     const success = await onClaimDaily();
-    if (success) {
-      const currentDay = getCurrentDay();
-      const reward = DAILY_REWARDS[currentDay - 1];
+    if (success && dailyRewardStatus) {
+      const reward = DAILY_REWARDS[dailyRewardStatus.nextRewardDay - 1];
       let message = `Claimed ${formatMoney(reward.money)}!`;
       if (reward.gems > 0) {
         message += ` +${reward.gems} gems!`;
@@ -135,8 +167,8 @@ export function ShopModal({
   const maxAccumulated = (hourlyIncome / 2);
   const progressPercent = maxAccumulated > 0 ? Math.min((accumulatedMoney / maxAccumulated) * 100, 100) : 0;
   const canClaim = accumulatedMoney > 0;
-  const isDailyAvailable = canClaimDaily();
-  const currentDay = getCurrentDay();
+  const isDailyAvailable = dailyRewardStatus?.canClaim ?? false;
+  const currentDay = dailyRewardStatus?.nextRewardDay ?? 1;
   const todayReward = DAILY_REWARDS[currentDay - 1] || DAILY_REWARDS[0];
 
   return (

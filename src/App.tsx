@@ -157,8 +157,6 @@ function App() {
           setShowShopModal(false);
           setActiveTab('shop');
         }}
-        currentStreak={gameState.gameStats?.daily_login_streak || 0}
-        lastDailyReward={gameState.gameStats?.last_daily_reward || null}
         hourlyIncome={gameState.profile.hourly_income || 0}
         lastClaimTime={gameState.profile.last_claim_time || null}
         gems={gameState.profile.gems || 0}
