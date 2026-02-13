@@ -88,13 +88,13 @@ export function JobsModal({
   };
 
   return (
-    /* Modalın Header ve Footer arasında kalmasını sağlayan kapsayıcı */
+    /* Modalın Header altında başlayıp ekranın altına kadar uzanması */
     <div
       className="fixed inset-x-0 z-[50] flex flex-col pointer-events-none"
       style={{
         top: '88px',    // Header yüksekliği (padding + içerik)
-        bottom: '78px', // Footer yüksekliği (padding + içerik + border)
-        height: 'calc(100dvh - 166px)' // Dinamik yükseklik hesaplama (88 + 78)
+        bottom: '0',    // Ekranın altına kadar uzat (footer'ı kapat)
+        height: 'calc(100dvh - 88px)' // Dinamik yükseklik hesaplama
       }}
     >
       {/* Modal Gövdesi - Tıklamaları tekrar aktif ediyoruz */}
