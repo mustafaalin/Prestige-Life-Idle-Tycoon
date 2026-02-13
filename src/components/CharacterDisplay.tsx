@@ -59,10 +59,10 @@ export function CharacterDisplay({
   }, [clickCount]);
 
   return (
-    <div className="relative w-full h-full flex items-end justify-center overflow-hidden pb-20">
+    <div className="relative w-full h-full flex items-end justify-start overflow-hidden pb-20 pl-8">
       {houseImage && (
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-40"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${houseImage})` }}
         />
       )}
@@ -118,15 +118,6 @@ export function CharacterDisplay({
           >
             {characterName}
           </div>
-        </div>
-
-        <div
-          className="mt-12 text-center text-white font-bold text-lg animate-pulse bg-gradient-to-r from-cyan-500/80 to-teal-500/80 backdrop-blur-md px-6 py-3 rounded-full shadow-xl border-2 border-white/40"
-          style={{
-            boxShadow: '0 4px 20px rgba(20, 184, 166, 0.4)'
-          }}
-        >
-          Tap to earn money!
         </div>
       </div>
 

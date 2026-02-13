@@ -97,15 +97,7 @@ function App() {
   const currentCar = gameState.cars.find((c) => c.id === gameState.profile?.selected_car_id);
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=1920&q=80)',
-        }}
-      ></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-cyan-900/40 via-teal-900/30 to-emerald-900/40 pointer-events-none"></div>
-      <div className="absolute inset-0 backdrop-blur-[2px] pointer-events-none"></div>
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-gradient-to-br from-cyan-50 to-teal-50">
 
       <Header
         totalMoney={gameState.profile.total_money}
