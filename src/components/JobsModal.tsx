@@ -78,8 +78,6 @@ export function JobsModal({
     return Icon;
   };
 
-  const activeJob = playerJobs.find(pj => pj.is_active);
-
   const handleUnlock = async (jobId: string) => {
     await onUnlockJob(jobId);
   };
@@ -90,33 +88,41 @@ export function JobsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/60"
-        onClick={onClose}
-      />
-      <div className="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-3xl shadow-2xl w-full max-w-2xl border-2 border-white/40 max-h-[80vh] flex flex-col relative z-10">
-        <div className="flex items-center justify-between p-6 border-b border-teal-200/50">
+    /* Modalın Header ve Footer arasında kalmasını sağlayan kapsayıcı */
+    <div 
+      className="fixed inset-x-0 z-[50] flex flex-col pointer-events-none" 
+      style={{ 
+        top: '60px',    // Header yüksekliğine göre burayı gerekirse 1-2px oynat
+        bottom: '65px', // Footer yüksekliğine göre burayı gerekirse 1-2px oynat
+        height: 'calc(100dvh - 125px)' // Dinamik yükseklik hesaplama
+      }}
+    >
+      {/* Modal Gövdesi - Tıklamaları tekrar aktif ediyoruz */}
+      <div className="bg-white w-full h-full shadow-2xl flex flex-col pointer-events-auto border-t border-b border-teal-100">
+        
+        {/* Modal Başlık Bölümü */}
+        <div className="flex items-center justify-between p-4 border-b border-teal-50 bg-slate-50/50">
           <div>
-            <h2 className="text-3xl font-black bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
-              Jobs
+            <h2 className="text-xl font-black bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
+              İş İlanları
             </h2>
             {remainingTime > 0 && (
-              <p className="text-sm text-orange-600 font-bold mt-1 flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                Next job change in {formatTime(remainingTime)}
+              <p className="text-[10px] text-orange-600 font-bold mt-0.5 flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                Süre: {formatTime(remainingTime)}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-teal-100/50 rounded-full transition-all active:scale-90"
+            className="p-1.5 hover:bg-teal-100/50 rounded-full transition-all active:scale-90"
           >
-            <X className="w-6 h-6 text-teal-700" />
+            <X className="w-5 h-5 text-teal-700" />
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1 p-6 space-y-4">
+        {/* Kaydırılabilir İş Listesi */}
+        <div className="overflow-y-auto flex-1 p-4 space-y-3 bg-white">
           {jobs.map((job) => {
             const playerJob = playerJobs.find(pj => pj.job_id === job.id);
             const isUnlocked = playerJob?.is_unlocked || false;
@@ -129,95 +135,88 @@ export function JobsModal({
               <div
                 key={job.id}
                 className={`
-                  p-5 rounded-2xl border-2 transition-all duration-200
+                  p-4 rounded-xl border-2 transition-all duration-200
                   ${isActive
-                    ? 'bg-gradient-to-br from-blue-100 to-cyan-100 border-blue-400 shadow-lg'
+                    ? 'bg-blue-50 border-blue-200 shadow-sm'
                     : isUnlocked
-                    ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-400 hover:shadow-lg'
+                    ? 'bg-emerald-50/30 border-emerald-100 hover:shadow-sm'
                     : canUnlock
-                    ? 'bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-400 hover:shadow-lg'
-                    : 'bg-gradient-to-br from-gray-100 to-slate-100 border-gray-300 opacity-70'
+                    ? 'bg-yellow-50/30 border-yellow-100'
+                    : 'bg-gray-50 border-gray-100 opacity-75'
                   }
                 `}
               >
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-3">
                   <div
                     className={`
-                      w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0
-                      ${isActive
-                        ? 'bg-gradient-to-br from-blue-400 to-cyan-500'
-                        : isUnlocked
-                        ? 'bg-gradient-to-br from-green-400 to-emerald-500'
-                        : 'bg-gradient-to-br from-gray-400 to-slate-500'
-                      }
+                      w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0
+                      ${isActive ? 'bg-blue-500' : isUnlocked ? 'bg-emerald-500' : 'bg-gray-400'}
                     `}
                   >
                     {isUnlocked ? (
-                      <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
+                      <Icon className="w-5 h-5 text-white" strokeWidth={2.5} />
                     ) : (
-                      <Lock className="w-7 h-7 text-white" strokeWidth={2.5} />
+                      <Lock className="w-5 h-5 text-white" strokeWidth={2.5} />
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-black text-teal-900 flex items-center gap-2">
+                      <div className="flex-1 truncate">
+                        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1">
                           {job.name}
-                          {isActive && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-500 text-white text-xs font-bold rounded-full">
-                              <Check className="w-3 h-3" />
-                              ACTIVE
-                            </span>
-                          )}
+                          {isActive && <Check className="w-3 h-3 text-blue-600" />}
                         </h3>
-                        <p className="text-sm text-teal-700 mt-1 leading-relaxed">
+                        <p className="text-[11px] text-slate-500 truncate leading-tight">
                           {job.description}
                         </p>
                       </div>
 
                       <div className="text-right flex-shrink-0">
-                        <p className="text-xs text-teal-600 font-bold uppercase">Hourly Income</p>
-                        <p className="text-2xl font-black text-green-600">
-                          {formatMoney(job.hourly_income)}
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Kazanç</p>
+                        <p className="text-sm font-black text-green-600">
+                          {formatMoney(job.hourly_income)}/sa
                         </p>
                       </div>
                     </div>
 
                     {!isUnlocked && (
-                      <div className="mt-3 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Lock className="w-4 h-4 text-orange-600" />
-                          <span className="font-bold text-orange-700">
-                            Required: {formatMoney(job.unlock_requirement_money)}
-                          </span>
-                        </div>
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-bold text-orange-600">
+                          Gereken: {formatMoney(job.unlock_requirement_money)}
+                        </span>
                         {canUnlock && (
                           <button
                             onClick={() => handleUnlock(job.id)}
-                            className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-lg transition-all active:scale-95 shadow-lg text-sm"
+                            className="px-3 py-1 bg-green-500 text-white text-[10px] font-bold rounded-md shadow-sm active:scale-95"
                           >
-                            Unlock Job
+                            Kilidi Aç
                           </button>
                         )}
                       </div>
                     )}
 
                     {isUnlocked && !isActive && (
-                      <div className="mt-3">
+                      <div className="mt-2">
                         <button
                           onClick={() => handleSelect(job.id)}
                           disabled={!canSelect}
                           className={`
-                            w-full px-4 py-2 font-bold rounded-lg transition-all shadow-lg text-sm
+                            w-full py-1.5 font-bold rounded-md shadow-sm text-[11px] transition-all
                             ${canSelect
-                              ? 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white active:scale-95'
-                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                              ? 'bg-blue-500 text-white active:scale-95'
+                              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             }
                           `}
                         >
-                          {remainingTime > 0 ? 'Wait to change job' : 'Select This Job'}
+                          {remainingTime > 0 ? 'Bekle...' : 'İşe Gir'}
                         </button>
+                      </div>
+                    )}
+                    
+                    {isActive && (
+                      <div className="mt-1.5 text-center text-[9px] font-bold text-blue-500 uppercase tracking-widest">
+                        Aktif İşin
                       </div>
                     )}
                   </div>
