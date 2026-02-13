@@ -672,9 +672,12 @@ export function useGameState(deviceId: string) {
     if (!profileId || !gameState.profile) return false;
 
     try {
-      // Call the atomic RPC function to claim money
+      // Call the atomic RPC function to claim money with profile_id
       const { data, error } = await supabase
-        .rpc('claim_accumulated_money', { is_triple: isTriple });
+        .rpc('claim_accumulated_money', {
+          p_profile_id: profileId,
+          is_triple: isTriple
+        });
 
       if (error) {
         console.error('Error claiming accumulated money:', error);
