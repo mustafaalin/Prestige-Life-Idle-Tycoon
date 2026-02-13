@@ -122,6 +122,8 @@ export interface Database {
           selected_character_id: string | null
           selected_house_id: string | null
           selected_car_id: string | null
+          gems: number
+          last_claim_time: string | null
           linked_at: string | null
           created_at: string
           last_played_at: string
@@ -142,6 +144,8 @@ export interface Database {
           selected_character_id?: string | null
           selected_house_id?: string | null
           selected_car_id?: string | null
+          gems?: number
+          last_claim_time?: string | null
           linked_at?: string | null
           created_at?: string
           last_played_at?: string
@@ -162,6 +166,8 @@ export interface Database {
           selected_character_id?: string | null
           selected_house_id?: string | null
           selected_car_id?: string | null
+          gems?: number
+          last_claim_time?: string | null
           linked_at?: string | null
           created_at?: string
           last_played_at?: string

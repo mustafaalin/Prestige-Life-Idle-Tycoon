@@ -8,6 +8,7 @@ import OfflineEarningsModal from './components/OfflineEarningsModal';
 import { Header } from './components/Header';
 import { CharacterDisplay } from './components/CharacterDisplay';
 import { Shop } from './components/Shop';
+import { ShopModal } from './components/ShopModal';
 import { JobsModal } from './components/JobsModal';
 import { BottomNav } from './components/BottomNav';
 
@@ -23,12 +24,12 @@ function App() {
   const [playTimeSeconds, setPlayTimeSeconds] = useState(0);
   const [health, setHealth] = useState(100);
   const [happiness, setHappiness] = useState(100);
-  const [gems, setGems] = useState(10);
+  const [showShopModal, setShowShopModal] = useState(false);
 
   const handleTabChange = (tab: 'shop' | 'job' | 'business' | 'investments' | 'stuff') => {
     setActiveTab(tab);
     if (tab === 'shop') {
-      setShowShop(true);
+      setShowShopModal(true);
     } else if (tab === 'job') {
       setShowJobs(true);
     }
@@ -115,7 +116,7 @@ function App() {
         username={gameState.profile.display_name || gameState.profile.username}
         health={health}
         happiness={happiness}
-        gems={gems}
+        gems={gameState.profile.gems || 0}
         onOpenProfile={() => {
           setShowProfile(true);
         }}
@@ -148,6 +149,21 @@ function App() {
         ownedCars={gameState.ownedCars}
         totalMoney={gameState.profile.total_money}
         onPurchase={gameState.purchaseItem}
+      />
+
+      <ShopModal
+        isOpen={showShopModal}
+        onClose={() => {
+          setShowShopModal(false);
+          setActiveTab('shop');
+        }}
+        currentStreak={gameState.gameStats?.daily_login_streak || 0}
+        lastDailyReward={gameState.gameStats?.last_daily_reward || null}
+        hourlyIncome={gameState.profile.hourly_income || 0}
+        lastClaimTime={gameState.profile.last_claim_time || null}
+        gems={gameState.profile.gems || 0}
+        onClaimDaily={gameState.claimDailyReward}
+        onClaimMoney={gameState.claimAccumulatedMoney}
       />
 
       <JobsModal

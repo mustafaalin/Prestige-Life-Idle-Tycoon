@@ -9,6 +9,7 @@ type House = Database['public']['Tables']['houses']['Row'];
 type Car = Database['public']['Tables']['cars']['Row'];
 type Job = Database['public']['Tables']['jobs']['Row'];
 type PlayerJob = Database['public']['Tables']['player_jobs']['Row'];
+type GameStats = Database['public']['Tables']['game_stats']['Row'];
 
 interface GameState {
   profile: PlayerProfile | null;
@@ -17,6 +18,7 @@ interface GameState {
   cars: Car[];
   jobs: Job[];
   playerJobs: PlayerJob[];
+  gameStats: GameStats | null;
   ownedCharacters: string[];
   ownedHouses: string[];
   ownedCars: string[];
@@ -39,6 +41,7 @@ export function useGameState(deviceId: string) {
     cars: [],
     jobs: [],
     playerJobs: [],
+    gameStats: null,
     ownedCharacters: [],
     ownedHouses: [],
     ownedCars: [],
@@ -105,7 +108,7 @@ export function useGameState(deviceId: string) {
         return;
       }
 
-      const [profileRes, charactersRes, housesRes, carsRes, purchasesRes, jobsRes, playerJobsRes] = await Promise.all([
+      const [profileRes, charactersRes, housesRes, carsRes, purchasesRes, jobsRes, playerJobsRes, gameStatsRes] = await Promise.all([
         supabase.from('player_profiles').select('*').eq('id', profileId).maybeSingle(),
         supabase.from('characters').select('*').order('unlock_order'),
         supabase.from('houses').select('*').order('level'),
@@ -113,6 +116,7 @@ export function useGameState(deviceId: string) {
         supabase.from('player_purchases').select('*').eq('player_id', profileId),
         supabase.from('jobs').select('*').order('level'),
         supabase.from('player_jobs').select('*').eq('player_id', profileId),
+        supabase.from('game_stats').select('*').eq('player_id', profileId).maybeSingle(),
       ]);
 
       if (charactersRes.error) throw charactersRes.error;
@@ -176,6 +180,7 @@ export function useGameState(deviceId: string) {
         cars: carsRes.data || [],
         jobs: jobsRes.data || [],
         playerJobs: playerJobsRes.data || [],
+        gameStats: gameStatsRes.data || null,
         ownedCharacters,
         ownedHouses,
         ownedCars,
@@ -238,6 +243,8 @@ export function useGameState(deviceId: string) {
         hourly_income: 1000,
         total_clicks: 0,
         prestige_points: 0,
+        gems: 0,
+        last_claim_time: new Date().toISOString(),
         selected_character_id: characterId,
         selected_house_id: firstHouse?.id || null,
         selected_car_id: firstCar?.id || null,
@@ -482,6 +489,7 @@ export function useGameState(deviceId: string) {
         cars: gameState.cars,
         jobs: gameState.jobs,
         playerJobs: [],
+        gameStats: null,
         ownedCharacters: [],
         ownedHouses: [],
         ownedCars: [],
@@ -588,6 +596,118 @@ export function useGameState(deviceId: string) {
     };
   }, [gameState.profile, saveProfile]);
 
+  const claimDailyReward = useCallback(async () => {
+    const profileId = deviceIdentity.getProfileId();
+    if (!profileId || !gameState.profile || !gameState.gameStats) return false;
+
+    try {
+      const now = new Date();
+      const lastReward = gameState.gameStats.last_daily_reward
+        ? new Date(gameState.gameStats.last_daily_reward)
+        : null;
+
+      let newStreak = gameState.gameStats.daily_login_streak;
+
+      if (lastReward) {
+        const hoursSince = (now.getTime() - lastReward.getTime()) / 1000 / 60 / 60;
+
+        if (hoursSince < 24) {
+          return false;
+        }
+
+        if (hoursSince > 48) {
+          newStreak = 1;
+        } else {
+          newStreak = newStreak + 1;
+        }
+      } else {
+        newStreak = 1;
+      }
+
+      const currentDay = ((newStreak - 1) % 7) + 1;
+      const rewards = [
+        { day: 1, money: 1000, gems: 0 },
+        { day: 2, money: 3000, gems: 0 },
+        { day: 3, money: 10000, gems: 0 },
+        { day: 4, money: 15000, gems: 5 },
+        { day: 5, money: 25000, gems: 0 },
+        { day: 6, money: 50000, gems: 0 },
+        { day: 7, money: 100000, gems: 0 },
+      ];
+
+      const todayReward = rewards[currentDay - 1];
+
+      const newTotalMoney = gameState.profile.total_money + todayReward.money;
+      const newLifetimeEarnings = gameState.profile.lifetime_earnings + todayReward.money;
+      const newGems = (gameState.profile.gems || 0) + todayReward.gems;
+
+      await supabase
+        .from('player_profiles')
+        .update({
+          total_money: newTotalMoney,
+          lifetime_earnings: newLifetimeEarnings,
+          gems: newGems,
+        })
+        .eq('id', profileId);
+
+      await supabase
+        .from('game_stats')
+        .update({
+          daily_login_streak: newStreak,
+          last_daily_reward: now.toISOString(),
+          updated_at: now.toISOString(),
+        })
+        .eq('player_id', profileId);
+
+      await loadGameData();
+      return true;
+    } catch (error) {
+      console.error('Error claiming daily reward:', error);
+      return false;
+    }
+  }, [gameState.profile, gameState.gameStats, loadGameData]);
+
+  const claimAccumulatedMoney = useCallback(async (isTriple: boolean) => {
+    const profileId = deviceIdentity.getProfileId();
+    if (!profileId || !gameState.profile) return false;
+
+    const lastClaim = gameState.profile.last_claim_time
+      ? new Date(gameState.profile.last_claim_time)
+      : new Date();
+    const now = new Date();
+    const elapsedMs = now.getTime() - lastClaim.getTime();
+    const elapsedMinutes = elapsedMs / 1000 / 60;
+
+    const maxMinutes = 60;
+    const clampedMinutes = Math.min(elapsedMinutes, maxMinutes);
+
+    const incomeRate = (gameState.profile.hourly_income || 0) / 2;
+    const accumulated = Math.floor((incomeRate / 60) * clampedMinutes);
+
+    if (accumulated <= 0) return false;
+
+    try {
+      const finalAmount = isTriple ? accumulated * 3 : accumulated;
+      const newTotalMoney = gameState.profile.total_money + finalAmount;
+      const newLifetimeEarnings = gameState.profile.lifetime_earnings + finalAmount;
+
+      await supabase
+        .from('player_profiles')
+        .update({
+          total_money: newTotalMoney,
+          lifetime_earnings: newLifetimeEarnings,
+          last_claim_time: now.toISOString(),
+        })
+        .eq('id', profileId);
+
+      await loadGameData();
+      return true;
+    } catch (error) {
+      console.error('Error claiming accumulated money:', error);
+      return false;
+    }
+  }, [gameState.profile, loadGameData]);
+
   return {
     ...gameState,
     handleClick,
@@ -599,6 +719,8 @@ export function useGameState(deviceId: string) {
     clearOfflineEarnings,
     unlockJob,
     selectJob,
+    claimDailyReward,
+    claimAccumulatedMoney,
     reload: loadGameData,
   };
 }
