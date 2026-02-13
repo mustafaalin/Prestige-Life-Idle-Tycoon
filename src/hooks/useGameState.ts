@@ -95,7 +95,7 @@ export function useGameState(deviceId: string) {
     };
   }, []);
 
-  const loadGameData = useCallback(async () => {
+  const loadGameData = useCallback(async (shouldCalculateOfflineEarnings: boolean = true) => {
     if (!deviceId) {
       setGameState(prev => ({ ...prev, loading: false }));
       return;
@@ -153,7 +153,7 @@ export function useGameState(deviceId: string) {
       }
 
       let offlineEarnings = null;
-      if (profile) {
+      if (profile && shouldCalculateOfflineEarnings) {
         offlineEarnings = calculateOfflineEarnings(profile);
         if (offlineEarnings && offlineEarnings.amount > 0) {
           profile = {
@@ -284,7 +284,7 @@ export function useGameState(deviceId: string) {
       saveToLocalStorage({ profile: newProfile });
       deviceIdentity.setCharacterSelected(true);
 
-      await loadGameData();
+      await loadGameData(false);
     } catch (error) {
       console.error('Error creating profile:', error);
     }
@@ -415,7 +415,7 @@ export function useGameState(deviceId: string) {
 
       if (error) throw error;
 
-      await loadGameData();
+      await loadGameData(false);
       return true;
     } catch (error) {
       console.error('Error unlocking job:', error);
@@ -459,7 +459,7 @@ export function useGameState(deviceId: string) {
         jobChangeLockedUntil: lockUntil,
       }));
 
-      await loadGameData();
+      await loadGameData(false);
       return true;
     } catch (error) {
       console.error('Error selecting job:', error);
@@ -506,7 +506,7 @@ export function useGameState(deviceId: string) {
   }, [gameState.characters, gameState.houses, gameState.cars]);
 
   useEffect(() => {
-    loadGameData();
+    loadGameData(true);
   }, [loadGameData]);
 
   useEffect(() => {
@@ -659,7 +659,7 @@ export function useGameState(deviceId: string) {
         })
         .eq('player_id', profileId);
 
-      await loadGameData();
+      await loadGameData(false);
       return true;
     } catch (error) {
       console.error('Error claiming daily reward:', error);
@@ -700,7 +700,7 @@ export function useGameState(deviceId: string) {
         })
         .eq('id', profileId);
 
-      await loadGameData();
+      await loadGameData(false);
       return true;
     } catch (error) {
       console.error('Error claiming accumulated money:', error);
@@ -721,6 +721,6 @@ export function useGameState(deviceId: string) {
     selectJob,
     claimDailyReward,
     claimAccumulatedMoney,
-    reload: loadGameData,
+    reload: () => loadGameData(false),
   };
 }
