@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { DollarSign, Wallet, User, Heart, Smile, Diamond, Settings } from 'lucide-react';
+import { User } from 'lucide-react';
+
+const ICON_BASE_URL = 'https://dtanvjjdiyrunnavkxwe.supabase.co/storage/v1/object/public/game-assets/icons';
+const DEFAULT_PROFILE_PIC = 'https://dtanvjjdiyrunnavkxwe.supabase.co/storage/v1/object/public/game-assets/profile-pictures/male/pp-1.png';
 
 interface HeaderProps {
   totalMoney: number;
@@ -65,13 +68,11 @@ export function Header({
               onClick={onOpenProfile}
               className="flex-shrink-0 w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 shadow-xl transition-transform active:scale-90"
             >
-              {characterImage ? (
-                <img src={characterImage} alt={username} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-white/10">
-                  <User className="w-7 h-7 text-white/70" />
-                </div>
-              )}
+              <img
+                src={characterImage || DEFAULT_PROFILE_PIC}
+                alt={username}
+                className="w-full h-full object-cover"
+              />
             </button>
 
             {/* Para Bilgileri - Üst Üste */}
@@ -81,11 +82,11 @@ export function Header({
                   ? 'scale-110 shadow-[0_0_20px_rgba(250,204,21,0.6)] border-yellow-400/50'
                   : 'scale-100'
               }`}>
-                <DollarSign className="w-4 h-4 text-yellow-400" strokeWidth={3} />
+                <img src={`${ICON_BASE_URL}/money.png`} alt="Money" className="w-4 h-4" />
                 <span className="text-xl font-black leading-none">{formatMoney(totalMoney)}</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1 border border-white/5 w-fit">
-                <Wallet className="w-3.5 h-3.5 text-green-400" />
+                <img src={`${ICON_BASE_URL}/wallet.png`} alt="Wallet" className="w-3.5 h-3.5" />
                 <span className="text-xs font-bold opacity-90 leading-none">{formatHourly(hourlyIncome)}</span>
               </div>
             </div>
@@ -97,11 +98,11 @@ export function Header({
             {/* Can ve Sağlık (Sağ tarafın ilk %25'lik dilimi) */}
             <div className="w-1/2 flex flex-col items-center gap-1.5 border-r border-white/10">
               <div className="flex items-center gap-2 bg-red-500/20 px-3 py-1 rounded-md border border-red-400/30 w-24 justify-center">
-                <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+                <img src={`${ICON_BASE_URL}/healthy.png`} alt="Health" className="w-4 h-4" />
                 <span className="text-sm font-black">{health}%</span>
               </div>
               <div className="flex items-center gap-2 bg-amber-500/20 px-3 py-1 rounded-md border border-amber-400/30 w-24 justify-center">
-                <Smile className="w-4 h-4 text-amber-400" />
+                <img src={`${ICON_BASE_URL}/happiness.png`} alt="Happiness" className="w-4 h-4" />
                 <span className="text-sm font-black">{happiness}%</span>
               </div>
             </div>
@@ -110,16 +111,16 @@ export function Header({
             <div className="w-1/2 flex flex-col items-end gap-1.5">
               {/* Gem Bilgisi */}
               <div className="flex items-center gap-2 bg-emerald-500/20 px-3 py-1.5 rounded-xl border border-emerald-400/30 min-w-[80px] justify-center">
-                <Diamond className="w-4 h-4 text-emerald-400 fill-emerald-400" />
+                <img src={`${ICON_BASE_URL}/money.png`} alt="Gems" className="w-4 h-4" />
                 <span className="text-base font-black leading-none">{gems}</span>
               </div>
-              
+
               {/* Ayarlar Butonu */}
               <button
                 onClick={onOpenSettings}
                 className="p-1.5 bg-white/10 hover:bg-white/20 active:scale-95 rounded-lg transition-all border border-white/20 shadow-lg"
               >
-                <Settings className="w-5 h-5 text-white" />
+                <img src={`${ICON_BASE_URL}/settings.png`} alt="Settings" className="w-5 h-5" />
               </button>
             </div>
 

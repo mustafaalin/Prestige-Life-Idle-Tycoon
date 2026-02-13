@@ -1,4 +1,6 @@
-import { ShoppingBag, Briefcase, Building2, TrendingUp, Package } from 'lucide-react';
+import { Briefcase } from 'lucide-react';
+
+const ICON_BASE_URL = 'https://dtanvjjdiyrunnavkxwe.supabase.co/storage/v1/object/public/game-assets/icons';
 
 interface BottomNavProps {
   activeTab: 'shop' | 'job' | 'business' | 'investments' | 'stuff';
@@ -7,18 +9,17 @@ interface BottomNavProps {
 
 export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   const navItems = [
-    { id: 'shop' as const, icon: ShoppingBag, label: 'Shop' },
-    { id: 'job' as const, icon: Briefcase, label: 'Job' },
-    { id: 'business' as const, icon: Building2, label: 'Business' },
-    { id: 'investments' as const, icon: TrendingUp, label: 'Investments' },
-    { id: 'stuff' as const, icon: Package, label: 'Stuff' },
+    { id: 'shop' as const, iconUrl: `${ICON_BASE_URL}/shop.png`, label: 'Shop' },
+    { id: 'job' as const, iconUrl: null, label: 'Job' }, // Job için Lucide icon kullanılacak
+    { id: 'business' as const, iconUrl: `${ICON_BASE_URL}/business.png`, label: 'Business' },
+    { id: 'investments' as const, iconUrl: `${ICON_BASE_URL}/investments.png`, label: 'Investments' },
+    { id: 'stuff' as const, iconUrl: `${ICON_BASE_URL}/stuff.png`, label: 'Stuff' },
   ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/25 backdrop-blur-xl border-t-2 border-white/40 shadow-2xl">
       <div className="flex items-center justify-around py-2 px-2 gap-2">
         {navItems.map((item) => {
-          const Icon = item.icon;
           const isActive = activeTab === item.id;
 
           return (
@@ -34,12 +35,20 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
                 }
               `}
             >
-              <Icon
-                className={`
-                  w-6 h-6 transition-all duration-200
-                  ${isActive ? 'text-white stroke-[2.5]' : 'text-teal-800 stroke-[2]'}
-                `}
-              />
+              {item.iconUrl ? (
+                <img
+                  src={item.iconUrl}
+                  alt={item.label}
+                  className="w-6 h-6 transition-all duration-200"
+                />
+              ) : (
+                <Briefcase
+                  className={`
+                    w-6 h-6 transition-all duration-200
+                    ${isActive ? 'text-white stroke-[2.5]' : 'text-teal-800 stroke-[2]'}
+                  `}
+                />
+              )}
               <span
                 className={`
                   text-[10px] font-black transition-all duration-200 uppercase tracking-tight
