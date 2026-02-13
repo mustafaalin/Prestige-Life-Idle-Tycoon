@@ -102,6 +102,7 @@ export function ShopModal({
   };
 
   const getCurrentDay = () => {
+    if (currentStreak <= 0) return 1;
     return ((currentStreak - 1) % 7) + 1;
   };
 
@@ -136,7 +137,7 @@ export function ShopModal({
   const canClaim = accumulatedMoney > 0;
   const isDailyAvailable = canClaimDaily();
   const currentDay = getCurrentDay();
-  const todayReward = DAILY_REWARDS[currentDay - 1];
+  const todayReward = DAILY_REWARDS[currentDay - 1] || DAILY_REWARDS[0];
 
   return (
     <div
