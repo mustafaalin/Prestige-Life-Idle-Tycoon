@@ -89,12 +89,12 @@ export function JobsModal({
 
   return (
     /* Modalın Header ve Footer arasında kalmasını sağlayan kapsayıcı */
-    <div 
-      className="fixed inset-x-0 z-[50] flex flex-col pointer-events-none" 
-      style={{ 
-        top: '60px',    // Header yüksekliğine göre burayı gerekirse 1-2px oynat
-        bottom: '65px', // Footer yüksekliğine göre burayı gerekirse 1-2px oynat
-        height: 'calc(100dvh - 125px)' // Dinamik yükseklik hesaplama
+    <div
+      className="fixed inset-x-0 z-[50] flex flex-col pointer-events-none"
+      style={{
+        top: '88px',    // Header yüksekliği (padding + içerik)
+        bottom: '78px', // Footer yüksekliği (padding + içerik + border)
+        height: 'calc(100dvh - 166px)' // Dinamik yükseklik hesaplama (88 + 78)
       }}
     >
       {/* Modal Gövdesi - Tıklamaları tekrar aktif ediyoruz */}
