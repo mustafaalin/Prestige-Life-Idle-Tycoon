@@ -35,7 +35,7 @@ export default function OfflineEarningsModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 animate-fade-in">
       <div className="bg-gradient-to-br from-yellow-600 via-orange-600 to-red-600 p-1 rounded-3xl max-w-md w-full shadow-2xl animate-scale-in">
         <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8">
           <div className="text-center space-y-6">
