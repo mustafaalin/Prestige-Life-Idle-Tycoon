@@ -90,8 +90,12 @@ export function JobsModal({
   };
 
   return (
-    <div className="fixed left-0 right-0 top-20 bottom-20 z-40 flex items-center justify-center p-4 pointer-events-none">
-      <div className="bg-gradient-to-br from-cyan-50/95 to-teal-50/95 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-2xl border-2 border-white/40 max-h-full flex flex-col pointer-events-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="bg-gradient-to-br from-cyan-50 to-teal-50 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-2xl border-2 border-white/40 max-h-[85vh] flex flex-col relative z-10">
         <div className="flex items-center justify-between p-6 border-b border-teal-200/50">
           <div>
             <h2 className="text-3xl font-black bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
