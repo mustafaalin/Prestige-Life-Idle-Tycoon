@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DollarSign, Wallet, User, Heart, Smile, Diamond, Settings } from 'lucide-react';
 
 interface HeaderProps {
@@ -24,7 +24,18 @@ export function Header({
   onOpenProfile,
   onOpenSettings,
 }: HeaderProps) {
-  
+  const [isMoneyAnimating, setIsMoneyAnimating] = useState(false);
+  const prevMoneyRef = useRef(totalMoney);
+
+  useEffect(() => {
+    if (totalMoney > prevMoneyRef.current) {
+      setIsMoneyAnimating(true);
+      const timer = setTimeout(() => setIsMoneyAnimating(false), 600);
+      return () => clearTimeout(timer);
+    }
+    prevMoneyRef.current = totalMoney;
+  }, [totalMoney]);
+
   // Para formatlama fonksiyonları
   const formatMoney = (amount: number) => {
     if (amount >= 1000000000) return `$${(amount / 1000000000).toFixed(2)}B`;
@@ -65,7 +76,11 @@ export function Header({
 
             {/* Para Bilgileri - Üst Üste */}
             <div className="flex flex-col gap-1 min-w-0">
-              <div className="flex items-center gap-2 bg-black/30 rounded-lg px-3 py-1 border border-white/10 w-fit">
+              <div className={`flex items-center gap-2 bg-black/30 rounded-lg px-3 py-1 border border-white/10 w-fit transition-all duration-300 ${
+                isMoneyAnimating
+                  ? 'scale-110 shadow-[0_0_20px_rgba(250,204,21,0.6)] border-yellow-400/50'
+                  : 'scale-100'
+              }`}>
                 <DollarSign className="w-4 h-4 text-yellow-400" strokeWidth={3} />
                 <span className="text-xl font-black leading-none">{formatMoney(totalMoney)}</span>
               </div>
