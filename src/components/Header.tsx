@@ -82,11 +82,11 @@ export function Header({
                   ? 'scale-110 shadow-[0_0_20px_rgba(250,204,21,0.6)] border-yellow-400/50'
                   : 'scale-100'
               }`}>
-                <img src={`${ICON_BASE_URL}/money.png`} alt="Money" className="w-8 h-8" />
+                <img src={`${ICON_BASE_URL}/money.png`} alt="Money" className="w-6 h-6" />
                 <span className="text-xl font-black leading-none">{formatMoney(totalMoney)}</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1 border border-white/5 w-fit">
-                <img src={`${ICON_BASE_URL}/wallet.png`} alt="Wallet" className="w-7 h-7" />
+                <img src={`${ICON_BASE_URL}/wallet.png`} alt="Wallet" className="w-5 h-5" />
                 <span className="text-xs font-bold opacity-90 leading-none">{formatHourly(hourlyIncome)}</span>
               </div>
             </div>
@@ -98,11 +98,11 @@ export function Header({
             {/* Can ve Sağlık (Sağ tarafın ilk %25'lik dilimi) */}
             <div className="w-1/2 flex flex-col items-center gap-1.5 border-r border-white/10">
               <div className="flex items-center gap-2 bg-red-500/20 px-3 py-1 rounded-md border border-red-400/30 w-24 justify-center">
-                <img src={`${ICON_BASE_URL}/healthy.png`} alt="Health" className="w-7 h-7" />
+                <img src={`${ICON_BASE_URL}/healthy.png`} alt="Health" className="w-5 h-5" />
                 <span className="text-sm font-black">{health}%</span>
               </div>
               <div className="flex items-center gap-2 bg-amber-500/20 px-3 py-1 rounded-md border border-amber-400/30 w-24 justify-center">
-                <img src={`${ICON_BASE_URL}/happiness.png`} alt="Happiness" className="w-7 h-7" />
+                <img src={`${ICON_BASE_URL}/happiness.png`} alt="Happiness" className="w-5 h-5" />
                 <span className="text-sm font-black">{happiness}%</span>
               </div>
             </div>
@@ -111,7 +111,7 @@ export function Header({
             <div className="w-1/2 flex flex-col items-end gap-1.5">
               {/* Gem Bilgisi */}
               <div className="flex items-center gap-2 bg-emerald-500/20 px-3 py-1.5 rounded-xl border border-emerald-400/30 min-w-[80px] justify-center">
-                <img src={`${ICON_BASE_URL}/money.png`} alt="Gems" className="w-7 h-7" />
+                <img src={`${ICON_BASE_URL}/money.png`} alt="Gems" className="w-5 h-5" />
                 <span className="text-base font-black leading-none">{gems}</span>
               </div>
 
@@ -120,7 +120,7 @@ export function Header({
                 onClick={onOpenSettings}
                 className="p-1.5 bg-white/10 hover:bg-white/20 active:scale-95 rounded-lg transition-all border border-white/20 shadow-lg"
               >
-                <img src={`${ICON_BASE_URL}/settings.png`} alt="Settings" className="w-8 h-8" />
+                <img src={`${ICON_BASE_URL}/settings.png`} alt="Settings" className="w-6 h-6" />
               </button>
             </div>
 
