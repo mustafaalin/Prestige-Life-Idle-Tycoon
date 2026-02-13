@@ -113,7 +113,6 @@ function App() {
         totalMoney={gameState.profile.total_money}
         hourlyIncome={gameState.profile.hourly_income || 1000}
         username={gameState.profile.display_name || gameState.profile.username}
-        characterImage={currentCharacter?.image_url}
         health={health}
         happiness={happiness}
         gems={gems}

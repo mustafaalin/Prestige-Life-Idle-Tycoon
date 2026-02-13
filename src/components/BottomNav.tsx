@@ -1,5 +1,3 @@
-import { Briefcase } from 'lucide-react';
-
 const ICON_BASE_URL = 'https://dtanvjjdiyrunnavkxwe.supabase.co/storage/v1/object/public/game-assets/icons';
 
 interface BottomNavProps {
@@ -10,7 +8,7 @@ interface BottomNavProps {
 export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   const navItems = [
     { id: 'shop' as const, iconUrl: `${ICON_BASE_URL}/shop.png`, label: 'Shop' },
-    { id: 'job' as const, iconUrl: null, label: 'Job' }, // Job için Lucide icon kullanılacak
+    { id: 'job' as const, iconUrl: `${ICON_BASE_URL}/job.png`, label: 'Job' },
     { id: 'business' as const, iconUrl: `${ICON_BASE_URL}/business.png`, label: 'Business' },
     { id: 'investments' as const, iconUrl: `${ICON_BASE_URL}/investments.png`, label: 'Investments' },
     { id: 'stuff' as const, iconUrl: `${ICON_BASE_URL}/stuff.png`, label: 'Stuff' },
@@ -35,20 +33,11 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
                 }
               `}
             >
-              {item.iconUrl ? (
-                <img
-                  src={item.iconUrl}
-                  alt={item.label}
-                  className="w-8 h-8 transition-all duration-200"
-                />
-              ) : (
-                <Briefcase
-                  className={`
-                    w-8 h-8 transition-all duration-200
-                    ${isActive ? 'text-white stroke-[2.5]' : 'text-teal-800 stroke-[2]'}
-                  `}
-                />
-              )}
+              <img
+                src={item.iconUrl}
+                alt={item.label}
+                className="w-8 h-8 transition-all duration-200"
+              />
               <span
                 className={`
                   text-[10px] font-black transition-all duration-200 uppercase tracking-tight
