@@ -160,6 +160,8 @@ function App() {
         hourlyIncome={gameState.profile.hourly_income || 0}
         lastClaimTime={gameState.profile.last_claim_time || null}
         gems={gameState.profile.gems || 0}
+        claimLockedUntil={gameState.claimLockedUntil}
+        dailyClaimedTotal={gameState.dailyClaimedTotal}
         onClaimDaily={gameState.claimDailyReward}
         onClaimMoney={gameState.claimAccumulatedMoney}
       />

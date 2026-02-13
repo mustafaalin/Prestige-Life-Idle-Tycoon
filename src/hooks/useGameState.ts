@@ -29,6 +29,8 @@ interface GameState {
     minutes: number;
   } | null;
   jobChangeLockedUntil: number | null;
+  claimLockedUntil: string | null;
+  dailyClaimedTotal: number;
 }
 
 const GAME_STATE_KEY = 'idle_guy_game_state';
@@ -49,6 +51,8 @@ export function useGameState(deviceId: string) {
     error: null,
     offlineEarnings: null,
     jobChangeLockedUntil: null,
+    claimLockedUntil: null,
+    dailyClaimedTotal: 0,
   });
 
   const passiveIncomeInterval = useRef<NodeJS.Timeout | null>(null);
@@ -188,6 +192,8 @@ export function useGameState(deviceId: string) {
         error: null,
         offlineEarnings,
         jobChangeLockedUntil: null,
+        claimLockedUntil: profile?.claim_locked_until || null,
+        dailyClaimedTotal: profile?.daily_claimed_total || 0,
       });
     } catch (error) {
       console.error('Error loading game data:', error);
@@ -497,6 +503,8 @@ export function useGameState(deviceId: string) {
         error: null,
         offlineEarnings: null,
         jobChangeLockedUntil: null,
+        claimLockedUntil: null,
+        dailyClaimedTotal: 0,
       });
 
       window.location.reload();
@@ -653,29 +661,44 @@ export function useGameState(deviceId: string) {
         return false;
       }
 
-      const updatedProfile = data[0] as {
+      const result = data[0] as {
         total_money: number;
         lifetime_earnings: number;
         last_claim_time: string;
+        is_locked: boolean;
+        locked_until: string | null;
+        daily_claimed: number;
+        daily_limit: number;
       };
+
+      if (result.is_locked) {
+        setGameState(prev => ({
+          ...prev,
+          claimLockedUntil: result.locked_until,
+          dailyClaimedTotal: Number(result.daily_claimed),
+        }));
+        return false;
+      }
 
       setGameState(prev => ({
         ...prev,
         profile: prev.profile ? {
           ...prev.profile,
-          total_money: Number(updatedProfile.total_money),
-          lifetime_earnings: Number(updatedProfile.lifetime_earnings),
-          last_claim_time: updatedProfile.last_claim_time,
+          total_money: Number(result.total_money),
+          lifetime_earnings: Number(result.lifetime_earnings),
+          last_claim_time: result.last_claim_time,
         } : null,
+        claimLockedUntil: result.locked_until,
+        dailyClaimedTotal: Number(result.daily_claimed),
       }));
 
       if (gameState.profile) {
         saveToLocalStorage({
           profile: {
             ...gameState.profile,
-            total_money: Number(updatedProfile.total_money),
-            lifetime_earnings: Number(updatedProfile.lifetime_earnings),
-            last_claim_time: updatedProfile.last_claim_time,
+            total_money: Number(result.total_money),
+            lifetime_earnings: Number(result.lifetime_earnings),
+            last_claim_time: result.last_claim_time,
           }
         });
       }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Gift, DollarSign, Gem, Play } from 'lucide-react';
+import { X, Gift, DollarSign, Gem, Play, Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { deviceIdentity } from '../lib/deviceIdentity';
 
@@ -9,6 +9,8 @@ interface ShopModalProps {
   hourlyIncome: number;
   lastClaimTime: string | null;
   gems: number;
+  claimLockedUntil: string | null;
+  dailyClaimedTotal: number;
   onClaimDaily: () => Promise<boolean>;
   onClaimMoney: (isTriple: boolean) => Promise<boolean>;
 }
@@ -29,11 +31,14 @@ export function ShopModal({
   hourlyIncome,
   lastClaimTime,
   gems,
+  claimLockedUntil,
+  dailyClaimedTotal,
   onClaimDaily,
   onClaimMoney,
 }: ShopModalProps) {
   const [accumulatedMoney, setAccumulatedMoney] = useState(0);
   const [timeUntilFull, setTimeUntilFull] = useState(0);
+  const [timeUntilUnlock, setTimeUntilUnlock] = useState(0);
   const [notification, setNotification] = useState<string | null>(null);
   const [dailyRewardStatus, setDailyRewardStatus] = useState<{
     canClaim: boolean;
@@ -120,6 +125,30 @@ export function ShopModal({
     return () => clearInterval(interval);
   }, [isOpen, lastClaimTime, hourlyIncome]);
 
+  useEffect(() => {
+    if (!isOpen || !claimLockedUntil) {
+      setTimeUntilUnlock(0);
+      return;
+    }
+
+    const calculateTimeUntilUnlock = () => {
+      const now = Date.now();
+      const lockEnd = new Date(claimLockedUntil).getTime();
+      const remainingMs = lockEnd - now;
+
+      if (remainingMs <= 0) {
+        setTimeUntilUnlock(0);
+      } else {
+        setTimeUntilUnlock(Math.ceil(remainingMs / 1000));
+      }
+    };
+
+    calculateTimeUntilUnlock();
+    const interval = setInterval(calculateTimeUntilUnlock, 1000);
+
+    return () => clearInterval(interval);
+  }, [isOpen, claimLockedUntil]);
+
   if (!isOpen) return null;
 
   const formatMoney = (amount: number) => {
@@ -136,6 +165,15 @@ export function ShopModal({
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatLockTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    }
+    return `${mins}m`;
   };
 
 
@@ -166,10 +204,13 @@ export function ShopModal({
 
   const maxAccumulated = (hourlyIncome / 2);
   const progressPercent = maxAccumulated > 0 ? Math.min((accumulatedMoney / maxAccumulated) * 100, 100) : 0;
-  const canClaim = accumulatedMoney > 0;
+  const isLocked = timeUntilUnlock > 0;
+  const canClaim = accumulatedMoney > 0 && !isLocked;
   const isDailyAvailable = dailyRewardStatus?.canClaim ?? false;
   const currentDay = dailyRewardStatus?.nextRewardDay ?? 1;
   const todayReward = DAILY_REWARDS[currentDay - 1] || DAILY_REWARDS[0];
+  const dailyLimit = hourlyIncome;
+  const dailyLimitPercent = dailyLimit > 0 ? Math.min((dailyClaimedTotal / dailyLimit) * 100, 100) : 0;
 
   return (
     <div
@@ -292,6 +333,20 @@ export function ShopModal({
             <div className="bg-white rounded-xl p-4 border-2 border-blue-100">
               <div className="mb-3">
                 <div className="flex items-baseline justify-between mb-2">
+                  <span className="text-xs font-bold text-slate-500">Daily Limit</span>
+                  <span className="text-xs font-bold text-slate-400">
+                    {formatMoney(dailyClaimedTotal)} / {formatMoney(dailyLimit)}
+                  </span>
+                </div>
+
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden border border-gray-200 mb-3">
+                  <div
+                    className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-300 rounded-full"
+                    style={{ width: `${dailyLimitPercent}%` }}
+                  />
+                </div>
+
+                <div className="flex items-baseline justify-between mb-2">
                   <span className="text-xs font-bold text-slate-500">Accumulated</span>
                   <span className="text-xs font-bold text-slate-400">
                     {formatMoney(accumulatedMoney)} / {formatMoney(maxAccumulated)}
@@ -305,12 +360,22 @@ export function ShopModal({
                   />
                 </div>
 
-                {timeUntilFull > 0 && (
+                {timeUntilFull > 0 && !isLocked && (
                   <p className="text-[10px] text-slate-400 font-bold mt-1 text-center">
                     Full in: {formatTime(timeUntilFull)}
                   </p>
                 )}
               </div>
+
+              {isLocked && (
+                <div className="mb-3 bg-orange-50 border-2 border-orange-200 rounded-lg p-3 flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-orange-700">Daily limit reached</p>
+                    <p className="text-[10px] text-orange-600">Available in {formatLockTime(timeUntilUnlock)}</p>
+                  </div>
+                </div>
+              )}
 
               <div className="flex gap-2">
                 <button
@@ -324,7 +389,7 @@ export function ShopModal({
                     }
                   `}
                 >
-                  Claim
+                  {isLocked ? <Lock className="w-4 h-4 mx-auto" /> : 'Claim'}
                 </button>
 
                 <button
@@ -338,12 +403,18 @@ export function ShopModal({
                     }
                   `}
                 >
-                  <Play className="w-4 h-4" />
-                  Claim x3
+                  {isLocked ? (
+                    <Lock className="w-4 h-4" />
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4" />
+                      Claim x3
+                    </>
+                  )}
                 </button>
               </div>
 
-              {!canClaim && (
+              {!canClaim && !isLocked && (
                 <p className="text-[10px] text-center text-slate-400 font-bold mt-2">
                   Keep playing to accumulate earnings
                 </p>

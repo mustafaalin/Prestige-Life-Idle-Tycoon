@@ -124,6 +124,9 @@ export interface Database {
           selected_car_id: string | null
           gems: number
           last_claim_time: string | null
+          last_claim_reset_date: string | null
+          daily_claimed_total: number
+          claim_locked_until: string | null
           linked_at: string | null
           created_at: string
           last_played_at: string
@@ -146,6 +149,9 @@ export interface Database {
           selected_car_id?: string | null
           gems?: number
           last_claim_time?: string | null
+          last_claim_reset_date?: string | null
+          daily_claimed_total?: number
+          claim_locked_until?: string | null
           linked_at?: string | null
           created_at?: string
           last_played_at?: string
@@ -168,6 +174,9 @@ export interface Database {
           selected_car_id?: string | null
           gems?: number
           last_claim_time?: string | null
+          last_claim_reset_date?: string | null
+          daily_claimed_total?: number
+          claim_locked_until?: string | null
           linked_at?: string | null
           created_at?: string
           last_played_at?: string
