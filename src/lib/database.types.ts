@@ -228,6 +228,76 @@ export interface Database {
           updated_at?: string
         }
       }
+      jobs: {
+        Row: {
+          id: string
+          name: string
+          description: string
+          hourly_income: number
+          unlock_requirement_money: number
+          level: number
+          is_default_unlocked: boolean
+          icon_name: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description: string
+          hourly_income?: number
+          unlock_requirement_money?: number
+          level?: number
+          is_default_unlocked?: boolean
+          icon_name?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string
+          hourly_income?: number
+          unlock_requirement_money?: number
+          level?: number
+          is_default_unlocked?: boolean
+          icon_name?: string
+          created_at?: string
+        }
+      }
+      player_jobs: {
+        Row: {
+          id: string
+          player_id: string
+          job_id: string
+          is_unlocked: boolean
+          is_active: boolean
+          times_worked: number
+          total_earned: number
+          unlocked_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          player_id: string
+          job_id: string
+          is_unlocked?: boolean
+          is_active?: boolean
+          times_worked?: number
+          total_earned?: number
+          unlocked_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          player_id?: string
+          job_id?: string
+          is_unlocked?: boolean
+          is_active?: boolean
+          times_worked?: number
+          total_earned?: number
+          unlocked_at?: string | null
+          created_at?: string
+        }
+      }
     }
   }
 }

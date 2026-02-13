@@ -8,12 +8,14 @@ import OfflineEarningsModal from './components/OfflineEarningsModal';
 import { Header } from './components/Header';
 import { CharacterDisplay } from './components/CharacterDisplay';
 import { Shop } from './components/Shop';
+import { JobsModal } from './components/JobsModal';
 import { BottomNav } from './components/BottomNav';
 
 function App() {
   const { deviceId, isAuthenticated } = useAuth();
   const gameState = useGameState(deviceId);
   const [showShop, setShowShop] = useState(false);
+  const [showJobs, setShowJobs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -27,6 +29,8 @@ function App() {
     setActiveTab(tab);
     if (tab === 'shop') {
       setShowShop(true);
+    } else if (tab === 'job') {
+      setShowJobs(true);
     }
   };
 
@@ -145,6 +149,20 @@ function App() {
         ownedCars={gameState.ownedCars}
         totalMoney={gameState.profile.total_money}
         onPurchase={gameState.purchaseItem}
+      />
+
+      <JobsModal
+        isOpen={showJobs}
+        onClose={() => {
+          setShowJobs(false);
+          setActiveTab('job');
+        }}
+        jobs={gameState.jobs}
+        playerJobs={gameState.playerJobs}
+        totalMoney={gameState.profile.total_money}
+        onUnlockJob={gameState.unlockJob}
+        onSelectJob={gameState.selectJob}
+        jobChangeLockedUntil={gameState.jobChangeLockedUntil}
       />
 
       <ProfileModal

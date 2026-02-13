@@ -7,12 +7,16 @@ type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'];
 type Character = Database['public']['Tables']['characters']['Row'];
 type House = Database['public']['Tables']['houses']['Row'];
 type Car = Database['public']['Tables']['cars']['Row'];
+type Job = Database['public']['Tables']['jobs']['Row'];
+type PlayerJob = Database['public']['Tables']['player_jobs']['Row'];
 
 interface GameState {
   profile: PlayerProfile | null;
   characters: Character[];
   houses: House[];
   cars: Car[];
+  jobs: Job[];
+  playerJobs: PlayerJob[];
   ownedCharacters: string[];
   ownedHouses: string[];
   ownedCars: string[];
@@ -22,6 +26,7 @@ interface GameState {
     amount: number;
     minutes: number;
   } | null;
+  jobChangeLockedUntil: number | null;
 }
 
 const GAME_STATE_KEY = 'idle_guy_game_state';
@@ -32,12 +37,15 @@ export function useGameState(deviceId: string) {
     characters: [],
     houses: [],
     cars: [],
+    jobs: [],
+    playerJobs: [],
     ownedCharacters: [],
     ownedHouses: [],
     ownedCars: [],
     loading: true,
     error: null,
     offlineEarnings: null,
+    jobChangeLockedUntil: null,
   });
 
   const passiveIncomeInterval = useRef<NodeJS.Timeout | null>(null);
@@ -97,17 +105,20 @@ export function useGameState(deviceId: string) {
         return;
       }
 
-      const [profileRes, charactersRes, housesRes, carsRes, purchasesRes] = await Promise.all([
+      const [profileRes, charactersRes, housesRes, carsRes, purchasesRes, jobsRes, playerJobsRes] = await Promise.all([
         supabase.from('player_profiles').select('*').eq('id', profileId).maybeSingle(),
         supabase.from('characters').select('*').order('unlock_order'),
         supabase.from('houses').select('*').order('level'),
         supabase.from('cars').select('*').order('level'),
         supabase.from('player_purchases').select('*').eq('player_id', profileId),
+        supabase.from('jobs').select('*').order('level'),
+        supabase.from('player_jobs').select('*').eq('player_id', profileId),
       ]);
 
       if (charactersRes.error) throw charactersRes.error;
       if (housesRes.error) throw housesRes.error;
       if (carsRes.error) throw carsRes.error;
+      if (jobsRes.error) throw jobsRes.error;
 
       let profile = profileRes.data;
       const localData = loadFromLocalStorage();
@@ -163,12 +174,15 @@ export function useGameState(deviceId: string) {
         characters: charactersRes.data || [],
         houses: housesRes.data || [],
         cars: carsRes.data || [],
+        jobs: jobsRes.data || [],
+        playerJobs: playerJobsRes.data || [],
         ownedCharacters,
         ownedHouses,
         ownedCars,
         loading: false,
         error: null,
         offlineEarnings,
+        jobChangeLockedUntil: null,
       });
     } catch (error) {
       console.error('Error loading game data:', error);
@@ -240,6 +254,17 @@ export function useGameState(deviceId: string) {
       await supabase.from('game_stats').insert({
         player_id: profileId,
       });
+
+      const defaultJob = gameState.jobs.find(j => j.is_default_unlocked);
+      if (defaultJob) {
+        await supabase.from('player_jobs').insert({
+          player_id: profileId,
+          job_id: defaultJob.id,
+          is_unlocked: true,
+          is_active: true,
+          unlocked_at: new Date().toISOString(),
+        });
+      }
 
       setGameState(prev => ({
         ...prev,
@@ -357,6 +382,82 @@ export function useGameState(deviceId: string) {
     }));
   }, []);
 
+  const unlockJob = useCallback(async (jobId: string) => {
+    const profileId = deviceIdentity.getProfileId();
+    if (!profileId || !gameState.profile) return false;
+
+    const job = gameState.jobs.find(j => j.id === jobId);
+    if (!job) return false;
+
+    if (gameState.profile.total_money < job.unlock_requirement_money) {
+      return false;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('player_jobs')
+        .insert({
+          player_id: profileId,
+          job_id: jobId,
+          is_unlocked: true,
+          is_active: false,
+          unlocked_at: new Date().toISOString(),
+        });
+
+      if (error) throw error;
+
+      await loadGameData();
+      return true;
+    } catch (error) {
+      console.error('Error unlocking job:', error);
+      return false;
+    }
+  }, [gameState.profile, gameState.jobs, loadGameData]);
+
+  const selectJob = useCallback(async (jobId: string) => {
+    const profileId = deviceIdentity.getProfileId();
+    if (!profileId || !gameState.profile) return false;
+
+    if (gameState.jobChangeLockedUntil && Date.now() < gameState.jobChangeLockedUntil) {
+      return false;
+    }
+
+    const job = gameState.jobs.find(j => j.id === jobId);
+    if (!job) return false;
+
+    const playerJob = gameState.playerJobs.find(pj => pj.job_id === jobId);
+    if (!playerJob || !playerJob.is_unlocked) return false;
+
+    try {
+      await supabase
+        .from('player_jobs')
+        .update({ is_active: false })
+        .eq('player_id', profileId);
+
+      await supabase
+        .from('player_jobs')
+        .update({ is_active: true })
+        .eq('player_id', profileId)
+        .eq('job_id', jobId);
+
+      await saveProfile({
+        hourly_income: job.hourly_income,
+      });
+
+      const lockUntil = Date.now() + 120000;
+      setGameState(prev => ({
+        ...prev,
+        jobChangeLockedUntil: lockUntil,
+      }));
+
+      await loadGameData();
+      return true;
+    } catch (error) {
+      console.error('Error selecting job:', error);
+      return false;
+    }
+  }, [gameState.profile, gameState.jobs, gameState.playerJobs, gameState.jobChangeLockedUntil, saveProfile, loadGameData]);
+
   const resetProgress = useCallback(async () => {
     const profileId = deviceIdentity.getProfileId();
     if (!profileId) return;
@@ -364,6 +465,7 @@ export function useGameState(deviceId: string) {
     try {
       await Promise.all([
         supabase.from('player_purchases').delete().eq('player_id', profileId),
+        supabase.from('player_jobs').delete().eq('player_id', profileId),
         supabase.from('game_stats').delete().eq('player_id', profileId),
         supabase.from('player_profiles').delete().eq('id', profileId),
       ]);
@@ -376,12 +478,15 @@ export function useGameState(deviceId: string) {
         characters: gameState.characters,
         houses: gameState.houses,
         cars: gameState.cars,
+        jobs: gameState.jobs,
+        playerJobs: [],
         ownedCharacters: [],
         ownedHouses: [],
         ownedCars: [],
         loading: false,
         error: null,
         offlineEarnings: null,
+        jobChangeLockedUntil: null,
       });
 
       window.location.reload();
@@ -490,6 +595,8 @@ export function useGameState(deviceId: string) {
     updatePlayerName,
     resetProgress,
     clearOfflineEarnings,
+    unlockJob,
+    selectJob,
     reload: loadGameData,
   };
 }
