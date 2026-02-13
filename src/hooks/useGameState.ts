@@ -671,42 +671,51 @@ export function useGameState(deviceId: string) {
     const profileId = deviceIdentity.getProfileId();
     if (!profileId || !gameState.profile) return false;
 
-    const lastClaim = gameState.profile.last_claim_time
-      ? new Date(gameState.profile.last_claim_time)
-      : new Date();
-    const now = new Date();
-    const elapsedMs = now.getTime() - lastClaim.getTime();
-    const elapsedMinutes = elapsedMs / 1000 / 60;
-
-    const maxMinutes = 60;
-    const clampedMinutes = Math.min(elapsedMinutes, maxMinutes);
-
-    const incomeRate = (gameState.profile.hourly_income || 0) / 2;
-    const accumulated = Math.floor((incomeRate / 60) * clampedMinutes);
-
-    if (accumulated <= 0) return false;
-
     try {
-      const finalAmount = isTriple ? accumulated * 3 : accumulated;
-      const newTotalMoney = gameState.profile.total_money + finalAmount;
-      const newLifetimeEarnings = gameState.profile.lifetime_earnings + finalAmount;
+      // Call the atomic RPC function to claim money
+      const { data, error } = await supabase
+        .rpc('claim_accumulated_money', { is_triple: isTriple });
 
-      await supabase
-        .from('player_profiles')
-        .update({
-          total_money: newTotalMoney,
-          lifetime_earnings: newLifetimeEarnings,
-          last_claim_time: now.toISOString(),
-        })
-        .eq('id', profileId);
+      if (error) {
+        console.error('Error claiming accumulated money:', error);
+        return false;
+      }
 
-      await loadGameData(false);
+      // If no data returned, there was no money to claim
+      if (!data || data.length === 0) {
+        return false;
+      }
+
+      // Update local state immediately with the new values from database
+      const updatedProfile = data[0];
+      setGameState(prev => ({
+        ...prev,
+        profile: prev.profile ? {
+          ...prev.profile,
+          total_money: Number(updatedProfile.total_money),
+          lifetime_earnings: Number(updatedProfile.lifetime_earnings),
+          last_claim_time: updatedProfile.last_claim_time,
+        } : null,
+      }));
+
+      // Save to local storage
+      if (gameState.profile) {
+        saveToLocalStorage({
+          profile: {
+            ...gameState.profile,
+            total_money: Number(updatedProfile.total_money),
+            lifetime_earnings: Number(updatedProfile.lifetime_earnings),
+            last_claim_time: updatedProfile.last_claim_time,
+          }
+        });
+      }
+
       return true;
     } catch (error) {
       console.error('Error claiming accumulated money:', error);
       return false;
     }
-  }, [gameState.profile, loadGameData]);
+  }, [gameState.profile, saveToLocalStorage]);
 
   return {
     ...gameState,
