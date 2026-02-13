@@ -276,10 +276,12 @@ export function useGameState(deviceId: string) {
 
       saveToLocalStorage({ profile: newProfile });
       deviceIdentity.setCharacterSelected(true);
+
+      await loadGameData();
     } catch (error) {
       console.error('Error creating profile:', error);
     }
-  }, [deviceId, gameState.houses, gameState.cars, saveToLocalStorage]);
+  }, [deviceId, gameState.houses, gameState.cars, gameState.jobs, saveToLocalStorage, loadGameData]);
 
   const handleClick = useCallback(() => {
     if (!gameState.profile) return;
