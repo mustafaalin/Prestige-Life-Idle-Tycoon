@@ -6,8 +6,8 @@ import { BusinessWithPlayerData, UPGRADE_MULTIPLIERS } from '../lib/database.typ
 interface BusinessModalProps {
   businesses: BusinessWithPlayerData[];
   totalMoney: number;
-  onPurchase: (businessId: string) => Promise<void>;
-  onUpgrade: (businessId: string, level: number) => Promise<void>;
+  onPurchase: (businessId: string) => Promise<boolean>;
+  onUpgrade: (businessId: string, level: number) => Promise<boolean>;
   onClose: () => void;
   loading?: boolean;
 }

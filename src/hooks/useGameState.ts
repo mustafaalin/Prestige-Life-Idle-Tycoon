@@ -103,6 +103,39 @@ export function useGameState(deviceId: string) {
     };
   }, []);
 
+  const loadBusinesses = useCallback(async () => {
+    const profileId = deviceIdentity.getProfileId();
+    if (!profileId) {
+      setGameState(prev => ({ ...prev, businessesLoading: false }));
+      return;
+    }
+
+    try {
+      setGameState(prev => ({ ...prev, businessesLoading: true }));
+
+      const { data, error } = await supabase
+        .rpc('get_all_businesses', {
+          p_player_id: profileId
+        } as any);
+
+      if (error) throw error;
+
+      const businesses = (data || []) as BusinessWithPlayerData[];
+
+      setGameState(prev => ({
+        ...prev,
+        businesses,
+        businessesLoading: false,
+      }));
+    } catch (error) {
+      console.error('Error loading businesses:', error);
+      setGameState(prev => ({
+        ...prev,
+        businessesLoading: false,
+      }));
+    }
+  }, []);
+
   const loadGameData = useCallback(async (shouldCalculateOfflineEarnings: boolean = true) => {
     if (!deviceId) {
       setGameState(prev => ({ ...prev, loading: false }));
@@ -213,7 +246,7 @@ export function useGameState(deviceId: string) {
         error: error instanceof Error ? error.message : 'Failed to load game data',
       }));
     }
-  }, [deviceId, loadFromLocalStorage, calculateOfflineEarnings, loadBusinesses]);
+  }, [deviceId, loadFromLocalStorage, calculateOfflineEarnings]);
 
   const saveProfile = useCallback(async (updates: Partial<PlayerProfile>) => {
     const profileId = deviceIdentity.getProfileId();
@@ -784,39 +817,6 @@ export function useGameState(deviceId: string) {
       return { success: false, reward: 0, cooldown: 0 };
     }
   }, [gameState.profile, saveToLocalStorage]);
-
-  const loadBusinesses = useCallback(async () => {
-    const profileId = deviceIdentity.getProfileId();
-    if (!profileId) {
-      setGameState(prev => ({ ...prev, businessesLoading: false }));
-      return;
-    }
-
-    try {
-      setGameState(prev => ({ ...prev, businessesLoading: true }));
-
-      const { data, error } = await supabase
-        .rpc('get_all_businesses', {
-          p_player_id: profileId
-        } as any);
-
-      if (error) throw error;
-
-      const businesses = (data || []) as BusinessWithPlayerData[];
-
-      setGameState(prev => ({
-        ...prev,
-        businesses,
-        businessesLoading: false,
-      }));
-    } catch (error) {
-      console.error('Error loading businesses:', error);
-      setGameState(prev => ({
-        ...prev,
-        businessesLoading: false,
-      }));
-    }
-  }, []);
 
   const purchaseBusiness = useCallback(async (businessId: string) => {
     const profileId = deviceIdentity.getProfileId();
