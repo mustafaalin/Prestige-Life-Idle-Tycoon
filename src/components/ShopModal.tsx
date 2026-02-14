@@ -682,7 +682,7 @@ export function ShopModal({
                     </div>
                   )}
                   <img
-                    src="MONEY_ICON_URL_HERE"
+                    src="https://dtanvjjdiyrunnavkxwe.supabase.co/storage/v1/object/public/game-assets/icons/buy-more-money.png"
                     alt="Money"
                     className="w-12 h-12 mx-auto mb-2 object-contain"
                   />
@@ -733,7 +733,7 @@ export function ShopModal({
                     </div>
                   )}
                   <img
-                    src="GEM_ICON_URL_HERE"
+                    src="https://dtanvjjdiyrunnavkxwe.supabase.co/storage/v1/object/public/game-assets/icons/gem-box.png"
                     alt="Gems"
                     className="w-12 h-12 mx-auto mb-2 object-contain"
                   />
