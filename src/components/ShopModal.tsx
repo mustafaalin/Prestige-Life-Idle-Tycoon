@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Gift, DollarSign, Gem, Play, Lock, Monitor } from 'lucide-react';
+import { X, Gift, DollarSign, Gem, Play, Lock, Monitor, ShoppingBag, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { deviceIdentity } from '../lib/deviceIdentity';
+import { PurchaseConfirmModal } from './PurchaseConfirmModal';
 
 interface ShopModalProps {
   isOpen: boolean;
@@ -14,6 +15,25 @@ interface ShopModalProps {
   onClaimDaily: () => Promise<boolean>;
   onClaimMoney: (isTriple: boolean) => Promise<boolean>;
   onWatchAd: () => Promise<{ success: boolean; reward: number; cooldown: number }>;
+}
+
+interface MoneyPackage {
+  id: string;
+  amount_multiplier: number;
+  calculated_amount: number;
+  price_usd: number;
+  display_order: number;
+  is_popular: boolean;
+  is_best_value: boolean;
+}
+
+interface GemPackage {
+  id: string;
+  gem_amount: number;
+  price_usd: number;
+  display_order: number;
+  is_popular: boolean;
+  is_best_value: boolean;
 }
 
 const DAILY_REWARDS = [
@@ -50,6 +70,16 @@ export function ShopModal({
     nextRewardDay: number;
     hoursUntilReset: number;
   } | null>(null);
+  const [moneyPackages, setMoneyPackages] = useState<MoneyPackage[]>([]);
+  const [gemPackages, setGemPackages] = useState<GemPackage[]>([]);
+  const [showPurchaseConfirm, setShowPurchaseConfirm] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<{
+    type: 'money' | 'gem';
+    amount: number;
+    price: number;
+    packageId: string;
+  } | null>(null);
+  const [isProcessingPurchase, setIsProcessingPurchase] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -92,6 +122,34 @@ export function ShopModal({
     const interval = setInterval(fetchDailyRewardStatus, 5000);
 
     return () => clearInterval(interval);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchPackages = async () => {
+      const profileId = deviceIdentity.getProfileId();
+      if (!profileId) return;
+
+      try {
+        const [moneyResult, gemResult] = await Promise.all([
+          supabase.rpc('get_money_packages', { p_player_id: profileId } as any),
+          supabase.rpc('get_gem_packages'),
+        ]);
+
+        if (!moneyResult.error && moneyResult.data) {
+          setMoneyPackages(moneyResult.data);
+        }
+
+        if (!gemResult.error && gemResult.data) {
+          setGemPackages(gemResult.data);
+        }
+      } catch (error) {
+        console.error('Error fetching packages:', error);
+      }
+    };
+
+    fetchPackages();
   }, [isOpen]);
 
   useEffect(() => {
@@ -231,6 +289,82 @@ export function ShopModal({
   const showNotification = (message: string) => {
     setNotification(message);
     setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleSelectMoneyPackage = (pkg: MoneyPackage) => {
+    setSelectedPackage({
+      type: 'money',
+      amount: pkg.calculated_amount,
+      price: Number(pkg.price_usd),
+      packageId: pkg.id,
+    });
+    setShowPurchaseConfirm(true);
+  };
+
+  const handleSelectGemPackage = (pkg: GemPackage) => {
+    setSelectedPackage({
+      type: 'gem',
+      amount: pkg.gem_amount,
+      price: Number(pkg.price_usd),
+      packageId: pkg.id,
+    });
+    setShowPurchaseConfirm(true);
+  };
+
+  const handleConfirmPurchase = async () => {
+    if (!selectedPackage) return;
+
+    const profileId = deviceIdentity.getProfileId();
+    if (!profileId) {
+      showNotification('Error: Profile not found');
+      return;
+    }
+
+    setIsProcessingPurchase(true);
+
+    try {
+      const transactionId = crypto.randomUUID();
+
+      const { data: txId, error: txError } = await supabase.rpc('create_purchase_transaction', {
+        p_player_id: profileId,
+        p_package_id: selectedPackage.packageId,
+        p_payment_provider: 'demo',
+        p_provider_transaction_id: transactionId,
+      } as any);
+
+      if (txError) {
+        throw new Error(txError.message);
+      }
+
+      const { data: result, error: completeError } = await supabase.rpc('complete_demo_purchase', {
+        p_transaction_id: txId,
+        p_player_id: profileId,
+      } as any);
+
+      if (completeError) {
+        throw new Error(completeError.message);
+      }
+
+      const purchaseResult = Array.isArray(result) ? result[0] : result;
+
+      if (purchaseResult?.success) {
+        const message = selectedPackage.type === 'money'
+          ? `Purchased ${formatMoney(selectedPackage.amount)}!`
+          : `Purchased ${selectedPackage.amount} Gems!`;
+        showNotification(message);
+        setShowPurchaseConfirm(false);
+        setSelectedPackage(null);
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+    } catch (error: any) {
+      console.error('Purchase error:', error);
+      showNotification(`Error: ${error.message || 'Purchase failed'}`);
+    } finally {
+      setIsProcessingPurchase(false);
+    }
   };
 
   const maxAccumulated = (hourlyIncome / 2);
@@ -518,8 +652,106 @@ export function ShopModal({
             </div>
           </div>
 
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border-2 border-green-200 shadow-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <ShoppingBag className="w-5 h-5 text-green-600" />
+              <h3 className="text-base font-black text-green-700">Money Packages</h3>
+            </div>
+
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3 mb-3 flex items-start gap-2">
+              <Sparkles className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <p className="text-[10px] font-bold text-yellow-800 leading-relaxed">
+                DEMO MODE - No real payment will be charged
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {moneyPackages.map((pkg) => (
+                <button
+                  key={pkg.id}
+                  onClick={() => handleSelectMoneyPackage(pkg)}
+                  className="bg-white rounded-xl p-3 border-2 border-green-100 hover:border-green-300 hover:shadow-lg transition-all active:scale-95 relative"
+                >
+                  {pkg.is_popular && (
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">
+                      POPULAR
+                    </div>
+                  )}
+                  {pkg.is_best_value && (
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">
+                      BEST VALUE
+                    </div>
+                  )}
+                  <DollarSign className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                  <p className="text-xs font-black text-green-700 mb-1">
+                    {pkg.amount_multiplier}x Income
+                  </p>
+                  <p className="text-lg font-black text-green-600 mb-2">
+                    {formatMoney(pkg.calculated_amount)}
+                  </p>
+                  <div className="bg-green-100 text-green-700 rounded-lg py-1.5 px-2 text-sm font-bold">
+                    ${Number(pkg.price_usd).toFixed(2)}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-5 border-2 border-purple-200 shadow-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <Gem className="w-5 h-5 text-purple-600" />
+              <h3 className="text-base font-black text-purple-700">Gem Packages</h3>
+            </div>
+
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3 mb-3 flex items-start gap-2">
+              <Sparkles className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <p className="text-[10px] font-bold text-yellow-800 leading-relaxed">
+                DEMO MODE - No real payment will be charged
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {gemPackages.map((pkg) => (
+                <button
+                  key={pkg.id}
+                  onClick={() => handleSelectGemPackage(pkg)}
+                  className="bg-white rounded-xl p-3 border-2 border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all active:scale-95 relative"
+                >
+                  {pkg.is_popular && (
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">
+                      POPULAR
+                    </div>
+                  )}
+                  {pkg.is_best_value && (
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">
+                      BEST VALUE
+                    </div>
+                  )}
+                  <Gem className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                  <p className="text-lg font-black text-purple-600 mb-2">
+                    {pkg.gem_amount} Gems
+                  </p>
+                  <div className="bg-purple-100 text-purple-700 rounded-lg py-1.5 px-2 text-sm font-bold">
+                    ${Number(pkg.price_usd).toFixed(2)}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
+
+      <PurchaseConfirmModal
+        isOpen={showPurchaseConfirm}
+        onClose={() => {
+          setShowPurchaseConfirm(false);
+          setSelectedPackage(null);
+        }}
+        onConfirm={handleConfirmPurchase}
+        packageInfo={selectedPackage}
+        isProcessing={isProcessingPurchase}
+      />
     </div>
   );
 }
