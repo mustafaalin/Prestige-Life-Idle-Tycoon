@@ -832,7 +832,8 @@ export function useGameState(deviceId: string) {
     try {
       const { data, error } = await supabase
         .rpc('purchase_business', {
-          p_business_id: businessId
+          p_business_id: businessId,
+          p_player_id: profileId
         } as any);
 
       if (error) throw error;
@@ -868,7 +869,8 @@ export function useGameState(deviceId: string) {
     try {
       const { data, error } = await supabase
         .rpc('upgrade_business', {
-          p_business_id: businessId
+          p_business_id: businessId,
+          p_player_id: profileId
         } as any);
 
       if (error) throw error;
