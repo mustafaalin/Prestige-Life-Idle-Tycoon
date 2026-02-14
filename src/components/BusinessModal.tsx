@@ -73,8 +73,15 @@ export function BusinessModal({
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+      <div
+        className="fixed inset-x-0 z-[50] flex flex-col pointer-events-none"
+        style={{
+          top: '88px',
+          bottom: '0',
+          height: 'calc(100dvh - 88px)'
+        }}
+      >
+        <div className="bg-white w-full h-full shadow-2xl flex flex-col pointer-events-auto border-t border-b border-orange-100">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
           </div>
@@ -84,64 +91,59 @@ export function BusinessModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="bg-gradient-to-r from-orange-600 to-amber-600 p-6 text-white">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <Building2 className="w-8 h-8" />
-                <h2 className="text-3xl font-bold">Business Empire</h2>
-              </div>
-              <p className="text-orange-100 text-sm">Build your business portfolio and earn passive income</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-              aria-label="Close"
-            >
-              <X className="w-6 h-6" />
-            </button>
+    <div
+      className="fixed inset-x-0 z-[50] flex flex-col pointer-events-none"
+      style={{
+        top: '88px',
+        bottom: '0',
+        height: 'calc(100dvh - 88px)'
+      }}
+    >
+      <div className="bg-white w-full h-full shadow-2xl flex flex-col pointer-events-auto border-t border-b border-orange-100">
+        <div className="flex items-center justify-between p-4 border-b border-orange-50 bg-slate-50/50">
+          <div>
+            <h2 className="text-xl font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+              Business
+            </h2>
+            <p className="text-[10px] text-orange-600 font-bold mt-0.5 flex items-center gap-1">
+              <Store className="w-3 h-3" />
+              {ownedCount}/40 owned • {formatMoney(totalBusinessIncome)}/hr
+            </p>
           </div>
-
-          <div className="flex gap-4 text-sm bg-white/10 rounded-lg p-3 backdrop-blur-sm">
-            <div className="flex items-center gap-2">
-              <Store className="w-5 h-5" />
-              <span>Businesses: <strong>{ownedCount}/40</strong></span>
-            </div>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
-              <span>Total Income: <strong>{formatMoney(totalBusinessIncome)}/hr</strong></span>
-            </div>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 hover:bg-orange-100/50 rounded-full transition-all active:scale-90"
+          >
+            <X className="w-5 h-5 text-orange-700" />
+          </button>
         </div>
 
-        <div className="flex gap-2 p-4 bg-white/50 border-b border-orange-200">
+        <div className="flex gap-2 p-3 bg-white border-b border-orange-100">
           <button
             onClick={() => setActiveTab('small')}
-            className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
+            className={`flex-1 py-2 px-4 rounded-lg font-bold text-sm transition-all ${
               activeTab === 'small'
-                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg'
-                : 'bg-white text-orange-700 hover:bg-orange-50'
+                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white'
+                : 'bg-orange-50 text-orange-700 hover:bg-orange-100'
             }`}
           >
-            <Store className="w-5 h-5 inline mr-2" />
-            Small Business ({filteredBusinesses.length === businesses.filter(b => b.category === 'small').length ? businesses.filter(b => b.category === 'small').filter(b => b.is_owned).length : 0}/20)
+            <Store className="w-4 h-4 inline mr-1.5" />
+            Small ({businesses.filter(b => b.category === 'small').filter(b => b.is_owned).length}/20)
           </button>
           <button
             onClick={() => setActiveTab('large')}
-            className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
+            className={`flex-1 py-2 px-4 rounded-lg font-bold text-sm transition-all ${
               activeTab === 'large'
-                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg'
-                : 'bg-white text-orange-700 hover:bg-orange-50'
+                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white'
+                : 'bg-orange-50 text-orange-700 hover:bg-orange-100'
             }`}
           >
-            <Building2 className="w-5 h-5 inline mr-2" />
-            Large Business ({filteredBusinesses.length === businesses.filter(b => b.category === 'large').length ? businesses.filter(b => b.category === 'large').filter(b => b.is_owned).length : 0}/20)
+            <Building2 className="w-4 h-4 inline mr-1.5" />
+            Large ({businesses.filter(b => b.category === 'large').filter(b => b.is_owned).length}/20)
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 bg-white">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredBusinesses.map((business) => {
               const Icon = getIconComponent(business.icon_name);
