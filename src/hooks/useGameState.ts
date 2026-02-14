@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { deviceIdentity } from '../lib/deviceIdentity';
-import type { Database } from '../lib/database.types';
+import type { Database, Business, PlayerBusiness, BusinessWithPlayerData } from '../lib/database.types';
 
 type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'];
 type Character = Database['public']['Tables']['characters']['Row'];
@@ -18,6 +18,7 @@ interface GameState {
   cars: Car[];
   jobs: Job[];
   playerJobs: PlayerJob[];
+  businesses: BusinessWithPlayerData[];
   gameStats: GameStats | null;
   ownedCharacters: string[];
   ownedHouses: string[];
@@ -31,6 +32,7 @@ interface GameState {
   jobChangeLockedUntil: number | null;
   claimLockedUntil: string | null;
   dailyClaimedTotal: number;
+  businessesLoading: boolean;
 }
 
 const GAME_STATE_KEY = 'idle_guy_game_state';
@@ -43,6 +45,7 @@ export function useGameState(deviceId: string) {
     cars: [],
     jobs: [],
     playerJobs: [],
+    businesses: [],
     gameStats: null,
     ownedCharacters: [],
     ownedHouses: [],
@@ -53,6 +56,7 @@ export function useGameState(deviceId: string) {
     jobChangeLockedUntil: null,
     claimLockedUntil: null,
     dailyClaimedTotal: 0,
+    businessesLoading: true,
   });
 
   const passiveIncomeInterval = useRef<NodeJS.Timeout | null>(null);
@@ -184,6 +188,7 @@ export function useGameState(deviceId: string) {
         cars: carsRes.data || [],
         jobs: jobsRes.data || [],
         playerJobs: playerJobsRes.data || [],
+        businesses: [],
         gameStats: gameStatsRes.data || null,
         ownedCharacters,
         ownedHouses,
@@ -194,7 +199,12 @@ export function useGameState(deviceId: string) {
         jobChangeLockedUntil: null,
         claimLockedUntil: profile?.claim_locked_until || null,
         dailyClaimedTotal: profile?.daily_claimed_total || 0,
+        businessesLoading: true,
       });
+
+      if (profileId) {
+        loadBusinesses();
+      }
     } catch (error) {
       console.error('Error loading game data:', error);
       setGameState(prev => ({
@@ -203,7 +213,7 @@ export function useGameState(deviceId: string) {
         error: error instanceof Error ? error.message : 'Failed to load game data',
       }));
     }
-  }, [deviceId, loadFromLocalStorage, calculateOfflineEarnings]);
+  }, [deviceId, loadFromLocalStorage, calculateOfflineEarnings, loadBusinesses]);
 
   const saveProfile = useCallback(async (updates: Partial<PlayerProfile>) => {
     const profileId = deviceIdentity.getProfileId();
@@ -481,6 +491,7 @@ export function useGameState(deviceId: string) {
       await Promise.all([
         supabase.from('player_purchases').delete().eq('player_id', profileId),
         supabase.from('player_jobs').delete().eq('player_id', profileId),
+        supabase.from('player_businesses').delete().eq('player_id', profileId),
         supabase.from('game_stats').delete().eq('player_id', profileId),
         supabase.from('player_profiles').delete().eq('id', profileId),
       ]);
@@ -495,6 +506,7 @@ export function useGameState(deviceId: string) {
         cars: gameState.cars,
         jobs: gameState.jobs,
         playerJobs: [],
+        businesses: [],
         gameStats: null,
         ownedCharacters: [],
         ownedHouses: [],
@@ -505,13 +517,14 @@ export function useGameState(deviceId: string) {
         jobChangeLockedUntil: null,
         claimLockedUntil: null,
         dailyClaimedTotal: 0,
+        businessesLoading: false,
       });
 
       window.location.reload();
     } catch (error) {
       console.error('Error resetting progress:', error);
     }
-  }, [gameState.characters, gameState.houses, gameState.cars]);
+  }, [gameState.characters, gameState.houses, gameState.cars, gameState.jobs]);
 
   useEffect(() => {
     loadGameData(true);
@@ -772,6 +785,124 @@ export function useGameState(deviceId: string) {
     }
   }, [gameState.profile, saveToLocalStorage]);
 
+  const loadBusinesses = useCallback(async () => {
+    const profileId = deviceIdentity.getProfileId();
+    if (!profileId) {
+      setGameState(prev => ({ ...prev, businessesLoading: false }));
+      return;
+    }
+
+    try {
+      setGameState(prev => ({ ...prev, businessesLoading: true }));
+
+      const { data, error } = await supabase
+        .rpc('get_all_businesses', {
+          p_player_id: profileId
+        } as any);
+
+      if (error) throw error;
+
+      const businesses = (data || []) as BusinessWithPlayerData[];
+
+      setGameState(prev => ({
+        ...prev,
+        businesses,
+        businessesLoading: false,
+      }));
+    } catch (error) {
+      console.error('Error loading businesses:', error);
+      setGameState(prev => ({
+        ...prev,
+        businessesLoading: false,
+      }));
+    }
+  }, []);
+
+  const purchaseBusiness = useCallback(async (businessId: string) => {
+    const profileId = deviceIdentity.getProfileId();
+    if (!profileId || !gameState.profile) return false;
+
+    const business = gameState.businesses.find(b => b.id === businessId);
+    if (!business) return false;
+
+    if (gameState.profile.total_money < business.base_price) {
+      return false;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .rpc('purchase_business', {
+          p_business_id: businessId
+        } as any);
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; error?: string; new_balance?: number; new_hourly_income?: number };
+
+      if (!result.success) {
+        console.error('Purchase failed:', result.error);
+        return false;
+      }
+
+      setGameState(prev => ({
+        ...prev,
+        profile: prev.profile ? {
+          ...prev.profile,
+          total_money: result.new_balance || prev.profile.total_money,
+          hourly_income: prev.profile.hourly_income + (result.new_hourly_income || 0),
+        } : null,
+      }));
+
+      await loadBusinesses();
+      return true;
+    } catch (error) {
+      console.error('Error purchasing business:', error);
+      return false;
+    }
+  }, [gameState.profile, gameState.businesses, loadBusinesses]);
+
+  const upgradeBusiness = useCallback(async (businessId: string, targetLevel: number) => {
+    const profileId = deviceIdentity.getProfileId();
+    if (!profileId || !gameState.profile) return false;
+
+    try {
+      const { data, error } = await supabase
+        .rpc('upgrade_business', {
+          p_business_id: businessId
+        } as any);
+
+      if (error) throw error;
+
+      const result = data as {
+        success: boolean;
+        error?: string;
+        new_level?: number;
+        new_income?: number;
+        upgrade_cost?: number;
+        new_balance?: number;
+      };
+
+      if (!result.success) {
+        console.error('Upgrade failed:', result.error);
+        return false;
+      }
+
+      setGameState(prev => ({
+        ...prev,
+        profile: prev.profile ? {
+          ...prev.profile,
+          total_money: result.new_balance || prev.profile.total_money,
+        } : null,
+      }));
+
+      await loadBusinesses();
+      return true;
+    } catch (error) {
+      console.error('Error upgrading business:', error);
+      return false;
+    }
+  }, [gameState.profile, loadBusinesses]);
+
   return {
     ...gameState,
     handleClick,
@@ -786,6 +917,9 @@ export function useGameState(deviceId: string) {
     claimDailyReward,
     claimAccumulatedMoney,
     watchAd,
+    loadBusinesses,
+    purchaseBusiness,
+    upgradeBusiness,
     reload: () => loadGameData(false),
   };
 }

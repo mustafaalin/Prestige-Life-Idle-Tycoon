@@ -313,6 +313,98 @@ export interface Database {
           created_at?: string
         }
       }
+      businesses: {
+        Row: {
+          id: string
+          name: string
+          description: string
+          category: 'small' | 'large'
+          base_price: number
+          base_hourly_income: number
+          unlock_order: number
+          icon_name: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description: string
+          category: 'small' | 'large'
+          base_price: number
+          base_hourly_income: number
+          unlock_order: number
+          icon_name: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string
+          category?: 'small' | 'large'
+          base_price?: number
+          base_hourly_income?: number
+          unlock_order?: number
+          icon_name?: string
+          created_at?: string
+        }
+      }
+      player_businesses: {
+        Row: {
+          id: string
+          player_id: string
+          business_id: string
+          is_unlocked: boolean
+          current_level: number
+          current_hourly_income: number
+          total_invested: number
+          purchased_at: string | null
+          last_upgrade_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          player_id: string
+          business_id: string
+          is_unlocked?: boolean
+          current_level?: number
+          current_hourly_income: number
+          total_invested: number
+          purchased_at?: string | null
+          last_upgrade_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          player_id?: string
+          business_id?: string
+          is_unlocked?: boolean
+          current_level?: number
+          current_hourly_income?: number
+          total_invested?: number
+          purchased_at?: string | null
+          last_upgrade_at?: string | null
+          created_at?: string
+        }
+      }
     }
   }
 }
+
+export type Business = Database['public']['Tables']['businesses']['Row']
+export type PlayerBusiness = Database['public']['Tables']['player_businesses']['Row']
+
+export interface BusinessWithPlayerData extends Business {
+  is_owned: boolean
+  can_unlock: boolean
+  current_level: number
+  current_hourly_income: number
+}
+
+export interface UpgradeInfo {
+  level: number
+  cost: number
+  newIncome: number
+}
+
+export const UPGRADE_MULTIPLIERS = [30, 60, 120, 180, 240]
+export const INCOME_INCREASE_MULTIPLIER = 1.25

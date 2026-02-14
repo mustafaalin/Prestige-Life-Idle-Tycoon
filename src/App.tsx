@@ -10,6 +10,7 @@ import { CharacterDisplay } from './components/CharacterDisplay';
 import { Shop } from './components/Shop';
 import { ShopModal } from './components/ShopModal';
 import { JobsModal } from './components/JobsModal';
+import { BusinessModal } from './components/BusinessModal';
 import { BottomNav } from './components/BottomNav';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
   const [health, setHealth] = useState(100);
   const [happiness, setHappiness] = useState(100);
   const [showShopModal, setShowShopModal] = useState(false);
+  const [showBusinessModal, setShowBusinessModal] = useState(false);
 
   const handleTabChange = (tab: 'shop' | 'job' | 'business' | 'investments' | 'stuff') => {
     setActiveTab(tab);
@@ -32,6 +34,8 @@ function App() {
       setShowShopModal(true);
     } else if (tab === 'job') {
       setShowJobs(true);
+    } else if (tab === 'business') {
+      setShowBusinessModal(true);
     }
   };
 
@@ -180,6 +184,20 @@ function App() {
         onSelectJob={gameState.selectJob}
         jobChangeLockedUntil={gameState.jobChangeLockedUntil}
       />
+
+      {showBusinessModal && (
+        <BusinessModal
+          businesses={gameState.businesses}
+          totalMoney={gameState.profile.total_money}
+          onPurchase={gameState.purchaseBusiness}
+          onUpgrade={gameState.upgradeBusiness}
+          onClose={() => {
+            setShowBusinessModal(false);
+            setActiveTab('business');
+          }}
+          loading={gameState.businessesLoading}
+        />
+      )}
 
       <ProfileModal
         isOpen={showProfile}
