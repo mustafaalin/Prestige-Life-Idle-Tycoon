@@ -161,14 +161,42 @@ export function JobsModal({
                 <div className="flex items-start gap-3">
                   <div
                     className={`
-                      w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0
+                      w-14 h-14 rounded-lg flex items-center justify-center flex-shrink-0 p-1.5 relative overflow-hidden
                       ${isActive ? 'bg-blue-500' : isUnlocked ? 'bg-emerald-500' : 'bg-gray-400'}
                     `}
                   >
                     {isUnlocked ? (
-                      <Icon className="w-5 h-5 text-white" strokeWidth={2.5} />
+                      job.icon_url ? (
+                        <img
+                          src={job.icon_url}
+                          alt={job.name}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling;
+                            if (fallback) (fallback as HTMLElement).style.display = 'block';
+                          }}
+                        />
+                      ) : (
+                        <Icon className="w-6 h-6 text-white" strokeWidth={2.5} />
+                      )
                     ) : (
-                      <Lock className="w-5 h-5 text-white" strokeWidth={2.5} />
+                      <>
+                        {job.icon_url ? (
+                          <>
+                            <img
+                              src={job.icon_url}
+                              alt={job.name}
+                              className="w-full h-full object-contain opacity-40 blur-[1px]"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Lock className="w-6 h-6 text-white drop-shadow-lg" strokeWidth={2.5} />
+                            </div>
+                          </>
+                        ) : (
+                          <Lock className="w-6 h-6 text-white" strokeWidth={2.5} />
+                        )}
+                      </>
                     )}
                   </div>
 

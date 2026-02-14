@@ -253,6 +253,7 @@ export interface Database {
           level: number
           is_default_unlocked: boolean
           icon_name: string
+          icon_url: string | null
           created_at: string
         }
         Insert: {
@@ -264,6 +265,7 @@ export interface Database {
           level?: number
           is_default_unlocked?: boolean
           icon_name?: string
+          icon_url?: string | null
           created_at?: string
         }
         Update: {
@@ -275,6 +277,7 @@ export interface Database {
           level?: number
           is_default_unlocked?: boolean
           icon_name?: string
+          icon_url?: string | null
           created_at?: string
         }
       }
