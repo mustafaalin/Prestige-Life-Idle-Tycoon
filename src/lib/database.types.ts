@@ -398,6 +398,7 @@ export interface BusinessWithPlayerData extends Business {
   can_unlock: boolean
   current_level: number
   current_hourly_income: number
+  total_invested: number
 }
 
 export interface UpgradeInfo {
