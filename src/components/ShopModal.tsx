@@ -667,10 +667,9 @@ export function ShopModal({
 
             <div className="grid grid-cols-2 gap-2">
               {moneyPackages.map((pkg) => (
-                <button
+                <div
                   key={pkg.id}
-                  onClick={() => handleSelectMoneyPackage(pkg)}
-                  className="bg-white rounded-xl p-3 border-2 border-green-100 hover:border-green-300 hover:shadow-lg transition-all active:scale-95 relative"
+                  className="bg-white rounded-xl p-3 border-2 border-green-100 hover:border-green-300 hover:shadow-lg transition-all relative"
                 >
                   {pkg.is_popular && (
                     <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">
@@ -682,17 +681,24 @@ export function ShopModal({
                       BEST VALUE
                     </div>
                   )}
-                  <DollarSign className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                  <p className="text-xs font-black text-green-700 mb-1">
-                    {pkg.amount_multiplier}x Income
-                  </p>
+                  <img
+                    src="MONEY_ICON_URL_HERE"
+                    alt="Money"
+                    className="w-12 h-12 mx-auto mb-2 object-contain"
+                  />
                   <p className="text-lg font-black text-green-600 mb-2">
                     {formatMoney(pkg.calculated_amount)}
                   </p>
-                  <div className="bg-green-100 text-green-700 rounded-lg py-1.5 px-2 text-sm font-bold">
+                  <div className="bg-green-50 text-green-700 rounded-lg py-1 px-2 text-xs font-bold mb-2">
                     ${Number(pkg.price_usd).toFixed(2)}
                   </div>
-                </button>
+                  <button
+                    onClick={() => handleSelectMoneyPackage(pkg)}
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg py-2 text-sm font-bold hover:from-green-600 hover:to-emerald-600 transition-all active:scale-95"
+                  >
+                    Buy
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -712,10 +718,9 @@ export function ShopModal({
 
             <div className="grid grid-cols-2 gap-2">
               {gemPackages.map((pkg) => (
-                <button
+                <div
                   key={pkg.id}
-                  onClick={() => handleSelectGemPackage(pkg)}
-                  className="bg-white rounded-xl p-3 border-2 border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all active:scale-95 relative"
+                  className="bg-white rounded-xl p-3 border-2 border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all relative"
                 >
                   {pkg.is_popular && (
                     <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">
@@ -727,14 +732,24 @@ export function ShopModal({
                       BEST VALUE
                     </div>
                   )}
-                  <Gem className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                  <img
+                    src="GEM_ICON_URL_HERE"
+                    alt="Gems"
+                    className="w-12 h-12 mx-auto mb-2 object-contain"
+                  />
                   <p className="text-lg font-black text-purple-600 mb-2">
                     {pkg.gem_amount} Gems
                   </p>
-                  <div className="bg-purple-100 text-purple-700 rounded-lg py-1.5 px-2 text-sm font-bold">
+                  <div className="bg-purple-50 text-purple-700 rounded-lg py-1 px-2 text-xs font-bold mb-2">
                     ${Number(pkg.price_usd).toFixed(2)}
                   </div>
-                </button>
+                  <button
+                    onClick={() => handleSelectGemPackage(pkg)}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg py-2 text-sm font-bold hover:from-purple-600 hover:to-pink-600 transition-all active:scale-95"
+                  >
+                    Buy
+                  </button>
+                </div>
               ))}
             </div>
           </div>
