@@ -128,6 +128,8 @@ export interface Database {
           daily_claimed_total: number
           claim_locked_until: string | null
           linked_at: string | null
+          times_reset: number
+          last_reset_at: string | null
           created_at: string
           last_played_at: string
         }
@@ -153,6 +155,8 @@ export interface Database {
           daily_claimed_total?: number
           claim_locked_until?: string | null
           linked_at?: string | null
+          times_reset?: number
+          last_reset_at?: string | null
           created_at?: string
           last_played_at?: string
         }
@@ -178,8 +182,72 @@ export interface Database {
           daily_claimed_total?: number
           claim_locked_until?: string | null
           linked_at?: string | null
+          times_reset?: number
+          last_reset_at?: string | null
           created_at?: string
           last_played_at?: string
+        }
+      }
+      player_reset_history: {
+        Row: {
+          id: string
+          player_id: string
+          reset_at: string
+          money_at_reset: number
+          gems_at_reset: number
+          hourly_income_at_reset: number
+          lifetime_earnings_at_reset: number
+          total_clicks_at_reset: number
+          prestige_points_at_reset: number
+          selected_character_id: string | null
+          selected_house_id: string | null
+          selected_car_id: string | null
+          current_job_id: string | null
+          owned_characters: Json
+          owned_houses: Json
+          owned_cars: Json
+          player_jobs: Json
+          player_businesses: Json
+        }
+        Insert: {
+          id?: string
+          player_id: string
+          reset_at?: string
+          money_at_reset?: number
+          gems_at_reset?: number
+          hourly_income_at_reset?: number
+          lifetime_earnings_at_reset?: number
+          total_clicks_at_reset?: number
+          prestige_points_at_reset?: number
+          selected_character_id?: string | null
+          selected_house_id?: string | null
+          selected_car_id?: string | null
+          current_job_id?: string | null
+          owned_characters?: Json
+          owned_houses?: Json
+          owned_cars?: Json
+          player_jobs?: Json
+          player_businesses?: Json
+        }
+        Update: {
+          id?: string
+          player_id?: string
+          reset_at?: string
+          money_at_reset?: number
+          gems_at_reset?: number
+          hourly_income_at_reset?: number
+          lifetime_earnings_at_reset?: number
+          total_clicks_at_reset?: number
+          prestige_points_at_reset?: number
+          selected_character_id?: string | null
+          selected_house_id?: string | null
+          selected_car_id?: string | null
+          current_job_id?: string | null
+          owned_characters?: Json
+          owned_houses?: Json
+          owned_cars?: Json
+          player_jobs?: Json
+          player_businesses?: Json
         }
       }
       player_purchases: {

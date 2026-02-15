@@ -304,11 +304,11 @@ export function useGameState(deviceId: string) {
         device_id: deviceId,
         display_name: playerName,
         username: playerName,
-        total_money: 0,
+        total_money: 100,
         lifetime_earnings: 0,
         money_per_click: 1,
         money_per_second: 0,
-        hourly_income: 1000,
+        hourly_income: 50,
         total_clicks: 0,
         prestige_points: 0,
         gems: 0,
@@ -565,43 +565,22 @@ export function useGameState(deviceId: string) {
     if (!profileId) return;
 
     try {
-      await Promise.all([
-        supabase.from('player_purchases').delete().eq('player_id', profileId),
-        supabase.from('player_jobs').delete().eq('player_id', profileId),
-        supabase.from('player_businesses').delete().eq('player_id', profileId),
-        supabase.from('game_stats').delete().eq('player_id', profileId),
-        supabase.from('player_profiles').delete().eq('id', profileId),
-      ]);
-
-      deviceIdentity.reset();
-      localStorage.removeItem(GAME_STATE_KEY);
-
-      setGameState({
-        profile: null,
-        characters: gameState.characters,
-        houses: gameState.houses,
-        cars: gameState.cars,
-        jobs: gameState.jobs,
-        playerJobs: [],
-        businesses: [],
-        gameStats: null,
-        ownedCharacters: [],
-        ownedHouses: [],
-        ownedCars: [],
-        loading: false,
-        error: null,
-        offlineEarnings: null,
-        jobChangeLockedUntil: null,
-        claimLockedUntil: null,
-        dailyClaimedTotal: 0,
-        businessesLoading: false,
+      // Call database function to reset progress and save history
+      const { error } = await supabase.rpc('reset_player_progress', {
+        p_player_id: profileId
       });
 
+      if (error) throw error;
+
+      // Clear local cache
+      localStorage.removeItem(GAME_STATE_KEY);
+
+      // Reload the page to fetch fresh data
       window.location.reload();
     } catch (error) {
       console.error('Error resetting progress:', error);
     }
-  }, [gameState.characters, gameState.houses, gameState.cars, gameState.jobs]);
+  }, []);
 
   useEffect(() => {
     loadGameData(true);
