@@ -368,6 +368,24 @@ export function useGameState(deviceId: string) {
         });
       }
 
+      // Add default character to player_purchases so player owns it
+      await supabase.from('player_purchases').insert({
+        player_id: profileId,
+        item_type: 'character',
+        item_id: characterId,
+        purchase_price: 0,
+      });
+
+      // Add default house to player_purchases if exists
+      if (firstHouse) {
+        await supabase.from('player_purchases').insert({
+          player_id: profileId,
+          item_type: 'house',
+          item_id: firstHouse.id,
+          purchase_price: 0,
+        });
+      }
+
       setGameState(prev => ({
         ...prev,
         profile: newProfile,

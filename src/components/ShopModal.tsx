@@ -323,21 +323,23 @@ export function ShopModal({
     setIsProcessingPurchase(true);
 
     try {
-      const transactionId = crypto.randomUUID();
-
-      const { data: txId, error: txError } = await supabase.rpc('create_purchase_transaction', {
+      const { data: txData, error: txError } = await supabase.rpc('create_purchase_transaction', {
         p_player_id: profileId,
         p_package_id: selectedPackage.packageId,
-        p_payment_provider: 'demo',
-        p_provider_transaction_id: transactionId,
+        p_amount_usd: selectedPackage.price,
       } as any);
 
       if (txError) {
         throw new Error(txError.message);
       }
 
+      const txResult = txData as { success: boolean; transaction_id: string };
+      if (!txResult.success || !txResult.transaction_id) {
+        throw new Error('Failed to create transaction');
+      }
+
       const { data: result, error: completeError } = await supabase.rpc('complete_demo_purchase', {
-        p_transaction_id: txId,
+        p_transaction_id: txResult.transaction_id,
         p_player_id: profileId,
       } as any);
 
