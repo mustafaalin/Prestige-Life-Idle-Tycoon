@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useGameState } from './hooks/useGameState';
-import { deviceIdentity } from './lib/deviceIdentity';
-import CharacterSelector from './components/CharacterSelector';
 import ProfileModal from './components/ProfileModal';
 import OfflineEarningsModal from './components/OfflineEarningsModal';
 import { Header } from './components/Header';
@@ -19,7 +17,6 @@ function App() {
   const [showShop, setShowShop] = useState(false);
   const [showJobs, setShowJobs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeTab, setActiveTab] = useState<'shop' | 'job' | 'business' | 'investments' | 'stuff'>('shop');
   const [playTimeSeconds, setPlayTimeSeconds] = useState(0);
@@ -40,12 +37,6 @@ function App() {
   };
 
   useEffect(() => {
-    if (!deviceIdentity.isCharacterSelected()) {
-      setShowCharacterSelector(true);
-    }
-  }, []);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       setPlayTimeSeconds(prev => prev + 1);
     }, 1000);
@@ -53,10 +44,11 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  async function handleCharacterSelected(characterId: string) {
-    await gameState.createProfile(characterId);
-    setShowCharacterSelector(false);
-  }
+  useEffect(() => {
+    if (!gameState.profile && !gameState.loading && isAuthenticated) {
+      gameState.createProfile();
+    }
+  }, [gameState.profile, gameState.loading, isAuthenticated]);
 
   async function handlePlayerNameChange(newName: string) {
     await gameState.updatePlayerName(newName);
@@ -77,21 +69,12 @@ function App() {
     );
   }
 
-  if (showCharacterSelector) {
-    return <CharacterSelector onCharacterSelected={handleCharacterSelected} />;
-  }
-
   if (!gameState.profile) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600 flex items-center justify-center">
         <div className="bg-white/20 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border-2 border-white/30">
-          <p className="text-red-100 font-bold">Error loading profile. Please try again.</p>
-          <button
-            onClick={() => gameState.reload()}
-            className="mt-4 px-6 py-2 bg-white/30 hover:bg-white/40 text-white rounded-lg backdrop-blur-md border border-white/40 font-bold"
-          >
-            Retry
-          </button>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white mx-auto"></div>
+          <p className="mt-4 text-white font-bold">Creating your profile...</p>
         </div>
       </div>
     );

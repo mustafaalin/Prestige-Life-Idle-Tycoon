@@ -290,14 +290,40 @@ export function useGameState(deviceId: string) {
     }
   }, [gameState.profile, saveToLocalStorage]);
 
-  const createProfile = useCallback(async (characterId: string) => {
+  const createProfile = useCallback(async () => {
     const profileId = deviceIdentity.getProfileId();
     const playerName = deviceIdentity.getPlayerName();
     if (!profileId || !deviceId) return;
 
     try {
+      // Find Mike character or first free male character
+      const { data: mikeCharacter } = await supabase
+        .from('characters')
+        .select('id')
+        .eq('name', 'Mike')
+        .maybeSingle();
+
+      let characterId = mikeCharacter?.id;
+
+      if (!characterId) {
+        const { data: fallbackCharacter } = await supabase
+          .from('characters')
+          .select('id')
+          .eq('gender', 'male')
+          .eq('price', 0)
+          .order('unlock_order')
+          .limit(1)
+          .maybeSingle();
+
+        characterId = fallbackCharacter?.id;
+      }
+
+      if (!characterId) {
+        console.error('No default character found');
+        return;
+      }
+
       const firstHouse = gameState.houses.find(h => h.price === 0);
-      const firstCar = gameState.cars.find(c => c.price === 0);
 
       const newProfile = {
         id: profileId,
@@ -315,7 +341,7 @@ export function useGameState(deviceId: string) {
         last_claim_time: new Date().toISOString(),
         selected_character_id: characterId,
         selected_house_id: firstHouse?.id || null,
-        selected_car_id: firstCar?.id || null,
+        selected_car_id: null,
         created_at: new Date().toISOString(),
         last_played_at: new Date().toISOString(),
       } as PlayerProfile;
@@ -347,17 +373,16 @@ export function useGameState(deviceId: string) {
         profile: newProfile,
         ownedCharacters: [characterId],
         ownedHouses: firstHouse ? [firstHouse.id] : [],
-        ownedCars: firstCar ? [firstCar.id] : [],
+        ownedCars: [],
       }));
 
       saveToLocalStorage({ profile: newProfile });
-      deviceIdentity.setCharacterSelected(true);
 
       await loadGameData(false);
     } catch (error) {
       console.error('Error creating profile:', error);
     }
-  }, [deviceId, gameState.houses, gameState.cars, gameState.jobs, saveToLocalStorage, loadGameData]);
+  }, [deviceId, gameState.houses, gameState.jobs, saveToLocalStorage, loadGameData]);
 
   const handleClick = useCallback(() => {
     if (!gameState.profile) return;
