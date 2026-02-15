@@ -778,7 +778,7 @@ export function useGameState(deviceId: string) {
       } catch (error) {
         console.error('Error auto-saving job work time:', error);
       }
-    }, 30000);
+    }, 5000);
 
     const saveOnUnload = async () => {
       const currentActiveJob = gameState.playerJobs.find(pj => pj.is_active);
