@@ -15,6 +15,7 @@ interface ShopModalProps {
   onClaimDaily: () => Promise<boolean>;
   onClaimMoney: (isTriple: boolean) => Promise<boolean>;
   onWatchAd: () => Promise<{ success: boolean; reward: number; cooldown: number }>;
+  onPurchaseComplete: (moneyAdded: number, gemsAdded: number) => void;
 }
 
 interface MoneyPackage {
@@ -57,6 +58,7 @@ export function ShopModal({
   onClaimDaily,
   onClaimMoney,
   onWatchAd,
+  onPurchaseComplete,
 }: ShopModalProps) {
   const [accumulatedMoney, setAccumulatedMoney] = useState(0);
   const [timeUntilFull, setTimeUntilFull] = useState(0);
@@ -357,9 +359,10 @@ export function ShopModal({
         setShowPurchaseConfirm(false);
         setSelectedPackage(null);
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        // Update state with new values
+        const moneyAdded = purchaseResult.money_added || 0;
+        const gemsAdded = purchaseResult.gems_added || 0;
+        onPurchaseComplete(moneyAdded, gemsAdded);
       }
     } catch (error: any) {
       console.error('Purchase error:', error);
