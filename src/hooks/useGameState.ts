@@ -353,18 +353,6 @@ export function useGameState(deviceId: string, userId: string | null) {
         player_id: userId,
       });
 
-      const defaultJob = gameState.jobs.find(j => j.is_default_unlocked);
-      if (defaultJob) {
-        await supabase.from('player_jobs').insert({
-          player_id: userId,
-          job_id: defaultJob.id,
-          is_unlocked: true,
-          is_active: true,
-          unlocked_at: new Date().toISOString(),
-          last_work_started_at: new Date().toISOString(),
-        });
-      }
-
       // Add default character to player_purchases so player owns it
       await supabase.from('player_purchases').insert({
         player_id: userId,
