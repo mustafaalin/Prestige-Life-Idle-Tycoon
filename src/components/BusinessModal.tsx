@@ -196,37 +196,22 @@ export function BusinessModal({
 
                     <div className="flex-1 flex flex-col justify-between min-w-0">
                       <div>
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="font-bold text-xl text-gray-900 mb-1">{business.name}</h3>
-                            <span
-                              className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                                business.category === 'small'
-                                  ? 'bg-orange-200 text-orange-800'
-                                  : 'bg-orange-300 text-orange-900'
-                              }`}
-                            >
-                              {business.category === 'small' ? 'Small Business' : 'Large Business'}
-                            </span>
-                          </div>
-                        </div>
-
-                        <p className="text-sm text-gray-700 mb-4 leading-relaxed">{business.description}</p>
+                        <h3 className="font-bold text-lg text-gray-900 mb-2">{business.name}</h3>
                       </div>
 
                       {!business.is_owned ? (
                         <div className="space-y-3">
-                          <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 space-y-2">
+                          <div className="bg-white/60 backdrop-blur-sm rounded-lg p-2.5 space-y-1.5">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-semibold text-gray-700">Purchase Price</span>
-                              <span className="text-xl font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+                              <span className="text-xs font-semibold text-gray-700">Purchase Price</span>
+                              <span className="text-base font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
                                 {formatMoney(business.base_price)}
                               </span>
                             </div>
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-semibold text-gray-700">Hourly Income</span>
-                              <span className="text-lg font-bold text-green-600 flex items-center gap-1">
-                                <TrendingUp className="w-4 h-4" />
+                              <span className="text-xs font-semibold text-gray-700">Hourly Income</span>
+                              <span className="text-sm font-bold text-green-600 flex items-center gap-1">
+                                <TrendingUp className="w-3.5 h-3.5" />
                                 {formatMoney(business.base_hourly_income)}/hr
                               </span>
                             </div>
@@ -252,80 +237,39 @@ export function BusinessModal({
                           )}
                         </div>
                       ) : (
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center bg-gradient-to-r from-blue-50 to-blue-100 p-3 rounded-xl border border-blue-200">
-                            <span className="text-sm font-bold text-blue-800 flex items-center gap-2">
-                              <CheckCircle2 className="w-5 h-5" />
-                              Level {business.current_level}/6
-                            </span>
-                            <span className="text-lg font-black text-green-600 flex items-center gap-1">
-                              <TrendingUp className="w-5 h-5" />
+                        <div className="space-y-2">
+                          <div className="flex justify-center items-center bg-gradient-to-r from-blue-50 to-blue-100 p-2 rounded-lg border border-blue-200">
+                            <span className="text-sm font-black text-green-600 flex items-center gap-1">
+                              <TrendingUp className="w-4 h-4" />
                               {formatMoney(business.current_hourly_income)}/hr
                             </span>
                           </div>
 
-                          <div className="bg-white/60 backdrop-blur-sm rounded-xl p-3">
-                            <div className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
-                              Upgrade Levels
-                            </div>
-                            <div className="flex gap-2">
-                              {[1, 2, 3, 4, 5].map((level) => {
-                                const targetLevel = level + 1;
-                                const isCompleted = business.current_level >= targetLevel;
-                                const isCurrent = business.current_level === level;
-                                const upgradeCost = calculateUpgradeCost(business.current_hourly_income, level);
-                                const newIncome = calculateNewIncome(business.current_hourly_income);
-                                const canAfford = totalMoney >= upgradeCost;
-
-                                return (
-                                  <div key={level} className="flex-1">
-                                    {isCompleted ? (
-                                      <div className="bg-gradient-to-br from-green-500 to-emerald-500 text-white rounded-lg p-3 flex items-center justify-center shadow-md">
-                                        <CheckCircle2 className="w-5 h-5" />
-                                      </div>
-                                    ) : isCurrent ? (
-                                      <button
-                                        onClick={() => handleUpgrade(business.id, targetLevel)}
-                                        disabled={!canAfford || isProcessing}
-                                        className={`w-full rounded-lg p-2.5 text-xs font-bold transition-all transform ${
-                                          canAfford && !isProcessing
-                                            ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white hover:from-orange-500 hover:to-amber-600 shadow-md hover:shadow-lg hover:scale-105 active:scale-95'
-                                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                        }`}
-                                        title={`Upgrade to Level ${targetLevel}: ${formatMoney(upgradeCost)} → ${formatMoney(newIncome)}/hr`}
-                                      >
-                                        {isProcessing ? '...' : `L${targetLevel}`}
-                                        <div className="text-[10px] mt-1 font-semibold">{formatMoney(upgradeCost)}</div>
-                                      </button>
-                                    ) : (
-                                      <div className="bg-gray-100 border-2 border-gray-200 rounded-lg p-2.5 text-center">
-                                        <span className="text-xs text-gray-400 font-semibold">L{targetLevel}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          {business.current_level < 6 && (
-                            <div className="text-xs font-semibold text-gray-700 bg-gradient-to-r from-amber-100 to-orange-100 p-3 rounded-lg text-center border border-orange-200">
-                              <Zap className="w-4 h-4 inline mr-1.5 text-orange-600" />
-                              Next Upgrade: {formatMoney(calculateNewIncome(business.current_hourly_income))}/hr (+25%)
-                            </div>
-                          )}
-
-                          {business.current_level === 6 && (
-                            <div className="text-sm font-bold text-green-800 bg-gradient-to-r from-green-100 to-emerald-100 p-3 rounded-lg text-center border-2 border-green-300">
-                              <CheckCircle2 className="w-5 h-5 inline mr-1.5" />
+                          {business.current_level < 6 ? (
+                            <>
+                              <button
+                                onClick={() => handleUpgrade(business.id, business.current_level + 1)}
+                                disabled={totalMoney < calculateUpgradeCost(business.current_hourly_income, business.current_level) || isProcessing}
+                                className={`w-full rounded-lg p-3 text-sm font-bold transition-all transform ${
+                                  totalMoney >= calculateUpgradeCost(business.current_hourly_income, business.current_level) && !isProcessing
+                                    ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white hover:from-orange-500 hover:to-amber-600 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95'
+                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                }`}
+                              >
+                                {isProcessing ? 'Processing...' : `Upgrade to Level ${business.current_level + 1}`}
+                                <div className="text-xs mt-1 font-semibold">{formatMoney(calculateUpgradeCost(business.current_hourly_income, business.current_level))}</div>
+                              </button>
+                              <div className="text-[10px] font-semibold text-gray-700 bg-gradient-to-r from-amber-100 to-orange-100 p-2 rounded-lg text-center border border-orange-200">
+                                <Zap className="w-3 h-3 inline mr-1 text-orange-600" />
+                                Next Upgrade: {formatMoney(calculateNewIncome(business.current_hourly_income))}/hr (+25%)
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-xs font-bold text-green-800 bg-gradient-to-r from-green-100 to-emerald-100 p-2.5 rounded-lg text-center border-2 border-green-300">
+                              <CheckCircle2 className="w-4 h-4 inline mr-1" />
                               Maximum Level Reached!
                             </div>
                           )}
-
-                          <div className="text-xs text-gray-600 text-center font-medium pt-1">
-                            Total Invested:{' '}
-                            <span className="font-bold text-orange-600">{formatMoney(business.total_invested)}</span>
-                          </div>
                         </div>
                       )}
                     </div>
