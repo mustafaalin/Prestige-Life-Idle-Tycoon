@@ -222,6 +222,16 @@ export function useGameState(deviceId: string) {
       const activePlayerJob = (playerJobsRes.data || []).find(pj => pj.is_active);
       const currentWorkTime = activePlayerJob?.total_time_worked_seconds || 0;
 
+      if (activePlayerJob && activePlayerJob.last_work_started_at) {
+        await supabase
+          .from('player_jobs')
+          .update({
+            last_work_started_at: null,
+          })
+          .eq('player_id', profileId)
+          .eq('id', activePlayerJob.id);
+      }
+
       setGameState({
         profile,
         characters: charactersRes.data || [],
@@ -736,7 +746,6 @@ export function useGameState(deviceId: string) {
           .from('player_jobs')
           .update({
             total_time_worked_seconds: newTotalTime,
-            last_work_started_at: new Date().toISOString(),
           })
           .eq('player_id', profileId)
           .eq('id', currentActiveJob.id);
