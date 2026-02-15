@@ -183,6 +183,7 @@ function App() {
         onUnlockJob={gameState.unlockJob}
         onSelectJob={gameState.selectJob}
         jobChangeLockedUntil={gameState.jobChangeLockedUntil}
+        currentJobWorkTime={gameState.currentJobWorkTime}
       />
 
       {showBusinessModal && (

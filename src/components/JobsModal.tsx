@@ -15,6 +15,7 @@ interface JobsModalProps {
   onUnlockJob: (jobId: string) => Promise<boolean>;
   onSelectJob: (jobId: string) => Promise<boolean>;
   jobChangeLockedUntil: number | null;
+  currentJobWorkTime: number;
 }
 
 export function JobsModal({
@@ -26,6 +27,7 @@ export function JobsModal({
   onUnlockJob,
   onSelectJob,
   jobChangeLockedUntil,
+  currentJobWorkTime,
 }: JobsModalProps) {
   const [remainingTime, setRemainingTime] = useState<number>(0);
 
@@ -71,6 +73,22 @@ export function JobsModal({
       return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
     return `${remainingSeconds}s`;
+  };
+
+  const formatWorkTime = (seconds: number) => {
+    if (seconds === 0) return '0s';
+
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
   };
 
   const getIconComponent = (iconName: string) => {
@@ -128,18 +146,25 @@ export function JobsModal({
             const isUnlocked = playerJob?.is_unlocked || false;
             const isActive = playerJob?.is_active || false;
 
-            // Find the active job to determine level restriction
             const activePlayerJob = playerJobs.find(pj => pj.is_active);
             const activeJob = activePlayerJob ? jobs.find(j => j.id === activePlayerJob.job_id) : null;
             const activeJobLevel = activeJob?.level || 0;
 
-            // Check if this job can be unlocked based on level and money
+            const previousLevelJob = jobs.find(j => j.level === job.level - 1);
+            const previousPlayerJob = previousLevelJob ? playerJobs.find(pj => pj.job_id === previousLevelJob.id) : null;
+            const previousJobWorkTime = previousPlayerJob?.total_time_worked_seconds || 0;
+            const hasWorkedEnoughOnPrevious = job.level === 1 || previousJobWorkTime >= 180;
+
             const hasEnoughMoney = totalMoney >= job.unlock_requirement_money;
             const isLevelAllowed = job.level <= activeJobLevel + 1;
-            const canUnlock = !isUnlocked && hasEnoughMoney && isLevelAllowed;
+            const canUnlock = !isUnlocked && hasEnoughMoney && isLevelAllowed && hasWorkedEnoughOnPrevious;
 
             const canSelect = isUnlocked && !isActive && remainingTime === 0;
             const Icon = getIconComponent(job.icon_name);
+
+            const displayWorkTime = isActive
+              ? (playerJob?.total_time_worked_seconds || 0) + currentJobWorkTime
+              : (playerJob?.total_time_worked_seconds || 0);
 
             return (
               <div
@@ -240,6 +265,20 @@ export function JobsModal({
                             Complete Level {activeJobLevel + 1} job first
                           </div>
                         )}
+                        {hasEnoughMoney && isLevelAllowed && !hasWorkedEnoughOnPrevious && (
+                          <div className="text-[9px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded">
+                            Work 3 minutes in Level {job.level - 1} job ({formatWorkTime(previousJobWorkTime)}/3:00)
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {isUnlocked && (
+                      <div className="mt-2 flex items-center gap-1 text-[10px]">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        <span className={`font-bold ${isActive ? 'text-blue-600' : 'text-slate-600'}`}>
+                          Worked: {formatWorkTime(displayWorkTime)}
+                        </span>
                       </div>
                     )}
 

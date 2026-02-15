@@ -33,6 +33,7 @@ interface GameState {
   claimLockedUntil: string | null;
   dailyClaimedTotal: number;
   businessesLoading: boolean;
+  currentJobWorkTime: number;
 }
 
 const GAME_STATE_KEY = 'idle_guy_game_state';
@@ -57,11 +58,15 @@ export function useGameState(deviceId: string) {
     claimLockedUntil: null,
     dailyClaimedTotal: 0,
     businessesLoading: true,
+    currentJobWorkTime: 0,
   });
 
   const passiveIncomeInterval = useRef<NodeJS.Timeout | null>(null);
   const autoSaveInterval = useRef<NodeJS.Timeout | null>(null);
   const playTimeInterval = useRef<NodeJS.Timeout | null>(null);
+  const jobWorkTimeInterval = useRef<NodeJS.Timeout | null>(null);
+  const jobWorkTimeAutoSaveInterval = useRef<NodeJS.Timeout | null>(null);
+  const isTabVisible = useRef<boolean>(true);
 
   const saveToLocalStorage = useCallback((state: Partial<GameState>) => {
     try {
@@ -214,6 +219,9 @@ export function useGameState(deviceId: string) {
         }
       }
 
+      const activePlayerJob = (playerJobsRes.data || []).find(pj => pj.is_active);
+      const currentWorkTime = activePlayerJob?.total_time_worked_seconds || 0;
+
       setGameState({
         profile,
         characters: charactersRes.data || [],
@@ -233,6 +241,7 @@ export function useGameState(deviceId: string) {
         claimLockedUntil: profile?.claim_locked_until || null,
         dailyClaimedTotal: profile?.daily_claimed_total || 0,
         businessesLoading: true,
+        currentJobWorkTime: currentWorkTime,
       });
 
       if (profileId) {
@@ -319,6 +328,7 @@ export function useGameState(deviceId: string) {
           is_unlocked: true,
           is_active: true,
           unlocked_at: new Date().toISOString(),
+          last_work_started_at: new Date().toISOString(),
         });
       }
 
@@ -487,14 +497,37 @@ export function useGameState(deviceId: string) {
     if (!playerJob || !playerJob.is_unlocked) return false;
 
     try {
-      await supabase
-        .from('player_jobs')
-        .update({ is_active: false })
-        .eq('player_id', profileId);
+      const currentActiveJob = gameState.playerJobs.find(pj => pj.is_active);
+
+      if (currentActiveJob && currentActiveJob.last_work_started_at) {
+        const workStartTime = new Date(currentActiveJob.last_work_started_at).getTime();
+        const now = Date.now();
+        const elapsedSeconds = Math.floor((now - workStartTime) / 1000);
+
+        const newTotalTime = (currentActiveJob.total_time_worked_seconds || 0) + elapsedSeconds;
+
+        await supabase
+          .from('player_jobs')
+          .update({
+            is_active: false,
+            last_work_started_at: null,
+            total_time_worked_seconds: newTotalTime,
+          })
+          .eq('player_id', profileId)
+          .eq('id', currentActiveJob.id);
+      } else {
+        await supabase
+          .from('player_jobs')
+          .update({ is_active: false })
+          .eq('player_id', profileId);
+      }
 
       await supabase
         .from('player_jobs')
-        .update({ is_active: true })
+        .update({
+          is_active: true,
+          last_work_started_at: new Date().toISOString(),
+        })
         .eq('player_id', profileId)
         .eq('job_id', jobId);
 
@@ -506,6 +539,7 @@ export function useGameState(deviceId: string) {
       setGameState(prev => ({
         ...prev,
         jobChangeLockedUntil: lockUntil,
+        currentJobWorkTime: 0,
       }));
 
       await loadGameData(false);
@@ -633,7 +667,10 @@ export function useGameState(deviceId: string) {
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
+        isTabVisible.current = false;
         updateLastPlayed();
+      } else {
+        isTabVisible.current = true;
       }
     };
 
@@ -649,6 +686,100 @@ export function useGameState(deviceId: string) {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [gameState.profile, saveProfile]);
+
+  useEffect(() => {
+    const profileId = deviceIdentity.getProfileId();
+    if (!profileId) return;
+
+    const activeJob = gameState.playerJobs.find(pj => pj.is_active);
+    if (!activeJob) {
+      if (jobWorkTimeInterval.current) {
+        clearInterval(jobWorkTimeInterval.current);
+        jobWorkTimeInterval.current = null;
+      }
+      if (jobWorkTimeAutoSaveInterval.current) {
+        clearInterval(jobWorkTimeAutoSaveInterval.current);
+        jobWorkTimeAutoSaveInterval.current = null;
+      }
+      return;
+    }
+
+    if (jobWorkTimeInterval.current) {
+      clearInterval(jobWorkTimeInterval.current);
+    }
+    if (jobWorkTimeAutoSaveInterval.current) {
+      clearInterval(jobWorkTimeAutoSaveInterval.current);
+    }
+
+    jobWorkTimeInterval.current = setInterval(() => {
+      if (isTabVisible.current && !document.hidden) {
+        setGameState(prev => ({
+          ...prev,
+          currentJobWorkTime: prev.currentJobWorkTime + 1,
+        }));
+      }
+    }, 1000);
+
+    jobWorkTimeAutoSaveInterval.current = setInterval(async () => {
+      if (!isTabVisible.current || document.hidden) return;
+
+      const currentActiveJob = gameState.playerJobs.find(pj => pj.is_active);
+      if (!currentActiveJob || !currentActiveJob.last_work_started_at) return;
+
+      try {
+        const workStartTime = new Date(currentActiveJob.last_work_started_at).getTime();
+        const now = Date.now();
+        const elapsedSeconds = Math.floor((now - workStartTime) / 1000);
+        const newTotalTime = (currentActiveJob.total_time_worked_seconds || 0) + elapsedSeconds;
+
+        await supabase
+          .from('player_jobs')
+          .update({
+            total_time_worked_seconds: newTotalTime,
+            last_work_started_at: new Date().toISOString(),
+          })
+          .eq('player_id', profileId)
+          .eq('id', currentActiveJob.id);
+      } catch (error) {
+        console.error('Error auto-saving job work time:', error);
+      }
+    }, 30000);
+
+    const saveOnUnload = async () => {
+      const currentActiveJob = gameState.playerJobs.find(pj => pj.is_active);
+      if (!currentActiveJob || !currentActiveJob.last_work_started_at) return;
+
+      try {
+        const workStartTime = new Date(currentActiveJob.last_work_started_at).getTime();
+        const now = Date.now();
+        const elapsedSeconds = Math.floor((now - workStartTime) / 1000);
+        const newTotalTime = (currentActiveJob.total_time_worked_seconds || 0) + elapsedSeconds;
+
+        await supabase
+          .from('player_jobs')
+          .update({
+            total_time_worked_seconds: newTotalTime,
+            last_work_started_at: null,
+          })
+          .eq('player_id', profileId)
+          .eq('id', currentActiveJob.id);
+      } catch (error) {
+        console.error('Error saving job work time on unload:', error);
+      }
+    };
+
+    window.addEventListener('beforeunload', saveOnUnload);
+
+    return () => {
+      if (jobWorkTimeInterval.current) {
+        clearInterval(jobWorkTimeInterval.current);
+      }
+      if (jobWorkTimeAutoSaveInterval.current) {
+        clearInterval(jobWorkTimeAutoSaveInterval.current);
+      }
+      window.removeEventListener('beforeunload', saveOnUnload);
+    };
+  }, [gameState.playerJobs]);
 
   const claimDailyReward = useCallback(async () => {
     const profileId = deviceIdentity.getProfileId();

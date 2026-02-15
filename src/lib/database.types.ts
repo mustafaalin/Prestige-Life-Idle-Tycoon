@@ -292,6 +292,8 @@ export interface Database {
           total_earned: number
           unlocked_at: string | null
           created_at: string
+          total_time_worked_seconds: number
+          last_work_started_at: string | null
         }
         Insert: {
           id?: string
@@ -303,6 +305,8 @@ export interface Database {
           total_earned?: number
           unlocked_at?: string | null
           created_at?: string
+          total_time_worked_seconds?: number
+          last_work_started_at?: string | null
         }
         Update: {
           id?: string
@@ -314,6 +318,8 @@ export interface Database {
           total_earned?: number
           unlocked_at?: string | null
           created_at?: string
+          total_time_worked_seconds?: number
+          last_work_started_at?: string | null
         }
       }
       businesses: {
