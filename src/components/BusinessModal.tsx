@@ -1,3 +1,4 @@
+```tsx
 import React, { useState, useMemo } from 'react';
 import { X, Lock, TrendingUp, CheckCircle2, Building2, Store, Zap } from 'lucide-react';
 import * as Icons from 'lucide-react';
@@ -23,8 +24,8 @@ export function BusinessModal({
   const [activeTab, setActiveTab] = useState<'small' | 'large'>('small');
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  const filteredBusinesses = useMemo(() =>
-    businesses.filter(b => b.category === activeTab),
+  const filteredBusinesses = useMemo(
+    () => businesses.filter(b => b.category === activeTab),
     [businesses, activeTab]
   );
 
@@ -162,29 +163,34 @@ export function BusinessModal({
                       : 'border-2 border-orange-600'
                   }`}
                 >
-                  <div className={`p-4 flex flex-row gap-3 ${
-                    business.category === 'small'
-                      ? 'bg-gradient-to-br from-orange-50 to-amber-50'
-                      : 'bg-gradient-to-br from-orange-100 to-amber-100'
-                  }`}>
-                    <div className="flex items-center justify-center border-r border-orange-200/50 pr-3">
-                      <div className={`p-3 rounded-xl shadow-lg ${
-                        business.is_owned
-                          ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
-                          : isLocked
-                          ? 'bg-gray-200 text-gray-400'
-                          : 'bg-gradient-to-br from-orange-400 to-amber-500 text-white'
-                      } flex items-center justify-center transition-all hover:scale-105`}>
+                  <div
+                    className={`p-4 flex flex-row gap-4 ${
+                      business.category === 'small'
+                        ? 'bg-gradient-to-br from-orange-50 to-amber-50'
+                        : 'bg-gradient-to-br from-orange-100 to-amber-100'
+                    }`}
+                  >
+                    <div className="shrink-0">
+                      <div
+                        className={`w-24 h-24 rounded-2xl shadow-lg border flex items-center justify-center overflow-hidden ${
+                          business.is_owned
+                            ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-200'
+                            : isLocked
+                            ? 'bg-gray-100 border-gray-200'
+                            : 'bg-gradient-to-br from-orange-400 to-amber-500 border-orange-200'
+                        }`}
+                      >
                         {isLocked ? (
-                          <Lock className="w-14 h-14" />
+                          <Lock className="w-12 h-12 text-gray-400" />
                         ) : business.icon_url ? (
                           <img
                             src={business.icon_url}
                             alt={business.name}
-                            className="w-14 h-14 object-cover rounded-lg"
+                            className="w-[88%] h-[88%] object-contain"
+                            loading="lazy"
                           />
                         ) : (
-                          <Icon className="w-14 h-14" />
+                          <Icon className="w-12 h-12 text-white" />
                         )}
                       </div>
                     </div>
@@ -194,11 +200,13 @@ export function BusinessModal({
                         <div className="flex items-start justify-between mb-2">
                           <div>
                             <h3 className="font-bold text-xl text-gray-900 mb-1">{business.name}</h3>
-                            <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                              business.category === 'small'
-                                ? 'bg-orange-200 text-orange-800'
-                                : 'bg-orange-300 text-orange-900'
-                            }`}>
+                            <span
+                              className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                                business.category === 'small'
+                                  ? 'bg-orange-200 text-orange-800'
+                                  : 'bg-orange-300 text-orange-900'
+                              }`}
+                            >
                               {business.category === 'small' ? 'Small Business' : 'Large Business'}
                             </span>
                           </div>
@@ -258,7 +266,9 @@ export function BusinessModal({
                           </div>
 
                           <div className="bg-white/60 backdrop-blur-sm rounded-xl p-3">
-                            <div className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">Upgrade Levels</div>
+                            <div className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                              Upgrade Levels
+                            </div>
                             <div className="flex gap-2">
                               {[1, 2, 3, 4, 5].map((level) => {
                                 const targetLevel = level + 1;
@@ -314,7 +324,8 @@ export function BusinessModal({
                           )}
 
                           <div className="text-xs text-gray-600 text-center font-medium pt-1">
-                            Total Invested: <span className="font-bold text-orange-600">{formatMoney(business.total_invested)}</span>
+                            Total Invested:{' '}
+                            <span className="font-bold text-orange-600">{formatMoney(business.total_invested)}</span>
                           </div>
                         </div>
                       )}
@@ -329,3 +340,4 @@ export function BusinessModal({
     </div>
   );
 }
+```
