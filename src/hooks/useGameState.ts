@@ -251,7 +251,7 @@ export function useGameState(deviceId: string) {
         claimLockedUntil: profile?.claim_locked_until || null,
         dailyClaimedTotal: profile?.daily_claimed_total || 0,
         businessesLoading: true,
-        currentJobWorkTime: currentWorkTime,
+        currentJobWorkTime: 0,
       });
 
       if (profileId) {
