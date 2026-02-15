@@ -169,23 +169,23 @@ export function BusinessModal({
                   }`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className={`p-3 rounded-xl ${
+                        <div className={`p-1 rounded-xl ${
                           business.is_owned
-                            ? 'bg-blue-500 text-white'
+                            ? 'bg-blue-50 text-blue-700'
                             : isLocked
-                            ? 'bg-gray-400 text-white'
-                            : 'bg-orange-500 text-white'
-                        } shadow-lg flex items-center justify-center`}>
+                            ? 'bg-gray-100 text-gray-500'
+                            : 'bg-white text-orange-600'
+                        } flex items-center justify-center`}>
                           {isLocked ? (
-                            <Lock className="w-6 h-6" />
+                            <Lock className="w-12 h-12" />
                           ) : business.icon_url ? (
                             <img
                               src={business.icon_url}
                               alt={business.name}
-                              className="w-6 h-6 object-contain"
+                              className="w-12 h-12 object-cover"
                             />
                           ) : (
-                            <Icon className="w-6 h-6" />
+                            <Icon className="w-12 h-12" />
                           )}
                         </div>
                         <div>
