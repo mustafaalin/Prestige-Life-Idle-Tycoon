@@ -12,8 +12,8 @@ import { BusinessModal } from './components/BusinessModal';
 import { BottomNav } from './components/BottomNav';
 
 function App() {
-  const { deviceId, isAuthenticated } = useAuth();
-  const gameState = useGameState(deviceId);
+  const { deviceId, isAuthenticated, user } = useAuth();
+  const gameState = useGameState(deviceId, user?.id || null);
   const [showShop, setShowShop] = useState(false);
   const [showJobs, setShowJobs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);

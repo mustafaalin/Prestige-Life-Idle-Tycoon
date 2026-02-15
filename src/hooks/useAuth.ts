@@ -7,20 +7,46 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [deviceId, setDeviceId] = useState<string>('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const identity = deviceIdentity.initialize();
-    setDeviceId(identity.deviceId);
-    setIsAuthenticated(true);
+    const initAuth = async () => {
+      const identity = deviceIdentity.initialize();
+      setDeviceId(identity.deviceId);
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        setUser(session.user);
+        setIsAuthenticated(true);
+        setIsLoading(false);
+      } else {
+        const { data: authData, error } = await supabase.auth.signInAnonymously({
+          options: {
+            data: {
+              device_id: identity.deviceId,
+            }
+          }
+        });
+
+        if (error) {
+          console.error('Anonymous sign in error:', error);
+          setIsLoading(false);
+        } else if (authData?.user) {
+          setUser(authData.user);
+          setIsAuthenticated(true);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    initAuth();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      setIsAuthenticated(!!session?.user);
     });
 
     return () => subscription.unsubscribe();

@@ -1,5 +1,6 @@
+import { supabase } from './supabase';
+
 const DEVICE_ID_KEY = 'idle_guy_device_id';
-const PROFILE_ID_KEY = 'idle_guy_profile_id';
 const PLAYER_NAME_KEY = 'idle_guy_player_name';
 
 function generateUUID(): string {
@@ -8,7 +9,6 @@ function generateUUID(): string {
 
 export interface DeviceIdentity {
   deviceId: string;
-  profileId: string;
   playerName: string;
 }
 
@@ -20,12 +20,6 @@ export const deviceIdentity = {
       localStorage.setItem(DEVICE_ID_KEY, deviceId);
     }
 
-    let profileId = localStorage.getItem(PROFILE_ID_KEY);
-    if (!profileId) {
-      profileId = generateUUID();
-      localStorage.setItem(PROFILE_ID_KEY, profileId);
-    }
-
     let playerName = localStorage.getItem(PLAYER_NAME_KEY);
     if (!playerName) {
       const randomNum = Math.floor(Math.random() * 9000) + 1000;
@@ -35,7 +29,6 @@ export const deviceIdentity = {
 
     return {
       deviceId,
-      profileId,
       playerName,
     };
   },
@@ -44,8 +37,9 @@ export const deviceIdentity = {
     return localStorage.getItem(DEVICE_ID_KEY);
   },
 
-  getProfileId(): string | null {
-    return localStorage.getItem(PROFILE_ID_KEY);
+  async getProfileId(): Promise<string | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id || null;
   },
 
   getPlayerName(): string {
@@ -58,7 +52,6 @@ export const deviceIdentity = {
 
   reset(): void {
     localStorage.removeItem(DEVICE_ID_KEY);
-    localStorage.removeItem(PROFILE_ID_KEY);
     localStorage.removeItem(PLAYER_NAME_KEY);
   },
 };
