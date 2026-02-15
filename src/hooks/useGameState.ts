@@ -541,8 +541,12 @@ export function useGameState(deviceId: string) {
         .eq('player_id', profileId)
         .eq('job_id', jobId);
 
+      const totalBusinessIncome = gameState.businesses
+        .filter(b => b.is_owned)
+        .reduce((sum, b) => sum + b.current_hourly_income, 0);
+
       await saveProfile({
-        hourly_income: job.hourly_income,
+        hourly_income: job.hourly_income + totalBusinessIncome,
       });
 
       const lockUntil = Date.now() + 120000;
@@ -558,7 +562,7 @@ export function useGameState(deviceId: string) {
       console.error('Error selecting job:', error);
       return false;
     }
-  }, [gameState.profile, gameState.jobs, gameState.playerJobs, gameState.jobChangeLockedUntil, saveProfile, loadGameData]);
+  }, [gameState.profile, gameState.jobs, gameState.playerJobs, gameState.businesses, gameState.jobChangeLockedUntil, saveProfile, loadGameData]);
 
   const resetProgress = useCallback(async () => {
     const profileId = deviceIdentity.getProfileId();
@@ -964,22 +968,13 @@ export function useGameState(deviceId: string) {
         return false;
       }
 
-      setGameState(prev => ({
-        ...prev,
-        profile: prev.profile ? {
-          ...prev.profile,
-          total_money: result.new_balance || prev.profile.total_money,
-          hourly_income: prev.profile.hourly_income + (result.new_hourly_income || 0),
-        } : null,
-      }));
-
-      await loadBusinesses();
+      await loadGameData(false);
       return true;
     } catch (error) {
       console.error('Error purchasing business:', error);
       return false;
     }
-  }, [gameState.profile, gameState.businesses, loadBusinesses]);
+  }, [gameState.profile, gameState.businesses, loadGameData]);
 
   const upgradeBusiness = useCallback(async (businessId: string, targetLevel: number) => {
     const profileId = deviceIdentity.getProfileId();
@@ -1008,21 +1003,13 @@ export function useGameState(deviceId: string) {
         return false;
       }
 
-      setGameState(prev => ({
-        ...prev,
-        profile: prev.profile ? {
-          ...prev.profile,
-          total_money: result.new_balance || prev.profile.total_money,
-        } : null,
-      }));
-
-      await loadBusinesses();
+      await loadGameData(false);
       return true;
     } catch (error) {
       console.error('Error upgrading business:', error);
       return false;
     }
-  }, [gameState.profile, loadBusinesses]);
+  }, [gameState.profile, loadGameData]);
 
   return {
     ...gameState,
