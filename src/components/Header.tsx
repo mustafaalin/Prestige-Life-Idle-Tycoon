@@ -108,7 +108,7 @@ export function Header({
             </div>
 
             <div className="flex flex-col items-end gap-1">
-              <div className="flex items-center gap-1.5 bg-white/12 px-2 py-1 rounded-lg border border-white/20 min-w-[76px] justify-center">
+              <div className="flex items-center gap-1.5 bg-white/12 px-2 py-1 rounded-lg min-w-[76px] justify-center">
   <img src={ICON_BASE_URL + '/gem.png'} alt="Gems" className="w-4 h-4" />
   <span className="text-sm font-black leading-none">{gems}</span>
 </div>
