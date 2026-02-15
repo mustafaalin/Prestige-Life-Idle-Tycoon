@@ -143,8 +143,8 @@ export function BusinessModal({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 bg-white">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex-1 overflow-y-auto p-3 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filteredBusinesses.map((business) => {
               const Icon = getIconComponent(business.icon_name);
               const isLocked = !business.is_owned && !business.can_unlock;
@@ -163,15 +163,15 @@ export function BusinessModal({
                   }`}
                 >
                   <div
-                    className={`p-4 flex flex-row gap-4 ${
+                    className={`p-2 flex flex-row gap-2 h-20 ${
                       business.category === 'small'
                         ? 'bg-gradient-to-br from-orange-50 to-amber-50'
                         : 'bg-gradient-to-br from-orange-100 to-amber-100'
                     }`}
                   >
-                    <div className="shrink-0">
+                    <div className="flex-1 flex items-center justify-center">
                       <div
-                        className={`w-24 h-24 rounded-2xl shadow-lg border flex items-center justify-center overflow-hidden ${
+                        className={`w-16 h-16 rounded-xl shadow-md border flex items-center justify-center overflow-hidden ${
                           business.is_owned
                             ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-200'
                             : isLocked
@@ -180,7 +180,7 @@ export function BusinessModal({
                         }`}
                       >
                         {isLocked ? (
-                          <Lock className="w-12 h-12 text-gray-400" />
+                          <Lock className="w-8 h-8 text-gray-400" />
                         ) : business.icon_url ? (
                           <img
                             src={business.icon_url}
@@ -189,88 +189,76 @@ export function BusinessModal({
                             loading="lazy"
                           />
                         ) : (
-                          <Icon className="w-12 h-12 text-white" />
+                          <Icon className="w-8 h-8 text-white" />
                         )}
                       </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col justify-between min-w-0">
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-900 mb-2">{business.name}</h3>
-                      </div>
+                    <div className="flex-1 flex flex-col justify-center gap-1 min-w-0">
+                      <h3 className="font-bold text-xs text-gray-900 truncate leading-tight">{business.name}</h3>
 
                       {!business.is_owned ? (
-                        <div className="space-y-3">
-                          <div className="bg-white/60 backdrop-blur-sm rounded-lg p-2.5 space-y-1.5">
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs font-semibold text-gray-700">Purchase Price</span>
-                              <span className="text-base font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+                        <>
+                          <div className="flex gap-1">
+                            <div className="flex-1 bg-white/70 rounded px-1.5 py-0.5">
+                              <div className="text-[9px] font-semibold text-orange-600 truncate">
                                 {formatMoney(business.base_price)}
-                              </span>
+                              </div>
                             </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs font-semibold text-gray-700">Hourly Income</span>
-                              <span className="text-sm font-bold text-green-600 flex items-center gap-1">
-                                <TrendingUp className="w-3.5 h-3.5" />
-                                {formatMoney(business.base_hourly_income)}/hr
-                              </span>
+                            <div className="flex-1 bg-white/70 rounded px-1.5 py-0.5 flex items-center gap-0.5">
+                              <TrendingUp className="w-2.5 h-2.5 text-green-600 shrink-0" />
+                              <div className="text-[9px] font-semibold text-green-600 truncate">
+                                {formatMoney(business.base_hourly_income)}/h
+                              </div>
                             </div>
                           </div>
 
                           {isLocked ? (
-                            <div className="mt-3 p-4 bg-gray-100 rounded-lg text-center border-2 border-dashed border-gray-300">
-                              <Lock className="w-6 h-6 mx-auto mb-2 text-gray-500" />
-                              <p className="text-sm font-medium text-gray-600">Purchase previous business first</p>
+                            <div className="bg-gray-100 rounded px-2 py-1 text-center border border-dashed border-gray-300">
+                              <p className="text-[9px] font-semibold text-gray-600">Locked</p>
                             </div>
                           ) : (
                             <button
                               onClick={() => handlePurchase(business.id)}
                               disabled={!canAffordPurchase || isProcessing}
-                              className={`w-full mt-2 py-4 px-6 rounded-xl font-black text-lg transition-all transform ${
+                              className={`w-full py-1.5 px-2 rounded-lg font-bold text-[10px] transition-all ${
                                 canAffordPurchase && !isProcessing
-                                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 shadow-lg hover:shadow-2xl hover:scale-[1.02] active:scale-95'
+                                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 active:scale-95'
                                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                               }`}
                             >
-                              {isProcessing ? 'Processing...' : canAffordPurchase ? 'Purchase Now' : 'Insufficient Funds'}
+                              {isProcessing ? 'Wait...' : canAffordPurchase ? 'Buy' : 'Need $'}
                             </button>
                           )}
-                        </div>
+                        </>
                       ) : (
-                        <div className="space-y-2">
-                          <div className="flex justify-center items-center bg-gradient-to-r from-blue-50 to-blue-100 p-2 rounded-lg border border-blue-200">
-                            <span className="text-sm font-black text-green-600 flex items-center gap-1">
-                              <TrendingUp className="w-4 h-4" />
-                              {formatMoney(business.current_hourly_income)}/hr
-                            </span>
+                        <>
+                          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded px-1.5 py-0.5 border border-blue-200">
+                            <div className="text-[9px] font-black text-green-600 flex items-center justify-center gap-0.5">
+                              <TrendingUp className="w-2.5 h-2.5" />
+                              {formatMoney(business.current_hourly_income)}/h
+                            </div>
                           </div>
 
                           {business.current_level < 6 ? (
-                            <>
-                              <button
-                                onClick={() => handleUpgrade(business.id, business.current_level + 1)}
-                                disabled={totalMoney < calculateUpgradeCost(business.current_hourly_income, business.current_level) || isProcessing}
-                                className={`w-full rounded-lg p-3 text-sm font-bold transition-all transform ${
-                                  totalMoney >= calculateUpgradeCost(business.current_hourly_income, business.current_level) && !isProcessing
-                                    ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white hover:from-orange-500 hover:to-amber-600 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95'
-                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                }`}
-                              >
-                                {isProcessing ? 'Processing...' : `Upgrade to Level ${business.current_level + 1}`}
-                                <div className="text-xs mt-1 font-semibold">{formatMoney(calculateUpgradeCost(business.current_hourly_income, business.current_level))}</div>
-                              </button>
-                              <div className="text-[10px] font-semibold text-gray-700 bg-gradient-to-r from-amber-100 to-orange-100 p-2 rounded-lg text-center border border-orange-200">
-                                <Zap className="w-3 h-3 inline mr-1 text-orange-600" />
-                                Next Upgrade: {formatMoney(calculateNewIncome(business.current_hourly_income))}/hr (+25%)
-                              </div>
-                            </>
+                            <button
+                              onClick={() => handleUpgrade(business.id, business.current_level + 1)}
+                              disabled={totalMoney < calculateUpgradeCost(business.current_hourly_income, business.current_level) || isProcessing}
+                              className={`w-full rounded-lg py-1.5 px-2 text-[10px] font-bold transition-all ${
+                                totalMoney >= calculateUpgradeCost(business.current_hourly_income, business.current_level) && !isProcessing
+                                  ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white hover:from-orange-500 hover:to-amber-600 active:scale-95'
+                                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                              }`}
+                            >
+                              {isProcessing ? 'Wait...' : `↑ L${business.current_level + 1} • ${formatMoney(calculateUpgradeCost(business.current_hourly_income, business.current_level))}`}
+                            </button>
                           ) : (
-                            <div className="text-xs font-bold text-green-800 bg-gradient-to-r from-green-100 to-emerald-100 p-2.5 rounded-lg text-center border-2 border-green-300">
-                              <CheckCircle2 className="w-4 h-4 inline mr-1" />
-                              Maximum Level Reached!
+                            <div className="text-[9px] font-bold text-green-700 bg-gradient-to-r from-green-100 to-emerald-100 py-1 px-1.5 rounded border border-green-300 text-center">
+                              <CheckCircle2 className="w-2.5 h-2.5 inline mr-0.5" />
+                              MAX
                             </div>
                           )}
-                        </div>
+                        </>
                       )}
                     </div>
                   </div>
