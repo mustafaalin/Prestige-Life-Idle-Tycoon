@@ -109,7 +109,7 @@ export function Header({
 
             <div className="flex flex-col items-end gap-1">
               <div className="flex items-center gap-1.5 bg-emerald-500/20 px-2 py-1 rounded-xl border border-emerald-400/30 min-w-[76px] justify-center">
-                <img src={ICON_BASE_URL + '/gems.png'} alt="Gems" className="w-4 h-4" />
+                <img src={ICON_BASE_URL + '/gem.png'} alt="Gems" className="w-4 h-4" />
                 <span className="text-sm font-black leading-none">{gems}</span>
               </div>
 
