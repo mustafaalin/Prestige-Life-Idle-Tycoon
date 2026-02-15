@@ -860,8 +860,8 @@ export function useGameState(deviceId: string) {
     try {
       const { data, error } = await supabase
         .rpc('claim_accumulated_money', {
-          p_profile_id: profileId,
-          is_triple: isTriple
+          p_player_id: profileId,
+          p_is_triple: isTriple
         } as any);
 
       if (error) {
@@ -869,26 +869,19 @@ export function useGameState(deviceId: string) {
         return false;
       }
 
-      if (!data || !Array.isArray(data) || data.length === 0) {
+      if (!data) {
         return false;
       }
 
-      const result = data[0] as {
-        total_money: number;
-        lifetime_earnings: number;
-        last_claim_time: string;
-        is_locked: boolean;
-        locked_until: string | null;
-        daily_claimed: number;
-        daily_limit: number;
+      const result = data as {
+        success: boolean;
+        error?: string;
+        claimed_amount?: number;
+        new_total?: number;
       };
 
-      if (result.is_locked) {
-        setGameState(prev => ({
-          ...prev,
-          claimLockedUntil: result.locked_until,
-          dailyClaimedTotal: Number(result.daily_claimed),
-        }));
+      if (!result.success) {
+        console.error('Claim failed:', result.error);
         return false;
       }
 
@@ -896,21 +889,17 @@ export function useGameState(deviceId: string) {
         ...prev,
         profile: prev.profile ? {
           ...prev.profile,
-          total_money: Number(result.total_money),
-          lifetime_earnings: Number(result.lifetime_earnings),
-          last_claim_time: result.last_claim_time,
+          total_money: Number(result.new_total),
+          last_claim_time: new Date().toISOString(),
         } : null,
-        claimLockedUntil: result.locked_until,
-        dailyClaimedTotal: Number(result.daily_claimed),
       }));
 
       if (gameState.profile) {
         saveToLocalStorage({
           profile: {
             ...gameState.profile,
-            total_money: Number(result.total_money),
-            lifetime_earnings: Number(result.lifetime_earnings),
-            last_claim_time: result.last_claim_time,
+            total_money: Number(result.new_total),
+            last_claim_time: new Date().toISOString(),
           }
         });
       }
@@ -929,7 +918,7 @@ export function useGameState(deviceId: string) {
     try {
       const { data, error } = await supabase
         .rpc('claim_ad_reward', {
-          p_profile_id: profileId
+          p_player_id: profileId
         } as any);
 
       if (error) {
@@ -937,29 +926,28 @@ export function useGameState(deviceId: string) {
         return { success: false, reward: 0, cooldown: 0 };
       }
 
-      if (!data || !Array.isArray(data) || data.length === 0) {
+      if (!data) {
         return { success: false, reward: 0, cooldown: 0 };
       }
 
-      const result = data[0] as {
-        total_money: number;
-        lifetime_earnings: number;
-        last_ad_watch_time: string;
-        reward_amount: number;
-        can_watch: boolean;
-        seconds_until_next: number;
+      const result = data as {
+        success: boolean;
+        error?: string;
+        reward?: number;
+        new_total?: number;
+        cooldown?: number;
       };
 
-      if (!result.can_watch && result.seconds_until_next > 0) {
-        return { success: false, reward: 0, cooldown: result.seconds_until_next };
+      if (!result.success) {
+        console.error('Ad reward failed:', result.error);
+        return { success: false, reward: 0, cooldown: result.cooldown || 0 };
       }
 
       setGameState(prev => ({
         ...prev,
         profile: prev.profile ? {
           ...prev.profile,
-          total_money: Number(result.total_money),
-          lifetime_earnings: Number(result.lifetime_earnings),
+          total_money: Number(result.new_total),
         } : null,
       }));
 
@@ -967,16 +955,15 @@ export function useGameState(deviceId: string) {
         saveToLocalStorage({
           profile: {
             ...gameState.profile,
-            total_money: Number(result.total_money),
-            lifetime_earnings: Number(result.lifetime_earnings),
+            total_money: Number(result.new_total),
           }
         });
       }
 
       return {
         success: true,
-        reward: Number(result.reward_amount),
-        cooldown: result.seconds_until_next
+        reward: Number(result.reward),
+        cooldown: result.cooldown || 0
       };
     } catch (error) {
       console.error('Error watching ad:', error);
