@@ -1,4 +1,3 @@
-```tsx
 import React, { useState, useMemo } from 'react';
 import { X, Lock, TrendingUp, CheckCircle2, Building2, Store, Zap } from 'lucide-react';
 import * as Icons from 'lucide-react';
@@ -340,4 +339,3 @@ export function BusinessModal({
     </div>
   );
 }
-```
