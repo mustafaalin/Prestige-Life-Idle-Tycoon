@@ -114,11 +114,11 @@ export function Header({
 </div>
 
               <button
-                onClick={onOpenSettings}
-                className="p-1.5 bg-white/10 hover:bg-white/20 active:scale-95 rounded-lg transition-all border border-white/20 shadow-lg"
-              >
-                <img src={ICON_BASE_URL + '/settings.png'} alt="Settings" className="w-5 h-5" />
-              </button>
+  onClick={onOpenSettings}
+  className="p-2 bg-white/12 hover:bg-white/18 active:scale-95 rounded-lg transition-all border border-white/20 shadow-lg"
+>
+  <img src={ICON_BASE_URL + '/settings.png'} alt="Settings" className="w-4 h-4" />
+</button>
             </div>
           </div>
         </div>
