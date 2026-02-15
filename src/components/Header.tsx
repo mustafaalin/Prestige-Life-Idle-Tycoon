@@ -54,7 +54,7 @@ export function Header({
   };
 
   return (
-    <header className="bg-gradient-to-br from-sky-500/45 via-cyan-600/80 to-blue-700/80 backdrop-blur-xl text-white shadow-2xl relative overflow-hidden w-full border-b border-white/30 z-20">
+    <header className="bg-gradient-to-br from-sky-500/45 via-cyan-600/45 to-blue-700/45 backdrop-blur-xl text-white shadow-2xl relative overflow-hidden w-full border-b border-white/30 z-20">
       <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none"></div>
 
       <div className="px-3 py-2.5 relative z-10 w-full">
