@@ -34,9 +34,9 @@ export function BusinessModal({
     .reduce((sum, b) => sum + b.current_hourly_income, 0);
 
   const formatMoney = (amount: number) => {
-    if (amount >= 1000000) return '$' + (amount / 1000000).toFixed(1) + 'M';
-    if (amount >= 1000) return '$' + (amount / 1000).toFixed(1) + 'K';
-    return '$' + amount.toLocaleString();
+    if (amount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`;
+    if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}K`;
+    return `$${amount.toLocaleString()}`;
   };
 
   const calculateUpgradeCost = (currentIncome: number, currentLevel: number) => {
@@ -169,9 +169,9 @@ export function BusinessModal({
                         : 'bg-gradient-to-br from-orange-100 to-amber-100'
                     }`}
                   >
-                    <div className="shrink-0 self-stretch">
+                    <div className="shrink-0">
                       <div
-                        className={`w-24 min-h-24 h-full max-h-[180px] rounded-2xl shadow-lg border flex items-center justify-center overflow-hidden ${
+                        className={`w-24 h-24 rounded-2xl shadow-lg border flex items-center justify-center overflow-hidden ${
                           business.is_owned
                             ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-200'
                             : isLocked
@@ -198,9 +198,7 @@ export function BusinessModal({
                       <div>
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <h3 className="font-bold text-lg text-gray-900 mb-1 leading-tight">
-                              {business.name}
-                            </h3>
+                            <h3 className="font-bold text-xl text-gray-900 mb-1">{business.name}</h3>
                             <span
                               className={`text-xs px-3 py-1 rounded-full font-semibold ${
                                 business.category === 'small'
@@ -213,30 +211,21 @@ export function BusinessModal({
                           </div>
                         </div>
 
-                        <p
-                          className="text-sm text-gray-700 mb-3 leading-snug overflow-hidden text-ellipsis"
-                          style={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical'
-                          }}
-                        >
-                          {business.description}
-                        </p>
+                        <p className="text-sm text-gray-700 mb-4 leading-relaxed">{business.description}</p>
                       </div>
 
                       {!business.is_owned ? (
                         <div className="space-y-3">
-                          <div className="bg-white/60 backdrop-blur-sm rounded-lg p-2.5 space-y-1.5">
+                          <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 space-y-2">
                             <div className="flex justify-between items-center">
                               <span className="text-sm font-semibold text-gray-700">Purchase Price</span>
-                              <span className="text-lg font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+                              <span className="text-xl font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
                                 {formatMoney(business.base_price)}
                               </span>
                             </div>
                             <div className="flex justify-between items-center">
                               <span className="text-sm font-semibold text-gray-700">Hourly Income</span>
-                              <span className="text-base font-bold text-green-600 flex items-center gap-1">
+                              <span className="text-lg font-bold text-green-600 flex items-center gap-1">
                                 <TrendingUp className="w-4 h-4" />
                                 {formatMoney(business.base_hourly_income)}/hr
                               </span>
@@ -246,9 +235,7 @@ export function BusinessModal({
                           {isLocked ? (
                             <div className="mt-3 p-4 bg-gray-100 rounded-lg text-center border-2 border-dashed border-gray-300">
                               <Lock className="w-6 h-6 mx-auto mb-2 text-gray-500" />
-                              <p className="text-sm font-medium text-gray-600">
-                                Purchase previous business first
-                              </p>
+                              <p className="text-sm font-medium text-gray-600">Purchase previous business first</p>
                             </div>
                           ) : (
                             <button
@@ -260,11 +247,7 @@ export function BusinessModal({
                                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                               }`}
                             >
-                              {isProcessing
-                                ? 'Processing...'
-                                : canAffordPurchase
-                                ? 'Purchase Now'
-                                : 'Insufficient Funds'}
+                              {isProcessing ? 'Processing...' : canAffordPurchase ? 'Purchase Now' : 'Insufficient Funds'}
                             </button>
                           )}
                         </div>
@@ -309,20 +292,10 @@ export function BusinessModal({
                                             ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white hover:from-orange-500 hover:to-amber-600 shadow-md hover:shadow-lg hover:scale-105 active:scale-95'
                                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         }`}
-                                        title={
-                                          'Upgrade to Level ' +
-                                          targetLevel +
-                                          ': ' +
-                                          formatMoney(upgradeCost) +
-                                          ' → ' +
-                                          formatMoney(newIncome) +
-                                          '/hr'
-                                        }
+                                        title={`Upgrade to Level ${targetLevel}: ${formatMoney(upgradeCost)} → ${formatMoney(newIncome)}/hr`}
                                       >
                                         {isProcessing ? '...' : `L${targetLevel}`}
-                                        <div className="text-[10px] mt-1 font-semibold">
-                                          {formatMoney(upgradeCost)}
-                                        </div>
+                                        <div className="text-[10px] mt-1 font-semibold">{formatMoney(upgradeCost)}</div>
                                       </button>
                                     ) : (
                                       <div className="bg-gray-100 border-2 border-gray-200 rounded-lg p-2.5 text-center">
@@ -351,9 +324,7 @@ export function BusinessModal({
 
                           <div className="text-xs text-gray-600 text-center font-medium pt-1">
                             Total Invested:{' '}
-                            <span className="font-bold text-orange-600">
-                              {formatMoney(business.total_invested)}
-                            </span>
+                            <span className="font-bold text-orange-600">{formatMoney(business.total_invested)}</span>
                           </div>
                         </div>
                       )}
