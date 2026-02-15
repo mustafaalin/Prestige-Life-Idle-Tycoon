@@ -33,7 +33,7 @@ interface GameState {
   claimLockedUntil: string | null;
   dailyClaimedTotal: number;
   businessesLoading: boolean;
-  currentJobWorkTime: number;
+  unsavedJobWorkSeconds: number;
 }
 
 const GAME_STATE_KEY = 'idle_guy_game_state';
@@ -58,7 +58,7 @@ export function useGameState(deviceId: string) {
     claimLockedUntil: null,
     dailyClaimedTotal: 0,
     businessesLoading: true,
-    currentJobWorkTime: 0,
+    unsavedJobWorkSeconds: 0,
   });
 
   const passiveIncomeInterval = useRef<NodeJS.Timeout | null>(null);
@@ -67,6 +67,12 @@ export function useGameState(deviceId: string) {
   const jobWorkTimeInterval = useRef<NodeJS.Timeout | null>(null);
   const jobWorkTimeAutoSaveInterval = useRef<NodeJS.Timeout | null>(null);
   const isTabVisible = useRef<boolean>(true);
+  const gameStateRef = useRef<GameState>(gameState);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
 
   const saveToLocalStorage = useCallback((state: Partial<GameState>) => {
     try {
@@ -220,18 +226,17 @@ export function useGameState(deviceId: string) {
       }
 
       const activePlayerJob = (playerJobsRes.data || []).find(pj => pj.is_active);
-      const currentWorkTime = activePlayerJob?.total_time_worked_seconds || 0;
 
-      /*
-      if (activePlayerJob && activePlayerJob.last_work_started_at) {
+      // Reset last_work_started_at on page load to current time for active job
+      if (activePlayerJob && activePlayerJob.is_active) {
         await supabase
           .from('player_jobs')
           .update({
-            last_work_started_at: null,
+            last_work_started_at: new Date().toISOString(),
           })
           .eq('player_id', profileId)
           .eq('id', activePlayerJob.id);
-      } */
+      }
 
       setGameState({
         profile,
@@ -252,7 +257,7 @@ export function useGameState(deviceId: string) {
         claimLockedUntil: profile?.claim_locked_until || null,
         dailyClaimedTotal: profile?.daily_claimed_total || 0,
         businessesLoading: true,
-        currentJobWorkTime: 0,
+        unsavedJobWorkSeconds: 0,
       });
 
       if (profileId) {
@@ -553,29 +558,27 @@ export function useGameState(deviceId: string) {
     try {
       const currentActiveJob = gameState.playerJobs.find(pj => pj.is_active);
 
-      if (currentActiveJob && currentActiveJob.last_work_started_at) {
-        const workStartTime = new Date(currentActiveJob.last_work_started_at).getTime();
-        const now = Date.now();
-        const elapsedSeconds = Math.floor((now - workStartTime) / 1000);
-
-        const newTotalTime = (currentActiveJob.total_time_worked_seconds || 0) + elapsedSeconds;
+      // Save unsaved delta for current active job before switching
+      if (currentActiveJob && gameState.unsavedJobWorkSeconds > 0) {
+        const newTotalTime = (currentActiveJob.total_time_worked_seconds || 0) + gameState.unsavedJobWorkSeconds;
 
         await supabase
           .from('player_jobs')
           .update({
             is_active: false,
-            last_work_started_at: null,
             total_time_worked_seconds: newTotalTime,
           })
           .eq('player_id', profileId)
           .eq('id', currentActiveJob.id);
-      } else {
+      } else if (currentActiveJob) {
         await supabase
           .from('player_jobs')
           .update({ is_active: false })
-          .eq('player_id', profileId);
+          .eq('player_id', profileId)
+          .eq('id', currentActiveJob.id);
       }
 
+      // Activate new job and set last_work_started_at to now
       await supabase
         .from('player_jobs')
         .update({
@@ -597,7 +600,7 @@ export function useGameState(deviceId: string) {
       setGameState(prev => ({
         ...prev,
         jobChangeLockedUntil: lockUntil,
-        currentJobWorkTime: 0,
+        unsavedJobWorkSeconds: 0, // Reset unsaved for new job
       }));
 
       await loadGameData(false);
@@ -606,7 +609,7 @@ export function useGameState(deviceId: string) {
       console.error('Error selecting job:', error);
       return false;
     }
-  }, [gameState.profile, gameState.jobs, gameState.playerJobs, gameState.businesses, gameState.jobChangeLockedUntil, saveProfile, loadGameData]);
+  }, [gameState.profile, gameState.jobs, gameState.playerJobs, gameState.businesses, gameState.jobChangeLockedUntil, gameState.unsavedJobWorkSeconds, saveProfile, loadGameData]);
 
   const resetProgress = useCallback(async () => {
     const profileId = deviceIdentity.getProfileId();
@@ -748,26 +751,28 @@ export function useGameState(deviceId: string) {
       clearInterval(jobWorkTimeAutoSaveInterval.current);
     }
 
+    // Client-side timer: increment unsavedJobWorkSeconds every second when visible
     jobWorkTimeInterval.current = setInterval(() => {
       if (isTabVisible.current && !document.hidden) {
         setGameState(prev => ({
           ...prev,
-          currentJobWorkTime: prev.currentJobWorkTime + 1,
+          unsavedJobWorkSeconds: prev.unsavedJobWorkSeconds + 1,
         }));
       }
     }, 1000);
 
+    // Auto-save delta to DB every 5 seconds
     jobWorkTimeAutoSaveInterval.current = setInterval(async () => {
       if (!isTabVisible.current || document.hidden) return;
 
-      const currentActiveJob = gameState.playerJobs.find(pj => pj.is_active);
-      if (!currentActiveJob || !currentActiveJob.last_work_started_at) return;
+      const currentState = gameStateRef.current;
+      const currentActiveJob = currentState.playerJobs.find(pj => pj.is_active);
+      const unsaved = currentState.unsavedJobWorkSeconds;
+
+      if (!currentActiveJob || unsaved === 0) return;
 
       try {
-        const workStartTime = new Date(currentActiveJob.last_work_started_at).getTime();
-        const now = Date.now();
-        const elapsedSeconds = Math.floor((now - workStartTime) / 1000);
-        const newTotalTime = (currentActiveJob.total_time_worked_seconds || 0) + elapsedSeconds;
+        const newTotalTime = (currentActiveJob.total_time_worked_seconds || 0) + unsaved;
 
         await supabase
           .from('player_jobs')
@@ -776,35 +781,77 @@ export function useGameState(deviceId: string) {
           })
           .eq('player_id', profileId)
           .eq('id', currentActiveJob.id);
+
+        // Reset unsaved after successful save
+        setGameState(prev => ({
+          ...prev,
+          unsavedJobWorkSeconds: 0,
+        }));
       } catch (error) {
         console.error('Error auto-saving job work time:', error);
       }
     }, 5000);
 
-    const saveOnUnload = async () => {
-      const currentActiveJob = gameState.playerJobs.find(pj => pj.is_active);
-      if (!currentActiveJob || !currentActiveJob.last_work_started_at) return;
+    // Flush unsaved delta to DB on visibility change (tab hidden)
+    const handleVisibilityChange = async () => {
+      if (document.hidden) {
+        isTabVisible.current = false;
 
-      try {
-        const workStartTime = new Date(currentActiveJob.last_work_started_at).getTime();
-        const now = Date.now();
-        const elapsedSeconds = Math.floor((now - workStartTime) / 1000);
-        const newTotalTime = (currentActiveJob.total_time_worked_seconds || 0) + elapsedSeconds;
+        const currentState = gameStateRef.current;
+        const currentActiveJob = currentState.playerJobs.find(pj => pj.is_active);
+        const unsaved = currentState.unsavedJobWorkSeconds;
 
-        await supabase
-          .from('player_jobs')
-          .update({
-            total_time_worked_seconds: newTotalTime,
-            last_work_started_at: null,
-          })
-          .eq('player_id', profileId)
-          .eq('id', currentActiveJob.id);
-      } catch (error) {
-        console.error('Error saving job work time on unload:', error);
+        if (currentActiveJob && unsaved > 0) {
+          try {
+            const newTotalTime = (currentActiveJob.total_time_worked_seconds || 0) + unsaved;
+
+            await supabase
+              .from('player_jobs')
+              .update({
+                total_time_worked_seconds: newTotalTime,
+              })
+              .eq('player_id', profileId)
+              .eq('id', currentActiveJob.id);
+
+            setGameState(prev => ({
+              ...prev,
+              unsavedJobWorkSeconds: 0,
+            }));
+          } catch (error) {
+            console.error('Error saving job work time on visibility change:', error);
+          }
+        }
+      } else {
+        isTabVisible.current = true;
       }
     };
 
-    window.addEventListener('beforeunload', saveOnUnload);
+    // Flush unsaved delta to DB on page unload
+    const handlePageHide = async () => {
+      const currentState = gameStateRef.current;
+      const currentActiveJob = currentState.playerJobs.find(pj => pj.is_active);
+      const unsaved = currentState.unsavedJobWorkSeconds;
+
+      if (currentActiveJob && unsaved > 0) {
+        try {
+          const newTotalTime = (currentActiveJob.total_time_worked_seconds || 0) + unsaved;
+
+          await supabase
+            .from('player_jobs')
+            .update({
+              total_time_worked_seconds: newTotalTime,
+            })
+            .eq('player_id', profileId)
+            .eq('id', currentActiveJob.id);
+        } catch (error) {
+          console.error('Error saving job work time on page hide:', error);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', handlePageHide);
+    window.addEventListener('beforeunload', handlePageHide);
 
     return () => {
       if (jobWorkTimeInterval.current) {
@@ -813,7 +860,9 @@ export function useGameState(deviceId: string) {
       if (jobWorkTimeAutoSaveInterval.current) {
         clearInterval(jobWorkTimeAutoSaveInterval.current);
       }
-      window.removeEventListener('beforeunload', saveOnUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pagehide', handlePageHide);
+      window.removeEventListener('beforeunload', handlePageHide);
     };
   }, [gameState.playerJobs]);
 

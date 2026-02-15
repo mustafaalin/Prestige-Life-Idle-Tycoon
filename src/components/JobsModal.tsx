@@ -15,7 +15,7 @@ interface JobsModalProps {
   onUnlockJob: (jobId: string) => Promise<boolean>;
   onSelectJob: (jobId: string) => Promise<boolean>;
   jobChangeLockedUntil: number | null;
-  currentJobWorkTime: number;
+  unsavedJobWorkSeconds: number;
 }
 
 export function JobsModal({
@@ -27,7 +27,7 @@ export function JobsModal({
   onUnlockJob,
   onSelectJob,
   jobChangeLockedUntil,
-  currentJobWorkTime,
+  unsavedJobWorkSeconds,
 }: JobsModalProps) {
   const [remainingTime, setRemainingTime] = useState<number>(0);
 
@@ -163,7 +163,7 @@ export function JobsModal({
             const Icon = getIconComponent(job.icon_name);
 
             const displayWorkTime = isActive
-              ? (playerJob?.total_time_worked_seconds || 0) + currentJobWorkTime
+              ? (playerJob?.total_time_worked_seconds || 0) + unsavedJobWorkSeconds
               : (playerJob?.total_time_worked_seconds || 0);
 
             return (
