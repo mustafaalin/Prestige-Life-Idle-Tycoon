@@ -115,7 +115,7 @@ export function Header({
 
               <button
   onClick={onOpenSettings}
-  className="p-2 bg-white/12 hover:bg-white/18 active:scale-95 rounded-lg transition-all border border-white/20 shadow-lg"
+  className="p-2 bg-white/12 hover:bg-white/18 active:scale-95 rounded-lg transition-all shadow-lg"
 >
   <img src={ICON_BASE_URL + '/settings.png'} alt="Settings" className="w-4 h-4" />
 </button>
