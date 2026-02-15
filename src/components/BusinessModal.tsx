@@ -162,13 +162,13 @@ export function BusinessModal({
                       : 'border-2 border-orange-600'
                   }`}
                 >
-                  <div className={`p-5 grid grid-cols-1 sm:grid-cols-3 gap-4 ${
+                  <div className={`p-4 flex flex-row gap-3 ${
                     business.category === 'small'
                       ? 'bg-gradient-to-br from-orange-50 to-amber-50'
                       : 'bg-gradient-to-br from-orange-100 to-amber-100'
                   }`}>
-                    <div className="flex items-center justify-center sm:border-r sm:border-orange-200/50">
-                      <div className={`p-4 rounded-2xl shadow-lg ${
+                    <div className="flex items-center justify-center border-r border-orange-200/50 pr-3">
+                      <div className={`p-3 rounded-xl shadow-lg ${
                         business.is_owned
                           ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
                           : isLocked
@@ -176,20 +176,20 @@ export function BusinessModal({
                           : 'bg-gradient-to-br from-orange-400 to-amber-500 text-white'
                       } flex items-center justify-center transition-all hover:scale-105`}>
                         {isLocked ? (
-                          <Lock className="w-20 h-20 sm:w-24 sm:h-24" />
+                          <Lock className="w-14 h-14" />
                         ) : business.icon_url ? (
                           <img
                             src={business.icon_url}
                             alt={business.name}
-                            className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-xl"
+                            className="w-14 h-14 object-cover rounded-lg"
                           />
                         ) : (
-                          <Icon className="w-20 h-20 sm:w-24 sm:h-24" />
+                          <Icon className="w-14 h-14" />
                         )}
                       </div>
                     </div>
 
-                    <div className="sm:col-span-2 flex flex-col justify-between">
+                    <div className="flex-1 flex flex-col justify-between min-w-0">
                       <div>
                         <div className="flex items-start justify-between mb-2">
                           <div>
