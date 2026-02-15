@@ -49,8 +49,8 @@ export function Header({
 
   const formatHourly = (amount: number) => {
     if (amount >= 1000000) return `$${(amount / 1000000).toFixed(2)}M/h`;
-    if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}K/h`;
-    return `$${amount.toFixed(1)}/h`;
+    if (amount >= 1000) return `$${(amount / 1000).toFixed(2)}K/h`;
+    return `$${amount.toFixed(2)}/h`;
   };
 
   return (
