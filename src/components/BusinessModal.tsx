@@ -175,8 +175,18 @@ export function BusinessModal({
                             : isLocked
                             ? 'bg-gray-400 text-white'
                             : 'bg-orange-500 text-white'
-                        } shadow-lg`}>
-                          {isLocked ? <Lock className="w-6 h-6" /> : <Icon className="w-6 h-6" />}
+                        } shadow-lg flex items-center justify-center`}>
+                          {isLocked ? (
+                            <Lock className="w-6 h-6" />
+                          ) : business.icon_url ? (
+                            <img
+                              src={business.icon_url}
+                              alt={business.name}
+                              className="w-6 h-6 object-contain"
+                            />
+                          ) : (
+                            <Icon className="w-6 h-6" />
+                          )}
                         </div>
                         <div>
                           <h3 className="font-bold text-lg text-gray-900">{business.name}</h3>

@@ -400,6 +400,7 @@ export interface Database {
           base_hourly_income: number
           unlock_order: number
           icon_name: string
+          icon_url: string | null
           created_at: string
         }
         Insert: {
@@ -411,6 +412,7 @@ export interface Database {
           base_hourly_income: number
           unlock_order: number
           icon_name: string
+          icon_url?: string | null
           created_at?: string
         }
         Update: {
@@ -422,6 +424,7 @@ export interface Database {
           base_hourly_income?: number
           unlock_order?: number
           icon_name?: string
+          icon_url?: string | null
           created_at?: string
         }
       }
