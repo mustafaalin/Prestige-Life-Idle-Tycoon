@@ -114,8 +114,78 @@ export function useGameState(deviceId: string, userId: string | null) {
     };
   }, []);
 
-  const loadBusinesses = useCallback(async () => {
-    if (!userId) {
+  /**
+   * Resolves the player profile ID by checking auth_user_id first, then device_id.
+   * If found by device_id and auth is available, links the profile to auth.
+   * Returns the profile ID or null if not found.
+   */
+  const resolveProfile = useCallback(async (): Promise<string | null> => {
+    if (!deviceId) return null;
+
+    try {
+      // Step 1: If authenticated, try to find by auth_user_id
+      if (userId) {
+        const { data: authProfile, error: authError } = await supabase
+          .from('player_profiles')
+          .select('id, auth_user_id')
+          .eq('auth_user_id', userId)
+          .maybeSingle();
+
+        if (authError && authError.code !== 'PGRST116') {
+          console.error('Error finding profile by auth_user_id:', authError);
+        }
+
+        if (authProfile) {
+          console.log('[resolveProfile] Found profile by auth_user_id:', authProfile.id);
+          return authProfile.id;
+        }
+      }
+
+      // Step 2: Try to find by device_id
+      const { data: deviceProfile, error: deviceError } = await supabase
+        .from('player_profiles')
+        .select('id, device_id, auth_user_id')
+        .eq('device_id', deviceId)
+        .maybeSingle();
+
+      if (deviceError && deviceError.code !== 'PGRST116') {
+        console.error('Error finding profile by device_id:', deviceError);
+      }
+
+      if (!deviceProfile) {
+        console.log('[resolveProfile] No profile found');
+        return null;
+      }
+
+      // Step 3: If found by device and auth is available, link them
+      if (deviceProfile && userId && !deviceProfile.auth_user_id) {
+        console.log('[resolveProfile] Linking device profile to auth user:', {
+          profileId: deviceProfile.id,
+          authUserId: userId
+        });
+
+        const { error: updateError } = await supabase
+          .from('player_profiles')
+          .update({ auth_user_id: userId })
+          .eq('id', deviceProfile.id);
+
+        if (updateError) {
+          console.error('Error linking profile to auth:', updateError);
+        } else {
+          console.log('[resolveProfile] Successfully linked profile to auth');
+        }
+      }
+
+      console.log('[resolveProfile] Found profile by device_id:', deviceProfile.id);
+      return deviceProfile.id;
+    } catch (error) {
+      console.error('[resolveProfile] Unexpected error:', error);
+      return null;
+    }
+  }, [deviceId, userId]);
+
+  const loadBusinesses = useCallback(async (profileId: string) => {
+    if (!profileId) {
       setGameState(prev => ({ ...prev, businessesLoading: false }));
       return;
     }
@@ -125,7 +195,7 @@ export function useGameState(deviceId: string, userId: string | null) {
 
       const { data, error } = await supabase
         .rpc('get_all_businesses', {
-          p_player_id: userId
+          p_player_id: profileId
         } as any);
 
       if (error) throw error;
@@ -144,10 +214,10 @@ export function useGameState(deviceId: string, userId: string | null) {
         businessesLoading: false,
       }));
     }
-  }, [userId]);
+  }, []);
 
   const loadGameData = useCallback(async (shouldCalculateOfflineEarnings: boolean = true) => {
-    if (!deviceId || !userId) {
+    if (!deviceId) {
       setGameState(prev => ({ ...prev, loading: false }));
       return;
     }
@@ -155,15 +225,26 @@ export function useGameState(deviceId: string, userId: string | null) {
     console.log('[loadGameData] Starting to load game data...', { deviceId, userId });
 
     try {
+      // Resolve the actual profile ID (from auth_user_id or device_id)
+      const profileId = await resolveProfile();
+
+      if (!profileId) {
+        console.log('[loadGameData] No profile found, will need to create one');
+        setGameState(prev => ({ ...prev, loading: false, profile: null }));
+        return;
+      }
+
+      console.log('[loadGameData] Using profile ID:', profileId);
+
       const [profileRes, charactersRes, housesRes, carsRes, purchasesRes, jobsRes, playerJobsRes, gameStatsRes] = await Promise.all([
-        supabase.from('player_profiles').select('*').eq('id', userId).maybeSingle(),
+        supabase.from('player_profiles').select('*').eq('id', profileId).maybeSingle(),
         supabase.from('characters').select('*').order('unlock_order'),
         supabase.from('houses').select('*').order('level'),
         supabase.from('cars').select('*').order('level'),
-        supabase.from('player_purchases').select('*').eq('player_id', userId),
+        supabase.from('player_purchases').select('*').eq('player_id', profileId),
         supabase.from('jobs').select('*').order('level'),
-        supabase.from('player_jobs').select('*').eq('player_id', userId),
-        supabase.from('game_stats').select('*').eq('player_id', userId).maybeSingle(),
+        supabase.from('player_jobs').select('*').eq('player_id', profileId),
+        supabase.from('game_stats').select('*').eq('player_id', profileId).maybeSingle(),
       ]);
 
       if (charactersRes.error) throw charactersRes.error;
@@ -224,7 +305,7 @@ export function useGameState(deviceId: string, userId: string | null) {
               lifetime_earnings: profile.lifetime_earnings,
               last_played_at: new Date().toISOString(),
             })
-            .eq('id', userId);
+            .eq('id', profileId);
         }
       }
 
@@ -237,7 +318,7 @@ export function useGameState(deviceId: string, userId: string | null) {
           .update({
             last_work_started_at: new Date().toISOString(),
           })
-          .eq('player_id', userId)
+          .eq('player_id', profileId)
           .eq('id', activePlayerJob.id);
       }
 
@@ -269,9 +350,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         unsavedJobWorkSeconds: 0,
       });
 
-      if (userId) {
-        loadBusinesses();
-      }
+      loadBusinesses(profileId);
     } catch (error) {
       console.error('Error loading game data:', error);
       setGameState(prev => ({
@@ -280,16 +359,16 @@ export function useGameState(deviceId: string, userId: string | null) {
         error: error instanceof Error ? error.message : 'Failed to load game data',
       }));
     }
-  }, [deviceId, userId, loadFromLocalStorage, calculateOfflineEarnings, loadBusinesses]);
+  }, [deviceId, userId, resolveProfile, loadFromLocalStorage, calculateOfflineEarnings, loadBusinesses]);
 
   const saveProfile = useCallback(async (updates: Partial<PlayerProfile>) => {
-    if (!userId || !gameState.profile) return;
+    if (!gameState.profile) return;
 
     try {
       const { error } = await supabase
         .from('player_profiles')
         .update(updates)
-        .eq('id', userId);
+        .eq('id', gameState.profile.id);
 
       if (error) throw error;
 
@@ -302,7 +381,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     } catch (error) {
       console.error('Error saving profile:', error);
     }
-  }, [userId, gameState.profile, saveToLocalStorage]);
+  }, [gameState.profile, saveToLocalStorage]);
 
   /**
    * GAME INITIALIZATION RULES (OYUN BAŞLANGIÇ KURALLARI)
@@ -341,9 +420,17 @@ export function useGameState(deviceId: string, userId: string | null) {
    */
   const createProfile = useCallback(async () => {
     const playerName = deviceIdentity.getPlayerName();
-    if (!userId || !deviceId) return;
+    if (!deviceId) return;
 
     try {
+      // Check if profile already exists with this device_id
+      const existingProfileId = await resolveProfile();
+      if (existingProfileId) {
+        console.log('[createProfile] Profile already exists, reloading instead');
+        await loadGameData(false);
+        return;
+      }
+
       // Find Mike character or first free male character
       const { data: mikeCharacter } = await supabase
         .from('characters')
@@ -374,8 +461,8 @@ export function useGameState(deviceId: string, userId: string | null) {
       const firstHouse = gameState.houses.find(h => h.price === 0);
 
       const newProfile = {
-        id: userId,
         device_id: deviceId,
+        auth_user_id: userId || null,
         display_name: playerName,
         username: playerName,
         total_money: 100,
@@ -392,33 +479,40 @@ export function useGameState(deviceId: string, userId: string | null) {
         selected_car_id: null,
         created_at: new Date().toISOString(),
         last_played_at: new Date().toISOString(),
-      } as PlayerProfile;
+      };
 
-      const { error } = await supabase
+      const { data: insertedProfile, error } = await supabase
         .from('player_profiles')
-        .insert(newProfile);
+        .insert(newProfile)
+        .select()
+        .single();
 
       if (error) throw error;
 
+      if (!insertedProfile) {
+        console.error('Profile was not created');
+        return;
+      }
+
       await supabase.from('game_stats').insert({
-        player_id: userId,
+        player_id: insertedProfile.id,
       });
 
       setGameState(prev => ({
         ...prev,
-        profile: newProfile,
+        profile: insertedProfile as PlayerProfile,
         ownedCharacters: [],
         ownedHouses: [],
         ownedCars: [],
       }));
 
-      saveToLocalStorage({ profile: newProfile });
+      saveToLocalStorage({ profile: insertedProfile as PlayerProfile });
 
       await loadGameData(false);
     } catch (error) {
       console.error('Error creating profile:', error);
     }
-  }, [userId, deviceId, gameState.houses, gameState.jobs, saveToLocalStorage, loadGameData]);
+  }, [deviceId, userId, resolveProfile, gameState.houses, saveToLocalStorage, loadGameData]);
 
   const handleClick = useCallback(() => {
     if (!gameState.profile) return;
@@ -450,7 +544,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     itemId: string,
     price: number
   ) => {
-    if (!userId || !gameState.profile) return false;
+    if (!gameState.profile) return false;
 
     if (gameState.profile.total_money < price) {
       return false;
@@ -460,7 +554,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       const { error: purchaseError } = await supabase
         .from('player_purchases')
         .insert({
-          player_id: userId,
+          player_id: gameState.profile.id,
           item_type: itemType,
           item_id: itemId,
           purchase_price: price,
@@ -507,7 +601,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       console.error('Error purchasing item:', error);
       return false;
     }
-  }, [userId, gameState.profile, gameState.houses, gameState.cars, saveProfile]);
+  }, [gameState.profile, gameState.houses, gameState.cars, saveProfile]);
 
   const updatePlayerName = useCallback(async (newName: string) => {
     await saveProfile({ display_name: newName, username: newName });
@@ -521,7 +615,7 @@ export function useGameState(deviceId: string, userId: string | null) {
   }, []);
 
   const unlockJob = useCallback(async (jobId: string) => {
-    if (!userId || !gameState.profile) return false;
+    if (!gameState.profile) return false;
 
     const job = gameState.jobs.find(j => j.id === jobId);
     if (!job) return false;
@@ -534,7 +628,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       const { error } = await supabase
         .from('player_jobs')
         .insert({
-          player_id: userId,
+          player_id: gameState.profile.id,
           job_id: jobId,
           is_unlocked: true,
           is_active: false,
@@ -549,10 +643,10 @@ export function useGameState(deviceId: string, userId: string | null) {
       console.error('Error unlocking job:', error);
       return false;
     }
-  }, [userId, gameState.profile, gameState.jobs, loadGameData]);
+  }, [gameState.profile, gameState.jobs, loadGameData]);
 
   const selectJob = useCallback(async (jobId: string) => {
-    if (!userId || !gameState.profile) return false;
+    if (!gameState.profile) return false;
 
     if (gameState.jobChangeLockedUntil && Date.now() < gameState.jobChangeLockedUntil) {
       return false;
@@ -577,13 +671,13 @@ export function useGameState(deviceId: string, userId: string | null) {
             is_active: false,
             total_time_worked_seconds: newTotalTime,
           })
-          .eq('player_id', userId)
+          .eq('player_id', gameState.profile.id)
           .eq('id', currentActiveJob.id);
       } else if (currentActiveJob) {
         await supabase
           .from('player_jobs')
           .update({ is_active: false })
-          .eq('player_id', userId)
+          .eq('player_id', gameState.profile.id)
           .eq('id', currentActiveJob.id);
       }
 
@@ -594,7 +688,7 @@ export function useGameState(deviceId: string, userId: string | null) {
           is_active: true,
           last_work_started_at: new Date().toISOString(),
         })
-        .eq('player_id', userId)
+        .eq('player_id', gameState.profile.id)
         .eq('job_id', jobId);
 
       const totalBusinessIncome = gameState.businesses
@@ -618,15 +712,15 @@ export function useGameState(deviceId: string, userId: string | null) {
       console.error('Error selecting job:', error);
       return false;
     }
-  }, [userId, gameState.profile, gameState.jobs, gameState.playerJobs, gameState.businesses, gameState.jobChangeLockedUntil, gameState.unsavedJobWorkSeconds, saveProfile, loadGameData]);
+  }, [gameState.profile, gameState.jobs, gameState.playerJobs, gameState.businesses, gameState.jobChangeLockedUntil, gameState.unsavedJobWorkSeconds, saveProfile, loadGameData]);
 
   const resetProgress = useCallback(async () => {
-    if (!userId) return;
+    if (!gameState.profile) return;
 
     try {
       // Call database function to reset progress and save history
       const { error } = await supabase.rpc('reset_player_progress', {
-        p_player_id: userId
+        p_player_id: gameState.profile.id
       });
 
       if (error) throw error;
@@ -639,13 +733,13 @@ export function useGameState(deviceId: string, userId: string | null) {
     } catch (error) {
       console.error('Error resetting progress:', error);
     }
-  }, [userId]);
+  }, [gameState.profile]);
 
   useEffect(() => {
-    if (deviceId && userId) {
+    if (deviceId) {
       loadGameData(true);
     }
-  }, [deviceId, userId]);
+  }, [deviceId, userId, loadGameData]);
 
   useEffect(() => {
     if (!gameState.profile || !gameState.profile.hourly_income || gameState.profile.hourly_income <= 0) return;
@@ -682,7 +776,7 @@ export function useGameState(deviceId: string, userId: string | null) {
   }, [gameState.profile?.hourly_income, saveToLocalStorage]);
 
   useEffect(() => {
-    if (!userId || !gameState.profile) return;
+    if (!gameState.profile) return;
 
     autoSaveInterval.current = setInterval(() => {
       if (gameState.profile) {
@@ -700,10 +794,10 @@ export function useGameState(deviceId: string, userId: string | null) {
         clearInterval(autoSaveInterval.current);
       }
     };
-  }, [userId, gameState.profile, saveProfile]);
+  }, [gameState.profile, saveProfile]);
 
   useEffect(() => {
-    if (!userId || !gameState.profile) return;
+    if (!gameState.profile) return;
 
     const updateLastPlayed = () => {
       if (gameState.profile) {
@@ -733,10 +827,10 @@ export function useGameState(deviceId: string, userId: string | null) {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [userId, gameState.profile, saveProfile]);
+  }, [gameState.profile, saveProfile]);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!gameState.profile) return;
 
     const activeJob = gameState.playerJobs.find(pj => pj.is_active);
     if (!activeJob) {
@@ -773,6 +867,8 @@ export function useGameState(deviceId: string, userId: string | null) {
       if (!isTabVisible.current || document.hidden) return;
 
       const currentState = gameStateRef.current;
+      if (!currentState.profile) return;
+
       const currentActiveJob = currentState.playerJobs.find(pj => pj.is_active);
       const unsaved = currentState.unsavedJobWorkSeconds;
 
@@ -786,7 +882,7 @@ export function useGameState(deviceId: string, userId: string | null) {
           .update({
             total_time_worked_seconds: newTotalTime,
           })
-          .eq('player_id', userId)
+          .eq('player_id', currentState.profile.id)
           .eq('id', currentActiveJob.id);
 
         // Reset unsaved after successful save
@@ -805,6 +901,8 @@ export function useGameState(deviceId: string, userId: string | null) {
         isTabVisible.current = false;
 
         const currentState = gameStateRef.current;
+        if (!currentState.profile) return;
+
         const currentActiveJob = currentState.playerJobs.find(pj => pj.is_active);
         const unsaved = currentState.unsavedJobWorkSeconds;
 
@@ -817,7 +915,7 @@ export function useGameState(deviceId: string, userId: string | null) {
               .update({
                 total_time_worked_seconds: newTotalTime,
               })
-              .eq('player_id', userId)
+              .eq('player_id', currentState.profile.id)
               .eq('id', currentActiveJob.id);
 
             setGameState(prev => ({
@@ -836,6 +934,8 @@ export function useGameState(deviceId: string, userId: string | null) {
     // Flush unsaved delta to DB on page unload
     const handlePageHide = async () => {
       const currentState = gameStateRef.current;
+      if (!currentState.profile) return;
+
       const currentActiveJob = currentState.playerJobs.find(pj => pj.is_active);
       const unsaved = currentState.unsavedJobWorkSeconds;
 
@@ -848,7 +948,7 @@ export function useGameState(deviceId: string, userId: string | null) {
             .update({
               total_time_worked_seconds: newTotalTime,
             })
-            .eq('player_id', userId)
+            .eq('player_id', currentState.profile.id)
             .eq('id', currentActiveJob.id);
         } catch (error) {
           console.error('Error saving job work time on page hide:', error);
@@ -871,15 +971,15 @@ export function useGameState(deviceId: string, userId: string | null) {
       window.removeEventListener('pagehide', handlePageHide);
       window.removeEventListener('beforeunload', handlePageHide);
     };
-  }, [userId, gameState.playerJobs]);
+  }, [gameState.profile, gameState.playerJobs]);
 
   const claimDailyReward = useCallback(async () => {
-    if (!userId || !gameState.profile || !gameState.gameStats) return false;
+    if (!gameState.profile || !gameState.gameStats) return false;
 
     try {
       const { data, error } = await supabase
         .rpc('claim_daily_reward', {
-          p_player_id: userId
+          p_player_id: gameState.profile.id
         } as any);
 
       if (error) {
@@ -907,15 +1007,15 @@ export function useGameState(deviceId: string, userId: string | null) {
       console.error('Error claiming daily reward:', error);
       return false;
     }
-  }, [userId, gameState.profile, gameState.gameStats, loadGameData]);
+  }, [gameState.profile, gameState.gameStats, loadGameData]);
 
   const claimAccumulatedMoney = useCallback(async (isTriple: boolean) => {
-    if (!userId || !gameState.profile) return false;
+    if (!gameState.profile) return false;
 
     try {
       const { data, error } = await supabase
         .rpc('claim_accumulated_money', {
-          p_player_id: userId,
+          p_player_id: gameState.profile.id,
           p_is_triple: isTriple
         } as any);
 
@@ -964,15 +1064,15 @@ export function useGameState(deviceId: string, userId: string | null) {
       console.error('Error claiming accumulated money:', error);
       return false;
     }
-  }, [userId, gameState.profile, saveToLocalStorage]);
+  }, [gameState.profile, saveToLocalStorage]);
 
   const watchAd = useCallback(async () => {
-    if (!userId || !gameState.profile) return { success: false, reward: 0, cooldown: 0 };
+    if (!gameState.profile) return { success: false, reward: 0, cooldown: 0 };
 
     try {
       const { data, error } = await supabase
         .rpc('claim_ad_reward', {
-          p_player_id: userId
+          p_player_id: gameState.profile.id
         } as any);
 
       if (error) {
@@ -1023,10 +1123,10 @@ export function useGameState(deviceId: string, userId: string | null) {
       console.error('Error watching ad:', error);
       return { success: false, reward: 0, cooldown: 0 };
     }
-  }, [userId, gameState.profile, saveToLocalStorage]);
+  }, [gameState.profile, saveToLocalStorage]);
 
   const purchaseBusiness = useCallback(async (businessId: string) => {
-    if (!userId || !gameState.profile) return false;
+    if (!gameState.profile) return false;
 
     const business = gameState.businesses.find(b => b.id === businessId);
     if (!business) return false;
@@ -1039,7 +1139,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       const { data, error } = await supabase
         .rpc('purchase_business', {
           p_business_id: businessId,
-          p_player_id: userId
+          p_player_id: gameState.profile.id
         } as any);
 
       if (error) throw error;
@@ -1057,16 +1157,16 @@ export function useGameState(deviceId: string, userId: string | null) {
       console.error('Error purchasing business:', error);
       return false;
     }
-  }, [userId, gameState.profile, gameState.businesses, loadGameData]);
+  }, [gameState.profile, gameState.businesses, loadGameData]);
 
   const upgradeBusiness = useCallback(async (businessId: string, targetLevel: number) => {
-    if (!userId || !gameState.profile) return false;
+    if (!gameState.profile) return false;
 
     try {
       const { data, error } = await supabase
         .rpc('upgrade_business', {
           p_business_id: businessId,
-          p_player_id: userId
+          p_player_id: gameState.profile.id
         } as any);
 
       if (error) throw error;
@@ -1091,7 +1191,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       console.error('Error upgrading business:', error);
       return false;
     }
-  }, [userId, gameState.profile, loadGameData]);
+  }, [gameState.profile, loadGameData]);
 
   return {
     ...gameState,
