@@ -12,7 +12,7 @@ import { BusinessModal } from './components/BusinessModal';
 import { BottomNav } from './components/BottomNav';
 
 function App() {
-  const { deviceId, isAuthenticated, user } = useAuth();
+  const { deviceId, isAuthenticated, user, loading: authLoading } = useAuth();
   const gameState = useGameState(deviceId, user?.id || null);
   const [showShop, setShowShop] = useState(false);
   const [showJobs, setShowJobs] = useState(false);
@@ -45,10 +45,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!gameState.profile && !gameState.loading && isAuthenticated) {
+    if (!authLoading && !gameState.profile && !gameState.loading && isAuthenticated && user?.id) {
       gameState.createProfile();
     }
-  }, [gameState.profile, gameState.loading, isAuthenticated]);
+  }, [authLoading, gameState.profile, gameState.loading, isAuthenticated, user?.id]);
 
   async function handlePlayerNameChange(newName: string) {
     await gameState.updatePlayerName(newName);
@@ -58,7 +58,7 @@ function App() {
     gameState.resetProgress();
   }
 
-  if (!isAuthenticated || gameState.loading) {
+  if (authLoading || !isAuthenticated || gameState.loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600 flex items-center justify-center">
         <div className="bg-white/20 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border-2 border-white/30">
@@ -87,12 +87,6 @@ function App() {
     (h) => h.id === gameState.profile?.selected_house_id
   );
   const currentCar = gameState.cars.find((c) => c.id === gameState.profile?.selected_car_id);
-
-  console.log('[App] Rendering with:', {
-    housesCount: gameState.houses.length,
-    selectedHouseId: gameState.profile?.selected_house_id,
-    currentHouse: currentHouse ? { id: currentHouse.id, name: currentHouse.name, imageUrl: currentHouse.image_url } : 'NOT FOUND',
-  });
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">

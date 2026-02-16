@@ -7,7 +7,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [deviceId, setDeviceId] = useState<string>('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -19,7 +19,7 @@ export function useAuth() {
       if (session?.user) {
         setUser(session.user);
         setIsAuthenticated(true);
-        setIsLoading(false);
+        setLoading(false);
       } else {
         const { data: authData, error } = await supabase.auth.signInAnonymously({
           options: {
@@ -30,12 +30,11 @@ export function useAuth() {
         });
 
         if (error) {
-          console.error('Anonymous sign in error:', error);
-          setIsLoading(false);
+          setLoading(false);
         } else if (authData?.user) {
           setUser(authData.user);
           setIsAuthenticated(true);
-          setIsLoading(false);
+          setLoading(false);
         }
       }
     };
@@ -77,6 +76,7 @@ export function useAuth() {
     user,
     deviceId,
     isAuthenticated,
+    loading,
     signUp,
     signIn,
     signOut,

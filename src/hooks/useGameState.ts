@@ -136,7 +136,6 @@ export function useGameState(deviceId: string, userId: string | null) {
         }
 
         if (authProfile) {
-          console.log('[resolveProfile] Found profile by auth_user_id:', authProfile.id);
           return authProfile.id;
         }
       }
@@ -153,17 +152,11 @@ export function useGameState(deviceId: string, userId: string | null) {
       }
 
       if (!deviceProfile) {
-        console.log('[resolveProfile] No profile found');
         return null;
       }
 
       // Step 3: If found by device and auth is available, link them
       if (deviceProfile && userId && !deviceProfile.auth_user_id) {
-        console.log('[resolveProfile] Linking device profile to auth user:', {
-          profileId: deviceProfile.id,
-          authUserId: userId
-        });
-
         const { error: updateError } = await supabase
           .from('player_profiles')
           .update({ auth_user_id: userId })
@@ -171,12 +164,9 @@ export function useGameState(deviceId: string, userId: string | null) {
 
         if (updateError) {
           console.error('Error linking profile to auth:', updateError);
-        } else {
-          console.log('[resolveProfile] Successfully linked profile to auth');
         }
       }
 
-      console.log('[resolveProfile] Found profile by device_id:', deviceProfile.id);
       return deviceProfile.id;
     } catch (error) {
       console.error('[resolveProfile] Unexpected error:', error);
@@ -229,12 +219,9 @@ export function useGameState(deviceId: string, userId: string | null) {
       const profileId = await resolveProfile();
 
       if (!profileId) {
-        console.log('[loadGameData] No profile found, will need to create one');
         setGameState(prev => ({ ...prev, loading: false, profile: null }));
         return;
       }
-
-      console.log('[loadGameData] Using profile ID:', profileId);
 
       const [profileRes, charactersRes, housesRes, carsRes, purchasesRes, jobsRes, playerJobsRes, gameStatsRes] = await Promise.all([
         supabase.from('player_profiles').select('*').eq('id', profileId).maybeSingle(),
@@ -251,14 +238,6 @@ export function useGameState(deviceId: string, userId: string | null) {
       if (housesRes.error) throw housesRes.error;
       if (carsRes.error) throw carsRes.error;
       if (jobsRes.error) throw jobsRes.error;
-
-      console.log('[loadGameData] Data loaded:', {
-        characters: charactersRes.data?.length,
-        houses: housesRes.data?.length,
-        cars: carsRes.data?.length,
-        jobs: jobsRes.data?.length,
-        profile: profileRes.data ? 'exists' : 'null',
-      });
 
       let profile = profileRes.data;
       const localData = loadFromLocalStorage();
@@ -321,12 +300,6 @@ export function useGameState(deviceId: string, userId: string | null) {
           .eq('player_id', profileId)
           .eq('id', activePlayerJob.id);
       }
-
-      console.log('[loadGameData] Setting state with houses:', {
-        housesCount: housesRes.data?.length,
-        houses: housesRes.data,
-        selectedHouseId: profile?.selected_house_id,
-      });
 
       setGameState({
         profile,
@@ -423,15 +396,28 @@ export function useGameState(deviceId: string, userId: string | null) {
     if (!deviceId) return;
 
     try {
-      // Check if profile already exists with this device_id
-      const existingProfileId = await resolveProfile();
-      if (existingProfileId) {
-        console.log('[createProfile] Profile already exists, reloading instead');
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser?.id) {
+        throw new Error('No authenticated user found');
+      }
+
+      const { data: existingProfile } = await supabase
+        .from('player_profiles')
+        .select('id, auth_user_id')
+        .eq('device_id', deviceId)
+        .maybeSingle();
+
+      if (existingProfile) {
+        if (!existingProfile.auth_user_id) {
+          await supabase
+            .from('player_profiles')
+            .update({ auth_user_id: authUser.id })
+            .eq('id', existingProfile.id);
+        }
         await loadGameData(false);
         return;
       }
 
-      // Find Mike character or first free male character
       const { data: mikeCharacter } = await supabase
         .from('characters')
         .select('id')
@@ -454,7 +440,6 @@ export function useGameState(deviceId: string, userId: string | null) {
       }
 
       if (!characterId) {
-        console.error('No default character found');
         return;
       }
 
@@ -462,7 +447,7 @@ export function useGameState(deviceId: string, userId: string | null) {
 
       const newProfile = {
         device_id: deviceId,
-        auth_user_id: userId || null,
+        auth_user_id: authUser.id,
         display_name: playerName,
         username: playerName,
         total_money: 100,
@@ -490,7 +475,6 @@ export function useGameState(deviceId: string, userId: string | null) {
       if (error) throw error;
 
       if (!insertedProfile) {
-        console.error('Profile was not created');
         return;
       }
 
@@ -512,7 +496,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     } catch (error) {
       console.error('Error creating profile:', error);
     }
-  }, [deviceId, userId, resolveProfile, gameState.houses, saveToLocalStorage, loadGameData]);
+  }, [deviceId, gameState.houses, saveToLocalStorage, loadGameData]);
 
   const handleClick = useCallback(() => {
     if (!gameState.profile) return;
@@ -997,7 +981,6 @@ export function useGameState(deviceId: string, userId: string | null) {
       };
 
       if (!result.success) {
-        console.log('Cannot claim reward:', result.message);
         return false;
       }
 
