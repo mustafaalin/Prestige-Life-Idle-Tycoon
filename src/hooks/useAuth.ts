@@ -17,6 +17,7 @@ export function useAuth() {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session?.user) {
+        console.log('SESSION_USER', session.user.id, session.user.role);
         setUser(session.user);
         setIsAuthenticated(true);
         setLoading(false);
@@ -30,11 +31,20 @@ export function useAuth() {
         });
 
         if (error) {
+          console.error('Anonymous auth failed:', error);
           setLoading(false);
         } else if (authData?.user) {
-          setUser(authData.user);
-          setIsAuthenticated(true);
-          setLoading(false);
+          const { data: { session: verifiedSession } } = await supabase.auth.getSession();
+
+          if (verifiedSession?.user?.id) {
+            console.log('SESSION_USER', verifiedSession.user.id, verifiedSession.user.role);
+            setUser(verifiedSession.user);
+            setIsAuthenticated(true);
+            setLoading(false);
+          } else {
+            console.error('Session verification failed after anonymous sign-in');
+            setLoading(false);
+          }
         }
       }
     };

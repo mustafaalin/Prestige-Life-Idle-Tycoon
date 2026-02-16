@@ -58,7 +58,37 @@ function App() {
     gameState.resetProgress();
   }
 
-  if (authLoading || !isAuthenticated || gameState.loading) {
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600 flex items-center justify-center">
+        <div className="bg-white/20 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border-2 border-white/30">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white mx-auto"></div>
+          <p className="mt-4 text-white font-bold">Loading your game...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !user?.id) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600 flex items-center justify-center">
+        <div className="bg-white/20 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border-2 border-white/30">
+          <div className="text-center">
+            <p className="text-white font-bold text-xl mb-4">Authentication Failed</p>
+            <p className="text-white/80 mb-6">Unable to authenticate. Please refresh the page.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-white/30 hover:bg-white/40 text-white font-bold rounded-xl transition-all"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (gameState.loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600 flex items-center justify-center">
         <div className="bg-white/20 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border-2 border-white/30">

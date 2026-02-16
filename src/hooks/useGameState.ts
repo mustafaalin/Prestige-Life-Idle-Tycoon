@@ -114,65 +114,6 @@ export function useGameState(deviceId: string, userId: string | null) {
     };
   }, []);
 
-  /**
-   * Resolves the player profile ID by checking auth_user_id first, then device_id.
-   * If found by device_id and auth is available, links the profile to auth.
-   * Returns the profile ID or null if not found.
-   */
-  const resolveProfile = useCallback(async (): Promise<string | null> => {
-    if (!deviceId) return null;
-
-    try {
-      // Step 1: If authenticated, try to find by auth_user_id
-      if (userId) {
-        const { data: authProfile, error: authError } = await supabase
-          .from('player_profiles')
-          .select('id, auth_user_id')
-          .eq('auth_user_id', userId)
-          .maybeSingle();
-
-        if (authError && authError.code !== 'PGRST116') {
-          console.error('Error finding profile by auth_user_id:', authError);
-        }
-
-        if (authProfile) {
-          return authProfile.id;
-        }
-      }
-
-      // Step 2: Try to find by device_id
-      const { data: deviceProfile, error: deviceError } = await supabase
-        .from('player_profiles')
-        .select('id, device_id, auth_user_id')
-        .eq('device_id', deviceId)
-        .maybeSingle();
-
-      if (deviceError && deviceError.code !== 'PGRST116') {
-        console.error('Error finding profile by device_id:', deviceError);
-      }
-
-      if (!deviceProfile) {
-        return null;
-      }
-
-      // Step 3: If found by device and auth is available, link them
-      if (deviceProfile && userId && !deviceProfile.auth_user_id) {
-        const { error: updateError } = await supabase
-          .from('player_profiles')
-          .update({ auth_user_id: userId })
-          .eq('id', deviceProfile.id);
-
-        if (updateError) {
-          console.error('Error linking profile to auth:', updateError);
-        }
-      }
-
-      return deviceProfile.id;
-    } catch (error) {
-      console.error('[resolveProfile] Unexpected error:', error);
-      return null;
-    }
-  }, [deviceId, userId]);
 
   const loadBusinesses = useCallback(async (profileId: string) => {
     if (!profileId) {
@@ -207,7 +148,7 @@ export function useGameState(deviceId: string, userId: string | null) {
   }, []);
 
   const loadGameData = useCallback(async (shouldCalculateOfflineEarnings: boolean = true) => {
-    if (!deviceId) {
+    if (!userId) {
       setGameState(prev => ({ ...prev, loading: false }));
       return;
     }
@@ -215,13 +156,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     console.log('[loadGameData] Starting to load game data...', { deviceId, userId });
 
     try {
-      // Resolve the actual profile ID (from auth_user_id or device_id)
-      const profileId = await resolveProfile();
-
-      if (!profileId) {
-        setGameState(prev => ({ ...prev, loading: false, profile: null }));
-        return;
-      }
+      const profileId = userId;
 
       const [profileRes, charactersRes, housesRes, carsRes, purchasesRes, jobsRes, playerJobsRes, gameStatsRes] = await Promise.all([
         supabase.from('player_profiles').select('*').eq('id', profileId).maybeSingle(),
@@ -332,7 +267,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         error: error instanceof Error ? error.message : 'Failed to load game data',
       }));
     }
-  }, [deviceId, userId, resolveProfile, loadFromLocalStorage, calculateOfflineEarnings, loadBusinesses]);
+  }, [deviceId, userId, loadFromLocalStorage, calculateOfflineEarnings, loadBusinesses]);
 
   const saveProfile = useCallback(async (updates: Partial<PlayerProfile>) => {
     if (!gameState.profile) return;
@@ -403,17 +338,11 @@ export function useGameState(deviceId: string, userId: string | null) {
 
       const { data: existingProfile } = await supabase
         .from('player_profiles')
-        .select('id, auth_user_id')
-        .eq('device_id', deviceId)
+        .select('id')
+        .eq('id', authUser.id)
         .maybeSingle();
 
       if (existingProfile) {
-        if (!existingProfile.auth_user_id) {
-          await supabase
-            .from('player_profiles')
-            .update({ auth_user_id: authUser.id })
-            .eq('id', existingProfile.id);
-        }
         await loadGameData(false);
         return;
       }
@@ -446,6 +375,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       const firstHouse = gameState.houses.find(h => h.price === 0);
 
       const newProfile = {
+        id: authUser.id,
         device_id: deviceId,
         auth_user_id: authUser.id,
         display_name: playerName,
