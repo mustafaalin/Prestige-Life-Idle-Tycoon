@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { X, Gift, DollarSign, Gem, Play, Lock, Monitor, ShoppingBag, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { deviceIdentity } from '../lib/deviceIdentity';
 import { PurchaseConfirmModal } from './PurchaseConfirmModal';
 
 interface ShopModalProps {
   isOpen: boolean;
   onClose: () => void;
+  userId: string;
   hourlyIncome: number;
   lastClaimTime: string | null;
   gems: number;
@@ -50,6 +50,7 @@ const DAILY_REWARDS = [
 export function ShopModal({
   isOpen,
   onClose,
+  userId,
   hourlyIncome,
   lastClaimTime,
   gems,
@@ -87,13 +88,12 @@ export function ShopModal({
     if (!isOpen) return;
 
     const fetchDailyRewardStatus = async () => {
-      const profileId = deviceIdentity.getProfileId();
-      if (!profileId) return;
+      if (!userId) return;
 
       try {
         const { data, error } = await supabase
           .rpc('get_daily_reward_status', {
-            p_player_id: profileId
+            p_player_id: userId
           } as any);
 
         if (error) {
@@ -130,12 +130,11 @@ export function ShopModal({
     if (!isOpen) return;
 
     const fetchPackages = async () => {
-      const profileId = deviceIdentity.getProfileId();
-      if (!profileId) return;
+      if (!userId) return;
 
       try {
         const [moneyResult, gemResult] = await Promise.all([
-          supabase.rpc('get_money_packages', { p_player_id: profileId } as any),
+          supabase.rpc('get_money_packages', { p_player_id: userId } as any),
           supabase.rpc('get_gem_packages'),
         ]);
 
@@ -316,8 +315,7 @@ export function ShopModal({
   const handleConfirmPurchase = async () => {
     if (!selectedPackage) return;
 
-    const profileId = deviceIdentity.getProfileId();
-    if (!profileId) {
+    if (!userId) {
       showNotification('Error: Profile not found');
       return;
     }
@@ -326,7 +324,7 @@ export function ShopModal({
 
     try {
       const { data: txData, error: txError } = await supabase.rpc('create_purchase_transaction', {
-        p_player_id: profileId,
+        p_player_id: userId,
         p_package_id: selectedPackage.packageId,
         p_amount_usd: selectedPackage.price,
       } as any);
@@ -342,7 +340,7 @@ export function ShopModal({
 
       const { data: result, error: completeError } = await supabase.rpc('complete_demo_purchase', {
         p_transaction_id: txResult.transaction_id,
-        p_player_id: profileId,
+        p_player_id: userId,
       } as any);
 
       if (completeError) {

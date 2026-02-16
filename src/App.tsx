@@ -176,6 +176,7 @@ function App() {
           setShowShopModal(false);
           setActiveTab('shop');
         }}
+        userId={user.id}
         hourlyIncome={gameState.profile.hourly_income || 0}
         lastClaimTime={gameState.profile.last_claim_time || null}
         gems={gameState.profile.gems || 0}
