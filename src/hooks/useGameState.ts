@@ -372,7 +372,13 @@ export function useGameState(deviceId: string, userId: string | null) {
         return;
       }
 
-      const firstHouse = gameState.houses.find(h => h.price === 0);
+      const { data: defaultHouse } = await supabase
+        .from('houses')
+        .select('id')
+        .eq('price', 0)
+        .order('level')
+        .limit(1)
+        .maybeSingle();
 
       const newProfile = {
         id: authUser.id,
@@ -390,7 +396,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         gems: 0,
         last_claim_time: new Date().toISOString(),
         selected_character_id: characterId,
-        selected_house_id: firstHouse?.id || null,
+        selected_house_id: defaultHouse?.id || null,
         selected_car_id: null,
         created_at: new Date().toISOString(),
         last_played_at: new Date().toISOString(),
@@ -805,10 +811,15 @@ export function useGameState(deviceId: string, userId: string | null) {
           .eq('player_id', userId)
           .eq('id', currentActiveJob.id);
 
-        // Reset unsaved after successful save
+        // Reset unsaved and update playerJobs array
         setGameState(prev => ({
           ...prev,
           unsavedJobWorkSeconds: 0,
+          playerJobs: prev.playerJobs.map(pj =>
+            pj.id === currentActiveJob.id
+              ? { ...pj, total_time_worked_seconds: newTotalTime }
+              : pj
+          ),
         }));
       } catch (error) {
         console.error('Error auto-saving job work time:', error);
@@ -841,6 +852,11 @@ export function useGameState(deviceId: string, userId: string | null) {
             setGameState(prev => ({
               ...prev,
               unsavedJobWorkSeconds: 0,
+              playerJobs: prev.playerJobs.map(pj =>
+                pj.id === currentActiveJob.id
+                  ? { ...pj, total_time_worked_seconds: newTotalTime }
+                  : pj
+              ),
             }));
           } catch (error) {
             console.error('Error saving job work time on visibility change:', error);
