@@ -617,13 +617,10 @@ export function useGameState(deviceId: string, userId: string | null) {
         .eq('player_id', userId)
         .eq('job_id', jobId);
 
-      const totalBusinessIncome = gameState.businesses
-        .filter(b => b.is_owned)
-        .reduce((sum, b) => sum + b.current_hourly_income, 0);
-
-      await saveProfile({
-        hourly_income: job.hourly_income + totalBusinessIncome,
-      });
+      // Recalculate all income columns (current_job_id, job_income, gross_income, hourly_income)
+      await supabase.rpc('calculate_player_income', {
+        p_player_id: userId
+      } as any);
 
       const lockUntil = Date.now() + 120000;
       setGameState(prev => ({
