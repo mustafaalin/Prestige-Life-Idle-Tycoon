@@ -910,7 +910,7 @@ export function useGameState(deviceId: string, userId: string | null) {
   }, [gameState.profile, gameState.playerJobs, userId]);
 
   const claimDailyReward = useCallback(async () => {
-    if (!gameState.profile || !gameState.gameStats || !userId) return false;
+    if (!gameState.profile || !userId) return false;
 
     try {
       const { data, error } = await supabase
@@ -942,7 +942,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       console.error('Error claiming daily reward:', error);
       return false;
     }
-  }, [gameState.profile, gameState.gameStats, userId, loadGameData]);
+  }, [gameState.profile, userId, loadGameData]);
 
   const claimAccumulatedMoney = useCallback(async (isTriple: boolean) => {
     if (!gameState.profile || !userId) return false;
