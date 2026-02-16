@@ -88,13 +88,21 @@ function App() {
   );
   const currentCar = gameState.cars.find((c) => c.id === gameState.profile?.selected_car_id);
 
+  console.log('[App] Rendering with:', {
+    housesCount: gameState.houses.length,
+    selectedHouseId: gameState.profile?.selected_house_id,
+    currentHouse: currentHouse ? { id: currentHouse.id, name: currentHouse.name, imageUrl: currentHouse.image_url } : 'NOT FOUND',
+  });
+
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {currentHouse?.image_url && (
+      {currentHouse?.image_url ? (
         <div
           className="fixed inset-0 bg-cover bg-center z-0"
           style={{ backgroundImage: `url(${currentHouse.image_url})` }}
         />
+      ) : (
+        <div className="fixed inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 z-0" />
       )}
 
       <Header
