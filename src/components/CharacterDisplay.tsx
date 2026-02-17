@@ -25,17 +25,17 @@ export function CharacterDisplay({
         </div>
       )}
       <div className="relative z-10 flex flex-col items-center">
-        <div className="relative select-none">
-          <div className="relative w-72 h-[500px] sm:w-80 sm:h-[550px] overflow-hidden">
-            <img
-              src={characterImage}
-              alt={characterName}
-              className="w-full h-full object-contain"
-              draggable={false}
-            />
-          </div>
-        </div>
-      </div>
+  <div className="relative select-none transform origin-bottom scale-75 translate-x-6 translate-y-4">
+    <div className="relative w-72 h-[500px] sm:w-80 sm:h-[550px] overflow-hidden">
+      <img
+        src={characterImage}
+        alt={characterName}
+        className="w-full h-full object-contain"
+        draggable={false}
+      />
+    </div>
+  </div>
+</div>
     </div>
   );
 }
