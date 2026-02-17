@@ -17,7 +17,7 @@ export function CharacterDisplay({
       {/* CAR (left side) */}
       {carImage && (
         <div
-          className="absolute bottom-20 left-4 z-10 select-none pointer-events-none"
+          className="absolute bottom-24 left-4 z-10 select-none pointer-events-none"
           style={{ transform: 'translateX(-10px)' }}
         >
           <div className="w-[420px] h-[280px] sm:w-[480px] sm:h-[320px] opacity-95">
