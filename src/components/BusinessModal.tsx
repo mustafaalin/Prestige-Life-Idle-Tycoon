@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { X, Lock, TrendingUp, CheckCircle2, Building2, Store, Zap } from 'lucide-react';
+import { X, Lock, TrendingUp, CheckCircle2, Building2, Store } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { BusinessWithPlayerData, UPGRADE_MULTIPLIERS } from '../lib/database.types';
 
@@ -163,15 +163,15 @@ export function BusinessModal({
                   }`}
                 >
                   <div
-                    className={`p-2 flex flex-row gap-2 h-20 ${
+                    className={`p-3 flex gap-3 ${
                       business.category === 'small'
                         ? 'bg-gradient-to-br from-orange-50 to-amber-50'
                         : 'bg-gradient-to-br from-orange-100 to-amber-100'
                     }`}
                   >
-                    <div className="flex-1 flex items-center justify-center">
+                    <div className="shrink-0 w-[104px] flex items-center justify-center">
                       <div
-                        className={`w-16 h-16 rounded-xl shadow-md border flex items-center justify-center overflow-hidden ${
+                        className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-md border flex items-center justify-center overflow-hidden ${
                           business.is_owned
                             ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-200'
                             : isLocked
@@ -185,7 +185,7 @@ export function BusinessModal({
                           <img
                             src={business.icon_url}
                             alt={business.name}
-                            className="w-[88%] h-[88%] object-contain"
+                            className="w-[90%] h-[90%] object-contain"
                             loading="lazy"
                           />
                         ) : (
@@ -194,34 +194,37 @@ export function BusinessModal({
                       </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col justify-center gap-1 min-w-0">
-                      <h3 className="font-bold text-xs text-gray-900 truncate leading-tight">{business.name}</h3>
+                    <div className="flex-1 flex flex-col justify-center gap-2 min-w-0">
+                      <h3 className="font-extrabold text-sm text-gray-900 leading-tight line-clamp-2">
+                        {business.name}
+                      </h3>
 
                       {!business.is_owned ? (
                         <>
-                          <div className="flex gap-1">
-                            <div className="flex-1 bg-white/70 rounded px-1.5 py-0.5">
-                              <div className="text-[9px] font-semibold text-orange-600 truncate">
+                          <div className="flex flex-wrap gap-2">
+                            <div className="flex-1 bg-white/70 rounded-lg px-2 py-1 min-w-[120px]">
+                              <div className="text-[11px] font-bold text-orange-700 truncate">
                                 {formatMoney(business.base_price)}
                               </div>
                             </div>
-                            <div className="flex-1 bg-white/70 rounded px-1.5 py-0.5 flex items-center gap-0.5">
-                              <TrendingUp className="w-2.5 h-2.5 text-green-600 shrink-0" />
-                              <div className="text-[9px] font-semibold text-green-600 truncate">
+
+                            <div className="flex-1 bg-white/70 rounded-lg px-2 py-1 min-w-[120px] flex items-center gap-1">
+                              <TrendingUp className="w-3 h-3 text-green-600 shrink-0" />
+                              <div className="text-[11px] font-bold text-green-700 truncate">
                                 {formatMoney(business.base_hourly_income)}/h
                               </div>
                             </div>
                           </div>
 
                           {isLocked ? (
-                            <div className="bg-gray-100 rounded px-2 py-1 text-center border border-dashed border-gray-300">
-                              <p className="text-[9px] font-semibold text-gray-600">Locked</p>
+                            <div className="bg-gray-100 rounded-lg px-2 py-1.5 text-center border border-dashed border-gray-300">
+                              <p className="text-[11px] font-semibold text-gray-600">Locked</p>
                             </div>
                           ) : (
                             <button
                               onClick={() => handlePurchase(business.id)}
                               disabled={!canAffordPurchase || isProcessing}
-                              className={`w-full py-1.5 px-2 rounded-lg font-bold text-[10px] transition-all ${
+                              className={`w-full py-2 px-3 rounded-lg font-bold text-xs transition-all ${
                                 canAffordPurchase && !isProcessing
                                   ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 active:scale-95'
                                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -233,9 +236,9 @@ export function BusinessModal({
                         </>
                       ) : (
                         <>
-                          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded px-1.5 py-0.5 border border-blue-200">
-                            <div className="text-[9px] font-black text-green-600 flex items-center justify-center gap-0.5">
-                              <TrendingUp className="w-2.5 h-2.5" />
+                          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg px-2 py-1 border border-blue-200">
+                            <div className="text-[11px] font-black text-green-700 flex items-center justify-center gap-1">
+                              <TrendingUp className="w-3 h-3" />
                               {formatMoney(business.current_hourly_income)}/h
                             </div>
                           </div>
@@ -243,18 +246,25 @@ export function BusinessModal({
                           {business.current_level < 6 ? (
                             <button
                               onClick={() => handleUpgrade(business.id, business.current_level + 1)}
-                              disabled={totalMoney < calculateUpgradeCost(business.current_hourly_income, business.current_level) || isProcessing}
-                              className={`w-full rounded-lg py-1.5 px-2 text-[10px] font-bold transition-all ${
+                              disabled={
+                                totalMoney < calculateUpgradeCost(business.current_hourly_income, business.current_level) ||
+                                isProcessing
+                              }
+                              className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
                                 totalMoney >= calculateUpgradeCost(business.current_hourly_income, business.current_level) && !isProcessing
                                   ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white hover:from-orange-500 hover:to-amber-600 active:scale-95'
                                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                               }`}
                             >
-                              {isProcessing ? 'Wait...' : `↑ L${business.current_level + 1} • ${formatMoney(calculateUpgradeCost(business.current_hourly_income, business.current_level))}`}
+                              {isProcessing
+                                ? 'Wait...'
+                                : `↑ L${business.current_level + 1} • ${formatMoney(
+                                    calculateUpgradeCost(business.current_hourly_income, business.current_level)
+                                  )}`}
                             </button>
                           ) : (
-                            <div className="text-[9px] font-bold text-green-700 bg-gradient-to-r from-green-100 to-emerald-100 py-1 px-1.5 rounded border border-green-300 text-center">
-                              <CheckCircle2 className="w-2.5 h-2.5 inline mr-0.5" />
+                            <div className="text-[11px] font-bold text-green-700 bg-gradient-to-r from-green-100 to-emerald-100 py-2 px-2 rounded-lg border border-green-300 text-center">
+                              <CheckCircle2 className="w-3 h-3 inline mr-1" />
                               MAX
                             </div>
                           )}
