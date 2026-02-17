@@ -12,10 +12,8 @@ export function CharacterDisplay({
   onClickCharacter,
 }: CharacterDisplayProps) {
   return (
-    <div
-      className="relative w-full overflow-hidden"
-      style={{ height: 'calc(100dvh - 88px)' }} // BottomNav yüksekliği kadar yukarıda biter
-    >
+    // Eğer header yoksa: top-0 yap
+    <div className="fixed inset-x-0 top-[88px] bottom-[88px] overflow-hidden">
       {/* CAR (left side) */}
       {carImage && (
         <div
