@@ -92,9 +92,16 @@ export function StuffModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center overflow-y-auto pt-[88px] pb-6">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 border-4 border-orange-100">
-        <div className="sticky top-0 bg-gradient-to-br from-orange-50 to-amber-50 border-b-2 border-orange-100 px-6 py-4 rounded-t-2xl flex items-center justify-between z-10">
+    <div
+      className="fixed inset-x-0 z-[50] flex flex-col pointer-events-none"
+      style={{
+        top: '88px',
+        bottom: '0',
+        height: 'calc(100dvh - 88px)'
+      }}
+    >
+      <div className="bg-white w-full h-full shadow-2xl flex flex-col pointer-events-auto border-t border-b border-orange-100">
+        <div className="bg-gradient-to-br from-orange-50 to-amber-50 border-b-2 border-orange-100 px-6 py-4 flex items-center justify-between">
           <div className="flex-1">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
               <Car className="w-7 h-7 text-orange-600" />
@@ -117,7 +124,7 @@ export function StuffModal({
           </button>
         </div>
 
-        <div className="flex border-b-2 border-orange-100 bg-white sticky top-[84px] z-10">
+        <div className="flex border-b-2 border-orange-100 bg-white">
           <button
             onClick={() => setActiveTab('cars')}
             className={`flex-1 px-6 py-3 font-semibold transition-all ${
@@ -146,7 +153,7 @@ export function StuffModal({
           </button>
         </div>
 
-        <div className="p-6 max-h-[calc(100vh-300px)] overflow-y-auto">
+        <div className="flex-1 overflow-y-auto p-6 bg-white">
           {activeTab === 'cars' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {cars.map((car) => {
