@@ -459,7 +459,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     return earnedMoney;
   }, [gameState.profile, saveToLocalStorage]);
 
-  const purchaseItem = useCallback(async (
+  const purchaseitem = useCallback(async (
     itemType: 'character' | 'house' | 'car',
     itemId: string,
     price: number
@@ -471,10 +471,10 @@ export function useGameState(deviceId: string, userId: string | null) {
     }
 
     try {
-      console.log('[purchaseItem] Purchasing item:', { userId, itemType, itemId });
+      console.log('[purchaseitem] Purchasing item:', { userId, itemType, itemId });
 
       if (itemType === 'car') {
-        const { data, error } = await supabase.rpc('purchaseItem', {
+        const { data, error } = await supabase.rpc('purchaseitem', {
           p_player_id: userId,
           p_item_id: itemId,
           p_item_type: 'car'
