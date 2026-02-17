@@ -544,7 +544,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     if (!gameState.profile || !userId) return false;
 
     try {
-      const { data, error } = await supabase.rpc('purchaseItem', {
+      const { data, error } = await supabase.rpc('purchaseitem', {
         p_player_id: userId,
         p_item_id: carId,
         p_item_type: 'car'
@@ -571,7 +571,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     if (!gameState.profile || !userId) return false;
 
     try {
-      const { data, error } = await supabase.rpc('purchaseItem', {
+      const { data, error } = await supabase.rpc('purchaseitem', {
         p_player_id: userId,
         p_item_id: houseId,
         p_item_type: 'house'
@@ -1198,7 +1198,7 @@ export function useGameState(deviceId: string, userId: string | null) {
   return {
     ...gameState,
     handleClick,
-    purchaseItem,
+    purchaseitem,
     selectCar,
     selectHouse,
     saveProfile,
