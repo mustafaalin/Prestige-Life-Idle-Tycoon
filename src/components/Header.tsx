@@ -86,9 +86,16 @@ export function Header({
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5 bg-white/10 rounded-lg px-2 py-1 border border-white/5 w-fit">
+              <div
+                className={
+                  'flex items-center gap-1.5 rounded-lg px-2 py-1 w-fit border transition-colors ' +
+                  (hourlyIncome < 0
+                    ? 'bg-red-500/25 border-red-400/35'
+                    : 'bg-emerald-500/22 border-emerald-300/35')
+                }
+              >
                 <img src={ICON_BASE_URL + '/wallet.png'} alt="Wallet" className="w-4 h-4" />
-                <span className="text-[11px] font-bold opacity-90 leading-none">
+                <span className="text-[11px] font-bold leading-none">
                   {formatHourly(hourlyIncome)}
                 </span>
               </div>
