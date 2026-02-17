@@ -482,7 +482,12 @@ export function useGameState(deviceId: string, userId: string | null) {
 
         if (error) throw error;
 
-        const result = data as { success: boolean; message: string; new_balance: number };
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          console.error('Purchase failed: Invalid response from database');
+          return false;
+        }
+
+        const result = data[0] as { success: boolean; message: string; new_balance: number };
 
         if (!result.success) {
           console.error('Purchase failed:', result.message);
@@ -552,7 +557,12 @@ export function useGameState(deviceId: string, userId: string | null) {
 
       if (error) throw error;
 
-      const result = data as { success: boolean; message: string; new_balance: number };
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        console.error('Car selection failed: Invalid response from database');
+        return false;
+      }
+
+      const result = data[0] as { success: boolean; message: string; new_balance: number };
 
       if (!result.success) {
         console.error('Car selection failed:', result.message);
@@ -579,7 +589,12 @@ export function useGameState(deviceId: string, userId: string | null) {
 
       if (error) throw error;
 
-      const result = data as { success: boolean; message: string; new_balance: number };
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        console.error('House selection failed: Invalid response from database');
+        return false;
+      }
+
+      const result = data[0] as { success: boolean; message: string; new_balance: number };
 
       if (!result.success) {
         console.error('House selection failed:', result.message);
