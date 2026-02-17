@@ -12,7 +12,7 @@ export function CharacterDisplay({
   onClickCharacter,
 }: CharacterDisplayProps) {
   return (
-    <div className="relative w-full h-full min-h-[560px] overflow-hidden">
+    <div className="relative w-full h-full min-h-[720px] pb-8 overflow-hidden">
       {/* CAR (left side) */}
       {carImage && (
         <div
@@ -32,8 +32,7 @@ export function CharacterDisplay({
 
       {/* CHARACTER (right 1/3 column) */}
       <div className="absolute bottom-0 right-0 z-20 w-1/3 flex justify-end pr-2">
-        {/* scale + position */}
-        <div className="select-none transform origin-bottom scale-75 translate-x-6 translate-y-6">
+        <div className="select-none transform origin-bottom scale-75 translate-x-6 translate-y-4">
           <div className="relative w-72 h-[500px] sm:w-80 sm:h-[550px]">
             <img
               src={characterImage}
