@@ -25,7 +25,7 @@ export function CharacterDisplay({
         </div>
       )}
       <div className="relative z-10 flex flex-col items-center">
-  <div className="relative select-none transform origin-bottom scale-75 translate-x-10 translate-y-8">
+  <div className="relative select-none transform origin-bottom scale-75 translate-x-10 translate-y-6">
     <div className="relative w-72 h-[500px] sm:w-80 sm:h-[550px] overflow-hidden">
       <img
         src={characterImage}
