@@ -472,57 +472,127 @@ export function useGameState(deviceId: string, userId: string | null) {
 
     try {
       console.log('[purchaseItem] Purchasing item:', { userId, itemType, itemId });
-      const { error: purchaseError } = await supabase
-        .from('player_purchases')
-        .insert({
-          player_id: userId,
-          item_type: itemType,
-          item_id: itemId,
-          purchase_price: price,
+
+      if (itemType === 'car') {
+        const { data, error } = await supabase.rpc('purchaseItem', {
+          p_player_id: userId,
+          p_item_id: itemId,
+          p_item_type: 'car'
+        } as any);
+
+        if (error) throw error;
+
+        const result = data as { success: boolean; message: string; new_balance: number };
+
+        if (!result.success) {
+          console.error('Purchase failed:', result.message);
+          return false;
+        }
+
+        await supabase
+          .from('player_purchases')
+          .insert({
+            player_id: userId,
+            item_type: 'car',
+            item_id: itemId,
+            purchase_price: price,
+          });
+
+        await loadGameData(false);
+        return true;
+      } else {
+        const { error: purchaseError } = await supabase
+          .from('player_purchases')
+          .insert({
+            player_id: userId,
+            item_type: itemType,
+            item_id: itemId,
+            purchase_price: price,
+          });
+
+        if (purchaseError) throw purchaseError;
+
+        const newTotalMoney = gameState.profile.total_money - price;
+        const updateData: any = { total_money: newTotalMoney };
+
+        if (itemType === 'character') {
+          updateData.selected_character_id = itemId;
+        }
+
+        await saveProfile(updateData);
+
+        setGameState(prev => {
+          const newOwned = itemType === 'character'
+            ? [...prev.ownedCharacters, itemId]
+            : [...prev.ownedHouses, itemId];
+
+          return {
+            ...prev,
+            [itemType === 'character' ? 'ownedCharacters' : 'ownedHouses']: newOwned,
+          };
         });
 
-      if (purchaseError) throw purchaseError;
-
-      const newTotalMoney = gameState.profile.total_money - price;
-      const updateData: any = { total_money: newTotalMoney };
-
-      if (itemType === 'character') {
-        updateData.selected_character_id = itemId;
-      } else if (itemType === 'house') {
-        updateData.selected_house_id = itemId;
-        const house = gameState.houses.find(h => h.id === itemId);
-        if (house) {
-          updateData.money_per_second = house.passive_income_bonus;
-        }
-      } else if (itemType === 'car') {
-        updateData.selected_car_id = itemId;
-        const car = gameState.cars.find(c => c.id === itemId);
-        if (car) {
-          updateData.prestige_points = gameState.profile.prestige_points + car.prestige_points;
-        }
+        return true;
       }
-
-      await saveProfile(updateData);
-
-      setGameState(prev => {
-        const newOwned = itemType === 'character'
-          ? [...prev.ownedCharacters, itemId]
-          : itemType === 'house'
-          ? [...prev.ownedHouses, itemId]
-          : [...prev.ownedCars, itemId];
-
-        return {
-          ...prev,
-          [itemType === 'character' ? 'ownedCharacters' : itemType === 'house' ? 'ownedHouses' : 'ownedCars']: newOwned,
-        };
-      });
-
-      return true;
     } catch (error) {
       console.error('Error purchasing item:', error);
       return false;
     }
-  }, [gameState.profile, gameState.houses, gameState.cars, userId, saveProfile]);
+  }, [gameState.profile, gameState.houses, gameState.cars, userId, saveProfile, loadGameData]);
+
+  const selectCar = useCallback(async (carId: string) => {
+    if (!gameState.profile || !userId) return false;
+
+    try {
+      const { data, error } = await supabase.rpc('purchaseItem', {
+        p_player_id: userId,
+        p_item_id: carId,
+        p_item_type: 'car'
+      } as any);
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; message: string; new_balance: number };
+
+      if (!result.success) {
+        console.error('Car selection failed:', result.message);
+        return false;
+      }
+
+      await loadGameData(false);
+      return true;
+    } catch (error) {
+      console.error('Error selecting car:', error);
+      return false;
+    }
+  }, [gameState.profile, userId, loadGameData]);
+
+  const selectHouse = useCallback(async (houseId: string) => {
+    if (!gameState.profile || !userId) return false;
+
+    try {
+      const { data, error } = await supabase.rpc('purchaseItem', {
+        p_player_id: userId,
+        p_item_id: houseId,
+        p_item_type: 'house'
+      } as any);
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; message: string; new_balance: number };
+
+      if (!result.success) {
+        console.error('House selection failed:', result.message);
+        return false;
+      }
+
+      await loadGameData(false);
+      return true;
+    } catch (error) {
+      console.error('Error selecting house:', error);
+      return false;
+    }
+  }, [gameState.profile, userId, loadGameData]);
 
   const updatePlayerName = useCallback(async (newName: string) => {
     await saveProfile({ display_name: newName, username: newName });
@@ -1129,6 +1199,8 @@ export function useGameState(deviceId: string, userId: string | null) {
     ...gameState,
     handleClick,
     purchaseItem,
+    selectCar,
+    selectHouse,
     saveProfile,
     createProfile,
     updatePlayerName,

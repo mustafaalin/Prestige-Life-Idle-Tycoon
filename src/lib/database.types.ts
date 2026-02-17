@@ -47,9 +47,8 @@ export interface Database {
           name: string
           description: string
           image_url: string
-          price: number
-          passive_income_bonus: number
           level: number
+          hourly_rent_cost: number
           created_at: string
         }
         Insert: {
@@ -57,9 +56,8 @@ export interface Database {
           name: string
           description: string
           image_url: string
-          price?: number
-          passive_income_bonus?: number
           level?: number
+          hourly_rent_cost?: number
           created_at?: string
         }
         Update: {
@@ -67,9 +65,8 @@ export interface Database {
           name?: string
           description?: string
           image_url?: string
-          price?: number
-          passive_income_bonus?: number
           level?: number
+          hourly_rent_cost?: number
           created_at?: string
         }
       }
@@ -82,6 +79,7 @@ export interface Database {
           price: number
           prestige_points: number
           level: number
+          hourly_maintenance_cost: number
           created_at: string
         }
         Insert: {
@@ -92,6 +90,7 @@ export interface Database {
           price?: number
           prestige_points?: number
           level?: number
+          hourly_maintenance_cost?: number
           created_at?: string
         }
         Update: {
@@ -102,6 +101,7 @@ export interface Database {
           price?: number
           prestige_points?: number
           level?: number
+          hourly_maintenance_cost?: number
           created_at?: string
         }
       }

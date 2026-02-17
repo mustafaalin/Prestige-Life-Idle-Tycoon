@@ -9,6 +9,7 @@ import { Shop } from './components/Shop';
 import { ShopModal } from './components/ShopModal';
 import { JobsModal } from './components/JobsModal';
 import { BusinessModal } from './components/BusinessModal';
+import { StuffModal } from './components/StuffModal';
 import { BottomNav } from './components/BottomNav';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
   const [happiness, setHappiness] = useState(100);
   const [showShopModal, setShowShopModal] = useState(false);
   const [showBusinessModal, setShowBusinessModal] = useState(false);
+  const [showStuffModal, setShowStuffModal] = useState(false);
 
   const handleTabChange = (tab: 'shop' | 'job' | 'business' | 'investments' | 'stuff') => {
     setActiveTab(tab);
@@ -33,6 +35,8 @@ function App() {
       setShowJobs(true);
     } else if (tab === 'business') {
       setShowBusinessModal(true);
+    } else if (tab === 'stuff') {
+      setShowStuffModal(true);
     }
   };
 
@@ -148,6 +152,7 @@ function App() {
         <CharacterDisplay
           characterImage={currentCharacter?.image_url || ''}
           characterName={currentCharacter?.name || 'Character'}
+          carImage={currentCar?.image_url}
           onClickCharacter={gameState.handleClick}
         />
       </main>
@@ -224,6 +229,25 @@ function App() {
             setActiveTab('business');
           }}
           loading={gameState.businessesLoading}
+        />
+      )}
+
+      {showStuffModal && (
+        <StuffModal
+          cars={gameState.cars}
+          houses={gameState.houses}
+          totalMoney={gameState.profile.total_money}
+          selectedCarId={gameState.profile.selected_car_id}
+          selectedHouseId={gameState.profile.selected_house_id}
+          ownedCars={gameState.ownedCars}
+          onPurchaseCar={(carId, price) => gameState.purchaseItem('car', carId, price)}
+          onSelectCar={gameState.selectCar}
+          onSelectHouse={gameState.selectHouse}
+          onClose={() => {
+            setShowStuffModal(false);
+            setActiveTab('stuff');
+          }}
+          loading={gameState.loading}
         />
       )}
 
