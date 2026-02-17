@@ -92,7 +92,7 @@ export function StuffModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center overflow-y-auto pt-[88px] pb-6">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center overflow-y-auto pt-[88px] pb-6">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 border-4 border-orange-100">
         <div className="sticky top-0 bg-gradient-to-br from-orange-50 to-amber-50 border-b-2 border-orange-100 px-6 py-4 rounded-t-2xl flex items-center justify-between z-10">
           <div className="flex-1">
