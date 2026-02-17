@@ -12,7 +12,10 @@ export function CharacterDisplay({
   onClickCharacter,
 }: CharacterDisplayProps) {
   return (
-    <div className="relative w-full h-full min-h-[720px] pb-8 overflow-hidden">
+    <div
+      className="relative w-full overflow-hidden"
+      style={{ height: 'calc(100dvh - 88px)' }} // BottomNav yüksekliği kadar yukarıda biter
+    >
       {/* CAR (left side) */}
       {carImage && (
         <div
@@ -31,8 +34,8 @@ export function CharacterDisplay({
       )}
 
       {/* CHARACTER (right 1/3 column) */}
-      <div className="absolute bottom-16 right-0 z-20 w-1/3 flex justify-end pr-2">
-        <div className="select-none transform origin-bottom scale-75 translate-x-6 translate-y-0">
+      <div className="absolute bottom-0 right-0 z-20 w-1/3 flex justify-end pr-2">
+        <div className="select-none transform origin-bottom scale-75 translate-x-6">
           <div className="relative w-72 h-[500px] sm:w-80 sm:h-[550px]">
             <img
               src={characterImage}
