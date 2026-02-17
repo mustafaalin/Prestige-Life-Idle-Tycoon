@@ -172,7 +172,7 @@ function App() {
         ownedHouses={gameState.ownedHouses}
         ownedCars={gameState.ownedCars}
         totalMoney={gameState.profile.total_money}
-        onPurchase={gameState.purchaseItem}
+        onPurchase={gameState.purchaseitem}
       />
 
       <ShopModal
@@ -240,7 +240,7 @@ function App() {
           selectedCarId={gameState.profile.selected_car_id}
           selectedHouseId={gameState.profile.selected_house_id}
           ownedCars={gameState.ownedCars}
-          onPurchaseCar={(carId, price) => gameState.purchaseItem('car', carId, price)}
+          onPurchaseCar={(carId, price) => gameState.purchaseitem('car', carId, price)}
           onSelectCar={gameState.selectCar}
           onSelectHouse={gameState.selectHouse}
           onClose={() => {
