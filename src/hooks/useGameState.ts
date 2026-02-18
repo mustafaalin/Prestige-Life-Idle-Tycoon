@@ -667,6 +667,10 @@ export function useGameState(deviceId: string, userId: string | null) {
 
       if (error) throw error;
 
+      await supabase.rpc('calculate_player_income', {
+        p_player_id: userId
+      } as any);
+
       await loadGameData(false);
       return true;
     } catch (error) {
