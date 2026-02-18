@@ -13,6 +13,7 @@ interface HeaderProps {
   health: number;
   happiness: number;
   gems: number;
+  prestigePoints: number;
   onOpenProfile: () => void;
   onOpenSettings: () => void;
 }
@@ -25,6 +26,7 @@ export function Header({
   health,
   happiness,
   gems,
+  prestigePoints,
   onOpenProfile,
   onOpenSettings
 }: HeaderProps) {
@@ -60,16 +62,29 @@ export function Header({
       <div className="px-3 py-2.5 relative z-10 w-full">
         <div className="flex w-full items-center gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <button
-              onClick={onOpenProfile}
-              className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 shadow-xl transition-transform active:scale-90"
-            >
-              <img
-                src={characterImage || DEFAULT_PROFILE_PIC}
-                alt={username}
-                className="w-full h-full object-cover"
-              />
-            </button>
+            <div className="flex flex-col items-center gap-1">
+              <button
+                onClick={onOpenProfile}
+                className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 shadow-xl transition-transform active:scale-90"
+              >
+                <img
+                  src={characterImage || DEFAULT_PROFILE_PIC}
+                  alt={username}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+
+              <div className="flex items-center gap-1 bg-gradient-to-r from-yellow-500/25 to-amber-500/25 px-1.5 py-0.5 rounded-md border border-yellow-400/40 shadow-lg">
+                <img
+                  src={ICON_BASE_URL + '/prestige-points.png'}
+                  alt="Prestige"
+                  className="w-3.5 h-3.5"
+                />
+                <span className="text-[11px] font-black text-yellow-100 leading-none">
+                  {prestigePoints}
+                </span>
+              </div>
+            </div>
 
             <div className="flex flex-col gap-1 min-w-0">
               <div

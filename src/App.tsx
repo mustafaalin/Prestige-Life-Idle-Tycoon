@@ -135,11 +135,12 @@ function App() {
 
       <Header
         totalMoney={gameState.profile.total_money}
-        hourlyIncome={Number(gameState.profile.hourly_income ?? 1000)}        
+        hourlyIncome={Number(gameState.profile.hourly_income ?? 1000)}
         username={gameState.profile.display_name || gameState.profile.username}
         health={health}
         happiness={happiness}
         gems={gameState.profile.gems || 0}
+        prestigePoints={gameState.calculatedPrestigePoints}
         onOpenProfile={() => {
           setShowProfile(true);
         }}
