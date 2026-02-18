@@ -926,12 +926,19 @@ export function ShopModal({
                   return (
                     <div
                       key={outfit.id}
-                      className={`bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl overflow-hidden border-2 transition-all ${
+                      className={`relative bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl overflow-hidden border-2 transition-all ${
                         isSelected
                           ? 'border-green-400 shadow-lg shadow-green-200/50'
                           : 'border-slate-200 hover:border-slate-300 hover:shadow-lg'
                       }`}
                     >
+                      {outfit.prestige_points > 0 && (
+                        <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg z-10">
+                          <Sparkles className="w-3 h-3" />
+                          {outfit.prestige_points}
+                        </div>
+                      )}
+
                       <div className="flex">
                         <div className="w-1/3 bg-gradient-to-br from-blue-100 to-purple-100 p-4 flex items-center justify-center">
                           <img

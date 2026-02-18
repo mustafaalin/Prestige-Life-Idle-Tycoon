@@ -138,10 +138,43 @@ export function useGameState(deviceId: string, userId: string | null) {
 
       const businesses = (data || []) as BusinessWithPlayerData[];
 
+      // Calculate businesses prestige: Sum ALL owned businesses' prestige based on level
+      const { data: businessPrestigeData } = await supabase
+        .from('business_prestige_points')
+        .select('*');
+
+      let businessesPrestige = 0;
+      businesses.forEach(business => {
+        if (business.is_owned) {
+          // Find prestige data for this business
+          const prestigeData = (businessPrestigeData || []).find(bp => bp.business_id === business.id);
+          if (prestigeData) {
+            const currentLevel = business.current_level || 0;
+            // Map level to corresponding prestige points
+            if (currentLevel === 0) {
+              businessesPrestige += prestigeData.base_points || 0;
+            } else if (currentLevel === 1) {
+              businessesPrestige += prestigeData.level1_points || 0;
+            } else if (currentLevel === 2) {
+              businessesPrestige += prestigeData.level2_points || 0;
+            } else if (currentLevel === 3) {
+              businessesPrestige += prestigeData.level3_points || 0;
+            } else if (currentLevel === 4) {
+              businessesPrestige += prestigeData.level4_points || 0;
+            } else if (currentLevel === 5) {
+              businessesPrestige += prestigeData.level5_points || 0;
+            } else if (currentLevel === 6) {
+              businessesPrestige += prestigeData.level6_points || 0;
+            }
+          }
+        }
+      });
+
       setGameState(prev => ({
         ...prev,
         businesses,
         businessesLoading: false,
+        calculatedPrestigePoints: prev.calculatedPrestigePoints + businessesPrestige,
       }));
     } catch (error) {
       console.error('Error loading businesses:', error);
@@ -186,6 +219,8 @@ export function useGameState(deviceId: string, userId: string | null) {
         selectedOutfit = outfitData;
       }
 
+      // We'll calculate outfit prestige after loading all data
+
       if (charactersRes.error) throw charactersRes.error;
       if (housesRes.error) throw housesRes.error;
       if (carsRes.error) throw carsRes.error;
@@ -209,14 +244,44 @@ export function useGameState(deviceId: string, userId: string | null) {
         .filter(p => p.item_type === 'car')
         .map(p => p.item_id);
 
+      // Calculate prestige points following the documented rules
       let calculatedPrestigePoints = profile?.prestige_points || 0;
 
-      const purchasedCarIds = purchases.filter(p => p.item_type === 'car').map(p => p.item_id);
-      const carsPrestige = (carsRes.data || [])
-        .filter(car => purchasedCarIds.includes(car.id))
-        .reduce((sum, car) => sum + (car.prestige_points || 0), 0);
+      // Car: Only selected car's prestige (not all owned cars)
+      if (profile?.selected_car_id) {
+        const selectedCar = (carsRes.data || []).find(car => car.id === profile.selected_car_id);
+        if (selectedCar) {
+          calculatedPrestigePoints += selectedCar.prestige_points || 0;
+        }
+      }
 
-      calculatedPrestigePoints += carsPrestige;
+      // House: Only selected house's prestige (not all owned houses)
+      if (profile?.selected_house_id) {
+        const selectedHouse = (housesRes.data || []).find(house => house.id === profile.selected_house_id);
+        if (selectedHouse) {
+          calculatedPrestigePoints += selectedHouse.prestige_points || 0;
+        }
+      }
+
+      // Outfit: Only selected outfit's prestige (will be added after outfit data is loaded)
+      // This will be calculated after selectedOutfit is loaded below
+
+      // Job: Only active job's prestige (not all unlocked jobs)
+      const activePlayerJob = (playerJobsRes.data || []).find(pj => pj.is_active);
+      if (activePlayerJob) {
+        const activeJob = (jobsRes.data || []).find(job => job.id === activePlayerJob.job_id);
+        if (activeJob) {
+          calculatedPrestigePoints += activeJob.prestige_points || 0;
+        }
+      }
+
+      // Outfit: Only selected outfit's prestige (not all unlocked outfits)
+      if (selectedOutfit) {
+        calculatedPrestigePoints += selectedOutfit.prestige_points || 0;
+      }
+
+      // Businesses: Sum ALL owned businesses' prestige (different from other categories)
+      // This will be added when businesses are loaded via loadBusinesses
 
       if (profile?.selected_character_id && !ownedCharacters.includes(profile.selected_character_id)) {
         ownedCharacters.push(profile.selected_character_id);
@@ -248,8 +313,6 @@ export function useGameState(deviceId: string, userId: string | null) {
             .eq('id', profileId);
         }
       }
-
-      const activePlayerJob = (playerJobsRes.data || []).find(pj => pj.is_active);
 
       // Reset last_work_started_at on page load to current time for active job
       if (activePlayerJob && activePlayerJob.is_active) {

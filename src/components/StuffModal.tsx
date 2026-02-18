@@ -19,6 +19,7 @@ interface House {
   image_url: string;
   level: number;
   hourly_rent_cost: number;
+  prestige_points: number;
 }
 
 interface StuffModalProps {
@@ -279,6 +280,13 @@ export function StuffModal({
                       <div className="absolute top-3 right-3 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
                         <Check className="w-3 h-3" />
                         Current Home
+                      </div>
+                    )}
+
+                    {house.prestige_points > 0 && (
+                      <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+                        <Sparkles className="w-3 h-3" />
+                        {house.prestige_points}
                       </div>
                     )}
 

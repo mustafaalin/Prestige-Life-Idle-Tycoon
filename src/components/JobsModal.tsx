@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Briefcase, Lock, Check, Clock } from 'lucide-react';
+import { X, Briefcase, Lock, Check, Clock, Sparkles } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import type { Database } from '../lib/database.types';
 
@@ -170,7 +170,7 @@ export function JobsModal({
               <div
                 key={job.id}
                 className={`
-                  p-4 rounded-xl border-2 transition-all duration-200
+                  relative p-4 rounded-xl border-2 transition-all duration-200
                   ${isActive
                     ? 'bg-blue-50 border-blue-200 shadow-sm'
                     : isUnlocked
@@ -183,6 +183,13 @@ export function JobsModal({
                   }
                 `}
               >
+                {job.prestige_points > 0 && (
+                  <div className="absolute top-2 right-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-md z-10">
+                    <Sparkles className="w-2.5 h-2.5" />
+                    {job.prestige_points}
+                  </div>
+                )}
+
                 <div className="flex items-start gap-3">
                   <div
                     className={`

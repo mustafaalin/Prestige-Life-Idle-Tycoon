@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { X, Lock, TrendingUp, CheckCircle2, Building2, Store } from 'lucide-react';
+import { X, Lock, TrendingUp, CheckCircle2, Building2, Store, Sparkles } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { BusinessWithPlayerData, UPGRADE_MULTIPLIERS } from '../lib/database.types';
 
@@ -154,7 +154,7 @@ export function BusinessModal({
               return (
                 <div
                   key={business.id}
-                  className={`bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-xl ${
+                  className={`relative bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-xl ${
                     isLocked ? 'opacity-60' : ''
                   } ${
                     business.category === 'small'
@@ -162,6 +162,13 @@ export function BusinessModal({
                       : 'border-2 border-orange-600'
                   }`}
                 >
+                  {business.prestige_points > 0 && (
+                    <div className="absolute top-2 right-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-md z-10">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      {business.prestige_points}
+                    </div>
+                  )}
+
                   <div
                     className={`p-3 flex gap-3 ${
                       business.category === 'small'
