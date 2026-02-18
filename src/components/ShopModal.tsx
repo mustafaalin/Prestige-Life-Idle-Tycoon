@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Gift, DollarSign, Gem, Play, Lock, Monitor, ShoppingBag, Sparkles } from 'lucide-react';
+import { X, Gift, DollarSign, Gem, Play, Lock, Monitor, ShoppingBag, Sparkles, Shirt } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { PurchaseConfirmModal } from './PurchaseConfirmModal';
 
@@ -16,6 +16,8 @@ interface ShopModalProps {
   onClaimMoney: (isTriple: boolean) => Promise<boolean>;
   onWatchAd: () => Promise<{ success: boolean; reward: number; cooldown: number }>;
   onPurchaseComplete: (moneyAdded: number, gemsAdded: number) => void;
+  selectedOutfitId: string | null;
+  onOutfitChange: () => void;
 }
 
 interface MoneyPackage {
@@ -35,6 +37,20 @@ interface GemPackage {
   display_order: number;
   is_popular: boolean;
   is_best_value: boolean;
+}
+
+interface CharacterOutfit {
+  id: string;
+  character_id: string | null;
+  code: string;
+  name: string;
+  description: string | null;
+  image_url: string;
+  price: number;
+  prestige_points: number;
+  unlock_order: number;
+  is_owned: boolean;
+  is_unlocked: boolean;
 }
 
 const DAILY_REWARDS = [
@@ -60,7 +76,10 @@ export function ShopModal({
   onClaimMoney,
   onWatchAd,
   onPurchaseComplete,
+  selectedOutfitId,
+  onOutfitChange,
 }: ShopModalProps) {
+  const [activeTab, setActiveTab] = useState<'shop' | 'outfits'>('shop');
   const [accumulatedMoney, setAccumulatedMoney] = useState(0);
   const [timeUntilFull, setTimeUntilFull] = useState(0);
   const [timeUntilUnlock, setTimeUntilUnlock] = useState(0);
@@ -83,6 +102,8 @@ export function ShopModal({
     packageId: string;
   } | null>(null);
   const [isProcessingPurchase, setIsProcessingPurchase] = useState(false);
+  const [outfits, setOutfits] = useState<CharacterOutfit[]>([]);
+  const [outfitsLoading, setOutfitsLoading] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -152,6 +173,50 @@ export function ShopModal({
 
     fetchPackages();
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || activeTab !== 'outfits') return;
+
+    const fetchOutfits = async () => {
+      if (!userId) return;
+
+      try {
+        setOutfitsLoading(true);
+
+        const { data: outfitsData, error: outfitsError } = await supabase
+          .from('character_outfits')
+          .select('*')
+          .eq('is_active', true)
+          .order('unlock_order');
+
+        if (outfitsError) throw outfitsError;
+
+        const { data: playerOutfitsData, error: playerOutfitsError } = await supabase
+          .from('player_outfits')
+          .select('*')
+          .eq('player_id', userId);
+
+        if (playerOutfitsError) throw playerOutfitsError;
+
+        const outfitsWithOwnership = (outfitsData || []).map(outfit => {
+          const playerOutfit = (playerOutfitsData || []).find(po => po.outfit_id === outfit.id);
+          return {
+            ...outfit,
+            is_owned: playerOutfit?.is_owned || false,
+            is_unlocked: playerOutfit?.is_unlocked || false,
+          };
+        });
+
+        setOutfits(outfitsWithOwnership);
+      } catch (error) {
+        console.error('Error fetching outfits:', error);
+      } finally {
+        setOutfitsLoading(false);
+      }
+    };
+
+    fetchOutfits();
+  }, [isOpen, activeTab, userId]);
 
   useEffect(() => {
     if (!isOpen || !lastClaimTime || !hourlyIncome) {
@@ -370,6 +435,62 @@ export function ShopModal({
     }
   };
 
+  const handlePurchaseOutfit = async (outfitId: string, price: number) => {
+    if (!userId) return;
+
+    try {
+      const { error } = await supabase
+        .from('player_outfits')
+        .insert({
+          player_id: userId,
+          outfit_id: outfitId,
+          is_owned: true,
+          is_unlocked: true,
+          purchased_at: new Date().toISOString(),
+        });
+
+      if (error) throw error;
+
+      const { error: updateError } = await supabase
+        .from('player_profiles')
+        .update({
+          total_money: supabase.raw(`total_money - ${price}`),
+        })
+        .eq('id', userId);
+
+      if (updateError) throw updateError;
+
+      showNotification('Outfit purchased successfully!');
+      onPurchaseComplete(-price, 0);
+
+      setOutfits(prev => prev.map(o =>
+        o.id === outfitId ? { ...o, is_owned: true, is_unlocked: true } : o
+      ));
+    } catch (error) {
+      console.error('Error purchasing outfit:', error);
+      showNotification('Failed to purchase outfit');
+    }
+  };
+
+  const handleSelectOutfit = async (outfitId: string) => {
+    if (!userId) return;
+
+    try {
+      const { error } = await supabase
+        .from('player_profiles')
+        .update({ selected_outfit_id: outfitId })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      showNotification('Outfit selected!');
+      onOutfitChange();
+    } catch (error) {
+      console.error('Error selecting outfit:', error);
+      showNotification('Failed to select outfit');
+    }
+  };
+
   const maxAccumulated = (hourlyIncome / 2);
   const progressPercent = maxAccumulated > 0 ? Math.min((accumulatedMoney / maxAccumulated) * 100, 100) : 0;
   const isLocked = timeUntilUnlock > 0;
@@ -415,7 +536,38 @@ export function ShopModal({
           </div>
         )}
 
+        <div className="flex border-b border-purple-100 bg-white">
+          <button
+            onClick={() => setActiveTab('shop')}
+            className={`flex-1 py-3 px-4 font-bold text-sm transition-all ${
+              activeTab === 'shop'
+                ? 'text-purple-700 border-b-2 border-purple-600 bg-purple-50/30'
+                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <ShoppingBag className="w-4 h-4" />
+              <span>Purchases</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('outfits')}
+            className={`flex-1 py-3 px-4 font-bold text-sm transition-all ${
+              activeTab === 'outfits'
+                ? 'text-purple-700 border-b-2 border-purple-600 bg-purple-50/30'
+                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <Shirt className="w-4 h-4" />
+              <span>Outfits</span>
+            </div>
+          </button>
+        </div>
+
         <div className="overflow-y-auto flex-1 p-4 space-y-4 bg-gradient-to-b from-purple-50/30 to-white">
+          {activeTab === 'shop' && (
+            <>
 
           <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-5 border-2 border-yellow-200 shadow-lg">
             <div className="flex items-center gap-2 mb-3">
@@ -756,6 +908,119 @@ export function ShopModal({
               ))}
             </div>
           </div>
+            </>
+          )}
+
+          {activeTab === 'outfits' && (
+            <div className="space-y-3">
+              {outfitsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                </div>
+              ) : outfits.length === 0 ? (
+                <div className="text-center py-12">
+                  <Shirt className="w-16 h-16 mx-auto mb-4 text-slate-300" />
+                  <p className="text-slate-500 font-bold">No outfits available</p>
+                </div>
+              ) : (
+                outfits.map((outfit) => {
+                  const isSelected = selectedOutfitId === outfit.id;
+                  const canAfford = gems >= outfit.price;
+
+                  return (
+                    <div
+                      key={outfit.id}
+                      className={`bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl overflow-hidden border-2 transition-all ${
+                        isSelected
+                          ? 'border-green-400 shadow-lg shadow-green-200/50'
+                          : 'border-slate-200 hover:border-slate-300 hover:shadow-lg'
+                      }`}
+                    >
+                      <div className="flex">
+                        <div className="w-1/3 bg-gradient-to-br from-blue-100 to-purple-100 p-4 flex items-center justify-center">
+                          <img
+                            src={outfit.image_url}
+                            alt={outfit.name}
+                            className="w-full h-auto object-contain"
+                            style={{ minHeight: '280px', maxHeight: '320px' }}
+                          />
+                        </div>
+
+                        <div className="w-2/3 p-4 flex flex-col justify-between">
+                          <div>
+                            <div className="flex items-start justify-between mb-2">
+                              <h3 className="text-lg font-black text-slate-800">{outfit.name}</h3>
+                              {isSelected && (
+                                <span className="bg-green-500 text-white text-[10px] font-black px-2 py-1 rounded-full">
+                                  SELECTED
+                                </span>
+                              )}
+                            </div>
+
+                            {outfit.description && (
+                              <p className="text-xs text-slate-600 mb-3 line-clamp-2">
+                                {outfit.description}
+                              </p>
+                            )}
+
+                            <div className="space-y-2 mb-3">
+                              {outfit.prestige_points > 0 && (
+                                <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-1.5">
+                                  <Sparkles className="w-4 h-4 text-yellow-600" />
+                                  <span className="text-xs font-bold text-yellow-700">
+                                    {outfit.prestige_points} Prestige Points
+                                  </span>
+                                </div>
+                              )}
+
+                              {!outfit.is_owned && (
+                                <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg px-3 py-1.5">
+                                  <Gem className="w-4 h-4 text-purple-600" />
+                                  <span className="text-xs font-bold text-purple-700">
+                                    {outfit.price} Gems
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div>
+                            {outfit.is_owned ? (
+                              isSelected ? (
+                                <div className="w-full bg-green-500 text-white rounded-lg py-2.5 text-sm font-bold text-center flex items-center justify-center gap-2">
+                                  <Sparkles className="w-4 h-4" />
+                                  Currently Equipped
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => handleSelectOutfit(outfit.id)}
+                                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg py-2.5 text-sm font-bold hover:from-blue-600 hover:to-cyan-600 transition-all active:scale-95"
+                                >
+                                  Select
+                                </button>
+                              )
+                            ) : (
+                              <button
+                                onClick={() => handlePurchaseOutfit(outfit.id, outfit.price)}
+                                disabled={!canAfford}
+                                className={`w-full rounded-lg py-2.5 text-sm font-bold transition-all ${
+                                  canAfford
+                                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 active:scale-95'
+                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                }`}
+                              >
+                                {canAfford ? 'Purchase' : 'Not Enough Gems'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
 
         </div>
       </div>

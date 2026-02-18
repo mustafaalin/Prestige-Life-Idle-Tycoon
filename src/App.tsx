@@ -191,14 +191,16 @@ function App() {
         onClaimMoney={gameState.claimAccumulatedMoney}
         onWatchAd={gameState.watchAd}
         onPurchaseComplete={(moneyAdded, gemsAdded) => {
-          // Update profile state immediately
           if (gameState.profile) {
             gameState.saveProfile({
               total_money: gameState.profile.total_money + moneyAdded,
               gems: gameState.profile.gems + gemsAdded,
             });
           }
-          // Reload game data without calculating offline earnings
+          gameState.reload();
+        }}
+        selectedOutfitId={gameState.profile.selected_outfit_id}
+        onOutfitChange={() => {
           gameState.reload();
         }}
       />
