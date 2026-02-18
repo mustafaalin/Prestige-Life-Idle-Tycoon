@@ -267,6 +267,7 @@ function App() {
         totalClicks={gameState.profile.total_clicks}
         playTimeSeconds={playTimeSeconds}
         onResetProgress={handleResetProgress}
+        prestigePoints={gameState.calculatedPrestigePoints}
       />
 
       {gameState.offlineEarnings && gameState.offlineEarnings.amount > 0 && (

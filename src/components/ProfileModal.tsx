@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, User, TrendingUp, MousePointer, Clock, AlertTriangle } from 'lucide-react';
+import { X, User, TrendingUp, MousePointer, Clock, AlertTriangle, Sparkles } from 'lucide-react';
 import { deviceIdentity } from '../lib/deviceIdentity';
 
 interface ProfileModalProps {
@@ -12,6 +12,7 @@ interface ProfileModalProps {
   totalClicks: number;
   playTimeSeconds: number;
   onResetProgress: () => void;
+  prestigePoints: number;
 }
 
 export default function ProfileModal({
@@ -24,6 +25,7 @@ export default function ProfileModal({
   totalClicks,
   playTimeSeconds,
   onResetProgress,
+  prestigePoints,
 }: ProfileModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(playerName);
@@ -160,6 +162,14 @@ export default function ProfileModal({
                   <p className="text-sm text-gray-300">Play Time</p>
                 </div>
                 <p className="text-2xl font-bold text-white">{formatPlayTime(playTimeSeconds)}</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-yellow-500/20 to-amber-500/20 rounded-xl p-4 border border-yellow-500/30">
+                <div className="flex items-center gap-3 mb-2">
+                  <Sparkles className="w-6 h-6 text-yellow-400" />
+                  <p className="text-sm text-gray-300">Prestige Points</p>
+                </div>
+                <p className="text-2xl font-bold text-white">{prestigePoints.toLocaleString()}</p>
               </div>
             </div>
           </div>

@@ -36,6 +36,7 @@ interface GameState {
   dailyClaimedTotal: number;
   businessesLoading: boolean;
   unsavedJobWorkSeconds: number;
+  calculatedPrestigePoints: number;
 }
 
 const GAME_STATE_KEY = 'idle_guy_game_state';
@@ -62,6 +63,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     dailyClaimedTotal: 0,
     businessesLoading: true,
     unsavedJobWorkSeconds: 0,
+    calculatedPrestigePoints: 0,
   });
 
   const passiveIncomeInterval = useRef<NodeJS.Timeout | null>(null);
@@ -207,6 +209,15 @@ export function useGameState(deviceId: string, userId: string | null) {
         .filter(p => p.item_type === 'car')
         .map(p => p.item_id);
 
+      let calculatedPrestigePoints = profile?.prestige_points || 0;
+
+      const purchasedCarIds = purchases.filter(p => p.item_type === 'car').map(p => p.item_id);
+      const carsPrestige = (carsRes.data || [])
+        .filter(car => purchasedCarIds.includes(car.id))
+        .reduce((sum, car) => sum + (car.prestige_points || 0), 0);
+
+      calculatedPrestigePoints += carsPrestige;
+
       if (profile?.selected_character_id && !ownedCharacters.includes(profile.selected_character_id)) {
         ownedCharacters.push(profile.selected_character_id);
       }
@@ -272,6 +283,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         dailyClaimedTotal: profile?.daily_claimed_total || 0,
         businessesLoading: true,
         unsavedJobWorkSeconds: 0,
+        calculatedPrestigePoints,
       });
 
       loadBusinesses(profileId);
@@ -585,25 +597,12 @@ export function useGameState(deviceId: string, userId: string | null) {
     if (!gameState.profile || !userId) return false;
 
     try {
-      const { data, error } = await supabase.rpc('purchaseitem', {
-        p_player_id: userId,
-        p_item_id: carId,
-        p_item_type: 'car'
-      } as any);
+      const { error } = await supabase
+        .from('player_profiles')
+        .update({ selected_car_id: carId })
+        .eq('id', userId);
 
       if (error) throw error;
-
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        console.error('Car selection failed: Invalid response from database');
-        return false;
-      }
-
-      const result = data[0] as { success: boolean; message: string; new_balance: number };
-
-      if (!result.success) {
-        console.error('Car selection failed:', result.message);
-        return false;
-      }
 
       await loadGameData(false);
       return true;

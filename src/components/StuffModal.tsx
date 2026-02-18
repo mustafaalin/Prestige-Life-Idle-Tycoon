@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Car, Home, Lock, Check, ShoppingCart } from 'lucide-react';
+import { X, Car, Home, Lock, Check, ShoppingCart, Sparkles } from 'lucide-react';
 
 interface Car {
   id: string;
@@ -178,6 +178,13 @@ export function StuffModal({
                       </div>
                     )}
 
+                    {car.prestige_points > 0 && (
+                      <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+                        <Sparkles className="w-3 h-3" />
+                        {car.prestige_points}
+                      </div>
+                    )}
+
                     <div className="flex flex-col gap-3">
                       <div className="relative w-full h-32 bg-white rounded-lg overflow-hidden border-2 border-orange-100">
                         <img
@@ -204,10 +211,6 @@ export function StuffModal({
                           <div className="bg-white/60 rounded px-2 py-1 border border-red-200">
                             <span className="text-gray-600">Maintenance:</span>{' '}
                             <span className="font-bold text-red-600">{formatMoney(car.hourly_maintenance_cost)}/h</span>
-                          </div>
-                          <div className="col-span-2 bg-white/60 rounded px-2 py-1 border border-purple-200">
-                            <span className="text-gray-600">Prestige:</span>{' '}
-                            <span className="font-bold text-purple-600">+{car.prestige_points} points</span>
                           </div>
                         </div>
 
