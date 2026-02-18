@@ -1018,7 +1018,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         return false;
       }
 
-      await loadGameData(false);
+      await loadGameData(true);
       return true;
     } catch (error) {
       console.error('Error claiming daily reward:', error);

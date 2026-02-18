@@ -435,40 +435,34 @@ export function ShopModal({
     }
   };
 
-  const handlePurchaseOutfit = async (outfitId: string, price: number) => {
+  const handlePurchaseOutfit = async (outfitId: string, price: number, prestigePoints: number) => {
     if (!userId) return;
 
     try {
-      const { error } = await supabase
-        .from('player_outfits')
-        .insert({
-          player_id: userId,
-          outfit_id: outfitId,
-          is_owned: true,
-          is_unlocked: true,
-          purchased_at: new Date().toISOString(),
-        });
+      const { data, error } = await supabase.rpc('purchase_outfit', {
+        p_player_id: userId,
+        p_outfit_id: outfitId,
+        p_set_as_selected: false
+      });
 
       if (error) throw error;
 
-      const { error: updateError } = await supabase
-        .from('player_profiles')
-        .update({
-          total_money: supabase.raw(`total_money - ${price}`),
-        })
-        .eq('id', userId);
+      const result = data as { success: boolean; message: string; prestige_earned?: number; money_spent?: number };
 
-      if (updateError) throw updateError;
+      if (!result.success) {
+        showNotification(result.message);
+        return;
+      }
 
-      showNotification('Outfit purchased successfully!');
-      onPurchaseComplete(-price, 0);
+      showNotification(`Outfit purchased! +${result.prestige_earned} prestige points`);
+      onPurchaseComplete(-(result.money_spent || price), 0);
 
       setOutfits(prev => prev.map(o =>
         o.id === outfitId ? { ...o, is_owned: true, is_unlocked: true } : o
       ));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error purchasing outfit:', error);
-      showNotification('Failed to purchase outfit');
+      showNotification(`Failed to purchase outfit: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -1001,7 +995,7 @@ export function ShopModal({
                               )
                             ) : (
                               <button
-                                onClick={() => handlePurchaseOutfit(outfit.id, outfit.price)}
+                                onClick={() => handlePurchaseOutfit(outfit.id, outfit.price, outfit.prestige_points)}
                                 disabled={!canAfford}
                                 className={`w-full rounded-lg py-2.5 text-sm font-bold transition-all ${
                                   canAfford
