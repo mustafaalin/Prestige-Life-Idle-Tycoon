@@ -10,6 +10,7 @@ type Car = Database['public']['Tables']['cars']['Row'];
 type Job = Database['public']['Tables']['jobs']['Row'];
 type PlayerJob = Database['public']['Tables']['player_jobs']['Row'];
 type GameStats = Database['public']['Tables']['game_stats']['Row'];
+type CharacterOutfit = Database['public']['Tables']['character_outfits']['Row'];
 
 interface GameState {
   profile: PlayerProfile | null;
@@ -23,6 +24,7 @@ interface GameState {
   ownedCharacters: string[];
   ownedHouses: string[];
   ownedCars: string[];
+  selectedOutfit: CharacterOutfit | null;
   loading: boolean;
   error: string | null;
   offlineEarnings: {
@@ -51,6 +53,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     ownedCharacters: [],
     ownedHouses: [],
     ownedCars: [],
+    selectedOutfit: null,
     loading: true,
     error: null,
     offlineEarnings: null,
@@ -169,6 +172,18 @@ export function useGameState(deviceId: string, userId: string | null) {
         supabase.from('game_stats').select('*').eq('player_id', profileId).maybeSingle(),
       ]);
 
+      // Load selected outfit if profile has one
+      let selectedOutfit: CharacterOutfit | null = null;
+      if (profileRes.data?.selected_outfit_id) {
+        const { data: outfitData } = await supabase
+          .from('character_outfits')
+          .select('*')
+          .eq('id', profileRes.data.selected_outfit_id)
+          .maybeSingle();
+
+        selectedOutfit = outfitData;
+      }
+
       if (charactersRes.error) throw charactersRes.error;
       if (housesRes.error) throw housesRes.error;
       if (carsRes.error) throw carsRes.error;
@@ -248,6 +263,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         ownedCharacters,
         ownedHouses,
         ownedCars,
+        selectedOutfit,
         loading: false,
         error: null,
         offlineEarnings,
@@ -380,6 +396,14 @@ export function useGameState(deviceId: string, userId: string | null) {
         .limit(1)
         .maybeSingle();
 
+      // Get default outfit (unlock_order = 1)
+      const { data: defaultOutfit } = await supabase
+        .from('character_outfits')
+        .select('id')
+        .eq('unlock_order', 1)
+        .eq('is_active', true)
+        .maybeSingle();
+
       const newProfile = {
         id: authUser.id,
         device_id: deviceId,
@@ -398,6 +422,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         selected_character_id: characterId,
         selected_house_id: defaultHouse?.id || null,
         selected_car_id: null,
+        selected_outfit_id: defaultOutfit?.id || null,
         created_at: new Date().toISOString(),
         last_played_at: new Date().toISOString(),
       };
@@ -417,6 +442,17 @@ export function useGameState(deviceId: string, userId: string | null) {
       await supabase.from('game_stats').insert({
         player_id: insertedProfile.id,
       });
+
+      // Add default outfit to player_outfits if exists
+      if (defaultOutfit?.id) {
+        await supabase.from('player_outfits').insert({
+          player_id: insertedProfile.id,
+          outfit_id: defaultOutfit.id,
+          is_owned: true,
+          is_unlocked: true,
+          unlocked_at: new Date().toISOString(),
+        });
+      }
 
       setGameState(prev => ({
         ...prev,

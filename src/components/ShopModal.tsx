@@ -16,6 +16,7 @@ interface ShopModalProps {
   onClaimMoney: (isTriple: boolean) => Promise<boolean>;
   onWatchAd: () => Promise<{ success: boolean; reward: number; cooldown: number }>;
   onPurchaseComplete: (moneyAdded: number, gemsAdded: number) => void;
+  totalMoney: number;
   selectedOutfitId: string | null;
   onOutfitChange: () => void;
 }
@@ -76,6 +77,7 @@ export function ShopModal({
   onClaimMoney,
   onWatchAd,
   onPurchaseComplete,
+  totalMoney,
   selectedOutfitId,
   onOutfitChange,
 }: ShopModalProps) {
@@ -442,7 +444,7 @@ export function ShopModal({
       const { data, error } = await supabase.rpc('purchase_outfit', {
         p_player_id: userId,
         p_outfit_id: outfitId,
-        p_set_as_selected: false
+        p_set_as_selected: true
       });
 
       if (error) throw error;
@@ -919,7 +921,7 @@ export function ShopModal({
               ) : (
                 outfits.map((outfit) => {
                   const isSelected = selectedOutfitId === outfit.id;
-                  const canAfford = gems >= outfit.price;
+                  const canAfford = totalMoney >= outfit.price;
 
                   return (
                     <div
@@ -968,10 +970,10 @@ export function ShopModal({
                               )}
 
                               {!outfit.is_owned && (
-                                <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg px-3 py-1.5">
-                                  <Gem className="w-4 h-4 text-purple-600" />
-                                  <span className="text-xs font-bold text-purple-700">
-                                    {outfit.price} Gems
+                                <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-1.5">
+                                  <DollarSign className="w-4 h-4 text-green-600" />
+                                  <span className="text-xs font-bold text-green-700">
+                                    {formatMoney(outfit.price)}
                                   </span>
                                 </div>
                               )}
@@ -1003,7 +1005,7 @@ export function ShopModal({
                                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                 }`}
                               >
-                                {canAfford ? 'Purchase' : 'Not Enough Gems'}
+                                {canAfford ? 'Purchase' : 'Not Enough Money'}
                               </button>
                             )}
                           </div>

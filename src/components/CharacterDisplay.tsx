@@ -2,6 +2,7 @@ interface CharacterDisplayProps {
   characterImage: string;
   characterName: string;
   carImage?: string;
+  outfitImage?: string;
   onClickCharacter: () => number | undefined;
 }
 
@@ -9,8 +10,11 @@ export function CharacterDisplay({
   characterImage,
   characterName,
   carImage,
+  outfitImage,
   onClickCharacter,
 }: CharacterDisplayProps) {
+  // Use outfit image if available, otherwise use character image
+  const displayImage = outfitImage || characterImage;
   return (
     // Eğer header yoksa: top-0 yap
     <div className="fixed inset-x-0 top-[88px] bottom-[88px] overflow-hidden">
@@ -36,7 +40,7 @@ export function CharacterDisplay({
         <div className="select-none transform origin-bottom scale-90 translate-x-6">
           <div className="relative w-72 h-[500px] sm:w-80 sm:h-[550px]">
             <img
-              src={characterImage}
+              src={displayImage}
               alt={characterName}
               className="w-full h-full object-contain"
               draggable={false}

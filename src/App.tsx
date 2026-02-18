@@ -153,6 +153,7 @@ function App() {
           characterImage={currentCharacter?.image_url || ''}
           characterName={currentCharacter?.name || 'Character'}
           carImage={currentCar?.image_url}
+          outfitImage={gameState.selectedOutfit?.image_url}
           onClickCharacter={gameState.handleClick}
         />
       </main>
@@ -199,6 +200,7 @@ function App() {
           }
           gameState.reload();
         }}
+        totalMoney={gameState.profile.total_money}
         selectedOutfitId={gameState.profile.selected_outfit_id}
         onOutfitChange={() => {
           gameState.reload();
