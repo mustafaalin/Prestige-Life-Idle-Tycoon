@@ -277,21 +277,21 @@ export function StuffModal({
                     }`}
                   >
                     {isSelected && (
-                      <div className="absolute top-3 right-3 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+                      <div className="absolute top-3 right-3 z-30 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
                         <Check className="w-3 h-3" />
                         Current Home
                       </div>
                     )}
 
                     {house.prestige_points > 0 && (
-                      <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+                      <div className="absolute top-3 left-3 z-30 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
                         <Sparkles className="w-3 h-3" />
                         {house.prestige_points}
                       </div>
                     )}
 
                     <div className="flex flex-col gap-3">
-                      <div className="relative w-full h-32 bg-white rounded-lg overflow-hidden border-2 border-blue-100">
+                      <div className="relative z-0 w-full h-32 bg-white rounded-lg overflow-hidden border-2 border-blue-100">
                         <img
                           src={house.image_url}
                           alt={house.name}
