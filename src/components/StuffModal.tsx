@@ -166,14 +166,14 @@ export function StuffModal({
                 return (
                   <div
                     key={car.id}
-                    className={`relative bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border-2 transition-all ${
+                    className={`relative overflow-hidden bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border-2 transition-all ${
                       isSelected
                         ? 'border-green-400 shadow-lg shadow-green-200'
                         : 'border-orange-200 hover:shadow-md'
                     }`}
                   >
                     {isSelected && (
-                      <div className="absolute top-3 right-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+                      <div className="absolute top-3 right-3 z-30 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
                         <Check className="w-3 h-3" />
                         Currently Driving
                       </div>
