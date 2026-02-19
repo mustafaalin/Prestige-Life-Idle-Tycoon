@@ -36,7 +36,6 @@ interface GameState {
   dailyClaimedTotal: number;
   businessesLoading: boolean;
   unsavedJobWorkSeconds: number;
-  calculatedPrestigePoints: number;
 }
 
 const GAME_STATE_KEY = 'idle_guy_game_state';
@@ -63,7 +62,6 @@ export function useGameState(deviceId: string, userId: string | null) {
     dailyClaimedTotal: 0,
     businessesLoading: true,
     unsavedJobWorkSeconds: 0,
-    calculatedPrestigePoints: 0,
   });
 
   const passiveIncomeInterval = useRef<NodeJS.Timeout | null>(null);
@@ -174,7 +172,6 @@ export function useGameState(deviceId: string, userId: string | null) {
         ...prev,
         businesses,
         businessesLoading: false,
-        calculatedPrestigePoints: prev.calculatedPrestigePoints + businessesPrestige,
       }));
     } catch (error) {
       console.error('Error loading businesses:', error);
@@ -310,7 +307,6 @@ export function useGameState(deviceId: string, userId: string | null) {
         dailyClaimedTotal: profile?.daily_claimed_total || 0,
         businessesLoading: true,
         unsavedJobWorkSeconds: 0,
-        calculatedPrestigePoints,
       });
 
       loadBusinesses(profileId);
