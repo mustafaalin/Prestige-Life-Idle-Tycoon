@@ -140,7 +140,7 @@ function App() {
         health={health}
         happiness={happiness}
         gems={gameState.profile.gems || 0}
-        prestigePoints={gameState.calculatedPrestigePoints}
+        prestigePoints={gameState.profile?.prestige_points ?? 0}
         onOpenProfile={() => {
           setShowProfile(true);
         }}
@@ -268,7 +268,7 @@ function App() {
         totalClicks={gameState.profile.total_clicks}
         playTimeSeconds={playTimeSeconds}
         onResetProgress={handleResetProgress}
-        prestigePoints={gameState.calculatedPrestigePoints}
+        prestigePoints={gameState.profile?.prestige_points ?? 0}
       />
 
       {gameState.offlineEarnings && gameState.offlineEarnings.amount > 0 && (
