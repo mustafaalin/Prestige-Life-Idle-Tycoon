@@ -180,7 +180,7 @@ export function StuffModal({
                     )}
 
                     {car.prestige_points > 0 && (
-                      <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+                      <div className="absolute top-3 left-3 z-30 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
                         <Sparkles className="w-3 h-3" />
                         {car.prestige_points}
                       </div>
