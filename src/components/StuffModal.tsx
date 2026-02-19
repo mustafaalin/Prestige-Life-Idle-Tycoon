@@ -187,7 +187,7 @@ export function StuffModal({
                     )}
 
                     <div className="flex flex-col gap-3">
-                      <div className="relative w-full h-32 bg-white rounded-lg overflow-hidden border-2 border-orange-100">
+                      <div className="relative z-0 w-full h-32 bg-white rounded-lg overflow-hidden border-2 border-orange-100">
                         <img
                           src={car.image_url}
                           alt={car.name}
