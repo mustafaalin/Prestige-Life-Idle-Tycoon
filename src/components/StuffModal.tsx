@@ -270,7 +270,7 @@ export function StuffModal({
                 return (
                   <div
                     key={house.id}
-                    className={`relative bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border-2 transition-all ${
+                    className={`relative overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border-2 transition-all ${
                       isSelected
                         ? 'border-blue-400 shadow-lg shadow-blue-200'
                         : 'border-blue-200 hover:shadow-md'
