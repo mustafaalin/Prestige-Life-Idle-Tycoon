@@ -63,7 +63,6 @@ export function useGameState(deviceId: string, userId: string | null) {
     dailyClaimedTotal: 0,
     businessesLoading: true,
     unsavedJobWorkSeconds: 0,
-    calculatedPrestigePoints: 0,
   });
 
   const passiveIncomeInterval = useRef<NodeJS.Timeout | null>(null);
@@ -174,7 +173,6 @@ export function useGameState(deviceId: string, userId: string | null) {
         ...prev,
         businesses,
         businessesLoading: false,
-        calculatedPrestigePoints: prev.calculatedPrestigePoints + businessesPrestige,
       }));
     } catch (error) {
       console.error('Error loading businesses:', error);
@@ -244,42 +242,6 @@ export function useGameState(deviceId: string, userId: string | null) {
         .filter(p => p.item_type === 'car')
         .map(p => p.item_id);
 
-      // Calculate prestige points following the documented rules
-      let calculatedPrestigePoints = profile?.prestige_points || 0;
-
-      // Car: Only selected car's prestige (not all owned cars)
-      if (profile?.selected_car_id) {
-        const selectedCar = (carsRes.data || []).find(car => car.id === profile.selected_car_id);
-        if (selectedCar) {
-          calculatedPrestigePoints += selectedCar.prestige_points || 0;
-        }
-      }
-
-      // House: Only selected house's prestige (not all owned houses)
-      if (profile?.selected_house_id) {
-        const selectedHouse = (housesRes.data || []).find(house => house.id === profile.selected_house_id);
-        if (selectedHouse) {
-          calculatedPrestigePoints += selectedHouse.prestige_points || 0;
-        }
-      }
-
-      // Outfit: Only selected outfit's prestige (will be added after outfit data is loaded)
-      // This will be calculated after selectedOutfit is loaded below
-
-      // Job: Only active job's prestige (not all unlocked jobs)
-      const activePlayerJob = (playerJobsRes.data || []).find(pj => pj.is_active);
-      if (activePlayerJob) {
-        const activeJob = (jobsRes.data || []).find(job => job.id === activePlayerJob.job_id);
-        if (activeJob) {
-          calculatedPrestigePoints += activeJob.prestige_points || 0;
-        }
-      }
-
-      // Outfit: Only selected outfit's prestige (not all unlocked outfits)
-      if (selectedOutfit) {
-        calculatedPrestigePoints += selectedOutfit.prestige_points || 0;
-      }
-
       // Businesses: Sum ALL owned businesses' prestige (different from other categories)
       // This will be added when businesses are loaded via loadBusinesses
 
@@ -346,7 +308,6 @@ export function useGameState(deviceId: string, userId: string | null) {
         dailyClaimedTotal: profile?.daily_claimed_total || 0,
         businessesLoading: true,
         unsavedJobWorkSeconds: 0,
-        calculatedPrestigePoints,
       });
 
       loadBusinesses(profileId);
