@@ -635,6 +635,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         p_player_id: userId
       } as any);
 
+      await supabase.rpc('calculate_prestige_points', { p_player_id: userId } as any);
       await loadGameData(false);
       return true;
     } catch (error) {
