@@ -156,9 +156,9 @@ export function JobsModal({
             const previousJobWorkTime = previousPlayerJob?.total_time_worked_seconds || 0;
             const hasWorkedEnoughOnPrevious = job.level === 1 || previousJobWorkTime >= 180;
 
-            const hasEnoughMoney = totalMoney >= job.unlock_requirement_money;
+            //const hasEnoughMoney = totalMoney >= job.unlock_requirement_money;
             const isLevelAllowed = job.level <= activeJobLevel + 1;
-            const canUnlock = !isUnlocked && hasEnoughMoney && isLevelAllowed && hasWorkedEnoughOnPrevious;
+            const canUnlock = !isUnlocked && isLevelAllowed && hasWorkedEnoughOnPrevious;
 
             const canSelect = isUnlocked && !isActive && !isCompleted && remainingTime === 0;
             const Icon = getIconComponent(job.icon_name);
@@ -180,7 +180,7 @@ export function JobsModal({
                     ? 'bg-emerald-50/30 border-emerald-100 hover:shadow-sm'
                     : canUnlock
                     ? 'bg-yellow-50/30 border-yellow-100'
-                    : hasEnoughMoney && !isLevelAllowed
+                    : !isLevelAllowed
                     ? 'bg-red-50/30 border-red-100 opacity-75'
                     : 'bg-gray-50 border-gray-100 opacity-75'
                   }
@@ -270,12 +270,12 @@ export function JobsModal({
                             </button>
                           )}
                         </div>
-                        {hasEnoughMoney && !isLevelAllowed && (
+                        {!isLevelAllowed && (
                           <div className="text-[9px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded">
                             Complete Level {activeJobLevel + 1} job first
                           </div>
                         )}
-                        {hasEnoughMoney && isLevelAllowed && !hasWorkedEnoughOnPrevious && (
+                        {isLevelAllowed && !hasWorkedEnoughOnPrevious && (
                           <div className="text-[9px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded">
                             Work 3 minutes in Level {job.level - 1} job ({formatWorkTime(previousJobWorkTime)}/3:00)
                           </div>
