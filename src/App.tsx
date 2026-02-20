@@ -229,6 +229,7 @@ function App() {
           totalMoney={gameState.profile.total_money}
           onPurchase={gameState.purchaseBusiness}
           onUpgrade={gameState.upgradeBusiness}
+          prestigePoints={gameState.profile?.prestige_points ?? 0}
           onClose={() => {
             setShowBusinessModal(false);
             setActiveTab('business');
