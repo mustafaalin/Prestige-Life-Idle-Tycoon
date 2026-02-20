@@ -812,12 +812,13 @@ export function useGameState(deviceId: string, userId: string | null) {
   }, [deviceId, userId, loadGameData]);
 
   useEffect(() => {
-    if (!gameState.profile || !gameState.profile.hourly_income || gameState.profile.hourly_income <= 0) return;
+    if (!gameState.profile || !gameState.profile.hourly_income || gameState.profile.hourly_income === 0) return;
 
     const hourlyIncome = gameState.profile.hourly_income;
     const incomePerSecond = hourlyIncome / 3600;
-    const updateIntervalMs = incomePerSecond >= 1 ? 1000 : Math.floor(1000 / incomePerSecond);
-    const moneyPerUpdate = incomePerSecond >= 1 ? incomePerSecond : 1;
+    const absIncomePerSecond = Math.abs(incomePerSecond);
+    const updateIntervalMs = absIncomePerSecond >= 1 ? 1000 : Math.floor(1000 / absIncomePerSecond);
+    const moneyPerUpdate = absIncomePerSecond >= 1 ? incomePerSecond : Math.sign(incomePerSecond);
 
     passiveIncomeInterval.current = setInterval(() => {
       setGameState(prev => {
@@ -826,7 +827,9 @@ export function useGameState(deviceId: string, userId: string | null) {
         const updatedProfile = {
           ...prev.profile,
           total_money: prev.profile.total_money + moneyPerUpdate,
-          lifetime_earnings: prev.profile.lifetime_earnings + moneyPerUpdate,
+          lifetime_earnings: hourlyIncome > 0
+            ? prev.profile.lifetime_earnings + moneyPerUpdate
+            : prev.profile.lifetime_earnings,
         };
 
         saveToLocalStorage({ profile: updatedProfile });
