@@ -175,11 +175,13 @@ export function useGameState(deviceId: string, userId: string | null) {
     }
   }, []);
 
-  const loadGameData = useCallback(async (shouldCalculateOfflineEarnings: boolean = true) => {
+  const loadGameData = useCallback(async (shouldCalculateOfflineEarnings: boolean = true, preserveMoneyIfHigher: boolean = false) => {
     if (!userId) {
       setGameState(prev => ({ ...prev, loading: false }));
       return;
     }
+
+    const moneyBeforeLoad = preserveMoneyIfHigher ? gameStateRef.current.profile?.total_money ?? 0 : 0;
 
     console.log('[loadGameData] Starting to load game data...', { deviceId, userId });
 
@@ -281,6 +283,10 @@ export function useGameState(deviceId: string, userId: string | null) {
           })
           .eq('player_id', profileId)
           .eq('id', activePlayerJob.id);
+      }
+
+      if (profile && preserveMoneyIfHigher && moneyBeforeLoad > (profile.total_money ?? 0)) {
+        profile = { ...profile, total_money: moneyBeforeLoad };
       }
 
       setGameState({
@@ -572,7 +578,7 @@ export function useGameState(deviceId: string, userId: string | null) {
             purchase_price: price,
           });
 
-        await loadGameData(false);
+        await loadGameData(false, true);
         return true;
       } else {
         const { error: purchaseError } = await supabase
@@ -630,7 +636,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       } as any);
 
       await supabase.rpc('calculate_player_prestige', { p_player_id: userId } as any);
-      await loadGameData(false);
+      await loadGameData(false, true);
       return true;
     } catch (error) {
       console.error('Error selecting car:', error);
@@ -662,7 +668,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         return false;
       }
 
-      await loadGameData(false);
+      await loadGameData(false, true);
       return true;
     } catch (error) {
       console.error('Error selecting house:', error);
@@ -708,7 +714,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         throw error;
       }
 
-      await loadGameData(false);
+      await loadGameData(false, true);
       return true;
     } catch (error) {
       console.error('Error unlocking job:', error);
@@ -773,10 +779,10 @@ export function useGameState(deviceId: string, userId: string | null) {
       setGameState(prev => ({
         ...prev,
         jobChangeLockedUntil: lockUntil,
-        unsavedJobWorkSeconds: 0, // Reset unsaved for new job
+        unsavedJobWorkSeconds: 0,
       }));
 
-      await loadGameData(false);
+      await loadGameData(false, true);
       return true;
     } catch (error) {
       console.error('Error selecting job:', error);
@@ -1083,7 +1089,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         return false;
       }
 
-      await loadGameData(true);
+      await loadGameData(true, true);
       return true;
     } catch (error) {
       console.error('Error claiming daily reward:', error);
@@ -1234,7 +1240,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         return false;
       }
 
-      await loadGameData(false);
+      await loadGameData(false, true);
       return true;
     } catch (error) {
       console.error('Error purchasing business:', error);
@@ -1262,7 +1268,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         return false;
       }
 
-      await loadGameData(false);
+      await loadGameData(false, true);
       return true;
     } catch (error) {
       console.error('Error upgrading business:', error);
@@ -1289,6 +1295,6 @@ export function useGameState(deviceId: string, userId: string | null) {
     loadBusinesses,
     purchaseBusiness,
     upgradeBusiness,
-    reload: () => loadGameData(false),
+    reload: () => loadGameData(false, true),
   };
 }
