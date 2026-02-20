@@ -728,9 +728,11 @@ export function useGameState(deviceId: string, userId: string | null) {
     const job = gameState.jobs.find(j => j.id === jobId);
     if (!job) return false;
 
+    /* 
     if (gameState.profile.total_money < job.unlock_requirement_money) {
       return false;
     }
+    */
 
     try {
       console.log('[unlockJob] Unlocking job:', { userId, jobId });
