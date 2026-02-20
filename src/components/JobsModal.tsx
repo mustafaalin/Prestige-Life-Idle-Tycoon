@@ -258,9 +258,6 @@ export function JobsModal({
                     {!isUnlocked && (
                       <div className="mt-2 space-y-1">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] font-bold text-orange-600">
-                            Required: {formatMoney(job.unlock_requirement_money)}
-                          </span>
                           {canUnlock && (
                             <button
                               onClick={() => handleUnlock(job.id)}
