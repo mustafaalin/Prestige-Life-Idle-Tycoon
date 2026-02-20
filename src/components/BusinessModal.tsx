@@ -1,11 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { X, Lock, TrendingUp, CheckCircle2, Building2, Store, Sparkles } from 'lucide-react';
+import { X, Lock, TrendingUp, CheckCircle2, Building2, Store } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { BusinessWithPlayerData, UPGRADE_MULTIPLIERS } from '../lib/database.types';
+
+const ICON_BASE_URL = 'https://wzukfyyqrhfbjkqjfmxw.supabase.co/storage/v1/object/public/game-assets/icons';
 
 interface BusinessModalProps {
   businesses: BusinessWithPlayerData[];
   totalMoney: number;
+  businessesPrestige: number;
   onPurchase: (businessId: string) => Promise<boolean>;
   onUpgrade: (businessId: string, level: number) => Promise<boolean>;
   onClose: () => void;
@@ -15,6 +18,7 @@ interface BusinessModalProps {
 export function BusinessModal({
   businesses,
   totalMoney,
+  businessesPrestige,
   onPurchase,
   onUpgrade,
   onClose,
@@ -105,10 +109,18 @@ export function BusinessModal({
             <h2 className="text-xl font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
               Business
             </h2>
-            <p className="text-[10px] text-orange-600 font-bold mt-0.5 flex items-center gap-1">
-              <Store className="w-3 h-3" />
-              {ownedCount}/40 owned • {formatMoney(totalBusinessIncome)}/hr
-            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="text-[10px] text-orange-600 font-bold flex items-center gap-1">
+                <Store className="w-3 h-3" />
+                {ownedCount}/40 owned • {formatMoney(totalBusinessIncome)}/hr
+              </p>
+              {businessesPrestige > 0 && (
+                <div className="flex items-center gap-1 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-0.5 rounded-full shadow-sm">
+                  <img src={`${ICON_BASE_URL}/prestige-points.png`} alt="Prestige" className="w-3 h-3" />
+                  <span className="text-[10px] font-black">{businessesPrestige}</span>
+                </div>
+              )}
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -162,10 +174,10 @@ export function BusinessModal({
                       : 'border-2 border-orange-600'
                   }`}
                 >
-                  {business.prestige_points > 0 && (
-                    <div className="absolute top-2 right-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-md z-10">
-                      <Sparkles className="w-2.5 h-2.5" />
-                      {business.prestige_points}
+                  {business.current_prestige_points > 0 && (
+                    <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-md z-10">
+                      <img src={`${ICON_BASE_URL}/prestige-points.png`} alt="Prestige" className="w-2.5 h-2.5" />
+                      {business.current_prestige_points}
                     </div>
                   )}
 

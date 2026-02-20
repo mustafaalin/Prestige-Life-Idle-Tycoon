@@ -20,6 +20,7 @@ interface GameState {
   jobs: Job[];
   playerJobs: PlayerJob[];
   businesses: BusinessWithPlayerData[];
+  businessesPrestige: number;
   gameStats: GameStats | null;
   ownedCharacters: string[];
   ownedHouses: string[];
@@ -49,6 +50,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     jobs: [],
     playerJobs: [],
     businesses: [],
+    businessesPrestige: 0,
     gameStats: null,
     ownedCharacters: [],
     ownedHouses: [],
@@ -134,43 +136,34 @@ export function useGameState(deviceId: string, userId: string | null) {
 
       if (error) throw error;
 
-      const businesses = (data || []) as BusinessWithPlayerData[];
+      const rawBusinesses = (data || []) as BusinessWithPlayerData[];
 
-      // Calculate businesses prestige: Sum ALL owned businesses' prestige based on level
       const { data: businessPrestigeData } = await supabase
         .from('business_prestige_points')
         .select('*');
 
+      const levelToPrestigeKey = ['base_points', 'level1_points', 'level2_points', 'level3_points', 'level4_points', 'level5_points', 'level6_points'] as const;
+
       let businessesPrestige = 0;
-      businesses.forEach(business => {
-        if (business.is_owned) {
-          // Find prestige data for this business
-          const prestigeData = (businessPrestigeData || []).find(bp => bp.business_id === business.id);
-          if (prestigeData) {
-            const currentLevel = business.current_level || 0;
-            // Map level to corresponding prestige points
-            if (currentLevel === 0) {
-              businessesPrestige += prestigeData.base_points || 0;
-            } else if (currentLevel === 1) {
-              businessesPrestige += prestigeData.level1_points || 0;
-            } else if (currentLevel === 2) {
-              businessesPrestige += prestigeData.level2_points || 0;
-            } else if (currentLevel === 3) {
-              businessesPrestige += prestigeData.level3_points || 0;
-            } else if (currentLevel === 4) {
-              businessesPrestige += prestigeData.level4_points || 0;
-            } else if (currentLevel === 5) {
-              businessesPrestige += prestigeData.level5_points || 0;
-            } else if (currentLevel === 6) {
-              businessesPrestige += prestigeData.level6_points || 0;
-            }
+      const businesses = rawBusinesses.map(business => {
+        const prestigeData = (businessPrestigeData || []).find(bp => bp.business_id === business.id);
+        let current_prestige_points = 0;
+        if (prestigeData) {
+          if (business.is_owned) {
+            const level = Math.min(business.current_level || 0, 6);
+            current_prestige_points = (prestigeData[levelToPrestigeKey[level]] as number) || 0;
+            businessesPrestige += current_prestige_points;
+          } else {
+            current_prestige_points = (prestigeData.base_points as number) || 0;
           }
         }
+        return { ...business, current_prestige_points };
       });
 
       setGameState(prev => ({
         ...prev,
         businesses,
+        businessesPrestige,
         businessesLoading: false,
       }));
     } catch (error) {
@@ -298,6 +291,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         jobs: jobsRes.data || [],
         playerJobs: playerJobsRes.data || [],
         businesses: [],
+        businessesPrestige: 0,
         gameStats: gameStatsRes.data || null,
         ownedCharacters,
         ownedHouses,

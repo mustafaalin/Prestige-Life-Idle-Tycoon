@@ -815,6 +815,7 @@ export interface BusinessWithPlayerData extends Business {
   is_owned: boolean
   next_level_cost: number | null
   next_level_income: number | null
+  current_prestige_points: number
 }
 
 export const UPGRADE_MULTIPLIERS = [20, 40, 80, 160, 320]
