@@ -293,8 +293,8 @@ export function JobsModal({
                     )}
 
                     {isUnlocked && !isActive && isCompleted && (
-                      <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-slate-500">
-                        <Check className="w-3 h-3 text-slate-400" />
+                      <div className="mt-2 flex items-center gap-1 text-sm font-bold text-green-600">
+                        <Check className="w-5 h-5 text-slate-400" />
                         Completed
                       </div>
                     )}
