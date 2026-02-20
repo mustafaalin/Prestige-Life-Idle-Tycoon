@@ -774,6 +774,8 @@ export function useGameState(deviceId: string, userId: string | null) {
       await supabase.rpc('calculate_player_income', {
         p_player_id: userId
       } as any);
+      
+      await supabase.rpc('calculate_player_prestige', { p_player_id: userId } as any);
 
       const lockUntil = Date.now() + 120000;
       setGameState(prev => ({
