@@ -145,6 +145,7 @@ export function JobsModal({
             const playerJob = playerJobs.find(pj => pj.job_id === job.id);
             const isUnlocked = playerJob?.is_unlocked || false;
             const isActive = playerJob?.is_active || false;
+            const isCompleted = playerJob?.is_completed || false;
 
             const activePlayerJob = playerJobs.find(pj => pj.is_active);
             const activeJob = activePlayerJob ? jobs.find(j => j.id === activePlayerJob.job_id) : null;
@@ -159,7 +160,7 @@ export function JobsModal({
             const isLevelAllowed = job.level <= activeJobLevel + 1;
             const canUnlock = !isUnlocked && hasEnoughMoney && isLevelAllowed && hasWorkedEnoughOnPrevious;
 
-            const canSelect = isUnlocked && !isActive && remainingTime === 0;
+            const canSelect = isUnlocked && !isActive && !isCompleted && remainingTime === 0;
             const Icon = getIconComponent(job.icon_name);
 
             const displayWorkTime = isActive
@@ -173,6 +174,8 @@ export function JobsModal({
                   relative p-4 rounded-xl border-2 transition-all duration-200
                   ${isActive
                     ? 'bg-blue-50 border-blue-200 shadow-sm'
+                    : isCompleted
+                    ? 'bg-slate-50 border-slate-200'
                     : isUnlocked
                     ? 'bg-emerald-50/30 border-emerald-100 hover:shadow-sm'
                     : canUnlock
@@ -194,7 +197,7 @@ export function JobsModal({
                   <div
                     className={`
                       w-14 h-14 rounded-lg flex items-center justify-center flex-shrink-0 p-1.5 relative overflow-hidden
-                      ${isActive ? 'bg-blue-500' : isUnlocked ? 'bg-emerald-500' : 'bg-gray-400'}
+                      ${isActive ? 'bg-blue-500' : isCompleted ? 'bg-slate-400' : isUnlocked ? 'bg-emerald-500' : 'bg-gray-400'}
                     `}
                   >
                     {isUnlocked ? (
@@ -289,7 +292,14 @@ export function JobsModal({
                       </div>
                     )}
 
-                    {isUnlocked && !isActive && (
+                    {isUnlocked && !isActive && isCompleted && (
+                      <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-slate-500">
+                        <Check className="w-3 h-3 text-slate-400" />
+                        Completed
+                      </div>
+                    )}
+
+                    {isUnlocked && !isActive && !isCompleted && (
                       <div className="mt-2">
                         <button
                           onClick={() => handleSelect(job.id)}

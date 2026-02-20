@@ -747,6 +747,7 @@ export function useGameState(deviceId: string, userId: string | null) {
           .from('player_jobs')
           .update({
             is_active: false,
+            is_completed: true,
             total_time_worked_seconds: newTotalTime,
           })
           .eq('player_id', userId)
@@ -754,7 +755,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       } else if (currentActiveJob) {
         await supabase
           .from('player_jobs')
-          .update({ is_active: false })
+          .update({ is_active: false, is_completed: true })
           .eq('player_id', userId)
           .eq('id', currentActiveJob.id);
       }

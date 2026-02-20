@@ -434,6 +434,7 @@ export interface Database {
           job_id: string
           is_unlocked: boolean
           is_active: boolean
+          is_completed: boolean
           times_worked: number
           total_earned: number
           unlocked_at: string | null
@@ -447,6 +448,7 @@ export interface Database {
           job_id: string
           is_unlocked?: boolean
           is_active?: boolean
+          is_completed?: boolean
           times_worked?: number
           total_earned?: number
           unlocked_at?: string | null
@@ -460,6 +462,7 @@ export interface Database {
           job_id?: string
           is_unlocked?: boolean
           is_active?: boolean
+          is_completed?: boolean
           times_worked?: number
           total_earned?: number
           unlocked_at?: string | null
