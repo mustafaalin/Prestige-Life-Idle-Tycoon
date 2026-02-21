@@ -20,6 +20,7 @@ interface House {
   level: number;
   hourly_rent_cost: number;
   prestige_points: number;
+  icon_url?: string;
 }
 
 interface StuffModalProps {
