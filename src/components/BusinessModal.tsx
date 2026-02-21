@@ -3,7 +3,7 @@ import { X, Lock, TrendingUp, CheckCircle2, Building2, Store } from 'lucide-reac
 import * as Icons from 'lucide-react';
 import { BusinessWithPlayerData, UPGRADE_MULTIPLIERS } from '../lib/database.types';
 
-const ICON_BASE_URL = 'https://wzukfyyqrhfbjkqjfmxw.supabase.co/storage/v1/object/public/game-assets/icons';
+const ICON_BASE_URL = 'https://dtanvjjdiyrunnavkxwe.supabase.co/storage/v1/object/public/game-assets/icons';
 
 interface BusinessModalProps {
   businesses: BusinessWithPlayerData[];
