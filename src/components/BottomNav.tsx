@@ -37,7 +37,11 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
                 <img
                   src={item.iconUrl}
                   alt={item.label}
-                  className={'w-[70%] h-[70%] object-contain transition-all duration-200 ' + (isActive ? 'scale-105' : '')}
+                  className={
+                    'w-[70%] h-[70%] object-contain transition-all duration-200 ' +
+                    (item.id === 'stuff' ? 'scale-110' : '') + // 👈 sadece Stuff büyür
+                    (isActive ? ' scale-105' : '')
+                  }
                 />
               </div>
             </button>
