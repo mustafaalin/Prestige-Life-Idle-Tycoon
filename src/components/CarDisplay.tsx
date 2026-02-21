@@ -5,7 +5,7 @@ interface CarDisplayProps {
 
 export function CarDisplay({ carImage, carName }: CarDisplayProps) {
   return (
-    <div className="fixed bottom-16 right-8 z-10">
+    <div className="fixed bottom-20 right-8 z-10">
       <div className="relative group">
         <div className="bg-white rounded-xl shadow-lg p-3 hover:shadow-2xl transition-all transform hover:scale-105">
           <img
