@@ -40,7 +40,7 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
                   className={
                     'w-[70%] h-[70%] object-contain transition-all duration-200 ' +
                     (item.id === 'stuff' ? 'scale-110' : '') + // 👈 sadece Stuff büyür
-                    (isActive ? ' scale-125' : '')
+                    (isActive ? ' scale-145' : '')
                   }
                 />
               </div>
