@@ -153,7 +153,8 @@ export function JobsModal({
 
             const previousLevelJob = jobs.find(j => j.level === job.level - 1);
             const previousPlayerJob = previousLevelJob ? playerJobs.find(pj => pj.job_id === previousLevelJob.id) : null;
-            const previousJobWorkTime = previousPlayerJob?.total_time_worked_seconds || 0;
+            const isPreviousJobActive = previousPlayerJob?.is_active || false;
+            const previousJobWorkTime = (previousPlayerJob?.total_time_worked_seconds || 0) + (isPreviousJobActive ? unsavedJobWorkSeconds : 0);
             const hasWorkedEnoughOnPrevious = job.level === 1 || previousJobWorkTime >= 180;
 
             //const hasEnoughMoney = totalMoney >= job.unlock_requirement_money;
