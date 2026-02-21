@@ -294,7 +294,7 @@ export function StuffModal({
                     <div className="flex flex-col gap-3">
                       <div className="relative z-0 w-full h-32 bg-white rounded-lg overflow-hidden border-2 border-blue-100">
                         <img
-                          src={house.image_url}
+                          src={house.icon_url}
                           alt={house.name}
                           className="w-full h-full object-cover"
                         />
