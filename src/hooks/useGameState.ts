@@ -76,6 +76,7 @@ export function useGameState(deviceId: string, userId: string | null) {
   const isTabVisible = useRef<boolean>(true);
   const gameStateRef = useRef<GameState>(gameState);
   const moneyMutationInFlightRef = useRef<boolean>(false);
+  const moneyRemainderRef = useRef<number>(0);
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -855,8 +856,6 @@ export function useGameState(deviceId: string, userId: string | null) {
       loadGameData(true);
     }
   }, [deviceId, userId, loadGameData]);
-
-  const moneyRemainderRef = useRef<number>(0);
 
   useEffect(() => {
   if (!gameState.profile || !gameState.profile.hourly_income || gameState.profile.hourly_income === 0) return;
