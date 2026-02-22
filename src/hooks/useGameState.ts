@@ -1301,11 +1301,10 @@ export function useGameState(deviceId: string, userId: string | null) {
 
       if (error) throw error;
 
-      const rows = data as Array<{ success: boolean; message?: string; new_balance?: number }>;
-      const result = rows?.[0];
+      const result = data as { success: boolean; error?: string; new_balance?: number };
 
       if (!result?.success) {
-        console.error('Purchase failed:', result?.message);
+        console.error('Purchase failed:', result?.error);
         moneyMutationInFlightRef.current = false;
         return false;
       }
@@ -1334,11 +1333,10 @@ export function useGameState(deviceId: string, userId: string | null) {
 
       if (error) throw error;
 
-      const rows = data as Array<{ success: boolean; message?: string; new_balance?: number; new_income?: number }>;
-      const result = rows?.[0];
+      const result = data as { success: boolean; error?: string; new_balance?: number; new_income?: number };
 
       if (!result?.success) {
-        console.error('Upgrade failed:', result?.message);
+        console.error('Upgrade failed:', result?.error);
         moneyMutationInFlightRef.current = false;
         return false;
       }
