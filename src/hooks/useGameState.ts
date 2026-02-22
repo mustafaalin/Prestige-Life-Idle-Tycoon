@@ -185,7 +185,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       return;
     }
 
-    console.log('[loadGameData] Starting to load game data...', { deviceId, userId });
+    //console.log('[loadGameData] Starting to load game data...', { deviceId, userId });
 
     try {
       const profileId = userId;
