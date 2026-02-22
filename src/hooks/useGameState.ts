@@ -856,43 +856,59 @@ export function useGameState(deviceId: string, userId: string | null) {
     }
   }, [deviceId, userId, loadGameData]);
 
+  const moneyRemainderRef = useRef<number>(0);
+
   useEffect(() => {
-    if (!gameState.profile || !gameState.profile.hourly_income || gameState.profile.hourly_income === 0) return;
+  if (!gameState.profile || !gameState.profile.hourly_income || gameState.profile.hourly_income === 0) return;
 
-    const hourlyIncome = gameState.profile.hourly_income;
-    const incomePerSecond = hourlyIncome / 3600;
-    const absIncomePerSecond = Math.abs(incomePerSecond);
-    const updateIntervalMs = absIncomePerSecond >= 1 ? 1000 : Math.floor(1000 / absIncomePerSecond);
-    const moneyPerUpdate = absIncomePerSecond >= 1 ? incomePerSecond : Math.sign(incomePerSecond);
+  const hourlyIncome = gameState.profile.hourly_income;
+  const incomePerSecond = hourlyIncome / 3600;
 
-    passiveIncomeInterval.current = setInterval(() => {
-      setGameState(prev => {
-        if (!prev.profile) return prev;
+  const absIncomePerSecond = Math.abs(incomePerSecond);
+  const updateIntervalMs = absIncomePerSecond >= 1 ? 1000 : Math.floor(1000 / absIncomePerSecond);
 
-        const updatedProfile = {
-          ...prev.profile,
-          total_money: prev.profile.total_money + moneyPerUpdate,
-          lifetime_earnings: hourlyIncome > 0
-            ? prev.profile.lifetime_earnings + moneyPerUpdate
+  passiveIncomeInterval.current = setInterval(() => {
+    setGameState(prev => {
+      if (!prev.profile) return prev;
+
+      // Küsuratı biriktir -> tam sayı delta üret
+      const raw = incomePerSecond + moneyRemainderRef.current;
+
+      // pozitifse floor, negatifse ceil (negatif gelir destekleniyorsa)
+      const moneyDeltaInt = raw >= 0 ? Math.floor(raw) : Math.ceil(raw);
+
+      // kalan küsuratı ref’e yaz
+      moneyRemainderRef.current = raw - moneyDeltaInt;
+
+      // Bu tick’te tam sayı çıkmadıysa state’i değiştirme
+      if (moneyDeltaInt === 0) return prev;
+
+      const updatedProfile = {
+        ...prev.profile,
+        total_money: prev.profile.total_money + moneyDeltaInt,
+        lifetime_earnings:
+          hourlyIncome > 0
+            ? prev.profile.lifetime_earnings + moneyDeltaInt
             : prev.profile.lifetime_earnings,
-        };
+      };
 
-        saveToLocalStorage({ profile: updatedProfile });
+      saveToLocalStorage({ profile: updatedProfile });
 
-        return {
-          ...prev,
-          profile: updatedProfile,
-          pendingMoneyDelta: prev.pendingMoneyDelta + moneyPerUpdate,
-        };
-      });
-    }, updateIntervalMs);
+      return {
+        ...prev,
+        profile: updatedProfile,
+        pendingMoneyDelta: prev.pendingMoneyDelta + moneyDeltaInt,
+      };
+    });
+  }, updateIntervalMs);
 
-    return () => {
-      if (passiveIncomeInterval.current) {
-        clearInterval(passiveIncomeInterval.current);
-      }
-    };
-  }, [gameState.profile?.hourly_income, saveToLocalStorage]);
+  return () => {
+    if (passiveIncomeInterval.current) {
+      clearInterval(passiveIncomeInterval.current);
+    }
+  };
+}, [gameState.profile?.hourly_income, saveToLocalStorage]);
+
 
   useEffect(() => {
     if (!gameState.profile?.id) return;
