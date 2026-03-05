@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase';
 import type { PlayerProfile } from '../types/game';
 
-export async function fetchPlayerProfile(playerId: string): Promise<PlayerProfile | null> {
+export async function getProfile(playerId: string): Promise<PlayerProfile | null> {
   const { data, error } = await supabase
     .from('player_profiles')
     .select('*')
@@ -14,6 +14,44 @@ export async function fetchPlayerProfile(playerId: string): Promise<PlayerProfil
   }
 
   return data;
+}
+
+export async function createProfile(playerId: string, deviceId: string): Promise<PlayerProfile | null> {
+  const { data, error } = await supabase
+    .from('player_profiles')
+    .insert({
+      id: playerId,
+      device_id: deviceId,
+      username: `player_${deviceId.slice(0, 8)}`,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating profile:', error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function updateProfile(
+  playerId: string,
+  updates: Partial<PlayerProfile>
+): Promise<void> {
+  const { error } = await supabase
+    .from('player_profiles')
+    .update(updates)
+    .eq('id', playerId);
+
+  if (error) {
+    console.error('Error updating player profile:', error);
+    throw error;
+  }
+}
+
+export async function fetchPlayerProfile(playerId: string): Promise<PlayerProfile | null> {
+  return getProfile(playerId);
 }
 
 export async function updatePlayerProfile(
@@ -57,6 +95,17 @@ export async function claimAccumulatedMoney(
     claimed_amount: data?.claimed_amount,
     new_total: data?.new_total,
   };
+}
+
+export async function resetProgress(playerId: string): Promise<void> {
+  const { error } = await supabase.rpc('reset_player_progress', {
+    p_player_id: playerId,
+  });
+
+  if (error) {
+    console.error('Error resetting player progress:', error);
+    throw error;
+  }
 }
 
 export async function resetPlayerProgress(

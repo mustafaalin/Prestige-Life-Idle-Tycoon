@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase';
 import type { GameStats } from '../types/game';
 
-export async function fetchGameStats(playerId: string): Promise<GameStats | null> {
+export async function getGameStats(playerId: string): Promise<GameStats | null> {
   const { data, error } = await supabase
     .from('game_stats')
     .select('*')
@@ -14,6 +14,10 @@ export async function fetchGameStats(playerId: string): Promise<GameStats | null
   }
 
   return data;
+}
+
+export async function fetchGameStats(playerId: string): Promise<GameStats | null> {
+  return getGameStats(playerId);
 }
 
 export async function updateGameStats(

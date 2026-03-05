@@ -1,40 +1,68 @@
 import { supabase } from '../lib/supabase';
 import type { AdRewardResult } from '../types/game';
 
+export async function getClaimStatus(
+  playerId: string
+): Promise<{ claimLockedUntil: string | null; dailyClaimedTotal: number }> {
+  const { data } = await supabase
+    .from('player_profiles')
+    .select('claim_locked_until, daily_claimed_total')
+    .eq('id', playerId)
+    .maybeSingle();
+
+  return {
+    claimLockedUntil: data?.claim_locked_until || null,
+    dailyClaimedTotal: data?.daily_claimed_total || 0,
+  };
+}
+
 export async function claimDailyReward(
   playerId: string
-): Promise<{ success: boolean; reward?: number; error?: string }> {
+): Promise<{ claimLockedUntil: string | null; dailyClaimedTotal: number }> {
   const { data, error } = await supabase.rpc('claim_daily_reward', {
     p_player_id: playerId,
   });
 
   if (error) {
     console.error('Error claiming daily reward:', error);
-    return { success: false, error: error.message };
+    throw error;
   }
 
   if (!data?.success) {
-    return { success: false, error: data?.message };
+    throw new Error(data?.message || 'Failed to claim daily reward');
   }
 
-  return { success: true, reward: data.reward };
+  return getClaimStatus(playerId);
 }
 
-export async function watchAd(playerId: string): Promise<AdRewardResult> {
-  const { data, error } = await supabase.rpc('watch_ad', {
+export async function claimAccumulatedMoney(
+  playerId: string
+): Promise<{ claimLockedUntil: string | null; dailyClaimedTotal: number }> {
+  const { error } = await supabase.rpc('claim_accumulated_money', {
+    p_player_id: playerId,
+  });
+
+  if (error) {
+    console.error('Error claiming accumulated money:', error);
+    throw error;
+  }
+
+  return getClaimStatus(playerId);
+}
+
+export async function watchAd(
+  playerId: string
+): Promise<{ claimLockedUntil: string | null; dailyClaimedTotal: number }> {
+  const { error } = await supabase.rpc('watch_ad', {
     p_player_id: playerId,
   });
 
   if (error) {
     console.error('Error watching ad:', error);
-    return { success: false, reward: 0, cooldown: 0 };
+    throw error;
   }
 
-  return {
-    success: data?.success || false,
-    reward: data?.reward || 0,
-    cooldown: data?.cooldown || 0,
-  };
+  return getClaimStatus(playerId);
 }
 
 export async function canClaimDailyReward(playerId: string): Promise<boolean> {

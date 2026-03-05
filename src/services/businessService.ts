@@ -1,6 +1,17 @@
 import { supabase } from '../lib/supabase';
 import type { BusinessWithPlayerData } from '../types/game';
 
+export async function getBusinesses(
+  playerId: string
+): Promise<{ businesses: BusinessWithPlayerData[]; prestigePoints: number }> {
+  const [businesses, prestigePoints] = await Promise.all([
+    fetchAllBusinesses(playerId),
+    calculateBusinessPrestigePoints(playerId),
+  ]);
+
+  return { businesses, prestigePoints };
+}
+
 export async function fetchAllBusinesses(
   playerId: string
 ): Promise<BusinessWithPlayerData[]> {
@@ -34,7 +45,7 @@ export async function calculateBusinessPrestigePoints(
 export async function purchaseBusiness(
   playerId: string,
   businessId: string
-): Promise<{ success: boolean; message?: string; new_balance?: number }> {
+): Promise<void> {
   const { data, error } = await supabase.rpc('purchase_business', {
     p_player_id: playerId,
     p_business_id: businessId,
@@ -42,24 +53,18 @@ export async function purchaseBusiness(
 
   if (error) {
     console.error('Error purchasing business:', error);
-    return { success: false, message: error.message };
+    throw error;
   }
 
   if (!data?.success) {
-    return { success: false, message: data?.message || 'Purchase failed' };
+    throw new Error(data?.message || 'Purchase failed');
   }
-
-  return {
-    success: true,
-    new_balance: data.new_balance,
-    message: data.message,
-  };
 }
 
 export async function upgradeBusiness(
   playerId: string,
   businessId: string
-): Promise<{ success: boolean; message?: string; new_balance?: number }> {
+): Promise<void> {
   const { data, error } = await supabase.rpc('upgrade_business', {
     p_player_id: playerId,
     p_business_id: businessId,
@@ -67,16 +72,10 @@ export async function upgradeBusiness(
 
   if (error) {
     console.error('Error upgrading business:', error);
-    return { success: false, message: error.message };
+    throw error;
   }
 
   if (!data?.success) {
-    return { success: false, message: data?.message || 'Upgrade failed' };
+    throw new Error(data?.message || 'Upgrade failed');
   }
-
-  return {
-    success: true,
-    new_balance: data.new_balance,
-    message: data.message,
-  };
 }

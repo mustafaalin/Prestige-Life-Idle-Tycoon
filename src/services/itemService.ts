@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase';
 import type { Character, House, Car, CharacterOutfit } from '../types/game';
 
-export async function fetchAllCharacters(): Promise<Character[]> {
+export async function getCharacters(): Promise<Character[]> {
   const { data, error } = await supabase
     .from('characters')
     .select('*')
@@ -15,7 +15,7 @@ export async function fetchAllCharacters(): Promise<Character[]> {
   return data || [];
 }
 
-export async function fetchAllHouses(): Promise<House[]> {
+export async function getHouses(): Promise<House[]> {
   const { data, error } = await supabase
     .from('houses')
     .select('*')
@@ -29,7 +29,7 @@ export async function fetchAllHouses(): Promise<House[]> {
   return data || [];
 }
 
-export async function fetchAllCars(): Promise<Car[]> {
+export async function getCars(): Promise<Car[]> {
   const { data, error } = await supabase
     .from('cars')
     .select('*')
@@ -43,10 +43,85 @@ export async function fetchAllCars(): Promise<Car[]> {
   return data || [];
 }
 
-export async function selectCar(
-  playerId: string,
-  carId: string
-): Promise<{ success: boolean; error?: string }> {
+export async function fetchAllCharacters(): Promise<Character[]> {
+  return getCharacters();
+}
+
+export async function fetchAllHouses(): Promise<House[]> {
+  return getHouses();
+}
+
+export async function fetchAllCars(): Promise<Car[]> {
+  return getCars();
+}
+
+export async function getOwnedCharacters(playerId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('player_characters')
+    .select('character_id')
+    .eq('player_id', playerId);
+
+  if (error) {
+    console.error('Error fetching owned characters:', error);
+    return [];
+  }
+
+  return data?.map((item) => item.character_id) || [];
+}
+
+export async function getOwnedHouses(playerId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('player_houses')
+    .select('house_id')
+    .eq('player_id', playerId);
+
+  if (error) {
+    console.error('Error fetching owned houses:', error);
+    return [];
+  }
+
+  return data?.map((item) => item.house_id) || [];
+}
+
+export async function getOwnedCars(playerId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('player_cars')
+    .select('car_id')
+    .eq('player_id', playerId);
+
+  if (error) {
+    console.error('Error fetching owned cars:', error);
+    return [];
+  }
+
+  return data?.map((item) => item.car_id) || [];
+}
+
+export async function selectCharacter(playerId: string, characterId: string): Promise<void> {
+  const { error } = await supabase
+    .from('player_profiles')
+    .update({ selected_character_id: characterId })
+    .eq('id', playerId);
+
+  if (error) {
+    console.error('Error selecting character:', error);
+    throw error;
+  }
+}
+
+export async function selectHouse(playerId: string, houseId: string): Promise<void> {
+  const { error } = await supabase
+    .from('player_profiles')
+    .update({ selected_house_id: houseId })
+    .eq('id', playerId);
+
+  if (error) {
+    console.error('Error selecting house:', error);
+    throw error;
+  }
+}
+
+export async function selectCar(playerId: string, carId: string): Promise<void> {
   const { error } = await supabase
     .from('player_profiles')
     .update({ selected_car_id: carId })
@@ -54,10 +129,33 @@ export async function selectCar(
 
   if (error) {
     console.error('Error selecting car:', error);
-    return { success: false, error: error.message };
+    throw error;
+  }
+}
+
+export async function getSelectedOutfit(playerId: string): Promise<CharacterOutfit | null> {
+  const { data: profileData } = await supabase
+    .from('player_profiles')
+    .select('selected_outfit_id')
+    .eq('id', playerId)
+    .maybeSingle();
+
+  if (!profileData?.selected_outfit_id) {
+    return null;
   }
 
-  return { success: true };
+  const { data: outfitData, error } = await supabase
+    .from('character_outfits')
+    .select('*')
+    .eq('id', profileData.selected_outfit_id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching selected outfit:', error);
+    return null;
+  }
+
+  return outfitData;
 }
 
 export async function fetchCharacterOutfits(): Promise<CharacterOutfit[]> {
