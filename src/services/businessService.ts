@@ -1,0 +1,82 @@
+import { supabase } from '../lib/supabase';
+import type { BusinessWithPlayerData } from '../types/game';
+
+export async function fetchAllBusinesses(
+  playerId: string
+): Promise<BusinessWithPlayerData[]> {
+  const { data, error } = await supabase.rpc('get_all_businesses', {
+    p_player_id: playerId,
+  });
+
+  if (error) {
+    console.error('Error fetching businesses:', error);
+    return [];
+  }
+
+  return (data || []) as BusinessWithPlayerData[];
+}
+
+export async function calculateBusinessPrestigePoints(
+  playerId: string
+): Promise<number> {
+  const { data, error } = await supabase.rpc('calculate_business_prestige_points', {
+    p_player_id: playerId,
+  });
+
+  if (error) {
+    console.error('Error calculating business prestige:', error);
+    return 0;
+  }
+
+  return data || 0;
+}
+
+export async function purchaseBusiness(
+  playerId: string,
+  businessId: string
+): Promise<{ success: boolean; message?: string; new_balance?: number }> {
+  const { data, error } = await supabase.rpc('purchase_business', {
+    p_player_id: playerId,
+    p_business_id: businessId,
+  });
+
+  if (error) {
+    console.error('Error purchasing business:', error);
+    return { success: false, message: error.message };
+  }
+
+  if (!data?.success) {
+    return { success: false, message: data?.message || 'Purchase failed' };
+  }
+
+  return {
+    success: true,
+    new_balance: data.new_balance,
+    message: data.message,
+  };
+}
+
+export async function upgradeBusiness(
+  playerId: string,
+  businessId: string
+): Promise<{ success: boolean; message?: string; new_balance?: number }> {
+  const { data, error } = await supabase.rpc('upgrade_business', {
+    p_player_id: playerId,
+    p_business_id: businessId,
+  });
+
+  if (error) {
+    console.error('Error upgrading business:', error);
+    return { success: false, message: error.message };
+  }
+
+  if (!data?.success) {
+    return { success: false, message: data?.message || 'Upgrade failed' };
+  }
+
+  return {
+    success: true,
+    new_balance: data.new_balance,
+    message: data.message,
+  };
+}
