@@ -30,7 +30,7 @@ export async function fetchAllBusinesses(
 export async function calculateBusinessPrestigePoints(
   playerId: string
 ): Promise<number> {
-  const { data, error } = await supabase.rpc('calculate_business_prestige_points', {
+  const { data, error } = await supabase.rpc('calculate_player_prestige', {
     p_player_id: playerId,
   });
 
