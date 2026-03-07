@@ -7,7 +7,7 @@ export async function purchaseItem(
   itemType: 'car' | 'house' | 'character',
   price: number
 ): Promise<PurchaseResult> {
-  const { data, error } = await supabase.rpc('purchase_item', {
+  const { data, error } = await supabase.rpc('purchaseitem', {
     p_player_id: playerId,
     p_item_id: itemId,
     p_item_type: itemType,
