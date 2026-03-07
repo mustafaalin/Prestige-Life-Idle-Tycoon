@@ -53,7 +53,7 @@ export async function claimAccumulatedMoney(
 export async function watchAd(
   playerId: string
 ): Promise<{ claimLockedUntil: string | null; dailyClaimedTotal: number }> {
-  const { error } = await supabase.rpc('watch_ad', {
+  const { error } = await supabase.rpc('claim_ad_reward', {
     p_player_id: playerId,
   });
 
