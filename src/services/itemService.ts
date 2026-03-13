@@ -57,44 +57,47 @@ export async function fetchAllCars(): Promise<Car[]> {
 
 export async function getOwnedCharacters(playerId: string): Promise<string[]> {
   const { data, error } = await supabase
-    .from('player_characters')
-    .select('character_id')
-    .eq('player_id', playerId);
+    .from('player_profiles')
+    .select('selected_character_id')
+    .eq('id', playerId)
+    .maybeSingle();
 
   if (error) {
     console.error('Error fetching owned characters:', error);
     return [];
   }
 
-  return data?.map((item) => item.character_id) || [];
+  return data?.selected_character_id ? [data.selected_character_id] : [];
 }
 
 export async function getOwnedHouses(playerId: string): Promise<string[]> {
   const { data, error } = await supabase
-    .from('player_houses')
-    .select('house_id')
-    .eq('player_id', playerId);
+    .from('player_profiles')
+    .select('selected_house_id')
+    .eq('id', playerId)
+    .maybeSingle();
 
   if (error) {
     console.error('Error fetching owned houses:', error);
     return [];
   }
 
-  return data?.map((item) => item.house_id) || [];
+  return data?.selected_house_id ? [data.selected_house_id] : [];
 }
 
 export async function getOwnedCars(playerId: string): Promise<string[]> {
   const { data, error } = await supabase
-    .from('player_cars')
-    .select('car_id')
-    .eq('player_id', playerId);
+    .from('player_profiles')
+    .select('selected_car_id')
+    .eq('id', playerId)
+    .maybeSingle();
 
   if (error) {
     console.error('Error fetching owned cars:', error);
     return [];
   }
 
-  return data?.map((item) => item.car_id) || [];
+  return data?.selected_car_id ? [data.selected_car_id] : [];
 }
 
 export async function selectCharacter(playerId: string, characterId: string): Promise<void> {
