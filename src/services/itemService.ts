@@ -5,7 +5,7 @@ export async function getCharacters(): Promise<Character[]> {
   const { data, error } = await supabase
     .from('characters')
     .select('*')
-    .order('level', { ascending: true });
+    .order('unlock_order', { ascending: true });
 
   if (error) {
     console.error('Error fetching characters:', error);
@@ -110,6 +110,12 @@ export async function selectCharacter(playerId: string, characterId: string): Pr
     console.error('Error selecting character:', error);
     throw error;
   }
+
+  try {
+    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
+  } catch (rpcError) {
+    console.error('Error calculating prestige:', rpcError);
+  }
 }
 
 export async function selectHouse(playerId: string, houseId: string): Promise<void> {
@@ -122,6 +128,13 @@ export async function selectHouse(playerId: string, houseId: string): Promise<vo
     console.error('Error selecting house:', error);
     throw error;
   }
+
+  try {
+    await supabase.rpc('calculate_player_income', { p_player_id: playerId });
+    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
+  } catch (rpcError) {
+    console.error('Error calculating income/prestige:', rpcError);
+  }
 }
 
 export async function selectCar(playerId: string, carId: string): Promise<void> {
@@ -133,6 +146,13 @@ export async function selectCar(playerId: string, carId: string): Promise<void> 
   if (error) {
     console.error('Error selecting car:', error);
     throw error;
+  }
+
+  try {
+    await supabase.rpc('calculate_player_income', { p_player_id: playerId });
+    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
+  } catch (rpcError) {
+    console.error('Error calculating income/prestige:', rpcError);
   }
 }
 
@@ -229,6 +249,12 @@ export async function selectOutfit(
   if (error) {
     console.error('Error selecting outfit:', error);
     return { success: false, error: error.message };
+  }
+
+  try {
+    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
+  } catch (rpcError) {
+    console.error('Error calculating prestige:', rpcError);
   }
 
   return { success: true };

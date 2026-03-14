@@ -59,6 +59,13 @@ export async function purchaseBusiness(
   if (!data?.success) {
     throw new Error(data?.message || 'Purchase failed');
   }
+
+  try {
+    await supabase.rpc('calculate_player_income', { p_player_id: playerId });
+    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
+  } catch (rpcError) {
+    console.error('Error calculating income/prestige:', rpcError);
+  }
 }
 
 export async function upgradeBusiness(
@@ -77,5 +84,12 @@ export async function upgradeBusiness(
 
   if (!data?.success) {
     throw new Error(data?.message || 'Upgrade failed');
+  }
+
+  try {
+    await supabase.rpc('calculate_player_income', { p_player_id: playerId });
+    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
+  } catch (rpcError) {
+    console.error('Error calculating income/prestige:', rpcError);
   }
 }

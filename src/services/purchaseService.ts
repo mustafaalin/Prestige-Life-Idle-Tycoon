@@ -11,7 +11,6 @@ export async function purchaseItem(
     p_player_id: playerId,
     p_item_id: itemId,
     p_item_type: itemType,
-    p_price: price,
   });
 
   if (error) {
