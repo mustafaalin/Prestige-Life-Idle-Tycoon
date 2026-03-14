@@ -69,12 +69,12 @@ BEGIN
 
   -- Reset profile to default values
   UPDATE player_profiles
-  SET 
+  SET
     total_money = 100,
     lifetime_earnings = 0,
     money_per_click = 1,
     money_per_second = 0,
-    hourly_income = 50,
+    hourly_income = 0,
     total_clicks = 0,
     selected_character_id = v_default_character_id,
     selected_house_id = v_default_house_id,

@@ -164,7 +164,7 @@ BEGIN
     total_clicks = 0,
     prestige_points = 0,
     gems = 0,
-    hourly_income = 50,
+    hourly_income = 0,
     selected_character_id = v_default_character_id,
     selected_house_id = v_default_house_id,
     selected_car_id = NULL,

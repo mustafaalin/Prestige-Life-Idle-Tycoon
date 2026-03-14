@@ -21,11 +21,11 @@ BEGIN
     SELECT 1 FROM information_schema.columns
     WHERE table_name = 'player_profiles' AND column_name = 'hourly_income'
   ) THEN
-    ALTER TABLE player_profiles ADD COLUMN hourly_income numeric(10,2) NOT NULL DEFAULT 1000;
+    ALTER TABLE player_profiles ADD COLUMN hourly_income numeric(10,2) NOT NULL DEFAULT 0;
   END IF;
 END $$;
 
 -- Update existing profiles to have default hourly income
-UPDATE player_profiles 
-SET hourly_income = 1000 
-WHERE hourly_income IS NULL OR hourly_income = 0;
+UPDATE player_profiles
+SET hourly_income = 0
+WHERE hourly_income IS NULL;
