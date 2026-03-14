@@ -6,9 +6,8 @@ interface UseJobTrackingOptions {
   userId: string | null;
   jobs: Job[];
   playerJobs: PlayerJob[];
-  isTabVisible: boolean;
-  onJobComplete: (jobId: string, salary: number) => void;
-  onWorkTimeUpdate: (seconds: number) => void;
+  isTabVisible: React.MutableRefObject<boolean>;
+  onJobWorkSecondsUpdate: (seconds: number) => void;
 }
 
 export function useJobTracking({
@@ -16,14 +15,13 @@ export function useJobTracking({
   jobs,
   playerJobs,
   isTabVisible,
-  onJobComplete,
-  onWorkTimeUpdate,
+  onJobWorkSecondsUpdate,
 }: UseJobTrackingOptions) {
   const jobWorkTimeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const jobWorkTimeAutoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const unsavedJobWorkSecondsRef = useRef<number>(0);
 
-  const activePlayerJob = playerJobs.find(pj => pj.is_active && !pj.is_completed);
+  const activePlayerJob = playerJobs.find(pj => pj.is_active);
   const activeJob = activePlayerJob
     ? jobs.find(j => j.id === activePlayerJob.job_id)
     : undefined;
@@ -42,33 +40,11 @@ export function useJobTracking({
         .eq('job_id', activePlayerJob.job_id);
 
       unsavedJobWorkSecondsRef.current = 0;
-      onWorkTimeUpdate(0);
+      onJobWorkSecondsUpdate(0);
     } catch (error) {
       console.error('Error saving job work time:', error);
     }
-  }, [userId, activePlayerJob, onWorkTimeUpdate]);
-
-  const checkJobCompletion = useCallback(async () => {
-    if (!activePlayerJob || !activeJob || !userId) return;
-
-    const totalWorkedSeconds = (activePlayerJob.total_time_worked_seconds || 0) + unsavedJobWorkSecondsRef.current;
-
-    if (totalWorkedSeconds >= activeJob.work_duration_seconds) {
-      await supabase
-        .from('player_jobs')
-        .update({
-          is_active: false,
-          is_completed: true,
-        })
-        .eq('player_id', userId)
-        .eq('job_id', activeJob.id);
-
-      unsavedJobWorkSecondsRef.current = 0;
-      onWorkTimeUpdate(0);
-
-      onJobComplete(activeJob.id, activeJob.salary);
-    }
-  }, [activePlayerJob, activeJob, userId, onJobComplete, onWorkTimeUpdate]);
+  }, [userId, activePlayerJob, onJobWorkSecondsUpdate]);
 
   const startJobTracking = useCallback(() => {
     if (jobWorkTimeIntervalRef.current) {
@@ -79,18 +55,16 @@ export function useJobTracking({
     }
 
     jobWorkTimeIntervalRef.current = setInterval(() => {
-      if (!activePlayerJob || !isTabVisible) return;
+      if (!activePlayerJob || !isTabVisible.current) return;
 
       unsavedJobWorkSecondsRef.current += 1;
-      onWorkTimeUpdate(unsavedJobWorkSecondsRef.current);
-
-      checkJobCompletion();
+      onJobWorkSecondsUpdate(unsavedJobWorkSecondsRef.current);
     }, 1000);
 
     jobWorkTimeAutoSaveIntervalRef.current = setInterval(() => {
       saveJobWorkTime();
     }, 5000);
-  }, [activePlayerJob, isTabVisible, checkJobCompletion, saveJobWorkTime, onWorkTimeUpdate]);
+  }, [activePlayerJob, isTabVisible, saveJobWorkTime, onJobWorkSecondsUpdate]);
 
   const stopJobTracking = useCallback(() => {
     if (jobWorkTimeIntervalRef.current) {
@@ -104,7 +78,7 @@ export function useJobTracking({
   }, []);
 
   useEffect(() => {
-    if (activePlayerJob && isTabVisible && !activePlayerJob.is_completed) {
+    if (activePlayerJob && isTabVisible.current) {
       startJobTracking();
     } else {
       stopJobTracking();
@@ -126,7 +100,6 @@ export function useJobTracking({
   return {
     activeJob,
     activePlayerJob,
-    unsavedJobWorkSeconds: unsavedJobWorkSecondsRef.current,
     saveJobWorkTime,
     startJobTracking,
     stopJobTracking,

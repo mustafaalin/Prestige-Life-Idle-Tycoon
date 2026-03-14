@@ -95,7 +95,14 @@ export async function selectJob(
     throw error;
   }
 
-  const lockedUntil = Date.now() + 30 * 60 * 1000;
+  try {
+    await supabase.rpc('calculate_player_income', { p_player_id: playerId });
+    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
+  } catch (rpcError) {
+    console.error('Error calculating income/prestige:', rpcError);
+  }
+
+  const lockedUntil = Date.now() + 180 * 1000;
   return { lockedUntil };
 }
 
@@ -134,6 +141,13 @@ export async function setActiveJob(
   if (error) {
     console.error('Error setting active job:', error);
     return { success: false, error: error.message };
+  }
+
+  try {
+    await supabase.rpc('calculate_player_income', { p_player_id: playerId });
+    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
+  } catch (rpcError) {
+    console.error('Error calculating income/prestige:', rpcError);
   }
 
   return { success: true };
