@@ -172,7 +172,7 @@ function App() {
         ownedHouses={gameState.ownedHouses}
         ownedCars={gameState.ownedCars}
         totalMoney={gameState.profile.total_money}
-        onPurchase={gameState.purchaseitem}
+        onPurchase={(type, itemId, price) => gameState.purchaseitem(type, itemId, price)}
       />
 
       <ShopModal
@@ -190,7 +190,7 @@ function App() {
         onClaimDaily={gameState.claimDailyReward}
         onClaimMoney={gameState.claimAccumulatedMoney}
         onWatchAd={gameState.watchAd}
-        onPurchaseComplete={(moneyAdded, gemsAdded) => {
+        onPurchaseComplete={(moneyAdded: number, gemsAdded: number) => {
           if (gameState.profile) {
             gameState.saveProfile({
               total_money: gameState.profile.total_money + moneyAdded,
@@ -244,7 +244,7 @@ function App() {
           selectedCarId={gameState.profile.selected_car_id}
           selectedHouseId={gameState.profile.selected_house_id}
           ownedCars={gameState.ownedCars}
-          onPurchaseCar={(carId) => gameState.purchaseitem('car', carId)}
+          onPurchaseCar={(carId, price) => gameState.purchaseitem('car', carId, price)}
           onSelectCar={gameState.selectCar}
           onSelectHouse={gameState.selectHouse}
           onClose={() => {
