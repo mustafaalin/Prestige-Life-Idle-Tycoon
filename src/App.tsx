@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useGameState } from './hooks/useGameState';
 import ProfileModal from './components/ProfileModal';
@@ -20,7 +20,9 @@ function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeTab, setActiveTab] = useState<'shop' | 'job' | 'business' | 'investments' | 'stuff'>('shop');
-  const [playTimeSeconds, setPlayTimeSeconds] = useState(0);
+  
+  const sessionStartTimeRef = useRef(Date.now());
+  
   const [health, setHealth] = useState(100);
   const [happiness, setHappiness] = useState(100);
   const [showShopModal, setShowShopModal] = useState(false);
@@ -39,14 +41,6 @@ function App() {
       setShowStuffModal(true);
     }
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPlayTimeSeconds(prev => prev + 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     if (!authLoading && !gameState.profile && !gameState.loading && isAuthenticated && user?.id) {
@@ -246,7 +240,7 @@ function App() {
           selectedCarId={gameState.profile.selected_car_id}
           selectedHouseId={gameState.profile.selected_house_id}
           ownedCars={gameState.ownedCars}
-          onPurchaseCar={(carId, price) => gameState.purchaseitem('car', carId, price)}
+          onPurchaseCar={(carId) => gameState.purchaseitem('car', carId)}
           onSelectCar={gameState.selectCar}
           onSelectHouse={gameState.selectHouse}
           onClose={() => {
@@ -267,7 +261,7 @@ function App() {
         totalMoney={gameState.profile.total_money}
         lifetimeEarnings={gameState.profile.lifetime_earnings}
         totalClicks={gameState.profile.total_clicks}
-        playTimeSeconds={playTimeSeconds}
+        sessionStartTime={sessionStartTimeRef.current}
         onResetProgress={handleResetProgress}
         prestigePoints={gameState.profile?.prestige_points ?? 0}
       />
