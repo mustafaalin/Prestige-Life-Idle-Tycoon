@@ -1,19 +1,19 @@
 import { supabase } from '../lib/supabase';
 
 export async function getCharacters() {
-  const { data, error } = await supabase.from('characters').select('*').order('price');
+  const { data, error } = await supabase.from('characters').select('*').order('unlock_order');
   if (error) throw error;
   return data || [];
 }
 
 export async function getHouses() {
-  const { data, error } = await supabase.from('houses').select('*').order('price');
+  const { data, error } = await supabase.from('houses').select('*').order('level');
   if (error) throw error;
   return data || [];
 }
 
 export async function getCars() {
-  const { data, error } = await supabase.from('cars').select('*').order('price');
+  const { data, error } = await supabase.from('cars').select('*').order('level');
   if (error) throw error;
   return data || [];
 }
