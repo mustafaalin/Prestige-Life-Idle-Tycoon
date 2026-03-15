@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { X, Lock, Check } from 'lucide-react';
 import type { Character, House, Car } from '../types/game';
-import { formatMoney } from '../utils/game/calculations';
+
+const formatMoney = (amount: number) => `$${amount.toLocaleString()}`;
 
 interface ShopProps {
   isOpen: boolean;
