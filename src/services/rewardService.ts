@@ -1,14 +1,16 @@
 import { supabase } from '../lib/supabase';
-import type { AdRewardResult } from '../types/game';
 
-export async function getClaimStatus(
-  playerId: string
-): Promise<{ claimLockedUntil: string | null; dailyClaimedTotal: number }> {
-  const { data } = await supabase
-    .from('player_profiles')
-    .select('claim_locked_until, daily_claimed_total')
-    .eq('id', playerId)
-    .maybeSingle();
+// Hatanın asıl kaynağı olan bu fonksiyon null-safe ve doğru parametre ile yazıldı
+export async function getClaimStatus(playerId: string) {
+  const { data, error } = await supabase.rpc('get_claim_status', {
+    p_player_id: playerId,
+  });
+
+  if (error) {
+    console.error('Error fetching claim status:', error);
+    // Hata durumunda bile uygulamanın çökmesini engellemek için boş bir obje dönüyoruz
+    return { claimLockedUntil: null, dailyClaimedTotal: 0 };
+  }
 
   return {
     claimLockedUntil: data?.claim_locked_until || null,
@@ -16,64 +18,53 @@ export async function getClaimStatus(
   };
 }
 
-export async function claimDailyReward(
-  playerId: string
-): Promise<{ claimLockedUntil: string | null; dailyClaimedTotal: number }> {
+export async function claimDailyReward(playerId: string) {
   const { data, error } = await supabase.rpc('claim_daily_reward', {
     p_player_id: playerId,
   });
 
-  if (error) {
-    console.error('Error claiming daily reward:', error);
-    throw error;
+  if (error) throw error;
+  
+  if (data && typeof data === 'object' && 'success' in data && !data.success) {
+    throw new Error(data.message || 'Failed to claim daily reward');
   }
-
-  if (!data?.success) {
-    throw new Error(data?.message || 'Failed to claim daily reward');
-  }
-
-  return getClaimStatus(playerId);
+  
+  return {
+    claimLockedUntil: data?.claim_locked_until || null,
+    dailyClaimedTotal: data?.daily_claimed_total || 0,
+  };
 }
 
-export async function claimAccumulatedMoney(
-  playerId: string
-): Promise<{ claimLockedUntil: string | null; dailyClaimedTotal: number }> {
-  const { error } = await supabase.rpc('claim_accumulated_money', {
+export async function claimAccumulatedMoney(playerId: string) {
+  const { data, error } = await supabase.rpc('claim_accumulated_money', {
     p_player_id: playerId,
   });
 
-  if (error) {
-    console.error('Error claiming accumulated money:', error);
-    throw error;
+  if (error) throw error;
+  
+  if (data && typeof data === 'object' && 'success' in data && !data.success) {
+    throw new Error(data.message || 'Failed to claim money');
   }
 
-  return getClaimStatus(playerId);
+  return {
+    claimLockedUntil: data?.claim_locked_until || null,
+    dailyClaimedTotal: data?.daily_claimed_total || 0,
+  };
 }
 
-export async function watchAd(
-  playerId: string
-): Promise<{ claimLockedUntil: string | null; dailyClaimedTotal: number }> {
-  const { error } = await supabase.rpc('claim_ad_reward', {
+export async function watchAd(playerId: string) {
+  const { data, error } = await supabase.rpc('watch_ad', {
     p_player_id: playerId,
   });
 
-  if (error) {
-    console.error('Error watching ad:', error);
-    throw error;
+  if (error) throw error;
+  
+  if (data && typeof data === 'object' && 'success' in data && !data.success) {
+    throw new Error(data.message || 'Failed to watch ad');
   }
 
-  return getClaimStatus(playerId);
-}
-
-export async function canClaimDailyReward(playerId: string): Promise<boolean> {
-  const { data, error } = await supabase.rpc('can_claim_daily_reward', {
-    p_player_id: playerId,
-  });
-
-  if (error) {
-    console.error('Error checking daily reward eligibility:', error);
-    return false;
-  }
-
-  return data || false;
+  return {
+    claimLockedUntil: data?.claim_locked_until || null,
+    dailyClaimedTotal: data?.daily_claimed_total || 0,
+  };
 }
