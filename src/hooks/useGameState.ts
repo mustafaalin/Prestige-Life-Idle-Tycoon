@@ -135,11 +135,14 @@ export function useGameState(deviceId: string, userId: string | null) {
   });
 
   useAutoSave({
-    profile: gameState.profile,
-    userId: gameState.profile?.id || userId,
-    pendingMoneyDelta: gameState.pendingMoneyDelta,
-    onSaveComplete: () => { setGameState((prev) => ({ ...prev, pendingMoneyDelta: 0 })); },
-  });
+  profile: gameState.profile,
+  userId: gameState.profile?.id || userId,
+  pendingMoneyDelta: gameState.pendingMoneyDelta,
+  moneyMutationInFlight: moneyMutationInFlightRef.current,
+  onSaveComplete: () => { setGameState((prev) => ({ ...prev, pendingMoneyDelta: 0 })); },
+  onMutationStart: () => { moneyMutationInFlightRef.current = true; },
+  onMutationEnd: () => { moneyMutationInFlightRef.current = false; },
+});
 
   useJobTracking({
     userId: gameState.profile?.id || userId,
