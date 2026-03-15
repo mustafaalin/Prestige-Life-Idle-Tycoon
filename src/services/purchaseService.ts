@@ -1,64 +1,46 @@
 import { supabase } from '../lib/supabase';
-import type { PurchaseResult } from '../types/game';
 
-export async function purchaseItem(
-  playerId: string,
-  itemId: string,
-  itemType: 'car' | 'house' | 'character'
-): Promise<PurchaseResult> {
+// Arabalar için orijinal RPC çağrısı
+export async function purchaseCarViaRPC(playerId: string, carId: string, price: number) {
   const { data, error } = await supabase.rpc('purchaseitem', {
     p_player_id: playerId,
-    p_item_id: itemId,
-    p_item_type: itemType,
+    p_item_id: carId,
+    p_item_type: 'car'
+  } as any);
+
+  if (error) throw error;
+  
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    throw new Error('Purchase failed: Invalid response from database');
+  }
+
+  const result = data[0] as { success: boolean; message: string; new_balance: number };
+  if (!result.success) throw new Error(result.message);
+
+  await supabase.from('player_purchases').insert({
+    player_id: playerId,
+    item_type: 'car',
+    item_id: carId,
+    purchase_price: price,
   });
 
-  if (error) {
-    console.error('Error purchasing item:', error);
-    return { success: false, message: error.message };
-  }
-
-  if (!data?.success) {
-    return { success: false, message: data?.message || 'Purchase failed' };
-  }
-
-  return {
-    success: true,
-    new_balance: data.new_balance,
-    message: data.message,
-  };
+  return result;
 }
 
-export async function recordPurchase(
-  playerId: string,
-  itemType: string,
-  itemId: string,
-  purchasePrice: number
-): Promise<{ success: boolean; error?: string }> {
+// Karakter ve evler için orijinal Client-Side kayıt
+export async function purchaseGeneralItem(
+  playerId: string, 
+  itemType: 'character' | 'house', 
+  itemId: string, 
+  price: number
+) {
   const { error } = await supabase.from('player_purchases').insert({
     player_id: playerId,
     item_type: itemType,
     item_id: itemId,
-    purchase_price: purchasePrice,
+    purchase_price: price,
   });
 
-  if (error) {
-    console.error('Error recording purchase:', error);
-    return { success: false, error: error.message };
-  }
-
-  return { success: true };
-}
-
-export async function fetchPlayerPurchases(playerId: string) {
-  const { data, error } = await supabase
-    .from('player_purchases')
-    .select('item_type, item_id')
-    .eq('player_id', playerId);
-
-  if (error) {
-    console.error('Error fetching purchases:', error);
-    return [];
-  }
-
-  return data || [];
+  if (error) throw error;
+  return true;
 }
