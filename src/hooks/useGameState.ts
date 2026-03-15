@@ -210,8 +210,9 @@ export function useGameState(deviceId: string, userId: string | null) {
           minutesOffline > 5 && offlineAmount > 0
             ? { amount: offlineAmount, minutes: minutesOffline }
             : null,
-        claimLockedUntil: claimStatus.claimLockedUntil,
-        dailyClaimedTotal: claimStatus.dailyClaimedTotal,
+        // DÜZELTME: claimStatus'ün undefined olma ihtimaline karşı null-safe (?.) erişim eklendi
+        claimLockedUntil: claimStatus?.claimLockedUntil || null,
+        dailyClaimedTotal: claimStatus?.dailyClaimedTotal || 0,
         loading: false,
       }));
 
