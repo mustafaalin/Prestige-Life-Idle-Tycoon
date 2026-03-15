@@ -1,16 +1,17 @@
-import { useState } from 'react';
-import { X, User, TrendingUp, MousePointer, Clock, AlertTriangle, Sparkles } from 'lucide-react';
-import { deviceIdentity } from '../lib/deviceIdentity';
+import { useState, useEffect } from 'react';
+import { X, User, Trophy, MousePointerClick, Clock, Save, LogOut } from 'lucide-react';
+import { formatMoney } from '../utils/game/calculations';
+import { formatTime } from '../utils/game/calculations';
 
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   playerName: string;
-  onPlayerNameChange: (newName: string) => void;
+  onPlayerNameChange: (newName: string) => Promise<void>;
   totalMoney: number;
   lifetimeEarnings: number;
   totalClicks: number;
-  playTimeSeconds: number;
+  sessionStartTime: number; 
   onResetProgress: () => void;
   prestigePoints: number;
 }
@@ -23,191 +24,178 @@ export default function ProfileModal({
   totalMoney,
   lifetimeEarnings,
   totalClicks,
-  playTimeSeconds,
+  sessionStartTime,
   onResetProgress,
   prestigePoints,
 }: ProfileModalProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState(playerName);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editName, setEditName] = useState(playerName);
+  const [isSaving, setIsSaving] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  
+  const [sessionPlayTime, setSessionPlayTime] = useState(0);
+
+  useEffect(() => {
+    setEditName(playerName);
+  }, [playerName]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const updateTime = () => {
+      setSessionPlayTime(Math.floor((Date.now() - sessionStartTime) / 1000));
+    };
+    
+    updateTime();
+    const interval = setInterval(updateTime, 1000); 
+    
+    return () => clearInterval(interval);
+  }, [isOpen, sessionStartTime]);
 
   if (!isOpen) return null;
 
-  function handleSaveName() {
-    if (editedName.trim().length >= 3) {
-      onPlayerNameChange(editedName.trim());
-      deviceIdentity.setPlayerName(editedName.trim());
-      setIsEditing(false);
+  const handleSaveName = async () => {
+    if (editName.trim() === '' || editName === playerName) {
+      setIsEditingName(false);
+      return;
     }
-  }
 
-  function handleReset() {
+    setIsSaving(true);
+    await onPlayerNameChange(editName);
+    setIsSaving(false);
+    setIsEditingName(false);
+  };
+
+  const handleReset = () => {
     onResetProgress();
     setShowResetConfirm(false);
     onClose();
-  }
-
-  function formatPlayTime(seconds: number): string {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    }
-    return `${minutes}m`;
-  }
-
-  function formatNumber(num: number): string {
-    if (num >= 1000000000) return `$${(num / 1000000000).toFixed(2)}B`;
-    if (num >= 1000000) return `$${(num / 1000000).toFixed(2)}M`;
-    if (num >= 1000) return `$${(num / 1000).toFixed(2)}K`;
-    return `$${num}`;
-  }
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 p-6 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-white">Player Profile</h2>
+    <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+      <div className="bg-slate-900 rounded-3xl w-full max-w-md overflow-hidden border border-white/10 shadow-2xl flex flex-col max-h-[90vh]">
+        <div className="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 relative shrink-0">
           <button
             onClick={onClose}
-            className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+            className="absolute right-4 top-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
+          
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center border-2 border-white/30 shadow-inner">
+              <User className="w-10 h-10 text-white" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-black text-white mb-1">Player Profile</h2>
+              {isEditingName ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="bg-black/20 text-white px-3 py-1.5 rounded-xl border border-white/20 outline-none focus:border-white/40 w-full font-medium"
+                    maxLength={20}
+                    autoFocus
+                  />
+                  <button
+                    onClick={handleSaveName}
+                    disabled={isSaving}
+                    className="p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-colors disabled:opacity-50"
+                  >
+                    <Save className="w-5 h-5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <p className="text-white/90 font-medium text-lg">{playerName}</p>
+                  <button
+                    onClick={() => setIsEditingName(true)}
+                    className="text-white/50 hover:text-white/90 text-sm underline decoration-white/30 underline-offset-4"
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="p-6 space-y-6">
-          <div className="bg-white/5 rounded-xl p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-500/20 rounded-full p-3">
-                <User className="w-8 h-8 text-blue-400" />
+        <div className="p-6 space-y-6 overflow-y-auto">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-slate-800 p-4 rounded-2xl border border-white/5">
+              <div className="flex items-center gap-2 text-emerald-400 mb-2">
+                <Trophy className="w-5 h-5" />
+                <span className="font-bold text-sm">Net Worth</span>
               </div>
-              <div className="flex-1">
-                {isEditing ? (
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={editedName}
-                      onChange={(e) => setEditedName(e.target.value)}
-                      className="flex-1 px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 focus:border-blue-400 focus:outline-none"
-                      placeholder="Enter player name"
-                      minLength={3}
-                      maxLength={20}
-                    />
-                    <button
-                      onClick={handleSaveName}
-                      disabled={editedName.trim().length < 3}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsEditing(false);
-                        setEditedName(playerName);
-                      }}
-                      className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-400">Display Name</p>
-                      <p className="text-2xl font-bold text-white">{playerName}</p>
-                    </div>
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
-                    >
-                      Edit Name
-                    </button>
-                  </div>
-                )}
+              <p className="text-xl font-black text-white">{formatMoney(totalMoney)}</p>
+            </div>
+            
+            <div className="bg-slate-800 p-4 rounded-2xl border border-white/5">
+              <div className="flex items-center gap-2 text-blue-400 mb-2">
+                <Trophy className="w-5 h-5" />
+                <span className="font-bold text-sm">Lifetime Earned</span>
               </div>
+              <p className="text-xl font-black text-white">{formatMoney(lifetimeEarnings)}</p>
+            </div>
+
+            <div className="bg-slate-800 p-4 rounded-2xl border border-white/5">
+              <div className="flex items-center gap-2 text-purple-400 mb-2">
+                <MousePointerClick className="w-5 h-5" />
+                <span className="font-bold text-sm">Total Clicks</span>
+              </div>
+              <p className="text-xl font-black text-white">{totalClicks.toLocaleString()}</p>
+            </div>
+
+            <div className="bg-slate-800 p-4 rounded-2xl border border-white/5">
+              <div className="flex items-center gap-2 text-amber-400 mb-2">
+                <Clock className="w-5 h-5" />
+                <span className="font-bold text-sm">Session Time</span>
+              </div>
+              <p className="text-xl font-black text-white">{formatTime(sessionPlayTime)}</p>
+            </div>
+
+            <div className="bg-slate-800 p-4 rounded-2xl border border-white/5 col-span-2">
+              <div className="flex items-center gap-2 text-yellow-400 mb-2">
+                <Trophy className="w-5 h-5" />
+                <span className="font-bold text-sm">Prestige Points</span>
+              </div>
+              <p className="text-xl font-black text-white">{prestigePoints}</p>
             </div>
           </div>
 
-          <div>
-            <h3 className="text-xl font-bold text-white mb-4">Game Statistics</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl p-4 border border-green-500/30">
-                <div className="flex items-center gap-3 mb-2">
-                  <TrendingUp className="w-6 h-6 text-green-400" />
-                  <p className="text-sm text-gray-300">Current Money</p>
-                </div>
-                <p className="text-2xl font-bold text-white">{formatNumber(totalMoney)}</p>
-              </div>
-
-              <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl p-4 border border-blue-500/30">
-                <div className="flex items-center gap-3 mb-2">
-                  <TrendingUp className="w-6 h-6 text-blue-400" />
-                  <p className="text-sm text-gray-300">Total Earned</p>
-                </div>
-                <p className="text-2xl font-bold text-white">{formatNumber(lifetimeEarnings)}</p>
-              </div>
-
-              <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl p-4 border border-purple-500/30">
-                <div className="flex items-center gap-3 mb-2">
-                  <MousePointer className="w-6 h-6 text-purple-400" />
-                  <p className="text-sm text-gray-300">Total Clicks</p>
-                </div>
-                <p className="text-2xl font-bold text-white">{totalClicks.toLocaleString()}</p>
-              </div>
-
-              <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl p-4 border border-orange-500/30">
-                <div className="flex items-center gap-3 mb-2">
-                  <Clock className="w-6 h-6 text-orange-400" />
-                  <p className="text-sm text-gray-300">Play Time</p>
-                </div>
-                <p className="text-2xl font-bold text-white">{formatPlayTime(playTimeSeconds)}</p>
-              </div>
-
-              <div className="bg-gradient-to-br from-yellow-500/20 to-amber-500/20 rounded-xl p-4 border border-yellow-500/30">
-                <div className="flex items-center gap-3 mb-2">
-                  <Sparkles className="w-6 h-6 text-yellow-400" />
-                  <p className="text-sm text-gray-300">Prestige Points</p>
-                </div>
-                <p className="text-2xl font-bold text-white">{prestigePoints.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white/5 rounded-xl p-6 space-y-4">
-            <h3 className="text-xl font-bold text-white">Account Actions</h3>
-
-            {!showResetConfirm ? (
-              <button
-                onClick={() => setShowResetConfirm(true)}
-                className="w-full px-4 py-3 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 border border-red-500/50 transition-colors flex items-center justify-center gap-2"
-              >
-                <AlertTriangle className="w-5 h-5" />
-                Reset Progress
-              </button>
-            ) : (
-              <div className="space-y-3">
-                <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
-                  <p className="text-red-300 text-sm font-medium mb-2">Are you sure?</p>
-                  <p className="text-gray-300 text-sm">
-                    This will delete all your progress and let you choose a new character. This action cannot be undone!
-                  </p>
-                </div>
-                <div className="flex gap-2">
+          <div className="mt-8 pt-6 border-t border-red-500/20">
+            <h3 className="text-red-400 font-bold mb-4 uppercase text-sm tracking-wider">Danger Zone</h3>
+            
+            {showResetConfirm ? (
+              <div className="bg-red-500/10 p-4 rounded-2xl border border-red-500/20">
+                <p className="text-white text-sm mb-4">
+                  Are you absolutely sure? This will delete all your money, items, and progress. This action cannot be undone!
+                </p>
+                <div className="flex gap-3">
                   <button
                     onClick={handleReset}
-                    className="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-bold"
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
                   >
                     Yes, Reset Everything
                   </button>
                   <button
                     onClick={() => setShowResetConfirm(false)}
-                    className="flex-1 px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                    className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
                   >
                     Cancel
                   </button>
                 </div>
               </div>
+            ) : (
+              <button
+                onClick={() => setShowResetConfirm(true)}
+                className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-3.5 rounded-xl transition-colors border border-red-500/20"
+              >
+                <LogOut className="w-5 h-5" />
+                Reset Game Progress
+              </button>
             )}
           </div>
         </div>
