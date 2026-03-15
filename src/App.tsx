@@ -12,7 +12,7 @@ import { BusinessModal } from './components/BusinessModal';
 import { StuffModal } from './components/StuffModal';
 import { BottomNav } from './components/BottomNav';
 
-function App() {
+export default function App() {
   const { deviceId, isAuthenticated, user, loading: authLoading } = useAuth();
   const gameState = useGameState(deviceId, user?.id || null);
   const [showShop, setShowShop] = useState(false);
@@ -21,7 +21,11 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [activeTab, setActiveTab] = useState<'shop' | 'job' | 'business' | 'investments' | 'stuff'>('shop');
   
+  // PERFORMANS ÇÖZÜMÜ: Her saniye render tetikleyen state yerine, 
+  // başlangıç anını bir kere alıp ProfileModal'a gönderiyoruz.
   const sessionStartTimeRef = useRef(Date.now());
+  
+  // GÜVENLİK ÇÖZÜMÜ: Sonsuz profil yaratma döngüsünü engeller
   const profileCreationAttempted = useRef(false);
   
   const [health, setHealth] = useState(100);
@@ -121,14 +125,14 @@ function App() {
   const currentCar = gameState.cars.find((c) => c.id === gameState.profile?.selected_car_id);
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-slate-900">
       {currentHouse?.image_url ? (
         <div
-          className="fixed inset-0 bg-cover bg-center z-0"
+          className="fixed inset-0 bg-cover bg-center z-0 opacity-40"
           style={{ backgroundImage: `url(${currentHouse.image_url})` }}
         />
       ) : (
-        <div className="fixed inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 z-0" />
+        <div className="fixed inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-black z-0" />
       )}
 
       <Header
@@ -190,7 +194,7 @@ function App() {
         onClaimDaily={gameState.claimDailyReward}
         onClaimMoney={gameState.claimAccumulatedMoney}
         onWatchAd={gameState.watchAd}
-        onPurchaseComplete={(moneyAdded: number, gemsAdded: number) => {
+        onPurchaseComplete={(moneyAdded, gemsAdded) => {
           if (gameState.profile) {
             gameState.saveProfile({
               total_money: gameState.profile.total_money + moneyAdded,
@@ -281,5 +285,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
