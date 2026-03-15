@@ -66,9 +66,16 @@ export async function selectJob(playerId: string, jobId: string, currentActiveJo
     });
   }
 
-  // Gelir ve prestiji tetikle
-  await supabase.rpc('calculate_player_income', { p_player_id: playerId } as any);
-  await supabase.rpc('calculate_player_prestige', { p_player_id: playerId } as any);
+  // Gelir ve prestiji tetikle (Olası Supabase Timeout'una karşı try-catch eklendi)
+  try {
+    await Promise.all([
+      supabase.rpc('calculate_player_income', { p_player_id: playerId } as any),
+      supabase.rpc('calculate_player_prestige', { p_player_id: playerId } as any)
+    ]);
+  } catch (error) {
+    console.warn('Warning: Could not recalculate income/prestige automatically. It will be recalculated on next load.', error);
+  }
   
-  return true;
+  // Bolt'un istediği objeli return yapısına geçildi
+  return { success: true, lockedUntil: Date.now() + 120000 };
 }
