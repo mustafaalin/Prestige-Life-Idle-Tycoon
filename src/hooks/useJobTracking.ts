@@ -7,10 +7,11 @@ interface UseJobTrackingOptions {
   jobs: Job[];
   playerJobs: PlayerJob[];
   isTabVisible: React.MutableRefObject<boolean>;
-  // Yeni eklenen sync callback'i: Saniyeleri sıfırlarken toplam süreyi de artırır
-  onJobWorkTimeSync: (jobId: string, secondsToAdd: number) => void;
+  onJobWorkTimeSync?: (jobId: string, secondsToAdd: number) => void;
   onJobWorkSecondsUpdate: (seconds: number) => void;
 }
+
+const AUTO_SAVE_INTERVAL_MS = 30000;
 
 export function useJobTracking({
   userId,
@@ -22,24 +23,34 @@ export function useJobTracking({
 }: UseJobTrackingOptions) {
   const jobWorkTimeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const jobWorkTimeAutoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
   const unsavedJobWorkSecondsRef = useRef<number>(0);
+  const activeJobIdRef = useRef<string | null>(null);
+  const totalTimeWorkedRef = useRef<number>(0);
 
-  // Aktif işi bul
   const activePlayerJob = playerJobs.find(pj => pj.is_active);
   const activeJob = activePlayerJob
     ? jobs.find(j => j.id === activePlayerJob.job_id)
     : undefined;
 
-  const saveJobWorkTime = useCallback(async () => {
-    // Kaydedilecek veri yoksa veya kullanıcı yoksa çık
-    if (!userId || !activePlayerJob || unsavedJobWorkSecondsRef.current === 0) return;
+  useEffect(() => {
+    if (activePlayerJob) {
+      activeJobIdRef.current = activePlayerJob.job_id;
+      totalTimeWorkedRef.current = activePlayerJob.total_time_worked_seconds || 0;
+    } else {
+      activeJobIdRef.current = null;
+    }
+  }, [activePlayerJob]);
 
+  const saveJobWorkTime = useCallback(async () => {
+    const currentJobId = activeJobIdRef.current;
     const secondsToSave = unsavedJobWorkSecondsRef.current;
-    const currentJobId = activePlayerJob.job_id;
-    const newTotalSeconds = (activePlayerJob.total_time_worked_seconds || 0) + secondsToSave;
+
+    if (!userId || !currentJobId || secondsToSave === 0) return;
+
+    const newTotalSeconds = totalTimeWorkedRef.current + secondsToSave;
 
     try {
-      // 1. Veritabanını güncelle (Sadece süre kaydı - Performans için RPC değil direkt update)
       const { error } = await supabase
         .from('player_jobs')
         .update({ total_time_worked_seconds: newTotalSeconds })
@@ -48,36 +59,34 @@ export function useJobTracking({
 
       if (error) throw error;
 
-      onJobWorkTimeSync(currentJobId, secondsToSave);
+      if (onJobWorkTimeSync) {
+         onJobWorkTimeSync(currentJobId, secondsToSave);
+      }
       
       unsavedJobWorkSecondsRef.current = 0;
       onJobWorkSecondsUpdate(0);
       
     } catch (error) {
       console.error('Error saving job work time:', error);
-      // Hata durumunda saniyeleri sıfırlamıyoruz, bir sonraki denemede tekrar deneyecek.
     }
-  }, [userId, activePlayerJob, onJobWorkTimeSync, onJobWorkSecondsUpdate]);
+  }, [userId, onJobWorkTimeSync, onJobWorkSecondsUpdate]);
 
   const startJobTracking = useCallback(() => {
-    // Mevcut zamanlayıcıları temizle
     if (jobWorkTimeIntervalRef.current) clearInterval(jobWorkTimeIntervalRef.current);
     if (jobWorkTimeAutoSaveIntervalRef.current) clearInterval(jobWorkTimeAutoSaveIntervalRef.current);
 
-    // 1 saniyelik UI sayacı
     jobWorkTimeIntervalRef.current = setInterval(() => {
-      // Sekme görünür değilse veya aktif iş yoksa sayma
-      if (!activePlayerJob || !isTabVisible.current || document.hidden) return;
+      if (!activeJobIdRef.current || !isTabVisible.current || document.hidden) return;
 
       unsavedJobWorkSecondsRef.current += 1;
       onJobWorkSecondsUpdate(unsavedJobWorkSecondsRef.current);
     }, 1000);
 
-    // 5 saniyelik veritabanı oto-kayıt döngüsü
     jobWorkTimeAutoSaveIntervalRef.current = setInterval(() => {
       saveJobWorkTime();
-    }, 5000);
-  }, [activePlayerJob, isTabVisible, saveJobWorkTime, onJobWorkSecondsUpdate]);
+    }, AUTO_SAVE_INTERVAL_MS);
+    
+  }, [isTabVisible, saveJobWorkTime, onJobWorkSecondsUpdate]);
 
   const stopJobTracking = useCallback(() => {
     if (jobWorkTimeIntervalRef.current) {
@@ -98,7 +107,7 @@ export function useJobTracking({
     }
 
     return () => stopJobTracking();
-  }, [activePlayerJob, isTabVisible, startJobTracking, stopJobTracking]);
+  }, [activePlayerJob?.job_id, isTabVisible, startJobTracking, stopJobTracking]);
 
   useEffect(() => {
     return () => {
