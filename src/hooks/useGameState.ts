@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import { deviceIdentity } from '../lib/deviceIdentity';
 import type { Database, BusinessWithPlayerData } from '../lib/database.types';
 import { usePassiveIncome } from './usePassiveIncome';
 import { useAutoSave } from './useAutoSave';
@@ -10,7 +11,6 @@ import * as jobService from '../services/jobService';
 import * as businessService from '../services/businessService';
 import * as purchaseService from '../services/purchaseService';
 import * as rewardService from '../services/rewardService';
-import * as statsService from '../services/statsService';
 
 type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'];
 type Character = Database['public']['Tables']['characters']['Row'];
@@ -37,10 +37,7 @@ interface GameState {
   selectedOutfit: CharacterOutfit | null;
   loading: boolean;
   error: string | null;
-  offlineEarnings: {
-    amount: number;
-    minutes: number;
-  } | null;
+  offlineEarnings: { amount: number; minutes: number } | null;
   jobChangeLockedUntil: number | null;
   claimLockedUntil: string | null;
   dailyClaimedTotal: number;
@@ -48,6 +45,8 @@ interface GameState {
   unsavedJobWorkSeconds: number;
   pendingMoneyDelta: number;
 }
+
+const GAME_STATE_KEY = 'idle_guy_game_state';
 
 export function useGameState(deviceId: string, userId: string | null) {
   const [gameState, setGameState] = useState<GameState>({
@@ -77,35 +76,55 @@ export function useGameState(deviceId: string, userId: string | null) {
 
   const isTabVisible = useRef<boolean>(true);
   const gameStateRef = useRef<GameState>(gameState);
+  const moneyMutationInFlightRef = useRef<boolean>(false);
   const isCreatingProfileRef = useRef<boolean>(false);
 
   useEffect(() => {
     gameStateRef.current = gameState;
   }, [gameState]);
 
-  const incomePerSecond = gameState.profile
-    ? Number(gameState.profile.hourly_income || 0) / 3600
-    : 0;
+  const saveToLocalStorage = useCallback((state: Partial<GameState>) => {
+    try {
+      const existing = localStorage.getItem(GAME_STATE_KEY);
+      const current = existing ? JSON.parse(existing) : {};
+      localStorage.setItem(GAME_STATE_KEY, JSON.stringify({ ...current, ...state }));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  }, []);
+
+  const loadFromLocalStorage = useCallback((): Partial<GameState> | null => {
+    try {
+      const stored = localStorage.getItem(GAME_STATE_KEY);
+      return stored ? JSON.parse(stored) : null;
+    } catch (error) {
+      return null;
+    }
+  }, []);
+
+  const incomePerSecond = gameState.profile ? Number(gameState.profile.hourly_income || 0) / 3600 : 0;
 
   const handleMoneyUpdate = useCallback((moneyToAdd: number) => {
     setGameState((prev) => {
       if (!prev.profile) return prev;
+      const updatedProfile = {
+        ...prev.profile,
+        total_money: prev.profile.total_money + moneyToAdd,
+        lifetime_earnings: prev.profile.hourly_income && prev.profile.hourly_income > 0 
+           ? prev.profile.lifetime_earnings + moneyToAdd 
+           : prev.profile.lifetime_earnings
+      };
+      saveToLocalStorage({ profile: updatedProfile });
       return {
         ...prev,
-        profile: {
-          ...prev.profile,
-          total_money: prev.profile.total_money + moneyToAdd,
-        },
+        profile: updatedProfile,
         pendingMoneyDelta: prev.pendingMoneyDelta + moneyToAdd,
       };
     });
-  }, []);
+  }, [saveToLocalStorage]);
 
   const handleJobWorkSecondsUpdate = useCallback((seconds: number) => {
-    setGameState((prev) => ({
-      ...prev,
-      unsavedJobWorkSeconds: seconds,
-    }));
+    setGameState((prev) => ({ ...prev, unsavedJobWorkSeconds: seconds }));
   }, []);
 
   usePassiveIncome({
@@ -119,9 +138,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     profile: gameState.profile,
     userId,
     pendingMoneyDelta: gameState.pendingMoneyDelta,
-    onSaveComplete: () => {
-      setGameState((prev) => ({ ...prev, pendingMoneyDelta: 0 }));
-    },
+    onSaveComplete: () => { setGameState((prev) => ({ ...prev, pendingMoneyDelta: 0 })); },
   });
 
   useJobTracking({
@@ -129,139 +146,171 @@ export function useGameState(deviceId: string, userId: string | null) {
     jobs: gameState.jobs,
     playerJobs: gameState.playerJobs,
     isTabVisible,
+    onJobWorkTimeSync: () => {}, 
     onJobWorkSecondsUpdate: handleJobWorkSecondsUpdate,
   });
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      isTabVisible.current = !document.hidden;
-    };
-
+    const handleVisibilityChange = () => { isTabVisible.current = !document.hidden; };
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
+    return () => { document.removeEventListener('visibilitychange', handleVisibilityChange); };
   }, []);
 
-  const loadGameData = useCallback(async () => {
-    if (!userId) return;
+  const flushPendingIfNeeded = useCallback(async () => {
+    const pending = gameStateRef.current.pendingMoneyDelta;
+    if (pending === 0) return;
+    if (!gameStateRef.current.profile || !userId) return;
 
+    moneyMutationInFlightRef.current = true;
     try {
-      setGameState((prev) => ({ ...prev, loading: true, error: null }));
-
-      // DÜZELTME: Fallback için deviceId de gönderildi
-      const profile = await profileService.getProfile(userId, deviceId);
-      if (!profile) {
-        setGameState((prev) => ({ ...prev, loading: false }));
-        return;
-      }
-
-      const lastPlayedAt = profile.last_played_at
-        ? new Date(profile.last_played_at).getTime()
-        : Date.now();
-      const now = Date.now();
-      const minutesOffline = Math.floor((now - lastPlayedAt) / 60000);
-      const hourlyIncome = Number(profile.hourly_income || 0);
-      const offlineAmount =
-        minutesOffline > 0 ? Math.floor((hourlyIncome / 60) * minutesOffline) : 0;
-
-      const [
-        characters,
-        houses,
-        cars,
-        jobs,
-        playerJobs,
-        gameStats,
-        ownedCharacters,
-        ownedHouses,
-        ownedCars,
-        selectedOutfit,
-        claimStatus,
-      ] = await Promise.all([
-        itemService.getCharacters(),
-        itemService.getHouses(),
-        itemService.getCars(),
-        jobService.getJobs(),
-        jobService.getPlayerJobs(userId),
-        statsService.getGameStats(userId),
-        itemService.getOwnedCharacters(userId),
-        itemService.getOwnedHouses(userId),
-        itemService.getOwnedCars(userId),
-        itemService.getSelectedOutfit(userId),
-        rewardService.getClaimStatus(userId),
-      ]);
-
-      await profileService.updateProfile(userId, {
-        last_played_at: new Date().toISOString(),
-      });
-
-      setGameState((prev) => ({
-        ...prev,
-        profile,
-        characters,
-        houses,
-        cars,
-        jobs,
-        playerJobs,
-        gameStats,
-        ownedCharacters,
-        ownedHouses,
-        ownedCars,
-        selectedOutfit,
-        offlineEarnings:
-          minutesOffline > 5 && offlineAmount > 0
-            ? { amount: offlineAmount, minutes: minutesOffline }
-            : null,
-        claimLockedUntil: claimStatus?.claimLockedUntil || null,
-        dailyClaimedTotal: claimStatus?.dailyClaimedTotal || 0,
-        loading: false,
-      }));
-
-      loadBusinesses();
+      await supabase
+        .from('player_profiles')
+        .update({ total_money: gameStateRef.current.profile.total_money })
+        .eq('id', userId);
+      setGameState(prev => ({ ...prev, pendingMoneyDelta: 0 }));
     } catch (error) {
-      console.error('Error loading game data:', error);
-      setGameState((prev) => ({
-        ...prev,
-        loading: false,
-        error: 'Failed to load game data',
-      }));
-    }
-  }, [userId, deviceId]);
-
-  const loadBusinesses = useCallback(async () => {
-    if (!userId) return;
-
-    try {
-      setGameState((prev) => ({ ...prev, businessesLoading: true }));
-      const result = await businessService.getBusinesses(userId);
-      setGameState((prev) => ({
-        ...prev,
-        businesses: result.businesses,
-        businessesPrestige: result.prestigePoints,
-        businessesLoading: false,
-      }));
-    } catch (error) {
-      console.error('Error loading businesses:', error);
-      setGameState((prev) => ({ ...prev, businessesLoading: false }));
+      console.error('Error flushing pending money:', error);
+    } finally {
+      moneyMutationInFlightRef.current = false;
     }
   }, [userId]);
 
-  useEffect(() => {
-    if (userId) {
-      loadGameData();
+  const loadBusinesses = useCallback(async (profileId: string) => {
+    if (!profileId) return setGameState(prev => ({ ...prev, businessesLoading: false }));
+    try {
+      setGameState(prev => ({ ...prev, businessesLoading: true }));
+      const result = await businessService.getBusinesses(profileId);
+      setGameState(prev => ({
+        ...prev,
+        businesses: result.businesses,
+        businessesPrestige: result.businessesPrestige,
+        businessesLoading: false,
+      }));
+    } catch (error) {
+      setGameState(prev => ({ ...prev, businessesLoading: false }));
     }
-  }, [userId, loadGameData]);
+  }, []);
+
+  const loadGameData = useCallback(async (shouldCalculateOfflineEarnings: boolean = true) => {
+    if (!userId) return setGameState(prev => ({ ...prev, loading: false }));
+
+    try {
+      const [profileRes, charactersRes, housesRes, carsRes, purchasesRes, jobsRes, playerJobsRes, gameStatsRes] = await Promise.all([
+        supabase.from('player_profiles').select('*').eq('id', userId).maybeSingle(),
+        itemService.getCharacters(),
+        itemService.getHouses(),
+        itemService.getCars(),
+        supabase.from('player_purchases').select('*').eq('player_id', userId),
+        jobService.getJobs(),
+        jobService.getPlayerJobs(userId),
+        supabase.from('game_stats').select('*').eq('player_id', userId).maybeSingle(),
+      ]);
+
+      let profile = profileRes.data;
+      const localData = loadFromLocalStorage();
+      if (!profile && localData?.profile) { profile = localData.profile; }
+
+      let selectedOutfit = null;
+      if (profile?.selected_outfit_id) {
+        selectedOutfit = await itemService.getSelectedOutfit(profile.selected_outfit_id);
+      }
+
+      const purchases = purchasesRes.data || [];
+      const ownedCharacters = purchases.filter(p => p.item_type === 'character').map(p => p.item_id);
+      const ownedHouses = purchases.filter(p => p.item_type === 'house').map(p => p.item_id);
+      const ownedCars = purchases.filter(p => p.item_type === 'car').map(p => p.item_id);
+
+      if (profile?.selected_character_id && !ownedCharacters.includes(profile.selected_character_id)) ownedCharacters.push(profile.selected_character_id);
+      if (profile?.selected_house_id && !ownedHouses.includes(profile.selected_house_id)) ownedHouses.push(profile.selected_house_id);
+      if (profile?.selected_car_id && !ownedCars.includes(profile.selected_car_id)) ownedCars.push(profile.selected_car_id);
+
+      const currentPending = gameStateRef.current.pendingMoneyDelta;
+      let offlineEarnings = null;
+
+      if (profile && shouldCalculateOfflineEarnings && profile.last_played_at) {
+        const now = new Date();
+        const lastPlayed = new Date(profile.last_played_at);
+        const minutesOffline = Math.floor((now.getTime() - lastPlayed.getTime()) / 1000 / 60);
+
+        if (minutesOffline >= 1 && profile.hourly_income) {
+          const actualMinutes = Math.min(minutesOffline, 12 * 60);
+          const offlineAmount = Math.floor((profile.hourly_income / 60) * actualMinutes * 0.20);
+          
+          if (offlineAmount > 0) {
+            offlineEarnings = { amount: offlineAmount, minutes: minutesOffline };
+            profile = {
+              ...profile,
+              total_money: profile.total_money + offlineAmount,
+              lifetime_earnings: profile.lifetime_earnings + offlineAmount,
+            };
+            await supabase.from('player_profiles').update({
+              total_money: profile.total_money,
+              lifetime_earnings: profile.lifetime_earnings,
+              last_played_at: new Date().toISOString(),
+            }).eq('id', userId);
+          }
+        }
+      }
+
+      if (profile) { profile = { ...profile, total_money: profile.total_money + currentPending }; }
+
+      const activePlayerJob = (playerJobsRes.data || []).find(pj => pj.is_active);
+      if (activePlayerJob) {
+        await supabase.from('player_jobs').update({ last_work_started_at: new Date().toISOString() })
+          .eq('player_id', userId).eq('id', activePlayerJob.id);
+      }
+
+      setGameState({
+        profile,
+        characters: charactersRes || [],
+        houses: housesRes || [],
+        cars: carsRes || [],
+        jobs: jobsRes || [],
+        playerJobs: playerJobsRes.data || [],
+        businesses: [],
+        businessesPrestige: 0,
+        gameStats: gameStatsRes.data || null,
+        ownedCharacters,
+        ownedHouses,
+        ownedCars,
+        selectedOutfit,
+        loading: false,
+        error: null,
+        offlineEarnings,
+        jobChangeLockedUntil: null,
+        claimLockedUntil: profile?.claim_locked_until || null,
+        dailyClaimedTotal: profile?.daily_claimed_total || 0,
+        businessesLoading: true,
+        unsavedJobWorkSeconds: 0,
+        pendingMoneyDelta: currentPending,
+      });
+
+      loadBusinesses(userId);
+    } catch (error) {
+      console.error('Error loading game data:', error);
+      setGameState(prev => ({ ...prev, loading: false, error: 'Failed to load game data' }));
+    }
+  }, [userId, loadFromLocalStorage, loadBusinesses]);
+
+  const saveProfile = useCallback(async (updates: Partial<PlayerProfile>) => {
+    if (!gameState.profile || !userId) return;
+    try {
+      await profileService.updateProfile(userId, updates);
+      const updatedProfile = { ...gameState.profile, ...updates };
+      setGameState(prev => ({ ...prev, profile: updatedProfile }));
+      saveToLocalStorage({ profile: updatedProfile });
+    } catch (error) {
+      console.error('Error saving profile:', error);
+    }
+  }, [userId, gameState.profile, saveToLocalStorage]);
 
   const createProfile = useCallback(async () => {
-    // DÜZELTME: Sonsuz döngüyü engellemek için güvenlik ref'i eklendi
-    if (!userId || isCreatingProfileRef.current) return;
+    if (!userId || !deviceId || isCreatingProfileRef.current) return;
     
     isCreatingProfileRef.current = true;
     try {
       const newProfile = await profileService.createProfile(userId, deviceId);
-      if (newProfile) {
-        await loadGameData();
-      }
+      if (newProfile) await loadGameData(false);
     } catch (error) {
       console.error('Error creating profile:', error);
     } finally {
@@ -269,294 +318,204 @@ export function useGameState(deviceId: string, userId: string | null) {
     }
   }, [userId, deviceId, loadGameData]);
 
-  const saveProfile = useCallback(
-    async (updates: Partial<PlayerProfile>) => {
-      if (!userId || !gameState.profile) return;
+  const handleClick = useCallback(() => {
+    if (!gameState.profile) return;
 
-      try {
-        await profileService.updateProfile(userId, updates);
-        setGameState((prev) => ({
-          ...prev,
-          profile: prev.profile ? { ...prev.profile, ...updates } : null,
-        }));
-      } catch (error) {
-        console.error('Error saving profile:', error);
-      }
-    },
-    [userId, gameState.profile]
-  );
-
-  const handleClick = useCallback(async () => {
-    if (!userId || !gameState.profile) return;
-
-    const clickValue = 1;
-    const newTotalMoney = gameState.profile.total_money + clickValue;
+    const earnedMoney = gameState.profile.money_per_click;
+    const newTotalMoney = gameState.profile.total_money + earnedMoney;
+    const newLifetimeEarnings = gameState.profile.lifetime_earnings + earnedMoney;
     const newTotalClicks = gameState.profile.total_clicks + 1;
 
-    setGameState((prev) => ({
+    const updatedProfile = {
+      ...gameState.profile,
+      total_money: newTotalMoney,
+      lifetime_earnings: newLifetimeEarnings,
+      total_clicks: newTotalClicks,
+    };
+
+    setGameState(prev => ({
       ...prev,
-      profile: prev.profile
-        ? {
-            ...prev.profile,
-            total_money: newTotalMoney,
-            total_clicks: newTotalClicks,
-          }
-        : null,
-      pendingMoneyDelta: prev.pendingMoneyDelta + clickValue,
+      profile: updatedProfile,
+      pendingMoneyDelta: prev.pendingMoneyDelta + earnedMoney,
     }));
 
+    saveToLocalStorage({ profile: updatedProfile });
+    return earnedMoney;
+  }, [gameState.profile, saveToLocalStorage]);
+
+  const purchaseitem = useCallback(async (itemType: 'character' | 'house' | 'car', itemId: string, price: number) => {
+    if (!gameState.profile || !userId) return false;
+    if (gameState.profile.total_money < price) return false;
+
     try {
-      await profileService.updateProfile(userId, {
-        total_clicks: newTotalClicks,
-      });
-    } catch (error) {
-      console.error('Error updating clicks:', error);
-    }
-  }, [userId, gameState.profile]);
-
-  const purchaseitem = useCallback(
-    async (type: 'character' | 'house' | 'car', itemId: string) => {
-      if (!userId) return;
-
-      try {
-        const result = await purchaseService.purchaseItem(userId, itemId, type);
+      if (itemType === 'car') {
+        moneyMutationInFlightRef.current = true;
+        await flushPendingIfNeeded();
+        await purchaseService.purchaseCarViaRPC(userId, itemId, price);
+        moneyMutationInFlightRef.current = false;
+        await loadGameData(false);
+        return true;
+      } else {
+        await purchaseService.purchaseGeneralItem(userId, itemType, itemId, price);
         
-        if (result.success) {
-          setGameState((prev) => {
-            const newState = { ...prev };
-            
-            if (newState.profile && result.new_balance !== undefined) {
-              newState.profile = {
-                ...newState.profile,
-                total_money: result.new_balance,
-              };
-            }
-
-            if (type === 'character' && !newState.ownedCharacters.includes(itemId)) {
-              newState.ownedCharacters = [...newState.ownedCharacters, itemId];
-            } else if (type === 'house' && !newState.ownedHouses.includes(itemId)) {
-              newState.ownedHouses = [...newState.ownedHouses, itemId];
-            } else if (type === 'car' && !newState.ownedCars.includes(itemId)) {
-              newState.ownedCars = [...newState.ownedCars, itemId];
-            }
-
-            return newState;
-          });
-        } else {
-          console.error('Satın alma başarısız:', result.message);
-        }
-      } catch (error) {
-        console.error('Error purchasing item:', error);
-        throw error;
+        const newTotalMoney = gameState.profile.total_money - price;
+        const updateData: any = { total_money: newTotalMoney };
+        if (itemType === 'character') updateData.selected_character_id = itemId;
+        
+        await saveProfile(updateData);
+        setGameState(prev => {
+          const newOwned = itemType === 'character' ? [...prev.ownedCharacters, itemId] : [...prev.ownedHouses, itemId];
+          return {
+            ...prev,
+            [itemType === 'character' ? 'ownedCharacters' : 'ownedHouses']: newOwned,
+          };
+        });
+        return true;
       }
-    },
-    [userId]
-  );
+    } catch (error) {
+      moneyMutationInFlightRef.current = false;
+      return false;
+    }
+  }, [gameState.profile, userId, saveProfile, loadGameData, flushPendingIfNeeded]);
 
-  const selectCharacter = useCallback(
-    async (characterId: string) => {
-      if (!userId) return;
+  const selectCar = useCallback(async (carId: string) => {
+    if (!userId) return false;
+    try {
+      await itemService.selectCar(userId, carId);
+      await loadGameData(false);
+      return true;
+    } catch (error) { return false; }
+  }, [userId, loadGameData]);
 
-      try {
-        await itemService.selectCharacter(userId, characterId);
-        setGameState((prev) => ({
-          ...prev,
-          profile: prev.profile
-            ? { ...prev.profile, selected_character_id: characterId }
-            : null,
-        }));
-      } catch (error) {
-        console.error('Error selecting character:', error);
-      }
-    },
-    [userId]
-  );
+  const selectHouse = useCallback(async (houseId: string) => {
+    if (!userId) return false;
+    try {
+      moneyMutationInFlightRef.current = true;
+      await flushPendingIfNeeded();
+      await itemService.selectHouse(userId, houseId);
+      moneyMutationInFlightRef.current = false;
+      await loadGameData(false);
+      return true;
+    } catch (error) {
+      moneyMutationInFlightRef.current = false;
+      return false; 
+    }
+  }, [userId, loadGameData, flushPendingIfNeeded]);
 
-  const selectHouse = useCallback(
-    async (houseId: string) => {
-      if (!userId) return;
+  const selectCharacter = useCallback(async (characterId: string) => {
+    await saveProfile({ selected_character_id: characterId });
+  }, [saveProfile]);
 
-      try {
-        await itemService.selectHouse(userId, houseId);
-        setGameState((prev) => ({
-          ...prev,
-          profile: prev.profile ? { ...prev.profile, selected_house_id: houseId } : null,
-        }));
-      } catch (error) {
-        console.error('Error selecting house:', error);
-      }
-    },
-    [userId]
-  );
+  // Yeni mantığa göre unlockJob sadece jobId alıyor, para gereksinimi yok
+  const unlockJob = useCallback(async (jobId: string) => {
+    if (!userId) return false;
+    try {
+      await jobService.unlockJob(userId, jobId);
+      await loadGameData(false);
+      return true;
+    } catch (error) { return false; }
+  }, [userId, loadGameData]);
 
-  const selectCar = useCallback(
-    async (carId: string) => {
-      if (!userId) return;
+  const selectJob = useCallback(async (jobId: string) => {
+    if (!userId) return false;
+    if (gameState.jobChangeLockedUntil && Date.now() < gameState.jobChangeLockedUntil) return false;
 
-      try {
-        await itemService.selectCar(userId, carId);
-        setGameState((prev) => ({
-          ...prev,
-          profile: prev.profile ? { ...prev.profile, selected_car_id: carId } : null,
-        }));
-      } catch (error) {
-        console.error('Error selecting car:', error);
-      }
-    },
-    [userId]
-  );
+    const currentActiveJob = gameState.playerJobs.find(pj => pj.is_active);
+    const unsaved = gameState.unsavedJobWorkSeconds;
 
-  const unlockJob = useCallback(
-    async (jobId: string, unlockCost: number) => {
-      if (!userId) return;
+    try {
+      await jobService.selectJob(userId, jobId, currentActiveJob, unsaved);
+      setGameState(prev => ({ ...prev, jobChangeLockedUntil: Date.now() + 120000, unsavedJobWorkSeconds: 0 }));
+      await loadGameData(false);
+      return true;
+    } catch (error) { return false; }
+  }, [gameState.playerJobs, gameState.jobChangeLockedUntil, gameState.unsavedJobWorkSeconds, userId, loadGameData]);
 
-      try {
-        await jobService.unlockJob(userId, jobId, unlockCost);
-        await loadGameData();
-      } catch (error) {
-        console.error('Error unlocking job:', error);
-        throw error;
-      }
-    },
-    [userId, loadGameData]
-  );
+  const purchaseBusiness = useCallback(async (businessId: string) => {
+    if (!userId) return false;
+    try {
+      moneyMutationInFlightRef.current = true;
+      await flushPendingIfNeeded();
+      await businessService.purchaseBusiness(userId, businessId);
+      moneyMutationInFlightRef.current = false;
+      await loadGameData(false);
+      return true;
+    } catch (error) {
+      moneyMutationInFlightRef.current = false;
+      return false;
+    }
+  }, [userId, loadGameData, flushPendingIfNeeded]);
 
-  const selectJob = useCallback(
-    async (jobId: string) => {
-      if (!userId) return;
-
-      try {
-        const result = await jobService.selectJob(userId, jobId);
-        setGameState((prev) => ({
-          ...prev,
-          jobChangeLockedUntil: result.lockedUntil,
-          unsavedJobWorkSeconds: 0,
-        }));
-        await loadGameData();
-      } catch (error) {
-        console.error('Error selecting job:', error);
-        throw error;
-      }
-    },
-    [userId, loadGameData]
-  );
-
-  const purchaseBusiness = useCallback(
-    async (businessId: string) => {
-      if (!userId) return;
-
-      try {
-        await businessService.purchaseBusiness(userId, businessId);
-        await Promise.all([loadGameData(), loadBusinesses()]);
-      } catch (error) {
-        console.error('Error purchasing business:', error);
-        throw error;
-      }
-    },
-    [userId, loadGameData, loadBusinesses]
-  );
-
-  const upgradeBusiness = useCallback(
-    async (businessId: string) => {
-      if (!userId) return;
-
-      try {
-        await businessService.upgradeBusiness(userId, businessId);
-        await Promise.all([loadGameData(), loadBusinesses()]);
-      } catch (error) {
-        console.error('Error upgrading business:', error);
-        throw error;
-      }
-    },
-    [userId, loadGameData, loadBusinesses]
-  );
+  const upgradeBusiness = useCallback(async (businessId: string) => {
+    if (!userId) return false;
+    try {
+      moneyMutationInFlightRef.current = true;
+      await flushPendingIfNeeded();
+      await businessService.upgradeBusiness(userId, businessId);
+      moneyMutationInFlightRef.current = false;
+      await loadGameData(false);
+      return true;
+    } catch (error) {
+      moneyMutationInFlightRef.current = false;
+      return false;
+    }
+  }, [userId, loadGameData, flushPendingIfNeeded]);
 
   const claimDailyReward = useCallback(async () => {
-    if (!userId) return;
-
+    if (!userId) return false;
     try {
-      const result = await rewardService.claimDailyReward(userId);
-      setGameState((prev) => ({
-        ...prev,
-        claimLockedUntil: result.claimLockedUntil,
-        dailyClaimedTotal: result.dailyClaimedTotal,
-      }));
+      await rewardService.claimDailyReward(userId);
       await loadGameData();
-    } catch (error) {
-      console.error('Error claiming daily reward:', error);
-      throw error;
-    }
+      return true;
+    } catch (error) { return false; }
   }, [userId, loadGameData]);
 
-  const claimAccumulatedMoney = useCallback(async () => {
-    if (!userId) return;
-
+  const claimAccumulatedMoney = useCallback(async (isTriple: boolean) => {
+    if (!userId) return false;
     try {
-      const result = await rewardService.claimAccumulatedMoney(userId);
-      setGameState((prev) => ({
-        ...prev,
-        claimLockedUntil: result.claimLockedUntil,
-        dailyClaimedTotal: result.dailyClaimedTotal,
-      }));
+      const result = await rewardService.claimAccumulatedMoney(userId, isTriple);
+      if(result && gameState.profile) {
+          saveToLocalStorage({
+             profile: { ...gameState.profile, total_money: result.new_total, last_claim_time: new Date().toISOString() }
+          });
+      }
       await loadGameData();
-    } catch (error) {
-      console.error('Error claiming accumulated money:', error);
-      throw error;
-    }
-  }, [userId, loadGameData]);
+      return true;
+    } catch (error) { return false; }
+  }, [userId, gameState.profile, loadGameData, saveToLocalStorage]);
 
   const watchAd = useCallback(async () => {
-    if (!userId) return;
-
+    if (!userId) return { success: false, reward: 0, cooldown: 0 };
     try {
       const result = await rewardService.watchAd(userId);
-      setGameState((prev) => ({
-        ...prev,
-        claimLockedUntil: result.claimLockedUntil,
-        dailyClaimedTotal: result.dailyClaimedTotal,
-      }));
-      await loadGameData();
-    } catch (error) {
-      console.error('Error watching ad:', error);
-      throw error;
-    }
-  }, [userId, loadGameData]);
-
-  const updatePlayerName = useCallback(
-    async (newName: string) => {
-      if (!userId) return;
-
-      try {
-        await profileService.updateProfile(userId, { display_name: newName });
-        setGameState((prev) => ({
-          ...prev,
-          profile: prev.profile ? { ...prev.profile, display_name: newName } : null,
-        }));
-      } catch (error) {
-        console.error('Error updating player name:', error);
+      if(result.success && gameState.profile) {
+          saveToLocalStorage({
+             profile: { ...gameState.profile, total_money: result.new_total }
+          });
       }
-    },
-    [userId]
-  );
+      await loadGameData();
+      return result;
+    } catch (error) { return { success: false, reward: 0, cooldown: 0 }; }
+  }, [userId, gameState.profile, loadGameData, saveToLocalStorage]);
+
+  const updatePlayerName = useCallback(async (newName: string) => {
+    await saveProfile({ display_name: newName, username: newName });
+  }, [saveProfile]);
 
   const resetProgress = useCallback(async () => {
     if (!userId) return;
-
     try {
       await profileService.resetProgress(userId);
-      await loadGameData();
-    } catch (error) {
-      console.error('Error resetting progress:', error);
-    }
-  }, [userId, loadGameData]);
+      localStorage.removeItem(GAME_STATE_KEY);
+      window.location.reload();
+    } catch (error) { console.error('Error resetting progress:', error); }
+  }, [userId]);
 
   const clearOfflineEarnings = useCallback(() => {
-    setGameState((prev) => ({ ...prev, offlineEarnings: null }));
+    setGameState(prev => ({ ...prev, offlineEarnings: null }));
   }, []);
 
-  const reload = useCallback(() => {
-    loadGameData();
-  }, [loadGameData]);
+  const reload = useCallback(() => { loadGameData(false); }, [loadGameData]);
 
   return {
     ...gameState,
