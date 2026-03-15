@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { X, Car as CarIcon, Home, Check } from 'lucide-react';
 import type { Car, House } from '../types/game';
-import { formatMoney } from '../utils/game/calculations';
+
+const formatMoney = (amount: number) => `$${amount.toLocaleString()}`;
 
 interface StuffModalProps {
   cars: Car[];
