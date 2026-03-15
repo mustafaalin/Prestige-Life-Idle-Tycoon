@@ -11,7 +11,7 @@ interface StuffModalProps {
   selectedCarId: string | null;
   selectedHouseId: string | null;
   ownedCars: string[];
-  onPurchaseCar: (carId: string) => Promise<void>;
+  onPurchaseCar: (carId: string, price: number) => Promise<void>;
   onSelectCar: (carId: string) => Promise<void>;
   onSelectHouse: (houseId: string) => Promise<void>;
   onClose: () => void;
@@ -33,7 +33,7 @@ export function StuffModal({
 }: StuffModalProps) {
   const [activeTab, setActiveTab] = useState<'cars' | 'houses'>('cars');
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+  const [selectedCar, setSelectedCar] = useState<any | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handlePurchase = async () => {
@@ -41,7 +41,7 @@ export function StuffModal({
 
     setIsPurchasing(true);
     try {
-      await onPurchaseCar(selectedCar.id);
+      await onPurchaseCar(selectedCar.id, selectedCar.price);
       setShowConfirm(false);
     } catch (error) {
       console.error('Error purchasing car:', error);
@@ -52,7 +52,7 @@ export function StuffModal({
 
   const renderCars = () => (
     <div className="grid grid-cols-2 gap-4">
-      {cars.map((car) => {
+      {cars.map((car: any) => {
         const isOwned = ownedCars.includes(car.id);
         const isSelected = selectedCarId === car.id;
         const canAfford = totalMoney >= car.price;
