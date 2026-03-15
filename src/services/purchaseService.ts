@@ -4,8 +4,7 @@ import type { PurchaseResult } from '../types/game';
 export async function purchaseItem(
   playerId: string,
   itemId: string,
-  itemType: 'car' | 'house' | 'character',
-  price: number
+  itemType: 'car' | 'house' | 'character'
 ): Promise<PurchaseResult> {
   const { data, error } = await supabase.rpc('purchaseitem', {
     p_player_id: playerId,
