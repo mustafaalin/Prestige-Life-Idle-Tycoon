@@ -1,124 +1,94 @@
 import { supabase } from '../lib/supabase';
-import type { PlayerProfile } from '../types/game';
+import type { Database } from '../lib/database.types';
 
-export async function getProfile(playerId: string): Promise<PlayerProfile | null> {
-  const { data, error } = await supabase
+type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'];
+
+export async function getProfile(userId: string, deviceId?: string) {
+  // 1. Önce ID ile ara
+  let { data, error } = await supabase
     .from('player_profiles')
     .select('*')
-    .eq('id', playerId)
+    .eq('id', userId)
     .maybeSingle();
 
-  if (error) {
-    console.error('Error fetching player profile:', error);
-    return null;
+  // 2. Bulunamazsa ve deviceId varsa cihaz kimliğiyle ara (Eski hesaplar için)
+  if (!data && deviceId) {
+    const { data: deviceData } = await supabase
+      .from('player_profiles')
+      .select('*')
+      .eq('device_id', deviceId)
+      .maybeSingle();
+
+    if (deviceData) {
+      data = deviceData;
+    }
+  }
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching profile:', error);
   }
 
   return data;
 }
 
-export async function createProfile(playerId: string, deviceId: string): Promise<PlayerProfile | null> {
+export async function createProfile(userId: string, deviceId: string) {
+  try {
+    // KORUMA: Çift kayıt (Duplicate) hatasını engellemek için profil gerçekten var mı diye tekrar kontrol et
+    const existingProfile = await getProfile(userId, deviceId);
+    
+    if (existingProfile) {
+      console.log('Profile already exists, skipping insert to prevent duplicate key error.');
+      return existingProfile;
+    }
+
+    const { data, error } = await supabase
+      .from('player_profiles')
+      .insert({
+        id: userId,
+        device_id: deviceId
+      })
+      .select()
+      .single();
+
+    if (error) {
+      // Eğer insert yine de duplicate key (23505) hatası fırlatırsa, yakala ve mevcut profili döndür
+      if (error.code === '23505') {
+         console.log('Duplicate key caught during profile creation. Fetching existing profile.');
+         return await getProfile(userId, deviceId);
+      }
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    console.error('Error in createProfile:', error);
+    return null;
+  }
+}
+
+export async function updateProfile(userId: string, updates: Partial<PlayerProfile>) {
   const { data, error } = await supabase
     .from('player_profiles')
-    .insert({
-      id: playerId,
-      device_id: deviceId,
-      username: `player_${deviceId.slice(0, 8)}`,
-    })
+    .update(updates)
+    .eq('id', userId)
     .select()
     .single();
 
   if (error) {
-    console.error('Error creating profile:', error);
-    return null;
+    console.error('Error updating profile:', error);
+    throw error;
   }
 
   return data;
 }
 
-export async function updateProfile(
-  playerId: string,
-  updates: Partial<PlayerProfile>
-): Promise<void> {
-  const { error } = await supabase
-    .from('player_profiles')
-    .update(updates)
-    .eq('id', playerId);
-
+export async function resetProgress(userId: string) {
+  const { error } = await supabase.rpc('reset_player_progress', {
+    p_player_id: userId
+  });
+  
   if (error) {
-    console.error('Error updating player profile:', error);
+    console.error('Error resetting progress:', error);
     throw error;
   }
-}
-
-export async function fetchPlayerProfile(playerId: string): Promise<PlayerProfile | null> {
-  return getProfile(playerId);
-}
-
-export async function updatePlayerProfile(
-  playerId: string,
-  updates: Partial<PlayerProfile>
-): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabase
-    .from('player_profiles')
-    .update(updates)
-    .eq('id', playerId);
-
-  if (error) {
-    console.error('Error updating player profile:', error);
-    return { success: false, error: error.message };
-  }
-
-  return { success: true };
-}
-
-export async function updateLastPlayedAt(playerId: string): Promise<void> {
-  await supabase
-    .from('player_profiles')
-    .update({ last_played_at: new Date().toISOString() })
-    .eq('id', playerId);
-}
-
-export async function claimAccumulatedMoney(
-  playerId: string
-): Promise<{ success: boolean; claimed_amount?: number; new_total?: number; error?: string }> {
-  const { data, error } = await supabase.rpc('claim_accumulated_money', {
-    p_player_id: playerId,
-  });
-
-  if (error) {
-    console.error('Error claiming accumulated money:', error);
-    return { success: false, error: error.message };
-  }
-
-  return {
-    success: true,
-    claimed_amount: data?.claimed_amount,
-    new_total: data?.new_total,
-  };
-}
-
-export async function resetProgress(playerId: string): Promise<void> {
-  const { error } = await supabase.rpc('reset_player_progress', {
-    p_player_id: playerId,
-  });
-
-  if (error) {
-    console.error('Error resetting player progress:', error);
-    throw error;
-  }
-}
-
-export async function resetPlayerProgress(
-  playerId: string
-): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabase.rpc('reset_player_progress', {
-    p_player_id: playerId,
-  });
-
-  if (error) {
-    console.error('Error resetting player progress:', error);
-    return { success: false, error: error.message };
-  }
-
-  return { success: true };
+  return true;
 }
