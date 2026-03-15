@@ -98,11 +98,11 @@ export function JobsModal({
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <div className="text-3xl bg-slate-700 w-12 h-12 rounded-xl flex items-center justify-center shadow-inner">
-                        {job.icon_url ? <img src={job.icon_url} alt={job.title} className="w-8 h-8" /> : '💼'}
+                        {job.icon_url ? <img src={job.icon_url} alt={job.name} className="w-8 h-8" /> : '💼'}
                       </div>
                       <div>
-                        <h3 className="text-white font-bold text-lg leading-tight">{job.title}</h3>
-                        <p className="text-blue-400 font-bold">{formatMoney(job.income_per_hour)}/saat</p>
+                        <h3 className="text-white font-bold text-lg leading-tight">{job.name}</h3>
+                        <p className="text-blue-400 font-bold">{formatMoney(job.hourly_income)}/saat</p>
                       </div>
                     </div>
                   </div>
