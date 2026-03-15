@@ -77,6 +77,7 @@ export function useGameState(deviceId: string, userId: string | null) {
 
   const isTabVisible = useRef<boolean>(true);
   const gameStateRef = useRef<GameState>(gameState);
+  const isCreatingProfileRef = useRef<boolean>(false);
 
   useEffect(() => {
     gameStateRef.current = gameState;
@@ -148,7 +149,8 @@ export function useGameState(deviceId: string, userId: string | null) {
     try {
       setGameState((prev) => ({ ...prev, loading: true, error: null }));
 
-      const profile = await profileService.getProfile(userId);
+      // DÜZELTME: Fallback için deviceId de gönderildi
+      const profile = await profileService.getProfile(userId, deviceId);
       if (!profile) {
         setGameState((prev) => ({ ...prev, loading: false }));
         return;
@@ -210,7 +212,6 @@ export function useGameState(deviceId: string, userId: string | null) {
           minutesOffline > 5 && offlineAmount > 0
             ? { amount: offlineAmount, minutes: minutesOffline }
             : null,
-        // DÜZELTME: claimStatus'ün undefined olma ihtimaline karşı null-safe (?.) erişim eklendi
         claimLockedUntil: claimStatus?.claimLockedUntil || null,
         dailyClaimedTotal: claimStatus?.dailyClaimedTotal || 0,
         loading: false,
@@ -225,7 +226,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         error: 'Failed to load game data',
       }));
     }
-  }, [userId]);
+  }, [userId, deviceId]);
 
   const loadBusinesses = useCallback(async () => {
     if (!userId) return;
@@ -252,8 +253,10 @@ export function useGameState(deviceId: string, userId: string | null) {
   }, [userId, loadGameData]);
 
   const createProfile = useCallback(async () => {
-    if (!userId) return;
-
+    // DÜZELTME: Sonsuz döngüyü engellemek için güvenlik ref'i eklendi
+    if (!userId || isCreatingProfileRef.current) return;
+    
+    isCreatingProfileRef.current = true;
     try {
       const newProfile = await profileService.createProfile(userId, deviceId);
       if (newProfile) {
@@ -261,6 +264,8 @@ export function useGameState(deviceId: string, userId: string | null) {
       }
     } catch (error) {
       console.error('Error creating profile:', error);
+    } finally {
+      isCreatingProfileRef.current = false;
     }
   }, [userId, deviceId, loadGameData]);
 
