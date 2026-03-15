@@ -1,261 +1,103 @@
 import { supabase } from '../lib/supabase';
-import type { Character, House, Car, CharacterOutfit } from '../types/game';
 
-export async function getCharacters(): Promise<Character[]> {
-  const { data, error } = await supabase
-    .from('characters')
-    .select('*')
-    .order('unlock_order', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching characters:', error);
-    return [];
-  }
-
+export async function getCharacters() {
+  const { data, error } = await supabase.from('characters').select('*').order('price');
+  if (error) throw error;
   return data || [];
 }
 
-export async function getHouses(): Promise<House[]> {
-  const { data, error } = await supabase
-    .from('houses')
-    .select('*')
-    .order('level', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching houses:', error);
-    return [];
-  }
-
+export async function getHouses() {
+  const { data, error } = await supabase.from('houses').select('*').order('price');
+  if (error) throw error;
   return data || [];
 }
 
-export async function getCars(): Promise<Car[]> {
-  const { data, error } = await supabase
-    .from('cars')
-    .select('*')
-    .order('level', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching cars:', error);
-    return [];
-  }
-
+export async function getCars() {
+  const { data, error } = await supabase.from('cars').select('*').order('price');
+  if (error) throw error;
   return data || [];
 }
 
-export async function fetchAllCharacters(): Promise<Character[]> {
-  return getCharacters();
+export async function getOwnedCharacters(playerId: string) {
+  const { data, error } = await supabase.from('player_purchases')
+    .select('item_id')
+    .eq('player_id', playerId)
+    .eq('item_type', 'character');
+  if (error) throw error;
+  return data?.map(d => d.item_id) || [];
 }
 
-export async function fetchAllHouses(): Promise<House[]> {
-  return getHouses();
+export async function getOwnedHouses(playerId: string) {
+  const { data, error } = await supabase.from('player_purchases')
+    .select('item_id')
+    .eq('player_id', playerId)
+    .eq('item_type', 'house');
+  if (error) throw error;
+  return data?.map(d => d.item_id) || [];
 }
 
-export async function fetchAllCars(): Promise<Car[]> {
-  return getCars();
+export async function getOwnedCars(playerId: string) {
+  const { data, error } = await supabase.from('player_purchases')
+    .select('item_id')
+    .eq('player_id', playerId)
+    .eq('item_type', 'car');
+  if (error) throw error;
+  return data?.map(d => d.item_id) || [];
 }
 
-export async function getOwnedCharacters(playerId: string): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('player_profiles')
-    .select('selected_character_id')
+export async function getSelectedOutfit(playerId: string) {
+  const { data, error } = await supabase.from('player_profiles')
+    .select('selected_outfit_id')
     .eq('id', playerId)
-    .maybeSingle();
+    .single();
+  if (error) return null;
+  
+  if (!data?.selected_outfit_id) return null;
 
-  if (error) {
-    console.error('Error fetching owned characters:', error);
-    return [];
-  }
-
-  return data?.selected_character_id ? [data.selected_character_id] : [];
+  const { data: outfit } = await supabase.from('character_outfits')
+    .select('*')
+    .eq('id', data.selected_outfit_id)
+    .single();
+    
+  return outfit || null;
 }
 
-export async function getOwnedHouses(playerId: string): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('player_profiles')
-    .select('selected_house_id')
-    .eq('id', playerId)
-    .maybeSingle();
+// -------------------------------------------------------------
+// DÜZELTİLEN KISIM: Supabase'deki doğru RPC isimleri ve argümanları eklendi
+// -------------------------------------------------------------
 
-  if (error) {
-    console.error('Error fetching owned houses:', error);
-    return [];
-  }
-
-  return data?.selected_house_id ? [data.selected_house_id] : [];
-}
-
-export async function getOwnedCars(playerId: string): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('player_profiles')
-    .select('selected_car_id')
-    .eq('id', playerId)
-    .maybeSingle();
-
-  if (error) {
-    console.error('Error fetching owned cars:', error);
-    return [];
-  }
-
-  return data?.selected_car_id ? [data.selected_car_id] : [];
-}
-
-export async function selectCharacter(playerId: string, characterId: string): Promise<void> {
-  const { error } = await supabase
-    .from('player_profiles')
-    .update({ selected_character_id: characterId })
-    .eq('id', playerId);
-
+export async function selectCharacter(playerId: string, characterId: string) {
+  const { data, error } = await supabase.rpc('select_character', {
+    p_player_id: playerId,
+    p_character_id: characterId,
+  });
   if (error) {
     console.error('Error selecting character:', error);
     throw error;
   }
-
-  try {
-    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
-  } catch (rpcError) {
-    console.error('Error calculating prestige:', rpcError);
-  }
+  return data;
 }
 
-export async function selectHouse(playerId: string, houseId: string): Promise<void> {
-  const { error } = await supabase
-    .from('player_profiles')
-    .update({ selected_house_id: houseId })
-    .eq('id', playerId);
-
+export async function selectHouse(playerId: string, houseId: string) {
+  const { data, error } = await supabase.rpc('select_house', {
+    p_player_id: playerId,
+    p_house_id: houseId,
+  });
   if (error) {
     console.error('Error selecting house:', error);
     throw error;
   }
-
-  try {
-    await supabase.rpc('calculate_player_income', { p_player_id: playerId });
-    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
-  } catch (rpcError) {
-    console.error('Error calculating income/prestige:', rpcError);
-  }
+  return data;
 }
 
-export async function selectCar(playerId: string, carId: string): Promise<void> {
-  const { error } = await supabase
-    .from('player_profiles')
-    .update({ selected_car_id: carId })
-    .eq('id', playerId);
-
+export async function selectCar(playerId: string, carId: string) {
+  const { data, error } = await supabase.rpc('select_car', {
+    p_player_id: playerId,
+    p_car_id: carId,
+  });
   if (error) {
     console.error('Error selecting car:', error);
     throw error;
   }
-
-  try {
-    await supabase.rpc('calculate_player_income', { p_player_id: playerId });
-    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
-  } catch (rpcError) {
-    console.error('Error calculating income/prestige:', rpcError);
-  }
-}
-
-export async function getSelectedOutfit(playerId: string): Promise<CharacterOutfit | null> {
-  const { data: profileData } = await supabase
-    .from('player_profiles')
-    .select('selected_outfit_id')
-    .eq('id', playerId)
-    .maybeSingle();
-
-  if (!profileData?.selected_outfit_id) {
-    return null;
-  }
-
-  const { data: outfitData, error } = await supabase
-    .from('character_outfits')
-    .select('*')
-    .eq('id', profileData.selected_outfit_id)
-    .maybeSingle();
-
-  if (error) {
-    console.error('Error fetching selected outfit:', error);
-    return null;
-  }
-
-  return outfitData;
-}
-
-export async function fetchCharacterOutfits(): Promise<CharacterOutfit[]> {
-  const { data, error } = await supabase
-    .from('character_outfits')
-    .select('*')
-    .order('display_order', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching character outfits:', error);
-    return [];
-  }
-
-  return data || [];
-}
-
-export async function fetchPlayerOutfit(playerId: string): Promise<CharacterOutfit | null> {
-  const { data: profileData } = await supabase
-    .from('player_profiles')
-    .select('selected_outfit_id')
-    .eq('id', playerId)
-    .maybeSingle();
-
-  if (!profileData?.selected_outfit_id) {
-    return null;
-  }
-
-  const { data: outfitData, error } = await supabase
-    .from('character_outfits')
-    .select('*')
-    .eq('id', profileData.selected_outfit_id)
-    .maybeSingle();
-
-  if (error) {
-    console.error('Error fetching player outfit:', error);
-    return null;
-  }
-
-  return outfitData;
-}
-
-export async function purchaseOutfit(
-  playerId: string,
-  outfitId: string
-): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabase.from('player_outfits').insert({
-    player_id: playerId,
-    outfit_id: outfitId,
-  });
-
-  if (error) {
-    console.error('Error purchasing outfit:', error);
-    return { success: false, error: error.message };
-  }
-
-  return { success: true };
-}
-
-export async function selectOutfit(
-  playerId: string,
-  outfitId: string
-): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabase
-    .from('player_profiles')
-    .update({ selected_outfit_id: outfitId })
-    .eq('id', playerId);
-
-  if (error) {
-    console.error('Error selecting outfit:', error);
-    return { success: false, error: error.message };
-  }
-
-  try {
-    await supabase.rpc('calculate_player_prestige', { p_player_id: playerId });
-  } catch (rpcError) {
-    console.error('Error calculating prestige:', rpcError);
-  }
-
-  return { success: true };
+  return data;
 }
