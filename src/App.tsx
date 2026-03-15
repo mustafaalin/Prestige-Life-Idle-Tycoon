@@ -22,6 +22,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<'shop' | 'job' | 'business' | 'investments' | 'stuff'>('shop');
   
   const sessionStartTimeRef = useRef(Date.now());
+  const profileCreationAttempted = useRef(false);
   
   const [health, setHealth] = useState(100);
   const [happiness, setHappiness] = useState(100);
@@ -44,7 +45,10 @@ function App() {
 
   useEffect(() => {
     if (!authLoading && !gameState.profile && !gameState.loading && isAuthenticated && user?.id) {
-      gameState.createProfile();
+      if (!profileCreationAttempted.current) {
+        profileCreationAttempted.current = true;
+        gameState.createProfile();
+      }
     }
   }, [authLoading, gameState.profile, gameState.loading, isAuthenticated, user?.id]);
 
