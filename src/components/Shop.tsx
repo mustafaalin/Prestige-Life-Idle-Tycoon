@@ -14,7 +14,7 @@ interface ShopProps {
   ownedHouses: string[];
   ownedCars: string[];
   totalMoney: number;
-  onPurchase: (type: 'character' | 'house' | 'car', itemId: string) => Promise<void>;
+  onPurchase: (type: 'character' | 'house' | 'car', itemId: string, price: number) => Promise<void>;
 }
 
 export function Shop({
@@ -34,12 +34,14 @@ export function Shop({
 
   if (!isOpen) return null;
 
-  const handlePurchase = async (type: 'character' | 'house' | 'car', item: Character | House | Car) => {
-    if (totalMoney < item.price) return;
+  const handlePurchase = async (type: 'character' | 'house' | 'car', item: any) => {
+    const itemCost = item.price !== undefined ? item.price : (item.hourly_rent_cost || 0);
+    
+    if (totalMoney < itemCost) return;
     
     setPurchasingId(item.id);
     try {
-      await onPurchase(type, item.id);
+      await onPurchase(type, item.id, itemCost);
     } catch (error) {
       console.error('Purchase failed:', error);
     } finally {
@@ -47,11 +49,12 @@ export function Shop({
     }
   };
 
-  const renderItems = (items: (Character | House | Car)[], ownedIds: string[], type: 'character' | 'house' | 'car') => (
+  const renderItems = (items: any[], ownedIds: string[], type: 'character' | 'house' | 'car') => (
     <div className="grid grid-cols-2 gap-4">
       {items.map((item) => {
         const isOwned = ownedIds.includes(item.id);
-        const canAfford = totalMoney >= item.price;
+        const itemCost = item.price !== undefined ? item.price : (item.hourly_rent_cost || 0);
+        const canAfford = totalMoney >= itemCost;
         const isPurchasing = purchasingId === item.id;
 
         return (
@@ -82,7 +85,7 @@ export function Shop({
                 <h3 className="text-white font-bold text-lg mb-1">{item.name}</h3>
                 <div className="flex items-center justify-between">
                   <span className={`font-bold ${isOwned ? 'text-emerald-400' : 'text-amber-400'}`}>
-                    {isOwned ? 'Owned' : formatMoney(item.price)}
+                    {isOwned ? 'Owned' : formatMoney(itemCost)}
                   </span>
                   {type === 'house' && 'income_bonus' in item && (
                     <span className="text-xs font-medium text-emerald-400 bg-emerald-400/20 px-2 py-1 rounded-lg">
@@ -111,7 +114,7 @@ export function Shop({
                     Locked
                   </>
                 ) : (
-                  'Buy Now'
+                  type === 'house' ? 'Rent Now' : 'Buy Now'
                 )}
               </button>
             )}
