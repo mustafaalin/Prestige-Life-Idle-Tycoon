@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
-import { X, Briefcase, Lock, Check, Clock, Sparkles } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
-import type { Database } from '../lib/database.types';
-
-type Job = Database['public']['Tables']['jobs']['Row'];
-type PlayerJob = Database['public']['Tables']['player_jobs']['Row'];
+import React from 'react';
+import { X, Briefcase, Lock, Check, Clock } from 'lucide-react';
+import type { Job, PlayerJob } from '../types/game';
+import { formatMoney } from '../utils/game/calculations';
 
 interface JobsModalProps {
   isOpen: boolean;
@@ -12,8 +9,8 @@ interface JobsModalProps {
   jobs: Job[];
   playerJobs: PlayerJob[];
   totalMoney: number;
-  onUnlockJob: (jobId: string) => Promise<boolean>;
-  onSelectJob: (jobId: string) => Promise<boolean>;
+  onUnlockJob: (jobId: string) => Promise<void>;
+  onSelectJob: (jobId: string) => Promise<void>;
   jobChangeLockedUntil: number | null;
   unsavedJobWorkSeconds: number;
 }
@@ -23,302 +20,141 @@ export function JobsModal({
   onClose,
   jobs,
   playerJobs,
-  totalMoney,
   onUnlockJob,
   onSelectJob,
   jobChangeLockedUntil,
   unsavedJobWorkSeconds,
 }: JobsModalProps) {
-  const [remainingTime, setRemainingTime] = useState<number>(0);
-
-  useEffect(() => {
-    if (!jobChangeLockedUntil) {
-      setRemainingTime(0);
-      return;
-    }
-
-    const updateTimer = () => {
-      const remaining = Math.max(0, jobChangeLockedUntil - Date.now());
-      setRemainingTime(remaining);
-
-      if (remaining <= 0) {
-        clearInterval(interval);
-      }
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-
-    return () => clearInterval(interval);
-  }, [jobChangeLockedUntil]);
-
   if (!isOpen) return null;
 
-  const formatMoney = (amount: number) => {
-    if (amount >= 1000000) {
-      return `$${(amount / 1000000).toFixed(2)}M`;
-    }
-    if (amount >= 1000) {
-      return `$${(amount / 1000).toFixed(2)}K`;
-    }
-    return `$${amount.toFixed(0)}`;
-  };
+  // Aktif iş ve o işte geçen toplam süre (kayıtlı + canlı saniye) hesaplaması
+  const activePlayerJob = playerJobs.find(pj => pj.is_active);
+  const activeJobObj = activePlayerJob ? jobs.find(j => j.id === activePlayerJob.job_id) : null;
+  const activeJobTotalTime = activePlayerJob 
+    ? (activePlayerJob.total_time_worked_seconds || 0) + unsavedJobWorkSeconds 
+    : 0;
 
-  const formatTime = (ms: number) => {
-    const seconds = Math.ceil(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+  // 3 Dakika Kuralı (180 Saniye)
+  const REQUIRED_SECONDS = 180;
+  const isCooldownActive = jobChangeLockedUntil !== null && Date.now() < jobChangeLockedUntil;
 
-    if (minutes > 0) {
-      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }
-    return `${remainingSeconds}s`;
-  };
-
-  const formatWorkTime = (seconds: number) => {
-    if (seconds === 0) return '0s';
-
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${secs}s`;
-    } else {
-      return `${secs}s`;
-    }
-  };
-
-  const getIconComponent = (iconName: string) => {
-    const Icon = (LucideIcons as any)[iconName] || Briefcase;
-    return Icon;
-  };
-
-  const handleUnlock = async (jobId: string) => {
-    await onUnlockJob(jobId);
-  };
-
-  const handleSelect = async (jobId: string) => {
-    if (remainingTime > 0) return;
-    await onSelectJob(jobId);
-  };
+  // İşleri seviyesine göre sırala
+  const sortedJobs = [...jobs].sort((a, b) => a.level - b.level);
 
   return (
-    /* Modalın Header altında başlayıp ekranın altına kadar uzanması */
-    <div
-      className="fixed inset-x-0 z-[50] flex flex-col pointer-events-none"
-      style={{
-        top: '88px',    // Header yüksekliği (padding + içerik)
-        bottom: '0',    // Ekranın altına kadar uzat (footer'ı kapat)
-        height: 'calc(100dvh - 88px)' // Dinamik yükseklik hesaplama
-      }}
-    >
-      {/* Modal Gövdesi - Tıklamaları tekrar aktif ediyoruz */}
-      <div className="bg-white w-full h-full shadow-2xl flex flex-col pointer-events-auto border-t border-b border-teal-100">
-        
-        {/* Modal Başlık Bölümü */}
-        <div className="flex items-center justify-between p-4 border-b border-teal-50 bg-slate-50/50">
-          <div>
-            <h2 className="text-xl font-black bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
-              Jobs
-            </h2>
-            {remainingTime > 0 && (
-              <p className="text-[10px] text-orange-600 font-bold mt-0.5 flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                Time: {formatTime(remainingTime)}
-              </p>
-            )}
-          </div>
+    <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+      <div className="bg-slate-900 rounded-3xl w-full max-w-md overflow-hidden border border-white/10 shadow-2xl flex flex-col max-h-[85vh]">
+        <div className="p-6 bg-slate-800 border-b border-white/5 relative shrink-0">
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-teal-100/50 rounded-full transition-all active:scale-90"
+            className="absolute right-4 top-4 p-2 bg-white/5 hover:bg-white/10 rounded-full text-white transition-colors"
           >
-            <X className="w-5 h-5 text-teal-700" />
+            <X className="w-6 h-6" />
           </button>
+          
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-500/20 rounded-xl">
+              <Briefcase className="w-6 h-6 text-blue-400" />
+            </div>
+            <h2 className="text-2xl font-black text-white">Kariyer & İş</h2>
+          </div>
+          <p className="text-slate-400 text-sm">Bir sonraki işe geçmek için mevcut işte 3 dakika çalışmalısın.</p>
         </div>
 
-        {/* Kaydırılabilir İş Listesi */}
-        <div className="overflow-y-auto flex-1 p-4 space-y-3 bg-white">
-          {jobs.map((job) => {
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {sortedJobs.map((job) => {
             const playerJob = playerJobs.find(pj => pj.job_id === job.id);
-            const isUnlocked = playerJob?.is_unlocked || false;
-            const isActive = playerJob?.is_active || false;
-            const isCompleted = playerJob?.is_completed || false;
+            
+            // Level 1 iş her zaman "Kilidi Açık" kabul edilir.
+            const isUnlocked = playerJob?.is_unlocked || job.level === 1;
+            const isActive = playerJob?.is_active;
+            const isCompleted = playerJob?.is_completed;
+            
+            // Bu iş "bir sonraki" iş mi? (Aktif işin seviyesinin bir üstü mü)
+            const isNextJob = activeJobObj 
+               ? job.level === activeJobObj.level + 1 
+               : job.level === 1;
 
-            const activePlayerJob = playerJobs.find(pj => pj.is_active);
-            const activeJob = activePlayerJob ? jobs.find(j => j.id === activePlayerJob.job_id) : null;
-            const activeJobLevel = activeJob?.level || 0;
-
-            const previousLevelJob = jobs.find(j => j.level === job.level - 1);
-            const previousPlayerJob = previousLevelJob ? playerJobs.find(pj => pj.job_id === previousLevelJob.id) : null;
-            const isPreviousJobActive = previousPlayerJob?.is_active || false;
-            const previousJobWorkTime = (previousPlayerJob?.total_time_worked_seconds || 0) + (isPreviousJobActive ? unsavedJobWorkSeconds : 0);
-            const hasWorkedEnoughOnPrevious = job.level === 1 || previousJobWorkTime >= 180;
-
-            //const hasEnoughMoney = totalMoney >= job.unlock_requirement_money;
-            const isLevelAllowed = job.level <= activeJobLevel + 1;
-            const canUnlock = !isUnlocked && isLevelAllowed && hasWorkedEnoughOnPrevious;
-
-            const canSelect = isUnlocked && !isActive && !isCompleted && remainingTime === 0;
-            const Icon = getIconComponent(job.icon_name);
-
-            const displayWorkTime = isActive
-              ? (playerJob?.total_time_worked_seconds || 0) + unsavedJobWorkSeconds
-              : (playerJob?.total_time_worked_seconds || 0);
+            // Kilit açma şartı sağlandı mı? (Aktif işte 180 sn doldu mu?)
+            const canUnlock = isNextJob && activeJobTotalTime >= REQUIRED_SECONDS;
+            
+            // Kalan süre hesaplaması (Gösterim için)
+            const remainingSeconds = Math.max(0, REQUIRED_SECONDS - activeJobTotalTime);
+            const remainingMins = Math.floor(remainingSeconds / 60);
+            const remainingSecs = remainingSeconds % 60;
 
             return (
               <div
                 key={job.id}
-                className={`
-                  relative p-4 rounded-xl border-2 transition-all duration-200
-                  ${isActive
-                    ? 'bg-blue-50 border-blue-200 shadow-sm'
-                    : isCompleted
-                    ? 'bg-slate-50 border-slate-200'
-                    : isUnlocked
-                    ? 'bg-emerald-50/30 border-emerald-100 hover:shadow-sm'
-                    : canUnlock
-                    ? 'bg-yellow-50/30 border-yellow-100'
-                    : !isLevelAllowed
-                    ? 'bg-red-50/30 border-red-100 opacity-75'
-                    : 'bg-gray-50 border-gray-100 opacity-75'
-                  }
-                `}
+                className={`relative rounded-2xl overflow-hidden border-2 transition-all ${
+                  isActive ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)] bg-slate-800' :
+                  isCompleted ? 'border-emerald-500/30 bg-slate-800/50 opacity-75' :
+                  isUnlocked ? 'border-slate-600 bg-slate-800' :
+                  'border-slate-800 bg-slate-800/50'
+                }`}
               >
-                {job.prestige_points > 0 && (
-                  <div className="absolute top-2 right-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-md z-10">
-                    <Sparkles className="w-2.5 h-2.5" />
-                    {job.prestige_points}
-                  </div>
-                )}
-
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`
-                      w-14 h-14 rounded-lg flex items-center justify-center flex-shrink-0 p-1.5 relative overflow-hidden
-                      ${isActive ? 'bg-blue-500' : isCompleted ? 'bg-slate-400' : isUnlocked ? 'bg-emerald-500' : 'bg-gray-400'}
-                    `}
-                  >
-                    {isUnlocked ? (
-                      job.icon_url ? (
-                        <img
-                          src={job.icon_url}
-                          alt={job.name}
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            const fallback = e.currentTarget.nextElementSibling;
-                            if (fallback) (fallback as HTMLElement).style.display = 'block';
-                          }}
-                        />
-                      ) : (
-                        <Icon className="w-6 h-6 text-white" strokeWidth={2.5} />
-                      )
-                    ) : (
-                      <>
-                        {job.icon_url ? (
-                          <>
-                            <img
-                              src={job.icon_url}
-                              alt={job.name}
-                              className="w-full h-full object-contain opacity-40 blur-[1px]"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <Lock className="w-6 h-6 text-white drop-shadow-lg" strokeWidth={2.5} />
-                            </div>
-                          </>
-                        ) : (
-                          <Lock className="w-6 h-6 text-white" strokeWidth={2.5} />
-                        )}
-                      </>
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 truncate">
-                        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1">
-                          {job.name}
-                          {isActive && <Check className="w-3 h-3 text-blue-600" />}
-                        </h3>
-                        <p className="text-[11px] text-slate-500 truncate leading-tight">
-                          {job.description}
-                        </p>
+                <div className="p-4">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="text-3xl bg-slate-700 w-12 h-12 rounded-xl flex items-center justify-center shadow-inner">
+                        {job.icon_url ? <img src={job.icon_url} alt={job.title} className="w-8 h-8" /> : '💼'}
                       </div>
-
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-[10px] text-slate-400 font-bold uppercase">Income</p>
-                        <p className="text-sm font-black text-green-600">
-                          {formatMoney(job.hourly_income)}/hr
-                        </p>
+                      <div>
+                        <h3 className="text-white font-bold text-lg leading-tight">{job.title}</h3>
+                        <p className="text-blue-400 font-bold">{formatMoney(job.income_per_hour)}/saat</p>
                       </div>
                     </div>
+                  </div>
 
-                    {!isUnlocked && (
-                      <div className="mt-2 space-y-1">
-                        <div className="flex items-center justify-between gap-2">
-                          {canUnlock && (
-                            <button
-                              onClick={() => handleUnlock(job.id)}
-                              className="px-3 py-1 bg-green-500 text-white text-[10px] font-bold rounded-md shadow-sm active:scale-95"
-                            >
-                              Unlock
-                            </button>
-                          )}
-                        </div>
-                        {!isLevelAllowed && (
-                          <div className="text-[9px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded">
-                            Complete Level {activeJobLevel + 1} job first
-                          </div>
+                  <div className="mt-4">
+                    {/* Durumuna göre Buton Render'ı */}
+                    {isCompleted ? (
+                      <button disabled className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 bg-emerald-500/10 text-emerald-400">
+                        <Check className="w-5 h-5" />
+                        Tamamlandı (Eski İş)
+                      </button>
+                    ) : isActive ? (
+                      <button disabled className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                        <Clock className="w-5 h-5 animate-pulse" />
+                        Şu An Çalışıyorsun
+                      </button>
+                    ) : isUnlocked ? (
+                      <button
+                        onClick={() => onSelectJob(job.id)}
+                        disabled={isCooldownActive}
+                        className={`w-full py-3 rounded-xl font-bold flex items-center justify-center transition-colors ${
+                          isCooldownActive 
+                            ? 'bg-slate-700 text-slate-500 cursor-not-allowed' 
+                            : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg'
+                        }`}
+                      >
+                        İşi Seçip Başla
+                      </button>
+                    ) : (
+                      // Henüz Kilidi Açılmamışsa
+                      <button
+                        onClick={() => onUnlockJob(job.id)}
+                        disabled={!canUnlock}
+                        className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors ${
+                          canUnlock
+                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg'
+                            : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                        }`}
+                      >
+                        {canUnlock ? (
+                          'Kilidi Aç'
+                        ) : isNextJob ? (
+                          <>
+                            <Lock className="w-4 h-4" />
+                            {remainingMins > 0 ? `${remainingMins} dk ` : ''}{remainingSecs} sn daha çalış
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-4 h-4" />
+                            Önceki işleri tamamla
+                          </>
                         )}
-                        {isLevelAllowed && !hasWorkedEnoughOnPrevious && (
-                          <div className="text-[9px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded">
-                            Work 3 minutes in Level {job.level - 1} job ({formatWorkTime(previousJobWorkTime)}/3:00)
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {isUnlocked && (
-                      <div className="mt-2 flex items-center gap-1 text-[10px]">
-                        <Clock className="w-3 h-3 text-slate-400" />
-                        <span className={`font-bold ${isActive ? 'text-blue-600' : 'text-slate-600'}`}>
-                          Worked: {formatWorkTime(displayWorkTime)}
-                        </span>
-                      </div>
-                    )}
-
-                    {isUnlocked && !isActive && isCompleted && (
-                      <div className="mt-2 flex items-center gap-1 text-sm font-bold text-green-600">
-                        <Check className="w-5 h-5 text-slate-400" />
-                        Completed
-                      </div>
-                    )}
-
-                    {isUnlocked && !isActive && !isCompleted && (
-                      <div className="mt-2">
-                        <button
-                          onClick={() => handleSelect(job.id)}
-                          disabled={!canSelect}
-                          className={`
-                            w-full py-1.5 font-bold rounded-md shadow-sm text-[11px] transition-all
-                            ${canSelect
-                              ? 'bg-blue-500 text-white active:scale-95'
-                              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            }
-                          `}
-                        >
-                          {remainingTime > 0 ? 'Wait...' : 'Select Job'}
-                        </button>
-                      </div>
-                    )}
-                    
-                    {isActive && (
-                      <div className="mt-1.5 text-center text-[9px] font-bold text-blue-500 uppercase tracking-widest">
-                        Active Job
-                      </div>
+                      </button>
                     )}
                   </div>
                 </div>
