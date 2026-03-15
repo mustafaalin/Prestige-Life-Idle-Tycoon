@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
 import { X, User, Trophy, MousePointerClick, Clock, Save, LogOut } from 'lucide-react';
-import { formatMoney } from '../utils/game/calculations';
-import { formatTime } from '../utils/game/calculations';
+
+const formatMoney = (amount: number) => `$${amount.toLocaleString()}`;
+const formatTime = (totalSeconds: number) => {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = Math.floor(totalSeconds % 60);
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+};
 
 interface ProfileModalProps {
   isOpen: boolean;
