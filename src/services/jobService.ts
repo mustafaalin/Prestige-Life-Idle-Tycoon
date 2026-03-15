@@ -2,7 +2,7 @@ import { supabase } from '../lib/supabase';
 
 // Tüm mevcut işleri getir
 export async function getJobs() {
-  const { data, error } = await supabase.from('jobs').select('*').order('required_level');
+  const { data, error } = await supabase.from('jobs').select('*').order('level');
   if (error) throw error;
   return data || [];
 }
