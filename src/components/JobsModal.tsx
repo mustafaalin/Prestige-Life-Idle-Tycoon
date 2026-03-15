@@ -1,7 +1,8 @@
 import React from 'react';
 import { X, Briefcase, Lock, Check, Clock } from 'lucide-react';
 import type { Job, PlayerJob } from '../types/game';
-import { formatMoney } from '../utils/game/calculations';
+
+const formatMoney = (amount: number) => `$${amount.toLocaleString()}`;
 
 interface JobsModalProps {
   isOpen: boolean;
