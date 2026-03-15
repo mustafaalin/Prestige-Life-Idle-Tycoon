@@ -1,14 +1,13 @@
 import { supabase } from '../lib/supabase';
 
-// Hatanın asıl kaynağı olan bu fonksiyon null-safe ve doğru parametre ile yazıldı
 export async function getClaimStatus(playerId: string) {
-  const { data, error } = await supabase.rpc('get_claim_status', {
+  // HATA DÜZELTİLDİ: get_claim_status -> get_daily_reward_status
+  const { data, error } = await supabase.rpc('get_daily_reward_status', {
     p_player_id: playerId,
   });
 
   if (error) {
     console.error('Error fetching claim status:', error);
-    // Hata durumunda bile uygulamanın çökmesini engellemek için boş bir obje dönüyoruz
     return { claimLockedUntil: null, dailyClaimedTotal: 0 };
   }
 
@@ -53,7 +52,8 @@ export async function claimAccumulatedMoney(playerId: string) {
 }
 
 export async function watchAd(playerId: string) {
-  const { data, error } = await supabase.rpc('watch_ad', {
+  // HATA DÜZELTİLDİ: watch_ad -> claim_ad_reward
+  const { data, error } = await supabase.rpc('claim_ad_reward', {
     p_player_id: playerId,
   });
 
