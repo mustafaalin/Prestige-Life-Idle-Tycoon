@@ -45,7 +45,7 @@ export function usePassiveIncome({
   }, []);
 
   useEffect(() => {
-    if (profile && isTabVisible && incomePerSecond > 0) {
+    if (profile && isTabVisible && incomePerSecond !== 0) {
       startPassiveIncome();
     } else {
       stopPassiveIncome();

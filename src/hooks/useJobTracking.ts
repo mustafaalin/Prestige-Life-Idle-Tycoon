@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
 import type { Job, PlayerJob } from '../types/game';
 
 interface UseJobTrackingOptions {
@@ -26,7 +25,7 @@ export function useJobTracking({
   
   const unsavedJobWorkSecondsRef = useRef<number>(0);
   const activeJobIdRef = useRef<string | null>(null);
-  const totalTimeWorkedRef = useRef<number>(0);
+  const workSessionStartedAtRef = useRef<number | null>(null);
 
   const activePlayerJob = playerJobs.find(pj => pj.is_active);
   const activeJob = activePlayerJob
@@ -35,12 +34,25 @@ export function useJobTracking({
 
   useEffect(() => {
     if (activePlayerJob) {
+      if (activeJobIdRef.current !== activePlayerJob.job_id) {
+        const parsedStartedAt = activePlayerJob.last_work_started_at
+          ? new Date(activePlayerJob.last_work_started_at).getTime()
+          : Date.now();
+        const safeStartedAt = Number.isFinite(parsedStartedAt) ? parsedStartedAt : Date.now();
+        const elapsedSinceStart = Math.max(0, Math.floor((Date.now() - safeStartedAt) / 1000));
+
+        workSessionStartedAtRef.current = safeStartedAt;
+        unsavedJobWorkSecondsRef.current = elapsedSinceStart;
+        onJobWorkSecondsUpdate(elapsedSinceStart);
+      }
       activeJobIdRef.current = activePlayerJob.job_id;
-      totalTimeWorkedRef.current = activePlayerJob.total_time_worked_seconds || 0;
     } else {
+      unsavedJobWorkSecondsRef.current = 0;
+      workSessionStartedAtRef.current = null;
+      onJobWorkSecondsUpdate(0);
       activeJobIdRef.current = null;
     }
-  }, [activePlayerJob]);
+  }, [activePlayerJob, onJobWorkSecondsUpdate]);
 
   const saveJobWorkTime = useCallback(async () => {
     const currentJobId = activeJobIdRef.current;
@@ -48,27 +60,13 @@ export function useJobTracking({
 
     if (!userId || !currentJobId || secondsToSave === 0) return;
 
-    const newTotalSeconds = totalTimeWorkedRef.current + secondsToSave;
-
-    try {
-      const { error } = await supabase
-        .from('player_jobs')
-        .update({ total_time_worked_seconds: newTotalSeconds })
-        .eq('player_id', userId)
-        .eq('job_id', currentJobId);
-
-      if (error) throw error;
-
-      if (onJobWorkTimeSync) {
-         onJobWorkTimeSync(currentJobId, secondsToSave);
-      }
-      
-      unsavedJobWorkSecondsRef.current = 0;
-      onJobWorkSecondsUpdate(0);
-      
-    } catch (error) {
-      console.error('Error saving job work time:', error);
+    if (onJobWorkTimeSync) {
+      onJobWorkTimeSync(currentJobId, secondsToSave);
     }
+
+    workSessionStartedAtRef.current = Date.now();
+    unsavedJobWorkSecondsRef.current = 0;
+    onJobWorkSecondsUpdate(0);
   }, [userId, onJobWorkTimeSync, onJobWorkSecondsUpdate]);
 
   const startJobTracking = useCallback(() => {
@@ -78,8 +76,19 @@ export function useJobTracking({
     jobWorkTimeIntervalRef.current = setInterval(() => {
       if (!activeJobIdRef.current || !isTabVisible.current || document.hidden) return;
 
-      unsavedJobWorkSecondsRef.current += 1;
-      onJobWorkSecondsUpdate(unsavedJobWorkSecondsRef.current);
+      if (!workSessionStartedAtRef.current) {
+        workSessionStartedAtRef.current = Date.now();
+      }
+
+      const elapsedSeconds = Math.max(
+        0,
+        Math.floor((Date.now() - workSessionStartedAtRef.current) / 1000)
+      );
+
+      if (elapsedSeconds === unsavedJobWorkSecondsRef.current) return;
+
+      unsavedJobWorkSecondsRef.current = elapsedSeconds;
+      onJobWorkSecondsUpdate(elapsedSeconds);
     }, 1000);
 
     jobWorkTimeAutoSaveIntervalRef.current = setInterval(() => {
@@ -116,6 +125,26 @@ export function useJobTracking({
       }
     };
   }, [saveJobWorkTime]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        saveJobWorkTime();
+        return;
+      }
+
+      if (!activeJobIdRef.current) return;
+
+      workSessionStartedAtRef.current = Date.now();
+      unsavedJobWorkSecondsRef.current = 0;
+      onJobWorkSecondsUpdate(0);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [onJobWorkSecondsUpdate, saveJobWorkTime]);
 
   return {
     activeJob,

@@ -7,7 +7,10 @@ import type { PlayerProfile, OfflineEarnings } from '../../types/game';
  * @returns Offline earnings object with amount and minutes, or null if not applicable
  */
 export function calculateOfflineEarnings(profile: PlayerProfile): OfflineEarnings | null {
-  if (!profile.last_played_at || !profile.hourly_income) return null;
+  if (!profile.last_played_at) return null;
+
+  const hourlyIncome = Number(profile.hourly_income || 0);
+  if (hourlyIncome <= 0) return null;
 
   const now = new Date();
   const lastPlayed = new Date(profile.last_played_at);
@@ -18,11 +21,14 @@ export function calculateOfflineEarnings(profile: PlayerProfile): OfflineEarning
   const maxOfflineMinutes = 12 * 60; // 12 hours
   const actualMinutes = Math.min(minutesOffline, maxOfflineMinutes);
   const offlineRate = 0.20; // 20% of normal income
-  const offlineEarnings = (profile.hourly_income / 60) * actualMinutes * offlineRate;
+  const offlineEarnings = (hourlyIncome / 60) * actualMinutes * offlineRate;
+
+  if (offlineEarnings <= 0) return null;
 
   return {
     amount: Math.floor(offlineEarnings),
     minutes: minutesOffline,
+    appliedMinutes: actualMinutes,
   };
 }
 

@@ -1,4 +1,5 @@
 import { X, ShoppingBag, AlertCircle } from 'lucide-react';
+import { formatMoneyFull } from '../utils/money';
 
 interface PurchaseConfirmModalProps {
   isOpen: boolean;
@@ -20,16 +21,6 @@ export function PurchaseConfirmModal({
   isProcessing,
 }: PurchaseConfirmModalProps) {
   if (!isOpen || !packageInfo) return null;
-
-  const formatMoney = (amount: number) => {
-    if (amount >= 1000000) {
-      return `$${(amount / 1000000).toFixed(1)}M`;
-    }
-    if (amount >= 1000) {
-      return `$${(amount / 1000).toFixed(1)}K`;
-    }
-    return `$${amount.toFixed(0)}`;
-  };
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 pointer-events-auto">
@@ -65,7 +56,7 @@ export function PurchaseConfirmModal({
             <span className="text-sm font-bold text-slate-600">Package</span>
             <span className="text-lg font-black text-slate-800">
               {packageInfo.type === 'money'
-                ? formatMoney(packageInfo.amount)
+                ? formatMoneyFull(packageInfo.amount)
                 : `${packageInfo.amount} Gems`}
             </span>
           </div>

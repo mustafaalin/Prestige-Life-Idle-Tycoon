@@ -1,70 +1,112 @@
-import { supabase } from '../lib/supabase';
+import {
+  claimAccumulatedMoney as claimAccumulatedMoneyLocal,
+  claimAdReward,
+  claimDailyReward as claimDailyRewardLocal,
+  getDailyRewardStatus,
+  rescueDailyRewardStreak as rescueDailyRewardStreakLocal,
+} from '../data/local/rewards';
+import { getLocalGameStats, getLocalInvestments, getLocalProfile, saveLocalGameState } from '../data/local/storage';
+import { getScaledShopRewards } from '../data/local/rewardScaling';
+import type { GameStats } from '../types/game';
 
-export async function getClaimStatus(playerId: string) {
-  // HATA DÜZELTİLDİ: get_claim_status -> get_daily_reward_status
-  const { data, error } = await supabase.rpc('get_daily_reward_status', {
-    p_player_id: playerId,
-  });
-
-  if (error) {
-    console.error('Error fetching claim status:', error);
-    return { claimLockedUntil: null, dailyClaimedTotal: 0 };
+function ensureLocalGameStats(playerId: string): GameStats {
+  const existing = getLocalGameStats();
+  if (existing) {
+    return existing;
   }
 
+  const now = new Date().toISOString();
+  const gameStats: GameStats = {
+    id: 'local-game-stats',
+    player_id: playerId,
+    play_time_seconds: 0,
+    highest_combo: 0,
+    achievements_unlocked: [],
+    daily_login_streak: 0,
+    last_daily_reward: null,
+    created_at: now,
+    updated_at: now,
+    claimed_reward_days: [],
+    last_claim_date: null,
+  };
+
+  saveLocalGameState({ gameStats });
+  return gameStats;
+}
+
+export async function getClaimStatus(playerId: string) {
+  const gameStats = ensureLocalGameStats(playerId);
+  const profile = getLocalProfile();
+  const ownedInvestmentCount = getLocalInvestments().filter((investment) => investment.is_owned).length;
+  const status = getDailyRewardStatus(gameStats);
+  const scaledRewards = getScaledShopRewards(Number(profile?.prestige_points || 0), ownedInvestmentCount);
   return {
-    claimLockedUntil: data?.claim_locked_until || null,
-    dailyClaimedTotal: data?.daily_claimed_total || 0,
+    claimLockedUntil: profile?.claim_locked_until || null,
+    dailyClaimedTotal: profile?.daily_claimed_total || 0,
+    claimPool: scaledRewards.claimPool,
+    dailyClaimLimit: scaledRewards.dailyClaimLimit,
+    adReward: scaledRewards.adReward,
+    ...status,
   };
 }
 
 export async function claimDailyReward(playerId: string) {
-  const { data, error } = await supabase.rpc('claim_daily_reward', {
-    p_player_id: playerId,
+  const profile = getLocalProfile();
+  const gameStats = ensureLocalGameStats(playerId);
+  if (!profile) throw new Error('Player stats not found');
+  const result = claimDailyRewardLocal(profile, gameStats);
+  saveLocalGameState({
+    profile: result.profile,
+    gameStats: result.gameStats,
   });
-
-  if (error) throw error;
-  
-  if (data && typeof data === 'object' && 'success' in data && !data.success) {
-    throw new Error(data.message || 'Failed to claim daily reward');
-  }
-  
   return {
-    claimLockedUntil: data?.claim_locked_until || null,
-    dailyClaimedTotal: data?.daily_claimed_total || 0,
+    claimLockedUntil: result.profile.claim_locked_until || null,
+    dailyClaimedTotal: result.profile.daily_claimed_total || 0,
+    rewardAmount: result.rewardAmount,
+    rewardGems: result.rewardGems,
+    rewardDay: result.rewardDay,
   };
 }
 
-export async function claimAccumulatedMoney(playerId: string) {
-  const { data, error } = await supabase.rpc('claim_accumulated_money', {
-    p_player_id: playerId,
+export async function rescueDailyRewardStreak(playerId: string) {
+  const profile = getLocalProfile();
+  const gameStats = ensureLocalGameStats(playerId);
+  if (!profile) throw new Error('Player stats not found');
+  const result = rescueDailyRewardStreakLocal(profile, gameStats);
+  saveLocalGameState({
+    profile: result.profile,
+    gameStats: result.gameStats,
   });
-
-  if (error) throw error;
-  
-  if (data && typeof data === 'object' && 'success' in data && !data.success) {
-    throw new Error(data.message || 'Failed to claim money');
-  }
-
   return {
-    claimLockedUntil: data?.claim_locked_until || null,
-    dailyClaimedTotal: data?.daily_claimed_total || 0,
+    success: result.success,
+    cooldown: result.cooldown,
+  };
+}
+
+export async function claimAccumulatedMoney(playerId: string, isTriple = false) {
+  void playerId;
+  const profile = getLocalProfile();
+  if (!profile) throw new Error('Player not found');
+  const ownedInvestmentCount = getLocalInvestments().filter((investment) => investment.is_owned).length;
+  const result = claimAccumulatedMoneyLocal(profile, isTriple, ownedInvestmentCount);
+  saveLocalGameState({ profile: result.profile });
+  return {
+    claimLockedUntil: result.profile.claim_locked_until || null,
+    dailyClaimedTotal: result.profile.daily_claimed_total || 0,
+    claimed_amount: result.claimedAmount,
+    new_total: result.newTotal,
   };
 }
 
 export async function watchAd(playerId: string) {
-  // HATA DÜZELTİLDİ: watch_ad -> claim_ad_reward
-  const { data, error } = await supabase.rpc('claim_ad_reward', {
-    p_player_id: playerId,
-  });
-
-  if (error) throw error;
-  
-  if (data && typeof data === 'object' && 'success' in data && !data.success) {
-    throw new Error(data.message || 'Failed to watch ad');
-  }
-
+  void playerId;
+  const profile = getLocalProfile();
+  if (!profile) throw new Error('Player not found');
+  const ownedInvestmentCount = getLocalInvestments().filter((investment) => investment.is_owned).length;
+  const result = claimAdReward(profile, ownedInvestmentCount);
+  saveLocalGameState({ profile: result.profile });
   return {
-    claimLockedUntil: data?.claim_locked_until || null,
-    dailyClaimedTotal: data?.daily_claimed_total || 0,
+    ...result,
+    new_total: Number(result.profile.total_money || 0),
   };
 }

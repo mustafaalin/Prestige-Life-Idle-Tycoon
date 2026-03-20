@@ -1,6 +1,8 @@
 import type { Database } from '../lib/database.types';
 
-export type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'];
+export type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'] & {
+  bonus_prestige_points?: number;
+};
 export type Character = Database['public']['Tables']['characters']['Row'];
 export type House = Database['public']['Tables']['houses']['Row'];
 export type Car = Database['public']['Tables']['cars']['Row'];
@@ -8,10 +10,73 @@ export type Job = Database['public']['Tables']['jobs']['Row'];
 export type PlayerJob = Database['public']['Tables']['player_jobs']['Row'];
 export type GameStats = Database['public']['Tables']['game_stats']['Row'];
 export type CharacterOutfit = Database['public']['Tables']['character_outfits']['Row'];
+export type PlayerOutfit = Database['public']['Tables']['player_outfits']['Row'];
+export type InvestmentUpgradeKey =
+  | 'paint'
+  | 'appliances'
+  | 'furniture'
+  | 'internet'
+  | 'parking';
+
+export type QuestTargetScreen = 'shop' | 'job' | 'business' | 'investments' | 'stuff';
+
+export type QuestCondition =
+  | { type: 'start_job' }
+  | { type: 'daily_reward_claimed' }
+  | { type: 'job_time_seconds'; jobLevel: number; seconds: number }
+  | { type: 'active_job_level'; level: number }
+  | { type: 'owned_car_count'; count: number }
+  | { type: 'owned_car_level_at_least'; level: number }
+  | { type: 'selected_house_level'; level: number }
+  | { type: 'owned_outfit_count'; count: number }
+  | { type: 'prestige_at_least'; amount: number }
+  | { type: 'owned_business_count'; count: number }
+  | { type: 'business_level_at_least'; level: number }
+  | { type: 'business_level_at_least_count'; level: number; count: number }
+  | { type: 'business_total_upgrade_count'; count: number }
+  | { type: 'accumulated_money_claimed_once' }
+  | { type: 'accumulated_money_claim_count'; count: number }
+  | { type: 'claimed_quest_count'; count: number }
+  | { type: 'daily_streak_at_least'; count: number }
+  | { type: 'owned_investment_count'; count: number }
+  | { type: 'investment_level_at_least'; level: number }
+  | { type: 'investment_level_at_least_count'; level: number; count: number }
+  | { type: 'investment_total_upgrade_count'; count: number }
+  | { type: 'full_upgraded_property_count'; count: number }
+  | { type: 'investment_income_at_least'; amount: number };
+
+export interface QuestDefinition {
+  id: string;
+  title: string;
+  description: string;
+  reward_money: number;
+  reward_gems: number;
+  target_screen: QuestTargetScreen;
+  condition: QuestCondition;
+}
+
+export interface QuestChapterDefinition {
+  id: string;
+  title: string;
+  reward_prestige_points: number;
+}
+
+export interface QuestProgress {
+  unlockedChapterIndex: number;
+  completedQuestIds: string[];
+  claimedQuestIds: string[];
+  claimableQuestIds: string[];
+  claimableChapterRewardId: string | null;
+  claimedChapterRewardIds: string[];
+  totalClaimedMoney: number;
+  totalClaimedGems: number;
+  accumulatedMoneyClaimCount: number;
+}
 
 export interface OfflineEarnings {
   amount: number;
   minutes: number;
+  appliedMinutes: number;
 }
 
 export interface GameState {
@@ -22,12 +87,15 @@ export interface GameState {
   jobs: Job[];
   playerJobs: PlayerJob[];
   businesses: BusinessWithPlayerData[];
+  investments: InvestmentWithPlayerData[];
   businessesPrestige: number;
   gameStats: GameStats | null;
   ownedCharacters: string[];
   ownedHouses: string[];
   ownedCars: string[];
+  playerOutfits: PlayerOutfit[];
   selectedOutfit: CharacterOutfit | null;
+  questProgress: QuestProgress;
   loading: boolean;
   error: string | null;
   offlineEarnings: OfflineEarnings | null;
@@ -51,10 +119,29 @@ export interface BusinessWithPlayerData {
   icon_url?: string;
   prestige_points: number;
   is_owned?: boolean;
+  can_unlock?: boolean;
   current_level?: number;
   current_hourly_income?: number;
   total_invested?: number;
   current_prestige_points?: number;
+}
+
+export interface InvestmentWithPlayerData {
+  id: string;
+  name: string;
+  region: string;
+  description: string;
+  category: 'real-estate';
+  price: number;
+  base_rental_income: number;
+  image_url?: string | null;
+  sort_order: number;
+  is_owned?: boolean;
+  current_level?: number;
+  current_rental_income?: number;
+  total_invested?: number;
+  purchased_at?: string | null;
+  upgrades_applied?: InvestmentUpgradeKey[];
 }
 
 export interface PurchaseResult {

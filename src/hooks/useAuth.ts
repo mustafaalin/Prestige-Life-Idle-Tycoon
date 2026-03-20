@@ -1,85 +1,61 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
 import { deviceIdentity } from '../lib/deviceIdentity';
-import type { User } from '@supabase/supabase-js';
+
+export interface LocalAuthUser {
+  id: string;
+  role: 'local';
+  isAnonymous: true;
+}
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<LocalAuthUser | null>(null);
   const [deviceId, setDeviceId] = useState<string>('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initAuth = async () => {
+    const initAuth = () => {
       const identity = deviceIdentity.initialize();
       setDeviceId(identity.deviceId);
-
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        console.log('SESSION_USER', session.user.id, session.user.role);
-        setUser(session.user);
-        setIsAuthenticated(true);
-        setLoading(false);
-      } else {
-        const { data: authData, error } = await supabase.auth.signInAnonymously({
-          options: {
-            data: {
-              device_id: identity.deviceId,
-            }
-          }
-        });
-
-        if (error) {
-          console.error('Anonymous auth failed:', error);
-          setLoading(false);
-        } else if (authData?.user) {
-          const { data: { session: verifiedSession } } = await supabase.auth.getSession();
-
-          if (verifiedSession?.user?.id) {
-            console.log('SESSION_USER', verifiedSession.user.id, verifiedSession.user.role);
-            setUser(verifiedSession.user);
-            setIsAuthenticated(true);
-            setLoading(false);
-          } else {
-            console.error('Session verification failed after anonymous sign-in');
-            setLoading(false);
-          }
-        }
-      }
+      setUser({
+        id: identity.deviceId,
+        role: 'local',
+        isAnonymous: true,
+      });
+      setIsAuthenticated(true);
+      setLoading(false);
     };
 
     initAuth();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setIsAuthenticated(!!session?.user);
-    });
-
-    return () => subscription.unsubscribe();
   }, []);
 
   const signUp = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    return { data, error };
+    void email;
+    void password;
+    return {
+      data: null,
+      error: {
+        message: 'Email/password auth is disabled in local mode.',
+      },
+    };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { data, error };
+    void email;
+    void password;
+    return {
+      data: null,
+      error: {
+        message: 'Email/password auth is disabled in local mode.',
+      },
+    };
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    deviceIdentity.reset();
+    setUser(null);
+    setIsAuthenticated(false);
+    return { error: null };
   };
 
   return {

@@ -1,5 +1,3 @@
-import { supabase } from './supabase';
-
 const DEVICE_ID_KEY = 'idle_guy_device_id';
 const PLAYER_NAME_KEY = 'idle_guy_player_name';
 
@@ -38,8 +36,7 @@ export const deviceIdentity = {
   },
 
   async getProfileId(): Promise<string | null> {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user?.id || null;
+    return localStorage.getItem(DEVICE_ID_KEY);
   },
 
   getPlayerName(): string {

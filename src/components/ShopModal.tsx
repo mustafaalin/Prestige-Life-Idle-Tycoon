@@ -1,21 +1,29 @@
 import { useState, useEffect } from 'react';
 import { X, Gift, DollarSign, Gem, Play, Lock, Monitor, ShoppingBag, Sparkles, Shirt } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import * as rewardService from '../services/rewardService';
+import * as itemService from '../services/itemService';
 import { PurchaseConfirmModal } from './PurchaseConfirmModal';
+import { LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
+import { DAILY_REWARDS } from '../data/local/rewards';
+import { getScaledMoneyPackageAmount, getScaledShopRewards } from '../data/local/rewardScaling';
+import { formatMoneyFull } from '../utils/money';
 
 interface ShopModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialTab?: 'shop' | 'outfits';
   userId: string;
-  hourlyIncome: number;
+  prestigePoints: number;
+  ownedInvestmentCount: number;
   lastClaimTime: string | null;
   gems: number;
   claimLockedUntil: string | null;
   dailyClaimedTotal: number;
-  onClaimDaily: () => Promise<boolean>;
-  onClaimMoney: (isTriple: boolean) => Promise<boolean>;
-  onWatchAd: () => Promise<{ success: boolean; reward: number; cooldown: number }>;
-  onPurchaseComplete: (moneyAdded: number, gemsAdded: number) => void;
+  onClaimDaily: (reward: { money: number; gems: number }) => Promise<boolean>;
+  onRescueDailyStreak: () => Promise<{ success: boolean; cooldown: number }>;
+  onClaimMoney: (params: { isTriple: boolean; reward: number }) => Promise<boolean>;
+  onWatchAd: (reward: number) => Promise<{ success: boolean; reward: number; cooldown: number }>;
+  onPurchaseComplete: (moneyAdded: number, gemsAdded: number) => Promise<void>;
   totalMoney: number;
   selectedOutfitId: string | null;
   onOutfitChange: () => void;
@@ -54,26 +62,33 @@ interface CharacterOutfit {
   is_unlocked: boolean;
 }
 
-const DAILY_REWARDS = [
-  { day: 1, money: 1000, gems: 0 },
-  { day: 2, money: 3000, gems: 0 },
-  { day: 3, money: 10000, gems: 0 },
-  { day: 4, money: 15000, gems: 5 },
-  { day: 5, money: 25000, gems: 0 },
-  { day: 6, money: 50000, gems: 0 },
-  { day: 7, money: 100000, gems: 0 },
+const LOCAL_MONEY_PACKAGES: MoneyPackage[] = [
+  { id: 'money-pack-1', amount_multiplier: 1, calculated_amount: 5000, price_usd: 0.99, display_order: 1, is_popular: false, is_best_value: false },
+  { id: 'money-pack-2', amount_multiplier: 1, calculated_amount: 15000, price_usd: 1.99, display_order: 2, is_popular: true, is_best_value: false },
+  { id: 'money-pack-3', amount_multiplier: 1, calculated_amount: 50000, price_usd: 4.99, display_order: 3, is_popular: false, is_best_value: true },
+  { id: 'money-pack-4', amount_multiplier: 1, calculated_amount: 150000, price_usd: 9.99, display_order: 4, is_popular: false, is_best_value: false },
+];
+
+const LOCAL_GEM_PACKAGES: GemPackage[] = [
+  { id: 'gem-pack-1', gem_amount: 10, price_usd: 0.99, display_order: 1, is_popular: false, is_best_value: false },
+  { id: 'gem-pack-2', gem_amount: 25, price_usd: 1.99, display_order: 2, is_popular: true, is_best_value: false },
+  { id: 'gem-pack-3', gem_amount: 75, price_usd: 4.99, display_order: 3, is_popular: false, is_best_value: true },
+  { id: 'gem-pack-4', gem_amount: 180, price_usd: 9.99, display_order: 4, is_popular: false, is_best_value: false },
 ];
 
 export function ShopModal({
   isOpen,
   onClose,
+  initialTab = 'shop',
   userId,
-  hourlyIncome,
+  prestigePoints,
+  ownedInvestmentCount,
   lastClaimTime,
   gems,
   claimLockedUntil,
   dailyClaimedTotal,
   onClaimDaily,
+  onRescueDailyStreak,
   onClaimMoney,
   onWatchAd,
   onPurchaseComplete,
@@ -86,13 +101,20 @@ export function ShopModal({
   const [timeUntilFull, setTimeUntilFull] = useState(0);
   const [timeUntilUnlock, setTimeUntilUnlock] = useState(0);
   const [notification, setNotification] = useState<string | null>(null);
+  const [isClaimingDaily, setIsClaimingDaily] = useState(false);
+  const [isClaimingEarnings, setIsClaimingEarnings] = useState(false);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [adCooldown, setAdCooldown] = useState(0);
   const [dailyRewardStatus, setDailyRewardStatus] = useState<{
     canClaim: boolean;
     currentStreak: number;
     nextRewardDay: number;
+    displayRewardDay: number;
+    hasClaimedToday: boolean;
+    rescueAvailable: boolean;
+    streakBroken: boolean;
     hoursUntilReset: number;
+    cycleLength: number;
   } | null>(null);
   const [moneyPackages, setMoneyPackages] = useState<MoneyPackage[]>([]);
   const [gemPackages, setGemPackages] = useState<GemPackage[]>([]);
@@ -109,72 +131,60 @@ export function ShopModal({
 
   useEffect(() => {
     if (!isOpen) return;
+    setActiveTab(initialTab);
+  }, [isOpen, initialTab]);
 
-    const fetchDailyRewardStatus = async () => {
-      if (!userId) return;
+  const refreshDailyRewardStatus = async () => {
+    if (!userId) return;
 
-      try {
-        const { data, error } = await supabase
-          .rpc('get_daily_reward_status', {
-            p_player_id: userId
-          } as any);
-
-        if (error) {
-          console.error('Error fetching daily reward status:', error);
-          return;
-        }
-
-        if (data && Array.isArray(data) && data.length > 0) {
-          const status = data[0] as {
-            can_claim: boolean;
-            current_streak: number;
-            next_reward_day: number;
-            hours_until_reset: number;
-          };
-          setDailyRewardStatus({
-            canClaim: status.can_claim,
-            currentStreak: status.current_streak,
-            nextRewardDay: status.next_reward_day,
-            hoursUntilReset: status.hours_until_reset,
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching daily reward status:', error);
-      }
-    };
-
-    fetchDailyRewardStatus();
-    const interval = setInterval(fetchDailyRewardStatus, 5000);
-
-    return () => clearInterval(interval);
-  }, [isOpen]);
+    try {
+      const status = await rewardService.getClaimStatus(userId);
+      setDailyRewardStatus({
+        canClaim: status.canClaim ?? true,
+        currentStreak: status.currentStreak ?? 0,
+        nextRewardDay: status.nextRewardDay ?? 1,
+        displayRewardDay: status.displayRewardDay ?? status.nextRewardDay ?? 1,
+        hasClaimedToday: status.hasClaimedToday ?? false,
+        rescueAvailable: status.rescueAvailable ?? false,
+        streakBroken: status.streakBroken ?? false,
+        hoursUntilReset: status.hoursUntilReset ?? 24,
+        cycleLength: status.cycleLength ?? DAILY_REWARDS.length,
+      });
+    } catch (error) {
+      console.error('Error fetching daily reward status:', error);
+      setDailyRewardStatus({
+        canClaim: true,
+        currentStreak: 0,
+        nextRewardDay: 1,
+        displayRewardDay: 1,
+        hasClaimedToday: false,
+        rescueAvailable: false,
+        streakBroken: false,
+        hoursUntilReset: 24,
+        cycleLength: DAILY_REWARDS.length,
+      });
+    }
+  };
 
   useEffect(() => {
     if (!isOpen) return;
 
-    const fetchPackages = async () => {
-      if (!userId) return;
+    refreshDailyRewardStatus();
+    const interval = setInterval(refreshDailyRewardStatus, 5000);
 
-      try {
-        const [moneyResult, gemResult] = await Promise.all([
-          supabase.rpc('get_money_packages', { p_player_id: userId } as any),
-          supabase.rpc('get_gem_packages'),
-        ]);
+    return () => clearInterval(interval);
+  }, [isOpen, userId]);
 
-        if (!moneyResult.error && moneyResult.data) {
-          setMoneyPackages(moneyResult.data);
-        }
-
-        if (!gemResult.error && gemResult.data) {
-          setGemPackages(gemResult.data);
-        }
-      } catch (error) {
-        console.error('Error fetching packages:', error);
-      }
-    };
-
-    fetchPackages();
-  }, [isOpen]);
+  useEffect(() => {
+    if (!isOpen) return;
+    setMoneyPackages(
+      LOCAL_MONEY_PACKAGES.map((pkg) => ({
+        ...pkg,
+        calculated_amount: getScaledMoneyPackageAmount(pkg.id, prestigePoints, ownedInvestmentCount),
+      }))
+    );
+    setGemPackages(LOCAL_GEM_PACKAGES);
+  }, [isOpen, prestigePoints, ownedInvestmentCount]);
 
   useEffect(() => {
     if (!isOpen || activeTab !== 'outfits') return;
@@ -184,32 +194,8 @@ export function ShopModal({
 
       try {
         setOutfitsLoading(true);
-
-        const { data: outfitsData, error: outfitsError } = await supabase
-          .from('character_outfits')
-          .select('*')
-          .eq('is_active', true)
-          .order('unlock_order');
-
-        if (outfitsError) throw outfitsError;
-
-        const { data: playerOutfitsData, error: playerOutfitsError } = await supabase
-          .from('player_outfits')
-          .select('*')
-          .eq('player_id', userId);
-
-        if (playerOutfitsError) throw playerOutfitsError;
-
-        const outfitsWithOwnership = (outfitsData || []).map(outfit => {
-          const playerOutfit = (playerOutfitsData || []).find(po => po.outfit_id === outfit.id);
-          return {
-            ...outfit,
-            is_owned: playerOutfit?.is_owned || false,
-            is_unlocked: playerOutfit?.is_unlocked || false,
-          };
-        });
-
-        setOutfits(outfitsWithOwnership);
+        const outfitsData = await itemService.getCharacterOutfits(userId);
+        setOutfits(outfitsData);
       } catch (error) {
         console.error('Error fetching outfits:', error);
       } finally {
@@ -221,7 +207,9 @@ export function ShopModal({
   }, [isOpen, activeTab, userId]);
 
   useEffect(() => {
-    if (!isOpen || !lastClaimTime || !hourlyIncome) {
+    const scaledRewards = getScaledShopRewards(prestigePoints, ownedInvestmentCount);
+
+    if (!isOpen || !lastClaimTime || !scaledRewards.claimPool) {
       setAccumulatedMoney(0);
       setTimeUntilFull(0);
       return;
@@ -236,8 +224,7 @@ export function ShopModal({
       const maxMinutes = 60;
       const clampedMinutes = Math.min(elapsedMinutes, maxMinutes);
 
-      const incomeRate = hourlyIncome / 2;
-      const accumulated = (incomeRate / 60) * clampedMinutes;
+      const accumulated = (scaledRewards.claimPool / 60) * clampedMinutes;
 
       setAccumulatedMoney(Math.floor(accumulated));
 
@@ -253,7 +240,7 @@ export function ShopModal({
     const interval = setInterval(calculateAccumulated, 1000);
 
     return () => clearInterval(interval);
-  }, [isOpen, lastClaimTime, hourlyIncome]);
+  }, [isOpen, lastClaimTime, prestigePoints, ownedInvestmentCount]);
 
   useEffect(() => {
     if (!isOpen || !claimLockedUntil) {
@@ -291,16 +278,6 @@ export function ShopModal({
 
   if (!isOpen) return null;
 
-  const formatMoney = (amount: number) => {
-    if (amount >= 1000000) {
-      return `$${(amount / 1000000).toFixed(1)}M`;
-    }
-    if (amount >= 1000) {
-      return `$${(amount / 1000).toFixed(1)}K`;
-    }
-    return `$${amount.toFixed(0)}`;
-  };
-
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -318,35 +295,58 @@ export function ShopModal({
 
 
   const handleClaimDaily = async () => {
-    const success = await onClaimDaily();
+    if (!dailyRewardStatus) return;
+
+    const rewardDay = dailyRewardStatus.rescueAvailable ? 1 : dailyRewardStatus.nextRewardDay;
+    const reward = DAILY_REWARDS[rewardDay - 1];
+
+    setIsClaimingDaily(true);
+    const success = await onClaimDaily({ money: reward.money, gems: reward.gems });
+    setIsClaimingDaily(false);
+
     if (success && dailyRewardStatus) {
-      const reward = DAILY_REWARDS[dailyRewardStatus.nextRewardDay - 1];
-      let message = `Claimed ${formatMoney(reward.money)}!`;
-      if (reward.gems > 0) {
-        message += ` +${reward.gems} gems!`;
-      }
-      showNotification(message);
+      refreshDailyRewardStatus();
     }
   };
 
-  const handleClaimMoney = async (isTriple: boolean) => {
-    const success = await onClaimMoney(isTriple);
-    if (success) {
-      const amount = isTriple ? accumulatedMoney * 3 : accumulatedMoney;
-      showNotification(`Claimed ${formatMoney(amount)}!`);
+  const handleRescueDailyStreak = async () => {
+    setIsWatchingAd(true);
+    const result = await onRescueDailyStreak();
+    setIsWatchingAd(false);
+
+    if (result.success) {
+      showNotification('Streak saved! You can now claim today\'s reward.');
+      setAdCooldown(result.cooldown);
+      refreshDailyRewardStatus();
+      return;
     }
+
+    if (result.cooldown > 0) {
+      setAdCooldown(result.cooldown);
+      showNotification(`Ad cooldown active: ${formatTime(result.cooldown)}`);
+      return;
+    }
+
+    showNotification('Streak rescue is not available');
+  };
+
+  const handleClaimMoney = async (isTriple: boolean) => {
+    const baseClaimAmount = Math.max(0, Math.min(accumulatedMoney, Math.max(0, dailyLimit - dailyClaimedTotal)));
+    const finalReward = isTriple ? baseClaimAmount * 3 : baseClaimAmount;
+
+    setIsClaimingEarnings(true);
+    const success = await onClaimMoney({ isTriple, reward: finalReward });
+    setIsClaimingEarnings(false);
+    void success;
   };
 
   const handleWatchAd = async () => {
     setIsWatchingAd(true);
-
-    await new Promise(resolve => setTimeout(resolve, 3000));
-
-    const result = await onWatchAd();
+    const adRewardAmount = getScaledShopRewards(prestigePoints, ownedInvestmentCount).adReward;
+    const result = await onWatchAd(adRewardAmount);
     setIsWatchingAd(false);
 
     if (result.success) {
-      showNotification(`Ad reward: ${formatMoney(result.reward)}!`);
       setAdCooldown(result.cooldown);
     } else if (result.cooldown > 0) {
       setAdCooldown(result.cooldown);
@@ -390,45 +390,11 @@ export function ShopModal({
     setIsProcessingPurchase(true);
 
     try {
-      const { data: txData, error: txError } = await supabase.rpc('create_purchase_transaction', {
-        p_player_id: userId,
-        p_package_id: selectedPackage.packageId,
-        p_amount_usd: selectedPackage.price,
-      } as any);
-
-      if (txError) {
-        throw new Error(txError.message);
-      }
-
-      const txResult = txData as { success: boolean; transaction_id: string };
-      if (!txResult.success || !txResult.transaction_id) {
-        throw new Error('Failed to create transaction');
-      }
-
-      const { data: result, error: completeError } = await supabase.rpc('complete_demo_purchase', {
-        p_transaction_id: txResult.transaction_id,
-        p_player_id: userId,
-      } as any);
-
-      if (completeError) {
-        throw new Error(completeError.message);
-      }
-
-      const purchaseResult = Array.isArray(result) ? result[0] : result;
-
-      if (purchaseResult?.success) {
-        const message = selectedPackage.type === 'money'
-          ? `Purchased ${formatMoney(selectedPackage.amount)}!`
-          : `Purchased ${selectedPackage.amount} Gems!`;
-        showNotification(message);
-        setShowPurchaseConfirm(false);
-        setSelectedPackage(null);
-
-        // Update state with new values
-        const moneyAdded = purchaseResult.money_added || 0;
-        const gemsAdded = purchaseResult.gems_added || 0;
-        onPurchaseComplete(moneyAdded, gemsAdded);
-      }
+      const moneyAdded = selectedPackage.type === 'money' ? selectedPackage.amount : 0;
+      const gemsAdded = selectedPackage.type === 'gem' ? selectedPackage.amount : 0;
+      await onPurchaseComplete(moneyAdded, gemsAdded);
+      setShowPurchaseConfirm(false);
+      setSelectedPackage(null);
     } catch (error: any) {
       console.error('Purchase error:', error);
       showNotification(`Error: ${error.message || 'Purchase failed'}`);
@@ -437,31 +403,28 @@ export function ShopModal({
     }
   };
 
-  const handlePurchaseOutfit = async (outfitId: string, price: number, prestigePoints: number) => {
+  const handlePurchaseOutfit = async (outfitId: string, _price: number) => {
     if (!userId) return;
 
     try {
-      const { data, error } = await supabase.rpc('purchase_outfit', {
-        p_player_id: userId,
-        p_outfit_id: outfitId,
-        p_set_as_selected: true
-      });
-
-      if (error) throw error;
-
-      const result = data as { success: boolean; message: string; prestige_earned?: number; money_spent?: number };
+      const result = await itemService.purchaseOutfit(userId, outfitId, true) as {
+        success: boolean;
+        message: string;
+        prestige_earned?: number;
+        money_spent?: number;
+      };
 
       if (!result.success) {
         showNotification(result.message);
         return;
       }
 
-      showNotification(`Outfit purchased! +${result.prestige_earned} prestige points`);
-      onPurchaseComplete(-(result.money_spent || price), 0);
-
-      setOutfits(prev => prev.map(o =>
-        o.id === outfitId ? { ...o, is_owned: true, is_unlocked: true } : o
-      ));
+      setOutfits((prev) =>
+        prev.map((outfit) =>
+          outfit.id === outfitId ? { ...outfit, is_owned: true, is_unlocked: true } : outfit
+        )
+      );
+      onOutfitChange();
     } catch (error: any) {
       console.error('Error purchasing outfit:', error);
       showNotification(`Failed to purchase outfit: ${error.message || 'Unknown error'}`);
@@ -472,14 +435,7 @@ export function ShopModal({
     if (!userId) return;
 
     try {
-      const { error } = await supabase
-        .from('player_profiles')
-        .update({ selected_outfit_id: outfitId })
-        .eq('id', userId);
-
-      if (error) throw error;
-
-      showNotification('Outfit selected!');
+      await itemService.selectOutfit(userId, outfitId);
       onOutfitChange();
     } catch (error) {
       console.error('Error selecting outfit:', error);
@@ -487,14 +443,23 @@ export function ShopModal({
     }
   };
 
-  const maxAccumulated = (hourlyIncome / 2);
+  const scaledRewards = getScaledShopRewards(prestigePoints, ownedInvestmentCount);
+  const maxAccumulated = scaledRewards.claimPool;
   const progressPercent = maxAccumulated > 0 ? Math.min((accumulatedMoney / maxAccumulated) * 100, 100) : 0;
   const isLocked = timeUntilUnlock > 0;
   const canClaim = accumulatedMoney > 0 && !isLocked;
-  const isDailyAvailable = dailyRewardStatus?.canClaim ?? false;
-  const currentDay = dailyRewardStatus?.nextRewardDay ?? 1;
-  const todayReward = DAILY_REWARDS[currentDay - 1] || DAILY_REWARDS[0];
-  const dailyLimit = hourlyIncome;
+  const isDailyAvailable = dailyRewardStatus?.canClaim ?? true;
+  const rescueAvailable = dailyRewardStatus?.rescueAvailable ?? false;
+  const hasClaimedToday = dailyRewardStatus?.hasClaimedToday ?? false;
+  const streakBroken = dailyRewardStatus?.streakBroken ?? false;
+  const cycleLength = dailyRewardStatus?.cycleLength ?? DAILY_REWARDS.length;
+  const featuredDay = hasClaimedToday
+    ? dailyRewardStatus?.displayRewardDay ?? 1
+    : rescueAvailable
+      ? dailyRewardStatus?.nextRewardDay ?? 1
+      : dailyRewardStatus?.nextRewardDay ?? 1;
+  const todayReward = DAILY_REWARDS[featuredDay - 1] || DAILY_REWARDS[0];
+  const dailyLimit = scaledRewards.dailyClaimLimit;
   const dailyLimitPercent = dailyLimit > 0 ? Math.min((dailyClaimedTotal / dailyLimit) * 100, 100) : 0;
 
   return (
@@ -565,79 +530,103 @@ export function ShopModal({
           {activeTab === 'shop' && (
             <>
 
-          <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-5 border-2 border-yellow-200 shadow-lg">
-            <div className="flex items-center gap-2 mb-3">
-              <Gift className="w-5 h-5 text-orange-600" />
-              <h3 className="text-base font-black text-orange-700">Daily Reward</h3>
+          <div className="relative overflow-hidden rounded-2xl border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-100 p-5 shadow-[0_18px_40px_rgba(251,191,36,0.22)]">
+            <div className="pointer-events-none absolute -right-10 -top-12 h-28 w-28 rounded-full bg-yellow-300/35 blur-2xl" />
+            <div className="pointer-events-none absolute -bottom-10 -left-8 h-24 w-24 rounded-full bg-orange-300/25 blur-2xl" />
+
+            <div className="relative mb-3 flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-yellow-400 shadow-lg">
+                <Gift className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-orange-800">Daily Reward</h3>
+                <p className="text-[11px] font-bold text-orange-600">Keep your streak alive for bigger prizes</p>
+              </div>
             </div>
 
-            <div className="bg-white rounded-xl p-4 mb-3 border-2 border-orange-100">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-slate-500">Day {currentDay}</span>
-                {isDailyAvailable ? (
+            <div className="relative rounded-xl border-2 border-orange-100 bg-white/90 p-4 backdrop-blur-sm">
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[10px] font-black text-orange-700">
+                      Day {featuredDay} / {cycleLength}
+                    </span>
+                    <span className="rounded-full bg-yellow-100 px-2.5 py-1 text-[10px] font-black text-yellow-700">
+                      {dailyRewardStatus?.currentStreak ?? 0}-day streak
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs font-bold text-slate-500">
+                    {hasClaimedToday
+                      ? 'Come back after UTC reset to keep your streak going.'
+                      : rescueAvailable
+                        ? `You missed yesterday. Watch an ad to keep Day ${dailyRewardStatus?.nextRewardDay ?? 1}.`
+                        : streakBroken
+                          ? 'Your streak broke. Claim today to restart from Day 1.'
+                          : 'Claim every day to push your streak forward.'}
+                  </p>
+                </div>
+
+                {rescueAvailable ? (
+                  <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">
+                    STREAK AT RISK
+                  </span>
+                ) : !hasClaimedToday ? (
                   <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
                     AVAILABLE
                   </span>
-                ) : (
-                  <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">
-                    CLAIMED
-                  </span>
-                )}
+                ) : null}
               </div>
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xl font-black text-green-600">
-                    {formatMoney(todayReward.money)}
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1 rounded-2xl border border-orange-200 bg-gradient-to-br from-white via-yellow-50 to-orange-50 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-500">
+                    Today's Reward
+                  </p>
+                  <p className="mt-1 text-3xl font-black leading-none text-emerald-600 sm:text-[34px]">
+                    {formatMoneyFull(todayReward.money)}
                   </p>
                   {todayReward.gems > 0 && (
-                    <p className="text-xs font-bold text-purple-600 flex items-center gap-1 mt-1">
-                      <Gem className="w-3 h-3" />
+                    <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-cyan-50 px-2.5 py-1 text-xs font-black text-cyan-700 ring-1 ring-cyan-200">
+                      <Gem className="h-3.5 w-3.5" />
                       +{todayReward.gems} gems
-                    </p>
+                    </div>
                   )}
                 </div>
 
-                <button
-                  onClick={handleClaimDaily}
-                  disabled={!isDailyAvailable}
-                  className={`
-                    px-4 py-2 rounded-lg font-bold text-sm transition-all shadow-md
-                    ${isDailyAvailable
-                      ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white active:scale-95'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    }
-                  `}
-                >
-                  {isDailyAvailable ? 'Claim' : 'Claimed'}
-                </button>
+                <div className="flex shrink-0 flex-col gap-2">
+                  {rescueAvailable && !hasClaimedToday && (
+                    <button
+                      onClick={handleRescueDailyStreak}
+                      disabled={adCooldown > 0 || isWatchingAd}
+                      className={`
+                        rounded-xl px-3 py-2 text-xs font-black transition-all shadow-md
+                        ${adCooldown > 0 || isWatchingAd
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-rose-500 to-orange-500 text-white active:scale-95 shadow-[0_10px_24px_rgba(244,63,94,0.28)]'
+                        }
+                      `}
+                    >
+                      {isWatchingAd ? 'Watching...' : adCooldown > 0 ? `Rescue in ${formatTime(adCooldown)}` : 'Rescue Streak'}
+                    </button>
+                  )}
+
+                    <button
+                      onClick={handleClaimDaily}
+                      disabled={!isDailyAvailable || hasClaimedToday || isClaimingDaily}
+                      className={`
+                      px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-md
+                      ${isDailyAvailable && !hasClaimedToday && !isClaimingDaily
+                        ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white active:scale-95 shadow-[0_12px_28px_rgba(249,115,22,0.28)]'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      }
+                    `}
+                  >
+                    {isClaimingDaily ? 'Claiming...' : hasClaimedToday ? 'Claimed' : rescueAvailable ? 'Claim Day 1' : 'Claim'}
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-2 flex-wrap">
-              {DAILY_REWARDS.map((reward, index) => {
-                const dayNum = index + 1;
-                const isPast = dayNum < currentDay;
-                const isCurrent = dayNum === currentDay;
-
-                return (
-                  <div
-                    key={reward.day}
-                    className={`
-                      w-11 h-11 rounded-lg flex flex-col items-center justify-center text-[10px] font-bold border-2 transition-all
-                      ${isPast ? 'bg-gray-100 border-gray-200 text-gray-400' : ''}
-                      ${isCurrent ? 'bg-yellow-100 border-yellow-400 text-yellow-700 ring-2 ring-yellow-300' : ''}
-                      ${!isPast && !isCurrent ? 'bg-white border-gray-200 text-gray-400' : ''}
-                    `}
-                  >
-                    <span className="text-[8px]">{dayNum}</span>
-                    <span className="text-[9px] font-black">
-                      {reward.money >= 1000 ? `${reward.money / 1000}k` : reward.money}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
           </div>
 
           <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-5 border-2 border-blue-200 shadow-lg">
@@ -651,7 +640,7 @@ export function ShopModal({
                 <div className="flex items-baseline justify-between mb-2">
                   <span className="text-xs font-bold text-slate-500">Daily Limit</span>
                   <span className="text-xs font-bold text-slate-400">
-                    {formatMoney(dailyClaimedTotal)} / {formatMoney(dailyLimit)}
+                    {formatMoneyFull(dailyClaimedTotal)} / {formatMoneyFull(dailyLimit)}
                   </span>
                 </div>
 
@@ -665,7 +654,7 @@ export function ShopModal({
                 <div className="flex items-baseline justify-between mb-2">
                   <span className="text-xs font-bold text-slate-500">Accumulated</span>
                   <span className="text-xs font-bold text-slate-400">
-                    {formatMoney(accumulatedMoney)} / {formatMoney(maxAccumulated)}
+                    {formatMoneyFull(accumulatedMoney)} / {formatMoneyFull(maxAccumulated)}
                   </span>
                 </div>
 
@@ -696,24 +685,24 @@ export function ShopModal({
               <div className="flex gap-2">
                 <button
                   onClick={() => handleClaimMoney(false)}
-                  disabled={!canClaim}
+                  disabled={!canClaim || isClaimingEarnings}
                   className={`
                     flex-1 py-2.5 rounded-lg font-bold text-sm transition-all shadow-md
-                    ${canClaim
+                    ${canClaim && !isClaimingEarnings
                       ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white active:scale-95'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     }
                   `}
                 >
-                  {isLocked ? <Lock className="w-4 h-4 mx-auto" /> : 'Claim'}
+                  {isLocked ? <Lock className="w-4 h-4 mx-auto" /> : isClaimingEarnings ? 'Claiming...' : 'Claim'}
                 </button>
 
                 <button
                   onClick={() => handleClaimMoney(true)}
-                  disabled={!canClaim}
+                  disabled={!canClaim || isClaimingEarnings}
                   className={`
                     flex-1 py-2.5 rounded-lg font-bold text-sm transition-all shadow-md flex items-center justify-center gap-1
-                    ${canClaim
+                    ${canClaim && !isClaimingEarnings
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white active:scale-95'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     }
@@ -721,6 +710,8 @@ export function ShopModal({
                 >
                   {isLocked ? (
                     <Lock className="w-4 h-4" />
+                  ) : isClaimingEarnings ? (
+                    'Claiming...'
                   ) : (
                     <>
                       <Play className="w-4 h-4" />
@@ -748,7 +739,7 @@ export function ShopModal({
               <div className="text-center mb-3">
                 <p className="text-xs font-bold text-slate-500 mb-1">Earn money by watching ads</p>
                 <p className="text-2xl font-black text-purple-600">
-                  {formatMoney(hourlyIncome / 2)}
+                  {formatMoneyFull(scaledRewards.adReward)}
                 </p>
                 <p className="text-[10px] text-slate-400 font-bold">per ad</p>
               </div>
@@ -833,12 +824,12 @@ export function ShopModal({
                     </div>
                   )}
                   <img
-                    src="https://dtanvjjdiyrunnavkxwe.supabase.co/storage/v1/object/public/game-assets/icons/buy-more-money.png"
+                    src={LOCAL_ICON_ASSETS.buyMoreMoney}
                     alt="Money"
                     className="w-12 h-12 mx-auto mb-2 object-contain"
                   />
                   <p className="text-lg font-black text-green-600 mb-2">
-                    {formatMoney(pkg.calculated_amount)}
+                    {formatMoneyFull(pkg.calculated_amount)}
                   </p>
                   <div className="bg-green-50 text-green-700 rounded-lg py-1 px-2 text-xs font-bold mb-2">
                     ${Number(pkg.price_usd).toFixed(2)}
@@ -884,7 +875,7 @@ export function ShopModal({
                     </div>
                   )}
                   <img
-                    src="https://dtanvjjdiyrunnavkxwe.supabase.co/storage/v1/object/public/game-assets/icons/gem-box.png"
+                    src={LOCAL_ICON_ASSETS.gemBox}
                     alt="Gems"
                     className="w-12 h-12 mx-auto mb-2 object-contain"
                   />
@@ -932,21 +923,25 @@ export function ShopModal({
                           : 'border-slate-200 hover:border-slate-300 hover:shadow-lg'
                       }`}
                     >
-                      {outfit.prestige_points > 0 && (
-                        <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg z-10">
-                          <Sparkles className="w-3 h-3" />
-                          {outfit.prestige_points}
-                        </div>
-                      )}
-
                       <div className="flex">
                         <div className="w-1/3 bg-gradient-to-br from-blue-100 to-purple-100 p-4 flex items-center justify-center">
-                          <img
-                            src={outfit.image_url}
-                            alt={outfit.name}
-                            className="w-full h-auto object-contain"
-                            style={{ minHeight: '280px', maxHeight: '320px' }}
-                          />
+                          {outfit.image_url ? (
+                            <img
+                              src={resolveLocalAsset(outfit.image_url, 'outfit')}
+                              alt={outfit.name}
+                              className="w-full h-auto object-contain"
+                              style={{ minHeight: '280px', maxHeight: '320px' }}
+                            />
+                          ) : (
+                            <div className="w-full min-h-[280px] max-h-[320px] rounded-2xl border-2 border-dashed border-blue-200 bg-white/70 flex flex-col items-center justify-center text-blue-500">
+                              <img
+                                src={resolveLocalAsset(undefined, 'outfit')}
+                                alt={outfit.name}
+                                className="w-full h-auto object-contain p-4"
+                                style={{ minHeight: '280px', maxHeight: '320px' }}
+                              />
+                            </div>
+                          )}
                         </div>
 
                         <div className="w-2/3 p-4 flex flex-col justify-between">
@@ -967,20 +962,11 @@ export function ShopModal({
                             )}
 
                             <div className="space-y-2 mb-3">
-                              {outfit.prestige_points > 0 && (
-                                <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-1.5">
-                                  <Sparkles className="w-4 h-4 text-yellow-600" />
-                                  <span className="text-xs font-bold text-yellow-700">
-                                    {outfit.prestige_points} Prestige Points
-                                  </span>
-                                </div>
-                              )}
-
                               {!outfit.is_owned && (
                                 <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-1.5">
                                   <DollarSign className="w-4 h-4 text-green-600" />
                                   <span className="text-xs font-bold text-green-700">
-                                    {formatMoney(outfit.price)}
+                                    {formatMoneyFull(outfit.price)}
                                   </span>
                                 </div>
                               )}
@@ -1004,7 +990,7 @@ export function ShopModal({
                               )
                             ) : (
                               <button
-                                onClick={() => handlePurchaseOutfit(outfit.id, outfit.price, outfit.prestige_points)}
+                                onClick={() => handlePurchaseOutfit(outfit.id, outfit.price)}
                                 disabled={!canAfford}
                                 className={`w-full rounded-lg py-2.5 text-sm font-bold transition-all ${
                                   canAfford

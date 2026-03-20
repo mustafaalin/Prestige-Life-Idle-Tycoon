@@ -1,11 +1,19 @@
 import { useState, useEffect } from 'react';
 import { X, User, Trophy, MousePointerClick, Clock, Save, LogOut } from 'lucide-react';
+import { ResetProgressModal } from './ResetProgressModal';
 
-const formatMoney = (amount: number) => `$${amount.toLocaleString()}`;
-const formatTime = (totalSeconds: number) => {
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = Math.floor(totalSeconds % 60);
+const toSafeNumber = (value: number | null | undefined) => {
+  const normalized = Number(value ?? 0);
+  return Number.isFinite(normalized) ? normalized : 0;
+};
+
+const formatMoney = (amount: number | null | undefined) => `$${toSafeNumber(amount).toLocaleString()}`;
+const formatNumber = (amount: number | null | undefined) => toSafeNumber(amount).toLocaleString();
+const formatTime = (totalSeconds: number | null | undefined) => {
+  const safeSeconds = Math.max(0, toSafeNumber(totalSeconds));
+  const h = Math.floor(safeSeconds / 3600);
+  const m = Math.floor((safeSeconds % 3600) / 60);
+  const s = Math.floor(safeSeconds % 60);
   if (h > 0) return `${h}h ${m}m ${s}s`;
   if (m > 0) return `${m}m ${s}s`;
   return `${s}s`;
@@ -20,7 +28,7 @@ interface ProfileModalProps {
   lifetimeEarnings: number;
   totalClicks: number;
   sessionStartTime: number; 
-  onResetProgress: () => void;
+  onResetProgress: () => Promise<void>;
   prestigePoints: number;
 }
 
@@ -40,6 +48,7 @@ export default function ProfileModal({
   const [editName, setEditName] = useState(playerName);
   const [isSaving, setIsSaving] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   
   const [sessionPlayTime, setSessionPlayTime] = useState(0);
 
@@ -74,8 +83,10 @@ export default function ProfileModal({
     setIsEditingName(false);
   };
 
-  const handleReset = () => {
-    onResetProgress();
+  const handleReset = async () => {
+    setIsResetting(true);
+    await onResetProgress();
+    setIsResetting(false);
     setShowResetConfirm(false);
     onClose();
   };
@@ -153,7 +164,7 @@ export default function ProfileModal({
                 <MousePointerClick className="w-5 h-5" />
                 <span className="font-bold text-sm">Total Clicks</span>
               </div>
-              <p className="text-xl font-black text-white">{totalClicks.toLocaleString()}</p>
+              <p className="text-xl font-black text-white">{formatNumber(totalClicks)}</p>
             </div>
 
             <div className="bg-slate-800 p-4 rounded-2xl border border-white/5">
@@ -169,45 +180,29 @@ export default function ProfileModal({
                 <Trophy className="w-5 h-5" />
                 <span className="font-bold text-sm">Prestige Points</span>
               </div>
-              <p className="text-xl font-black text-white">{prestigePoints}</p>
+              <p className="text-xl font-black text-white">{formatNumber(prestigePoints)}</p>
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-red-500/20">
-            <h3 className="text-red-400 font-bold mb-4 uppercase text-sm tracking-wider">Danger Zone</h3>
-            
-            {showResetConfirm ? (
-              <div className="bg-red-500/10 p-4 rounded-2xl border border-red-500/20">
-                <p className="text-white text-sm mb-4">
-                  Are you absolutely sure? This will delete all your money, items, and progress. This action cannot be undone!
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleReset}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
-                  >
-                    Yes, Reset Everything
-                  </button>
-                  <button
-                    onClick={() => setShowResetConfirm(false)}
-                    className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowResetConfirm(true)}
-                className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-3.5 rounded-xl transition-colors border border-red-500/20"
-              >
-                <LogOut className="w-5 h-5" />
-                Reset Game Progress
-              </button>
-            )}
+        <div className="mt-8 pt-6 border-t border-red-500/20">
+          <h3 className="text-red-400 font-bold mb-4 uppercase text-sm tracking-wider">Danger Zone</h3>
+          <button
+            onClick={() => setShowResetConfirm(true)}
+            className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-3.5 rounded-xl transition-colors border border-red-500/20"
+          >
+            <LogOut className="w-5 h-5" />
+            Reset Game Progress
+          </button>
           </div>
         </div>
       </div>
+
+      <ResetProgressModal
+        isOpen={showResetConfirm}
+        onClose={() => setShowResetConfirm(false)}
+        onConfirm={handleReset}
+        isResetting={isResetting}
+      />
     </div>
   );
 }

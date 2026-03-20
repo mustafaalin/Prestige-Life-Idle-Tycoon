@@ -1,46 +1,81 @@
-import { supabase } from '../lib/supabase';
+import { getLocalOwnedCars, getLocalOwnedCharacters, getLocalOwnedHouses, getLocalProfile, saveLocalGameState } from '../data/local/storage';
+import { LOCAL_CARS } from '../data/local/cars';
+import { recalculateLocalEconomy, recalculateLocalPrestige } from '../data/local/economy';
+import { getLocalBusinesses, getLocalInvestments, getLocalJobs, getLocalPlayerJobs } from '../data/local/storage';
 
-// Arabalar için orijinal RPC çağrısı
 export async function purchaseCarViaRPC(playerId: string, carId: string, price: number) {
-  const { data, error } = await supabase.rpc('purchaseitem', {
-    p_player_id: playerId,
-    p_item_id: carId,
-    p_item_type: 'car'
-  } as any);
-
-  if (error) throw error;
-  
-  if (!data || !Array.isArray(data) || data.length === 0) {
-    throw new Error('Purchase failed: Invalid response from database');
-  }
-
-  const result = data[0] as { success: boolean; message: string; new_balance: number };
-  if (!result.success) throw new Error(result.message);
-
-  await supabase.from('player_purchases').insert({
-    player_id: playerId,
-    item_type: 'car',
-    item_id: carId,
-    purchase_price: price,
+  void playerId;
+  const profile = getLocalProfile();
+  if (!profile) throw new Error('Player not found');
+  if (Number(profile.total_money) < price) throw new Error('Not enough money to purchase this car');
+  const ownedCars = getLocalOwnedCars();
+  const car = LOCAL_CARS.find((entry) => entry.id === carId);
+  const finalProfile = recalculateLocalEconomy({
+    profile: {
+      ...profile,
+      total_money: Number(profile.total_money) - price,
+      selected_car_id: carId,
+      vehicle_expense: Number(car?.hourly_maintenance_cost || 0),
+    },
+    jobs: getLocalJobs(),
+    playerJobs: getLocalPlayerJobs(),
+    businesses: getLocalBusinesses(),
+    investments: getLocalInvestments(),
   });
-
-  return result;
+  saveLocalGameState({
+    profile: finalProfile,
+    ownedCars: ownedCars.includes(carId) ? ownedCars : [...ownedCars, carId],
+  });
+  return { success: true, message: 'Car purchased', new_balance: Number(finalProfile.total_money) };
 }
 
-// Karakter ve evler için orijinal Client-Side kayıt
 export async function purchaseGeneralItem(
   playerId: string, 
   itemType: 'character' | 'house', 
   itemId: string, 
   price: number
 ) {
-  const { error } = await supabase.from('player_purchases').insert({
-    player_id: playerId,
-    item_type: itemType,
-    item_id: itemId,
-    purchase_price: price,
-  });
+  void playerId;
+  const profile = getLocalProfile();
+  if (!profile) throw new Error('Player not found');
+  if (itemType === 'character' && Number(profile.total_money) < price) throw new Error('Not enough money');
 
-  if (error) throw error;
+  const nextProfile =
+    itemType === 'character'
+      ? {
+          ...profile,
+          total_money: Number(profile.total_money) - price,
+          selected_character_id: itemId,
+        }
+      : {
+          ...profile,
+          selected_house_id: itemId,
+        };
+  const finalProfile = itemType === 'house'
+    ? recalculateLocalEconomy({
+        profile: nextProfile,
+        jobs: getLocalJobs(),
+        playerJobs: getLocalPlayerJobs(),
+        businesses: getLocalBusinesses(),
+        investments: getLocalInvestments(),
+      })
+    : recalculateLocalPrestige({
+      profile: nextProfile,
+      jobs: getLocalJobs(),
+      playerJobs: getLocalPlayerJobs(),
+      businesses: getLocalBusinesses(),
+    });
+
+  saveLocalGameState({
+    profile: finalProfile,
+    ownedCharacters:
+      itemType === 'character'
+        ? Array.from(new Set([...getLocalOwnedCharacters(), itemId]))
+        : getLocalOwnedCharacters(),
+    ownedHouses:
+      itemType === 'house'
+        ? Array.from(new Set([...getLocalOwnedHouses(), itemId]))
+        : getLocalOwnedHouses(),
+  });
   return true;
 }

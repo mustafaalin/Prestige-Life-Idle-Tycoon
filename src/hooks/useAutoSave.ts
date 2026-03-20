@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
 import type { PlayerProfile } from '../types/game';
 
 interface UseAutoSaveOptions {
@@ -28,16 +27,8 @@ export function useAutoSave({
     if (!profile || !userId || moneyMutationInFlight) return;
 
     onMutationStart();
-
     try {
-      await supabase
-        .from('player_profiles')
-        .update({ total_money: profile.total_money })
-        .eq('id', userId);
-
       onSaveComplete();
-    } catch (error) {
-      console.error('Error flushing pending money:', error);
     } finally {
       onMutationEnd();
     }

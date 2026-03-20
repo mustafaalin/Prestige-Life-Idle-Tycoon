@@ -1,65 +1,163 @@
-import { supabase } from '../lib/supabase';
+import {
+  getLocalBusinesses,
+  getLocalCharacters,
+  getLocalInvestments,
+  getLocalJobs,
+  getLocalOutfits,
+  getLocalOwnedCars,
+  getLocalOwnedCharacters,
+  getLocalOwnedHouses,
+  getLocalPlayerJobs,
+  getLocalPlayerOutfits,
+  getLocalProfile,
+  saveLocalGameState,
+} from '../data/local/storage';
+import { LOCAL_HOUSES } from '../data/local/houses';
+import { LOCAL_CARS } from '../data/local/cars';
+import { recalculateLocalEconomy, recalculateLocalPrestige } from '../data/local/economy';
 
 export async function getCharacters() {
-  const { data, error } = await supabase.from('characters').select('*').order('unlock_order');
-  if (error) throw error;
-  return data || [];
+  return getLocalCharacters();
 }
 
 export async function getHouses() {
-  const { data, error } = await supabase.from('houses').select('*').order('level');
-  if (error) throw error;
-  return data || [];
+  return LOCAL_HOUSES;
 }
 
 export async function getCars() {
-  const { data, error } = await supabase.from('cars').select('*').order('level');
-  if (error) throw error;
-  return data || [];
+  return LOCAL_CARS;
 }
 
 export async function getOwnedCharacters(playerId: string) {
-  const { data, error } = await supabase.from('player_purchases')
-    .select('item_id')
-    .eq('player_id', playerId)
-    .eq('item_type', 'character');
-  if (error) throw error;
-  return data?.map(d => d.item_id) || [];
+  void playerId;
+  return getLocalOwnedCharacters();
 }
 
 export async function getOwnedHouses(playerId: string) {
-  const { data, error } = await supabase.from('player_purchases')
-    .select('item_id')
-    .eq('player_id', playerId)
-    .eq('item_type', 'house');
-  if (error) throw error;
-  return data?.map(d => d.item_id) || [];
+  void playerId;
+  return getLocalOwnedHouses();
 }
 
 export async function getOwnedCars(playerId: string) {
-  const { data, error } = await supabase.from('player_purchases')
-    .select('item_id')
-    .eq('player_id', playerId)
-    .eq('item_type', 'car');
-  if (error) throw error;
-  return data?.map(d => d.item_id) || [];
+  void playerId;
+  return getLocalOwnedCars();
 }
 
 export async function getSelectedOutfit(playerId: string) {
-  const { data, error } = await supabase.from('player_profiles')
-    .select('selected_outfit_id')
-    .eq('id', playerId)
-    .single();
-  if (error) return null;
-  
-  if (!data?.selected_outfit_id) return null;
+  const profile = getLocalProfile();
+  const outfits = getLocalOutfits();
+  if (!profile || profile.id !== playerId || !profile.selected_outfit_id) return null;
+  return outfits.find((outfit) => outfit.id === profile.selected_outfit_id) || null;
+}
 
-  const { data: outfit } = await supabase.from('character_outfits')
-    .select('*')
-    .eq('id', data.selected_outfit_id)
-    .single();
-    
-  return outfit || null;
+export async function getCharacterOutfits(playerId: string) {
+  const outfits = getLocalOutfits();
+  const playerOutfits = getLocalPlayerOutfits().filter((entry) => entry.player_id === playerId);
+  return outfits
+    .map((outfit) => {
+      const ownedEntry = playerOutfits.find((entry) => entry.outfit_id === outfit.id);
+      return {
+        ...outfit,
+        is_owned: Boolean(ownedEntry?.is_owned),
+        is_unlocked: Boolean(ownedEntry?.is_unlocked),
+      };
+    })
+    .sort((a, b) => a.unlock_order - b.unlock_order);
+}
+
+export async function purchaseOutfit(playerId: string, outfitId: string, setAsSelected: boolean) {
+  const profile = getLocalProfile();
+  if (!profile) throw new Error('Player not found');
+
+  const outfits = getLocalOutfits();
+  const outfit = outfits.find((entry) => entry.id === outfitId && entry.is_active);
+  if (!outfit) {
+    return { success: false, message: 'Outfit not found or not active' };
+  }
+
+  const playerOutfits = getLocalPlayerOutfits();
+  const alreadyOwned = playerOutfits.find(
+    (entry) => entry.player_id === playerId && entry.outfit_id === outfitId && entry.is_owned
+  );
+
+  if (alreadyOwned) {
+    return { success: false, message: 'Outfit already owned' };
+  }
+
+  if (Number(profile.total_money) < Number(outfit.price || 0)) {
+    return { success: false, message: 'Not enough money to purchase outfit' };
+  }
+
+  const now = new Date().toISOString();
+  const nextPlayerOutfits = [
+    ...playerOutfits,
+    {
+      player_id: playerId,
+      outfit_id: outfitId,
+      is_owned: true,
+      is_unlocked: true,
+      purchased_at: now,
+      unlocked_at: now,
+      created_at: now,
+    },
+  ];
+
+  const nextProfile = recalculateLocalPrestige({
+    profile: {
+      ...profile,
+      total_money: Number(profile.total_money) - Number(outfit.price || 0),
+      selected_outfit_id: setAsSelected ? outfitId : profile.selected_outfit_id,
+      last_played_at: now,
+    },
+    jobs: getLocalJobs(),
+    playerJobs: getLocalPlayerJobs(),
+    businesses: getLocalBusinesses(),
+    selectedOutfit: setAsSelected ? outfit : undefined,
+  });
+
+  saveLocalGameState({
+    profile: nextProfile,
+    playerOutfits: nextPlayerOutfits,
+    selectedOutfit: outfits.find((entry) => entry.id === nextProfile.selected_outfit_id) || null,
+  });
+
+  return {
+    success: true,
+    message: 'Outfit purchased successfully',
+    prestige_earned: outfit.prestige_points,
+    money_spent: outfit.price,
+  };
+}
+
+export async function selectOutfit(playerId: string, outfitId: string) {
+  const profile = getLocalProfile();
+  if (!profile) throw new Error('Player not found');
+
+  const owned = getLocalPlayerOutfits().find(
+    (entry) => entry.player_id === playerId && entry.outfit_id === outfitId && entry.is_owned
+  );
+
+  if (!owned) throw new Error('Outfit not owned');
+
+  const outfits = getLocalOutfits();
+  const selectedOutfit = outfits.find((entry) => entry.id === outfitId) || null;
+  const nextProfile = recalculateLocalPrestige({
+    profile: {
+      ...profile,
+      selected_outfit_id: outfitId,
+      last_played_at: new Date().toISOString(),
+    },
+    jobs: getLocalJobs(),
+    playerJobs: getLocalPlayerJobs(),
+    businesses: getLocalBusinesses(),
+    selectedOutfit,
+  });
+
+  saveLocalGameState({
+    profile: nextProfile,
+    selectedOutfit,
+  });
+  return true;
 }
 
 // -------------------------------------------------------------
@@ -67,37 +165,49 @@ export async function getSelectedOutfit(playerId: string) {
 // -------------------------------------------------------------
 
 export async function selectCharacter(playerId: string, characterId: string) {
-  const { data, error } = await supabase.rpc('select_character', {
-    p_player_id: playerId,
-    p_character_id: characterId,
-  });
-  if (error) {
-    console.error('Error selecting character:', error);
-    throw error;
-  }
-  return data;
+  void playerId;
+  const profile = getLocalProfile();
+  if (!profile) throw new Error('Player not found');
+  saveLocalGameState({ profile: { ...profile, selected_character_id: characterId } });
+  return true;
 }
 
 export async function selectHouse(playerId: string, houseId: string) {
-  const { data, error } = await supabase.rpc('select_house', {
-    p_player_id: playerId,
-    p_house_id: houseId,
+  void playerId;
+  const profile = getLocalProfile();
+  if (!profile) throw new Error('Player not found');
+  const house = LOCAL_HOUSES.find((entry) => entry.id === houseId);
+  const nextProfile = recalculateLocalEconomy({
+    profile: {
+      ...profile,
+      selected_house_id: houseId,
+      house_rent_expense: Number(house?.hourly_rent_cost || 0),
+    },
+    jobs: getLocalJobs(),
+    playerJobs: getLocalPlayerJobs(),
+    businesses: getLocalBusinesses(),
+    investments: getLocalInvestments(),
   });
-  if (error) {
-    console.error('Error selecting house:', error);
-    throw error;
-  }
-  return data;
+  saveLocalGameState({ profile: nextProfile });
+  return true;
 }
 
 export async function selectCar(playerId: string, carId: string) {
-  const { data, error } = await supabase.rpc('select_car', {
-    p_player_id: playerId,
-    p_car_id: carId,
+  void playerId;
+  const profile = getLocalProfile();
+  if (!profile) throw new Error('Player not found');
+  const car = LOCAL_CARS.find((entry) => entry.id === carId);
+  const nextProfile = recalculateLocalEconomy({
+    profile: {
+      ...profile,
+      selected_car_id: carId,
+      vehicle_expense: Number(car?.hourly_maintenance_cost || 0),
+    },
+    jobs: getLocalJobs(),
+    playerJobs: getLocalPlayerJobs(),
+    businesses: getLocalBusinesses(),
+    investments: getLocalInvestments(),
   });
-  if (error) {
-    console.error('Error selecting car:', error);
-    throw error;
-  }
-  return data;
+  saveLocalGameState({ profile: nextProfile });
+  return true;
 }

@@ -1,7 +1,32 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '../lib/supabase';
 import { deviceIdentity } from '../lib/deviceIdentity';
-import type { Database, BusinessWithPlayerData } from '../lib/database.types';
+import type { Database } from '../lib/database.types';
+import { LOCAL_BUSINESSES } from '../data/local/businesses';
+import { LOCAL_INVESTMENTS } from '../data/local/investments';
+import { LOCAL_JOBS } from '../data/local/jobs';
+import { LOCAL_HOUSES, LOCAL_STARTER_HOUSE_ID } from '../data/local/houses';
+import { LOCAL_CARS } from '../data/local/cars';
+import { LOCAL_CHARACTERS, LOCAL_MIKE_CHARACTER_ID } from '../data/local/characters';
+import { createStarterPlayerOutfit, LOCAL_OUTFITS, LOCAL_STARTER_OUTFIT_ID } from '../data/local/outfits';
+import {
+  calculatePrestigeFromQuestProgress,
+  createInitialQuestProgress,
+  getQuestChapterByIndex,
+  getQuestsForChapter,
+  isQuestCompleted,
+  LOCAL_QUESTS,
+  normalizeQuestProgress,
+} from '../data/local/quests';
+import type {
+  BusinessWithPlayerData,
+  InvestmentUpgradeKey,
+  InvestmentWithPlayerData,
+  QuestProgress,
+} from '../types/game';
+import { recalculateLocalEconomy } from '../data/local/economy';
+import { getBusinessPrestigeForLevel } from '../data/local/businessPrestigePoints';
+import { calculateOfflineEarnings } from '../utils/game/calculations';
+import { canAccessCarWithPrestige, canAccessHouseWithPrestige } from '../data/local/prestigeRequirements';
 import { usePassiveIncome } from './usePassiveIncome';
 import { useAutoSave } from './useAutoSave';
 import { useJobTracking } from './useJobTracking';
@@ -11,8 +36,12 @@ import * as jobService from '../services/jobService';
 import * as businessService from '../services/businessService';
 import * as purchaseService from '../services/purchaseService';
 import * as rewardService from '../services/rewardService';
+import * as statsService from '../services/statsService';
+import * as investmentService from '../services/investmentService';
 
-type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'];
+type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'] & {
+  bonus_prestige_points?: number;
+};
 type Character = Database['public']['Tables']['characters']['Row'];
 type House = Database['public']['Tables']['houses']['Row'];
 type Car = Database['public']['Tables']['cars']['Row'];
@@ -20,6 +49,7 @@ type Job = Database['public']['Tables']['jobs']['Row'];
 type PlayerJob = Database['public']['Tables']['player_jobs']['Row'];
 type GameStats = Database['public']['Tables']['game_stats']['Row'];
 type CharacterOutfit = Database['public']['Tables']['character_outfits']['Row'];
+type PlayerOutfit = Database['public']['Tables']['player_outfits']['Row'];
 
 interface GameState {
   profile: PlayerProfile | null;
@@ -29,15 +59,18 @@ interface GameState {
   jobs: Job[];
   playerJobs: PlayerJob[];
   businesses: BusinessWithPlayerData[];
+  investments: InvestmentWithPlayerData[];
   businessesPrestige: number;
   gameStats: GameStats | null;
   ownedCharacters: string[];
   ownedHouses: string[];
   ownedCars: string[];
+  playerOutfits: PlayerOutfit[];
   selectedOutfit: CharacterOutfit | null;
+  questProgress: QuestProgress;
   loading: boolean;
   error: string | null;
-  offlineEarnings: { amount: number; minutes: number } | null;
+  offlineEarnings: { amount: number; minutes: number; appliedMinutes: number } | null;
   jobChangeLockedUntil: number | null;
   claimLockedUntil: string | null;
   dailyClaimedTotal: number;
@@ -48,6 +81,176 @@ interface GameState {
 
 const GAME_STATE_KEY = 'idle_guy_game_state';
 
+function ensurePlayerOutfits(playerId: string, outfits?: PlayerOutfit[]): PlayerOutfit[] {
+  if (outfits?.length) {
+    const hasStarter = outfits.some((outfit) => outfit.outfit_id === LOCAL_STARTER_OUTFIT_ID && outfit.is_owned);
+    return hasStarter ? outfits : [createStarterPlayerOutfit(playerId), ...outfits];
+  }
+
+  return [createStarterPlayerOutfit(playerId)];
+}
+
+function ensureOwnedSelection(ids: string[] | undefined, selectedId: string | null, fallbackIds: string[] = []): string[] {
+  const nextIds = ids?.length ? [...ids] : [...fallbackIds];
+
+  if (selectedId && !nextIds.includes(selectedId)) {
+    nextIds.push(selectedId);
+  }
+
+  return nextIds;
+}
+
+function normalizeGameStats(stats: GameStats | null | undefined, playerId: string): GameStats {
+  return stats
+    ? {
+        ...createLocalGameStats(playerId),
+        ...stats,
+        player_id: playerId,
+      }
+    : createLocalGameStats(playerId);
+}
+
+function createLocalGameStats(playerId: string): GameStats {
+  const now = new Date().toISOString();
+
+  return {
+    id: 'local-game-stats',
+    player_id: playerId,
+    play_time_seconds: 0,
+    highest_combo: 0,
+    achievements_unlocked: [],
+    daily_login_streak: 0,
+    last_daily_reward: null,
+    created_at: now,
+    updated_at: now,
+    claimed_reward_days: [],
+    last_claim_date: null,
+  };
+}
+
+function createLocalProfile(userId: string, deviceId: string): PlayerProfile {
+  const now = new Date().toISOString();
+  const playerName = deviceIdentity.getPlayerName();
+
+  return {
+    id: userId,
+    username: playerName,
+    total_money: 100,
+    lifetime_earnings: 0,
+    money_per_click: 1,
+    total_clicks: 0,
+    prestige_points: 0,
+    selected_character_id: LOCAL_MIKE_CHARACTER_ID,
+    selected_house_id: LOCAL_STARTER_HOUSE_ID,
+    selected_car_id: null,
+    created_at: now,
+    last_played_at: now,
+    device_id: deviceId,
+    display_name: playerName,
+    auth_user_id: userId,
+    linked_at: null,
+    hourly_income: 0,
+    current_job_id: null,
+    gems: 0,
+    last_claim_time: now,
+    last_claim_reset_date: null,
+    daily_claimed_total: 0,
+    claim_locked_until: null,
+    last_ad_watch_time: null,
+    times_reset: 0,
+    last_reset_at: null,
+    job_income: 0,
+    business_income: 0,
+    investment_income: 0,
+    house_rent_expense: 0,
+    vehicle_expense: 0,
+    other_expenses: 0,
+    gross_income: 0,
+    total_expenses: 0,
+    selected_outfit_id: LOCAL_STARTER_OUTFIT_ID,
+  };
+}
+
+function getCurrentQuestFromProgress(progress: QuestProgress) {
+  const chapterQuests = getQuestsForChapter(progress.unlockedChapterIndex);
+
+  return (
+    chapterQuests.find((quest) => progress.claimableQuestIds.includes(quest.id)) ||
+    chapterQuests.find((quest) => !progress.completedQuestIds.includes(quest.id)) ||
+    null
+  );
+}
+
+function syncQuestPrestige(profile: PlayerProfile, questProgress: QuestProgress): PlayerProfile {
+  const questPrestige = calculatePrestigeFromQuestProgress(questProgress);
+
+  return {
+    ...profile,
+    bonus_prestige_points: questPrestige,
+    prestige_points: questPrestige,
+  } as PlayerProfile;
+}
+
+function migrateLocalBusinesses(
+  storedBusinesses: BusinessWithPlayerData[] | undefined,
+  seedBusinesses: BusinessWithPlayerData[]
+): BusinessWithPlayerData[] {
+  if (!storedBusinesses?.length) return seedBusinesses;
+
+  return seedBusinesses.map((seedBusiness) => {
+    const storedBusiness =
+      storedBusinesses.find((business) => business.id === seedBusiness.id) ||
+      storedBusinesses.find((business) => business.unlock_order === seedBusiness.unlock_order) ||
+      storedBusinesses.find((business) => business.name === seedBusiness.name);
+
+    if (!storedBusiness) {
+      return seedBusiness;
+    }
+
+    const currentLevel = storedBusiness.current_level ?? seedBusiness.current_level ?? 1;
+    const resolvedPrestigePoints = getBusinessPrestigeForLevel(seedBusiness.id, currentLevel);
+
+    return {
+      ...seedBusiness,
+      is_owned: storedBusiness.is_owned ?? seedBusiness.is_owned,
+      can_unlock: storedBusiness.can_unlock ?? seedBusiness.can_unlock,
+      current_level: currentLevel,
+      current_hourly_income: storedBusiness.current_hourly_income ?? seedBusiness.current_hourly_income,
+      total_invested: storedBusiness.total_invested ?? seedBusiness.total_invested,
+      current_prestige_points: resolvedPrestigePoints,
+    };
+  });
+}
+
+function migrateLocalInvestments(
+  storedInvestments: InvestmentWithPlayerData[] | undefined,
+  seedInvestments: InvestmentWithPlayerData[]
+): InvestmentWithPlayerData[] {
+  if (!storedInvestments?.length) return seedInvestments;
+
+  return seedInvestments.map((seedInvestment) => {
+    const storedInvestment =
+      storedInvestments.find((investment) => investment.id === seedInvestment.id) ||
+      storedInvestments.find((investment) => investment.sort_order === seedInvestment.sort_order) ||
+      storedInvestments.find((investment) => investment.region === seedInvestment.region);
+
+    if (!storedInvestment) {
+      return seedInvestment;
+    }
+
+    return {
+      ...seedInvestment,
+      is_owned: storedInvestment.is_owned ?? seedInvestment.is_owned,
+      current_level: storedInvestment.current_level ?? seedInvestment.current_level,
+      current_rental_income:
+        storedInvestment.current_rental_income ?? seedInvestment.current_rental_income,
+      total_invested: storedInvestment.total_invested ?? seedInvestment.total_invested,
+      purchased_at: storedInvestment.purchased_at ?? seedInvestment.purchased_at,
+      upgrades_applied: storedInvestment.upgrades_applied ?? seedInvestment.upgrades_applied,
+    };
+  });
+}
+
 export function useGameState(deviceId: string, userId: string | null) {
   const [gameState, setGameState] = useState<GameState>({
     profile: null,
@@ -57,12 +260,15 @@ export function useGameState(deviceId: string, userId: string | null) {
     jobs: [],
     playerJobs: [],
     businesses: [],
+    investments: [],
     businessesPrestige: 0,
     gameStats: null,
     ownedCharacters: [],
     ownedHouses: [],
     ownedCars: [],
+    playerOutfits: [],
     selectedOutfit: null,
+    questProgress: createInitialQuestProgress(),
     loading: true,
     error: null,
     offlineEarnings: null,
@@ -75,9 +281,11 @@ export function useGameState(deviceId: string, userId: string | null) {
   });
 
   const isTabVisible = useRef<boolean>(true);
+  const hiddenAtRef = useRef<string | null>(null);
   const gameStateRef = useRef<GameState>(gameState);
   const moneyMutationInFlightRef = useRef<boolean>(false);
   const isCreatingProfileRef = useRef<boolean>(false);
+  const questRewardInFlightRef = useRef<boolean>(false);
 
   useEffect(() => {
     gameStateRef.current = gameState;
@@ -93,6 +301,27 @@ export function useGameState(deviceId: string, userId: string | null) {
     }
   }, []);
 
+  useEffect(() => {
+    if (!gameState.profile) return;
+
+    const expectedPrestige = calculatePrestigeFromQuestProgress(gameState.questProgress);
+    const currentPrestige = Number(gameState.profile.prestige_points || 0);
+    const currentBonusPrestige = Number(
+      (gameState.profile as PlayerProfile).bonus_prestige_points || 0
+    );
+
+    if (currentPrestige === expectedPrestige && currentBonusPrestige === expectedPrestige) {
+      return;
+    }
+
+    const syncedProfile = syncQuestPrestige(gameState.profile as PlayerProfile, gameState.questProgress);
+    setGameState((prev) => ({
+      ...prev,
+      profile: syncedProfile,
+    }));
+    saveToLocalStorage({ profile: syncedProfile });
+  }, [gameState.profile, gameState.questProgress, saveToLocalStorage]);
+
   const loadFromLocalStorage = useCallback((): Partial<GameState> | null => {
     try {
       const stored = localStorage.getItem(GAME_STATE_KEY);
@@ -101,6 +330,114 @@ export function useGameState(deviceId: string, userId: string | null) {
       return null;
     }
   }, []);
+
+  const bootstrapLocalState = useCallback((reason: 'missing_profile' | 'load_error') => {
+    const stored = loadFromLocalStorage();
+    const baseProfile = (stored?.profile as PlayerProfile | undefined) || createLocalProfile(userId || deviceId, deviceId);
+    const normalizedBaseProfile = {
+      ...baseProfile,
+      selected_house_id: baseProfile.selected_house_id || LOCAL_STARTER_HOUSE_ID,
+    };
+    const playerOutfits = ensurePlayerOutfits(
+      normalizedBaseProfile.id,
+      stored?.playerOutfits as PlayerOutfit[] | undefined
+    );
+    const selectedOutfit =
+      LOCAL_OUTFITS.find((outfit) => outfit.id === (normalizedBaseProfile.selected_outfit_id || LOCAL_STARTER_OUTFIT_ID)) || null;
+    const jobs = LOCAL_JOBS;
+    const houses = LOCAL_HOUSES;
+    const cars = LOCAL_CARS;
+    const businesses = migrateLocalBusinesses(
+      stored?.businesses as BusinessWithPlayerData[] | undefined,
+      LOCAL_BUSINESSES
+    );
+    const investments = migrateLocalInvestments(
+      stored?.investments as InvestmentWithPlayerData[] | undefined,
+      LOCAL_INVESTMENTS
+    );
+    const playerJobs = (stored?.playerJobs as PlayerJob[] | undefined) || [];
+    const profile = recalculateLocalEconomy({
+      profile: normalizedBaseProfile,
+      jobs,
+      playerJobs,
+      businesses,
+      investments,
+      selectedOutfit,
+    });
+    const businessesPrestige = businesses
+      .filter((business) => business.is_owned)
+      .reduce((sum, business) => sum + Number(business.current_prestige_points || 0), 0);
+    const gameStats = normalizeGameStats(stored?.gameStats as GameStats | undefined, profile.id);
+    const questProgress = normalizeQuestProgress(stored?.questProgress as QuestProgress | undefined);
+    const syncedProfile = syncQuestPrestige(profile, questProgress);
+    const ownedCharacters = ensureOwnedSelection(
+      stored?.ownedCharacters as string[] | undefined,
+      syncedProfile.selected_character_id,
+      [LOCAL_MIKE_CHARACTER_ID]
+    );
+    const ownedHouses = ensureOwnedSelection(
+      stored?.ownedHouses as string[] | undefined,
+      syncedProfile.selected_house_id
+    );
+    const ownedCars = ensureOwnedSelection(
+      stored?.ownedCars as string[] | undefined,
+      syncedProfile.selected_car_id
+    );
+
+    saveToLocalStorage({
+      profile: syncedProfile,
+      characters: LOCAL_CHARACTERS,
+      houses,
+      cars,
+      jobs,
+      businesses,
+      investments,
+      businessesPrestige,
+      playerJobs,
+      playerOutfits,
+      gameStats,
+      questProgress,
+      ownedCharacters,
+      ownedHouses,
+      ownedCars,
+      selectedOutfit,
+      jobChangeLockedUntil:
+        typeof stored?.jobChangeLockedUntil === 'number' && stored.jobChangeLockedUntil > Date.now()
+          ? stored.jobChangeLockedUntil
+          : null,
+    });
+
+    setGameState({
+      profile: syncedProfile,
+      characters: LOCAL_CHARACTERS,
+      houses,
+      cars,
+      jobs,
+      playerJobs,
+      businesses,
+      investments,
+      businessesPrestige,
+      gameStats,
+      ownedCharacters,
+      ownedHouses,
+      ownedCars,
+      playerOutfits,
+      selectedOutfit,
+      questProgress,
+      loading: false,
+      error: reason === 'load_error' ? 'Supabase unavailable, local mode active.' : null,
+      offlineEarnings: null,
+      jobChangeLockedUntil:
+        typeof stored?.jobChangeLockedUntil === 'number' && stored.jobChangeLockedUntil > Date.now()
+          ? stored.jobChangeLockedUntil
+          : null,
+      claimLockedUntil: profile.claim_locked_until || null,
+      dailyClaimedTotal: profile.daily_claimed_total || 0,
+      businessesLoading: false,
+      unsavedJobWorkSeconds: 0,
+      pendingMoneyDelta: 0,
+    });
+  }, [deviceId, loadFromLocalStorage, saveToLocalStorage, userId]);
 
   const incomePerSecond = gameState.profile ? Number(gameState.profile.hourly_income || 0) / 3600 : 0;
 
@@ -127,10 +464,33 @@ export function useGameState(deviceId: string, userId: string | null) {
     setGameState((prev) => ({ ...prev, unsavedJobWorkSeconds: seconds }));
   }, []);
 
+  const handleJobWorkTimeSync = useCallback((jobId: string, secondsToAdd: number) => {
+    if (secondsToAdd <= 0) return;
+
+    setGameState((prev) => {
+      const syncTimestamp = new Date().toISOString();
+      const nextPlayerJobs = prev.playerJobs.map((job) =>
+        job.job_id === jobId && job.is_active
+          ? {
+              ...job,
+              total_time_worked_seconds: (job.total_time_worked_seconds || 0) + secondsToAdd,
+              last_work_started_at: syncTimestamp,
+            }
+          : job
+      );
+
+      saveToLocalStorage({ playerJobs: nextPlayerJobs });
+      return {
+        ...prev,
+        playerJobs: nextPlayerJobs,
+      };
+    });
+  }, [saveToLocalStorage]);
+
   usePassiveIncome({
     profile: gameState.profile,
     incomePerSecond,
-    isTabVisible,
+    isTabVisible: isTabVisible.current,
     onMoneyUpdate: handleMoneyUpdate,
   });
 
@@ -149,47 +509,119 @@ export function useGameState(deviceId: string, userId: string | null) {
     jobs: gameState.jobs,
     playerJobs: gameState.playerJobs,
     isTabVisible,
-    onJobWorkTimeSync: () => {}, 
+    onJobWorkTimeSync: handleJobWorkTimeSync,
     onJobWorkSecondsUpdate: handleJobWorkSecondsUpdate,
   });
 
   useEffect(() => {
-    const handleVisibilityChange = () => { isTabVisible.current = !document.hidden; };
+    const handleVisibilityChange = () => {
+      isTabVisible.current = !document.hidden;
+
+      const currentProfile = gameStateRef.current.profile;
+      if (!currentProfile) return;
+
+      if (document.hidden) {
+        const hiddenAt = new Date().toISOString();
+        hiddenAtRef.current = hiddenAt;
+
+        const updatedProfile = {
+          ...currentProfile,
+          last_played_at: hiddenAt,
+        };
+
+        gameStateRef.current = {
+          ...gameStateRef.current,
+          profile: updatedProfile,
+        };
+        saveToLocalStorage({ profile: updatedProfile });
+        return;
+      }
+
+      const lastPlayedAt = hiddenAtRef.current || currentProfile.last_played_at;
+      const offlineReward = calculateOfflineEarnings({
+        ...currentProfile,
+        last_played_at: lastPlayedAt,
+      });
+      const resumedAt = new Date().toISOString();
+      const updatedProfile = {
+        ...currentProfile,
+        last_played_at: resumedAt,
+      };
+
+      hiddenAtRef.current = null;
+      setGameState((prev) => ({
+        ...prev,
+        profile: updatedProfile,
+        offlineEarnings:
+          offlineReward && offlineReward.amount > 0
+            ? offlineReward
+            : prev.offlineEarnings,
+      }));
+      gameStateRef.current = {
+        ...gameStateRef.current,
+        profile: updatedProfile,
+        offlineEarnings:
+          offlineReward && offlineReward.amount > 0
+            ? offlineReward
+            : gameStateRef.current.offlineEarnings,
+      };
+      saveToLocalStorage({ profile: updatedProfile });
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => { document.removeEventListener('visibilitychange', handleVisibilityChange); };
-  }, []);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [saveToLocalStorage]);
 
   const flushPendingIfNeeded = useCallback(async () => {
-    const pending = gameStateRef.current.pendingMoneyDelta;
-    if (pending === 0) return;
-    const activeId = gameStateRef.current.profile?.id;
-    if (!activeId) return;
-
-    moneyMutationInFlightRef.current = true;
-    try {
-      await supabase
-        .from('player_profiles')
-        .update({ total_money: gameStateRef.current.profile!.total_money })
-        .eq('id', activeId);
-      setGameState(prev => ({ ...prev, pendingMoneyDelta: 0 }));
-    } catch (error) {
-      console.error('Error flushing pending money:', error);
-    } finally {
-      moneyMutationInFlightRef.current = false;
-    }
+    setGameState((prev) => ({ ...prev, pendingMoneyDelta: 0 }));
   }, []);
 
   const loadBusinesses = useCallback(async (profileId: string) => {
     if (!profileId) return setGameState(prev => ({ ...prev, businessesLoading: false }));
     try {
       setGameState(prev => ({ ...prev, businessesLoading: true }));
-      const result = await businessService.getBusinesses(profileId);
-      setGameState(prev => ({
-        ...prev,
-        businesses: result.businesses,
-        businessesPrestige: result.businessesPrestige,
-        businessesLoading: false,
-      }));
+      const [result, investmentResult] = await Promise.all([
+        businessService.getBusinesses(profileId),
+        investmentService.getInvestments(profileId),
+      ]);
+      setGameState(prev => {
+        if (!prev.profile) {
+          return {
+            ...prev,
+            businesses: result.businesses,
+            investments: investmentResult.investments,
+            businessesPrestige: result.businessesPrestige ?? result.prestigePoints ?? 0,
+            businessesLoading: false,
+          };
+        }
+
+        const recalculatedProfile = recalculateLocalEconomy({
+          profile: prev.profile,
+          jobs: prev.jobs,
+          playerJobs: prev.playerJobs,
+          businesses: result.businesses,
+          investments: investmentResult.investments,
+          selectedOutfit: prev.selectedOutfit,
+        });
+
+        saveToLocalStorage({
+          profile: recalculatedProfile,
+          businesses: result.businesses,
+          investments: investmentResult.investments,
+          businessesPrestige: result.businessesPrestige ?? result.prestigePoints ?? 0,
+        });
+
+        return {
+          ...prev,
+          profile: recalculatedProfile,
+          businesses: result.businesses,
+          investments: investmentResult.investments,
+          businessesPrestige: result.businessesPrestige ?? result.prestigePoints ?? 0,
+          businessesLoading: false,
+        };
+      });
     } catch (error) {
       setGameState(prev => ({ ...prev, businessesLoading: false }));
     }
@@ -202,75 +634,91 @@ export function useGameState(deviceId: string, userId: string | null) {
       const profile = await profileService.getProfile(userId, deviceId);
       
       if (!profile) {
-        setGameState(prev => ({ ...prev, loading: false }));
+        bootstrapLocalState('missing_profile');
         return;
       }
 
       const activeId = profile.id;
 
-      const [charactersRes, housesRes, carsRes, purchasesRes, jobsRes, playerJobsRes, gameStatsRes] = await Promise.all([
+      const [charactersRes, housesRes, carsRes, ownedCharacters, ownedHouses, ownedCars, jobsRes, playerJobsRes, gameStatsRes, investmentsRes] = await Promise.all([
         itemService.getCharacters(),
         itemService.getHouses(),
         itemService.getCars(),
-        supabase.from('player_purchases').select('*').eq('player_id', activeId),
+        itemService.getOwnedCharacters(activeId),
+        itemService.getOwnedHouses(activeId),
+        itemService.getOwnedCars(activeId),
         jobService.getJobs(),
         jobService.getPlayerJobs(activeId),
-        supabase.from('game_stats').select('*').eq('player_id', activeId).maybeSingle(),
+        statsService.getGameStats(activeId),
+        investmentService.getInvestments(activeId),
       ]);
 
       let currentProfile = profile;
       const localData = loadFromLocalStorage();
       if (!currentProfile && localData?.profile) { currentProfile = localData.profile; }
-
-      let selectedOutfit = null;
-      if (currentProfile?.selected_outfit_id) {
-        selectedOutfit = await itemService.getSelectedOutfit(currentProfile.selected_outfit_id);
+      if (currentProfile) {
+        currentProfile = {
+          ...currentProfile,
+          selected_house_id: currentProfile.selected_house_id || LOCAL_STARTER_HOUSE_ID,
+        };
       }
 
-      const purchases = purchasesRes.data || [];
-      const ownedCharacters = purchases.filter(p => p.item_type === 'character').map(p => p.item_id);
-      const ownedHouses = purchases.filter(p => p.item_type === 'house').map(p => p.item_id);
-      const ownedCars = purchases.filter(p => p.item_type === 'car').map(p => p.item_id);
+      const playerOutfits = ensurePlayerOutfits(
+        activeId,
+        (localData?.playerOutfits as PlayerOutfit[] | undefined) || undefined
+      );
+      let selectedOutfit = null;
+      if (currentProfile?.selected_outfit_id) {
+        selectedOutfit = await itemService.getSelectedOutfit(currentProfile.id);
+      }
+      if (!selectedOutfit) {
+        selectedOutfit =
+          LOCAL_OUTFITS.find((outfit) => outfit.id === (currentProfile?.selected_outfit_id || LOCAL_STARTER_OUTFIT_ID)) || null;
+      }
 
-      if (currentProfile?.selected_character_id && !ownedCharacters.includes(currentProfile.selected_character_id)) ownedCharacters.push(currentProfile.selected_character_id);
-      if (currentProfile?.selected_house_id && !ownedHouses.includes(currentProfile.selected_house_id)) ownedHouses.push(currentProfile.selected_house_id);
-      if (currentProfile?.selected_car_id && !ownedCars.includes(currentProfile.selected_car_id)) ownedCars.push(currentProfile.selected_car_id);
+      const normalizedOwnedCharacters = ensureOwnedSelection(
+        ownedCharacters,
+        currentProfile?.selected_character_id,
+        [LOCAL_MIKE_CHARACTER_ID]
+      );
+      const normalizedOwnedHouses = ensureOwnedSelection(
+        ownedHouses,
+        currentProfile?.selected_house_id
+      );
+      const normalizedOwnedCars = ensureOwnedSelection(
+        ownedCars,
+        currentProfile?.selected_car_id
+      );
+      const normalizedGameStats = normalizeGameStats(gameStatsRes, activeId);
+      const questProgress = normalizeQuestProgress(localData?.questProgress as QuestProgress | undefined);
+      if (currentProfile) {
+        currentProfile = syncQuestPrestige(currentProfile as PlayerProfile, questProgress);
+      }
 
       const currentPending = gameStateRef.current.pendingMoneyDelta;
       let offlineEarnings = null;
 
-      if (currentProfile && shouldCalculateOfflineEarnings && currentProfile.last_played_at) {
-        const now = new Date();
-        const lastPlayed = new Date(currentProfile.last_played_at);
-        const minutesOffline = Math.floor((now.getTime() - lastPlayed.getTime()) / 1000 / 60);
+      if (currentProfile && shouldCalculateOfflineEarnings) {
+        offlineEarnings = calculateOfflineEarnings(currentProfile);
 
-        if (minutesOffline >= 1 && currentProfile.hourly_income) {
-          const actualMinutes = Math.min(minutesOffline, 12 * 60);
-          const offlineAmount = Math.floor((currentProfile.hourly_income / 60) * actualMinutes * 0.20);
-          
-          if (offlineAmount > 0) {
-            offlineEarnings = { amount: offlineAmount, minutes: minutesOffline };
-            currentProfile = {
-              ...currentProfile,
-              total_money: currentProfile.total_money + offlineAmount,
-              lifetime_earnings: currentProfile.lifetime_earnings + offlineAmount,
-            };
-            await supabase.from('player_profiles').update({
-              total_money: currentProfile.total_money,
-              lifetime_earnings: currentProfile.lifetime_earnings,
-              last_played_at: new Date().toISOString(),
-            }).eq('id', activeId);
-          }
+        if (offlineEarnings) {
+          currentProfile = {
+            ...currentProfile,
+            last_played_at: new Date().toISOString(),
+          };
+          saveToLocalStorage({ profile: currentProfile });
         }
       }
 
       if (currentProfile) { currentProfile = { ...currentProfile, total_money: currentProfile.total_money + currentPending }; }
-
-      const activePlayerJob = (playerJobsRes.data || []).find(pj => pj.is_active);
-      if (activePlayerJob) {
-        await supabase.from('player_jobs').update({ last_work_started_at: new Date().toISOString() })
-          .eq('player_id', activeId).eq('id', activePlayerJob.id);
-      }
+      const storedJobCooldown =
+        typeof localData?.jobChangeLockedUntil === 'number' && localData.jobChangeLockedUntil > Date.now()
+          ? localData.jobChangeLockedUntil
+          : null;
+      const currentJobCooldown =
+        gameStateRef.current.jobChangeLockedUntil && gameStateRef.current.jobChangeLockedUntil > Date.now()
+          ? gameStateRef.current.jobChangeLockedUntil
+          : storedJobCooldown;
 
       setGameState({
         profile: currentProfile,
@@ -278,18 +726,21 @@ export function useGameState(deviceId: string, userId: string | null) {
         houses: housesRes || [],
         cars: carsRes || [],
         jobs: jobsRes || [],
-        playerJobs: playerJobsRes.data || [],
+        playerJobs: playerJobsRes || [],
         businesses: [],
+        investments: investmentsRes?.investments || [],
         businessesPrestige: 0,
-        gameStats: gameStatsRes.data || null,
-        ownedCharacters,
-        ownedHouses,
-        ownedCars,
+        gameStats: normalizedGameStats,
+        ownedCharacters: normalizedOwnedCharacters,
+        ownedHouses: normalizedOwnedHouses,
+        ownedCars: normalizedOwnedCars,
+        playerOutfits,
         selectedOutfit,
+        questProgress,
         loading: false,
         error: null,
         offlineEarnings,
-        jobChangeLockedUntil: null,
+        jobChangeLockedUntil: currentJobCooldown,
         claimLockedUntil: currentProfile?.claim_locked_until || null,
         dailyClaimedTotal: currentProfile?.daily_claimed_total || 0,
         businessesLoading: true,
@@ -297,12 +748,207 @@ export function useGameState(deviceId: string, userId: string | null) {
         pendingMoneyDelta: currentPending,
       });
 
+      saveToLocalStorage({
+        profile: currentProfile,
+        characters: charactersRes || [],
+        houses: housesRes || [],
+        cars: carsRes || [],
+        jobs: jobsRes || [],
+        playerJobs: playerJobsRes || [],
+        investments: investmentsRes?.investments || [],
+        gameStats: normalizedGameStats,
+        ownedCharacters: normalizedOwnedCharacters,
+        ownedHouses: normalizedOwnedHouses,
+        ownedCars: normalizedOwnedCars,
+        playerOutfits,
+        selectedOutfit,
+        questProgress,
+        jobChangeLockedUntil: currentJobCooldown,
+      });
+
       loadBusinesses(activeId);
     } catch (error) {
       console.error('Error loading game data:', error);
-      setGameState(prev => ({ ...prev, loading: false, error: 'Failed to load game data' }));
+      bootstrapLocalState('load_error');
     }
-  }, [userId, deviceId, loadFromLocalStorage, loadBusinesses]);
+  }, [userId, deviceId, loadFromLocalStorage, loadBusinesses, bootstrapLocalState]);
+
+  useEffect(() => {
+    if (questRewardInFlightRef.current) return;
+    if (!gameState.profile) return;
+    const openChapterQuests = getQuestsForChapter(gameState.questProgress.unlockedChapterIndex);
+    if (!openChapterQuests.length) return;
+
+    const snapshot = {
+      profile: gameState.profile,
+      questProgress: gameState.questProgress,
+      gameStats: gameState.gameStats,
+      cars: gameState.cars,
+      jobs: gameState.jobs,
+      playerJobs: gameState.playerJobs,
+      unsavedJobWorkSeconds: gameState.unsavedJobWorkSeconds,
+      ownedCars: gameState.ownedCars,
+      playerOutfits: gameState.playerOutfits,
+      businesses: gameState.businesses,
+      investments: gameState.investments,
+    };
+
+    const newlyCompletedQuestIds = openChapterQuests
+      .filter((quest) => {
+        const alreadyTracked =
+          gameState.questProgress.completedQuestIds.includes(quest.id) ||
+          gameState.questProgress.claimableQuestIds.includes(quest.id);
+
+        if (alreadyTracked) return false;
+        return isQuestCompleted(quest, snapshot);
+      })
+      .map((quest) => quest.id);
+
+    const openChapter = getQuestChapterByIndex(gameState.questProgress.unlockedChapterIndex);
+    const chapterQuestIds = openChapterQuests.map((quest) => quest.id);
+    const completedQuestIds = [
+      ...new Set([...gameState.questProgress.completedQuestIds, ...newlyCompletedQuestIds]),
+    ];
+    const chapterCompleted =
+      chapterQuestIds.length > 0 &&
+      chapterQuestIds.every((questId) => completedQuestIds.includes(questId));
+    const shouldUnlockChapterReward =
+      Boolean(openChapter) &&
+      chapterCompleted &&
+      !gameState.questProgress.claimableChapterRewardId &&
+      !gameState.questProgress.claimedChapterRewardIds.includes(openChapter!.id);
+
+    if (!newlyCompletedQuestIds.length && !shouldUnlockChapterReward) return;
+
+    questRewardInFlightRef.current = true;
+    setGameState((prev) => {
+      const currentChapter = getQuestChapterByIndex(prev.questProgress.unlockedChapterIndex);
+      const nextQuestProgress: QuestProgress = {
+        ...prev.questProgress,
+        completedQuestIds: [
+          ...new Set([...prev.questProgress.completedQuestIds, ...newlyCompletedQuestIds]),
+        ],
+        claimableQuestIds: [
+          ...new Set([...prev.questProgress.claimableQuestIds, ...newlyCompletedQuestIds]),
+        ],
+        claimableChapterRewardId:
+          shouldUnlockChapterReward && currentChapter ? currentChapter.id : prev.questProgress.claimableChapterRewardId,
+      };
+      const nextProfile = prev.profile ? syncQuestPrestige(prev.profile as PlayerProfile, nextQuestProgress) : prev.profile;
+
+      saveToLocalStorage({
+        profile: nextProfile,
+        questProgress: nextQuestProgress,
+      });
+
+      questRewardInFlightRef.current = false;
+      return {
+        ...prev,
+        profile: nextProfile,
+        questProgress: nextQuestProgress,
+      };
+    });
+  }, [
+    gameState.profile,
+    gameState.gameStats,
+    gameState.cars,
+    gameState.jobs,
+    gameState.playerJobs,
+    gameState.ownedCars,
+    gameState.unsavedJobWorkSeconds,
+    gameState.playerOutfits,
+    gameState.businesses,
+    gameState.investments,
+    gameState.questProgress,
+    saveToLocalStorage,
+  ]);
+
+  const claimQuestReward = useCallback(async (questId?: string, rewardMultiplier = 1) => {
+    const claimableQuestId = questId || gameState.questProgress.claimableQuestIds[0];
+    const activeQuest = LOCAL_QUESTS.find((quest) => quest.id === claimableQuestId);
+
+    if (!gameState.profile || !claimableQuestId || !activeQuest) {
+      return null;
+    }
+
+    const normalizedRewardMultiplier = rewardMultiplier > 1 ? 2 : 1;
+    const finalRewardMoney = activeQuest.reward_money * normalizedRewardMultiplier;
+    const finalRewardGems = activeQuest.reward_gems * normalizedRewardMultiplier;
+
+    const nextQuestProgress: QuestProgress = {
+      ...gameState.questProgress,
+      completedQuestIds: [
+        ...new Set([...gameState.questProgress.completedQuestIds, activeQuest.id]),
+      ],
+      claimedQuestIds: [...gameState.questProgress.claimedQuestIds, activeQuest.id],
+      claimableQuestIds: gameState.questProgress.claimableQuestIds.filter((id) => id !== activeQuest.id),
+      totalClaimedMoney: gameState.questProgress.totalClaimedMoney + finalRewardMoney,
+      totalClaimedGems: gameState.questProgress.totalClaimedGems + finalRewardGems,
+    };
+    const nextProfile = syncQuestPrestige({
+      ...gameState.profile,
+      total_money: Number(gameState.profile.total_money || 0) + finalRewardMoney,
+      lifetime_earnings: Number(gameState.profile.lifetime_earnings || 0) + finalRewardMoney,
+      gems: Number(gameState.profile.gems || 0) + finalRewardGems,
+    } as PlayerProfile, nextQuestProgress);
+
+    setGameState((prev) => ({
+      ...prev,
+      profile: nextProfile,
+      questProgress: nextQuestProgress,
+    }));
+
+    saveToLocalStorage({
+      profile: nextProfile,
+      questProgress: nextQuestProgress,
+    });
+
+    return {
+      success: true,
+      rewardMoney: finalRewardMoney,
+      rewardGems: finalRewardGems,
+      questId: activeQuest.id,
+    };
+  }, [gameState.profile, gameState.questProgress, saveToLocalStorage]);
+
+  const claimQuestChapterReward = useCallback(async () => {
+    const claimableChapterRewardId = gameState.questProgress.claimableChapterRewardId;
+    const chapterIndex = gameState.questProgress.unlockedChapterIndex;
+    const chapter = getQuestChapterByIndex(chapterIndex);
+
+    if (!gameState.profile || !claimableChapterRewardId || !chapter || chapter.id !== claimableChapterRewardId) {
+      return null;
+    }
+
+    const nextQuestProgress: QuestProgress = {
+      ...gameState.questProgress,
+      unlockedChapterIndex: Math.min(gameState.questProgress.unlockedChapterIndex + 1, 9),
+      claimableChapterRewardId: null,
+      claimedChapterRewardIds: [...gameState.questProgress.claimedChapterRewardIds, chapter.id],
+      totalClaimedMoney: gameState.questProgress.totalClaimedMoney,
+      totalClaimedGems: gameState.questProgress.totalClaimedGems,
+    };
+    const nextProfile = syncQuestPrestige({
+      ...gameState.profile,
+    } as PlayerProfile, nextQuestProgress);
+
+    setGameState((prev) => ({
+      ...prev,
+      profile: nextProfile,
+      questProgress: nextQuestProgress,
+    }));
+
+    saveToLocalStorage({
+      profile: nextProfile,
+      questProgress: nextQuestProgress,
+    });
+
+    return {
+      success: true,
+      rewardPrestigePoints: chapter.reward_prestige_points,
+      chapterId: chapter.id,
+    };
+  }, [gameState.profile, gameState.questProgress, saveToLocalStorage]);
 
   // EKSİK OLAN VE OYUNUN AÇILMASINI ENGELLEYEN İLK VERİ YÜKLEYİCİ
   useEffect(() => {
@@ -330,13 +976,18 @@ export function useGameState(deviceId: string, userId: string | null) {
     isCreatingProfileRef.current = true;
     try {
       const newProfile = await profileService.createProfile(userId, deviceId);
-      if (newProfile) await loadGameData(false);
+      if (newProfile) {
+        await loadGameData(false);
+      } else {
+        bootstrapLocalState('missing_profile');
+      }
     } catch (error) {
       console.error('Error creating profile:', error);
+      bootstrapLocalState('load_error');
     } finally {
       isCreatingProfileRef.current = false;
     }
-  }, [userId, deviceId, loadGameData]);
+  }, [userId, deviceId, loadGameData, bootstrapLocalState]);
 
   const handleClick = useCallback(() => {
     if (!gameState.profile) return;
@@ -366,7 +1017,13 @@ export function useGameState(deviceId: string, userId: string | null) {
   const purchaseitem = useCallback(async (itemType: 'character' | 'house' | 'car', itemId: string, price: number) => {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
-    if (gameState.profile!.total_money < price) return false;
+    if (itemType !== 'house' && gameState.profile!.total_money < price) return false;
+    if (itemType === 'car') {
+      const targetCar = gameState.cars.find((car) => car.id === itemId);
+      if (!targetCar || !canAccessCarWithPrestige(targetCar, Number(gameState.profile?.prestige_points || 0))) {
+        return false;
+      }
+    }
 
     try {
       if (itemType === 'car') {
@@ -378,40 +1035,45 @@ export function useGameState(deviceId: string, userId: string | null) {
         return true;
       } else {
         await purchaseService.purchaseGeneralItem(activeId, itemType, itemId, price);
-        
-        const newTotalMoney = gameState.profile!.total_money - price;
-        const updateData: any = { total_money: newTotalMoney };
-        if (itemType === 'character') updateData.selected_character_id = itemId;
-        
-        await saveProfile(updateData);
+
         setGameState(prev => {
-          const newOwned = itemType === 'character' ? [...prev.ownedCharacters, itemId] : [...prev.ownedHouses, itemId];
+          const newOwned =
+            itemType === 'character'
+              ? Array.from(new Set([...prev.ownedCharacters, itemId]))
+              : Array.from(new Set([...prev.ownedHouses, itemId]));
           return {
             ...prev,
             [itemType === 'character' ? 'ownedCharacters' : 'ownedHouses']: newOwned,
           };
         });
+        await loadGameData(false);
         return true;
       }
     } catch (error) {
       moneyMutationInFlightRef.current = false;
       return false;
     }
-  }, [gameState.profile, saveProfile, loadGameData, flushPendingIfNeeded]);
+  }, [gameState.profile, gameState.cars, loadGameData, flushPendingIfNeeded]);
 
   const selectCar = useCallback(async (carId: string) => {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
+    if (!gameState.ownedCars.includes(carId)) return false;
     try {
       await itemService.selectCar(activeId, carId);
       await loadGameData(false);
       return true;
     } catch (error) { return false; }
-  }, [gameState.profile?.id, loadGameData]);
+  }, [gameState.profile?.id, gameState.ownedCars, loadGameData]);
 
   const selectHouse = useCallback(async (houseId: string) => {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
+    const targetHouse = gameState.houses.find((house) => house.id === houseId);
+    const isCurrentHouse = gameState.profile?.selected_house_id === houseId;
+    if (!targetHouse || (!isCurrentHouse && !canAccessHouseWithPrestige(targetHouse, Number(gameState.profile?.prestige_points || 0)))) {
+      return false;
+    }
     try {
       moneyMutationInFlightRef.current = true;
       await flushPendingIfNeeded();
@@ -423,7 +1085,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       moneyMutationInFlightRef.current = false;
       return false; 
     }
-  }, [gameState.profile?.id, loadGameData, flushPendingIfNeeded]);
+  }, [gameState.profile, gameState.houses, loadGameData, flushPendingIfNeeded]);
 
   const selectCharacter = useCallback(async (characterId: string) => {
     await saveProfile({ selected_character_id: characterId });
@@ -449,15 +1111,64 @@ export function useGameState(deviceId: string, userId: string | null) {
 
     try {
       const result = await jobService.selectJob(activeId, jobId, currentActiveJob, unsaved);
+      gameStateRef.current = {
+        ...gameStateRef.current,
+        jobChangeLockedUntil: result.lockedUntil,
+        unsavedJobWorkSeconds: 0,
+      };
       setGameState(prev => ({ 
         ...prev, 
         jobChangeLockedUntil: result.lockedUntil, 
         unsavedJobWorkSeconds: 0 
       }));
+      saveToLocalStorage({ jobChangeLockedUntil: result.lockedUntil });
       await loadGameData(false);
       return true;
     } catch (error) { return false; }
   }, [gameState.profile?.id, gameState.playerJobs, gameState.jobChangeLockedUntil, gameState.unsavedJobWorkSeconds, loadGameData]);
+
+  const skipJobCooldown = useCallback(async () => {
+    if (!gameState.profile?.id) return false;
+
+    const activePlayerJob = gameState.playerJobs.find((job) => job.is_active);
+    if (!activePlayerJob) return false;
+
+    const requiredSeconds = 180;
+    const currentWorkedSeconds =
+      Number(activePlayerJob.total_time_worked_seconds || 0) + Number(gameState.unsavedJobWorkSeconds || 0);
+    const missingSeconds = Math.max(0, requiredSeconds - currentWorkedSeconds);
+    const syncTimestamp = new Date().toISOString();
+    const nextPlayerJobs = gameState.playerJobs.map((job) =>
+      job.id === activePlayerJob.id
+        ? {
+            ...job,
+            total_time_worked_seconds: (job.total_time_worked_seconds || 0) + missingSeconds,
+            last_work_started_at: syncTimestamp,
+          }
+        : job
+    );
+
+    gameStateRef.current = {
+      ...gameStateRef.current,
+      jobChangeLockedUntil: null,
+      playerJobs: nextPlayerJobs,
+      unsavedJobWorkSeconds: 0,
+    };
+
+    setGameState((prev) => ({
+      ...prev,
+      jobChangeLockedUntil: null,
+      playerJobs: nextPlayerJobs,
+      unsavedJobWorkSeconds: 0,
+    }));
+
+    saveToLocalStorage({
+      jobChangeLockedUntil: null,
+      playerJobs: nextPlayerJobs,
+    });
+
+    return true;
+  }, [gameState.profile?.id, gameState.playerJobs, gameState.unsavedJobWorkSeconds, saveToLocalStorage]);
 
   const purchaseBusiness = useCallback(async (businessId: string) => {
     const activeId = gameState.profile?.id;
@@ -491,6 +1202,38 @@ export function useGameState(deviceId: string, userId: string | null) {
     }
   }, [gameState.profile?.id, loadGameData, flushPendingIfNeeded]);
 
+  const purchaseInvestment = useCallback(async (investmentId: string) => {
+    const activeId = gameState.profile?.id;
+    if (!activeId) return false;
+    try {
+      moneyMutationInFlightRef.current = true;
+      await flushPendingIfNeeded();
+      await investmentService.purchaseInvestment(activeId, investmentId);
+      moneyMutationInFlightRef.current = false;
+      await loadGameData(false);
+      return true;
+    } catch (error) {
+      moneyMutationInFlightRef.current = false;
+      return false;
+    }
+  }, [gameState.profile?.id, loadGameData, flushPendingIfNeeded]);
+
+  const upgradeInvestment = useCallback(async (investmentId: string, upgradeKey: InvestmentUpgradeKey) => {
+    const activeId = gameState.profile?.id;
+    if (!activeId) return false;
+    try {
+      moneyMutationInFlightRef.current = true;
+      await flushPendingIfNeeded();
+      await investmentService.upgradeInvestment(activeId, investmentId, upgradeKey);
+      moneyMutationInFlightRef.current = false;
+      await loadGameData(false);
+      return true;
+    } catch (error) {
+      moneyMutationInFlightRef.current = false;
+      return false;
+    }
+  }, [gameState.profile?.id, loadGameData, flushPendingIfNeeded]);
+
   const claimDailyReward = useCallback(async () => {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
@@ -501,35 +1244,81 @@ export function useGameState(deviceId: string, userId: string | null) {
     } catch (error) { return false; }
   }, [gameState.profile?.id, loadGameData]);
 
+  const rescueDailyRewardStreak = useCallback(async () => {
+    const activeId = gameState.profile?.id;
+    if (!activeId) return { success: false, cooldown: 0 };
+    try {
+      const result = await rewardService.rescueDailyRewardStreak(activeId);
+      await loadGameData();
+      return result;
+    } catch (error) { return { success: false, cooldown: 0 }; }
+  }, [gameState.profile?.id, loadGameData]);
+
   const claimAccumulatedMoney = useCallback(async (isTriple: boolean) => {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
     try {
-      const result = await rewardService.claimAccumulatedMoney(activeId, isTriple);
-      if(result && gameState.profile) {
-          saveToLocalStorage({
-             profile: { ...gameState.profile, total_money: result.new_total, last_claim_time: new Date().toISOString() }
-          });
-      }
-      await loadGameData();
+      await rewardService.claimAccumulatedMoney(activeId, isTriple);
+      setGameState((prev) => {
+        const nextQuestProgress = {
+          ...prev.questProgress,
+          accumulatedMoneyClaimCount: prev.questProgress.accumulatedMoneyClaimCount + 1,
+        };
+
+        saveToLocalStorage({ questProgress: nextQuestProgress });
+
+        return {
+          ...prev,
+          questProgress: nextQuestProgress,
+        };
+      });
+      await loadGameData(false);
       return true;
     } catch (error) { return false; }
-  }, [gameState.profile, loadGameData, saveToLocalStorage]);
+  }, [gameState.profile?.id, loadGameData, saveToLocalStorage]);
+
+  const claimOfflineEarnings = useCallback(async (multiplier = 1) => {
+    const pendingOfflineEarnings = gameStateRef.current.offlineEarnings;
+    const currentProfile = gameStateRef.current.profile;
+
+    if (!currentProfile || !pendingOfflineEarnings || pendingOfflineEarnings.amount <= 0) {
+      return false;
+    }
+
+    const normalizedMultiplier = multiplier > 1 ? 2 : 1;
+    const claimedAmount = pendingOfflineEarnings.amount * normalizedMultiplier;
+
+    const updatedProfile = {
+      ...currentProfile,
+      total_money: Number(currentProfile.total_money || 0) + claimedAmount,
+      lifetime_earnings:
+        Number(currentProfile.lifetime_earnings || 0) + claimedAmount,
+      last_played_at: new Date().toISOString(),
+    };
+
+    setGameState((prev) => ({
+      ...prev,
+      profile: updatedProfile,
+      offlineEarnings: null,
+    }));
+
+    saveToLocalStorage({ profile: updatedProfile });
+    return true;
+  }, [saveToLocalStorage]);
+
+  const dismissOfflineEarnings = useCallback(() => {
+    setGameState((prev) => ({ ...prev, offlineEarnings: null }));
+  }, []);
 
   const watchAd = useCallback(async () => {
     const activeId = gameState.profile?.id;
     if (!activeId) return { success: false, reward: 0, cooldown: 0 };
     try {
       const result = await rewardService.watchAd(activeId);
-      if(result.success && gameState.profile) {
-          saveToLocalStorage({
-             profile: { ...gameState.profile, total_money: result.new_total }
-          });
-      }
-      await loadGameData();
+      await loadGameData(false);
       return result;
     } catch (error) { return { success: false, reward: 0, cooldown: 0 }; }
-  }, [gameState.profile, loadGameData, saveToLocalStorage]);
+  }, [gameState.profile?.id, loadGameData]);
 
   const updatePlayerName = useCallback(async (newName: string) => {
     await saveProfile({ display_name: newName, username: newName });
@@ -537,22 +1326,45 @@ export function useGameState(deviceId: string, userId: string | null) {
 
   const resetProgress = useCallback(async () => {
     const activeId = gameState.profile?.id;
-    if (!activeId) return;
+    if (!activeId) return false;
     try {
+      gameStateRef.current = {
+        ...gameStateRef.current,
+        pendingMoneyDelta: 0,
+        offlineEarnings: null,
+        unsavedJobWorkSeconds: 0,
+      };
+      setGameState((prev) => ({
+        ...prev,
+        pendingMoneyDelta: 0,
+        offlineEarnings: null,
+        unsavedJobWorkSeconds: 0,
+      }));
       await profileService.resetProgress(activeId);
-      localStorage.removeItem(GAME_STATE_KEY);
-      window.location.reload();
-    } catch (error) { console.error('Error resetting progress:', error); }
-  }, [gameState.profile?.id]);
-
-  const clearOfflineEarnings = useCallback(() => {
-    setGameState(prev => ({ ...prev, offlineEarnings: null }));
-  }, []);
+      await loadGameData(false);
+      return true;
+    } catch (error) {
+      console.error('Error resetting progress:', error);
+      return false;
+    }
+  }, [gameState.profile?.id, loadGameData]);
 
   const reload = useCallback(() => { loadGameData(false); }, [loadGameData]);
 
   return {
     ...gameState,
+    currentQuest: getCurrentQuestFromProgress(gameState.questProgress),
+    currentQuestClaimable: Boolean(
+      getCurrentQuestFromProgress(gameState.questProgress)?.id &&
+      gameState.questProgress.claimableQuestIds.includes(getCurrentQuestFromProgress(gameState.questProgress)!.id)
+    ),
+    hasClaimableQuestRewards: gameState.questProgress.claimableQuestIds.length > 0,
+    claimableChapterReward:
+      gameState.questProgress.claimableChapterRewardId
+        ? getQuestChapterByIndex(gameState.questProgress.unlockedChapterIndex)
+        : null,
+    claimQuestReward,
+    claimQuestChapterReward,
     createProfile,
     saveProfile,
     handleClick,
@@ -562,14 +1374,19 @@ export function useGameState(deviceId: string, userId: string | null) {
     selectCar,
     unlockJob,
     selectJob,
+    skipJobCooldown,
     purchaseBusiness,
     upgradeBusiness,
+    purchaseInvestment,
+    upgradeInvestment,
     claimDailyReward,
+    rescueDailyRewardStreak,
     claimAccumulatedMoney,
     watchAd,
     updatePlayerName,
     resetProgress,
-    clearOfflineEarnings,
+    claimOfflineEarnings,
+    dismissOfflineEarnings,
     reload,
   };
 }

@@ -1,58 +1,146 @@
-import { supabase } from '../lib/supabase';
+import { LOCAL_BUSINESSES } from '../data/local/businesses';
+import {
+  getLocalBusinesses,
+  getLocalJobs,
+  getLocalPlayerJobs,
+  getLocalProfile,
+  saveLocalGameState,
+} from '../data/local/storage';
+import { recalculateLocalEconomy } from '../data/local/economy';
+import { getLocalInvestments } from '../data/local/storage';
+import { getBusinessPrestigeForLevel } from '../data/local/businessPrestigePoints';
 
-// İşletmeleri ve prestij puanını getirir
-export async function getBusinesses(playerId: string) {
-  const { data, error } = await supabase.rpc('get_all_businesses', {
-    p_player_id: playerId,
-  });
+function calculateOwnedBusinessPrestige() {
+  const businesses = getLocalBusinesses().length ? getLocalBusinesses() : LOCAL_BUSINESSES;
+  return businesses
+    .filter((business) => business.is_owned)
+    .reduce((sum, business) => sum + Number(business.current_prestige_points || 0), 0);
+}
 
-  if (error) {
-    console.error('Error fetching businesses:', error);
-    throw error;
-  }
+export async function getBusinesses(_playerId: string) {
+  const businesses = getLocalBusinesses().length ? getLocalBusinesses() : LOCAL_BUSINESSES;
+  const businessesPrestige = calculateOwnedBusinessPrestige();
 
-  // Veritabanı fonksiyonunun döndürdüğü yapıya göre (businesses ve prestige_points) eşleme
   return {
-    businesses: data?.businesses || [],
-    prestigePoints: data?.prestige_points || 0
+    businesses,
+    prestigePoints: businessesPrestige,
+    businessesPrestige,
   };
 }
 
-// İşletme satın alır
-export async function purchaseBusiness(playerId: string, businessId: string) {
-  const { data, error } = await supabase.rpc('purchase_business', {
-    p_player_id: playerId,
-    p_business_id: businessId,
+export async function purchaseBusiness(_playerId: string, businessId: string) {
+  const businesses = getLocalBusinesses();
+  const profile = getLocalProfile();
+  const jobs = getLocalJobs();
+  const playerJobs = getLocalPlayerJobs();
+  const investments = getLocalInvestments();
+  if (!profile) throw new Error('Player not found');
+
+  const target = businesses.find((business) => business.id === businessId);
+  if (!target) throw new Error('Business not found');
+  if (target.is_owned) throw new Error('You already own this business');
+
+  const maxUnlocked = businesses
+    .filter((business) => business.is_owned)
+    .reduce((max, business) => Math.max(max, business.unlock_order), 0);
+
+  if (target.unlock_order > maxUnlocked + 1) throw new Error('You must unlock businesses in order');
+  if (Number(profile.total_money) < target.base_price) throw new Error('Not enough money to purchase this business');
+
+  const nextBusinesses = businesses.map((business) =>
+    business.id === businessId
+      ? {
+          ...business,
+          is_owned: true,
+          can_unlock: true,
+          current_level: 1,
+          current_hourly_income: business.base_hourly_income,
+          total_invested: business.base_price,
+          current_prestige_points: getBusinessPrestigeForLevel(business.id, 1),
+        }
+      : {
+          ...business,
+          can_unlock: business.is_owned || business.unlock_order <= maxUnlocked + 2,
+        }
+  );
+
+  const finalProfile = recalculateLocalEconomy({
+    profile: {
+      ...profile,
+      total_money: Number(profile.total_money) - target.base_price,
+    },
+    jobs,
+    playerJobs,
+    businesses: nextBusinesses,
+    investments,
   });
 
-  if (error) {
-    console.error('Error purchasing business:', error);
-    throw error;
-  }
+  saveLocalGameState({
+    profile: finalProfile,
+    businesses: nextBusinesses,
+    businessesPrestige: nextBusinesses
+      .filter((business) => business.is_owned)
+      .reduce((sum, business) => sum + Number(business.current_prestige_points || 0), 0),
+  });
 
-  // Veritabanından gelen data.success yapısına göre hata fırlat veya başarılı dön
-  if (data && typeof data === 'object' && 'success' in data && !data.success) {
-    throw new Error(data.message || 'Failed to purchase business');
-  }
-
-  return data;
+  return { success: true };
 }
 
-// İşletmeyi yükseltir
-export async function upgradeBusiness(playerId: string, businessId: string) {
-  const { data, error } = await supabase.rpc('upgrade_business', {
-    p_player_id: playerId,
-    p_business_id: businessId,
+export async function upgradeBusiness(_playerId: string, businessId: string) {
+  const businesses = getLocalBusinesses();
+  const profile = getLocalProfile();
+  const jobs = getLocalJobs();
+  const playerJobs = getLocalPlayerJobs();
+  const investments = getLocalInvestments();
+  if (!profile) throw new Error('Player not found');
+
+  const target = businesses.find((business) => business.id === businessId);
+  if (!target || !target.is_owned) throw new Error('You do not own this business');
+  if ((target.current_level || 1) >= 6) throw new Error('Business is already at max level');
+
+  const currentLevel = target.current_level || 1;
+  const currentIncome = target.current_hourly_income || target.base_hourly_income;
+  const multiplier =
+    currentLevel === 1 ? 30 :
+    currentLevel === 2 ? 60 :
+    currentLevel === 3 ? 120 :
+    currentLevel === 4 ? 180 :
+    240;
+  const upgradeCost = currentIncome * multiplier;
+
+  if (Number(profile.total_money) < upgradeCost) throw new Error('Not enough money to upgrade this business');
+
+  const newIncome = Math.floor(currentIncome * 1.25);
+  const nextBusinesses = businesses.map((business) =>
+    business.id === businessId
+      ? {
+          ...business,
+          current_level: currentLevel + 1,
+          current_hourly_income: newIncome,
+          total_invested: (business.total_invested || business.base_price) + upgradeCost,
+          current_prestige_points: getBusinessPrestigeForLevel(business.id, currentLevel + 1),
+        }
+      : business
+  );
+
+  const finalProfile = recalculateLocalEconomy({
+    profile: {
+      ...profile,
+      total_money: Number(profile.total_money) - upgradeCost,
+    },
+    jobs,
+    playerJobs,
+    businesses: nextBusinesses,
+    investments,
   });
 
-  if (error) {
-    console.error('Error upgrading business:', error);
-    throw error;
-  }
+  saveLocalGameState({
+    profile: finalProfile,
+    businesses: nextBusinesses,
+    businessesPrestige: nextBusinesses
+      .filter((business) => business.is_owned)
+      .reduce((sum, business) => sum + Number(business.current_prestige_points || 0), 0),
+  });
 
-  if (data && typeof data === 'object' && 'success' in data && !data.success) {
-    throw new Error(data.message || 'Failed to upgrade business');
-  }
-
-  return data;
+  return { success: true };
 }

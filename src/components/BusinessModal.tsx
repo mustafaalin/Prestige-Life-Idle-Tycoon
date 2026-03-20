@@ -1,16 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { X, Lock, TrendingUp, CheckCircle2, Building2, Store } from 'lucide-react';
-import * as Icons from 'lucide-react';
-import { BusinessWithPlayerData, UPGRADE_MULTIPLIERS } from '../lib/database.types';
+import type { BusinessWithPlayerData } from '../types/game';
+import { resolveLocalAsset } from '../lib/localAssets';
+import { formatMoneyFull, formatMoneyPerHour } from '../utils/money';
 
-const ICON_BASE_URL = 'https://dtanvjjdiyrunnavkxwe.supabase.co/storage/v1/object/public/game-assets/icons';
+const UPGRADE_MULTIPLIERS = [30, 60, 120, 180, 240];
 
 interface BusinessModalProps {
   businesses: BusinessWithPlayerData[];
   totalMoney: number;
-  businessesPrestige: number;
   onPurchase: (businessId: string) => Promise<boolean>;
-  onUpgrade: (businessId: string, level: number) => Promise<boolean>;
+  onUpgrade: (businessId: string) => Promise<boolean>;
   onClose: () => void;
   loading?: boolean;
 }
@@ -18,7 +18,6 @@ interface BusinessModalProps {
 export function BusinessModal({
   businesses,
   totalMoney,
-  businessesPrestige,
   onPurchase,
   onUpgrade,
   onClose,
@@ -35,21 +34,11 @@ export function BusinessModal({
   const ownedCount = businesses.filter(b => b.is_owned).length;
   const totalBusinessIncome = businesses
     .filter(b => b.is_owned)
-    .reduce((sum, b) => sum + b.current_hourly_income, 0);
-
-  const formatMoney = (amount: number) => {
-    if (amount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`;
-    if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}K`;
-    return `$${amount.toLocaleString()}`;
-  };
+    .reduce((sum, b) => sum + Number(b.current_hourly_income || 0), 0);
 
   const calculateUpgradeCost = (currentIncome: number, currentLevel: number) => {
     if (currentLevel >= 6) return 0;
     return currentIncome * UPGRADE_MULTIPLIERS[currentLevel - 1];
-  };
-
-  const calculateNewIncome = (currentIncome: number) => {
-    return Math.floor(currentIncome * 1.25);
   };
 
   const handlePurchase = async (businessId: string) => {
@@ -61,18 +50,13 @@ export function BusinessModal({
     }
   };
 
-  const handleUpgrade = async (businessId: string, level: number) => {
+  const handleUpgrade = async (businessId: string) => {
     setProcessingId(businessId);
     try {
-      await onUpgrade(businessId, level);
+      await onUpgrade(businessId);
     } finally {
       setProcessingId(null);
     }
-  };
-
-  const getIconComponent = (iconName: string) => {
-    const Icon = (Icons as any)[iconName];
-    return Icon || Store;
   };
 
   if (loading) {
@@ -112,14 +96,8 @@ export function BusinessModal({
             <div className="flex items-center gap-2 mt-0.5">
               <p className="text-[10px] text-orange-600 font-bold flex items-center gap-1">
                 <Store className="w-3 h-3" />
-                {ownedCount}/40 owned • {formatMoney(totalBusinessIncome)}/hr
+                {ownedCount}/40 owned • {formatMoneyPerHour(totalBusinessIncome)}
               </p>
-              {businessesPrestige > 0 && (
-                <div className="flex items-center gap-1 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-0.5 rounded-full shadow-sm">
-                  <img src={`${ICON_BASE_URL}/prestige-points.png`} alt="Prestige" className="w-3 h-3" />
-                  <span className="text-[10px] font-black">{businessesPrestige}</span>
-                </div>
-              )}
             </div>
           </div>
           <button
@@ -158,7 +136,6 @@ export function BusinessModal({
         <div className="flex-1 overflow-y-auto p-3 bg-white">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filteredBusinesses.map((business) => {
-              const Icon = getIconComponent(business.icon_name);
               const isLocked = !business.is_owned && !business.can_unlock;
               const isProcessing = processingId === business.id;
               const canAffordPurchase = totalMoney >= business.base_price;
@@ -174,13 +151,6 @@ export function BusinessModal({
                       : 'border-2 border-orange-600'
                   }`}
                 >
-                  {business.current_prestige_points > 0 && (
-                    <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-md z-10">
-                      <img src={`${ICON_BASE_URL}/prestige-points.png`} alt="Prestige" className="w-2.5 h-2.5" />
-                      {business.current_prestige_points}
-                    </div>
-                  )}
-
                   <div
                     className={`p-3 flex gap-3 ${
                       business.category === 'small'
@@ -202,13 +172,18 @@ export function BusinessModal({
                           <Lock className="w-8 h-8 text-gray-400" />
                         ) : business.icon_url ? (
                           <img
-                            src={business.icon_url}
+                            src={resolveLocalAsset(business.icon_url, 'business')}
                             alt={business.name}
                             className="w-[90%] h-[90%] object-contain"
                             loading="lazy"
                           />
                         ) : (
-                          <Icon className="w-8 h-8 text-white" />
+                          <img
+                            src={resolveLocalAsset(undefined, 'business')}
+                            alt={business.name}
+                            className="w-[90%] h-[90%] object-contain"
+                            loading="lazy"
+                          />
                         )}
                       </div>
                     </div>
@@ -223,14 +198,14 @@ export function BusinessModal({
                           <div className="flex flex-wrap gap-2">
                             <div className="flex-1 bg-white/70 rounded-lg px-2 py-1 min-w-[120px]">
                               <div className="text-[11px] font-bold text-orange-700 truncate">
-                                {formatMoney(business.base_price)}
+                                {formatMoneyFull(business.base_price)}
                               </div>
                             </div>
 
                             <div className="flex-1 bg-white/70 rounded-lg px-2 py-1 min-w-[120px] flex items-center gap-1">
                               <TrendingUp className="w-3 h-3 text-green-600 shrink-0" />
                               <div className="text-[11px] font-bold text-green-700 truncate">
-                                {formatMoney(business.base_hourly_income)}/h
+                                {formatMoneyPerHour(business.base_hourly_income)}
                               </div>
                             </div>
                           </div>
@@ -258,27 +233,27 @@ export function BusinessModal({
                           <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg px-2 py-1 border border-blue-200">
                             <div className="text-[11px] font-black text-green-700 flex items-center justify-center gap-1">
                               <TrendingUp className="w-3 h-3" />
-                              {formatMoney(business.current_hourly_income)}/h
+                              {formatMoneyPerHour(business.current_hourly_income)}
                             </div>
                           </div>
 
-                          {business.current_level < 6 ? (
+                          {Number(business.current_level || 1) < 6 ? (
                             <button
-                              onClick={() => handleUpgrade(business.id, business.current_level + 1)}
+                              onClick={() => handleUpgrade(business.id)}
                               disabled={
-                                totalMoney < calculateUpgradeCost(business.current_hourly_income, business.current_level) ||
+                                totalMoney < calculateUpgradeCost(Number(business.current_hourly_income || 0), Number(business.current_level || 1)) ||
                                 isProcessing
                               }
                               className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
-                                totalMoney >= calculateUpgradeCost(business.current_hourly_income, business.current_level) && !isProcessing
+                                totalMoney >= calculateUpgradeCost(Number(business.current_hourly_income || 0), Number(business.current_level || 1)) && !isProcessing
                                   ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white hover:from-orange-500 hover:to-amber-600 active:scale-95'
                                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                               }`}
                             >
                               {isProcessing
                                 ? 'Wait...'
-                                : `↑ L${business.current_level + 1} • ${formatMoney(
-                                    calculateUpgradeCost(business.current_hourly_income, business.current_level)
+                                : `↑ L${Number(business.current_level || 1) + 1} • ${formatMoneyFull(
+                                    calculateUpgradeCost(Number(business.current_hourly_income || 0), Number(business.current_level || 1))
                                   )}`}
                             </button>
                           ) : (

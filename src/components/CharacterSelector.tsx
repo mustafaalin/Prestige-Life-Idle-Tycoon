@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { User } from 'lucide-react';
+import { LOCAL_CHARACTERS, LOCAL_MIKE_CHARACTER_ID } from '../data/local/characters';
+import { resolveLocalAsset } from '../lib/localAssets';
 
 interface Character {
   id: string;
@@ -27,21 +27,16 @@ export default function CharacterSelector({ onCharacterSelected }: CharacterSele
 
   async function loadCharacters() {
     try {
-      const { data, error } = await supabase
-        .from('characters')
-        .select('*')
-        .eq('price', 0)
-        .order('unlock_order');
+      const freeCharacters = LOCAL_CHARACTERS
+        .filter((character) => Number(character.price || 0) === 0)
+        .sort((a, b) => (a.unlock_order || 0) - (b.unlock_order || 0));
 
-      if (error) throw error;
-      setCharacters(data || []);
-
-      const sarahCharacter = data?.find(c => c.name.toLowerCase() === 'sarah');
-      if (sarahCharacter) {
-        setSelectedId(sarahCharacter.id);
-      } else if (data && data.length > 0) {
-        setSelectedId(data[0].id);
-      }
+      setCharacters(freeCharacters);
+      setSelectedId(
+        freeCharacters.find((character) => character.id === LOCAL_MIKE_CHARACTER_ID)?.id ||
+          freeCharacters[0]?.id ||
+          null
+      );
     } catch (error) {
       console.error('Error loading characters:', error);
     } finally {
@@ -89,12 +84,16 @@ export default function CharacterSelector({ onCharacterSelected }: CharacterSele
               <div className="aspect-square bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
                 {character.image_url ? (
                   <img
-                    src={character.image_url}
+                    src={resolveLocalAsset(character.image_url, 'character')}
                     alt={character.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User className="w-24 h-24 text-white/50" />
+                  <img
+                    src={resolveLocalAsset(undefined, 'character')}
+                    alt={character.name}
+                    className="w-full h-full object-contain p-6"
+                  />
                 )}
               </div>
 

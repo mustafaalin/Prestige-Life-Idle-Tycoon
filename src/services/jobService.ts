@@ -1,81 +1,120 @@
-import { supabase } from '../lib/supabase';
 import type { PlayerJob } from '../types/game';
+import {
+  getLocalBusinesses,
+  getLocalJobs,
+  getLocalPlayerJobs,
+  getLocalProfile,
+  saveLocalGameState,
+} from '../data/local/storage';
+import { recalculateLocalIncome, recalculateLocalPrestige } from '../data/local/economy';
 
-export async function getJobs() {
-  const { data, error } = await supabase.from('jobs').select('*').order('level');
-  if (error) throw error;
-  return data || [];
-}
-
-export async function getPlayerJobs(playerId: string) {
-  const { data, error } = await supabase.from('player_jobs').select('*').eq('player_id', playerId);
-  if (error) throw error;
-  return data || [];
-}
-
-export async function unlockJob(playerId: string, jobId: string) {
-  const { error } = await supabase.from('player_jobs').insert({
+function createPlayerJob(playerId: string, jobId: string, now: string, overrides?: Partial<PlayerJob>): PlayerJob {
+  return {
+    id: `player-job-${jobId}`,
     player_id: playerId,
     job_id: jobId,
     is_unlocked: true,
     is_active: false,
     is_completed: false,
+    times_worked: 0,
+    total_earned: 0,
+    unlocked_at: now,
+    created_at: now,
     total_time_worked_seconds: 0,
-    unlocked_at: new Date().toISOString(),
-  });
+    last_work_started_at: null,
+    ...overrides,
+  };
+}
 
-  if (error) throw error;
+export async function getJobs() {
+  return getLocalJobs();
+}
+
+export async function getPlayerJobs(playerId: string) {
+  return getLocalPlayerJobs().filter((job) => job.player_id === playerId);
+}
+
+export async function unlockJob(playerId: string, jobId: string) {
+  const playerJobs = getLocalPlayerJobs();
+  const now = new Date().toISOString();
+  const existing = playerJobs.find((job) => job.player_id === playerId && job.job_id === jobId);
+
+  const nextJobs = existing
+    ? playerJobs.map((job) =>
+        job.player_id === playerId && job.job_id === jobId
+          ? { ...job, is_unlocked: true, unlocked_at: now }
+          : job
+      )
+    : [...playerJobs, createPlayerJob(playerId, jobId, now)];
+
+  saveLocalGameState({ playerJobs: nextJobs });
   return true;
 }
 
-export async function selectJob(playerId: string, jobId: string, currentActiveJob?: PlayerJob, unsavedSeconds: number = 0) {
-  // Eski işi pasif ve "Completed" yap. (Artık geri dönülemez)
-  if (currentActiveJob && unsavedSeconds > 0) {
-    const newTotalTime = (currentActiveJob.total_time_worked_seconds || 0) + unsavedSeconds;
-    await supabase.from('player_jobs').update({
-      is_active: false,
-      is_completed: true,
-      total_time_worked_seconds: newTotalTime,
-    }).eq('player_id', playerId).eq('id', currentActiveJob.id);
-  } else if (currentActiveJob) {
-    await supabase.from('player_jobs').update({ is_active: false, is_completed: true })
-      .eq('player_id', playerId).eq('id', currentActiveJob.id);
+export async function selectJob(
+  playerId: string,
+  jobId: string,
+  currentActiveJob?: PlayerJob,
+  unsavedSeconds = 0
+) {
+  const jobs = getLocalJobs();
+  const playerJobs = getLocalPlayerJobs();
+  const profile = getLocalProfile();
+  const businesses = getLocalBusinesses();
+
+  if (!profile) {
+    throw new Error('Player not found');
   }
 
-  // Yeni seçilen iş daha önce kaydedilmiş mi kontrol et
-  const { data: existingJob } = await supabase.from('player_jobs')
-    .select('id').eq('player_id', playerId).eq('job_id', jobId).maybeSingle();
+  const now = new Date().toISOString();
+  let nextJobs = playerJobs.map((job) => ({ ...job }));
 
+  if (currentActiveJob) {
+    nextJobs = nextJobs.map((job) =>
+      job.id === currentActiveJob.id
+        ? {
+            ...job,
+            is_active: false,
+            is_completed: true,
+            total_time_worked_seconds: (job.total_time_worked_seconds || 0) + unsavedSeconds,
+          }
+        : { ...job, is_active: false }
+    );
+  }
+
+  const existingJob = nextJobs.find((job) => job.player_id === playerId && job.job_id === jobId);
   if (existingJob) {
-    // Sadece aktif et
-    await supabase.from('player_jobs').update({
-      is_active: true,
-      last_work_started_at: new Date().toISOString(),
-    }).eq('id', existingJob.id);
+    nextJobs = nextJobs.map((job) =>
+      job.player_id === playerId && job.job_id === jobId
+        ? { ...job, is_active: true, is_unlocked: true, last_work_started_at: now }
+        : job
+    );
   } else {
-    // Level 1 gibi doğrudan kilidi açık varsayılan ve ilk kez seçilen bir işse, veritabanına ekle ve aktif et
-    await supabase.from('player_jobs').insert({
-      player_id: playerId,
-      job_id: jobId,
-      is_unlocked: true,
-      is_active: true,
-      is_completed: false,
-      total_time_worked_seconds: 0,
-      unlocked_at: new Date().toISOString(),
-      last_work_started_at: new Date().toISOString(),
-    });
+    nextJobs.push(
+      createPlayerJob(playerId, jobId, now, {
+        is_active: true,
+        last_work_started_at: now,
+      })
+    );
   }
 
-  // Gelir ve prestiji tetikle (Olası Supabase Timeout'una karşı try-catch eklendi)
-  try {
-    await Promise.all([
-      supabase.rpc('calculate_player_income', { p_player_id: playerId } as any),
-      supabase.rpc('calculate_player_prestige', { p_player_id: playerId } as any)
-    ]);
-  } catch (error) {
-    console.warn('Warning: Could not recalculate income/prestige automatically. It will be recalculated on next load.', error);
-  }
-  
-  // Bolt'un istediği objeli return yapısına geçildi
+  const nextProfile = recalculateLocalIncome({
+    profile,
+    jobs,
+    playerJobs: nextJobs,
+    businesses,
+  });
+  const finalProfile = recalculateLocalPrestige({
+    profile: nextProfile,
+    jobs,
+    playerJobs: nextJobs,
+    businesses,
+  });
+
+  saveLocalGameState({
+    profile: finalProfile,
+    playerJobs: nextJobs,
+  });
+
   return { success: true, lockedUntil: Date.now() + 120000 };
 }

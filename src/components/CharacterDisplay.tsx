@@ -1,3 +1,5 @@
+import { resolveLocalAsset } from '../lib/localAssets';
+
 interface CharacterDisplayProps {
   characterImage: string;
   characterName: string;
@@ -14,19 +16,20 @@ export function CharacterDisplay({
   onClickCharacter,
 }: CharacterDisplayProps) {
   // Use outfit image if available, otherwise use character image
-  const displayImage = outfitImage || characterImage;
+  const displayImage = resolveLocalAsset(outfitImage || characterImage, 'character');
+  const displayCarImage = carImage ? resolveLocalAsset(carImage, 'car') : null;
   return (
     // Eğer header yoksa: top-0 yap
     <div className="fixed inset-x-0 top-[88px] bottom-[88px] overflow-hidden">
       {/* CAR (left side) */}
-      {carImage && (
+      {displayCarImage && (
         <div
           className="absolute bottom-40 left-4 z-10 select-none pointer-events-none"
           style={{ transform: 'translateX(-10px)' }}
         >
           <div className="w-[420px] h-[280px] sm:w-[480px] sm:h-[320px] opacity-95">
             <img
-              src={carImage}
+              src={displayCarImage}
               alt="Car"
               className="w-full h-full object-contain"
               draggable={false}

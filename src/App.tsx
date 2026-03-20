@@ -9,8 +9,71 @@ import { Shop } from './components/Shop';
 import { ShopModal } from './components/ShopModal';
 import { JobsModal } from './components/JobsModal';
 import { BusinessModal } from './components/BusinessModal';
+import { InvestmentsModal } from './components/InvestmentsModal';
 import { StuffModal } from './components/StuffModal';
 import { BottomNav } from './components/BottomNav';
+import { IncomeBreakdownModal } from './components/IncomeBreakdownModal';
+import { QuestBar } from './components/QuestBar';
+import { QuestListModal } from './components/QuestListModal';
+import { QuestRewardClaimModal } from './components/QuestRewardClaimModal';
+import { TestRewardedAdModal } from './components/TestRewardedAdModal';
+import { MoneyRewardAnimation } from './components/MoneyRewardAnimation';
+import { GemRewardAnimation } from './components/GemRewardAnimation';
+import { JobTransitionAnimation } from './components/JobTransitionAnimation';
+import { getDailyRewardStatus } from './data/local/rewards';
+import { getScaledShopRewards } from './data/local/rewardScaling';
+import { LOCAL_QUESTS } from './data/local/quests';
+import {
+  dismissActiveAd,
+  getAdProviderName,
+  initializeAds,
+  rewardActiveAd,
+  showRewardedAd,
+  useAdServiceState,
+  type AdPlacement,
+} from './services/adService';
+
+function getCanClaimAccumulatedMoney(params: {
+  claimPool: number;
+  dailyClaimLimit: number;
+  lastClaimTime: string | null;
+  claimLockedUntil: string | null;
+  dailyClaimedTotal: number;
+}) {
+  const { claimPool, dailyClaimLimit, lastClaimTime, claimLockedUntil, dailyClaimedTotal } = params;
+
+  if (claimPool <= 0) {
+    return false;
+  }
+
+  const now = Date.now();
+
+  if (claimLockedUntil && new Date(claimLockedUntil).getTime() > now) {
+    return false;
+  }
+
+  if (dailyClaimedTotal >= dailyClaimLimit) {
+    return false;
+  }
+
+  if (!lastClaimTime) {
+    return false;
+  }
+
+  const elapsedMinutes = Math.max(0, (now - new Date(lastClaimTime).getTime()) / 60000);
+  if (elapsedMinutes < 60) {
+    return false;
+  }
+
+  const accumulatedMoney = Math.floor(claimPool);
+  return accumulatedMoney > 0;
+}
+
+function wait(ms: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
 
 export default function App() {
   const { deviceId, isAuthenticated, user, loading: authLoading } = useAuth();
@@ -18,7 +81,6 @@ export default function App() {
   const [showShop, setShowShop] = useState(false);
   const [showJobs, setShowJobs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [activeTab, setActiveTab] = useState<'shop' | 'job' | 'business' | 'investments' | 'stuff'>('shop');
   
   // PERFORMANS ÇÖZÜMÜ: Her saniye render tetikleyen state yerine, 
@@ -28,11 +90,56 @@ export default function App() {
   // GÜVENLİK ÇÖZÜMÜ: Sonsuz profil yaratma döngüsünü engeller
   const profileCreationAttempted = useRef(false);
   
-  const [health, setHealth] = useState(100);
-  const [happiness, setHappiness] = useState(100);
+  const [health] = useState(100);
+  const [happiness] = useState(100);
   const [showShopModal, setShowShopModal] = useState(false);
   const [showBusinessModal, setShowBusinessModal] = useState(false);
+  const [showInvestmentsModal, setShowInvestmentsModal] = useState(false);
   const [showStuffModal, setShowStuffModal] = useState(false);
+  const [shopModalInitialTab, setShopModalInitialTab] = useState<'shop' | 'outfits'>('shop');
+  const [stuffModalInitialTab, setStuffModalInitialTab] = useState<'cars' | 'houses'>('cars');
+  const [showIncomeBreakdown, setShowIncomeBreakdown] = useState(false);
+  const [showQuestList, setShowQuestList] = useState(false);
+  const [moneyAnchorRect, setMoneyAnchorRect] = useState<DOMRect | null>(null);
+  const [gemAnchorRect, setGemAnchorRect] = useState<DOMRect | null>(null);
+  const [moneyAnimationSequenceId, setMoneyAnimationSequenceId] = useState(0);
+  const [gemAnimationSequenceId, setGemAnimationSequenceId] = useState(0);
+  const [isQuestRewardAnimating, setIsQuestRewardAnimating] = useState(false);
+  const [isOfflineAdClaiming, setIsOfflineAdClaiming] = useState(false);
+  const [isQuestAdClaiming, setIsQuestAdClaiming] = useState(false);
+  const [isJobCooldownAdClaiming, setIsJobCooldownAdClaiming] = useState(false);
+  const [questRewardModalQuest, setQuestRewardModalQuest] = useState<(typeof LOCAL_QUESTS)[number] | null>(null);
+  const [moneyRewardFx, setMoneyRewardFx] = useState<{
+    amount: number;
+    phase: 'popup' | 'fly';
+  } | null>(null);
+  const [gemRewardFx, setGemRewardFx] = useState<{
+    amount: number;
+    phase: 'popup' | 'fly';
+  } | null>(null);
+  const [jobTransitionFx, setJobTransitionFx] = useState<{
+    previousJob: (typeof gameState.jobs)[number] | null;
+    nextJob: (typeof gameState.jobs)[number];
+  } | null>(null);
+  const { activeRequest: activeAdRequest } = useAdServiceState();
+
+  useEffect(() => {
+    initializeAds().catch((error) => {
+      console.warn('[ads] initialization failed', error);
+    });
+  }, []);
+
+  const openQuestTarget = (quest: (typeof LOCAL_QUESTS)[number]) => {
+    if (quest.target_screen === 'shop') {
+      setShopModalInitialTab(quest.condition.type === 'owned_outfit_count' ? 'outfits' : 'shop');
+    }
+
+    if (quest.target_screen === 'stuff') {
+      setStuffModalInitialTab(quest.condition.type === 'selected_house_level' ? 'houses' : 'cars');
+    }
+
+    handleTabChange(quest.target_screen);
+  };
 
   const handleTabChange = (tab: 'shop' | 'job' | 'business' | 'investments' | 'stuff') => {
     setActiveTab(tab);
@@ -42,6 +149,8 @@ export default function App() {
       setShowJobs(true);
     } else if (tab === 'business') {
       setShowBusinessModal(true);
+    } else if (tab === 'investments') {
+      setShowInvestmentsModal(true);
     } else if (tab === 'stuff') {
       setShowStuffModal(true);
     }
@@ -60,8 +169,343 @@ export default function App() {
     await gameState.updatePlayerName(newName);
   }
 
-  function handleResetProgress() {
-    gameState.resetProgress();
+  async function playRewardAnimationSequence(reward: { money: number; gems: number }) {
+    if (reward.money > 0) {
+      setMoneyRewardFx({ amount: reward.money, phase: 'popup' });
+      await wait(1000);
+      setMoneyRewardFx({ amount: reward.money, phase: 'fly' });
+      await wait(650);
+      setMoneyRewardFx(null);
+    }
+
+    if (reward.gems > 0) {
+      setGemRewardFx({ amount: reward.gems, phase: 'popup' });
+      await wait(1000);
+      setGemRewardFx({ amount: reward.gems, phase: 'fly' });
+      await wait(650);
+      setGemRewardFx(null);
+    }
+  }
+
+  async function requestRewardedAd(placement: AdPlacement) {
+    const result = await showRewardedAd(placement);
+    return result.rewarded;
+  }
+
+  async function handleAnimatedDailyClaim(reward: { money: number; gems: number }) {
+    setIsQuestRewardAnimating(true);
+
+    try {
+      if (reward.money > 0 || reward.gems > 0) {
+        await playRewardAnimationSequence(reward);
+      }
+
+      const result = await gameState.claimDailyReward();
+      if (!result) {
+        return false;
+      }
+
+      if (reward.money > 0) {
+        setMoneyAnimationSequenceId((prev) => prev + 1);
+      }
+
+      if (reward.gems > 0) {
+        setGemAnimationSequenceId((prev) => prev + 1);
+      }
+
+      return true;
+    } finally {
+      setMoneyRewardFx(null);
+      setGemRewardFx(null);
+      setIsQuestRewardAnimating(false);
+    }
+  }
+
+  async function handleAnimatedEarningsClaim(params: { isTriple: boolean; reward: number }) {
+    if (params.isTriple) {
+      const rewarded = await requestRewardedAd('earnings_x3');
+      if (!rewarded) {
+        return false;
+      }
+    }
+
+    setIsQuestRewardAnimating(true);
+
+    try {
+      if (params.reward > 0) {
+        await playRewardAnimationSequence({ money: params.reward, gems: 0 });
+      }
+
+      const result = await gameState.claimAccumulatedMoney(params.isTriple);
+      if (!result) {
+        return false;
+      }
+
+      if (params.reward > 0) {
+        setMoneyAnimationSequenceId((prev) => prev + 1);
+      }
+
+      return true;
+    } finally {
+      setMoneyRewardFx(null);
+      setIsQuestRewardAnimating(false);
+    }
+  }
+
+  async function handleAnimatedAdReward(reward: number) {
+    const rewarded = await requestRewardedAd('shop_ad_reward');
+    if (!rewarded) {
+      return { success: false, reward: 0, cooldown: 0 };
+    }
+
+    setIsQuestRewardAnimating(true);
+
+    try {
+      if (reward > 0) {
+        await playRewardAnimationSequence({ money: reward, gems: 0 });
+      }
+
+      const result = await gameState.watchAd();
+      if (result.success && reward > 0) {
+        setMoneyAnimationSequenceId((prev) => prev + 1);
+      }
+
+      return result;
+    } finally {
+      setMoneyRewardFx(null);
+      setIsQuestRewardAnimating(false);
+    }
+  }
+
+  async function handleAnimatedPackagePurchase(moneyAdded: number, gemsAdded: number) {
+    setIsQuestRewardAnimating(true);
+
+    try {
+      if (moneyAdded > 0 || gemsAdded > 0) {
+        await playRewardAnimationSequence({ money: moneyAdded, gems: gemsAdded });
+      }
+
+      if (gameState.profile) {
+        await gameState.saveProfile({
+          total_money: gameState.profile.total_money + moneyAdded,
+          gems: gameState.profile.gems + gemsAdded,
+        });
+      }
+
+      if (moneyAdded > 0) {
+        setMoneyAnimationSequenceId((prev) => prev + 1);
+      }
+
+      if (gemsAdded > 0) {
+        setGemAnimationSequenceId((prev) => prev + 1);
+      }
+
+      gameState.reload();
+    } finally {
+      setMoneyRewardFx(null);
+      setGemRewardFx(null);
+      setIsQuestRewardAnimating(false);
+    }
+  }
+
+  async function handleAnimatedOfflineClaim() {
+    const reward = gameState.offlineEarnings?.amount || 0;
+    if (reward <= 0) {
+      gameState.dismissOfflineEarnings();
+      return false;
+    }
+
+    setIsQuestRewardAnimating(true);
+
+    try {
+      await playRewardAnimationSequence({ money: reward, gems: 0 });
+      const result = await gameState.claimOfflineEarnings(1);
+
+      if (result) {
+        setMoneyAnimationSequenceId((prev) => prev + 1);
+      }
+
+      return result;
+    } finally {
+      setMoneyRewardFx(null);
+      setIsQuestRewardAnimating(false);
+    }
+  }
+
+  async function handleAnimatedOfflineDoubleClaim() {
+    const reward = gameState.offlineEarnings?.amount || 0;
+    if (reward <= 0 || isQuestRewardAnimating) {
+      return false;
+    }
+
+    setIsOfflineAdClaiming(true);
+
+    try {
+      const rewarded = await requestRewardedAd('offline_x2');
+      if (!rewarded) {
+        return false;
+      }
+
+      setIsQuestRewardAnimating(true);
+      await playRewardAnimationSequence({ money: reward * 2, gems: 0 });
+      const result = await gameState.claimOfflineEarnings(2);
+
+      if (result) {
+        setMoneyAnimationSequenceId((prev) => prev + 1);
+      }
+
+      return result;
+    } finally {
+      setMoneyRewardFx(null);
+      setIsOfflineAdClaiming(false);
+      setIsQuestRewardAnimating(false);
+    }
+  }
+
+  async function handleAnimatedQuestClaim(questId?: string, rewardMultiplier = 1) {
+    if (isQuestRewardAnimating) {
+      return;
+    }
+
+    const targetQuest = questId
+      ? LOCAL_QUESTS.find((quest) => quest.id === questId) || null
+      : gameState.currentQuest;
+
+    const rewardMoney = targetQuest?.reward_money || 0;
+    const rewardGems = targetQuest?.reward_gems || 0;
+
+    if (rewardMoney <= 0 && rewardGems <= 0) {
+      await gameState.claimQuestReward(questId);
+      return;
+    }
+
+    setIsQuestRewardAnimating(true);
+
+    try {
+      const normalizedRewardMultiplier = rewardMultiplier > 1 ? 2 : 1;
+      await playRewardAnimationSequence({
+        money: rewardMoney * normalizedRewardMultiplier,
+        gems: rewardGems * normalizedRewardMultiplier,
+      });
+      const result = await gameState.claimQuestReward(questId, rewardMultiplier);
+
+      if (result?.success) {
+        if (rewardMoney > 0) {
+          setMoneyAnimationSequenceId((prev) => prev + 1);
+        }
+        if (rewardGems > 0) {
+          setGemAnimationSequenceId((prev) => prev + 1);
+        }
+      }
+    } finally {
+      setMoneyRewardFx(null);
+      setGemRewardFx(null);
+      setIsQuestRewardAnimating(false);
+    }
+  }
+
+  async function handleQuestClaimRequest(questId?: string) {
+    const targetQuest = questId
+      ? LOCAL_QUESTS.find((quest) => quest.id === questId) || null
+      : gameState.currentQuest;
+
+    if (!targetQuest) return;
+
+    if (targetQuest.reward_money > 0 || targetQuest.reward_gems > 0) {
+      setQuestRewardModalQuest(targetQuest);
+      return;
+    }
+
+    await handleAnimatedQuestClaim(targetQuest.id, 1);
+  }
+
+  async function handleQuestClaimWithAd() {
+    if (!questRewardModalQuest) return;
+
+    setIsQuestAdClaiming(true);
+    try {
+      const rewarded = await requestRewardedAd('quest_reward_x2');
+      if (!rewarded) {
+        return;
+      }
+      await handleAnimatedQuestClaim(questRewardModalQuest.id, 2);
+      setQuestRewardModalQuest(null);
+    } finally {
+      setIsQuestAdClaiming(false);
+    }
+  }
+
+  async function handleQuestClaimNormal() {
+    if (!questRewardModalQuest) return;
+    await handleAnimatedQuestClaim(questRewardModalQuest.id, 1);
+    setQuestRewardModalQuest(null);
+  }
+
+  async function handleAnimatedQuestChapterClaim() {
+    if (isQuestRewardAnimating || !gameState.claimableChapterReward) {
+      return;
+    }
+
+    setIsQuestRewardAnimating(true);
+
+    try {
+      await gameState.claimQuestChapterReward();
+    } finally {
+      setIsQuestRewardAnimating(false);
+    }
+  }
+
+  async function handleAnimatedJobSelect(jobId: string) {
+    const previousPlayerJob = gameState.playerJobs.find((playerJob) => playerJob.is_active);
+    const previousJob = previousPlayerJob
+      ? gameState.jobs.find((job) => job.id === previousPlayerJob.job_id) || null
+      : null;
+    const nextJob = gameState.jobs.find((job) => job.id === jobId) || null;
+
+    if (!nextJob) {
+      return false;
+    }
+
+    const result = await gameState.selectJob(jobId);
+
+    if (result) {
+      setJobTransitionFx({
+        previousJob,
+        nextJob,
+      });
+    }
+
+    return result;
+  }
+
+  async function handleJobCooldownSkip() {
+    if (isJobCooldownAdClaiming) {
+      return false;
+    }
+
+    setIsJobCooldownAdClaiming(true);
+    try {
+      const rewarded = await requestRewardedAd('job_unlock_skip');
+      if (!rewarded) {
+        return false;
+      }
+      return await gameState.skipJobCooldown();
+    } finally {
+      setIsJobCooldownAdClaiming(false);
+    }
+  }
+
+  async function handleRescueDailyStreakWithAd() {
+    const rewarded = await requestRewardedAd('daily_streak_rescue');
+    if (!rewarded) {
+      return { success: false, cooldown: 0 };
+    }
+
+    return gameState.rescueDailyRewardStreak();
+  }
+
+  async function handleResetProgress() {
+    await gameState.resetProgress();
   }
 
   if (authLoading) {
@@ -123,12 +567,25 @@ export default function App() {
     (h) => h.id === gameState.profile?.selected_house_id
   );
   const currentCar = gameState.cars.find((c) => c.id === gameState.profile?.selected_car_id);
+  const ownedInvestmentCount = gameState.investments.filter((investment) => investment.is_owned).length;
+  const scaledShopRewards = getScaledShopRewards(
+    Number(gameState.profile.prestige_points ?? 0),
+    ownedInvestmentCount
+  );
+  const canClaimDailyReward = gameState.gameStats ? getDailyRewardStatus(gameState.gameStats).canClaim : false;
+  const canClaimAccumulatedMoney = getCanClaimAccumulatedMoney({
+    claimPool: scaledShopRewards.claimPool,
+    dailyClaimLimit: scaledShopRewards.dailyClaimLimit,
+    lastClaimTime: gameState.profile.last_claim_time || null,
+    claimLockedUntil: gameState.claimLockedUntil,
+    dailyClaimedTotal: Number(gameState.dailyClaimedTotal ?? 0),
+  });
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-slate-900">
       {currentHouse?.image_url ? (
         <div
-          className="fixed inset-0 bg-cover bg-center z-0 opacity-40"
+          className="fixed inset-0 bg-cover bg-center z-0 opacity-65"
           style={{ backgroundImage: `url(${currentHouse.image_url})` }}
         />
       ) : (
@@ -137,21 +594,36 @@ export default function App() {
 
       <Header
         totalMoney={gameState.profile.total_money}
+        moneyAnimationSequenceId={moneyAnimationSequenceId}
+        moneyAnimationDelayMs={0}
+        gemAnimationSequenceId={gemAnimationSequenceId}
+        gemAnimationDelayMs={0}
         hourlyIncome={Number(gameState.profile.hourly_income ?? 1000)}
+        jobIncome={Number(gameState.profile.job_income ?? 0)}
+        businessIncome={Number(gameState.profile.business_income ?? 0)}
+        investmentIncome={Number(gameState.profile.investment_income ?? 0)}
+        houseRentExpense={Number(gameState.profile.house_rent_expense ?? 0)}
+        vehicleExpense={Number(gameState.profile.vehicle_expense ?? 0)}
+        otherExpenses={Number(gameState.profile.other_expenses ?? 0)}
         username={gameState.profile.display_name || gameState.profile.username}
         health={health}
         happiness={happiness}
         gems={gameState.profile.gems || 0}
         prestigePoints={gameState.profile?.prestige_points ?? 0}
+        onMoneyAnchorChange={setMoneyAnchorRect}
+        onGemAnchorChange={setGemAnchorRect}
         onOpenProfile={() => {
           setShowProfile(true);
         }}
+        onOpenIncomeBreakdown={() => {
+          setShowIncomeBreakdown(true);
+        }}
         onOpenSettings={() => {
-          setShowSettings(true);
+          void 0;
         }}
       />
 
-      <main className="flex-1 px-3 py-4 overflow-y-auto relative z-10">
+      <main className="flex-1 px-3 py-4 pb-40 overflow-y-auto relative z-10">
         <CharacterDisplay
           characterImage={currentCharacter?.image_url || ''}
           characterName={currentCharacter?.name || 'Character'}
@@ -161,7 +633,48 @@ export default function App() {
         />
       </main>
 
-      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+      <QuestBar
+        quest={gameState.currentQuest}
+        isClaimable={gameState.currentQuestClaimable}
+        isBusy={isQuestRewardAnimating}
+        onPress={async () => {
+          if (isQuestRewardAnimating) {
+            return;
+          }
+
+          if (gameState.currentQuestClaimable) {
+            await handleQuestClaimRequest();
+          } else if (gameState.currentQuest) {
+            openQuestTarget(gameState.currentQuest);
+          }
+        }}
+      />
+
+      <QuestListModal
+        isOpen={showQuestList}
+        onClose={() => setShowQuestList(false)}
+        questProgress={gameState.questProgress}
+        claimableChapterReward={gameState.claimableChapterReward}
+        onClaimQuestReward={async (questId) => {
+          await handleQuestClaimRequest(questId);
+        }}
+        onClaimChapterReward={handleAnimatedQuestChapterClaim}
+        onGoToQuest={(quest) => {
+          setShowQuestList(false);
+          openQuestTarget(quest);
+        }}
+        isBusy={isQuestRewardAnimating}
+      />
+
+      <BottomNav
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onOpenQuestList={() => setShowQuestList(true)}
+        hasQuestAttention={gameState.hasClaimableQuestRewards || Boolean(gameState.claimableChapterReward)}
+        attentionTabs={{
+          shop: canClaimDailyReward || canClaimAccumulatedMoney,
+        }}
+      />
 
       <Shop
         isOpen={showShop}
@@ -185,24 +698,19 @@ export default function App() {
           setShowShopModal(false);
           setActiveTab('shop');
         }}
+        initialTab={shopModalInitialTab}
         userId={user.id}
-        hourlyIncome={gameState.profile.hourly_income || 0}
+        prestigePoints={gameState.profile.prestige_points || 0}
+        ownedInvestmentCount={ownedInvestmentCount}
         lastClaimTime={gameState.profile.last_claim_time || null}
         gems={gameState.profile.gems || 0}
         claimLockedUntil={gameState.claimLockedUntil}
         dailyClaimedTotal={gameState.dailyClaimedTotal}
-        onClaimDaily={gameState.claimDailyReward}
-        onClaimMoney={gameState.claimAccumulatedMoney}
-        onWatchAd={gameState.watchAd}
-        onPurchaseComplete={(moneyAdded, gemsAdded) => {
-          if (gameState.profile) {
-            gameState.saveProfile({
-              total_money: gameState.profile.total_money + moneyAdded,
-              gems: gameState.profile.gems + gemsAdded,
-            });
-          }
-          gameState.reload();
-        }}
+        onClaimDaily={handleAnimatedDailyClaim}
+        onRescueDailyStreak={handleRescueDailyStreakWithAd}
+        onClaimMoney={handleAnimatedEarningsClaim}
+        onWatchAd={handleAnimatedAdReward}
+        onPurchaseComplete={handleAnimatedPackagePurchase}
         totalMoney={gameState.profile.total_money}
         selectedOutfitId={gameState.profile.selected_outfit_id}
         onOutfitChange={() => {
@@ -220,16 +728,17 @@ export default function App() {
         playerJobs={gameState.playerJobs}
         totalMoney={gameState.profile.total_money}
         onUnlockJob={gameState.unlockJob}
-        onSelectJob={gameState.selectJob}
+        onSelectJob={handleAnimatedJobSelect}
+        onSkipCooldown={handleJobCooldownSkip}
         jobChangeLockedUntil={gameState.jobChangeLockedUntil}
         unsavedJobWorkSeconds={gameState.unsavedJobWorkSeconds}
+        isSkippingCooldown={isJobCooldownAdClaiming}
       />
 
       {showBusinessModal && (
         <BusinessModal
           businesses={gameState.businesses}
           totalMoney={gameState.profile.total_money}
-          businessesPrestige={gameState.businessesPrestige}
           onPurchase={gameState.purchaseBusiness}
           onUpgrade={gameState.upgradeBusiness}
           onClose={() => {
@@ -245,6 +754,8 @@ export default function App() {
           cars={gameState.cars}
           houses={gameState.houses}
           totalMoney={gameState.profile.total_money}
+          prestigePoints={gameState.profile.prestige_points || 0}
+          initialTab={stuffModalInitialTab}
           selectedCarId={gameState.profile.selected_car_id}
           selectedHouseId={gameState.profile.selected_house_id}
           ownedCars={gameState.ownedCars}
@@ -256,6 +767,19 @@ export default function App() {
             setActiveTab('stuff');
           }}
           loading={gameState.loading}
+        />
+      )}
+
+      {showInvestmentsModal && (
+        <InvestmentsModal
+          investments={gameState.investments}
+          totalMoney={gameState.profile.total_money}
+          onPurchase={gameState.purchaseInvestment}
+          onUpgrade={gameState.upgradeInvestment}
+          onClose={() => {
+            setShowInvestmentsModal(false);
+            setActiveTab('investments');
+          }}
         />
       )}
 
@@ -274,14 +798,73 @@ export default function App() {
         prestigePoints={gameState.profile?.prestige_points ?? 0}
       />
 
+      <IncomeBreakdownModal
+        isOpen={showIncomeBreakdown}
+        onClose={() => setShowIncomeBreakdown(false)}
+        jobIncome={Number(gameState.profile.job_income ?? 0)}
+        businessIncome={Number(gameState.profile.business_income ?? 0)}
+        investmentIncome={Number(gameState.profile.investment_income ?? 0)}
+        houseRentExpense={Number(gameState.profile.house_rent_expense ?? 0)}
+        vehicleExpense={Number(gameState.profile.vehicle_expense ?? 0)}
+        otherExpenses={Number(gameState.profile.other_expenses ?? 0)}
+        grossIncome={Number(gameState.profile.gross_income ?? 0)}
+        totalExpenses={Number(gameState.profile.total_expenses ?? 0)}
+        netIncome={Number(gameState.profile.hourly_income ?? 0)}
+      />
+
       {gameState.offlineEarnings && gameState.offlineEarnings.amount > 0 && (
         <OfflineEarningsModal
           isOpen={true}
-          onClose={gameState.clearOfflineEarnings}
+          onClaim={handleAnimatedOfflineClaim}
+          onClaimDouble={handleAnimatedOfflineDoubleClaim}
           earnedAmount={gameState.offlineEarnings.amount}
           offlineMinutes={gameState.offlineEarnings.minutes}
+          appliedMinutes={gameState.offlineEarnings.appliedMinutes}
+          isClaiming={isQuestRewardAnimating}
+          isWatchingAd={isOfflineAdClaiming}
         />
       )}
+
+      <QuestRewardClaimModal
+        isOpen={Boolean(questRewardModalQuest)}
+        quest={questRewardModalQuest}
+        onClose={() => setQuestRewardModalQuest(null)}
+        onClaim={handleQuestClaimNormal}
+        onClaimDouble={handleQuestClaimWithAd}
+        isBusy={isQuestRewardAnimating}
+        isWatchingAd={isQuestAdClaiming}
+      />
+
+      {moneyRewardFx && (
+        <MoneyRewardAnimation
+          amount={moneyRewardFx.amount}
+          phase={moneyRewardFx.phase}
+          targetRect={moneyAnchorRect}
+        />
+      )}
+
+      {gemRewardFx && (
+        <GemRewardAnimation
+          amount={gemRewardFx.amount}
+          phase={gemRewardFx.phase}
+          targetRect={gemAnchorRect}
+        />
+      )}
+
+      {jobTransitionFx && (
+        <JobTransitionAnimation
+          previousJob={jobTransitionFx.previousJob}
+          nextJob={jobTransitionFx.nextJob}
+          onComplete={() => setJobTransitionFx(null)}
+        />
+      )}
+
+      <TestRewardedAdModal
+        request={activeAdRequest}
+        providerName={getAdProviderName()}
+        onRewarded={rewardActiveAd}
+        onDismiss={dismissActiveAd}
+      />
     </div>
   );
 }

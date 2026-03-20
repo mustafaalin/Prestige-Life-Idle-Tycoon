@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, Lock, Check } from 'lucide-react';
 import type { Character, House, Car } from '../types/game';
+import { resolveLocalAsset } from '../lib/localAssets';
 
 const formatMoney = (amount: number) => `$${amount.toLocaleString()}`;
 
@@ -14,7 +15,7 @@ interface ShopProps {
   ownedHouses: string[];
   ownedCars: string[];
   totalMoney: number;
-  onPurchase: (type: 'character' | 'house' | 'car', itemId: string, price: number) => Promise<void>;
+  onPurchase: (type: 'character' | 'house' | 'car', itemId: string, price: number) => Promise<boolean>;
 }
 
 export function Shop({
@@ -67,16 +68,22 @@ export function Shop({
             <div className="aspect-square relative group">
               {item.image_url ? (
                 <img
-                  src={item.image_url}
+                  src={resolveLocalAsset(
+                    item.image_url,
+                    type === 'character' ? 'character' : type === 'house' ? 'house' : 'car'
+                  )}
                   alt={item.name}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
               ) : (
-                <div className="w-full h-full bg-slate-700 flex items-center justify-center">
-                  <span className="text-4xl">
-                    {type === 'character' ? '👤' : type === 'house' ? '🏠' : '🚗'}
-                  </span>
-                </div>
+                <img
+                  src={resolveLocalAsset(
+                    undefined,
+                    type === 'character' ? 'character' : type === 'house' ? 'house' : 'car'
+                  )}
+                  alt={item.name}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 bg-slate-700"
+                />
               )}
               
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
