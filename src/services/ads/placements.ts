@@ -42,4 +42,10 @@ export const PLACEMENT_COPY: Record<
     ctaLabel: 'Skip Timer',
     minWatchSeconds: DEFAULT_MIN_WATCH_SECONDS,
   },
+  bank_premium_deposit: {
+    title: 'Premium Bank Deposit',
+    description: 'Finish this rewarded ad to start your premium bank investment.',
+    ctaLabel: 'Start Deposit',
+    minWatchSeconds: DEFAULT_MIN_WATCH_SECONDS,
+  },
 };

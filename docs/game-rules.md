@@ -92,11 +92,15 @@ Bu dosya oyunun gerçek işleyiş kurallarını tutar.
 
 ## Investment Sistemi
 
-- İlk aşamada investment sistemi yalnızca `Real Estate` olarak çalışacaktır.
+- Investment sistemi şu anda:
+  - `Real Estate`
+  - `Bank`
+  - bir adet kilitli gelecek sekme
+  ile çalışır.
 - Investment modalı 3 sekmeli olacak:
   - `Real Estate` açık
-  - diğer 2 sekme şimdilik kilitli
-  - ileride bu kilitli sekmeler `Crypto` ve `Stocks` olabilir
+  - `Bank` açık
+  - diğer 1 sekme şimdilik kilitli
 - Real Estate sistemi oyuncunun yatırım amaçlı ev satın almasını sağlar.
 - Bu evler, yaşam alanı olarak seçilen `houses` sisteminden ayrıdır.
 - Real Estate market listesi yaklaşık `40-50` ev içerecek.
@@ -155,6 +159,36 @@ Bu dosya oyunun gerçek işleyiş kurallarını tutar.
 - Her upgrade seviyesi, evin `base_rental_income` değeri üzerinden yeni toplam kira seviyesini belirler.
   - Örnek: base rent `150` ise 4. upgrade sonrası kira `300` olur.
 - Upgrade butonunda veya özetinde, yükseltme sonrası yeni kira gelirinin kaç olacağı oyuncuya gösterilmelidir.
+
+### Bank Sistemi
+
+- `Bank` investment sekmesi mevduat yatırımları içindir.
+- Oyuncu aynı anda birden fazla aktif banka yatırımı açabilir.
+- Ancak aynı plan türünde aynı anda sadece `1` aktif yatırım olabilir.
+- Farklı planlar paralel açık olabilir.
+- Her yatırım ayrı sayaçla ilerler.
+- Yatırılan para anında bakiyeden düşer.
+- Vade dolmadan geri çekim yoktur.
+- Vade dolunca `Collect` ile ana para + kar birlikte alınır.
+- Bank planları:
+  - `Quick Deposit`
+    - `3 dakika`
+    - `+10%`
+    - max mevcut bakiyenin `%20`
+  - `Growth Deposit`
+    - `1 saat`
+    - `+50%`
+    - max mevcut bakiyenin `%35`
+  - `Premium Ad Deposit`
+    - `12 saat`
+    - `+100%`
+    - rewarded ad gerekir
+    - max mevcut bakiyenin `%50`
+- Premium plan reklamı claim anında değil, yatırımı başlatırken gösterilir.
+- Bank claim edildiğinde:
+  - `principal + profit` bakiyeye eklenir
+  - sadece `profit` kısmı `lifetime_earnings` içine yazılır
+- Vadesi dolmuş ama claim edilmemiş banka yatırımı varsa `Investments` ikonunda dikkat badge'i gösterilebilir.
 
 ## Claim Sistemi
 

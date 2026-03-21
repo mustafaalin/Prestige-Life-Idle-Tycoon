@@ -1,14 +1,66 @@
-import { useMemo, useState } from 'react';
-import { ArrowLeft, Car, ChevronDown, Home, Lock, Paintbrush, Package, Wifi, X } from 'lucide-react';
-import type { InvestmentUpgradeKey, InvestmentWithPlayerData } from '../types/game';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  ArrowLeft,
+  Car,
+  ChevronDown,
+  Home,
+  Lock,
+  Paintbrush,
+  Package,
+  Wifi,
+  X,
+} from 'lucide-react';
+import type {
+  BankDeposit,
+  BankDepositPlanId,
+  InvestmentUpgradeKey,
+  InvestmentWithPlayerData,
+} from '../types/game';
 import {
   INVESTMENT_UPGRADE_LABELS,
   INVESTMENT_UPGRADE_ORDER,
   calculateInvestmentRentalIncome,
 } from '../data/local/investments';
-import { resolveLocalAsset } from '../lib/localAssets';
+import {
+  BANK_DEPOSIT_PLANS,
+  getBankDepositCountdownMs,
+  getBankDepositMaxAmount,
+  getBankDepositPlan,
+  isBankDepositReady,
+} from '../data/local/bankDeposits';
+import { LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
 
 const formatMoney = (amount: number) => `$${amount.toLocaleString()}`;
+const MIN_BANK_DEPOSIT = 1000;
+
+function formatDurationLabel(ms: number) {
+  if (ms >= 24 * 60 * 60 * 1000) {
+    return '1 Day';
+  }
+
+  if (ms >= 60 * 1000) {
+    return `${Math.round(ms / 60000)} Minute`;
+  }
+
+  return formatCountdown(ms);
+}
+
+function formatCountdown(ms: number) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  }
+
+  return `${seconds}s`;
+}
 
 const upgradeIcons: Record<InvestmentUpgradeKey, typeof Paintbrush> = {
   paint: Paintbrush,
@@ -20,25 +72,34 @@ const upgradeIcons: Record<InvestmentUpgradeKey, typeof Paintbrush> = {
 
 interface InvestmentsModalProps {
   investments: InvestmentWithPlayerData[];
+  bankDeposits: BankDeposit[];
   totalMoney: number;
   onPurchase: (investmentId: string) => Promise<boolean>;
   onUpgrade: (investmentId: string, upgradeKey: InvestmentUpgradeKey) => Promise<boolean>;
+  onStartBankDeposit: (planId: BankDepositPlanId, amount: number) => Promise<boolean>;
+  onClaimBankDeposit: (depositId: string) => Promise<boolean>;
   onClose: () => void;
 }
 
 export function InvestmentsModal({
   investments,
+  bankDeposits,
   totalMoney,
   onPurchase,
   onUpgrade,
+  onStartBankDeposit,
+  onClaimBankDeposit,
   onClose,
 }: InvestmentsModalProps) {
-  const [activeTab, setActiveTab] = useState<'real-estate' | 'crypto' | 'stocks'>('real-estate');
+  const [activeTab, setActiveTab] = useState<'real-estate' | 'bank' | 'stocks'>('real-estate');
   const [activeView, setActiveView] = useState<'menu' | 'market' | 'properties'>('menu');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedInvestmentId, setSelectedInvestmentId] = useState<string | null>(null);
   const [confirmPurchaseId, setConfirmPurchaseId] = useState<string | null>(null);
   const [processingKey, setProcessingKey] = useState<string | null>(null);
+  const [bankPlanModalPlanId, setBankPlanModalPlanId] = useState<BankDepositPlanId | null>(null);
+  const [bankAmountInput, setBankAmountInput] = useState<number>(MIN_BANK_DEPOSIT);
+  const [timeNow, setTimeNow] = useState(Date.now());
 
   const selectedInvestment =
     investments.find((investment) => investment.id === selectedInvestmentId) || null;
@@ -60,6 +121,26 @@ export function InvestmentsModal({
   );
   const marketPreview = marketInvestments[0] || sortedInvestments[0] || null;
   const propertiesPreview = ownedInvestments[0] || sortedInvestments[0] || null;
+  const selectedBankPlan = bankPlanModalPlanId ? getBankDepositPlan(bankPlanModalPlanId) : null;
+  const selectedBankPlanMaxAmount = bankPlanModalPlanId ? getBankDepositMaxAmount(totalMoney, bankPlanModalPlanId) : 0;
+  const parsedBankAmount = Math.max(0, Math.floor(Number(bankAmountInput || 0)));
+  const bankAmountValid =
+    parsedBankAmount >= MIN_BANK_DEPOSIT &&
+    parsedBankAmount <= selectedBankPlanMaxAmount &&
+    parsedBankAmount <= totalMoney;
+  const readyBankDeposits = bankDeposits.filter((deposit) => isBankDepositReady(deposit, timeNow));
+
+  useEffect(() => {
+    if (activeTab !== 'bank') return;
+
+    const interval = window.setInterval(() => {
+      setTimeNow(Date.now());
+    }, 1000);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [activeTab]);
 
   const handleConfirmPurchase = async () => {
     if (!confirmingInvestment) return;
@@ -74,6 +155,100 @@ export function InvestmentsModal({
     } finally {
       setProcessingKey(null);
     }
+  };
+
+  const openBankPlanModal = (planId: BankDepositPlanId) => {
+    const maxAmount = getBankDepositMaxAmount(totalMoney, planId);
+    setBankPlanModalPlanId(planId);
+    setBankAmountInput(Math.max(MIN_BANK_DEPOSIT, Math.floor(maxAmount / 2)));
+  };
+
+  const handleStartBankDeposit = async () => {
+    if (!bankPlanModalPlanId || !bankAmountValid) return;
+
+    setProcessingKey(`bank-start:${bankPlanModalPlanId}`);
+    try {
+      const success = await onStartBankDeposit(bankPlanModalPlanId, parsedBankAmount);
+      if (success) {
+        setBankPlanModalPlanId(null);
+      }
+    } finally {
+      setProcessingKey(null);
+    }
+  };
+
+  const renderBankPlanCard = (planId: BankDepositPlanId) => {
+    const plan = getBankDepositPlan(planId);
+    const planDeposits = bankDeposits.filter((deposit) => deposit.plan_id === plan.id);
+    const activeDeposit = planDeposits[0] || null;
+    const activeDepositReady = activeDeposit ? isBankDepositReady(activeDeposit, timeNow) : false;
+    const planImage =
+      plan.id === 'quick'
+        ? LOCAL_ICON_ASSETS.money
+        : plan.id === 'growth'
+          ? LOCAL_ICON_ASSETS.wallet
+          : LOCAL_ICON_ASSETS.buyMoreMoney;
+
+    return (
+      <div
+        key={plan.id}
+        className="overflow-hidden rounded-[22px] border-2 border-slate-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+      >
+        <div className="px-3 pt-3 text-center">
+          <div className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-700">
+            {formatDurationLabel(plan.durationMs)}
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center px-3 pb-3 pt-2">
+          <div className="flex h-20 w-20 items-center justify-center rounded-[18px] bg-slate-50">
+            <img src={planImage} alt={plan.title} className="h-12 w-12 object-contain" />
+          </div>
+
+          <div className="mt-2 text-2xl font-black text-amber-500">
+            +{Math.round(plan.profitMultiplier * 100)}%
+          </div>
+
+          {!activeDeposit ? (
+            <button
+              onClick={() => openBankPlanModal(plan.id)}
+              className="mt-2 w-full rounded-[16px] bg-lime-400 px-3 py-2.5 text-xs font-black text-slate-900 shadow-[inset_0_-3px_0_rgba(0,0,0,0.14)] transition-all active:scale-[0.98]"
+            >
+              INVEST
+            </button>
+          ) : (
+            <div className="mt-2 w-full rounded-[16px] bg-slate-100 p-2.5">
+              <div className="flex items-center justify-center gap-1.5 text-xs font-black text-slate-800">
+                <img src={LOCAL_ICON_ASSETS.money} alt="Money" className="h-4 w-4" />
+                {formatMoney(activeDeposit.principal)}
+              </div>
+              <button
+                onClick={async () => {
+                  setProcessingKey(`bank-claim:${activeDeposit.id}`);
+                  try {
+                    await onClaimBankDeposit(activeDeposit.id);
+                  } finally {
+                    setProcessingKey(null);
+                  }
+                }}
+                disabled={!activeDepositReady || processingKey === `bank-claim:${activeDeposit.id}`}
+                className={`mt-2 w-full rounded-[14px] px-2.5 py-2 text-[11px] font-black transition-all ${
+                  activeDepositReady
+                    ? 'bg-orange-500 text-white shadow-[inset_0_-3px_0_rgba(0,0,0,0.16)]'
+                    : 'bg-slate-200 text-slate-400'
+                }`}
+              >
+                {processingKey === `bank-claim:${activeDeposit.id}`
+                  ? 'COLLECTING...'
+                  : activeDepositReady
+                    ? 'COLLECT'
+                    : formatCountdown(getBankDepositCountdownMs(activeDeposit, timeNow))}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   const handleUpgrade = async (upgradeKey: InvestmentUpgradeKey) => {
@@ -177,15 +352,19 @@ export function InvestmentsModal({
             Real Estate
           </button>
           <button
-            disabled
-            aria-label="Crypto locked"
-            className={`rounded-lg transition-all flex items-center justify-center ${
-              activeTab === 'crypto'
-                ? 'flex-[2] bg-slate-200 text-slate-500'
-                : 'flex-1 bg-slate-100 text-slate-400 cursor-not-allowed'
+            onClick={() => setActiveTab('bank')}
+            className={`relative py-2 px-3 rounded-lg font-bold text-sm transition-all ${
+              activeTab === 'bank'
+                ? 'flex-[2] bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-md'
+                : 'flex-1 bg-emerald-50 text-emerald-700'
             }`}
           >
-            <Lock className="w-4 h-4" />
+            {readyBankDeposits.length > 0 && (
+              <div className="absolute -right-1.5 -top-1.5 z-20 flex h-6 w-6 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-black leading-none text-white shadow-[0_0_14px_rgba(239,68,68,0.65)]">
+                !
+              </div>
+            )}
+            Bank
           </button>
           <button
             disabled
@@ -272,6 +451,31 @@ export function InvestmentsModal({
               </div>
             </div>
           </>
+        )}
+
+        {activeTab === 'bank' && (
+          <div className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.14),_transparent_38%),linear-gradient(180deg,#f8fffc_0%,#f8fafc_100%)] p-4">
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-[18px] border border-slate-200 bg-white p-3 shadow-sm">
+                  <div className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">Balance</div>
+                  <div className="mt-1 text-sm font-black text-slate-900">{formatMoney(totalMoney)}</div>
+                </div>
+                <div className="rounded-[18px] border border-emerald-100 bg-white p-3 shadow-sm">
+                  <div className="text-[10px] font-black uppercase tracking-[0.14em] text-emerald-600">Active</div>
+                  <div className="mt-1 text-sm font-black text-emerald-700">{bankDeposits.length} deposits</div>
+                </div>
+                <div className="rounded-[18px] border border-violet-100 bg-white p-3 shadow-sm">
+                  <div className="text-[10px] font-black uppercase tracking-[0.14em] text-violet-600">Ready</div>
+                  <div className="mt-1 text-sm font-black text-violet-700">{readyBankDeposits.length} claims</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                {BANK_DEPOSIT_PLANS.map((plan) => renderBankPlanCard(plan.id))}
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
@@ -457,6 +661,111 @@ export function InvestmentsModal({
                 }`}
               >
                 {processingKey === confirmingInvestment.id ? 'Buying...' : 'Buy'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedBankPlan && (
+        <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/75 p-4 pointer-events-auto">
+          <div className="w-full max-w-sm overflow-hidden rounded-[28px] border-2 border-sky-300 bg-[#eef5ff] shadow-[0_30px_90px_rgba(15,23,42,0.4)]">
+            <div className="bg-[#74aee0] px-5 py-4 text-white">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="mt-1 text-2xl font-black">{formatDurationLabel(selectedBankPlan.durationMs)}</h3>
+                </div>
+                <button
+                  onClick={() => setBankPlanModalPlanId(null)}
+                  className="rounded-full bg-white/15 p-2 transition-colors hover:bg-white/25"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-4 p-5">
+              <div className="grid grid-cols-[110px_1fr] items-center gap-4">
+                <div className="flex h-[110px] w-[110px] items-center justify-center rounded-[22px] bg-white shadow-sm">
+                  <img
+                    src={
+                      selectedBankPlan.id === 'quick'
+                        ? LOCAL_ICON_ASSETS.money
+                        : selectedBankPlan.id === 'growth'
+                          ? LOCAL_ICON_ASSETS.wallet
+                          : LOCAL_ICON_ASSETS.buyMoreMoney
+                    }
+                    alt={selectedBankPlan.title}
+                    className="h-16 w-16 object-contain"
+                  />
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-black text-slate-800">Choose the deposit amount.</p>
+                  <p className="mt-1 text-xl font-black text-slate-800">
+                    Retrieve it in {formatDurationLabel(selectedBankPlan.durationMs)} with profit
+                  </p>
+                  <div className="mt-3 text-5xl font-black text-amber-500">
+                    +{Math.round(selectedBankPlan.profitMultiplier * 100)}%
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-[24px] bg-transparent p-1">
+                <div className="text-right text-2xl font-black text-slate-700">{formatMoney(parsedBankAmount)}</div>
+
+                <input
+                  type="range"
+                  min={Math.min(MIN_BANK_DEPOSIT, selectedBankPlanMaxAmount)}
+                  max={Math.max(MIN_BANK_DEPOSIT, selectedBankPlanMaxAmount)}
+                  step={500}
+                  value={Math.min(parsedBankAmount, Math.max(MIN_BANK_DEPOSIT, selectedBankPlanMaxAmount))}
+                  onChange={(event) => setBankAmountInput(Number(event.target.value))}
+                  className="mt-4 h-3 w-full cursor-pointer appearance-none rounded-full bg-lime-600/80"
+                />
+
+                <div className="mt-3 flex items-center justify-between text-[11px] font-bold text-slate-500">
+                  <span>{formatMoney(Math.min(MIN_BANK_DEPOSIT, selectedBankPlanMaxAmount))}</span>
+                  <span>{formatMoney(selectedBankPlanMaxAmount)}</span>
+                </div>
+              </div>
+
+              <div className="rounded-[24px] bg-emerald-50 p-4">
+                <div className="text-center text-lg font-black text-slate-700">Your profit:</div>
+                <div className="mt-1 text-center text-4xl font-black text-emerald-500">
+                  {bankAmountValid
+                    ? formatMoney(Math.floor(parsedBankAmount * selectedBankPlan.profitMultiplier))
+                    : '$0'}
+                </div>
+                <p className="mt-1 text-xs font-semibold text-slate-500">
+                  {selectedBankPlan.adRequired
+                    ? 'Rewarded ad is required to start this premium deposit.'
+                    : 'Your money will stay locked until the timer ends.'}
+                </p>
+              </div>
+
+              <button
+                onClick={handleStartBankDeposit}
+                disabled={
+                  !bankAmountValid ||
+                  processingKey === `bank-start:${selectedBankPlan.id}` ||
+                  selectedBankPlanMaxAmount < MIN_BANK_DEPOSIT ||
+                  bankDeposits.some((deposit) => deposit.plan_id === selectedBankPlan.id)
+                }
+                className={`w-full rounded-2xl px-4 py-4 text-sm font-black transition-all ${
+                  bankAmountValid &&
+                  selectedBankPlanMaxAmount >= MIN_BANK_DEPOSIT &&
+                  !bankDeposits.some((deposit) => deposit.plan_id === selectedBankPlan.id)
+                    ? 'bg-lime-400 text-slate-900 shadow-[inset_0_-3px_0_rgba(0,0,0,0.14)]'
+                    : 'bg-slate-200 text-slate-400'
+                }`}
+              >
+                {processingKey === `bank-start:${selectedBankPlan.id}`
+                  ? selectedBankPlan.adRequired
+                    ? 'Starting With Ad...'
+                    : 'Starting Deposit...'
+                  : bankDeposits.some((deposit) => deposit.plan_id === selectedBankPlan.id)
+                    ? 'Plan Already Active'
+                    : 'INVEST'}
               </button>
             </div>
           </div>

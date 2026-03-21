@@ -23,6 +23,7 @@ import { JobTransitionAnimation } from './components/JobTransitionAnimation';
 import { getDailyRewardStatus } from './data/local/rewards';
 import { getScaledShopRewards } from './data/local/rewardScaling';
 import { LOCAL_QUESTS } from './data/local/quests';
+import type { BankDepositPlanId } from './types/game';
 import {
   dismissActiveAd,
   getAdProviderName,
@@ -362,6 +363,45 @@ export default function App() {
     }
   }
 
+  async function handleStartBankDeposit(planId: BankDepositPlanId, amount: number) {
+    if (planId === 'premium_ad') {
+      const rewarded = await requestRewardedAd('bank_premium_deposit');
+      if (!rewarded) {
+        return false;
+      }
+    }
+
+    return gameState.startBankDeposit(planId, amount);
+  }
+
+  async function handleAnimatedBankDepositClaim(depositId: string) {
+    if (isQuestRewardAnimating) {
+      return false;
+    }
+
+    const deposit = gameState.bankDeposits.find((entry) => entry.id === depositId);
+    const reward = deposit ? deposit.principal + deposit.profit : 0;
+    if (!deposit || reward <= 0) {
+      return false;
+    }
+
+    setIsQuestRewardAnimating(true);
+
+    try {
+      await playRewardAnimationSequence({ money: reward, gems: 0 });
+      const result = await gameState.claimBankDeposit(depositId);
+
+      if (result?.success) {
+        setMoneyAnimationSequenceId((prev) => prev + 1);
+      }
+
+      return Boolean(result?.success);
+    } finally {
+      setMoneyRewardFx(null);
+      setIsQuestRewardAnimating(false);
+    }
+  }
+
   async function handleAnimatedQuestClaim(questId?: string, rewardMultiplier = 1) {
     if (isQuestRewardAnimating) {
       return;
@@ -385,7 +425,7 @@ export default function App() {
       const normalizedRewardMultiplier = rewardMultiplier > 1 ? 2 : 1;
       await playRewardAnimationSequence({
         money: rewardMoney * normalizedRewardMultiplier,
-        gems: rewardGems * normalizedRewardMultiplier,
+        gems: rewardGems > 0 ? rewardGems + (rewardMultiplier > 1 ? 2 : 0) : 0,
       });
       const result = await gameState.claimQuestReward(questId, rewardMultiplier);
 
@@ -572,6 +612,9 @@ export default function App() {
     Number(gameState.profile.prestige_points ?? 0),
     ownedInvestmentCount
   );
+  const hasReadyBankDeposit = gameState.bankDeposits.some(
+    (deposit) => new Date(deposit.matures_at).getTime() <= Date.now()
+  );
   const canClaimDailyReward = gameState.gameStats ? getDailyRewardStatus(gameState.gameStats).canClaim : false;
   const canClaimAccumulatedMoney = getCanClaimAccumulatedMoney({
     claimPool: scaledShopRewards.claimPool,
@@ -673,6 +716,7 @@ export default function App() {
         hasQuestAttention={gameState.hasClaimableQuestRewards || Boolean(gameState.claimableChapterReward)}
         attentionTabs={{
           shop: canClaimDailyReward || canClaimAccumulatedMoney,
+          investments: hasReadyBankDeposit,
         }}
       />
 
@@ -773,9 +817,12 @@ export default function App() {
       {showInvestmentsModal && (
         <InvestmentsModal
           investments={gameState.investments}
+          bankDeposits={gameState.bankDeposits}
           totalMoney={gameState.profile.total_money}
           onPurchase={gameState.purchaseInvestment}
           onUpgrade={gameState.upgradeInvestment}
+          onStartBankDeposit={handleStartBankDeposit}
+          onClaimBankDeposit={handleAnimatedBankDepositClaim}
           onClose={() => {
             setShowInvestmentsModal(false);
             setActiveTab('investments');

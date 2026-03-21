@@ -17,7 +17,15 @@ import {
   LOCAL_QUESTS,
   normalizeQuestProgress,
 } from '../data/local/quests';
+import {
+  createBankDeposit,
+  getBankDepositMaxAmount,
+  getBankDepositPlan,
+  isBankDepositReady,
+} from '../data/local/bankDeposits';
 import type {
+  BankDeposit,
+  BankDepositPlanId,
   BusinessWithPlayerData,
   InvestmentUpgradeKey,
   InvestmentWithPlayerData,
@@ -77,6 +85,7 @@ interface GameState {
   businessesLoading: boolean;
   unsavedJobWorkSeconds: number;
   pendingMoneyDelta: number;
+  bankDeposits: BankDeposit[];
 }
 
 const GAME_STATE_KEY = 'idle_guy_game_state';
@@ -278,6 +287,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     businessesLoading: true,
     unsavedJobWorkSeconds: 0,
     pendingMoneyDelta: 0,
+    bankDeposits: [],
   });
 
   const isTabVisible = useRef<boolean>(true);
@@ -369,6 +379,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       .reduce((sum, business) => sum + Number(business.current_prestige_points || 0), 0);
     const gameStats = normalizeGameStats(stored?.gameStats as GameStats | undefined, profile.id);
     const questProgress = normalizeQuestProgress(stored?.questProgress as QuestProgress | undefined);
+    const bankDeposits = (stored?.bankDeposits as BankDeposit[] | undefined) || [];
     const syncedProfile = syncQuestPrestige(profile, questProgress);
     const ownedCharacters = ensureOwnedSelection(
       stored?.ownedCharacters as string[] | undefined,
@@ -405,6 +416,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         typeof stored?.jobChangeLockedUntil === 'number' && stored.jobChangeLockedUntil > Date.now()
           ? stored.jobChangeLockedUntil
           : null,
+      bankDeposits,
     });
 
     setGameState({
@@ -436,6 +448,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       businessesLoading: false,
       unsavedJobWorkSeconds: 0,
       pendingMoneyDelta: 0,
+      bankDeposits,
     });
   }, [deviceId, loadFromLocalStorage, saveToLocalStorage, userId]);
 
@@ -691,6 +704,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       );
       const normalizedGameStats = normalizeGameStats(gameStatsRes, activeId);
       const questProgress = normalizeQuestProgress(localData?.questProgress as QuestProgress | undefined);
+      const bankDeposits = (localData?.bankDeposits as BankDeposit[] | undefined) || [];
       if (currentProfile) {
         currentProfile = syncQuestPrestige(currentProfile as PlayerProfile, questProgress);
       }
@@ -746,6 +760,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         businessesLoading: true,
         unsavedJobWorkSeconds: 0,
         pendingMoneyDelta: currentPending,
+        bankDeposits,
       });
 
       saveToLocalStorage({
@@ -764,6 +779,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         selectedOutfit,
         questProgress,
         jobChangeLockedUntil: currentJobCooldown,
+        bankDeposits,
       });
 
       loadBusinesses(activeId);
@@ -873,7 +889,10 @@ export function useGameState(deviceId: string, userId: string | null) {
 
     const normalizedRewardMultiplier = rewardMultiplier > 1 ? 2 : 1;
     const finalRewardMoney = activeQuest.reward_money * normalizedRewardMultiplier;
-    const finalRewardGems = activeQuest.reward_gems * normalizedRewardMultiplier;
+    const finalRewardGems =
+      activeQuest.reward_gems > 0
+        ? activeQuest.reward_gems + (rewardMultiplier > 1 ? 2 : 0)
+        : 0;
 
     const nextQuestProgress: QuestProgress = {
       ...gameState.questProgress,
@@ -1310,6 +1329,93 @@ export function useGameState(deviceId: string, userId: string | null) {
     setGameState((prev) => ({ ...prev, offlineEarnings: null }));
   }, []);
 
+  const startBankDeposit = useCallback(async (planId: BankDepositPlanId, amount: number) => {
+    const currentProfile = gameState.profile;
+    if (!currentProfile) return false;
+    const hasActivePlanDeposit = gameStateRef.current.bankDeposits.some(
+      (deposit) => deposit.plan_id === planId
+    );
+    if (hasActivePlanDeposit) return false;
+
+    const principal = Math.floor(amount);
+    const maxAmount = getBankDepositMaxAmount(Number(currentProfile.total_money || 0), planId);
+
+    if (principal < 1000 || principal > maxAmount || principal > Number(currentProfile.total_money || 0)) {
+      return false;
+    }
+
+    const deposit = createBankDeposit({ planId, principal });
+    const updatedProfile = {
+      ...currentProfile,
+      total_money: Number(currentProfile.total_money || 0) - principal,
+    };
+
+    const nextDeposits = [...gameStateRef.current.bankDeposits, deposit];
+
+    gameStateRef.current = {
+      ...gameStateRef.current,
+      profile: updatedProfile,
+      bankDeposits: nextDeposits,
+    };
+
+    setGameState((prev) => ({
+      ...prev,
+      profile: updatedProfile,
+      bankDeposits: nextDeposits,
+    }));
+
+    saveToLocalStorage({
+      profile: updatedProfile,
+      bankDeposits: nextDeposits,
+    });
+
+    return true;
+  }, [gameState.profile, saveToLocalStorage]);
+
+  const claimBankDeposit = useCallback(async (depositId: string) => {
+    const currentProfile = gameStateRef.current.profile;
+    const currentDeposits = gameStateRef.current.bankDeposits;
+    if (!currentProfile) return null;
+
+    const deposit = currentDeposits.find((entry) => entry.id === depositId);
+    if (!deposit || !isBankDepositReady(deposit)) {
+      return null;
+    }
+
+    const totalPayout = deposit.principal + deposit.profit;
+    const updatedProfile = {
+      ...currentProfile,
+      total_money: Number(currentProfile.total_money || 0) + totalPayout,
+      lifetime_earnings: Number(currentProfile.lifetime_earnings || 0) + deposit.profit,
+    };
+    const nextDeposits = currentDeposits.filter((entry) => entry.id !== depositId);
+
+    gameStateRef.current = {
+      ...gameStateRef.current,
+      profile: updatedProfile,
+      bankDeposits: nextDeposits,
+    };
+
+    setGameState((prev) => ({
+      ...prev,
+      profile: updatedProfile,
+      bankDeposits: nextDeposits,
+    }));
+
+    saveToLocalStorage({
+      profile: updatedProfile,
+      bankDeposits: nextDeposits,
+    });
+
+    return {
+      success: true,
+      amount: totalPayout,
+      profit: deposit.profit,
+      deposit,
+      plan: getBankDepositPlan(deposit.plan_id),
+    };
+  }, [saveToLocalStorage]);
+
   const watchAd = useCallback(async () => {
     const activeId = gameState.profile?.id;
     if (!activeId) return { success: false, reward: 0, cooldown: 0 };
@@ -1333,13 +1439,16 @@ export function useGameState(deviceId: string, userId: string | null) {
         pendingMoneyDelta: 0,
         offlineEarnings: null,
         unsavedJobWorkSeconds: 0,
+        bankDeposits: [],
       };
       setGameState((prev) => ({
         ...prev,
         pendingMoneyDelta: 0,
         offlineEarnings: null,
         unsavedJobWorkSeconds: 0,
+        bankDeposits: [],
       }));
+      saveToLocalStorage({ bankDeposits: [] });
       await profileService.resetProgress(activeId);
       await loadGameData(false);
       return true;
@@ -1383,6 +1492,8 @@ export function useGameState(deviceId: string, userId: string | null) {
     rescueDailyRewardStreak,
     claimAccumulatedMoney,
     watchAd,
+    startBankDeposit,
+    claimBankDeposit,
     updatePlayerName,
     resetProgress,
     claimOfflineEarnings,

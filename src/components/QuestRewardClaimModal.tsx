@@ -29,7 +29,7 @@ export function QuestRewardClaimModal({
   const hasMoneyReward = rewardMoney > 0;
   const hasGemReward = rewardGems > 0;
   const doubledMoney = rewardMoney * 2;
-  const doubledGems = rewardGems * 2;
+  const boostedGems = rewardGems + 2;
   const rewardMode = hasMoneyReward && hasGemReward ? 'mixed' : hasMoneyReward ? 'money' : 'gems';
   const rewardLabel =
     rewardMode === 'money'
@@ -47,8 +47,8 @@ export function QuestRewardClaimModal({
     rewardMode === 'money'
       ? 'Watch an ad to double your cash payout'
       : rewardMode === 'gems'
-        ? 'Watch an ad to double your gem reward'
-        : 'Watch an ad to double both rewards';
+        ? 'Watch an ad to add +2 gems to this reward'
+        : 'Watch an ad to double cash and add +2 gems';
 
   return (
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/55 p-4">
@@ -113,7 +113,7 @@ export function QuestRewardClaimModal({
                   {hasGemReward && (
                     <span className="inline-flex items-center gap-1 text-cyan-700">
                       <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-4 w-4" />
-                      {doubledGems}
+                      {boostedGems}
                     </span>
                   )}
                 </p>
@@ -124,7 +124,7 @@ export function QuestRewardClaimModal({
                 className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-3 text-sm font-black text-white transition-all active:scale-[0.98] disabled:opacity-60"
               >
                 <Play className="h-4 w-4 fill-white" />
-                {isWatchingAd ? 'Watching...' : 'Watch x2'}
+                {isWatchingAd ? 'Watching...' : 'Watch Ad'}
               </button>
             </div>
           </div>

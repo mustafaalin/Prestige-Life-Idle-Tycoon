@@ -17,6 +17,7 @@ docs/game-rules.md
 docs/rpc-reference.md
 docs/quest-progression.md
 docs/mobile-ad-integration.md
+docs/bank-investment-system.md
 
 Amacımız Supabase bağımlılığını kaldırıp oyunu localStorage tabanlı, mobil öncelikli çalışır hale getirmekti. Önce mevcut durumu özetle, sonra sıradaki en mantıklı adımdan devam et.
 ```
@@ -44,6 +45,7 @@ Oyun hafızası ayrıştırıldı:
 - `docs/local-storage-transition.md`
 - `docs/quest-progression.md`
 - `docs/mobile-ad-integration.md`
+- `docs/bank-investment-system.md`
 
 Bu dosyalara kullanıcıdan alınan canlı tablo/RPC bilgileri işlendi.
 
@@ -106,6 +108,9 @@ Başlandı:
   - footer'daki `Quest` butonu ile chapter tablı `Quest List` modalı açılıyor
   - para ödülünde merkez popup -> header para alanına uçuş -> header tween akışı var
   - elmas ödülünde merkez popup -> sağ üst gem alanına uçuş -> gem sayacı tween akışı var
+  - quest reward reklam boost kuralı:
+    - para ödülü `x2`
+    - gem ödülü `2x` değil, sabit `+2 gem`
 
 ### UI düzenlemeleri
 
@@ -135,6 +140,21 @@ Tamamlandı:
 - native için Capacitor AdMob provider eklendi
 - Android / iOS test app id ve rewarded test ad unit konfigürasyonu yapıldı
 - detay dokümanı: `docs/mobile-ad-integration.md`
+
+### Bank Investment
+
+Tamamlandı:
+
+- `Investments` içinde `Bank` sekmesi açıldı
+- çoklu aktif mevduat destekleniyor
+- planlar:
+  - `3 dk / +10% / max %20`
+  - `1 saat / +50% / max %35`
+  - `12 saat / +100% / ad required / max %50`
+- premium plan mevcut rewarded ad altyapısına bağlandı
+- bank claim mevcut para uçuş animasyonuna bağlandı
+- vadesi dolmuş mevduat varsa `Investments` ikonunda dikkat badge'i çıkıyor
+- aynı plan türünde ikinci mevduat açılamıyor; farklı planlar paralel açık olabiliyor
 
 ### TypeScript durumu
 
@@ -214,6 +234,24 @@ En mantıklı sıradaki adım şuydu:
 2. rewarded ad placement'larında gerçek AdMob test reklamın açılıp açılmadığını doğrulamak
 3. native cihaz testinden sonra gerekiyorsa `capacitorAdmobProvider` davranışını ince ayar yapmak
 4. ardından oyunun kalan mekanik / local-first eksiklerine geri dönmek
+
+## Yakın Ürün Backlog'u
+
+Son konuşulan ve sonraki sprintlerde ele alınabilecek başlıklar:
+
+1. `Investment > Bank` sekmesi
+   - tamamlandı
+   - detay kural dokümanı: `docs/bank-investment-system.md`
+   - sonraki iyileştirmeler:
+     - toplu claim
+     - geçmiş mevduat listesi
+     - üçüncü investment sekmesi tasarımı
+
+2. Release readiness
+   - görev zincirlerinin 1-100 arası gerçek oynanış testi
+   - ekonomi denge testi
+   - native ad testi
+   - production store hazırlıkları
 
 ## Yeni Sohbette Beklenen İlk Davranış
 

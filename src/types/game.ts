@@ -17,6 +17,7 @@ export type InvestmentUpgradeKey =
   | 'furniture'
   | 'internet'
   | 'parking';
+export type BankDepositPlanId = 'quick' | 'growth' | 'premium_ad';
 
 export type QuestTargetScreen = 'shop' | 'job' | 'business' | 'investments' | 'stuff';
 
@@ -79,6 +80,17 @@ export interface OfflineEarnings {
   appliedMinutes: number;
 }
 
+export interface BankDeposit {
+  id: string;
+  plan_id: BankDepositPlanId;
+  principal: number;
+  profit: number;
+  started_at: string;
+  matures_at: string;
+  ad_required: boolean;
+  ad_completed: boolean;
+}
+
 export interface GameState {
   profile: PlayerProfile | null;
   characters: Character[];
@@ -105,6 +117,7 @@ export interface GameState {
   businessesLoading: boolean;
   unsavedJobWorkSeconds: number;
   pendingMoneyDelta: number;
+  bankDeposits: BankDeposit[];
 }
 
 export interface BusinessWithPlayerData {
