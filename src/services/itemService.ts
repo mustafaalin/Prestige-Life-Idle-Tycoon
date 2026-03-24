@@ -15,6 +15,7 @@ import {
 import { LOCAL_HOUSES } from '../data/local/houses';
 import { LOCAL_CARS } from '../data/local/cars';
 import { recalculateLocalEconomy, recalculateLocalPrestige } from '../data/local/economy';
+import { awardCashback } from '../data/local/bankRewards';
 
 export async function getCharacters() {
   return getLocalCharacters();
@@ -114,11 +115,13 @@ export async function purchaseOutfit(playerId: string, outfitId: string, setAsSe
     businesses: getLocalBusinesses(),
     selectedOutfit: setAsSelected ? outfit : undefined,
   });
+  const cashbackResult = awardCashback(nextProfile, Number(outfit.price || 0));
 
   saveLocalGameState({
-    profile: nextProfile,
+    profile: cashbackResult.updatedProfile,
     playerOutfits: nextPlayerOutfits,
-    selectedOutfit: outfits.find((entry) => entry.id === nextProfile.selected_outfit_id) || null,
+    selectedOutfit:
+      outfits.find((entry) => entry.id === cashbackResult.updatedProfile.selected_outfit_id) || null,
   });
 
   return {
@@ -177,6 +180,11 @@ export async function selectHouse(playerId: string, houseId: string) {
   const profile = getLocalProfile();
   if (!profile) throw new Error('Player not found');
   const house = LOCAL_HOUSES.find((entry) => entry.id === houseId);
+  const currentHouse = LOCAL_HOUSES.find((entry) => entry.id === profile.selected_house_id);
+  if (!house) throw new Error('House not found');
+  if (currentHouse && house.level < currentHouse.level) {
+    throw new Error('Cannot move back to a lower level house');
+  }
   const nextProfile = recalculateLocalEconomy({
     profile: {
       ...profile,
@@ -197,6 +205,11 @@ export async function selectCar(playerId: string, carId: string) {
   const profile = getLocalProfile();
   if (!profile) throw new Error('Player not found');
   const car = LOCAL_CARS.find((entry) => entry.id === carId);
+  const currentCar = LOCAL_CARS.find((entry) => entry.id === profile.selected_car_id);
+  if (!car) throw new Error('Car not found');
+  if (currentCar && car.level < currentCar.level) {
+    throw new Error('Cannot switch back to a lower level car');
+  }
   const nextProfile = recalculateLocalEconomy({
     profile: {
       ...profile,

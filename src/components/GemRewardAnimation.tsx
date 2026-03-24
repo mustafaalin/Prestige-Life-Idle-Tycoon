@@ -21,7 +21,7 @@ export function GemRewardAnimation({
   const deltaY = targetY - startY;
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[120]">
+    <div className="pointer-events-none fixed inset-0 z-[140]">
       <div
         className="absolute left-1/2 top-1/2 transition-all duration-700 ease-in-out"
         style={{

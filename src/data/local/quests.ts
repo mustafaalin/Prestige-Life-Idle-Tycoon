@@ -1007,12 +1007,12 @@ export function getQuestChapterByIndex(chapterIndex: number) {
 }
 
 export function calculatePrestigeFromQuestProgress(progress: QuestProgress): number {
-  const completedQuestPrestige = new Set(progress.completedQuestIds).size;
+  const claimedQuestPrestige = new Set(progress.claimedQuestIds).size;
   const chapterPrestige = QUEST_CHAPTERS.filter((chapter) =>
     progress.claimedChapterRewardIds.includes(chapter.id)
   ).reduce((sum, chapter) => sum + Number(chapter.reward_prestige_points || 0), 0);
 
-  return completedQuestPrestige + chapterPrestige;
+  return claimedQuestPrestige + chapterPrestige;
 }
 
 export function isQuestCompleted(quest: QuestDefinition, snapshot: QuestSnapshot): boolean {

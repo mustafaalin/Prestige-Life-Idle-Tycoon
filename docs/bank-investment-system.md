@@ -3,6 +3,10 @@
 Bu doküman `Investments` içindeki ikinci sekmenin `Bank` olarak açılması için ürün ve ekonomi kuralını tanımlar.
 Amaç: oyuncuya mevcut bakiyesinin bir kısmını belirli süreli mevduata bağlama seçeneği vermek.
 
+Not:
+
+- `Cashback` ve `Premium Bank Card` için sonraki genişleme planı `docs/bank-expansion-plan.md` içinde tutulur.
+
 ## Hedef
 
 - `Real Estate` yanında ikinci açık sekme `Bank` olacak.

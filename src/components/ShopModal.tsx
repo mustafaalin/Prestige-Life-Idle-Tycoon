@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Gift, DollarSign, Gem, Play, Lock, Monitor, ShoppingBag, Sparkles, Shirt } from 'lucide-react';
+import { X, Gift, DollarSign, Play, Lock, Monitor, ShoppingBag, Sparkles, Shirt, Check, Flame } from 'lucide-react';
 import * as rewardService from '../services/rewardService';
 import * as itemService from '../services/itemService';
 import { PurchaseConfirmModal } from './PurchaseConfirmModal';
@@ -7,6 +7,8 @@ import { LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
 import { DAILY_REWARDS } from '../data/local/rewards';
 import { getScaledMoneyPackageAmount, getScaledShopRewards } from '../data/local/rewardScaling';
 import { formatMoneyFull } from '../utils/money';
+
+const AD_COOLDOWN_SECONDS = 30;
 
 interface ShopModalProps {
   isOpen: boolean;
@@ -16,12 +18,13 @@ interface ShopModalProps {
   prestigePoints: number;
   ownedInvestmentCount: number;
   lastClaimTime: string | null;
+  lastAdWatchTime: string | null;
   gems: number;
   claimLockedUntil: string | null;
   dailyClaimedTotal: number;
   onClaimDaily: (reward: { money: number; gems: number }) => Promise<boolean>;
   onRescueDailyStreak: () => Promise<{ success: boolean; cooldown: number }>;
-  onClaimMoney: (params: { isTriple: boolean; reward: number }) => Promise<boolean>;
+  onClaimMoney: (params: { isTriple: boolean }) => Promise<{ success: boolean; claimedAmount: number }>;
   onWatchAd: (reward: number) => Promise<{ success: boolean; reward: number; cooldown: number }>;
   onPurchaseComplete: (moneyAdded: number, gemsAdded: number) => Promise<void>;
   totalMoney: number;
@@ -84,6 +87,7 @@ export function ShopModal({
   prestigePoints,
   ownedInvestmentCount,
   lastClaimTime,
+  lastAdWatchTime,
   gems,
   claimLockedUntil,
   dailyClaimedTotal,
@@ -119,6 +123,7 @@ export function ShopModal({
   const [moneyPackages, setMoneyPackages] = useState<MoneyPackage[]>([]);
   const [gemPackages, setGemPackages] = useState<GemPackage[]>([]);
   const [showPurchaseConfirm, setShowPurchaseConfirm] = useState(false);
+  const [showDailyRewardsModal, setShowDailyRewardsModal] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<{
     type: 'money' | 'gem';
     amount: number;
@@ -128,6 +133,17 @@ export function ShopModal({
   const [isProcessingPurchase, setIsProcessingPurchase] = useState(false);
   const [outfits, setOutfits] = useState<CharacterOutfit[]>([]);
   const [outfitsLoading, setOutfitsLoading] = useState(false);
+
+  const getRemainingAdCooldown = (watchTime: string | null) => {
+    if (!watchTime) return 0;
+
+    const elapsedSeconds = (Date.now() - new Date(watchTime).getTime()) / 1000;
+    if (elapsedSeconds >= AD_COOLDOWN_SECONDS) {
+      return 0;
+    }
+
+    return Math.ceil(AD_COOLDOWN_SECONDS - elapsedSeconds);
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -267,14 +283,17 @@ export function ShopModal({
   }, [isOpen, claimLockedUntil]);
 
   useEffect(() => {
-    if (!isOpen || adCooldown <= 0) return;
+    if (!isOpen) return;
 
-    const interval = setInterval(() => {
-      setAdCooldown(prev => Math.max(0, prev - 1));
-    }, 1000);
+    const syncAdCooldown = () => {
+      setAdCooldown(getRemainingAdCooldown(lastAdWatchTime));
+    };
+
+    syncAdCooldown();
+    const interval = setInterval(syncAdCooldown, 1000);
 
     return () => clearInterval(interval);
-  }, [isOpen, adCooldown]);
+  }, [isOpen, lastAdWatchTime]);
 
   if (!isOpen) return null;
 
@@ -307,6 +326,8 @@ export function ShopModal({
     if (success && dailyRewardStatus) {
       refreshDailyRewardStatus();
     }
+
+    return success;
   };
 
   const handleRescueDailyStreak = async () => {
@@ -331,13 +352,10 @@ export function ShopModal({
   };
 
   const handleClaimMoney = async (isTriple: boolean) => {
-    const baseClaimAmount = Math.max(0, Math.min(accumulatedMoney, Math.max(0, dailyLimit - dailyClaimedTotal)));
-    const finalReward = isTriple ? baseClaimAmount * 3 : baseClaimAmount;
-
     setIsClaimingEarnings(true);
-    const success = await onClaimMoney({ isTriple, reward: finalReward });
+    const result = await onClaimMoney({ isTriple });
     setIsClaimingEarnings(false);
-    void success;
+    void result;
   };
 
   const handleWatchAd = async () => {
@@ -445,9 +463,7 @@ export function ShopModal({
 
   const scaledRewards = getScaledShopRewards(prestigePoints, ownedInvestmentCount);
   const maxAccumulated = scaledRewards.claimPool;
-  const progressPercent = maxAccumulated > 0 ? Math.min((accumulatedMoney / maxAccumulated) * 100, 100) : 0;
   const isLocked = timeUntilUnlock > 0;
-  const canClaim = accumulatedMoney > 0 && !isLocked;
   const isDailyAvailable = dailyRewardStatus?.canClaim ?? true;
   const rescueAvailable = dailyRewardStatus?.rescueAvailable ?? false;
   const hasClaimedToday = dailyRewardStatus?.hasClaimedToday ?? false;
@@ -458,9 +474,25 @@ export function ShopModal({
     : rescueAvailable
       ? dailyRewardStatus?.nextRewardDay ?? 1
       : dailyRewardStatus?.nextRewardDay ?? 1;
-  const todayReward = DAILY_REWARDS[featuredDay - 1] || DAILY_REWARDS[0];
+  const spotlightDay = hasClaimedToday
+    ? dailyRewardStatus?.nextRewardDay ?? featuredDay
+    : featuredDay;
+  const spotlightReward = DAILY_REWARDS[spotlightDay - 1] || DAILY_REWARDS[0];
+  const completedRewardDay = hasClaimedToday
+    ? dailyRewardStatus?.displayRewardDay ?? 0
+    : streakBroken
+      ? 0
+      : Math.max(0, featuredDay - 1);
   const dailyLimit = scaledRewards.dailyClaimLimit;
   const dailyLimitPercent = dailyLimit > 0 ? Math.min((dailyClaimedTotal / dailyLimit) * 100, 100) : 0;
+  const remainingDailyCapacity = Math.max(0, dailyLimit - dailyClaimedTotal);
+  const claimableAccumulated = Math.min(accumulatedMoney, remainingDailyCapacity);
+  const effectiveAccumulatedCap = Math.min(maxAccumulated, remainingDailyCapacity);
+  const progressPercent =
+    effectiveAccumulatedCap > 0
+      ? Math.min((claimableAccumulated / effectiveAccumulatedCap) * 100, 100)
+      : 0;
+  const canClaim = claimableAccumulated > 0 && !isLocked;
 
   return (
     <div
@@ -479,7 +511,7 @@ export function ShopModal({
               Shop
             </h2>
             <div className="flex items-center gap-1 bg-purple-50 px-2 py-1 rounded-lg">
-              <Gem className="w-3.5 h-3.5 text-purple-600" />
+              <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-3.5 w-3.5 object-contain" />
               <span className="text-xs font-bold text-purple-700">{gems}</span>
             </div>
           </div>
@@ -530,103 +562,56 @@ export function ShopModal({
           {activeTab === 'shop' && (
             <>
 
-          <div className="relative overflow-hidden rounded-2xl border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-100 p-5 shadow-[0_18px_40px_rgba(251,191,36,0.22)]">
+          <div className="relative overflow-hidden rounded-[24px] border-2 border-yellow-200 bg-[linear-gradient(160deg,#fff7df_0%,#ffe9a8_45%,#fffaf2_100%)] p-4 shadow-[0_14px_30px_rgba(251,191,36,0.18)]">
             <div className="pointer-events-none absolute -right-10 -top-12 h-28 w-28 rounded-full bg-yellow-300/35 blur-2xl" />
             <div className="pointer-events-none absolute -bottom-10 -left-8 h-24 w-24 rounded-full bg-orange-300/25 blur-2xl" />
 
-            <div className="relative mb-3 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-yellow-400 shadow-lg">
-                <Gift className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h3 className="text-base font-black text-orange-800">Daily Reward</h3>
-                <p className="text-[11px] font-bold text-orange-600">Keep your streak alive for bigger prizes</p>
-              </div>
-            </div>
-
-            <div className="relative rounded-xl border-2 border-orange-100 bg-white/90 p-4 backdrop-blur-sm">
-              <div className="mb-3 flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[10px] font-black text-orange-700">
-                      Day {featuredDay} / {cycleLength}
+            <div className="relative flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[18px] bg-gradient-to-br from-orange-500 to-yellow-400 shadow-[0_10px_22px_rgba(249,115,22,0.3)]">
+                  <Gift className="h-5 w-5 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-base font-black text-orange-900">Daily Reward</h3>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-black text-orange-700 ring-1 ring-orange-200">
+                      Day {spotlightDay}
                     </span>
-                    <span className="rounded-full bg-yellow-100 px-2.5 py-1 text-[10px] font-black text-yellow-700">
-                      {dailyRewardStatus?.currentStreak ?? 0}-day streak
+                    <span className="inline-flex items-center gap-1 rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-black text-orange-700 ring-1 ring-orange-200">
+                      <Flame className="h-3.5 w-3.5 text-orange-500" />
+                      {dailyRewardStatus?.currentStreak ?? 0}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs font-bold text-slate-500">
-                    {hasClaimedToday
-                      ? 'Come back after UTC reset to keep your streak going.'
-                      : rescueAvailable
-                        ? `You missed yesterday. Watch an ad to keep Day ${dailyRewardStatus?.nextRewardDay ?? 1}.`
-                        : streakBroken
-                          ? 'Your streak broke. Claim today to restart from Day 1.'
-                          : 'Claim every day to push your streak forward.'}
-                  </p>
-                </div>
-
-                {rescueAvailable ? (
-                  <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">
-                    STREAK AT RISK
-                  </span>
-                ) : !hasClaimedToday ? (
-                  <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                    AVAILABLE
-                  </span>
-                ) : null}
-              </div>
-
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0 flex-1 rounded-2xl border border-orange-200 bg-gradient-to-br from-white via-yellow-50 to-orange-50 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-500">
-                    Today's Reward
-                  </p>
-                  <p className="mt-1 text-3xl font-black leading-none text-emerald-600 sm:text-[34px]">
-                    {formatMoneyFull(todayReward.money)}
-                  </p>
-                  {todayReward.gems > 0 && (
-                    <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-cyan-50 px-2.5 py-1 text-xs font-black text-cyan-700 ring-1 ring-cyan-200">
-                      <Gem className="h-3.5 w-3.5" />
-                      +{todayReward.gems} gems
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex shrink-0 flex-col gap-2">
-                  {rescueAvailable && !hasClaimedToday && (
-                    <button
-                      onClick={handleRescueDailyStreak}
-                      disabled={adCooldown > 0 || isWatchingAd}
-                      className={`
-                        rounded-xl px-3 py-2 text-xs font-black transition-all shadow-md
-                        ${adCooldown > 0 || isWatchingAd
-                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                          : 'bg-gradient-to-r from-rose-500 to-orange-500 text-white active:scale-95 shadow-[0_10px_24px_rgba(244,63,94,0.28)]'
-                        }
-                      `}
-                    >
-                      {isWatchingAd ? 'Watching...' : adCooldown > 0 ? `Rescue in ${formatTime(adCooldown)}` : 'Rescue Streak'}
-                    </button>
-                  )}
-
-                    <button
-                      onClick={handleClaimDaily}
-                      disabled={!isDailyAvailable || hasClaimedToday || isClaimingDaily}
-                      className={`
-                      px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-md
-                      ${isDailyAvailable && !hasClaimedToday && !isClaimingDaily
-                        ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white active:scale-95 shadow-[0_12px_28px_rgba(249,115,22,0.28)]'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      }
-                    `}
-                  >
-                    {isClaimingDaily ? 'Claiming...' : hasClaimedToday ? 'Claimed' : rescueAvailable ? 'Claim Day 1' : 'Claim'}
-                  </button>
                 </div>
               </div>
+
+              <button
+                onClick={() => setShowDailyRewardsModal(true)}
+                className="shrink-0 rounded-xl bg-white/90 px-3 py-2 text-[11px] font-black text-orange-700 shadow-sm ring-1 ring-orange-200 transition-all active:scale-95"
+              >
+                {hasClaimedToday ? 'View' : 'Claim'}
+              </button>
             </div>
 
+            <div className="relative mt-4 rounded-[18px] border border-white/70 bg-white/88 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-500">
+                    {hasClaimedToday ? 'Next Reward' : 'Ready'}
+                  </p>
+                  <p className="mt-1 text-[30px] font-black leading-none text-emerald-600">
+                    {formatMoneyFull(spotlightReward.money)}
+                  </p>
+                </div>
+
+                {spotlightReward.gems > 0 && (
+                  <div className="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-2.5 py-1 text-[11px] font-black text-cyan-700 ring-1 ring-cyan-200">
+                    <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-3.5 w-3.5 object-contain" />
+                    +{spotlightReward.gems}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-5 border-2 border-blue-200 shadow-lg">
@@ -654,7 +639,9 @@ export function ShopModal({
                 <div className="flex items-baseline justify-between mb-2">
                   <span className="text-xs font-bold text-slate-500">Accumulated</span>
                   <span className="text-xs font-bold text-slate-400">
-                    {formatMoneyFull(accumulatedMoney)} / {formatMoneyFull(maxAccumulated)}
+                    {formatMoneyFull(claimableAccumulated)} / {formatMoneyFull(
+                      effectiveAccumulatedCap > 0 ? effectiveAccumulatedCap : maxAccumulated
+                    )}
                   </span>
                 </div>
 
@@ -668,6 +655,12 @@ export function ShopModal({
                 {timeUntilFull > 0 && !isLocked && (
                   <p className="text-[10px] text-slate-400 font-bold mt-1 text-center">
                     Full in: {formatTime(timeUntilFull)}
+                  </p>
+                )}
+
+                {claimableAccumulated < accumulatedMoney && !isLocked && (
+                  <p className="text-[10px] text-center font-bold text-orange-500 mt-1">
+                    Daily limit nedeniyle bu turda {formatMoneyFull(claimableAccumulated)} alabilirsin
                   </p>
                 )}
               </div>
@@ -847,7 +840,7 @@ export function ShopModal({
 
           <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-5 border-2 border-purple-200 shadow-lg">
             <div className="flex items-center gap-2 mb-3">
-              <Gem className="w-5 h-5 text-purple-600" />
+              <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-5 w-5 object-contain" />
               <h3 className="text-base font-black text-purple-700">Gem Packages</h3>
             </div>
 
@@ -1013,6 +1006,138 @@ export function ShopModal({
 
         </div>
       </div>
+
+      {showDailyRewardsModal && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/45 p-4 pointer-events-auto">
+          <div className="w-full max-w-md overflow-hidden rounded-[28px] border border-orange-200 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.28)]">
+            <div className="bg-[linear-gradient(160deg,#fff7df_0%,#ffe9a8_45%,#fffaf2_100%)] px-4 pb-4 pt-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1 text-[10px] font-black text-orange-700 ring-1 ring-orange-200">
+                    <Flame className="h-3.5 w-3.5 text-orange-500" />
+                    {dailyRewardStatus?.currentStreak ?? 0} streak
+                  </div>
+                  <h3 className="mt-3 text-lg font-black text-orange-900">Daily Rewards</h3>
+                </div>
+
+                <button
+                  onClick={() => setShowDailyRewardsModal(false)}
+                  className="rounded-full bg-white/85 p-2 text-orange-700 ring-1 ring-orange-200 transition-all active:scale-95"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mt-4 rounded-[20px] border border-white/70 bg-white/88 px-4 py-3">
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-500">
+                      {hasClaimedToday ? 'Next Reward' : 'Day Reward'}
+                    </p>
+                    <p className="mt-1 text-[30px] font-black leading-none text-emerald-600">
+                      {formatMoneyFull(spotlightReward.money)}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[10px] font-black text-orange-700">
+                      Day {spotlightDay} / {cycleLength}
+                    </span>
+                    {spotlightReward.gems > 0 && (
+                      <div className="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-2.5 py-1 text-[11px] font-black text-cyan-700 ring-1 ring-cyan-200">
+                        <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-3.5 w-3.5 object-contain" />
+                        +{spotlightReward.gems}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4">
+              <div className="grid grid-cols-3 gap-2">
+                {DAILY_REWARDS.map((reward) => {
+                  const isCompleted = reward.day <= completedRewardDay;
+                  const isCurrentSpotlight = reward.day === spotlightDay;
+
+                  return (
+                    <div
+                      key={reward.day}
+                      className={`rounded-[18px] border px-2.5 py-3 text-center shadow-sm ${
+                        isCurrentSpotlight
+                          ? 'border-orange-300 bg-gradient-to-br from-orange-500 via-amber-400 to-yellow-300 text-white shadow-[0_12px_24px_rgba(249,115,22,0.22)]'
+                          : isCompleted
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+                            : 'border-slate-200 bg-slate-50 text-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-1">
+                        <span className={`text-[10px] font-black ${isCurrentSpotlight ? 'text-white/90' : 'text-slate-500'}`}>
+                          Day {reward.day}
+                        </span>
+                        {isCompleted ? (
+                          <Check className={`h-3.5 w-3.5 ${isCurrentSpotlight ? 'text-white' : 'text-emerald-600'}`} />
+                        ) : reward.gems > 0 ? (
+                          <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-3.5 w-3.5 object-contain" />
+                        ) : null}
+                      </div>
+
+                      <div className="mt-3">
+                        <p className={`text-sm font-black leading-tight ${isCurrentSpotlight ? 'text-white' : 'text-slate-900'}`}>
+                          {formatMoneyFull(reward.money)}
+                        </p>
+                        {reward.gems > 0 && (
+                          <div className={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-black ${
+                            isCurrentSpotlight
+                              ? 'bg-white/20 text-white'
+                              : 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200'
+                          }`}>
+                            <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-3 w-3 object-contain" />
+                            +{reward.gems}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 flex gap-2">
+                {rescueAvailable && !hasClaimedToday && (
+                  <button
+                    onClick={handleRescueDailyStreak}
+                    disabled={adCooldown > 0 || isWatchingAd}
+                    className={`flex-1 rounded-xl px-3 py-3 text-sm font-black transition-all ${
+                      adCooldown > 0 || isWatchingAd
+                        ? 'bg-gray-200 text-gray-400'
+                        : 'bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-[0_10px_24px_rgba(244,63,94,0.22)] active:scale-95'
+                    }`}
+                  >
+                    {isWatchingAd ? 'Watching...' : adCooldown > 0 ? `Rescue ${formatTime(adCooldown)}` : 'Rescue'}
+                  </button>
+                )}
+
+                <button
+                  onClick={async () => {
+                    const success = await handleClaimDaily();
+                    if (success) {
+                      setShowDailyRewardsModal(false);
+                    }
+                  }}
+                  disabled={!isDailyAvailable || hasClaimedToday || isClaimingDaily}
+                  className={`flex-1 rounded-xl px-4 py-3 text-sm font-black transition-all ${
+                    isDailyAvailable && !hasClaimedToday && !isClaimingDaily
+                      ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white shadow-[0_12px_28px_rgba(249,115,22,0.24)] active:scale-95'
+                      : 'bg-gray-200 text-gray-400'
+                  }`}
+                >
+                  {isClaimingDaily ? 'Claiming...' : hasClaimedToday ? 'Claimed' : 'Claim'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <PurchaseConfirmModal
         isOpen={showPurchaseConfirm}

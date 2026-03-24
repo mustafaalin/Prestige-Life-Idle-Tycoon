@@ -30,6 +30,8 @@ Aktif kod artık `10 chapter x 10 görev = 100 görev` yapısını içerir.
 
 - Aksiyon görevleri ağırlıklı olarak para ödülü verir.
 - Prestij milestone görevleri gem ödülü verir.
+- Her normal görev ayrıca `+1 prestige` verir.
+- Bu `+1 prestige`, görev tamamlandığı anda değil, görev ödülü `claim` edildiğinde profile eklenir.
 - Ödüller sert katlanmamalı; erken oyunda daha kontrollü büyümelidir.
 - Chapter reward, normal görev ödülünden ayrışmalı ve sadece prestij puanı vermelidir.
 

@@ -9,6 +9,7 @@ import type {
 import { LOCAL_CARS } from './cars';
 import { LOCAL_HOUSES } from './houses';
 import { LOCAL_OUTFITS } from './outfits';
+import { getPremiumRealEstateIncomeMultiplier } from './bankPremium';
 
 interface RecalculateIncomeInput {
   profile: PlayerProfile;
@@ -34,11 +35,12 @@ export function recalculateLocalIncome({
   const businessIncome = businesses
     .filter((business) => business.is_owned)
     .reduce((sum, business) => sum + Number(business.current_hourly_income || 0), 0);
-  const investmentIncome = investments.length
+  const baseInvestmentIncome = investments.length
     ? investments
         .filter((investment) => investment.is_owned)
         .reduce((sum, investment) => sum + Number(investment.current_rental_income || 0), 0)
     : Number(profile.investment_income || 0);
+  const investmentIncome = baseInvestmentIncome * getPremiumRealEstateIncomeMultiplier(profile);
   const houseRentExpense = Number(selectedHouse?.hourly_rent_cost || 0);
   const vehicleExpense = Number(selectedCar?.hourly_maintenance_cost || 0);
   const otherExpenses = Number(profile.other_expenses || 0);

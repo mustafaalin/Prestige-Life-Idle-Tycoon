@@ -9,6 +9,7 @@ import {
 import { recalculateLocalEconomy } from '../data/local/economy';
 import { getLocalInvestments } from '../data/local/storage';
 import { getBusinessPrestigeForLevel } from '../data/local/businessPrestigePoints';
+import { awardCashback } from '../data/local/bankRewards';
 
 function calculateOwnedBusinessPrestige() {
   const businesses = getLocalBusinesses().length ? getLocalBusinesses() : LOCAL_BUSINESSES;
@@ -64,19 +65,21 @@ export async function purchaseBusiness(_playerId: string, businessId: string) {
         }
   );
 
+  const profileAfterSpend = {
+    ...profile,
+    total_money: Number(profile.total_money) - target.base_price,
+  };
   const finalProfile = recalculateLocalEconomy({
-    profile: {
-      ...profile,
-      total_money: Number(profile.total_money) - target.base_price,
-    },
+    profile: profileAfterSpend,
     jobs,
     playerJobs,
     businesses: nextBusinesses,
     investments,
   });
+  const cashbackResult = awardCashback(finalProfile, target.base_price);
 
   saveLocalGameState({
-    profile: finalProfile,
+    profile: cashbackResult.updatedProfile,
     businesses: nextBusinesses,
     businessesPrestige: nextBusinesses
       .filter((business) => business.is_owned)
@@ -123,19 +126,21 @@ export async function upgradeBusiness(_playerId: string, businessId: string) {
       : business
   );
 
+  const profileAfterSpend = {
+    ...profile,
+    total_money: Number(profile.total_money) - upgradeCost,
+  };
   const finalProfile = recalculateLocalEconomy({
-    profile: {
-      ...profile,
-      total_money: Number(profile.total_money) - upgradeCost,
-    },
+    profile: profileAfterSpend,
     jobs,
     playerJobs,
     businesses: nextBusinesses,
     investments,
   });
+  const cashbackResult = awardCashback(finalProfile, upgradeCost);
 
   saveLocalGameState({
-    profile: finalProfile,
+    profile: cashbackResult.updatedProfile,
     businesses: nextBusinesses,
     businessesPrestige: nextBusinesses
       .filter((business) => business.is_owned)

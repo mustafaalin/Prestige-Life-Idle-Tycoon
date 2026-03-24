@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft,
+  Clock3,
   Car,
   ChevronDown,
   Home,
@@ -24,11 +25,16 @@ import {
 import {
   BANK_DEPOSIT_PLANS,
   getBankDepositCountdownMs,
+  getEffectiveBankDepositPlan,
   getBankDepositMaxAmount,
-  getBankDepositPlan,
   isBankDepositReady,
 } from '../data/local/bankDeposits';
 import { LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
+import {
+  getPremiumRealEstateIncomeMultiplier,
+  PREMIUM_BANK_CARD_PRICE_GEMS,
+  PREMIUM_BANK_CARD_PRICE_USD,
+} from '../data/local/bankPremium';
 
 const formatMoney = (amount: number) => `$${amount.toLocaleString()}`;
 const MIN_BANK_DEPOSIT = 1000;
@@ -74,10 +80,16 @@ interface InvestmentsModalProps {
   investments: InvestmentWithPlayerData[];
   bankDeposits: BankDeposit[];
   totalMoney: number;
+  gems: number;
+  cashbackPool: number;
+  cashbackRate: number;
+  hasPremiumBankCard: boolean;
   onPurchase: (investmentId: string) => Promise<boolean>;
   onUpgrade: (investmentId: string, upgradeKey: InvestmentUpgradeKey) => Promise<boolean>;
   onStartBankDeposit: (planId: BankDepositPlanId, amount: number) => Promise<boolean>;
   onClaimBankDeposit: (depositId: string) => Promise<boolean>;
+  onClaimCashback: () => Promise<boolean>;
+  onPurchasePremiumBankCard: (purchaseMethod: 'gems' | 'cash') => Promise<boolean>;
   onClose: () => void;
 }
 
@@ -85,10 +97,16 @@ export function InvestmentsModal({
   investments,
   bankDeposits,
   totalMoney,
+  gems,
+  cashbackPool,
+  cashbackRate,
+  hasPremiumBankCard,
   onPurchase,
   onUpgrade,
   onStartBankDeposit,
   onClaimBankDeposit,
+  onClaimCashback,
+  onPurchasePremiumBankCard,
   onClose,
 }: InvestmentsModalProps) {
   const [activeTab, setActiveTab] = useState<'real-estate' | 'bank' | 'stocks'>('real-estate');
@@ -115,13 +133,19 @@ export function InvestmentsModal({
   const ownedInvestments = sortedInvestments.filter((investment) => investment.is_owned);
   const marketInvestments = sortedInvestments.filter((investment) => !investment.is_owned);
   const listedInvestments = activeView === 'market' ? marketInvestments : ownedInvestments;
+  const realEstateIncomeMultiplier = getPremiumRealEstateIncomeMultiplier({
+    premium_bank_card_owned: hasPremiumBankCard,
+  });
   const totalInvestmentIncome = ownedInvestments.reduce(
-    (sum, investment) => sum + Number(investment.current_rental_income || 0),
+    (sum, investment) =>
+      sum + Number(investment.current_rental_income || 0) * realEstateIncomeMultiplier,
     0
   );
   const marketPreview = marketInvestments[0] || sortedInvestments[0] || null;
   const propertiesPreview = ownedInvestments[0] || sortedInvestments[0] || null;
-  const selectedBankPlan = bankPlanModalPlanId ? getBankDepositPlan(bankPlanModalPlanId) : null;
+  const selectedBankPlan = bankPlanModalPlanId
+    ? getEffectiveBankDepositPlan(bankPlanModalPlanId, hasPremiumBankCard)
+    : null;
   const selectedBankPlanMaxAmount = bankPlanModalPlanId ? getBankDepositMaxAmount(totalMoney, bankPlanModalPlanId) : 0;
   const parsedBankAmount = Math.max(0, Math.floor(Number(bankAmountInput || 0)));
   const bankAmountValid =
@@ -178,7 +202,7 @@ export function InvestmentsModal({
   };
 
   const renderBankPlanCard = (planId: BankDepositPlanId) => {
-    const plan = getBankDepositPlan(planId);
+    const plan = getEffectiveBankDepositPlan(planId, hasPremiumBankCard);
     const planDeposits = bankDeposits.filter((deposit) => deposit.plan_id === plan.id);
     const activeDeposit = planDeposits[0] || null;
     const activeDepositReady = activeDeposit ? isBankDepositReady(activeDeposit, timeNow) : false;
@@ -192,58 +216,75 @@ export function InvestmentsModal({
     return (
       <div
         key={plan.id}
-        className="overflow-hidden rounded-[22px] border-2 border-slate-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+        className="overflow-hidden rounded-[18px] border-2 border-slate-200 bg-white shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
       >
-        <div className="px-3 pt-3 text-center">
+        <div className="px-2 pt-2 text-center">
           <div className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-700">
             {formatDurationLabel(plan.durationMs)}
           </div>
         </div>
 
-        <div className="flex flex-col items-center px-3 pb-3 pt-2">
-          <div className="flex h-20 w-20 items-center justify-center rounded-[18px] bg-slate-50">
-            <img src={planImage} alt={plan.title} className="h-12 w-12 object-contain" />
+        <div className="flex flex-col items-center px-2 pb-2 pt-1">
+          <div className="flex h-[68px] w-[68px] items-center justify-center rounded-[14px] bg-slate-50">
+            <img src={planImage} alt={plan.title} className="h-11 w-11 object-contain" />
           </div>
 
-          <div className="mt-2 text-2xl font-black text-amber-500">
+          <div className="mt-1 text-[20px] font-black leading-none text-amber-500">
             +{Math.round(plan.profitMultiplier * 100)}%
           </div>
 
           {!activeDeposit ? (
             <button
               onClick={() => openBankPlanModal(plan.id)}
-              className="mt-2 w-full rounded-[16px] bg-lime-400 px-3 py-2.5 text-xs font-black text-slate-900 shadow-[inset_0_-3px_0_rgba(0,0,0,0.14)] transition-all active:scale-[0.98]"
+              className="mt-1.5 w-full rounded-[13px] bg-lime-400 px-2 py-2 text-[10px] font-black text-slate-900 shadow-[inset_0_-3px_0_rgba(0,0,0,0.14)] transition-all active:scale-[0.98]"
             >
               INVEST
             </button>
           ) : (
-            <div className="mt-2 w-full rounded-[16px] bg-slate-100 p-2.5">
-              <div className="flex items-center justify-center gap-1.5 text-xs font-black text-slate-800">
-                <img src={LOCAL_ICON_ASSETS.money} alt="Money" className="h-4 w-4" />
-                {formatMoney(activeDeposit.principal)}
+            <div className="mt-1.5 w-full space-y-1.5">
+              <div className="rounded-[13px] border border-slate-200 bg-white px-2 py-1.5 shadow-[0_2px_6px_rgba(15,23,42,0.05)]">
+                <div className="flex items-center justify-center gap-1 text-[11px] font-black text-slate-800">
+                  <img src={LOCAL_ICON_ASSETS.money} alt="Money" className="h-4 w-4" />
+                  {formatMoney(activeDeposit.principal)}
+                </div>
               </div>
-              <button
-                onClick={async () => {
-                  setProcessingKey(`bank-claim:${activeDeposit.id}`);
-                  try {
-                    await onClaimBankDeposit(activeDeposit.id);
-                  } finally {
-                    setProcessingKey(null);
-                  }
-                }}
-                disabled={!activeDepositReady || processingKey === `bank-claim:${activeDeposit.id}`}
-                className={`mt-2 w-full rounded-[14px] px-2.5 py-2 text-[11px] font-black transition-all ${
+
+              <div
+                className={`rounded-[13px] border px-1.5 py-1.5 shadow-[0_2px_6px_rgba(15,23,42,0.05)] ${
                   activeDepositReady
-                    ? 'bg-orange-500 text-white shadow-[inset_0_-3px_0_rgba(0,0,0,0.16)]'
-                    : 'bg-slate-200 text-slate-400'
+                    ? 'border-orange-200 bg-orange-50'
+                    : 'border-sky-200 bg-sky-50'
                 }`}
               >
-                {processingKey === `bank-claim:${activeDeposit.id}`
-                  ? 'COLLECTING...'
-                  : activeDepositReady
-                    ? 'COLLECT'
-                    : formatCountdown(getBankDepositCountdownMs(activeDeposit, timeNow))}
-              </button>
+                {!activeDepositReady && (
+                  <div className="mb-1.5 flex items-center justify-center gap-1 text-[11px] font-black text-sky-700">
+                    <Clock3 className="h-3.5 w-3.5" />
+                    <span>{formatCountdown(getBankDepositCountdownMs(activeDeposit, timeNow))}</span>
+                  </div>
+                )}
+                <button
+                  onClick={async () => {
+                    setProcessingKey(`bank-claim:${activeDeposit.id}`);
+                    try {
+                      await onClaimBankDeposit(activeDeposit.id);
+                    } finally {
+                      setProcessingKey(null);
+                    }
+                  }}
+                  disabled={!activeDepositReady || processingKey === `bank-claim:${activeDeposit.id}`}
+                  className={`w-full rounded-[11px] px-2 py-1.5 text-[10px] font-black transition-all ${
+                    activeDepositReady
+                      ? 'bg-orange-500 text-white shadow-[inset_0_-3px_0_rgba(0,0,0,0.16)]'
+                      : 'hidden'
+                  }`}
+                >
+                  {processingKey === `bank-claim:${activeDeposit.id}`
+                    ? 'COLLECTING...'
+                    : activeDepositReady
+                      ? 'COLLECT'
+                      : ''}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -280,9 +321,16 @@ export function InvestmentsModal({
         <h3 className="text-sm font-extrabold text-slate-900">{investment.region}</h3>
         <div className="mt-2 flex items-center justify-between">
           <span className="text-sm font-black text-emerald-700">{formatMoney(investment.price)}</span>
-          <span className="text-[11px] font-bold text-slate-500">
-            {formatMoney(investment.base_rental_income)}/hr
-          </span>
+          <div className="text-right">
+            <span className="text-[11px] font-bold text-slate-500">
+              {formatMoney(investment.base_rental_income * realEstateIncomeMultiplier)}/hr
+            </span>
+            {hasPremiumBankCard && (
+              <div className="mt-1 text-[10px] font-black uppercase tracking-[0.12em] text-amber-600">
+                Premium x2
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </button>
@@ -456,23 +504,142 @@ export function InvestmentsModal({
         {activeTab === 'bank' && (
           <div className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.14),_transparent_38%),linear-gradient(180deg,#f8fffc_0%,#f8fafc_100%)] p-4">
             <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-3">
-                <div className="rounded-[18px] border border-slate-200 bg-white p-3 shadow-sm">
-                  <div className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">Balance</div>
-                  <div className="mt-1 text-sm font-black text-slate-900">{formatMoney(totalMoney)}</div>
+              <div className="overflow-hidden rounded-[28px] border border-amber-200 bg-[linear-gradient(145deg,#fff4cc_0%,#ffd972_48%,#fff7de_100%)] shadow-[0_14px_34px_rgba(245,158,11,0.18)]">
+                <div className="border-b border-amber-200/70 bg-white/35 px-4 py-3">
+                  <div className="text-sm font-black uppercase tracking-[0.14em] text-amber-900">
+                    Premium Bank Card
+                  </div>
+                  <div className="mt-1 text-xs font-bold text-amber-800/80">
+                    Permanent bank boost
+                  </div>
                 </div>
-                <div className="rounded-[18px] border border-emerald-100 bg-white p-3 shadow-sm">
-                  <div className="text-[10px] font-black uppercase tracking-[0.14em] text-emerald-600">Active</div>
-                  <div className="mt-1 text-sm font-black text-emerald-700">{bankDeposits.length} deposits</div>
+
+                <div className="px-4 py-4">
+                  <div className="space-y-2 rounded-[20px] border border-white/60 bg-white/60 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+                    <div className="text-sm font-black text-slate-800">x2 Cashback</div>
+                    <div className="text-sm font-black text-slate-800">x2 Real Estate Income</div>
+                    <div className="text-sm font-black text-slate-800">x2 Deposit Income</div>
+                  </div>
                 </div>
-                <div className="rounded-[18px] border border-violet-100 bg-white p-3 shadow-sm">
-                  <div className="text-[10px] font-black uppercase tracking-[0.14em] text-violet-600">Ready</div>
-                  <div className="mt-1 text-sm font-black text-violet-700">{readyBankDeposits.length} claims</div>
+
+                <div className="grid grid-cols-2 gap-3 px-4 pb-4">
+                  <button
+                    onClick={async () => {
+                      setProcessingKey('premium-bank-card:cash');
+                      try {
+                        await onPurchasePremiumBankCard('cash');
+                      } finally {
+                        setProcessingKey(null);
+                      }
+                    }}
+                    disabled={
+                      hasPremiumBankCard ||
+                      processingKey === 'premium-bank-card:cash' ||
+                      processingKey === 'premium-bank-card:gems'
+                    }
+                    className={`rounded-[16px] px-4 py-3 text-sm font-black transition-all ${
+                      hasPremiumBankCard
+                        ? 'bg-slate-200 text-slate-400'
+                        : 'bg-blue-500 text-white shadow-[inset_0_-3px_0_rgba(0,0,0,0.16)] active:scale-[0.99]'
+                    }`}
+                  >
+                    {hasPremiumBankCard
+                      ? 'OWNED'
+                      : processingKey === 'premium-bank-card:cash'
+                        ? 'BUYING...'
+                        : `$${PREMIUM_BANK_CARD_PRICE_USD.toFixed(2)}`}
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      setProcessingKey('premium-bank-card:gems');
+                      try {
+                        await onPurchasePremiumBankCard('gems');
+                      } finally {
+                        setProcessingKey(null);
+                      }
+                    }}
+                    disabled={
+                      hasPremiumBankCard ||
+                      gems < PREMIUM_BANK_CARD_PRICE_GEMS ||
+                      processingKey === 'premium-bank-card:gems' ||
+                      processingKey === 'premium-bank-card:cash'
+                    }
+                    className={`rounded-[16px] px-4 py-3 text-sm font-black transition-all ${
+                      hasPremiumBankCard
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : gems >= PREMIUM_BANK_CARD_PRICE_GEMS
+                          ? 'bg-violet-500 text-white shadow-[inset_0_-3px_0_rgba(0,0,0,0.16)] active:scale-[0.99]'
+                          : 'bg-slate-200 text-slate-400'
+                    }`}
+                  >
+                    {hasPremiumBankCard
+                      ? 'OWNED'
+                      : processingKey === 'premium-bank-card:gems'
+                        ? 'BUYING...'
+                        : `${PREMIUM_BANK_CARD_PRICE_GEMS} GEMS`}
+                  </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                {BANK_DEPOSIT_PLANS.map((plan) => renderBankPlanCard(plan.id))}
+              <div className="overflow-hidden rounded-[24px] border border-emerald-200 bg-[linear-gradient(180deg,#ffffff_0%,#effdf5_100%)] shadow-[0_10px_24px_rgba(16,185,129,0.1)]">
+                <div className="flex items-center justify-between gap-3 border-b border-emerald-100 bg-emerald-50/80 p-4">
+                  <div>
+                    <div className="text-sm font-black uppercase tracking-[0.14em] text-emerald-900">
+                      Cashback
+                    </div>
+                    <div className="mt-1 text-xs font-semibold text-emerald-700/80">
+                      Rate {Math.round(cashbackRate * 100)}%
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-[11px] font-black uppercase tracking-[0.14em] text-emerald-700/70">
+                      Available
+                    </div>
+                    <div className="mt-1 text-xl font-black text-emerald-600">
+                      {formatMoney(cashbackPool)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 pt-3">
+                  <button
+                    onClick={async () => {
+                      setProcessingKey('cashback-claim');
+                      try {
+                        await onClaimCashback();
+                      } finally {
+                        setProcessingKey(null);
+                      }
+                    }}
+                    disabled={cashbackPool <= 0 || processingKey === 'cashback-claim'}
+                    className={`w-full rounded-[16px] px-4 py-3 text-sm font-black transition-all ${
+                      cashbackPool > 0 && processingKey !== 'cashback-claim'
+                        ? 'bg-orange-500 text-white shadow-[inset_0_-3px_0_rgba(0,0,0,0.16)] active:scale-[0.99]'
+                        : 'bg-slate-200 text-slate-400'
+                    }`}
+                  >
+                    {processingKey === 'cashback-claim' ? 'CLAIMING...' : 'CLAIM CASHBACK'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="overflow-hidden rounded-[26px] border border-sky-200 bg-[linear-gradient(180deg,#ffffff_0%,#eef7ff_100%)] shadow-[0_12px_28px_rgba(59,130,246,0.1)]">
+                <div className="border-b border-sky-100 bg-sky-50/80 px-3 py-2.5">
+                  <div className="text-sm font-black uppercase tracking-[0.14em] text-sky-900">
+                    Deposits
+                  </div>
+                  <div className="mt-1 text-xs font-semibold text-sky-700/80">
+                    Choose a plan and lock your money for profit
+                  </div>
+                </div>
+
+                <div className="p-3">
+                  <div className="grid grid-cols-3 gap-2">
+                    {BANK_DEPOSIT_PLANS.map((plan) => renderBankPlanCard(plan.id))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -512,8 +679,21 @@ export function InvestmentsModal({
                 <div className="rounded-xl bg-blue-50 p-3">
                   <div className="text-[11px] font-bold text-slate-400 uppercase">Hourly Rent</div>
                   <div className="text-sm font-black text-blue-700">
-                    {formatMoney(selectedInvestment.current_rental_income || selectedInvestment.base_rental_income)}
+                    {formatMoney(
+                      Number(
+                        selectedInvestment.current_rental_income || selectedInvestment.base_rental_income
+                      ) * realEstateIncomeMultiplier
+                    )}
                   </div>
+                  {hasPremiumBankCard && (
+                    <div className="mt-1 text-[11px] font-bold text-blue-500">
+                      Base {formatMoney(
+                        Number(
+                          selectedInvestment.current_rental_income || selectedInvestment.base_rental_income
+                        )
+                      )} x2 Premium
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -555,7 +735,7 @@ export function InvestmentsModal({
                       const nextIncome = calculateInvestmentRentalIncome(
                         selectedInvestment.base_rental_income,
                         [...appliedUpgrades, upgradeKey]
-                      );
+                      ) * realEstateIncomeMultiplier;
                       const isDisabled =
                         isApplied ||
                         !isNextUpgrade ||
@@ -584,6 +764,11 @@ export function InvestmentsModal({
                                 <div className="text-[11px] font-semibold text-slate-500">
                                   New rent: {formatMoney(nextIncome)}/hr
                                 </div>
+                                {hasPremiumBankCard && (
+                                  <div className="text-[10px] font-black uppercase tracking-[0.12em] text-amber-600">
+                                    Base {formatMoney(Math.floor(nextIncome / realEstateIncomeMultiplier))} x2 Premium
+                                  </div>
+                                )}
                               </div>
                             </div>
                             <div className="text-right">
@@ -647,8 +832,18 @@ export function InvestmentsModal({
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500 font-semibold">Hourly Rent</span>
-                  <span className="text-blue-700 font-black">{formatMoney(confirmingInvestment.base_rental_income)}</span>
+                  <span className="text-blue-700 font-black">
+                    {formatMoney(confirmingInvestment.base_rental_income * realEstateIncomeMultiplier)}
+                  </span>
                 </div>
+                {hasPremiumBankCard && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500 font-semibold">Premium Effect</span>
+                    <span className="text-amber-600 font-black">
+                      {formatMoney(confirmingInvestment.base_rental_income)} x2
+                    </span>
+                  </div>
+                )}
               </div>
 
               <button

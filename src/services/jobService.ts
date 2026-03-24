@@ -1,6 +1,7 @@
 import type { PlayerJob } from '../types/game';
 import {
   getLocalBusinesses,
+  getLocalInvestments,
   getLocalJobs,
   getLocalPlayerJobs,
   getLocalProfile,
@@ -61,6 +62,7 @@ export async function selectJob(
   const playerJobs = getLocalPlayerJobs();
   const profile = getLocalProfile();
   const businesses = getLocalBusinesses();
+  const investments = getLocalInvestments();
 
   if (!profile) {
     throw new Error('Player not found');
@@ -103,12 +105,14 @@ export async function selectJob(
     jobs,
     playerJobs: nextJobs,
     businesses,
+    investments,
   });
   const finalProfile = recalculateLocalPrestige({
     profile: nextProfile,
     jobs,
     playerJobs: nextJobs,
     businesses,
+    investments,
   });
 
   saveLocalGameState({

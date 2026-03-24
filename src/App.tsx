@@ -24,6 +24,8 @@ import { getDailyRewardStatus } from './data/local/rewards';
 import { getScaledShopRewards } from './data/local/rewardScaling';
 import { LOCAL_QUESTS } from './data/local/quests';
 import type { BankDepositPlanId } from './types/game';
+import { getCashbackRate } from './data/local/bankRewards';
+import { hasPremiumBankCard } from './data/local/bankPremium';
 import {
   dismissActiveAd,
   getAdProviderName,
@@ -222,31 +224,29 @@ export default function App() {
     }
   }
 
-  async function handleAnimatedEarningsClaim(params: { isTriple: boolean; reward: number }) {
+  async function handleAnimatedEarningsClaim(params: { isTriple: boolean }) {
     if (params.isTriple) {
       const rewarded = await requestRewardedAd('earnings_x3');
       if (!rewarded) {
-        return false;
+        return { success: false, claimedAmount: 0 };
       }
     }
 
     setIsQuestRewardAnimating(true);
 
     try {
-      if (params.reward > 0) {
-        await playRewardAnimationSequence({ money: params.reward, gems: 0 });
-      }
-
       const result = await gameState.claimAccumulatedMoney(params.isTriple);
-      if (!result) {
-        return false;
+      if (!result.success || result.claimedAmount <= 0) {
+        return result;
       }
 
-      if (params.reward > 0) {
+      await playRewardAnimationSequence({ money: result.claimedAmount, gems: 0 });
+
+      if (result.claimedAmount > 0) {
         setMoneyAnimationSequenceId((prev) => prev + 1);
       }
 
-      return true;
+      return result;
     } finally {
       setMoneyRewardFx(null);
       setIsQuestRewardAnimating(false);
@@ -402,6 +402,43 @@ export default function App() {
     }
   }
 
+  async function handleAnimatedCashbackClaim() {
+    if (isQuestRewardAnimating) {
+      return false;
+    }
+
+    const reward = Math.max(0, Math.floor(Number(gameState.profile?.cashback_pool || 0)));
+    if (reward <= 0) {
+      return false;
+    }
+
+    setIsQuestRewardAnimating(true);
+
+    try {
+      await playRewardAnimationSequence({ money: reward, gems: 0 });
+      const result = await gameState.claimCashback();
+
+      if (result?.success) {
+        setMoneyAnimationSequenceId((prev) => prev + 1);
+      }
+
+      return Boolean(result?.success);
+    } finally {
+      setMoneyRewardFx(null);
+      setIsQuestRewardAnimating(false);
+    }
+  }
+
+  async function handlePurchasePremiumBankCard(purchaseMethod: 'gems' | 'cash') {
+    const success = await gameState.purchasePremiumBankCard(purchaseMethod);
+
+    if (success && purchaseMethod === 'gems') {
+      setGemAnimationSequenceId((prev) => prev + 1);
+    }
+
+    return success;
+  }
+
   async function handleAnimatedQuestClaim(questId?: string, rewardMultiplier = 1) {
     if (isQuestRewardAnimating) {
       return;
@@ -468,8 +505,9 @@ export default function App() {
       if (!rewarded) {
         return;
       }
-      await handleAnimatedQuestClaim(questRewardModalQuest.id, 2);
+      const targetQuestId = questRewardModalQuest.id;
       setQuestRewardModalQuest(null);
+      await handleAnimatedQuestClaim(targetQuestId, 2);
     } finally {
       setIsQuestAdClaiming(false);
     }
@@ -477,8 +515,9 @@ export default function App() {
 
   async function handleQuestClaimNormal() {
     if (!questRewardModalQuest) return;
-    await handleAnimatedQuestClaim(questRewardModalQuest.id, 1);
+    const targetQuestId = questRewardModalQuest.id;
     setQuestRewardModalQuest(null);
+    await handleAnimatedQuestClaim(targetQuestId, 1);
   }
 
   async function handleAnimatedQuestChapterClaim() {
@@ -747,6 +786,7 @@ export default function App() {
         prestigePoints={gameState.profile.prestige_points || 0}
         ownedInvestmentCount={ownedInvestmentCount}
         lastClaimTime={gameState.profile.last_claim_time || null}
+        lastAdWatchTime={gameState.profile.last_ad_watch_time || null}
         gems={gameState.profile.gems || 0}
         claimLockedUntil={gameState.claimLockedUntil}
         dailyClaimedTotal={gameState.dailyClaimedTotal}
@@ -819,10 +859,16 @@ export default function App() {
           investments={gameState.investments}
           bankDeposits={gameState.bankDeposits}
           totalMoney={gameState.profile.total_money}
+          gems={gameState.profile.gems || 0}
+          cashbackPool={Number(gameState.profile.cashback_pool || 0)}
+          cashbackRate={getCashbackRate(gameState.profile)}
+          hasPremiumBankCard={hasPremiumBankCard(gameState.profile)}
           onPurchase={gameState.purchaseInvestment}
           onUpgrade={gameState.upgradeInvestment}
           onStartBankDeposit={handleStartBankDeposit}
           onClaimBankDeposit={handleAnimatedBankDepositClaim}
+          onClaimCashback={handleAnimatedCashbackClaim}
+          onPurchasePremiumBankCard={handlePurchasePremiumBankCard}
           onClose={() => {
             setShowInvestmentsModal(false);
             setActiveTab('investments');

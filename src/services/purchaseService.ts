@@ -2,6 +2,7 @@ import { getLocalOwnedCars, getLocalOwnedCharacters, getLocalOwnedHouses, getLoc
 import { LOCAL_CARS } from '../data/local/cars';
 import { recalculateLocalEconomy, recalculateLocalPrestige } from '../data/local/economy';
 import { getLocalBusinesses, getLocalInvestments, getLocalJobs, getLocalPlayerJobs } from '../data/local/storage';
+import { awardCashback } from '../data/local/bankRewards';
 
 export async function purchaseCarViaRPC(playerId: string, carId: string, price: number) {
   void playerId;
@@ -10,23 +11,25 @@ export async function purchaseCarViaRPC(playerId: string, carId: string, price: 
   if (Number(profile.total_money) < price) throw new Error('Not enough money to purchase this car');
   const ownedCars = getLocalOwnedCars();
   const car = LOCAL_CARS.find((entry) => entry.id === carId);
+  const profileAfterSpend = {
+    ...profile,
+    total_money: Number(profile.total_money) - price,
+    selected_car_id: carId,
+    vehicle_expense: Number(car?.hourly_maintenance_cost || 0),
+  };
   const finalProfile = recalculateLocalEconomy({
-    profile: {
-      ...profile,
-      total_money: Number(profile.total_money) - price,
-      selected_car_id: carId,
-      vehicle_expense: Number(car?.hourly_maintenance_cost || 0),
-    },
+    profile: profileAfterSpend,
     jobs: getLocalJobs(),
     playerJobs: getLocalPlayerJobs(),
     businesses: getLocalBusinesses(),
     investments: getLocalInvestments(),
   });
+  const cashbackResult = awardCashback(finalProfile, price);
   saveLocalGameState({
-    profile: finalProfile,
+    profile: cashbackResult.updatedProfile,
     ownedCars: ownedCars.includes(carId) ? ownedCars : [...ownedCars, carId],
   });
-  return { success: true, message: 'Car purchased', new_balance: Number(finalProfile.total_money) };
+  return { success: true, message: 'Car purchased', new_balance: Number(cashbackResult.updatedProfile.total_money) };
 }
 
 export async function purchaseGeneralItem(
@@ -60,14 +63,18 @@ export async function purchaseGeneralItem(
         investments: getLocalInvestments(),
       })
     : recalculateLocalPrestige({
-      profile: nextProfile,
-      jobs: getLocalJobs(),
-      playerJobs: getLocalPlayerJobs(),
-      businesses: getLocalBusinesses(),
-    });
+        profile: nextProfile,
+        jobs: getLocalJobs(),
+        playerJobs: getLocalPlayerJobs(),
+        businesses: getLocalBusinesses(),
+      });
+  const cashbackResult =
+    itemType === 'character'
+      ? awardCashback(finalProfile, price)
+      : { updatedProfile: finalProfile };
 
   saveLocalGameState({
-    profile: finalProfile,
+    profile: cashbackResult.updatedProfile,
     ownedCharacters:
       itemType === 'character'
         ? Array.from(new Set([...getLocalOwnedCharacters(), itemId]))

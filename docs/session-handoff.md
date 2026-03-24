@@ -18,6 +18,7 @@ docs/rpc-reference.md
 docs/quest-progression.md
 docs/mobile-ad-integration.md
 docs/bank-investment-system.md
+docs/bank-expansion-plan.md
 
 Amacımız Supabase bağımlılığını kaldırıp oyunu localStorage tabanlı, mobil öncelikli çalışır hale getirmekti. Önce mevcut durumu özetle, sonra sıradaki en mantıklı adımdan devam et.
 ```
@@ -46,6 +47,7 @@ Oyun hafızası ayrıştırıldı:
 - `docs/quest-progression.md`
 - `docs/mobile-ad-integration.md`
 - `docs/bank-investment-system.md`
+- `docs/bank-expansion-plan.md`
 
 Bu dosyalara kullanıcıdan alınan canlı tablo/RPC bilgileri işlendi.
 
@@ -243,6 +245,8 @@ Son konuşulan ve sonraki sprintlerde ele alınabilecek başlıklar:
    - tamamlandı
    - detay kural dokümanı: `docs/bank-investment-system.md`
    - sonraki iyileştirmeler:
+     - cashback sistemi
+     - premium bank card sistemi
      - toplu claim
      - geçmiş mevduat listesi
      - üçüncü investment sekmesi tasarımı

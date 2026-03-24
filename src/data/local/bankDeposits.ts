@@ -48,6 +48,19 @@ export function getBankDepositPlan(planId: BankDepositPlanId) {
   return BANK_DEPOSIT_PLANS.find((plan) => plan.id === planId) || BANK_DEPOSIT_PLANS[0];
 }
 
+export function getEffectiveBankDepositPlan(planId: BankDepositPlanId, hasPremiumCard = false) {
+  const plan = getBankDepositPlan(planId);
+
+  if (!hasPremiumCard) {
+    return plan;
+  }
+
+  return {
+    ...plan,
+    profitMultiplier: plan.profitMultiplier * 2,
+  };
+}
+
 export function getBankDepositMaxAmount(totalMoney: number, planId: BankDepositPlanId) {
   const plan = getBankDepositPlan(planId);
   return Math.max(0, Math.floor(totalMoney * plan.maxBalancePercent));
@@ -56,9 +69,10 @@ export function getBankDepositMaxAmount(totalMoney: number, planId: BankDepositP
 export function createBankDeposit(params: {
   planId: BankDepositPlanId;
   principal: number;
+  hasPremiumCard?: boolean;
   startedAt?: number;
 }): BankDeposit {
-  const plan = getBankDepositPlan(params.planId);
+  const plan = getEffectiveBankDepositPlan(params.planId, params.hasPremiumCard);
   const startedAt = params.startedAt ?? Date.now();
   const principal = Math.max(0, Math.floor(params.principal));
   const profit = Math.floor(principal * plan.profitMultiplier);

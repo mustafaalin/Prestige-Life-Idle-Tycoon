@@ -13,6 +13,11 @@ import { clearLocalStorage } from '../utils/game/storage';
 
 type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'] & {
   bonus_prestige_points?: number;
+  cashback_pool?: number;
+  cashback_claimed_total?: number;
+  premium_bank_card_owned?: boolean;
+  premium_bank_card_purchased_at?: string | null;
+  premium_bank_card_purchase_source?: 'gems' | 'cash' | null;
 };
 
 function createInitialGameStats(userId: string, now: string) {
@@ -78,6 +83,11 @@ function createBaseProfile(params: {
     gross_income: 0,
     total_expenses: 0,
     selected_outfit_id: LOCAL_STARTER_OUTFIT_ID,
+    cashback_pool: 0,
+    cashback_claimed_total: 0,
+    premium_bank_card_owned: false,
+    premium_bank_card_purchased_at: null,
+    premium_bank_card_purchase_source: null,
   };
 }
 

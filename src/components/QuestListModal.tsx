@@ -272,7 +272,7 @@ export function QuestListModal({
                     </div>
 
                     <div className="flex items-center justify-between gap-3">
-                      <div className="inline-flex items-center gap-2 text-[11px] font-black">
+                      <div className="inline-flex flex-wrap items-center gap-2 text-[11px] font-black">
                         {quest.reward_money > 0 ? (
                           <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">
                             ${quest.reward_money.toLocaleString()}
@@ -283,6 +283,10 @@ export function QuestListModal({
                             {quest.reward_gems} gems
                           </span>
                         )}
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
+                          <img src={LOCAL_ICON_ASSETS.prestige} alt="Prestige" className="h-3.5 w-3.5" />
+                          +1
+                        </span>
                       </div>
 
                       {isClaimed ? (

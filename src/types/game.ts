@@ -2,6 +2,11 @@ import type { Database } from '../lib/database.types';
 
 export type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'] & {
   bonus_prestige_points?: number;
+  cashback_pool?: number;
+  cashback_claimed_total?: number;
+  premium_bank_card_owned?: boolean;
+  premium_bank_card_purchased_at?: string | null;
+  premium_bank_card_purchase_source?: 'gems' | 'cash' | null;
 };
 export type Character = Database['public']['Tables']['characters']['Row'];
 export type House = Database['public']['Tables']['houses']['Row'];

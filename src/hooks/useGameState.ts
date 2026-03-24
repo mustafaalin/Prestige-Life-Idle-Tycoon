@@ -23,6 +23,12 @@ import {
   getBankDepositPlan,
   isBankDepositReady,
 } from '../data/local/bankDeposits';
+import { claimCashback as claimCashbackReward } from '../data/local/bankRewards';
+import {
+  applyPremiumBankCardPurchase,
+  hasPremiumBankCard,
+  type PremiumPurchaseMethod,
+} from '../data/local/bankPremium';
 import type {
   BankDeposit,
   BankDepositPlanId,
@@ -49,6 +55,11 @@ import * as investmentService from '../services/investmentService';
 
 type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'] & {
   bonus_prestige_points?: number;
+  cashback_pool?: number;
+  cashback_claimed_total?: number;
+  premium_bank_card_owned?: boolean;
+  premium_bank_card_purchased_at?: string | null;
+  premium_bank_card_purchase_source?: 'gems' | 'cash' | null;
 };
 type Character = Database['public']['Tables']['characters']['Row'];
 type House = Database['public']['Tables']['houses']['Row'];
@@ -177,6 +188,11 @@ function createLocalProfile(userId: string, deviceId: string): PlayerProfile {
     gross_income: 0,
     total_expenses: 0,
     selected_outfit_id: LOCAL_STARTER_OUTFIT_ID,
+    cashback_pool: 0,
+    cashback_claimed_total: 0,
+    premium_bank_card_owned: false,
+    premium_bank_card_purchased_at: null,
+    premium_bank_card_purchase_source: null,
   };
 }
 
@@ -296,6 +312,7 @@ export function useGameState(deviceId: string, userId: string | null) {
   const moneyMutationInFlightRef = useRef<boolean>(false);
   const isCreatingProfileRef = useRef<boolean>(false);
   const questRewardInFlightRef = useRef<boolean>(false);
+  const premiumBankCardMutationInFlightRef = useRef<boolean>(false);
 
   useEffect(() => {
     gameStateRef.current = gameState;
@@ -1078,19 +1095,27 @@ export function useGameState(deviceId: string, userId: string | null) {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
     if (!gameState.ownedCars.includes(carId)) return false;
+    const currentCar = gameState.cars.find((car) => car.id === gameState.profile?.selected_car_id);
+    const targetCar = gameState.cars.find((car) => car.id === carId);
+    if (!targetCar) return false;
+    if (currentCar && targetCar.level < currentCar.level) return false;
     try {
       await itemService.selectCar(activeId, carId);
       await loadGameData(false);
       return true;
     } catch (error) { return false; }
-  }, [gameState.profile?.id, gameState.ownedCars, loadGameData]);
+  }, [gameState.profile?.id, gameState.profile?.selected_car_id, gameState.ownedCars, gameState.cars, loadGameData]);
 
   const selectHouse = useCallback(async (houseId: string) => {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
     const targetHouse = gameState.houses.find((house) => house.id === houseId);
+    const currentHouse = gameState.houses.find((house) => house.id === gameState.profile?.selected_house_id);
     const isCurrentHouse = gameState.profile?.selected_house_id === houseId;
     if (!targetHouse || (!isCurrentHouse && !canAccessHouseWithPrestige(targetHouse, Number(gameState.profile?.prestige_points || 0)))) {
+      return false;
+    }
+    if (currentHouse && targetHouse.level < currentHouse.level) {
       return false;
     }
     try {
@@ -1275,9 +1300,9 @@ export function useGameState(deviceId: string, userId: string | null) {
 
   const claimAccumulatedMoney = useCallback(async (isTriple: boolean) => {
     const activeId = gameState.profile?.id;
-    if (!activeId) return false;
+    if (!activeId) return { success: false, claimedAmount: 0 };
     try {
-      await rewardService.claimAccumulatedMoney(activeId, isTriple);
+      const result = await rewardService.claimAccumulatedMoney(activeId, isTriple);
       setGameState((prev) => {
         const nextQuestProgress = {
           ...prev.questProgress,
@@ -1292,8 +1317,13 @@ export function useGameState(deviceId: string, userId: string | null) {
         };
       });
       await loadGameData(false);
-      return true;
-    } catch (error) { return false; }
+      return {
+        success: true,
+        claimedAmount: Number(result.claimed_amount || 0),
+      };
+    } catch (error) {
+      return { success: false, claimedAmount: 0 };
+    }
   }, [gameState.profile?.id, loadGameData, saveToLocalStorage]);
 
   const claimOfflineEarnings = useCallback(async (multiplier = 1) => {
@@ -1344,7 +1374,11 @@ export function useGameState(deviceId: string, userId: string | null) {
       return false;
     }
 
-    const deposit = createBankDeposit({ planId, principal });
+    const deposit = createBankDeposit({
+      planId,
+      principal,
+      hasPremiumCard: hasPremiumBankCard(currentProfile),
+    });
     const updatedProfile = {
       ...currentProfile,
       total_money: Number(currentProfile.total_money || 0) - principal,
@@ -1414,6 +1448,76 @@ export function useGameState(deviceId: string, userId: string | null) {
       deposit,
       plan: getBankDepositPlan(deposit.plan_id),
     };
+  }, [saveToLocalStorage]);
+
+  const claimCashback = useCallback(async () => {
+    const currentProfile = gameStateRef.current.profile;
+    if (!currentProfile) return null;
+
+    const result = claimCashbackReward(currentProfile);
+    if (!result) {
+      return null;
+    }
+
+    gameStateRef.current = {
+      ...gameStateRef.current,
+      profile: result.updatedProfile,
+    };
+
+    setGameState((prev) => ({
+      ...prev,
+      profile: result.updatedProfile,
+    }));
+
+    saveToLocalStorage({
+      profile: result.updatedProfile,
+    });
+
+    return {
+      success: true,
+      amount: result.claimedAmount,
+    };
+  }, [saveToLocalStorage]);
+
+  const purchasePremiumBankCard = useCallback(async (purchaseMethod: PremiumPurchaseMethod) => {
+    const currentProfile = gameStateRef.current.profile;
+    if (!currentProfile) return false;
+    if (premiumBankCardMutationInFlightRef.current) return false;
+
+    premiumBankCardMutationInFlightRef.current = true;
+    try {
+      const nextProfileBase = applyPremiumBankCardPurchase(currentProfile, purchaseMethod);
+      if (!nextProfileBase) {
+        return false;
+      }
+
+      const updatedProfile = recalculateLocalEconomy({
+        profile: nextProfileBase,
+        jobs: gameStateRef.current.jobs,
+        playerJobs: gameStateRef.current.playerJobs,
+        businesses: gameStateRef.current.businesses,
+        investments: gameStateRef.current.investments,
+        selectedOutfit: gameStateRef.current.selectedOutfit,
+      });
+
+      gameStateRef.current = {
+        ...gameStateRef.current,
+        profile: updatedProfile,
+      };
+
+      setGameState((prev) => ({
+        ...prev,
+        profile: updatedProfile,
+      }));
+
+      saveToLocalStorage({
+        profile: updatedProfile,
+      });
+
+      return true;
+    } finally {
+      premiumBankCardMutationInFlightRef.current = false;
+    }
   }, [saveToLocalStorage]);
 
   const watchAd = useCallback(async () => {
@@ -1494,6 +1598,8 @@ export function useGameState(deviceId: string, userId: string | null) {
     watchAd,
     startBankDeposit,
     claimBankDeposit,
+    claimCashback,
+    purchasePremiumBankCard,
     updatePlayerName,
     resetProgress,
     claimOfflineEarnings,

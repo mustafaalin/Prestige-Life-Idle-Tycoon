@@ -6,7 +6,7 @@ const rows = [
   ['8bdaae0e-9f3a-4017-b9e5-a902e88dd974', 'Coffee Shop', 'Cozy neighborhood cafe', 'small', 10000, 55, 2, 'coffee-shop', 23, '/assets/businesses/small/coffee-shop.png'],
   ['68651004-c050-4bde-8844-421629f9f4f9', 'Barber Shop', 'Traditional barber shop', 'small', 12000, 65, 3, 'barber-shop', 29, '/assets/businesses/small/barber-shop.png'],
   ['3843025d-caa0-4f9c-9c91-5787767689d9', 'Bakery', 'Fresh bread and pastries', 'small', 15000, 75, 4, 'bakery', 38, '/assets/businesses/small/bakery.png'],
-  ['91797c51-2aaa-4715-bdf9-0e70d69d21fc', 'Grocery Mini Mart', 'Small convenience store', 'small', 18000, 90, 5, 'grocery-mini-market', 46, '/assets/businesses/small/grocery-mini-market.png'],
+  ['91797c51-2aaa-4715-bdf9-0e70d69d21fc', 'Grocery Mini Market', 'Small convenience store', 'small', 18000, 90, 5, 'grocery-mini-market', 46, '/assets/businesses/small/grocery-mini-market.png'],
   ['2c39fe73-b9e7-448d-b0c9-21633460663f', 'Sandwich Shop', 'Quick lunch spot', 'small', 22000, 105, 6, 'sandwich-shop', 54, '/assets/businesses/small/sandwich-shop.png'],
   ['2b2097ab-97b1-4482-b9bc-9f46a69b0539', 'Car Wash', 'Automated car wash', 'small', 28000, 130, 7, 'car-wash', 64, '/assets/businesses/small/car-wash.png'],
   ['f988038d-b067-4b73-9e82-c2e341cb3e07', 'Mobile Phone Repair', 'Device repair shop', 'small', 35000, 155, 8, 'mobile-phone-repair', 74, '/assets/businesses/small/mobile-phone-repair.png'],

@@ -67,6 +67,9 @@ export function StuffModal({
 
   useState;
 
+  const currentSelectedCar = cars.find((car) => car.id === selectedCarId) || null;
+  const currentSelectedHouse = houses.find((house) => house.id === selectedHouseId) || null;
+
   const handlePurchase = async () => {
     if (!selectedCar || totalMoney < selectedCar.price || !canAccessCarWithPrestige(selectedCar, prestigePoints)) return;
 
@@ -91,6 +94,7 @@ export function StuffModal({
         const canAfford = totalMoney >= car.price;
         const requiredPrestige = getRequiredPrestigeForCar(car);
         const isPrestigeLocked = !isOwned && !canAccessCarWithPrestige(car, prestigePoints);
+        const isDowngradeLocked = Boolean(currentSelectedCar && isOwned && car.level < currentSelectedCar.level);
 
         return (
           <div
@@ -174,14 +178,16 @@ export function StuffModal({
                     {isOwned ? (
                       <button
                         onClick={() => onSelectCar(car.id)}
-                        disabled={isSelected || loading}
+                        disabled={isSelected || isDowngradeLocked || loading}
                         className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
                           isSelected
                             ? 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border border-blue-300'
-                            : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 active:scale-95'
+                            : isDowngradeLocked
+                              ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                              : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 active:scale-95'
                         }`}
                       >
-                        {isSelected ? 'Selected' : 'Use Car'}
+                        {isSelected ? 'Selected' : isDowngradeLocked ? 'Lower Tier Locked' : 'Use Car'}
                       </button>
                     ) : (
                       <button
@@ -215,6 +221,7 @@ export function StuffModal({
         const isSelected = selectedHouseId === house.id;
         const requiredPrestige = getRequiredPrestigeForHouse(house);
         const isPrestigeLocked = !isSelected && !canAccessHouseWithPrestige(house, prestigePoints);
+        const isDowngradeLocked = Boolean(currentSelectedHouse && !isSelected && house.level < currentSelectedHouse.level);
         return (
           <div
             key={house.id}
@@ -282,14 +289,16 @@ export function StuffModal({
 
                     <button
                       onClick={() => onSelectHouse(house.id)}
-                      disabled={isSelected || loading}
+                      disabled={isSelected || isDowngradeLocked || loading}
                       className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
                         isSelected
                           ? 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border border-blue-300'
-                          : 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 active:scale-95'
+                          : isDowngradeLocked
+                            ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 active:scale-95'
                       }`}
                     >
-                      {isSelected ? 'Current Home' : 'Move Here'}
+                      {isSelected ? 'Current Home' : isDowngradeLocked ? 'Lower Tier Locked' : 'Move Here'}
                     </button>
                   </div>
                 </>

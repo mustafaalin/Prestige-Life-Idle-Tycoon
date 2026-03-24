@@ -85,10 +85,12 @@ Bu dosya oyunun gerçek işleyiş kurallarını tutar.
 - Ev değiştirince para düşülmez.
 - Ev seçimi sonrası kira gideri yeniden hesaplanır.
 - Seçili ev prestiji toplam prestije eklenir.
+- Oyuncu daha yüksek level bir eve geçtiğinde daha düşük level evlere geri dönemez.
 - Arabalar satın alınır.
 - Araba satın alındığında para düşülür ve seçili araç o olur.
 - Araba seçimi/satın alımı sonrası araç gideri yeniden hesaplanır.
 - Seçili araç prestiji toplam prestije eklenir.
+- Oyuncu daha yüksek level bir aracı seçtiğinde daha düşük level araçlara geri dönemez.
 
 ## Investment Sistemi
 

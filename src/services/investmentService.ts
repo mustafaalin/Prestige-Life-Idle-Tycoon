@@ -14,6 +14,7 @@ import {
   INVESTMENT_UPGRADE_ORDER,
 } from '../data/local/investments';
 import { recalculateLocalEconomy } from '../data/local/economy';
+import { awardCashback } from '../data/local/bankRewards';
 
 function calculateTotalInvestmentIncome() {
   return getLocalInvestments()
@@ -59,19 +60,21 @@ export async function purchaseInvestment(playerId: string, investmentId: string)
       : investment
   );
 
+  const profileAfterSpend = {
+    ...profile,
+    total_money: Number(profile.total_money) - target.price,
+  };
   const finalProfile = recalculateLocalEconomy({
-    profile: {
-      ...profile,
-      total_money: Number(profile.total_money) - target.price,
-    },
+    profile: profileAfterSpend,
     jobs,
     playerJobs,
     businesses,
     investments: nextInvestments,
   });
+  const cashbackResult = awardCashback(finalProfile, target.price);
 
   saveLocalGameState({
-    profile: finalProfile,
+    profile: cashbackResult.updatedProfile,
     investments: nextInvestments,
   });
 
@@ -132,19 +135,21 @@ export async function upgradeInvestment(
       : investment
   );
 
+  const profileAfterSpend = {
+    ...profile,
+    total_money: Number(profile.total_money) - upgradeCost,
+  };
   const finalProfile = recalculateLocalEconomy({
-    profile: {
-      ...profile,
-      total_money: Number(profile.total_money) - upgradeCost,
-    },
+    profile: profileAfterSpend,
     jobs,
     playerJobs,
     businesses,
     investments: nextInvestments,
   });
+  const cashbackResult = awardCashback(finalProfile, upgradeCost);
 
   saveLocalGameState({
-    profile: finalProfile,
+    profile: cashbackResult.updatedProfile,
     investments: nextInvestments,
   });
 
