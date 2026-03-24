@@ -73,10 +73,10 @@ const LOCAL_MONEY_PACKAGES: MoneyPackage[] = [
 ];
 
 const LOCAL_GEM_PACKAGES: GemPackage[] = [
-  { id: 'gem-pack-1', gem_amount: 10, price_usd: 0.99, display_order: 1, is_popular: false, is_best_value: false },
-  { id: 'gem-pack-2', gem_amount: 25, price_usd: 1.99, display_order: 2, is_popular: true, is_best_value: false },
-  { id: 'gem-pack-3', gem_amount: 75, price_usd: 4.99, display_order: 3, is_popular: false, is_best_value: true },
-  { id: 'gem-pack-4', gem_amount: 180, price_usd: 9.99, display_order: 4, is_popular: false, is_best_value: false },
+  { id: 'gem-pack-1', gem_amount: 30, price_usd: 0.99, display_order: 1, is_popular: false, is_best_value: false },
+  { id: 'gem-pack-2', gem_amount: 75, price_usd: 1.99, display_order: 2, is_popular: true, is_best_value: false },
+  { id: 'gem-pack-3', gem_amount: 300, price_usd: 4.99, display_order: 3, is_popular: false, is_best_value: false },
+  { id: 'gem-pack-4', gem_amount: 750, price_usd: 9.99, display_order: 4, is_popular: false, is_best_value: true },
 ];
 
 export function ShopModal({
