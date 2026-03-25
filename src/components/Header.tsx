@@ -286,7 +286,7 @@ export function Header({
                 }
                 title={`Job ${formatMoneyPerHour(jobIncome)} • Business ${formatMoneyPerHour(businessIncome)} • Investment ${formatMoneyPerHour(investmentIncome)} • House -$${formatMoneyPlain(houseRentExpense)}/h • Vehicle -$${formatMoneyPlain(vehicleExpense)}/h • Other -$${formatMoneyPlain(otherExpenses)}/h`}
               >
-                <img src={LOCAL_ICON_ASSETS.wallet} alt="Wallet" className="w-4 h-4" />
+                <img src={LOCAL_ICON_ASSETS.wallet} alt="Money per hour" className="w-4 h-4" />
                 <span className="text-[11px] font-bold leading-none">
                   {formatMoneyPerHour(hourlyIncome)}
                 </span>

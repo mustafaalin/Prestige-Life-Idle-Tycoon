@@ -9,7 +9,7 @@ export const LOCAL_ASSET_PATHS = {
 } as const;
 
 export const LOCAL_ICON_ASSETS = {
-  money: '/assets/icons/wallet.png',
+  money: '/assets/icons/money.png',
   wallet: '/assets/icons/wallet.png',
   healthy: '/assets/icons/healthy.png',
   happiness: '/assets/icons/happiness.png',

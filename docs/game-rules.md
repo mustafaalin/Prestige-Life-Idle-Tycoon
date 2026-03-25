@@ -165,6 +165,7 @@ Bu dosya oyunun gerçek işleyiş kurallarını tutar.
 ### Bank Sistemi
 
 - `Bank` investment sekmesi mevduat yatırımları içindir.
+- Bank ekranında üstte ayrı `Balance / Active / Ready` özet kutuları yoktur; bilgi doğrudan ilgili kartlarda gösterilir.
 - Oyuncu aynı anda birden fazla aktif banka yatırımı açabilir.
 - Ancak aynı plan türünde aynı anda sadece `1` aktif yatırım olabilir.
 - Farklı planlar paralel açık olabilir.
@@ -192,6 +193,35 @@ Bu dosya oyunun gerçek işleyiş kurallarını tutar.
   - sadece `profit` kısmı `lifetime_earnings` içine yazılır
 - Vadesi dolmuş ama claim edilmemiş banka yatırımı varsa `Investments` ikonunda dikkat badge'i gösterilebilir.
 
+### Bank Cashback Sistemi
+
+- Bank sekmesinde ayrı bir `Cashback` sistemi vardır.
+- Oyuncu aşağıdaki para harcamalarında cashback biriktirir:
+  - business satın alma / upgrade
+  - real estate satın alma / upgrade
+  - car satın alma
+  - character satın alma
+  - outfit satın alma
+- Base cashback oranı `2%`'dir.
+- Cashback claim edildiğinde:
+  - para ana bakiyeye eklenir
+  - `lifetime_earnings` artmaz
+- Cashback ayrı bir havuzda birikir ve bank ekranından manuel `Claim Cashback` ile toplanır.
+
+### Premium Bank Card
+
+- Bank ekranında `Premium Bank Card` sistemi vardır.
+- Kart tek seferlik sahiplik mantığıyla çalışır; tekrar satın alınmaz.
+- Kart iki satın alma yöntemi sunar:
+  - `$1.49`
+  - `50 gems`
+- Premium kart aktif olduğunda şu bonuslar çalışır:
+  - `x2 Cashback`
+  - `x2 Real Estate Income`
+  - `x2 Deposit Income`
+- Bu bonuslar sadece yazıda değil, gerçek hesapta uygulanmalıdır.
+- Premium kart etkisi real estate ekranlarında da görünür olmalıdır; oyuncu `base` gelir ile premium sonrası geliri ayırt edebilmelidir.
+
 ## Claim Sistemi
 
 - Birikmiş para claim sistemi vardır.
@@ -208,6 +238,8 @@ Bu dosya oyunun gerçek işleyiş kurallarını tutar.
   - en fazla `8 saat`
   - ama UTC gece yarısı daha erkense orada açılır
 - Yeni günde claim sayaçları resetlenir.
+- UI tarafında gösterilen claim miktarı, tahmini değil gerçek claim edilebilir miktar olmalıdır.
+- Claim animasyonu da tahmini değil, gerçek servis sonucunda dönen `claimed_amount` değerini göstermelidir.
 
 ## Günlük Ödül Sistemi
 
@@ -243,6 +275,21 @@ Bu dosya oyunun gerçek işleyiş kurallarını tutar.
   - `total_money` artar
   - `lifetime_earnings` artar
   - varsa gem ödülü `gems` alanına eklenir
+- Shop ekranında günlük ödül için ana ekran özeti sade tutulmalı; detaylı 15 günlük görünüm ayrı popup/modal içinde verilebilir.
+- Günlük ödül görsellerinde gem simgesi için oyun içi lokal gem asset'i kullanılmalıdır.
+
+## Quest Sistemi
+
+- Görev tamamlanınca anında prestij verilmez.
+- Her normal görev `claim` edildiğinde `+1 prestige` verir.
+- Chapter tamamlanınca chapter reward ayrıca claim edilir ve ekstra chapter prestige orada eklenir.
+- Toplam quest prestiji sadece claim edilmiş görevler ve claim edilmiş chapter reward'lar üzerinden hesaplanmalıdır.
+
+## Reward Modal / UI Kuralları
+
+- Quest reward claim modalı büyük ve detaylı değil; kompakt, hızlı okunur ve iki aksiyonu net gösteren yapıda olmalıdır.
+- Offline earnings modalı da benzer şekilde sade ve kompakt olmalıdır.
+- Para ve gem reward animasyonları ilgili modalın arkasında kalmamalı; modal üstünde görünmelidir.
 
 ## Açıkta Olan Kurallar
 

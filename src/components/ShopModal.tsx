@@ -66,10 +66,10 @@ interface CharacterOutfit {
 }
 
 const LOCAL_MONEY_PACKAGES: MoneyPackage[] = [
-  { id: 'money-pack-1', amount_multiplier: 1, calculated_amount: 5000, price_usd: 0.99, display_order: 1, is_popular: false, is_best_value: false },
-  { id: 'money-pack-2', amount_multiplier: 1, calculated_amount: 15000, price_usd: 1.99, display_order: 2, is_popular: true, is_best_value: false },
-  { id: 'money-pack-3', amount_multiplier: 1, calculated_amount: 50000, price_usd: 4.99, display_order: 3, is_popular: false, is_best_value: true },
-  { id: 'money-pack-4', amount_multiplier: 1, calculated_amount: 150000, price_usd: 9.99, display_order: 4, is_popular: false, is_best_value: false },
+  { id: 'money-pack-1', amount_multiplier: 1, calculated_amount: 8000, price_usd: 0.99, display_order: 1, is_popular: false, is_best_value: false },
+  { id: 'money-pack-2', amount_multiplier: 1, calculated_amount: 25000, price_usd: 1.99, display_order: 2, is_popular: true, is_best_value: false },
+  { id: 'money-pack-3', amount_multiplier: 1, calculated_amount: 75000, price_usd: 4.49, display_order: 3, is_popular: false, is_best_value: false },
+  { id: 'money-pack-4', amount_multiplier: 1, calculated_amount: 250000, price_usd: 9.99, display_order: 4, is_popular: false, is_best_value: true },
 ];
 
 const LOCAL_GEM_PACKAGES: GemPackage[] = [

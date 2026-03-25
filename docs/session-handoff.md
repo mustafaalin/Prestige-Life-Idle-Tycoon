@@ -131,6 +131,32 @@ Tamamlandı:
   - dikkat gerektiren ekranlar için badge altyapısı eklendi
   - şu anda daily reward alınabilirken veya accumulated money claim barı doluyken `Shop` ikonunda yanıp sönen ünlem gösteriliyor
 
+Son sprintte ayrıca:
+
+- `src/components/InvestmentsModal.tsx`
+  - bank ekranı yeniden sadeleştirildi
+  - üstteki `Balance / Active / Ready` özet blokları kaldırıldı
+  - `Cashback` ve `Premium Bank Card` blokları eklendi
+  - deposit kartlarının padding ve iç hiyerarşisi yeniden düzenlendi
+  - para kutusu ile süre kutusu ayrıldı
+  - süre kutusunda artık yalnızca saat ikonu + kalan süre var
+  - `INVEST`, `COLLECT`, `+10%`, `+50%`, `+100%` gibi yazılar küçültüldü
+  - premium kart ile real estate `x2` etkisi property tarafında görünür hale getirildi
+- `src/components/BusinessModal.tsx`
+  - owned business kartları daha kompakt hale getirildi
+  - büyük yatay income/upgrade bar yapısı yerine küçük income alanı + 5 yıldızlı upgrade görünümü eklendi
+- `src/components/ShopModal.tsx`
+  - daily reward alanı yeniden tasarlandı
+  - ana shop ekranında daily reward daha sade bir summary kartına indirildi
+  - detaylı 15 günlük görünüm ayrı bir popup içine alındı
+  - gem ikonlarının react icon yerine lokal asset ile gösterilmesine başlandı
+- `src/components/Header.tsx`
+  - para ve saatlik gelir ikonları tekrar ayrıştırıldı; hourly income tarafı `money` ikonu kullanıyor
+- `src/components/QuestRewardClaimModal.tsx`
+  - daha küçük ve sade hale getirildi
+- `src/components/OfflineEarningsModal.tsx`
+  - quest reward modal çizgisine yakın sade tasarıma çekildi
+
 ### Mobile / Ads
 
 Tamamlandı:
@@ -158,6 +184,23 @@ Tamamlandı:
 - vadesi dolmuş mevduat varsa `Investments` ikonunda dikkat badge'i çıkıyor
 - aynı plan türünde ikinci mevduat açılamıyor; farklı planlar paralel açık olabiliyor
 
+Genişletmeler:
+
+- `Cashback` sistemi eklendi
+  - belirli para harcamalarında cashback havuzu dolar
+  - bank ekranından claim edilir
+- `Premium Bank Card` eklendi
+  - satın alma seçenekleri:
+    - `$1.49`
+    - `50 gems`
+  - bonuslar:
+    - `x2 Cashback`
+    - `x2 Real Estate Income`
+    - `x2 Deposit Income`
+  - satın alma akışı ve bonus hesapları güçlendirildi
+  - duplicate grant / yarış durumu riskleri azaltıldı
+  - property ekranlarında premium etkisi görünür hale getirildi
+
 ### TypeScript durumu
 
 Tamamlandı:
@@ -167,6 +210,12 @@ Tamamlandı:
 - `bonus_prestige_points` local profile tiplerine işlendi
 - kullanılmayan import / state / parametre temizliği yapıldı
 - `npm run typecheck` artık tamamen başarılı geçiyor
+
+Son düzeltmeler:
+
+- shop ad cooldown artık modal açık olmasa da gerçek zaman damgası üzerinden doğru ilerliyor
+- accumulated money claim animasyonu tahmini miktarı değil, gerçek `claimed_amount` sonucunu gösteriyor
+- quest ve gem/money tween animasyonlarının modal arkasında kalma sorunu çözüldü
 
 ## Kritik Oyun Kuralları
 
@@ -201,6 +250,8 @@ Tamamlandı:
 
 - House satın alınmaz, seçilir
 - Car satın alınır
+- Daha yüksek level house seçildikten sonra daha düşük levele geri dönülemez
+- Daha yüksek level car seçildikten sonra daha düşük levele geri dönülemez
 
 ### Claim
 
@@ -209,6 +260,7 @@ Tamamlandı:
   - baz oran `(hourly_income / 2) / 60`
   - günlük base claim limiti `hourly_income`
   - triple reward günlük limiti büyütmez
+  - UI ve animasyon gerçek claim sonucu ile tutarlı olmalı; tahmini miktar gösterilip farklı miktar yazılmamalı
 
 ### Daily reward
 
@@ -218,6 +270,14 @@ Tamamlandı:
 - 2+ gün kaçırılırsa seri Day 1'e dönüyor
 - daily reward artık gem ödüllerini de profile'a işliyor
 - Shop modal daily reward kartı yeni gün/streak/milestone görünümüne taşındı
+- Ana ekran özeti sade; detaylı 15 günlük görünüm ayrı popup içinde
+- Tüm 15 gün tek bakışta görülebilecek grid yaklaşımı tercih edildi
+
+### Quests
+
+- Her normal görev `claim` edildiğinde `+1 prestige` verir
+- Prestij görev tamamlandığı anda değil, claim anında eklenir
+- Chapter bonus prestiji de chapter reward claim edilirken eklenir
 
 ## Şu An Muhtemel Açıklar
 
@@ -227,15 +287,19 @@ Tamamlandı:
 - görev sistemi ilk zincir ile başladı ama tüm `20+ / 100+` görev henüz koda taşınmadı
 - `docs/quest-progression.md` içindeki `100 görev` planı artık kod tarafında da tanımlı
 - mobile/native ad entegrasyonu başladı; test reklam altyapısı hazır ama gerçek cihaz doğrulaması henüz yapılmadı
+- job progression hâlâ büyük ölçüde `3 dakika bekleme` kuralına dayanıyor; kullanıcı yeni unlock şartları düşünmek istiyor
 
 ## En Son Kaldığımız Yer
 
-En mantıklı sıradaki adım şuydu:
+Şu an en güncel durum:
 
-1. Android Studio kurulumu tamamlandıktan sonra `android/` projesini açıp Android telefon üzerinde native build çalıştırmak
-2. rewarded ad placement'larında gerçek AdMob test reklamın açılıp açılmadığını doğrulamak
-3. native cihaz testinden sonra gerekiyorsa `capacitorAdmobProvider` davranışını ince ayar yapmak
-4. ardından oyunun kalan mekanik / local-first eksiklerine geri dönmek
+1. Son kodlar commit edildi ve push sorunu çözüldü
+   - sebep: local `main` ile `origin/main` ayrışmıştı
+   - `git pull --rebase origin main` + `git push origin main` ile düzeltildi
+2. Daily reward, bank, claim ve reward UI tarafında son büyük polish turu tamamlandı
+3. Kullanıcının gündemindeki bir sonraki önemli tasarım/oyun sistemi konusu:
+   - job geçişine sadece `3 dakika` dışında ek şartlar düşünmek
+   - oyunu daha motive edici hale getirecek unlock koşulları tasarlamak
 
 ## Yakın Ürün Backlog'u
 
@@ -256,6 +320,11 @@ Son konuşulan ve sonraki sprintlerde ele alınabilecek başlıklar:
    - ekonomi denge testi
    - native ad testi
    - production store hazırlıkları
+
+3. Job progression redesign
+   - mevcut 3 dakika kuralına ek şartlar
+   - stat / prestige / property / total work time / quest bağlı unlock seçenekleri
+   - job category bazlı daha karakterli progression kurgusu
 
 ## Yeni Sohbette Beklenen İlk Davranış
 
