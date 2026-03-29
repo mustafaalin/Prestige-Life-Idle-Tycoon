@@ -10,6 +10,7 @@ import { LOCAL_INVESTMENTS } from '../data/local/investments';
 import { createStarterPlayerOutfit, LOCAL_OUTFITS, LOCAL_STARTER_OUTFIT_ID } from '../data/local/outfits';
 import { createInitialQuestProgress } from '../data/local/quests';
 import { clearLocalStorage } from '../utils/game/storage';
+import { normalizeAccumulatedClaimProfile } from '../data/local/rewards';
 
 type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'] & {
   bonus_prestige_points?: number;
@@ -94,7 +95,17 @@ function createBaseProfile(params: {
 export async function getProfile(userId: string, deviceId?: string) {
   void userId;
   void deviceId;
-  return getLocalProfile();
+  const storedProfile = getLocalProfile();
+  if (!storedProfile) {
+    return null;
+  }
+
+  const normalizedProfile = normalizeAccumulatedClaimProfile(storedProfile);
+  if (normalizedProfile.changed) {
+    saveLocalGameState({ profile: normalizedProfile.profile });
+  }
+
+  return normalizedProfile.profile;
 }
 
 export async function createProfile(userId: string, deviceId: string) {

@@ -278,6 +278,15 @@ export default function App() {
     }
   }
 
+  async function handleBusinessUpgradeWithAdDiscount(businessId: string) {
+    const rewarded = await requestRewardedAd('business_upgrade_discount');
+    if (!rewarded) {
+      return false;
+    }
+
+    return gameState.upgradeBusinessWithAdDiscount(businessId);
+  }
+
   async function handleAnimatedPackagePurchase(moneyAdded: number, gemsAdded: number) {
     setIsQuestRewardAnimating(true);
 
@@ -825,6 +834,7 @@ export default function App() {
           totalMoney={gameState.profile.total_money}
           onPurchase={gameState.purchaseBusiness}
           onUpgrade={gameState.upgradeBusiness}
+          onUpgradeWithAdDiscount={handleBusinessUpgradeWithAdDiscount}
           onClose={() => {
             setShowBusinessModal(false);
             setActiveTab('business');

@@ -10,12 +10,64 @@ import { recalculateLocalEconomy } from '../data/local/economy';
 import { getLocalInvestments } from '../data/local/storage';
 import { getBusinessPrestigeForLevel } from '../data/local/businessPrestigePoints';
 import { awardCashback } from '../data/local/bankRewards';
+import type { BusinessWithPlayerData, PlayerProfile } from '../types/game';
+import {
+  BUSINESS_AD_DISCOUNT_MULTIPLIER,
+  getBusinessUpgradeCost,
+  getNextBusinessIncome,
+  isBusinessAtMaxLevel,
+} from '../utils/businessUpgrade';
+
+export interface BusinessMutationResult {
+  success: true;
+  profile: PlayerProfile;
+  businesses: BusinessWithPlayerData[];
+  businessesPrestige: number;
+}
 
 function calculateOwnedBusinessPrestige() {
   const businesses = getLocalBusinesses().length ? getLocalBusinesses() : LOCAL_BUSINESSES;
   return businesses
     .filter((business) => business.is_owned)
     .reduce((sum, business) => sum + Number(business.current_prestige_points || 0), 0);
+}
+
+function calculateBusinessesPrestige(businesses: BusinessWithPlayerData[]) {
+  return businesses
+    .filter((business) => business.is_owned)
+    .reduce((sum, business) => sum + Number(business.current_prestige_points || 0), 0);
+}
+
+function finalizeBusinessMutation(params: {
+  profile: PlayerProfile;
+  businesses: BusinessWithPlayerData[];
+  amountSpent: number;
+}) {
+  const jobs = getLocalJobs();
+  const playerJobs = getLocalPlayerJobs();
+  const investments = getLocalInvestments();
+  const finalProfile = recalculateLocalEconomy({
+    profile: params.profile,
+    jobs,
+    playerJobs,
+    businesses: params.businesses,
+    investments,
+  });
+  const cashbackResult = awardCashback(finalProfile, params.amountSpent);
+  const businessesPrestige = calculateBusinessesPrestige(params.businesses);
+
+  saveLocalGameState({
+    profile: cashbackResult.updatedProfile,
+    businesses: params.businesses,
+    businessesPrestige,
+  });
+
+  return {
+    success: true as const,
+    profile: cashbackResult.updatedProfile,
+    businesses: params.businesses,
+    businessesPrestige,
+  };
 }
 
 export async function getBusinesses(_playerId: string) {
@@ -32,9 +84,6 @@ export async function getBusinesses(_playerId: string) {
 export async function purchaseBusiness(_playerId: string, businessId: string) {
   const businesses = getLocalBusinesses();
   const profile = getLocalProfile();
-  const jobs = getLocalJobs();
-  const playerJobs = getLocalPlayerJobs();
-  const investments = getLocalInvestments();
   if (!profile) throw new Error('Player not found');
 
   const target = businesses.find((business) => business.id === businessId);
@@ -69,51 +118,38 @@ export async function purchaseBusiness(_playerId: string, businessId: string) {
     ...profile,
     total_money: Number(profile.total_money) - target.base_price,
   };
-  const finalProfile = recalculateLocalEconomy({
+
+  return finalizeBusinessMutation({
     profile: profileAfterSpend,
-    jobs,
-    playerJobs,
     businesses: nextBusinesses,
-    investments,
+    amountSpent: target.base_price,
   });
-  const cashbackResult = awardCashback(finalProfile, target.base_price);
-
-  saveLocalGameState({
-    profile: cashbackResult.updatedProfile,
-    businesses: nextBusinesses,
-    businessesPrestige: nextBusinesses
-      .filter((business) => business.is_owned)
-      .reduce((sum, business) => sum + Number(business.current_prestige_points || 0), 0),
-  });
-
-  return { success: true };
 }
 
-export async function upgradeBusiness(_playerId: string, businessId: string) {
+export async function upgradeBusiness(
+  _playerId: string,
+  businessId: string,
+  options?: { priceMultiplier?: number }
+): Promise<BusinessMutationResult> {
   const businesses = getLocalBusinesses();
   const profile = getLocalProfile();
-  const jobs = getLocalJobs();
-  const playerJobs = getLocalPlayerJobs();
-  const investments = getLocalInvestments();
   if (!profile) throw new Error('Player not found');
 
   const target = businesses.find((business) => business.id === businessId);
   if (!target || !target.is_owned) throw new Error('You do not own this business');
-  if ((target.current_level || 1) >= 6) throw new Error('Business is already at max level');
+  if (isBusinessAtMaxLevel(target.current_level || 1)) throw new Error('Business is already at max level');
 
   const currentLevel = target.current_level || 1;
   const currentIncome = target.current_hourly_income || target.base_hourly_income;
-  const multiplier =
-    currentLevel === 1 ? 30 :
-    currentLevel === 2 ? 60 :
-    currentLevel === 3 ? 120 :
-    currentLevel === 4 ? 180 :
-    240;
-  const upgradeCost = currentIncome * multiplier;
+  const upgradeCost = getBusinessUpgradeCost(
+    currentIncome,
+    currentLevel,
+    options?.priceMultiplier ?? 1
+  );
 
   if (Number(profile.total_money) < upgradeCost) throw new Error('Not enough money to upgrade this business');
 
-  const newIncome = Math.floor(currentIncome * 1.25);
+  const newIncome = getNextBusinessIncome(currentIncome);
   const nextBusinesses = businesses.map((business) =>
     business.id === businessId
       ? {
@@ -130,22 +166,16 @@ export async function upgradeBusiness(_playerId: string, businessId: string) {
     ...profile,
     total_money: Number(profile.total_money) - upgradeCost,
   };
-  const finalProfile = recalculateLocalEconomy({
+
+  return finalizeBusinessMutation({
     profile: profileAfterSpend,
-    jobs,
-    playerJobs,
     businesses: nextBusinesses,
-    investments,
+    amountSpent: upgradeCost,
   });
-  const cashbackResult = awardCashback(finalProfile, upgradeCost);
+}
 
-  saveLocalGameState({
-    profile: cashbackResult.updatedProfile,
-    businesses: nextBusinesses,
-    businessesPrestige: nextBusinesses
-      .filter((business) => business.is_owned)
-      .reduce((sum, business) => sum + Number(business.current_prestige_points || 0), 0),
+export async function upgradeBusinessWithAdDiscount(_playerId: string, businessId: string) {
+  return upgradeBusiness(_playerId, businessId, {
+    priceMultiplier: BUSINESS_AD_DISCOUNT_MULTIPLIER,
   });
-
-  return { success: true };
 }

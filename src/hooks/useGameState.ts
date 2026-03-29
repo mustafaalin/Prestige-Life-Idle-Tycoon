@@ -48,6 +48,7 @@ import * as profileService from '../services/profileService';
 import * as itemService from '../services/itemService';
 import * as jobService from '../services/jobService';
 import * as businessService from '../services/businessService';
+import type { BusinessMutationResult } from '../services/businessService';
 import * as purchaseService from '../services/purchaseService';
 import * as rewardService from '../services/rewardService';
 import * as statsService from '../services/statsService';
@@ -1214,21 +1215,48 @@ export function useGameState(deviceId: string, userId: string | null) {
     return true;
   }, [gameState.profile?.id, gameState.playerJobs, gameState.unsavedJobWorkSeconds, saveToLocalStorage]);
 
+  const applyBusinessMutation = useCallback((result: BusinessMutationResult) => {
+    gameStateRef.current = {
+      ...gameStateRef.current,
+      profile: result.profile,
+      businesses: result.businesses,
+      businessesPrestige: result.businessesPrestige,
+      businessesLoading: false,
+      pendingMoneyDelta: 0,
+    };
+
+    setGameState((prev) => ({
+      ...prev,
+      profile: result.profile,
+      businesses: result.businesses,
+      businessesPrestige: result.businessesPrestige,
+      businessesLoading: false,
+      pendingMoneyDelta: 0,
+    }));
+
+    saveToLocalStorage({
+      profile: result.profile,
+      businesses: result.businesses,
+      businessesPrestige: result.businessesPrestige,
+      pendingMoneyDelta: 0,
+    });
+  }, [saveToLocalStorage]);
+
   const purchaseBusiness = useCallback(async (businessId: string) => {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
     try {
       moneyMutationInFlightRef.current = true;
       await flushPendingIfNeeded();
-      await businessService.purchaseBusiness(activeId, businessId);
-      moneyMutationInFlightRef.current = false;
-      await loadGameData(false);
+      const result = await businessService.purchaseBusiness(activeId, businessId);
+      applyBusinessMutation(result);
       return true;
     } catch (error) {
-      moneyMutationInFlightRef.current = false;
       return false;
+    } finally {
+      moneyMutationInFlightRef.current = false;
     }
-  }, [gameState.profile?.id, loadGameData, flushPendingIfNeeded]);
+  }, [applyBusinessMutation, gameState.profile?.id, flushPendingIfNeeded]);
 
   const upgradeBusiness = useCallback(async (businessId: string) => {
     const activeId = gameState.profile?.id;
@@ -1236,15 +1264,31 @@ export function useGameState(deviceId: string, userId: string | null) {
     try {
       moneyMutationInFlightRef.current = true;
       await flushPendingIfNeeded();
-      await businessService.upgradeBusiness(activeId, businessId);
-      moneyMutationInFlightRef.current = false;
-      await loadGameData(false);
+      const result = await businessService.upgradeBusiness(activeId, businessId);
+      applyBusinessMutation(result);
       return true;
     } catch (error) {
-      moneyMutationInFlightRef.current = false;
       return false;
+    } finally {
+      moneyMutationInFlightRef.current = false;
     }
-  }, [gameState.profile?.id, loadGameData, flushPendingIfNeeded]);
+  }, [applyBusinessMutation, gameState.profile?.id, flushPendingIfNeeded]);
+
+  const upgradeBusinessWithAdDiscount = useCallback(async (businessId: string) => {
+    const activeId = gameState.profile?.id;
+    if (!activeId) return false;
+    try {
+      moneyMutationInFlightRef.current = true;
+      await flushPendingIfNeeded();
+      const result = await businessService.upgradeBusinessWithAdDiscount(activeId, businessId);
+      applyBusinessMutation(result);
+      return true;
+    } catch (error) {
+      return false;
+    } finally {
+      moneyMutationInFlightRef.current = false;
+    }
+  }, [applyBusinessMutation, gameState.profile?.id, flushPendingIfNeeded]);
 
   const purchaseInvestment = useCallback(async (investmentId: string) => {
     const activeId = gameState.profile?.id;
@@ -1590,6 +1634,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     skipJobCooldown,
     purchaseBusiness,
     upgradeBusiness,
+    upgradeBusinessWithAdDiscount,
     purchaseInvestment,
     upgradeInvestment,
     claimDailyReward,

@@ -39,6 +39,36 @@ function resolveRewardDay(streak: number) {
   return ((streak - 1) % DAILY_REWARDS.length) + 1;
 }
 
+export function normalizeAccumulatedClaimProfile(profile: PlayerProfile, now = new Date()) {
+  const currentDate = getTodayUtcString(now);
+  let nextProfile = { ...profile };
+  let changed = false;
+
+  if (!nextProfile.last_claim_reset_date || nextProfile.last_claim_reset_date < currentDate) {
+    nextProfile = {
+      ...nextProfile,
+      daily_claimed_total: 0,
+      last_claim_reset_date: currentDate,
+      claim_locked_until: null,
+    };
+    changed = true;
+  } else if (
+    nextProfile.claim_locked_until &&
+    new Date(nextProfile.claim_locked_until).getTime() <= now.getTime()
+  ) {
+    nextProfile = {
+      ...nextProfile,
+      claim_locked_until: null,
+    };
+    changed = true;
+  }
+
+  return {
+    profile: nextProfile,
+    changed,
+  };
+}
+
 export function getDailyRewardStatus(gameStats: GameStats | null) {
   const now = new Date();
   const streak = gameStats?.daily_login_streak || 0;
@@ -152,17 +182,7 @@ export function claimAccumulatedMoney(
   ownedInvestmentCount = 0
 ) {
   const now = new Date();
-  const currentDate = now.toISOString().slice(0, 10);
-
-  let workingProfile = { ...profile };
-  if (!workingProfile.last_claim_reset_date || workingProfile.last_claim_reset_date < currentDate) {
-    workingProfile = {
-      ...workingProfile,
-      daily_claimed_total: 0,
-      last_claim_reset_date: currentDate,
-      claim_locked_until: null,
-    };
-  }
+  let workingProfile = normalizeAccumulatedClaimProfile(profile, now).profile;
 
   if (workingProfile.claim_locked_until && new Date(workingProfile.claim_locked_until) > now) {
     throw new Error('Daily limit reached. Try again later.');

@@ -6,6 +6,7 @@ export type AdPlacement =
   | 'daily_streak_rescue'
   | 'shop_ad_reward'
   | 'earnings_x3'
+  | 'business_upgrade_discount'
   | 'job_unlock_skip'
   | 'bank_premium_deposit';
 

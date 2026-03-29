@@ -36,6 +36,12 @@ export const PLACEMENT_COPY: Record<
     ctaLabel: 'Claim x3',
     minWatchSeconds: DEFAULT_MIN_WATCH_SECONDS,
   },
+  business_upgrade_discount: {
+    title: 'Business Upgrade Discount',
+    description: 'Finish this rewarded ad to cut this business upgrade cost in half.',
+    ctaLabel: 'Unlock 50% Off',
+    minWatchSeconds: DEFAULT_MIN_WATCH_SECONDS,
+  },
   job_unlock_skip: {
     title: 'Job Unlock Skip',
     description: 'Finish this rewarded ad to skip the remaining job unlock wait.',

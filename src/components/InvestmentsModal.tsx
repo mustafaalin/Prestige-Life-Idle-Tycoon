@@ -22,6 +22,7 @@ import {
   INVESTMENT_UPGRADE_ORDER,
   calculateInvestmentRentalIncome,
 } from '../data/local/investments';
+import { getInvestmentUpgradeCost } from '../services/investmentService';
 import {
   BANK_DEPOSIT_PLANS,
   getBankDepositCountdownMs,
@@ -729,53 +730,160 @@ export function InvestmentsModal({
                       const appliedUpgrades = selectedInvestment.upgrades_applied || [];
                       const isApplied = appliedUpgrades.includes(upgradeKey);
                       const isNextUpgrade = index === appliedUpgrades.length;
-                      const cost = Math.floor(
-                        selectedInvestment.price / [10, 4, 3, 2, 1][index]
-                      );
+                      const cost = getInvestmentUpgradeCost(selectedInvestment.price, index);
                       const nextIncome = calculateInvestmentRentalIncome(
                         selectedInvestment.base_rental_income,
                         [...appliedUpgrades, upgradeKey]
                       ) * realEstateIncomeMultiplier;
+                      const currentIncome =
+                        Number(
+                          selectedInvestment.current_rental_income ||
+                            selectedInvestment.base_rental_income
+                        ) * realEstateIncomeMultiplier;
+                      const incomeGain = Math.max(0, nextIncome - currentIncome);
+                      const isProcessing =
+                        processingKey === `${selectedInvestment.id}:${upgradeKey}`;
                       const isDisabled =
                         isApplied ||
                         !isNextUpgrade ||
                         totalMoney < cost ||
-                        processingKey === `${selectedInvestment.id}:${upgradeKey}`;
+                        isProcessing;
+                      const statusLabel = isApplied
+                        ? 'Done'
+                        : !isNextUpgrade
+                          ? 'Locked'
+                          : isProcessing
+                            ? 'Upgrading...'
+                            : totalMoney < cost
+                              ? 'Need Cash'
+                              : 'Upgrade';
                       return (
                         <button
                           key={upgradeKey}
                           disabled={isDisabled}
                           onClick={() => handleUpgrade(upgradeKey)}
-                          className={`w-full rounded-2xl border p-3 text-left ${
+                          className={`w-full rounded-[22px] border p-3 text-left transition-all ${
                             isApplied
                               ? 'bg-slate-50 border-slate-200 text-slate-400'
                               : !isNextUpgrade
                                 ? 'bg-slate-50 border-slate-200 text-slate-400'
-                              : 'bg-white border-emerald-200'
+                              : totalMoney < cost
+                                ? 'bg-white border-amber-200 text-slate-500'
+                                : 'bg-[linear-gradient(180deg,#ffffff_0%,#effcf6_100%)] border-emerald-300 shadow-[0_10px_24px_rgba(16,185,129,0.08)] hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(16,185,129,0.12)] active:scale-[0.995]'
                           }`}
                         >
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                                <Icon className="w-5 h-5 text-emerald-700" />
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex min-w-0 items-center gap-3">
+                              <div
+                                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
+                                  isApplied
+                                    ? 'bg-slate-200'
+                                    : !isNextUpgrade
+                                      ? 'bg-slate-100'
+                                      : totalMoney < cost
+                                        ? 'bg-amber-50'
+                                        : 'bg-emerald-50'
+                                }`}
+                              >
+                                <Icon
+                                  className={`h-5 w-5 ${
+                                    isApplied
+                                      ? 'text-slate-400'
+                                      : !isNextUpgrade
+                                        ? 'text-slate-400'
+                                        : totalMoney < cost
+                                          ? 'text-amber-600'
+                                          : 'text-emerald-700'
+                                  }`}
+                                />
                               </div>
-                              <div>
-                                <div className="text-sm font-extrabold text-slate-900">{INVESTMENT_UPGRADE_LABELS[upgradeKey]}</div>
-                                <div className="text-[11px] font-semibold text-slate-500">
-                                  New rent: {formatMoney(nextIncome)}/hr
+                              <div className="min-w-0">
+                                <div
+                                  className={`text-sm font-extrabold ${
+                                    isApplied || !isNextUpgrade
+                                      ? 'text-slate-500'
+                                      : totalMoney < cost
+                                        ? 'text-slate-800'
+                                        : 'text-slate-900'
+                                  }`}
+                                >
+                                  {INVESTMENT_UPGRADE_LABELS[upgradeKey]}
+                                </div>
+                                <div className="mt-1 flex flex-wrap gap-1.5">
+                                  <span
+                                    className={`rounded-full px-2 py-1 text-[10px] font-black ${
+                                      isApplied || !isNextUpgrade
+                                        ? 'bg-slate-200 text-slate-500'
+                                        : 'bg-emerald-100 text-emerald-700'
+                                    }`}
+                                  >
+                                    +{formatMoney(incomeGain)}/hr
+                                  </span>
+                                  <span
+                                    className={`rounded-full px-2 py-1 text-[10px] font-black ${
+                                      isApplied || !isNextUpgrade
+                                        ? 'bg-slate-200 text-slate-500'
+                                        : totalMoney < cost
+                                          ? 'bg-amber-100 text-amber-700'
+                                          : 'bg-slate-100 text-slate-700'
+                                    }`}
+                                  >
+                                    {formatMoney(cost)}
+                                  </span>
                                 </div>
                                 {hasPremiumBankCard && (
-                                  <div className="text-[10px] font-black uppercase tracking-[0.12em] text-amber-600">
+                                  <div className="mt-1 text-[10px] font-black uppercase tracking-[0.12em] text-amber-600">
                                     Base {formatMoney(Math.floor(nextIncome / realEstateIncomeMultiplier))} x2 Premium
                                   </div>
                                 )}
                               </div>
                             </div>
-                            <div className="text-right">
-                              <div className="text-sm font-black text-emerald-700">{formatMoney(cost)}</div>
-                              <div className="text-[10px] font-bold text-slate-400">
-                                {isApplied ? 'Done' : !isNextUpgrade ? 'Locked' : 'Upgrade'}
-                              </div>
+
+                            <div
+                              className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black ${
+                                isApplied
+                                  ? 'bg-slate-200 text-slate-500'
+                                  : !isNextUpgrade
+                                    ? 'bg-slate-200 text-slate-500'
+                                    : totalMoney < cost
+                                      ? 'bg-amber-100 text-amber-700'
+                                      : 'bg-emerald-500 text-white'
+                              }`}
+                            >
+                              {statusLabel}
+                            </div>
+                          </div>
+
+                          <div
+                            className={`mt-3 flex items-center justify-between rounded-2xl border px-3 py-2 ${
+                              isApplied
+                                ? 'border-slate-200 bg-white/70'
+                                : !isNextUpgrade
+                                  ? 'border-slate-200 bg-white/70'
+                                  : totalMoney < cost
+                                    ? 'border-amber-200 bg-amber-50'
+                                    : 'border-emerald-200 bg-white'
+                            }`}
+                          >
+                            <div className="text-[10px] font-black uppercase tracking-[0.12em]">
+                              {isApplied
+                                ? 'Completed'
+                                : !isNextUpgrade
+                                  ? 'Finish previous upgrade first'
+                                  : totalMoney < cost
+                                    ? 'Not enough cash'
+                                    : 'Tap to upgrade'}
+                            </div>
+                            <div
+                              className={`text-xs font-black ${
+                                isApplied || !isNextUpgrade
+                                  ? 'text-slate-400'
+                                  : totalMoney < cost
+                                    ? 'text-amber-700'
+                                    : 'text-emerald-700'
+                              }`}
+                            >
+                              {isApplied ? formatMoney(nextIncome) : `${formatMoney(nextIncome)}/hr`}
                             </div>
                           </div>
                         </button>

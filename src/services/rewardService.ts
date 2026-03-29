@@ -3,6 +3,7 @@ import {
   claimAdReward,
   claimDailyReward as claimDailyRewardLocal,
   getDailyRewardStatus,
+  normalizeAccumulatedClaimProfile,
   rescueDailyRewardStreak as rescueDailyRewardStreakLocal,
 } from '../data/local/rewards';
 import { getLocalGameStats, getLocalInvestments, getLocalProfile, saveLocalGameState } from '../data/local/storage';
@@ -36,8 +37,15 @@ function ensureLocalGameStats(playerId: string): GameStats {
 
 export async function getClaimStatus(playerId: string) {
   const gameStats = ensureLocalGameStats(playerId);
-  const profile = getLocalProfile();
+  const storedProfile = getLocalProfile();
+  const normalizedProfile = storedProfile ? normalizeAccumulatedClaimProfile(storedProfile) : null;
+  const profile = normalizedProfile?.profile || storedProfile;
   const ownedInvestmentCount = getLocalInvestments().filter((investment) => investment.is_owned).length;
+
+  if (normalizedProfile?.changed && profile) {
+    saveLocalGameState({ profile });
+  }
+
   const status = getDailyRewardStatus(gameStats);
   const scaledRewards = getScaledShopRewards(Number(profile?.prestige_points || 0), ownedInvestmentCount);
   return {
@@ -85,7 +93,8 @@ export async function rescueDailyRewardStreak(playerId: string) {
 
 export async function claimAccumulatedMoney(playerId: string, isTriple = false) {
   void playerId;
-  const profile = getLocalProfile();
+  const storedProfile = getLocalProfile();
+  const profile = storedProfile ? normalizeAccumulatedClaimProfile(storedProfile).profile : storedProfile;
   if (!profile) throw new Error('Player not found');
   const ownedInvestmentCount = getLocalInvestments().filter((investment) => investment.is_owned).length;
   const result = claimAccumulatedMoneyLocal(profile, isTriple, ownedInvestmentCount);

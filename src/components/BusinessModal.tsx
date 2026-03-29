@@ -1,16 +1,22 @@
-import { useMemo, useState } from 'react';
-import { X, Lock, TrendingUp, CheckCircle2, Building2, Store, Star } from 'lucide-react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { X, Lock, TrendingUp, CheckCircle2, Building2, Store, Star, Play } from 'lucide-react';
 import type { BusinessWithPlayerData } from '../types/game';
 import { resolveLocalAsset } from '../lib/localAssets';
 import { formatMoneyFull, formatMoneyPerHour } from '../utils/money';
+import {
+  BUSINESS_MAX_LEVEL,
+  getBusinessUpgradeCost,
+  getDiscountedBusinessUpgradeCost,
+} from '../utils/businessUpgrade';
 
-const UPGRADE_MULTIPLIERS = [30, 60, 120, 180, 240];
+type ProcessingAction = 'purchase' | 'upgrade' | 'discount';
 
 interface BusinessModalProps {
   businesses: BusinessWithPlayerData[];
   totalMoney: number;
   onPurchase: (businessId: string) => Promise<boolean>;
   onUpgrade: (businessId: string) => Promise<boolean>;
+  onUpgradeWithAdDiscount: (businessId: string) => Promise<boolean>;
   onClose: () => void;
   loading?: boolean;
 }
@@ -20,11 +26,17 @@ export function BusinessModal({
   totalMoney,
   onPurchase,
   onUpgrade,
+  onUpgradeWithAdDiscount,
   onClose,
   loading = false
 }: BusinessModalProps) {
   const [activeTab, setActiveTab] = useState<'small' | 'large'>('small');
-  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [processingState, setProcessingState] = useState<{
+    businessId: string;
+    action: ProcessingAction;
+  } | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const scrollRestoreRef = useRef<number | null>(null);
 
   const filteredBusinesses = useMemo(
     () => businesses.filter(b => b.category === activeTab),
@@ -36,26 +48,55 @@ export function BusinessModal({
     .filter(b => b.is_owned)
     .reduce((sum, b) => sum + Number(b.current_hourly_income || 0), 0);
 
-  const calculateUpgradeCost = (currentIncome: number, currentLevel: number) => {
-    if (currentLevel >= 6) return 0;
-    return currentIncome * UPGRADE_MULTIPLIERS[currentLevel - 1];
+  useLayoutEffect(() => {
+    if (loading || scrollRestoreRef.current === null || !scrollContainerRef.current) return;
+
+    scrollContainerRef.current.scrollTop = scrollRestoreRef.current;
+    scrollRestoreRef.current = null;
+  }, [loading, businesses, activeTab]);
+
+  const prepareProcessing = (businessId: string, action: ProcessingAction) => {
+    scrollRestoreRef.current = scrollContainerRef.current?.scrollTop ?? null;
+    setProcessingState({ businessId, action });
+  };
+
+  const finishProcessing = () => {
+    setProcessingState(null);
   };
 
   const handlePurchase = async (businessId: string) => {
-    setProcessingId(businessId);
+    prepareProcessing(businessId, 'purchase');
     try {
-      await onPurchase(businessId);
+      const success = await onPurchase(businessId);
+      if (!success) {
+        scrollRestoreRef.current = null;
+      }
     } finally {
-      setProcessingId(null);
+      finishProcessing();
     }
   };
 
   const handleUpgrade = async (businessId: string) => {
-    setProcessingId(businessId);
+    prepareProcessing(businessId, 'upgrade');
     try {
-      await onUpgrade(businessId);
+      const success = await onUpgrade(businessId);
+      if (!success) {
+        scrollRestoreRef.current = null;
+      }
     } finally {
-      setProcessingId(null);
+      finishProcessing();
+    }
+  };
+
+  const handleDiscountedUpgrade = async (businessId: string) => {
+    prepareProcessing(businessId, 'discount');
+    try {
+      const success = await onUpgradeWithAdDiscount(businessId);
+      if (!success) {
+        scrollRestoreRef.current = null;
+      }
+    } finally {
+      finishProcessing();
     }
   };
 
@@ -133,12 +174,27 @@ export function BusinessModal({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3 bg-white">
+        <div
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto p-3 bg-white"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filteredBusinesses.map((business) => {
               const isLocked = !business.is_owned && !business.can_unlock;
-              const isProcessing = processingId === business.id;
+              const processingAction =
+                processingState?.businessId === business.id ? processingState.action : null;
+              const isProcessing = processingAction !== null;
               const canAffordPurchase = totalMoney >= business.base_price;
+              const currentLevel = Number(business.current_level || 1);
+              const currentIncome = Number(
+                business.current_hourly_income || business.base_hourly_income || 0
+              );
+              const upgradeCost = getBusinessUpgradeCost(currentIncome, currentLevel);
+              const discountedUpgradeCost = getDiscountedBusinessUpgradeCost(currentIncome, currentLevel);
+              const upgradeSavings = Math.max(0, upgradeCost - discountedUpgradeCost);
+              const canAffordStandardUpgrade = totalMoney >= upgradeCost;
+              const canAffordDiscountedUpgrade = totalMoney >= discountedUpgradeCost;
+              const isMaxLevel = currentLevel >= BUSINESS_MAX_LEVEL;
 
               return (
                 <div
@@ -224,7 +280,7 @@ export function BusinessModal({
                                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                               }`}
                             >
-                              {isProcessing ? 'Wait...' : canAffordPurchase ? 'Buy' : 'Need $'}
+                              {processingAction === 'purchase' ? 'Buying...' : canAffordPurchase ? 'Buy' : 'Need $'}
                             </button>
                           )}
                         </>
@@ -259,25 +315,63 @@ export function BusinessModal({
                             </div>
                           </div>
 
-                          {Number(business.current_level || 1) < 6 ? (
-                            <button
-                              onClick={() => handleUpgrade(business.id)}
-                              disabled={
-                                totalMoney < calculateUpgradeCost(Number(business.current_hourly_income || 0), Number(business.current_level || 1)) ||
-                                isProcessing
-                              }
-                              className={`mx-auto w-auto min-w-[132px] rounded-full px-3 py-1.5 text-[11px] font-black transition-all ${
-                                totalMoney >= calculateUpgradeCost(Number(business.current_hourly_income || 0), Number(business.current_level || 1)) && !isProcessing
-                                  ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white hover:from-orange-500 hover:to-amber-600 active:scale-95'
-                                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                              }`}
-                            >
-                              {isProcessing
-                                ? 'Wait...'
-                                : `Upgrade • ${formatMoneyFull(
-                                    calculateUpgradeCost(Number(business.current_hourly_income || 0), Number(business.current_level || 1))
-                                  )}`}
-                            </button>
+                          {!isMaxLevel ? (
+                            <div className="rounded-xl border border-orange-200 bg-white/85 p-2 shadow-sm">
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-orange-500">
+                                  Upgrade
+                                </p>
+                                <div className="rounded-full bg-fuchsia-100 px-2 py-0.5 text-[9px] font-black text-fuchsia-700">
+                                  -50% ad
+                                </div>
+                              </div>
+
+                              <div className="mt-2 grid grid-cols-2 gap-2">
+                                <button
+                                  onClick={() => handleUpgrade(business.id)}
+                                  disabled={!canAffordStandardUpgrade || isProcessing}
+                                  className={`rounded-lg px-2.5 py-2 transition-all ${
+                                    canAffordStandardUpgrade && !isProcessing
+                                      ? 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-sm hover:from-orange-500 hover:to-amber-600 active:scale-[0.99]'
+                                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                  }`}
+                                >
+                                  <div className="text-[10px] font-black uppercase tracking-[0.08em]">
+                                    {processingAction === 'upgrade' ? '...' : 'Up'}
+                                  </div>
+                                  <div className="mt-0.5 text-[11px] font-black">
+                                    {formatMoneyFull(upgradeCost)}
+                                  </div>
+                                </button>
+
+                                <button
+                                  onClick={() => handleDiscountedUpgrade(business.id)}
+                                  disabled={!canAffordDiscountedUpgrade || isProcessing}
+                                  className={`rounded-lg border px-2.5 py-2 transition-all ${
+                                    canAffordDiscountedUpgrade && !isProcessing
+                                      ? 'border-fuchsia-300 bg-gradient-to-r from-fuchsia-500 via-pink-500 to-rose-500 text-white shadow-sm hover:from-fuchsia-600 hover:via-pink-600 hover:to-rose-600 active:scale-[0.99]'
+                                      : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-[0.08em]">
+                                    <Play className="h-3 w-3" />
+                                    {processingAction === 'discount' ? '...' : 'Ad'}
+                                  </div>
+                                  <div className="mt-0.5 text-[11px] font-black">
+                                    {formatMoneyFull(discountedUpgradeCost)}
+                                  </div>
+                                  <div className="text-[9px] font-bold line-through opacity-70">
+                                    {formatMoneyFull(upgradeCost)}
+                                  </div>
+                                </button>
+                              </div>
+
+                              {!canAffordStandardUpgrade && canAffordDiscountedUpgrade && (
+                                <div className="mt-1 text-center text-[9px] font-black text-fuchsia-700">
+                                  Save {formatMoneyFull(upgradeSavings)}
+                                </div>
+                              )}
+                            </div>
                           ) : (
                             <div className="text-[11px] font-bold text-green-700 bg-gradient-to-r from-green-100 to-emerald-100 py-1.5 px-3 rounded-full border border-green-300 text-center mx-auto w-auto min-w-[96px]">
                               <CheckCircle2 className="w-3 h-3 inline mr-1" />
