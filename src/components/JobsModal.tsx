@@ -239,14 +239,14 @@ export function JobsModal({
                       <div
                         key={job.id}
                         ref={isActive ? activeJobCardRef : undefined}
-                        className={`group relative overflow-hidden rounded-[24px] border bg-white p-3 shadow-sm transition-all ${
+                        className={`group relative overflow-hidden rounded-[24px] border p-3 shadow-sm transition-all ${
                           isActive
-                            ? 'border-emerald-300 bg-emerald-100/80 shadow-[0_20px_50px_-30px_rgba(16,185,129,0.45)]'
+                            ? 'border-emerald-300 bg-gradient-to-br from-emerald-50 via-emerald-100/90 to-teal-100/80 shadow-[0_20px_50px_-30px_rgba(16,185,129,0.45)]'
                             : isCompleted
-                              ? 'border-emerald-100/70 bg-emerald-50/20'
+                              ? 'border-emerald-100/70 bg-gradient-to-br from-white via-emerald-50/40 to-teal-50/30'
                               : isVisibleUnlocked
-                                ? 'border-slate-200 bg-white hover:border-blue-200'
-                                : 'border-slate-200/90 bg-slate-50/70'
+                                ? 'border-slate-200 bg-gradient-to-br from-white to-slate-50 hover:border-blue-200'
+                                : 'border-slate-200/90 bg-gradient-to-br from-slate-50 to-slate-100/80'
                         }`}
                       >
                         <div
@@ -254,7 +254,7 @@ export function JobsModal({
                             isActive
                               ? 'bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500'
                             : isCompleted
-                                ? 'bg-gradient-to-r from-emerald-400 to-teal-400'
+                                ? 'bg-slate-200'
                                 : 'bg-slate-100'
                           }`}
                         />
@@ -264,7 +264,7 @@ export function JobsModal({
                         )}
 
                         {!isVisibleUnlocked ? (
-                          <div className="relative flex min-h-[132px] items-center justify-center">
+                          <div className="relative flex min-h-[132px] items-center justify-center rounded-[18px] bg-gradient-to-br from-slate-50 to-slate-100/90">
                             <div className="flex flex-col items-center gap-3 text-center">
                               <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-slate-200 bg-white shadow-sm">
                                 <Lock className="h-8 w-8 text-slate-400" />

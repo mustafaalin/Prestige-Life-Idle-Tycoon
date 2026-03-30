@@ -757,7 +757,7 @@ export function ShopModal({
 
                 {claimableAccumulated < accumulatedMoney && !isLocked && (
                   <p className="text-[10px] text-center font-bold text-orange-500 mt-1">
-                    Daily limit nedeniyle bu turda {formatMoneyFull(claimableAccumulated)} alabilirsin
+                    Daily limit reached. You can claim {formatMoneyFull(claimableAccumulated)} this time.
                   </p>
                 )}
               </div>
