@@ -16,6 +16,7 @@ interface StuffModalProps {
   cars: Car[];
   houses: House[];
   totalMoney: number;
+  totalGems: number;
   prestigePoints: number;
   initialTab?: 'cars' | 'houses';
   selectedCarId: string | null;
@@ -32,6 +33,7 @@ export function StuffModal({
   cars,
   houses,
   totalMoney,
+  totalGems,
   prestigePoints,
   initialTab = 'cars',
   selectedCarId,
@@ -69,9 +71,19 @@ export function StuffModal({
 
   const currentSelectedCar = cars.find((car) => car.id === selectedCarId) || null;
   const currentSelectedHouse = houses.find((house) => house.id === selectedHouseId) || null;
+  const sortedCars = [...cars].sort(
+    (a, b) => Number(a.display_order || a.level) - Number(b.display_order || b.level)
+  );
 
   const handlePurchase = async () => {
-    if (!selectedCar || totalMoney < selectedCar.price || !canAccessCarWithPrestige(selectedCar, prestigePoints)) return;
+    if (!selectedCar || !canAccessCarWithPrestige(selectedCar, prestigePoints)) return;
+
+    const canAffordSelection =
+      selectedCar.purchase_currency === 'gems'
+        ? totalGems >= Number(selectedCar.gem_price || 0)
+        : totalMoney >= Number(selectedCar.price || 0);
+
+    if (!canAffordSelection) return;
 
     setIsPurchasing(true);
     try {
@@ -88,33 +100,52 @@ export function StuffModal({
 
   const renderCars = () => (
     <div className="grid grid-cols-1 gap-3">
-      {cars.map((car) => {
+      {sortedCars.map((car) => {
         const isOwned = ownedCars.includes(car.id);
         const isSelected = selectedCarId === car.id;
-        const canAfford = totalMoney >= car.price;
+        const isPremium = Boolean(car.is_premium);
+        const purchaseCurrency = car.purchase_currency || 'cash';
+        const cashPrice = Number(car.price || 0);
+        const gemPrice = Number(car.gem_price || 0);
+        const canAfford = purchaseCurrency === 'gems' ? totalGems >= gemPrice : totalMoney >= cashPrice;
         const requiredPrestige = getRequiredPrestigeForCar(car);
         const isPrestigeLocked = !isOwned && !canAccessCarWithPrestige(car, prestigePoints);
         const isDowngradeLocked = Boolean(currentSelectedCar && isOwned && car.level < currentSelectedCar.level);
+        const healthEffect = Number(car.health_effect_per_hour || 0);
+        const happinessEffect = Number(car.happiness_effect_per_hour || 0);
+        const formatWellbeingRate = (value: number) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}/h`;
 
         return (
           <div
             key={car.id}
             className={`relative bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-xl ${
               isSelected
-                ? 'border-2 border-blue-500'
+                ? isPremium
+                  ? 'border-2 border-amber-400'
+                  : 'border-2 border-blue-500'
                 : isOwned
-                  ? 'border-2 border-emerald-300'
-                  : 'border-2 border-slate-200'
+                  ? isPremium
+                    ? 'border-2 border-amber-300'
+                    : 'border-2 border-emerald-300'
+                  : isPremium
+                    ? 'border-2 border-amber-200'
+                    : 'border-2 border-slate-200'
             }`}
           >
             <div className={`p-3 flex gap-3 ${
               isSelected
-                ? 'bg-gradient-to-br from-blue-50 to-cyan-50'
+                ? isPremium
+                  ? 'bg-gradient-to-br from-amber-50 via-yellow-50 to-cyan-50'
+                  : 'bg-gradient-to-br from-blue-50 to-cyan-50'
                 : isOwned
-                  ? 'bg-gradient-to-br from-emerald-50 to-teal-50'
+                  ? isPremium
+                    ? 'bg-gradient-to-br from-amber-50 to-orange-50'
+                    : 'bg-gradient-to-br from-emerald-50 to-teal-50'
                   : isPrestigeLocked
                     ? 'bg-gradient-to-br from-slate-100 to-slate-200'
-                    : 'bg-gradient-to-br from-slate-50 to-blue-50'
+                    : isPremium
+                      ? 'bg-gradient-to-br from-amber-50 via-white to-cyan-50'
+                      : 'bg-gradient-to-br from-slate-50 to-blue-50'
             }`}>
               {isPrestigeLocked ? (
                 <div className="flex min-h-[176px] w-full flex-col items-center justify-center rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 via-white to-amber-100 px-5 py-6 text-center shadow-inner">
@@ -137,33 +168,52 @@ export function StuffModal({
                   <div className="shrink-0 w-[104px] flex items-center justify-center">
                     <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-md border flex items-center justify-center ${
                       isSelected
-                        ? 'bg-gradient-to-br from-blue-500 to-cyan-500 border-blue-200'
+                        ? isPremium
+                          ? 'bg-gradient-to-br from-amber-400 to-cyan-400 border-amber-200'
+                          : 'bg-gradient-to-br from-blue-500 to-cyan-500 border-blue-200'
                         : isOwned
-                          ? 'bg-gradient-to-br from-emerald-500 to-teal-500 border-emerald-200'
-                          : 'bg-gradient-to-br from-slate-500 to-slate-700 border-slate-200'
+                          ? isPremium
+                            ? 'bg-gradient-to-br from-amber-400 to-orange-400 border-amber-200'
+                            : 'bg-gradient-to-br from-emerald-500 to-teal-500 border-emerald-200'
+                          : isPremium
+                            ? 'bg-gradient-to-br from-slate-700 to-slate-900 border-amber-200'
+                            : 'bg-gradient-to-br from-slate-500 to-slate-700 border-slate-200'
                     }`}>
-                      <img
-                        src={resolveLocalAsset(car.image_url, 'car')}
-                        alt={car.name}
-                        className="w-[90%] h-[90%] object-contain"
-                        loading="lazy"
-                      />
+                      {car.image_url ? (
+                        <img
+                          src={resolveLocalAsset(car.image_url, 'car')}
+                          alt={car.name}
+                          className="w-[90%] h-[90%] object-contain"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="text-center text-[11px] font-black uppercase tracking-[0.18em] text-white/90">
+                          Premium
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className="flex-1 flex flex-col justify-center gap-2 min-w-0">
                     <div>
-                      <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                        Level {car.level}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                          Level {car.level}
+                        </p>
+                        {isPremium && (
+                          <span className="rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.16em] text-amber-700">
+                            Premium
+                          </span>
+                        )}
+                      </div>
                       <h3 className="font-extrabold text-sm text-gray-900 leading-tight">{car.name}</h3>
                       <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{car.description}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div className="bg-white/80 rounded-lg px-2 py-1 border border-white/70">
-                        <div className="text-[11px] font-black text-blue-700 truncate">
-                          {formatMoneyFull(car.price)}
+                        <div className={`text-[11px] font-black truncate ${purchaseCurrency === 'gems' ? 'text-cyan-700' : 'text-blue-700'}`}>
+                          {purchaseCurrency === 'gems' ? `${gemPrice} Gems` : formatMoneyFull(cashPrice)}
                         </div>
                         <div className="text-[10px] text-slate-400 font-semibold">Price</div>
                       </div>
@@ -172,6 +222,18 @@ export function StuffModal({
                           {formatMoneyPerHour(Number(car.hourly_maintenance_cost || 0))}
                         </div>
                         <div className="text-[10px] text-slate-400 font-semibold">Maintenance</div>
+                      </div>
+                      <div className="bg-white/80 rounded-lg px-2 py-1 border border-white/70">
+                        <div className={`text-[11px] font-black truncate ${healthEffect >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                          {formatWellbeingRate(healthEffect)}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-semibold">Health</div>
+                      </div>
+                      <div className="bg-white/80 rounded-lg px-2 py-1 border border-white/70">
+                        <div className={`text-[11px] font-black truncate ${happinessEffect >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                          {formatWellbeingRate(happinessEffect)}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-semibold">Happiness</div>
                       </div>
                     </div>
 
@@ -198,11 +260,13 @@ export function StuffModal({
                         disabled={!canAfford || loading}
                         className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
                           canAfford
-                            ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 active:scale-95'
+                            ? isPremium
+                              ? 'bg-gradient-to-r from-amber-400 to-cyan-500 text-white hover:from-amber-500 hover:to-cyan-600 active:scale-95'
+                              : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 active:scale-95'
                             : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                         }`}
                       >
-                        {canAfford ? 'Buy Car' : 'Need More Money'}
+                        {canAfford ? (isPremium ? 'Buy with Gems' : 'Buy Car') : purchaseCurrency === 'gems' ? 'Need More Gems' : 'Need More Money'}
                       </button>
                     )}
                   </div>
@@ -330,8 +394,12 @@ export function StuffModal({
                 <Wallet className="w-3 h-3" />
                 {formatMoneyFull(totalMoney)} available
               </p>
+              <p className="text-[10px] text-cyan-600 font-bold flex items-center gap-1">
+                <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-3 w-3" />
+                {totalGems} gems
+              </p>
               <p className="text-[10px] text-slate-500 font-semibold">
-                {ownedCars.length}/{cars.length} cars owned
+                {ownedCars.length}/{sortedCars.length} cars owned
               </p>
             </div>
           </div>
@@ -353,7 +421,7 @@ export function StuffModal({
             }`}
           >
             <CarIcon className="w-4 h-4 inline mr-1.5" />
-            Cars ({ownedCars.length}/{cars.length})
+            Cars ({ownedCars.length}/{sortedCars.length})
           </button>
           <button
             onClick={() => setActiveTab('houses')}
@@ -370,7 +438,7 @@ export function StuffModal({
 
         <div className="px-4 py-3 border-b border-violet-100 bg-white">
           <p className="text-xs text-slate-500">
-            Cars cost money and add maintenance. Higher tiers stay hidden behind prestige requirements until you unlock them.
+            Standard cars use cash and upkeep. Premium cars use gems and add pure wellbeing bonuses with no maintenance.
           </p>
         </div>
 
@@ -395,7 +463,11 @@ export function StuffModal({
             <h3 className="text-2xl font-black text-white mb-2">Confirm Purchase</h3>
             <p className="text-slate-300 mb-6">
               Do you want to buy <span className="text-white font-bold">{selectedCar.name}</span> for{' '}
-              <span className="text-emerald-400 font-bold">{formatMoney(selectedCar.price)}</span>?
+              <span className={`font-bold ${(selectedCar.purchase_currency || 'cash') === 'gems' ? 'text-cyan-400' : 'text-emerald-400'}`}>
+                {(selectedCar.purchase_currency || 'cash') === 'gems'
+                  ? `${Number(selectedCar.gem_price || 0)} gems`
+                  : formatMoney(selectedCar.price)}
+              </span>?
             </p>
             
             <div className="flex gap-3">

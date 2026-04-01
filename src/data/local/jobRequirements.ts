@@ -16,14 +16,21 @@ export interface JobRequirementStatus {
   routeTarget: JobRequirementRouteTarget;
 }
 
-function getRequirementRamp(order: number, divisor: number, step: number, base = 0, cap?: number) {
-  const value = base + Math.floor(Math.max(0, order - 1) / divisor) * step;
-  return typeof cap === 'number' ? Math.min(value, cap) : value;
-}
+const JOB_PRESTIGE_REQUIREMENTS = [
+  0, 2, 4, 7, 10, 13, 16, 19, 22, 25,
+  28, 31, 35, 39, 43, 47, 51, 55, 60, 65,
+  70, 75, 80, 86, 92, 98, 104, 110, 117, 124,
+  131, 138, 146, 154, 162, 170, 179, 188, 197, 206,
+] as const;
 
 function getWellbeingRequirement(order: number, offset = 0) {
   const requirementCycle = [75, 80, 85] as const;
   return requirementCycle[(Math.max(1, order) - 1 + offset) % requirementCycle.length];
+}
+
+function getJobPrestigeRequirement(order: number) {
+  const normalizedIndex = Math.max(1, Math.floor(order)) - 1;
+  return JOB_PRESTIGE_REQUIREMENTS[Math.min(normalizedIndex, JOB_PRESTIGE_REQUIREMENTS.length - 1)];
 }
 
 export function getJobUnlockRequirementSeconds(jobOrOrder: Pick<Job, 'order'> | number) {
@@ -34,19 +41,53 @@ export function getJobUnlockRequirementSeconds(jobOrOrder: Pick<Job, 'order'> | 
 }
 
 function getJobCarRequirement(order: number) {
-  if (order < 5) {
+  if (order <= 2) {
     return 0;
   }
 
-  return Math.min(8, 1 + Math.floor((order - 5) / 5));
+  const progressionSteps = [2, 3] as const;
+  let requiredLevel = 1;
+  let nextThreshold = 3;
+  let stepIndex = 0;
+
+  while (requiredLevel < 8) {
+    nextThreshold += progressionSteps[stepIndex % progressionSteps.length];
+    if (order < nextThreshold) {
+      break;
+    }
+
+    requiredLevel += 1;
+    stepIndex += 1;
+  }
+
+  return Math.min(8, requiredLevel);
 }
 
 function getJobHouseRequirement(order: number) {
-  return Math.min(10, 1 + Math.floor((order - 1) / 4));
+  if (order <= 2) {
+    return 0;
+  }
+
+  const progressionSteps = [2, 3] as const;
+  let requiredLevel = 1;
+  let nextThreshold = 3;
+  let stepIndex = 0;
+
+  while (requiredLevel < 10) {
+    nextThreshold += progressionSteps[stepIndex % progressionSteps.length];
+    if (order < nextThreshold) {
+      break;
+    }
+
+    requiredLevel += 1;
+    stepIndex += 1;
+  }
+
+  return Math.min(10, requiredLevel);
 }
 
 export function createJobRequirements(params: { category: JobCategory; order: number }): JobRequirement[] {
-  const { order } = params;
+  const { category, order } = params;
 
   if (order <= 1) {
     return [];
@@ -54,11 +95,14 @@ export function createJobRequirements(params: { category: JobCategory; order: nu
 
   const requirements: JobRequirement[] = [
     { type: 'work_seconds', minimum: getJobUnlockRequirementSeconds(order - 1) },
-    { type: 'prestige_points', minimum: getRequirementRamp(order, 3, 2, 0, 28) },
     { type: 'health', minimum: getWellbeingRequirement(order) },
     { type: 'happiness', minimum: getWellbeingRequirement(order, 1) },
     { type: 'house_level', minimum: getJobHouseRequirement(order) },
   ];
+
+  if (category === 'worker') {
+    requirements.splice(1, 0, { type: 'prestige_points', minimum: getJobPrestigeRequirement(order) });
+  }
 
   const minimumCarLevel = getJobCarRequirement(order);
   if (minimumCarLevel > 0) {

@@ -974,6 +974,7 @@ export default function App() {
           cars={gameState.cars}
           houses={gameState.houses}
           totalMoney={gameState.profile.total_money}
+          totalGems={gameState.profile.gems || 0}
           prestigePoints={gameState.profile.prestige_points || 0}
           initialTab={stuffModalInitialTab}
           selectedCarId={gameState.profile.selected_car_id}

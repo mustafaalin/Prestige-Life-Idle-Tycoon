@@ -19,8 +19,15 @@ export interface WellbeingEffectSource {
   health_effect_per_hour?: number;
   happiness_effect_per_hour?: number;
 }
-export type House = Database['public']['Tables']['houses']['Row'] & WellbeingEffectSource;
-export type Car = Database['public']['Tables']['cars']['Row'] & WellbeingEffectSource;
+export type ItemPurchaseCurrency = 'cash' | 'gems';
+export interface PremiumCatalogItem {
+  purchase_currency?: ItemPurchaseCurrency;
+  gem_price?: number;
+  is_premium?: boolean;
+  display_order?: number;
+}
+export type House = Database['public']['Tables']['houses']['Row'] & WellbeingEffectSource & PremiumCatalogItem;
+export type Car = Database['public']['Tables']['cars']['Row'] & WellbeingEffectSource & PremiumCatalogItem;
 export type JobCategory = 'worker' | 'specialist' | 'manager';
 export type JobRequirement =
   | { type: 'work_seconds'; minimum: number }

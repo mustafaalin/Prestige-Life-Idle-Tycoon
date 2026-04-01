@@ -8,12 +8,25 @@ export async function purchaseCarViaRPC(playerId: string, carId: string, price: 
   void playerId;
   const profile = getLocalProfile();
   if (!profile) throw new Error('Player not found');
-  if (Number(profile.total_money) < price) throw new Error('Not enough money to purchase this car');
   const ownedCars = getLocalOwnedCars();
   const car = LOCAL_CARS.find((entry) => entry.id === carId);
+  if (!car) throw new Error('Car not found');
+  const purchaseCurrency = car.purchase_currency || 'cash';
+  const cashPrice = Number(car.price || price || 0);
+  const gemPrice = Number(car.gem_price || 0);
+
+  if (purchaseCurrency === 'gems') {
+    if (Number(profile.gems || 0) < gemPrice) {
+      throw new Error('Not enough gems to purchase this car');
+    }
+  } else if (Number(profile.total_money) < cashPrice) {
+    throw new Error('Not enough money to purchase this car');
+  }
+
   const profileAfterSpend = {
     ...profile,
-    total_money: Number(profile.total_money) - price,
+    total_money: purchaseCurrency === 'cash' ? Number(profile.total_money) - cashPrice : Number(profile.total_money),
+    gems: purchaseCurrency === 'gems' ? Number(profile.gems || 0) - gemPrice : Number(profile.gems || 0),
     selected_car_id: carId,
     vehicle_expense: Number(car?.hourly_maintenance_cost || 0),
   };
@@ -24,7 +37,10 @@ export async function purchaseCarViaRPC(playerId: string, carId: string, price: 
     businesses: getLocalBusinesses(),
     investments: getLocalInvestments(),
   });
-  const cashbackResult = awardCashback(finalProfile, price);
+  const cashbackResult =
+    purchaseCurrency === 'cash'
+      ? awardCashback(finalProfile, cashPrice)
+      : { updatedProfile: finalProfile };
   saveLocalGameState({
     profile: cashbackResult.updatedProfile,
     ownedCars: ownedCars.includes(carId) ? ownedCars : [...ownedCars, carId],

@@ -55,7 +55,10 @@ export function getRequiredPrestigeForHouse(house: Pick<House, 'level'>) {
   return HOUSE_PRESTIGE_REQUIREMENTS[Number(house.level || 0)] ?? 0;
 }
 
-export function getRequiredPrestigeForCar(car: Pick<Car, 'level'>) {
+export function getRequiredPrestigeForCar(car: Pick<Car, 'level' | 'is_premium'>) {
+  if (car.is_premium) {
+    return 0;
+  }
   return CAR_PRESTIGE_REQUIREMENTS[Number(car.level || 0)] ?? 0;
 }
 
@@ -63,6 +66,9 @@ export function canAccessHouseWithPrestige(house: Pick<House, 'level'>, prestige
   return Number(prestigePoints || 0) >= getRequiredPrestigeForHouse(house);
 }
 
-export function canAccessCarWithPrestige(car: Pick<Car, 'level'>, prestigePoints: number) {
+export function canAccessCarWithPrestige(car: Pick<Car, 'level' | 'is_premium'>, prestigePoints: number) {
+  if (car.is_premium) {
+    return true;
+  }
   return Number(prestigePoints || 0) >= getRequiredPrestigeForCar(car);
 }

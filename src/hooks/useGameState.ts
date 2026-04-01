@@ -1243,12 +1243,22 @@ export function useGameState(deviceId: string, userId: string | null) {
   const purchaseitem = useCallback(async (itemType: 'character' | 'house' | 'car', itemId: string, price: number) => {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
-    if (itemType !== 'house' && gameState.profile!.total_money < price) return false;
     if (itemType === 'car') {
       const targetCar = gameState.cars.find((car) => car.id === itemId);
       if (!targetCar || !canAccessCarWithPrestige(targetCar, Number(gameState.profile?.prestige_points || 0))) {
         return false;
       }
+
+      const purchaseCurrency = targetCar.purchase_currency || 'cash';
+      if (purchaseCurrency === 'gems') {
+        if (Number(gameState.profile?.gems || 0) < Number(targetCar.gem_price || 0)) {
+          return false;
+        }
+      } else if (gameState.profile!.total_money < price) {
+        return false;
+      }
+    } else if (itemType !== 'house' && gameState.profile!.total_money < price) {
+      return false;
     }
 
     try {
