@@ -8,6 +8,8 @@ import {
   saveLocalGameState,
 } from '../data/local/storage';
 import { recalculateLocalIncome, recalculateLocalPrestige } from '../data/local/economy';
+import { normalizeProfileWellbeing } from '../data/local/healthActions';
+import { calculateWellbeingDeltaForSeconds } from '../data/local/wellbeing';
 
 function createPlayerJob(playerId: string, jobId: string, now: string, overrides?: Partial<PlayerJob>): PlayerJob {
   return {
@@ -70,8 +72,10 @@ export async function selectJob(
 
   const now = new Date().toISOString();
   let nextJobs = playerJobs.map((job) => ({ ...job }));
+  let nextProfileBase = profile;
 
   if (currentActiveJob) {
+    const currentJobDefinition = jobs.find((job) => job.id === currentActiveJob.job_id);
     nextJobs = nextJobs.map((job) =>
       job.id === currentActiveJob.id
         ? {
@@ -82,6 +86,15 @@ export async function selectJob(
           }
         : { ...job, is_active: false }
     );
+
+    if (currentJobDefinition) {
+      const wellbeingDelta = calculateWellbeingDeltaForSeconds(currentJobDefinition, unsavedSeconds);
+      nextProfileBase = normalizeProfileWellbeing({
+        ...nextProfileBase,
+        health: Number(nextProfileBase.health ?? 100) + wellbeingDelta.health,
+        happiness: Number(nextProfileBase.happiness ?? 100) + wellbeingDelta.happiness,
+      });
+    }
   }
 
   const existingJob = nextJobs.find((job) => job.player_id === playerId && job.job_id === jobId);
@@ -101,7 +114,7 @@ export async function selectJob(
   }
 
   const nextProfile = recalculateLocalIncome({
-    profile,
+    profile: nextProfileBase,
     jobs,
     playerJobs: nextJobs,
     businesses,

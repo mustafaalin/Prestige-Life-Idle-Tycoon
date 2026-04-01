@@ -7,11 +7,34 @@ export type PlayerProfile = Database['public']['Tables']['player_profiles']['Row
   premium_bank_card_owned?: boolean;
   premium_bank_card_purchased_at?: string | null;
   premium_bank_card_purchase_source?: 'gems' | 'cash' | null;
+  health?: number;
+  happiness?: number;
+  health_action_cooldowns?: Partial<Record<HealthActionKey, string>>;
+  health_ad_cooldown_until?: string | null;
+  happiness_action_cooldowns?: Partial<Record<HappinessActionKey, string>>;
+  happiness_ad_cooldown_until?: string | null;
 };
 export type Character = Database['public']['Tables']['characters']['Row'];
-export type House = Database['public']['Tables']['houses']['Row'];
-export type Car = Database['public']['Tables']['cars']['Row'];
-export type Job = Database['public']['Tables']['jobs']['Row'];
+export interface WellbeingEffectSource {
+  health_effect_per_hour?: number;
+  happiness_effect_per_hour?: number;
+}
+export type House = Database['public']['Tables']['houses']['Row'] & WellbeingEffectSource;
+export type Car = Database['public']['Tables']['cars']['Row'] & WellbeingEffectSource;
+export type JobCategory = 'worker' | 'specialist' | 'manager';
+export type JobRequirement =
+  | { type: 'work_seconds'; minimum: number }
+  | { type: 'prestige_points'; minimum: number }
+  | { type: 'health'; minimum: number }
+  | { type: 'happiness'; minimum: number }
+  | { type: 'house_level'; minimum: number }
+  | { type: 'car_level'; minimum: number };
+export type Job = Omit<Database['public']['Tables']['jobs']['Row'], 'unlock_requirement_money'> & WellbeingEffectSource & {
+  category: JobCategory;
+  tier: number;
+  order: number;
+  requirements: JobRequirement[];
+};
 export type PlayerJob = Database['public']['Tables']['player_jobs']['Row'];
 export type GameStats = Database['public']['Tables']['game_stats']['Row'];
 export type CharacterOutfit = Database['public']['Tables']['character_outfits']['Row'];
@@ -23,6 +46,20 @@ export type InvestmentUpgradeKey =
   | 'internet'
   | 'parking';
 export type BankDepositPlanId = 'quick' | 'growth' | 'premium_ad';
+export type HealthActionKey =
+  | 'exercise'
+  | 'take_a_pill'
+  | 'go_to_the_doctor'
+  | 'get_a_check_up'
+  | 'go_to_a_health_resort'
+  | 'get_an_operation';
+export type HappinessActionKey =
+  | 'listen_to_music'
+  | 'eat_a_dessert'
+  | 'hang_out_with_friends'
+  | 'go_to_the_cinema'
+  | 'throw_a_party'
+  | 'go_on_vacation';
 
 export type QuestTargetScreen = 'shop' | 'job' | 'business' | 'investments' | 'stuff';
 

@@ -3,7 +3,10 @@ import { deviceIdentity } from '../lib/deviceIdentity';
 import type { Database } from '../lib/database.types';
 import { LOCAL_BUSINESSES } from '../data/local/businesses';
 import { LOCAL_INVESTMENTS } from '../data/local/investments';
-import { LOCAL_JOBS } from '../data/local/jobs';
+import {
+  getJobUnlockRequirementSeconds,
+  LOCAL_JOBS,
+} from '../data/local/jobs';
 import { LOCAL_HOUSES, LOCAL_STARTER_HOUSE_ID } from '../data/local/houses';
 import { LOCAL_CARS } from '../data/local/cars';
 import { LOCAL_CHARACTERS, LOCAL_MIKE_CHARACTER_ID } from '../data/local/characters';
@@ -29,12 +32,29 @@ import {
   hasPremiumBankCard,
   type PremiumPurchaseMethod,
 } from '../data/local/bankPremium';
+import {
+  DEFAULT_HAPPINESS,
+  DEFAULT_HEALTH,
+  getHealthCooldownRemaining,
+  HEALTH_ACTIONS,
+  HEALTH_AD_BOOST_PERCENT,
+  normalizeProfileWellbeing,
+} from '../data/local/healthActions';
+import { calculateWellbeingDeltaForSeconds } from '../data/local/wellbeing';
+import {
+  getHappinessCooldownRemaining,
+  HAPPINESS_ACTIONS,
+  HAPPINESS_AD_BOOST_PERCENT,
+} from '../data/local/happinessActions';
 import type {
   BankDeposit,
   BankDepositPlanId,
   BusinessWithPlayerData,
+  HappinessActionKey,
+  HealthActionKey,
   InvestmentUpgradeKey,
   InvestmentWithPlayerData,
+  Job,
   QuestProgress,
 } from '../types/game';
 import { recalculateLocalEconomy } from '../data/local/economy';
@@ -61,11 +81,16 @@ type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'] & {
   premium_bank_card_owned?: boolean;
   premium_bank_card_purchased_at?: string | null;
   premium_bank_card_purchase_source?: 'gems' | 'cash' | null;
+  health?: number;
+  happiness?: number;
+  health_action_cooldowns?: Partial<Record<HealthActionKey, string>>;
+  health_ad_cooldown_until?: string | null;
+  happiness_action_cooldowns?: Partial<Record<HappinessActionKey, string>>;
+  happiness_ad_cooldown_until?: string | null;
 };
 type Character = Database['public']['Tables']['characters']['Row'];
 type House = Database['public']['Tables']['houses']['Row'];
 type Car = Database['public']['Tables']['cars']['Row'];
-type Job = Database['public']['Tables']['jobs']['Row'];
 type PlayerJob = Database['public']['Tables']['player_jobs']['Row'];
 type GameStats = Database['public']['Tables']['game_stats']['Row'];
 type CharacterOutfit = Database['public']['Tables']['character_outfits']['Row'];
@@ -194,6 +219,12 @@ function createLocalProfile(userId: string, deviceId: string): PlayerProfile {
     premium_bank_card_owned: false,
     premium_bank_card_purchased_at: null,
     premium_bank_card_purchase_source: null,
+    health: DEFAULT_HEALTH,
+    happiness: DEFAULT_HAPPINESS,
+    health_action_cooldowns: {},
+    health_ad_cooldown_until: null,
+    happiness_action_cooldowns: {},
+    happiness_ad_cooldown_until: null,
   };
 }
 
@@ -500,19 +531,31 @@ export function useGameState(deviceId: string, userId: string | null) {
 
     setGameState((prev) => {
       const syncTimestamp = new Date().toISOString();
+      const activeJob = prev.jobs.find((job) => job.id === jobId);
+      const wellbeingDelta = activeJob
+        ? calculateWellbeingDeltaForSeconds(activeJob, secondsToAdd)
+        : null;
       const nextPlayerJobs = prev.playerJobs.map((job) =>
         job.job_id === jobId && job.is_active
           ? {
               ...job,
               total_time_worked_seconds: (job.total_time_worked_seconds || 0) + secondsToAdd,
               last_work_started_at: syncTimestamp,
-            }
+          }
           : job
       );
+      const nextProfile = prev.profile
+        ? normalizeProfileWellbeing({
+            ...prev.profile,
+            health: Number(prev.profile.health ?? DEFAULT_HEALTH) + Number(wellbeingDelta?.health || 0),
+            happiness: Number(prev.profile.happiness ?? DEFAULT_HAPPINESS) + Number(wellbeingDelta?.happiness || 0),
+          })
+        : prev.profile;
 
-      saveToLocalStorage({ playerJobs: nextPlayerJobs });
+      saveToLocalStorage({ playerJobs: nextPlayerJobs, profile: nextProfile || undefined });
       return {
         ...prev,
+        profile: nextProfile,
         playerJobs: nextPlayerJobs,
       };
     });
@@ -1000,11 +1043,157 @@ export function useGameState(deviceId: string, userId: string | null) {
     try {
       await profileService.updateProfile(activeId, updates);
       const updatedProfile = { ...gameState.profile!, ...updates };
+      gameStateRef.current = {
+        ...gameStateRef.current,
+        profile: updatedProfile,
+      };
       setGameState(prev => ({ ...prev, profile: updatedProfile }));
       saveToLocalStorage({ profile: updatedProfile });
     } catch (error) {
       console.error('Error saving profile:', error);
     }
+  }, [gameState.profile, saveToLocalStorage]);
+
+  const applyHealthAction = useCallback(async (actionKey: HealthActionKey) => {
+    const currentProfile = gameState.profile;
+    const activeId = currentProfile?.id;
+    if (!activeId || !currentProfile) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    const action = HEALTH_ACTIONS.find((entry) => entry.key === actionKey);
+    if (!action) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    if (getHealthCooldownRemaining(currentProfile, actionKey) > 0) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    if (Number(currentProfile.total_money || 0) < action.cost) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    const currentHealth = Number(currentProfile.health ?? DEFAULT_HEALTH);
+    const nextHealth = Math.min(100, currentHealth + action.healthIncreasePercent);
+    const appliedAmount = Math.max(0, nextHealth - currentHealth);
+    const updatedProfile = normalizeProfileWellbeing({
+      ...currentProfile,
+      total_money: Math.max(0, Number(currentProfile.total_money || 0) - action.cost),
+      health: nextHealth,
+      health_action_cooldowns: {
+        ...(currentProfile.health_action_cooldowns || {}),
+        [actionKey]: new Date(Date.now() + action.cooldownSeconds * 1000).toISOString(),
+      },
+    });
+
+    await profileService.updateProfile(activeId, updatedProfile);
+    gameStateRef.current = {
+      ...gameStateRef.current,
+      profile: updatedProfile,
+    };
+    setGameState((prev) => ({ ...prev, profile: updatedProfile }));
+    saveToLocalStorage({ profile: updatedProfile });
+
+    return { success: true, appliedAmount };
+  }, [gameState.profile, saveToLocalStorage]);
+
+  const applyHealthAdBoost = useCallback(async () => {
+    const currentProfile = gameState.profile;
+    const activeId = currentProfile?.id;
+    if (!activeId || !currentProfile) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    const currentHealth = Number(currentProfile.health ?? DEFAULT_HEALTH);
+    const nextHealth = Math.min(100, currentHealth + HEALTH_AD_BOOST_PERCENT);
+    const appliedAmount = Math.max(0, nextHealth - currentHealth);
+    const updatedProfile = normalizeProfileWellbeing({
+      ...currentProfile,
+      health: nextHealth,
+      health_ad_cooldown_until: null,
+    });
+
+    await profileService.updateProfile(activeId, updatedProfile);
+    gameStateRef.current = {
+      ...gameStateRef.current,
+      profile: updatedProfile,
+    };
+    setGameState((prev) => ({ ...prev, profile: updatedProfile }));
+    saveToLocalStorage({ profile: updatedProfile });
+
+    return { success: true, appliedAmount };
+  }, [gameState.profile, saveToLocalStorage]);
+
+  const applyHappinessAction = useCallback(async (actionKey: HappinessActionKey) => {
+    const currentProfile = gameState.profile;
+    const activeId = currentProfile?.id;
+    if (!activeId || !currentProfile) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    const action = HAPPINESS_ACTIONS.find((entry) => entry.key === actionKey);
+    if (!action) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    if (getHappinessCooldownRemaining(currentProfile, actionKey) > 0) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    if (Number(currentProfile.total_money || 0) < action.cost) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    const currentHappiness = Number(currentProfile.happiness ?? DEFAULT_HAPPINESS);
+    const nextHappiness = Math.min(100, currentHappiness + action.happinessIncreasePercent);
+    const appliedAmount = Math.max(0, nextHappiness - currentHappiness);
+    const updatedProfile = normalizeProfileWellbeing({
+      ...currentProfile,
+      total_money: Math.max(0, Number(currentProfile.total_money || 0) - action.cost),
+      happiness: nextHappiness,
+      happiness_action_cooldowns: {
+        ...(currentProfile.happiness_action_cooldowns || {}),
+        [actionKey]: new Date(Date.now() + action.cooldownSeconds * 1000).toISOString(),
+      },
+    });
+
+    await profileService.updateProfile(activeId, updatedProfile);
+    gameStateRef.current = {
+      ...gameStateRef.current,
+      profile: updatedProfile,
+    };
+    setGameState((prev) => ({ ...prev, profile: updatedProfile }));
+    saveToLocalStorage({ profile: updatedProfile });
+
+    return { success: true, appliedAmount };
+  }, [gameState.profile, saveToLocalStorage]);
+
+  const applyHappinessAdBoost = useCallback(async () => {
+    const currentProfile = gameState.profile;
+    const activeId = currentProfile?.id;
+    if (!activeId || !currentProfile) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    const currentHappiness = Number(currentProfile.happiness ?? DEFAULT_HAPPINESS);
+    const nextHappiness = Math.min(100, currentHappiness + HAPPINESS_AD_BOOST_PERCENT);
+    const appliedAmount = Math.max(0, nextHappiness - currentHappiness);
+    const updatedProfile = normalizeProfileWellbeing({
+      ...currentProfile,
+      happiness: nextHappiness,
+      happiness_ad_cooldown_until: null,
+    });
+
+    await profileService.updateProfile(activeId, updatedProfile);
+    gameStateRef.current = {
+      ...gameStateRef.current,
+      profile: updatedProfile,
+    };
+    setGameState((prev) => ({ ...prev, profile: updatedProfile }));
+    saveToLocalStorage({ profile: updatedProfile });
+
+    return { success: true, appliedAmount };
   }, [gameState.profile, saveToLocalStorage]);
 
   const createProfile = useCallback(async () => {
@@ -1178,7 +1367,10 @@ export function useGameState(deviceId: string, userId: string | null) {
     const activePlayerJob = gameState.playerJobs.find((job) => job.is_active);
     if (!activePlayerJob) return false;
 
-    const requiredSeconds = 180;
+    const activeJob = gameState.jobs.find((job) => job.id === activePlayerJob.job_id);
+    if (!activeJob) return false;
+
+    const requiredSeconds = getJobUnlockRequirementSeconds(activeJob);
     const currentWorkedSeconds =
       Number(activePlayerJob.total_time_worked_seconds || 0) + Number(gameState.unsavedJobWorkSeconds || 0);
     const missingSeconds = Math.max(0, requiredSeconds - currentWorkedSeconds);
@@ -1641,6 +1833,10 @@ export function useGameState(deviceId: string, userId: string | null) {
     rescueDailyRewardStreak,
     claimAccumulatedMoney,
     watchAd,
+    applyHealthAction,
+    applyHealthAdBoost,
+    applyHappinessAction,
+    applyHappinessAdBoost,
     startBankDeposit,
     claimBankDeposit,
     claimCashback,

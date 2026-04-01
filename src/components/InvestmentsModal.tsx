@@ -149,6 +149,13 @@ export function InvestmentsModal({
     : null;
   const selectedBankPlanMaxAmount = bankPlanModalPlanId ? getBankDepositMaxAmount(totalMoney, bankPlanModalPlanId) : 0;
   const parsedBankAmount = Math.max(0, Math.floor(Number(bankAmountInput || 0)));
+  const bankSliderMin = Math.min(MIN_BANK_DEPOSIT, selectedBankPlanMaxAmount);
+  const bankSliderMax = Math.max(MIN_BANK_DEPOSIT, selectedBankPlanMaxAmount);
+  const bankSliderValue = Math.min(parsedBankAmount, bankSliderMax);
+  const bankSliderPercent =
+    bankSliderMax > bankSliderMin
+      ? ((bankSliderValue - bankSliderMin) / (bankSliderMax - bankSliderMin)) * 100
+      : 100;
   const bankAmountValid =
     parsedBankAmount >= MIN_BANK_DEPOSIT &&
     parsedBankAmount <= selectedBankPlanMaxAmount &&
@@ -1018,16 +1025,19 @@ export function InvestmentsModal({
 
                 <input
                   type="range"
-                  min={Math.min(MIN_BANK_DEPOSIT, selectedBankPlanMaxAmount)}
-                  max={Math.max(MIN_BANK_DEPOSIT, selectedBankPlanMaxAmount)}
-                  step={500}
-                  value={Math.min(parsedBankAmount, Math.max(MIN_BANK_DEPOSIT, selectedBankPlanMaxAmount))}
+                  min={bankSliderMin}
+                  max={bankSliderMax}
+                  step={50}
+                  value={bankSliderValue}
                   onChange={(event) => setBankAmountInput(Number(event.target.value))}
-                  className="mt-4 h-3 w-full cursor-pointer appearance-none rounded-full bg-lime-600/80"
+                  className="bank-amount-slider mt-4 h-4 w-full cursor-pointer appearance-none rounded-full"
+                  style={{
+                    background: `linear-gradient(90deg, rgba(132,204,22,0.95) 0%, rgba(132,204,22,0.95) ${bankSliderPercent}%, rgba(226,232,240,0.95) ${bankSliderPercent}%, rgba(226,232,240,0.95) 100%)`,
+                  }}
                 />
 
                 <div className="mt-3 flex items-center justify-between text-[11px] font-bold text-slate-500">
-                  <span>{formatMoney(Math.min(MIN_BANK_DEPOSIT, selectedBankPlanMaxAmount))}</span>
+                  <span>{formatMoney(bankSliderMin)}</span>
                   <span>{formatMoney(selectedBankPlanMaxAmount)}</span>
                 </div>
               </div>

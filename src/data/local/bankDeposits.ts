@@ -63,7 +63,8 @@ export function getEffectiveBankDepositPlan(planId: BankDepositPlanId, hasPremiu
 
 export function getBankDepositMaxAmount(totalMoney: number, planId: BankDepositPlanId) {
   const plan = getBankDepositPlan(planId);
-  return Math.max(0, Math.floor(totalMoney * plan.maxBalancePercent));
+  const rawMaxAmount = Math.max(0, Math.floor(totalMoney * plan.maxBalancePercent));
+  return Math.floor(rawMaxAmount / 100) * 100;
 }
 
 export function createBankDeposit(params: {

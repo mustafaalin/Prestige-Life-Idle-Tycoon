@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { X, Lock, Check, Clock, Play, ChevronRight } from 'lucide-react';
-import type { Job, PlayerJob } from '../types/game';
+import { X, Lock, Check, Play, ChevronRight, Star } from 'lucide-react';
+import type { Car, House, Job, JobCategory, PlayerJob, PlayerProfile } from '../types/game';
 import { resolveLocalAsset } from '../lib/localAssets';
+import { getJobUnlockRequirementSeconds } from '../data/local/jobs';
+import { evaluateJobRequirements, type JobRequirementRouteTarget } from '../data/local/jobRequirements';
 
 const formatMoney = (amount: number) => `$${amount.toLocaleString()}`;
-const REQUIRED_WORK_SECONDS = 180;
 const MANAGER_PLACEHOLDER_COUNT = 20;
 
 type JobTrackKey = 'worker' | 'specialist' | 'manager';
@@ -12,12 +13,19 @@ type JobTrackKey = 'worker' | 'specialist' | 'manager';
 interface JobsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  profile: PlayerProfile | null;
+  houses: House[];
+  cars: Car[];
   jobs: Job[];
   playerJobs: PlayerJob[];
   totalMoney: number;
   onUnlockJob: (jobId: string) => Promise<boolean>;
   onSelectJob: (jobId: string) => Promise<boolean>;
   onSkipCooldown: () => Promise<boolean>;
+  onOpenHealth: () => void;
+  onOpenHappiness: () => void;
+  onOpenStuffTab: (tab: 'cars' | 'houses') => void;
+  onOpenQuestList: () => void;
   jobChangeLockedUntil: number | null;
   unsavedJobWorkSeconds: number;
   isSkippingCooldown?: boolean;
@@ -43,11 +51,8 @@ function getTrackedJobSeconds(playerJob: PlayerJob | undefined, activeJobId: str
   return (playerJob.total_time_worked_seconds || 0) + (playerJob.job_id === activeJobId ? unsavedSeconds : 0);
 }
 
-function getTrackForJobLevel(level: number | undefined): JobTrackKey {
-  if (!level) return 'worker';
-  if (level <= 20) return 'worker';
-  if (level <= 40) return 'specialist';
-  return 'manager';
+function getTrackForJobCategory(category: JobCategory | undefined): JobTrackKey {
+  return category || 'worker';
 }
 
 function TrackTabButton({
@@ -110,11 +115,18 @@ function TrackTabButton({
 export function JobsModal({
   isOpen,
   onClose,
+  profile,
+  houses,
+  cars,
   jobs,
   playerJobs,
   onUnlockJob,
   onSelectJob,
   onSkipCooldown,
+  onOpenHealth,
+  onOpenHappiness,
+  onOpenStuffTab,
+  onOpenQuestList,
   jobChangeLockedUntil,
   unsavedJobWorkSeconds,
   isSkippingCooldown = false,
@@ -123,14 +135,16 @@ export function JobsModal({
   const activeJobCardRef = useRef<HTMLDivElement | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [selectedTrack, setSelectedTrack] = useState<JobTrackKey>('worker');
+  const [requirementsJob, setRequirementsJob] = useState<Job | null>(null);
+  const [isStartingFromRequirements, setIsStartingFromRequirements] = useState(false);
 
-  const sortedJobs = useMemo(() => [...jobs].sort((a, b) => a.level - b.level), [jobs]);
-  const workerJobs = useMemo(() => sortedJobs.filter((job) => job.level <= 20), [sortedJobs]);
-  const specialistJobs = useMemo(
-    () => sortedJobs.filter((job) => job.level >= 21 && job.level <= 40),
-    [sortedJobs]
+  const sortedJobs = useMemo(() => [...jobs].sort((a, b) => a.order - b.order), [jobs]);
+  const workerJobs = useMemo(() => sortedJobs.filter((job) => job.category === 'worker'), [sortedJobs]);
+  const specialistJobs = useMemo(() => sortedJobs.filter((job) => job.category === 'specialist'), [sortedJobs]);
+  const sortedManagerJobs = useMemo(
+    () => [...managerJobs].sort((a, b) => a.order - b.order),
+    [managerJobs]
   );
-  const sortedManagerJobs = useMemo(() => [...managerJobs].sort((a, b) => a.level - b.level), [managerJobs]);
   const allJobs = useMemo(() => [...sortedJobs, ...sortedManagerJobs], [sortedJobs, sortedManagerJobs]);
   const activePlayerJob = playerJobs.find((playerJob) => playerJob.is_active);
   const activeJob = activePlayerJob ? allJobs.find((job) => job.id === activePlayerJob.job_id) : null;
@@ -153,7 +167,7 @@ export function JobsModal({
     if (!isOpen) return;
 
     if (activeJob) {
-      setSelectedTrack(getTrackForJobLevel(activeJob.level));
+      setSelectedTrack(getTrackForJobCategory(activeJob.category));
       return;
     }
 
@@ -170,26 +184,27 @@ export function JobsModal({
     return () => window.clearInterval(interval);
   }, [isOpen, jobChangeLockedUntil]);
   const workerUnlockedCount = workerJobs.filter((job) => {
-    if (job.level === 1) return true;
+    if (job.is_default_unlocked) return true;
     return playerJobs.some((entry) => entry.job_id === job.id && entry.is_unlocked);
   }).length;
 
   const workerCompletedCount = workerJobs.filter((job) => {
     const playerJob = playerJobs.find((entry) => entry.job_id === job.id);
     const trackedSeconds = getTrackedJobSeconds(playerJob, activePlayerJob?.job_id, unsavedJobWorkSeconds);
-    return Boolean(playerJob?.is_completed) || trackedSeconds >= REQUIRED_WORK_SECONDS;
+    return Boolean(playerJob?.is_completed) || trackedSeconds >= getJobUnlockRequirementSeconds(job);
   }).length;
 
   const specialistCompletedCount = specialistJobs.filter((job) => {
     const playerJob = playerJobs.find((entry) => entry.job_id === job.id);
     const trackedSeconds = getTrackedJobSeconds(playerJob, activePlayerJob?.job_id, unsavedJobWorkSeconds);
-    return Boolean(playerJob?.is_completed) || trackedSeconds >= REQUIRED_WORK_SECONDS;
+    return Boolean(playerJob?.is_completed) || trackedSeconds >= getJobUnlockRequirementSeconds(job);
   }).length;
 
   const specialistUnlocked = workerCompletedCount >= workerJobs.length && workerJobs.length > 0;
   const managerUnlocked = specialistJobs.length > 0 && specialistCompletedCount >= specialistJobs.length;
   const isCooldownActive = jobChangeLockedUntil !== null && now < jobChangeLockedUntil;
-  const currentWorkerTrackProgress = Math.min(activeJobTotalTime / REQUIRED_WORK_SECONDS, 1);
+  const activeJobRequiredSeconds = activeJob ? getJobUnlockRequirementSeconds(activeJob) : 150;
+  const currentWorkerTrackProgress = Math.min(activeJobTotalTime / activeJobRequiredSeconds, 1);
   const managerPlaceholderJobs = Array.from({ length: MANAGER_PLACEHOLDER_COUNT }, (_, index) => index + 1);
 
   useEffect(() => {
@@ -203,29 +218,65 @@ export function JobsModal({
     }
   }, [managerUnlocked, selectedTrack, specialistUnlocked]);
 
+  const requirementStatuses = useMemo(() => {
+    if (!requirementsJob) {
+      return [];
+    }
+
+    return evaluateJobRequirements({
+      job: requirementsJob,
+      jobs: allJobs,
+      playerJobs,
+      profile,
+      houses,
+      cars,
+      activeJobId: activePlayerJob?.job_id,
+      unsavedJobWorkSeconds,
+    });
+  }, [requirementsJob, allJobs, playerJobs, profile, houses, cars, activePlayerJob?.job_id, unsavedJobWorkSeconds]);
+
+  const areAllRequirementsMet = requirementStatuses.every((status) => status.isMet);
+
+  const handleRequirementRoute = (target: JobRequirementRouteTarget) => {
+    setRequirementsJob(null);
+
+    switch (target) {
+      case 'jobs':
+        return;
+      case 'quest_list':
+        onClose();
+        onOpenQuestList();
+        return;
+      case 'health':
+        onClose();
+        onOpenHealth();
+        return;
+      case 'happiness':
+        onClose();
+        onOpenHappiness();
+        return;
+      case 'houses':
+        onClose();
+        onOpenStuffTab('houses');
+        return;
+      case 'cars':
+        onClose();
+        onOpenStuffTab('cars');
+        return;
+    }
+  };
+
   if (!isOpen) return null;
 
   const renderJobCard = (job: Job, trackLabel: string) => {
     const playerJob = playerJobs.find((entry) => entry.job_id === job.id);
-    const isPersistedUnlocked = Boolean(playerJob?.is_unlocked) || job.level === 1;
+    const isPersistedUnlocked = Boolean(playerJob?.is_unlocked) || job.is_default_unlocked;
     const isActive = Boolean(playerJob?.is_active);
-    const trackedSeconds = getTrackedJobSeconds(playerJob, activePlayerJob?.job_id, unsavedJobWorkSeconds);
     const isCompleted = Boolean(playerJob?.is_completed);
-    const isNextJob = activeJob ? job.level === activeJob.level + 1 : job.level === 1;
-    const canUnlock = isNextJob && activeJobTotalTime >= REQUIRED_WORK_SECONDS;
-    const isVisibleUnlocked = isPersistedUnlocked || canUnlock;
-    const remainingSeconds = Math.max(0, REQUIRED_WORK_SECONDS - activeJobTotalTime);
-    const actionLabel = isCompleted
-      ? 'Completed'
-      : isActive
-        ? 'Working'
-        : isVisibleUnlocked
-          ? 'Select Job'
-          : canUnlock
-            ? 'Unlock Job'
-            : isNextJob
-              ? `Work ${formatDurationLabel(remainingSeconds)} more`
-              : 'Finish previous jobs';
+    const isNextJob = activeJob ? job.order === activeJob.order + 1 : job.is_default_unlocked;
+    const currentJobRequirement = activeJob ? getJobUnlockRequirementSeconds(activeJob) : getJobUnlockRequirementSeconds(1);
+    const isVisibleUnlocked = isPersistedUnlocked || isNextJob;
+    const remainingSeconds = Math.max(0, currentJobRequirement - activeJobTotalTime);
 
     return (
       <div
@@ -301,7 +352,7 @@ export function JobsModal({
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
-                    {trackLabel} {trackLabel === 'Worker' ? job.level : job.level - 20}
+                    {trackLabel} {job.tier}
                   </p>
                   <h3 className="mt-1 text-sm font-black leading-tight text-slate-900">
                     {job.name}
@@ -358,7 +409,14 @@ export function JobsModal({
                 ) : isActive ? null : isVisibleUnlocked ? (
                   <button
                     type="button"
-                    onClick={() => (isPersistedUnlocked ? onSelectJob(job.id) : onUnlockJob(job.id))}
+                    onClick={async () => {
+                      if (isPersistedUnlocked) {
+                        await onSelectJob(job.id);
+                        return;
+                      }
+
+                      setRequirementsJob(job);
+                    }}
                     disabled={isCooldownActive}
                     className={`inline-flex items-center justify-between gap-2 rounded-full border px-3 py-2 text-xs font-black transition-all ${
                       isCooldownActive
@@ -368,29 +426,18 @@ export function JobsModal({
                           : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100'
                     }`}
                   >
-                    <span>
-                      {isCooldownActive
-                        ? 'Job change cooling down'
-                        : isPersistedUnlocked
-                          ? 'Select Job'
-                          : 'Unlock Job'}
-                    </span>
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
+                      <span>
+                        {isCooldownActive
+                          ? 'Job change cooling down'
+                          : 'Select Job'}
+                      </span>
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => onUnlockJob(job.id)}
-                    disabled={!canUnlock}
-                    className={`inline-flex items-center justify-between gap-2 rounded-full border px-3 py-2 text-xs font-black transition-all ${
-                      canUnlock
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100'
-                        : 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
-                    }`}
-                  >
-                    <span>{actionLabel}</span>
+                  <div className="inline-flex items-center justify-between gap-2 rounded-full border border-slate-200 bg-slate-100 px-3 py-2 text-xs font-black text-slate-400">
+                    <span>Finish previous jobs</span>
                     <ChevronRight className="h-4 w-4" />
-                  </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -475,9 +522,9 @@ export function JobsModal({
 
             {selectedTrack === 'manager' && (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  {(sortedManagerJobs.length > 0 ? sortedManagerJobs.map((job) => job.level) : managerPlaceholderJobs).map((level) => (
+                  {(sortedManagerJobs.length > 0 ? sortedManagerJobs.map((job) => job.tier) : managerPlaceholderJobs).map((tier) => (
                     <div
-                      key={`manager-slot-${level}`}
+                      key={`manager-slot-${tier}`}
                       className="rounded-[24px] border border-dashed border-slate-200 bg-white/80 p-4 shadow-sm"
                     >
                       <div className="flex gap-3">
@@ -486,7 +533,7 @@ export function JobsModal({
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
-                            Manager {level}
+                            Manager {tier}
                           </p>
                           <p className="mt-1 text-sm font-black text-slate-900">
                             {managerUnlocked ? 'Reserved manager slot' : 'Locked manager slot'}
@@ -509,6 +556,94 @@ export function JobsModal({
           </div>
         </div>
       </div>
+
+      {requirementsJob && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/45 px-4 pointer-events-auto">
+          <div className="w-full max-w-sm overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.28)]">
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+              <div>
+                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+                  Job Requirements
+                </div>
+                <div className="mt-1 text-base font-black text-slate-900">
+                  {requirementsJob.name}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setRequirementsJob(null)}
+                className="rounded-full p-1.5 text-slate-500 transition-all hover:bg-slate-100 active:scale-90"
+              >
+                <X className="h-4.5 w-4.5" />
+              </button>
+            </div>
+
+            <div className="space-y-2 p-4">
+              {requirementStatuses.map((status) => (
+                <div
+                  key={`${requirementsJob.id}-${status.requirement.type}`}
+                  className="flex items-center justify-between gap-3 rounded-[18px] border border-slate-200 bg-slate-50/80 px-3 py-3"
+                >
+                  <div className="min-w-0">
+                    <div className="text-sm font-black text-slate-900">{status.label}</div>
+                    <div className="mt-0.5 text-[11px] font-semibold text-slate-500">
+                      {status.targetValueLabel}
+                    </div>
+                  </div>
+
+                  {status.isMet ? (
+                    <div className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                      <Check className="h-4.5 w-4.5" />
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleRequirementRoute(status.routeTarget)}
+                      className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-blue-700 transition-all active:scale-[0.98]"
+                    >
+                      Go
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t border-slate-100 bg-slate-50 px-4 py-3">
+              <button
+                type="button"
+                disabled={!areAllRequirementsMet || isStartingFromRequirements || isCooldownActive}
+                onClick={async () => {
+                  if (!requirementsJob || !areAllRequirementsMet) {
+                    return;
+                  }
+
+                  setIsStartingFromRequirements(true);
+                  try {
+                    const unlocked = await onUnlockJob(requirementsJob.id);
+                    if (!unlocked) {
+                      return;
+                    }
+
+                    const selected = await onSelectJob(requirementsJob.id);
+                    if (selected) {
+                      setRequirementsJob(null);
+                    }
+                  } finally {
+                    setIsStartingFromRequirements(false);
+                  }
+                }}
+                className={`w-full rounded-[16px] px-4 py-3 text-sm font-black transition-all ${
+                  !areAllRequirementsMet || isStartingFromRequirements || isCooldownActive
+                    ? 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'
+                    : 'border border-blue-500 bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-[inset_0_-4px_0_rgba(0,0,0,0.14)] active:scale-[0.99]'
+                }`}
+              >
+                {isStartingFromRequirements ? 'Starting...' : 'Start Job'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

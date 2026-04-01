@@ -11,6 +11,13 @@ import { createStarterPlayerOutfit, LOCAL_OUTFITS, LOCAL_STARTER_OUTFIT_ID } fro
 import { createInitialQuestProgress } from '../data/local/quests';
 import { clearLocalStorage } from '../utils/game/storage';
 import { normalizeAccumulatedClaimProfile } from '../data/local/rewards';
+import {
+  DEFAULT_HAPPINESS,
+  DEFAULT_HEALTH,
+  hasWellbeingDefaults,
+  normalizeProfileWellbeing,
+} from '../data/local/healthActions';
+import type { HappinessActionKey, HealthActionKey } from '../types/game';
 
 type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'] & {
   bonus_prestige_points?: number;
@@ -19,6 +26,12 @@ type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'] & {
   premium_bank_card_owned?: boolean;
   premium_bank_card_purchased_at?: string | null;
   premium_bank_card_purchase_source?: 'gems' | 'cash' | null;
+  health?: number;
+  happiness?: number;
+  health_action_cooldowns?: Partial<Record<HealthActionKey, string>>;
+  health_ad_cooldown_until?: string | null;
+  happiness_action_cooldowns?: Partial<Record<HappinessActionKey, string>>;
+  happiness_ad_cooldown_until?: string | null;
 };
 
 function createInitialGameStats(userId: string, now: string) {
@@ -89,6 +102,12 @@ function createBaseProfile(params: {
     premium_bank_card_owned: false,
     premium_bank_card_purchased_at: null,
     premium_bank_card_purchase_source: null,
+    health: DEFAULT_HEALTH,
+    happiness: DEFAULT_HAPPINESS,
+    health_action_cooldowns: {},
+    health_ad_cooldown_until: null,
+    happiness_action_cooldowns: {},
+    happiness_ad_cooldown_until: null,
   };
 }
 
@@ -100,12 +119,13 @@ export async function getProfile(userId: string, deviceId?: string) {
     return null;
   }
 
-  const normalizedProfile = normalizeAccumulatedClaimProfile(storedProfile);
-  if (normalizedProfile.changed) {
-    saveLocalGameState({ profile: normalizedProfile.profile });
+  const normalizedClaimProfile = normalizeAccumulatedClaimProfile(storedProfile);
+  const normalizedProfile = normalizeProfileWellbeing(normalizedClaimProfile.profile);
+  if (normalizedClaimProfile.changed || !hasWellbeingDefaults(normalizedClaimProfile.profile)) {
+    saveLocalGameState({ profile: normalizedProfile });
   }
 
-  return normalizedProfile.profile;
+  return normalizedProfile;
 }
 
 export async function createProfile(userId: string, deviceId: string) {
@@ -148,7 +168,7 @@ export async function updateProfile(userId: string, updates: Partial<PlayerProfi
   void userId;
   const profile = getLocalProfile();
   if (!profile) throw new Error('Player not found');
-  const updatedProfile = { ...profile, ...updates };
+  const updatedProfile = normalizeProfileWellbeing({ ...profile, ...updates });
   saveLocalGameState({ profile: updatedProfile });
   return updatedProfile;
 }

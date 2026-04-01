@@ -3,7 +3,19 @@ import { getHouseBackgroundAsset } from '../../lib/localAssets';
 
 export const LOCAL_STARTER_HOUSE_ID = 'local-house-1';
 
-export const LOCAL_HOUSES: House[] = [
+const HOUSE_HAPPINESS_EFFECT_PER_HOUR = [
+  -3.8, -3.2, -3.4, -2.7, -2.9, -2.1, -1.8, -1.4, -1.6, -0.8,
+  -0.3, 0.2, 0.6, 0.1, 0.9, 1.3, 0.7, 1.6, 0.4, 1.2,
+  -0.2, 0.8, -0.6, 0.3, -0.9,
+] as const;
+
+const HOUSE_HEALTH_EFFECT_PER_HOUR = [
+  -3.5, -3.0, -2.8, -2.4, -2.1, -1.7, -1.3, -0.9, -0.5, 0.0,
+  0.4, 0.8, 1.1, 1.4, 1.8, 2.1, 2.4, 2.7, 3.0, 3.2,
+  3.4, 3.6, 3.7, 3.8, 4.0,
+] as const;
+
+const HOUSE_SEEDS: House[] = [
   {
     id: 'local-house-1',
     name: 'Street Tent',
@@ -255,3 +267,9 @@ export const LOCAL_HOUSES: House[] = [
     prestige_points: 2000,
   },
 ];
+
+export const LOCAL_HOUSES: House[] = HOUSE_SEEDS.map((house, index) => ({
+  ...house,
+  happiness_effect_per_hour: HOUSE_HAPPINESS_EFFECT_PER_HOUR[index] ?? 0,
+  health_effect_per_hour: HOUSE_HEALTH_EFFECT_PER_HOUR[index] ?? 0,
+}));

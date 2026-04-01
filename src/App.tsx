@@ -19,9 +19,13 @@ import { QuestRewardClaimModal } from './components/QuestRewardClaimModal';
 import { TestRewardedAdModal } from './components/TestRewardedAdModal';
 import { MoneyRewardAnimation } from './components/MoneyRewardAnimation';
 import { GemRewardAnimation } from './components/GemRewardAnimation';
+import { StatRewardAnimation } from './components/StatRewardAnimation';
 import { JobTransitionAnimation } from './components/JobTransitionAnimation';
+import { HealthModal } from './components/HealthModal';
+import { HappinessModal } from './components/HappinessModal';
 import { getDailyRewardStatus } from './data/local/rewards';
 import { getScaledShopRewards } from './data/local/rewardScaling';
+import { sumWellbeingEffectsPerHour } from './data/local/wellbeing';
 import { LOCAL_QUESTS } from './data/local/quests';
 import type { BankDepositPlanId } from './types/game';
 import { getCashbackRate } from './data/local/bankRewards';
@@ -93,8 +97,8 @@ export default function App() {
   // GÜVENLİK ÇÖZÜMÜ: Sonsuz profil yaratma döngüsünü engeller
   const profileCreationAttempted = useRef(false);
   
-  const [health] = useState(100);
-  const [happiness] = useState(100);
+  const [showHealthModal, setShowHealthModal] = useState(false);
+  const [showHappinessModal, setShowHappinessModal] = useState(false);
   const [showShopModal, setShowShopModal] = useState(false);
   const [showBusinessModal, setShowBusinessModal] = useState(false);
   const [showInvestmentsModal, setShowInvestmentsModal] = useState(false);
@@ -105,8 +109,12 @@ export default function App() {
   const [showQuestList, setShowQuestList] = useState(false);
   const [moneyAnchorRect, setMoneyAnchorRect] = useState<DOMRect | null>(null);
   const [gemAnchorRect, setGemAnchorRect] = useState<DOMRect | null>(null);
+  const [healthAnchorRect, setHealthAnchorRect] = useState<DOMRect | null>(null);
+  const [happinessAnchorRect, setHappinessAnchorRect] = useState<DOMRect | null>(null);
   const [moneyAnimationSequenceId, setMoneyAnimationSequenceId] = useState(0);
   const [gemAnimationSequenceId, setGemAnimationSequenceId] = useState(0);
+  const [healthAnimationSequenceId, setHealthAnimationSequenceId] = useState(0);
+  const [happinessAnimationSequenceId, setHappinessAnimationSequenceId] = useState(0);
   const [isQuestRewardAnimating, setIsQuestRewardAnimating] = useState(false);
   const [isOfflineAdClaiming, setIsOfflineAdClaiming] = useState(false);
   const [isQuestAdClaiming, setIsQuestAdClaiming] = useState(false);
@@ -117,6 +125,11 @@ export default function App() {
     phase: 'popup' | 'fly';
   } | null>(null);
   const [gemRewardFx, setGemRewardFx] = useState<{
+    amount: number;
+    phase: 'popup' | 'fly';
+  } | null>(null);
+  const [statRewardFx, setStatRewardFx] = useState<{
+    kind: 'health' | 'happiness';
     amount: number;
     phase: 'popup' | 'fly';
   } | null>(null);
@@ -188,6 +201,18 @@ export default function App() {
       await wait(650);
       setGemRewardFx(null);
     }
+  }
+
+  async function playStatRewardAnimationSequence(kind: 'health' | 'happiness', amount: number) {
+    if (amount <= 0) {
+      return;
+    }
+
+    setStatRewardFx({ kind, amount, phase: 'popup' });
+    await wait(900);
+    setStatRewardFx({ kind, amount, phase: 'fly' });
+    await wait(650);
+    setStatRewardFx(null);
   }
 
   async function requestRewardedAd(placement: AdPlacement) {
@@ -285,6 +310,50 @@ export default function App() {
     }
 
     return gameState.upgradeBusinessWithAdDiscount(businessId);
+  }
+
+  async function handleAnimatedHealthAction(actionKey: Parameters<typeof gameState.applyHealthAction>[0]) {
+    const result = await gameState.applyHealthAction(actionKey);
+    if (!result.success || result.appliedAmount <= 0) {
+      return result;
+    }
+
+    await playStatRewardAnimationSequence('health', result.appliedAmount);
+    setHealthAnimationSequenceId((prev) => prev + 1);
+    return result;
+  }
+
+  async function handleAnimatedHealthAdBoost() {
+    const result = await gameState.applyHealthAdBoost();
+    if (!result.success || result.appliedAmount <= 0) {
+      return result;
+    }
+
+    await playStatRewardAnimationSequence('health', result.appliedAmount);
+    setHealthAnimationSequenceId((prev) => prev + 1);
+    return result;
+  }
+
+  async function handleAnimatedHappinessAction(actionKey: Parameters<typeof gameState.applyHappinessAction>[0]) {
+    const result = await gameState.applyHappinessAction(actionKey);
+    if (!result.success || result.appliedAmount <= 0) {
+      return result;
+    }
+
+    await playStatRewardAnimationSequence('happiness', result.appliedAmount);
+    setHappinessAnimationSequenceId((prev) => prev + 1);
+    return result;
+  }
+
+  async function handleAnimatedHappinessAdBoost() {
+    const result = await gameState.applyHappinessAdBoost();
+    if (!result.success || result.appliedAmount <= 0) {
+      return result;
+    }
+
+    await playStatRewardAnimationSequence('happiness', result.appliedAmount);
+    setHappinessAnimationSequenceId((prev) => prev + 1);
+    return result;
   }
 
   async function handleAnimatedPackagePurchase(moneyAdded: number, gemsAdded: number) {
@@ -596,6 +665,14 @@ export default function App() {
     await gameState.resetProgress();
   }
 
+  async function handleWatchHealthAd() {
+    return await requestRewardedAd('health_boost');
+  }
+
+  async function handleWatchHappinessAd() {
+    return await requestRewardedAd('happiness_boost');
+  }
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600 flex items-center justify-center">
@@ -655,6 +732,10 @@ export default function App() {
     (h) => h.id === gameState.profile?.selected_house_id
   );
   const currentCar = gameState.cars.find((c) => c.id === gameState.profile?.selected_car_id);
+  const activePlayerJob = gameState.playerJobs.find((playerJob) => playerJob.is_active);
+  const activeJob = activePlayerJob
+    ? gameState.jobs.find((job) => job.id === activePlayerJob.job_id) || null
+    : null;
   const ownedInvestmentCount = gameState.investments.filter((investment) => investment.is_owned).length;
   const scaledShopRewards = getScaledShopRewards(
     Number(gameState.profile.prestige_points ?? 0),
@@ -671,6 +752,11 @@ export default function App() {
     claimLockedUntil: gameState.claimLockedUntil,
     dailyClaimedTotal: Number(gameState.dailyClaimedTotal ?? 0),
   });
+  const profileHealth = Math.max(0, Math.min(100, Number(gameState.profile.health ?? 100)));
+  const profileHappiness = Math.max(0, Math.min(100, Number(gameState.profile.happiness ?? 100)));
+  const wellbeingRatePerHour = sumWellbeingEffectsPerHour([activeJob, currentHouse, currentCar]);
+  const healthRatePerHour = wellbeingRatePerHour.health;
+  const happinessRatePerHour = wellbeingRatePerHour.happiness;
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-slate-900">
@@ -697,14 +783,26 @@ export default function App() {
         vehicleExpense={Number(gameState.profile.vehicle_expense ?? 0)}
         otherExpenses={Number(gameState.profile.other_expenses ?? 0)}
         username={gameState.profile.display_name || gameState.profile.username}
-        health={health}
-        happiness={happiness}
+        health={profileHealth}
+        happiness={profileHappiness}
+        healthAnimationSequenceId={healthAnimationSequenceId}
+        happinessAnimationSequenceId={happinessAnimationSequenceId}
+        healthRatePerHour={healthRatePerHour}
+        happinessRatePerHour={happinessRatePerHour}
         gems={gameState.profile.gems || 0}
         prestigePoints={gameState.profile?.prestige_points ?? 0}
         onMoneyAnchorChange={setMoneyAnchorRect}
         onGemAnchorChange={setGemAnchorRect}
+        onHealthAnchorChange={setHealthAnchorRect}
+        onHappinessAnchorChange={setHappinessAnchorRect}
         onOpenProfile={() => {
           setShowProfile(true);
+        }}
+        onOpenHealth={() => {
+          setShowHealthModal(true);
+        }}
+        onOpenHappiness={() => {
+          setShowHappinessModal(true);
         }}
         onOpenIncomeBreakdown={() => {
           setShowIncomeBreakdown(true);
@@ -817,15 +915,43 @@ export default function App() {
           setShowJobs(false);
           setActiveTab('job');
         }}
+        profile={gameState.profile}
+        houses={gameState.houses}
+        cars={gameState.cars}
         jobs={gameState.jobs}
         playerJobs={gameState.playerJobs}
         totalMoney={gameState.profile.total_money}
         onUnlockJob={gameState.unlockJob}
         onSelectJob={handleAnimatedJobSelect}
         onSkipCooldown={handleJobCooldownSkip}
+        onOpenHealth={() => setShowHealthModal(true)}
+        onOpenHappiness={() => setShowHappinessModal(true)}
+        onOpenStuffTab={(tab) => {
+          setStuffModalInitialTab(tab);
+          setShowStuffModal(true);
+        }}
+        onOpenQuestList={() => setShowQuestList(true)}
         jobChangeLockedUntil={gameState.jobChangeLockedUntil}
         unsavedJobWorkSeconds={gameState.unsavedJobWorkSeconds}
         isSkippingCooldown={isJobCooldownAdClaiming}
+      />
+
+      <HealthModal
+        isOpen={showHealthModal}
+        profile={gameState.profile}
+        onClose={() => setShowHealthModal(false)}
+        onApplyAction={handleAnimatedHealthAction}
+        onApplyAdBoost={handleAnimatedHealthAdBoost}
+        onWatchAd={handleWatchHealthAd}
+      />
+
+      <HappinessModal
+        isOpen={showHappinessModal}
+        profile={gameState.profile}
+        onClose={() => setShowHappinessModal(false)}
+        onApplyAction={handleAnimatedHappinessAction}
+        onApplyAdBoost={handleAnimatedHappinessAdBoost}
+        onWatchAd={handleWatchHappinessAd}
       />
 
       {showBusinessModal && (
@@ -951,6 +1077,15 @@ export default function App() {
           amount={gemRewardFx.amount}
           phase={gemRewardFx.phase}
           targetRect={gemAnchorRect}
+        />
+      )}
+
+      {statRewardFx && (
+        <StatRewardAnimation
+          kind={statRewardFx.kind}
+          amount={statRewardFx.amount}
+          phase={statRewardFx.phase}
+          targetRect={statRewardFx.kind === 'health' ? healthAnchorRect : happinessAnchorRect}
         />
       )}
 

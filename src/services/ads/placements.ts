@@ -54,4 +54,16 @@ export const PLACEMENT_COPY: Record<
     ctaLabel: 'Start Deposit',
     minWatchSeconds: DEFAULT_MIN_WATCH_SECONDS,
   },
+  health_boost: {
+    title: 'Health Boost',
+    description: 'Finish this rewarded ad to restore 50% health instantly.',
+    ctaLabel: 'Boost Health',
+    minWatchSeconds: DEFAULT_MIN_WATCH_SECONDS,
+  },
+  happiness_boost: {
+    title: 'Happiness Boost',
+    description: 'Finish this rewarded ad to restore 50% happiness instantly.',
+    ctaLabel: 'Boost Happiness',
+    minWatchSeconds: DEFAULT_MIN_WATCH_SECONDS,
+  },
 };

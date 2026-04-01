@@ -19,11 +19,19 @@ interface HeaderProps {
   characterImage?: string;
   health: number;
   happiness: number;
+  healthAnimationSequenceId?: number;
+  happinessAnimationSequenceId?: number;
+  healthRatePerHour: number;
+  happinessRatePerHour: number;
   gems: number;
   prestigePoints: number;
   onMoneyAnchorChange?: (rect: DOMRect | null) => void;
   onGemAnchorChange?: (rect: DOMRect | null) => void;
+  onHealthAnchorChange?: (rect: DOMRect | null) => void;
+  onHappinessAnchorChange?: (rect: DOMRect | null) => void;
   onOpenProfile: () => void;
+  onOpenHealth: () => void;
+  onOpenHappiness: () => void;
   onOpenIncomeBreakdown: () => void;
   onOpenSettings: () => void;
 }
@@ -45,11 +53,19 @@ export function Header({
   characterImage,
   health,
   happiness,
+  healthAnimationSequenceId = 0,
+  happinessAnimationSequenceId = 0,
+  healthRatePerHour,
+  happinessRatePerHour,
   gems,
   prestigePoints,
   onMoneyAnchorChange,
   onGemAnchorChange,
+  onHealthAnchorChange,
+  onHappinessAnchorChange,
   onOpenProfile,
+  onOpenHealth,
+  onOpenHappiness,
   onOpenIncomeBreakdown,
   onOpenSettings
 }: HeaderProps) {
@@ -57,20 +73,37 @@ export function Header({
   const [displayedMoney, setDisplayedMoney] = useState(totalMoney);
   const [isGemAnimating, setIsGemAnimating] = useState(false);
   const [displayedGems, setDisplayedGems] = useState(gems);
+  const [isHealthAnimating, setIsHealthAnimating] = useState(false);
+  const [displayedHealth, setDisplayedHealth] = useState(health);
+  const [isHappinessAnimating, setIsHappinessAnimating] = useState(false);
+  const [displayedHappiness, setDisplayedHappiness] = useState(happiness);
   const prevMoneyRef = useRef(totalMoney);
   const prevGemRef = useRef(gems);
+  const prevHealthRef = useRef(health);
+  const prevHappinessRef = useRef(happiness);
   const moneyContainerRef = useRef<HTMLDivElement | null>(null);
   const gemContainerRef = useRef<HTMLDivElement | null>(null);
+  const healthContainerRef = useRef<HTMLButtonElement | null>(null);
+  const happinessContainerRef = useRef<HTMLButtonElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const delayTimerRef = useRef<number | null>(null);
   const lastSequenceRef = useRef(0);
   const gemAnimationFrameRef = useRef<number | null>(null);
   const gemDelayTimerRef = useRef<number | null>(null);
   const lastGemSequenceRef = useRef(0);
+  const healthAnimationFrameRef = useRef<number | null>(null);
+  const happinessAnimationFrameRef = useRef<number | null>(null);
+  const lastHealthSequenceRef = useRef(0);
+  const lastHappinessSequenceRef = useRef(0);
+
+  const formatStatValue = (value: number) => `${Math.round(value)}`;
+  const formatRate = (value: number) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}/h`;
 
   useEffect(() => {
     setDisplayedMoney(totalMoney);
     setDisplayedGems(gems);
+    setDisplayedHealth(health);
+    setDisplayedHappiness(happiness);
   }, []);
 
   useEffect(() => {
@@ -200,6 +233,127 @@ export function Header({
   }, [gems, gemAnimationSequenceId, gemAnimationDelayMs]);
 
   useEffect(() => {
+    const startValue = prevHealthRef.current;
+    const endValue = health;
+
+    if (startValue === endValue) {
+      setDisplayedHealth(endValue);
+      return;
+    }
+
+    if (healthAnimationFrameRef.current) {
+      cancelAnimationFrame(healthAnimationFrameRef.current);
+    }
+
+    const runAnimation = () => {
+      const startedAt = performance.now();
+      const durationMs = 650;
+      setIsHealthAnimating(true);
+
+      const tick = (now: number) => {
+        const progress = Math.min((now - startedAt) / durationMs, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const nextValue = startValue + (endValue - startValue) * eased;
+        setDisplayedHealth(nextValue);
+
+        if (progress < 1) {
+          healthAnimationFrameRef.current = requestAnimationFrame(tick);
+          return;
+        }
+
+        setDisplayedHealth(endValue);
+        setIsHealthAnimating(false);
+        healthAnimationFrameRef.current = null;
+      };
+
+      healthAnimationFrameRef.current = requestAnimationFrame(tick);
+    };
+
+    const shouldAnimate = healthAnimationSequenceId > lastHealthSequenceRef.current && endValue > startValue;
+
+    if (shouldAnimate) {
+      lastHealthSequenceRef.current = healthAnimationSequenceId;
+      runAnimation();
+    } else if (endValue > startValue) {
+      // Hold the visible value until the reward animation reaches the header.
+      return;
+    } else {
+      lastHealthSequenceRef.current = healthAnimationSequenceId;
+      setDisplayedHealth(endValue);
+      setIsHealthAnimating(false);
+    }
+
+    prevHealthRef.current = health;
+
+    return () => {
+      if (healthAnimationFrameRef.current) {
+        cancelAnimationFrame(healthAnimationFrameRef.current);
+      }
+    };
+  }, [health, healthAnimationSequenceId]);
+
+  useEffect(() => {
+    const startValue = prevHappinessRef.current;
+    const endValue = happiness;
+
+    if (startValue === endValue) {
+      setDisplayedHappiness(endValue);
+      return;
+    }
+
+    if (happinessAnimationFrameRef.current) {
+      cancelAnimationFrame(happinessAnimationFrameRef.current);
+    }
+
+    const runAnimation = () => {
+      const startedAt = performance.now();
+      const durationMs = 650;
+      setIsHappinessAnimating(true);
+
+      const tick = (now: number) => {
+        const progress = Math.min((now - startedAt) / durationMs, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const nextValue = startValue + (endValue - startValue) * eased;
+        setDisplayedHappiness(nextValue);
+
+        if (progress < 1) {
+          happinessAnimationFrameRef.current = requestAnimationFrame(tick);
+          return;
+        }
+
+        setDisplayedHappiness(endValue);
+        setIsHappinessAnimating(false);
+        happinessAnimationFrameRef.current = null;
+      };
+
+      happinessAnimationFrameRef.current = requestAnimationFrame(tick);
+    };
+
+    const shouldAnimate =
+      happinessAnimationSequenceId > lastHappinessSequenceRef.current && endValue > startValue;
+
+    if (shouldAnimate) {
+      lastHappinessSequenceRef.current = happinessAnimationSequenceId;
+      runAnimation();
+    } else if (endValue > startValue) {
+      // Hold the visible value until the reward animation reaches the header.
+      return;
+    } else {
+      lastHappinessSequenceRef.current = happinessAnimationSequenceId;
+      setDisplayedHappiness(endValue);
+      setIsHappinessAnimating(false);
+    }
+
+    prevHappinessRef.current = happiness;
+
+    return () => {
+      if (happinessAnimationFrameRef.current) {
+        cancelAnimationFrame(happinessAnimationFrameRef.current);
+      }
+    };
+  }, [happiness, happinessAnimationSequenceId]);
+
+  useEffect(() => {
     if (!onMoneyAnchorChange || !moneyContainerRef.current) return;
 
     const updateRect = () => {
@@ -228,6 +382,36 @@ export function Header({
       window.removeEventListener('resize', updateRect);
     };
   }, [onGemAnchorChange, displayedGems]);
+
+  useEffect(() => {
+    if (!onHealthAnchorChange || !healthContainerRef.current) return;
+
+    const updateRect = () => {
+      onHealthAnchorChange(healthContainerRef.current?.getBoundingClientRect() || null);
+    };
+
+    updateRect();
+    window.addEventListener('resize', updateRect);
+
+    return () => {
+      window.removeEventListener('resize', updateRect);
+    };
+  }, [displayedHealth, onHealthAnchorChange]);
+
+  useEffect(() => {
+    if (!onHappinessAnchorChange || !happinessContainerRef.current) return;
+
+    const updateRect = () => {
+      onHappinessAnchorChange(happinessContainerRef.current?.getBoundingClientRect() || null);
+    };
+
+    updateRect();
+    window.addEventListener('resize', updateRect);
+
+    return () => {
+      window.removeEventListener('resize', updateRect);
+    };
+  }, [displayedHappiness, onHappinessAnchorChange]);
 
   return (
     <header className="bg-gradient-to-br from-sky-500/45 via-cyan-600/45 to-blue-700/45 backdrop-blur-xl text-white shadow-2xl relative overflow-hidden w-full border-b border-white/30 z-20">
@@ -294,16 +478,44 @@ export function Header({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="flex flex-col items-center gap-1 border-r border-white/15 pr-2">
-              <div className="flex items-center gap-1.5 bg-red-500/20 px-2 py-1 rounded-md border border-red-400/30 w-[88px] justify-center">
-                <img src={LOCAL_ICON_ASSETS.healthy} alt="Health" className="w-4 h-4" />
-                <span className="text-xs font-black">{health}%</span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-amber-500/20 px-2 py-1 rounded-md border border-amber-400/30 w-[88px] justify-center">
-                <img src={LOCAL_ICON_ASSETS.happiness} alt="Happiness" className="w-4 h-4" />
-                <span className="text-xs font-black">{happiness}%</span>
-              </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="flex flex-col items-center gap-1">
+              <button
+                ref={healthContainerRef}
+                onClick={onOpenHealth}
+                className={
+                  'flex h-7 w-[120px] items-center overflow-hidden rounded-full border border-white/35 bg-white/95 shadow-[0_4px_10px_rgba(15,23,42,0.12)] active:scale-[0.98] transition-all ' +
+                  (isHealthAnimating ? 'scale-[1.03] shadow-[0_0_16px_rgba(16,185,129,0.35)]' : '')
+                }
+              >
+                <div className="flex h-full min-w-[60px] items-center gap-1 rounded-r-[14px] bg-gradient-to-r from-lime-400 to-lime-500 px-2 text-slate-900">
+                  <img src={LOCAL_ICON_ASSETS.healthy} alt="Health" className="h-3.5 w-3.5 shrink-0" />
+                  <span className="text-[11px] font-black leading-none">{formatStatValue(displayedHealth)}</span>
+                </div>
+                <div className="flex min-w-0 flex-1 items-center justify-center px-2">
+                  <span className="text-[10px] font-black tracking-tight text-rose-500">{formatRate(healthRatePerHour)}</span>
+                </div>
+              </button>
+              <button
+                ref={happinessContainerRef}
+                onClick={onOpenHappiness}
+                className={
+                  'flex h-7 w-[120px] items-center overflow-hidden rounded-full border border-white/35 bg-white/95 shadow-[0_4px_10px_rgba(15,23,42,0.12)] active:scale-[0.98] transition-all ' +
+                  (isHappinessAnimating ? 'scale-[1.03] shadow-[0_0_16px_rgba(245,158,11,0.35)]' : '')
+                }
+              >
+                <div className="flex h-full min-w-[60px] items-center gap-1 rounded-r-[14px] bg-gradient-to-r from-lime-400 to-lime-500 px-2 text-slate-900">
+                  <img src={LOCAL_ICON_ASSETS.happiness} alt="Happiness" className="h-3.5 w-3.5 shrink-0" />
+                  <span className="text-[11px] font-black leading-none">{formatStatValue(displayedHappiness)}</span>
+                </div>
+                <div className="flex min-w-0 flex-1 items-center justify-center px-2">
+                  <span className={`text-[11px] font-black tracking-tight ${
+                    happinessRatePerHour >= 0 ? 'text-emerald-500' : 'text-rose-500'
+                  }`}>
+                    {formatRate(happinessRatePerHour)}
+                  </span>
+                </div>
+              </button>
             </div>
 
             <div className="flex flex-col items-end gap-1">

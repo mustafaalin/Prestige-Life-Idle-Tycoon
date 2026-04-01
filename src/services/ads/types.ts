@@ -8,7 +8,9 @@ export type AdPlacement =
   | 'earnings_x3'
   | 'business_upgrade_discount'
   | 'job_unlock_skip'
-  | 'bank_premium_deposit';
+  | 'bank_premium_deposit'
+  | 'health_boost'
+  | 'happiness_boost';
 
 export interface RewardedAdRequest {
   id: number;
