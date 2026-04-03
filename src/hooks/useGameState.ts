@@ -8,7 +8,7 @@ import {
   LOCAL_JOBS,
 } from '../data/local/jobs';
 import { LOCAL_HOUSES, LOCAL_STARTER_HOUSE_ID } from '../data/local/houses';
-import { LOCAL_CARS } from '../data/local/cars';
+import { getCarProgressionLevel, LOCAL_CARS } from '../data/local/cars';
 import { LOCAL_CHARACTERS, LOCAL_MIKE_CHARACTER_ID } from '../data/local/characters';
 import { createStarterPlayerOutfit, LOCAL_OUTFITS, LOCAL_STARTER_OUTFIT_ID } from '../data/local/outfits';
 import {
@@ -1298,7 +1298,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     const currentCar = gameState.cars.find((car) => car.id === gameState.profile?.selected_car_id);
     const targetCar = gameState.cars.find((car) => car.id === carId);
     if (!targetCar) return false;
-    if (currentCar && targetCar.level < currentCar.level) return false;
+    if (currentCar && getCarProgressionLevel(targetCar) < getCarProgressionLevel(currentCar)) return false;
     try {
       await itemService.selectCar(activeId, carId);
       await loadGameData(false);

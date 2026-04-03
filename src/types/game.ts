@@ -25,6 +25,8 @@ export interface PremiumCatalogItem {
   gem_price?: number;
   is_premium?: boolean;
   display_order?: number;
+  premium_rank?: number;
+  progression_level_equivalent?: number;
 }
 export type House = Database['public']['Tables']['houses']['Row'] & WellbeingEffectSource & PremiumCatalogItem;
 export type Car = Database['public']['Tables']['cars']['Row'] & WellbeingEffectSource & PremiumCatalogItem;

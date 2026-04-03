@@ -12,9 +12,11 @@ import type {
   QuestProgress,
 } from '../../types/game';
 import { LOCAL_HOUSES } from './houses';
+import { LOCAL_JOBS } from './jobs';
+import { getCarProgressionLevel } from './cars';
 
-export const QUESTS_PER_CHAPTER = 10;
 export const TOTAL_QUEST_CHAPTERS = 10;
+const LEGACY_QUESTS_PER_CHAPTER = 10;
 
 export const QUEST_CHAPTERS: QuestChapterDefinition[] = [
   { id: 'chapter-1', title: 'Starting Out', reward_prestige_points: 3 },
@@ -29,7 +31,7 @@ export const QUEST_CHAPTERS: QuestChapterDefinition[] = [
   { id: 'chapter-10', title: 'Chapter 10', reward_prestige_points: 5 },
 ];
 
-export const LOCAL_QUESTS: QuestDefinition[] = [
+const STATIC_QUESTS_RAW: QuestDefinition[] = [
   {
     id: 'quest-1-start-first-job',
     title: 'Start Your First Job',
@@ -932,6 +934,95 @@ export const LOCAL_QUESTS: QuestDefinition[] = [
   },
 ];
 
+const LEGACY_ACTIVE_JOB_QUEST_IDS = new Set(
+  STATIC_QUESTS_RAW.filter((quest) => quest.condition.type === 'active_job_level').map((quest) => quest.id)
+);
+
+const STATIC_QUEST_CHAPTER_OVERRIDES: Partial<Record<string, number>> = {
+  'quest-27-buy-fourth-business': 3,
+  'quest-28-buy-second-investment': 3,
+  'quest-30-two-level-two-properties': 4,
+};
+
+function getLegacyQuestChapterIndexByRawIndex(index: number) {
+  return Math.floor(index / LEGACY_QUESTS_PER_CHAPTER);
+}
+
+const MAX_JOB_LEVEL = LOCAL_JOBS.reduce((maxLevel, job) => Math.max(maxLevel, Number(job.level || 0)), 0);
+
+function getJobQuestChapterIndex(level: number) {
+  if (level <= 9) {
+    return Math.floor((level - 1) / 3);
+  }
+
+  const earlyJobLevels = 9;
+  const remainingChapterCount = Math.max(1, TOTAL_QUEST_CHAPTERS - 3);
+  const remainingLevels = Math.max(0, MAX_JOB_LEVEL - earlyJobLevels);
+  const baseLevelsPerChapter = Math.floor(remainingLevels / remainingChapterCount);
+  const remainderLevels = remainingLevels % remainingChapterCount;
+
+  let threshold = earlyJobLevels + 1;
+  for (let chapterOffset = 0; chapterOffset < remainingChapterCount; chapterOffset += 1) {
+    const chapterSize = baseLevelsPerChapter + (chapterOffset < remainderLevels ? 1 : 0);
+    const endLevel = threshold + chapterSize - 1;
+    if (level <= endLevel) {
+      return 3 + chapterOffset;
+    }
+    threshold = endLevel + 1;
+  }
+
+  return TOTAL_QUEST_CHAPTERS - 1;
+}
+
+function getJobQuestRewardMoney(level: number) {
+  return 300 + level * 350 + Math.floor(level / 5) * 250;
+}
+
+const GENERATED_JOB_LEVEL_QUESTS: QuestDefinition[] = Array.from({ length: MAX_JOB_LEVEL }, (_, index) => {
+  const level = index + 1;
+
+  return {
+    id: `quest-job-level-${level}`,
+    title: `Move To Job Level ${level}`,
+    description: `Advance into job level ${level}.`,
+    reward_money: getJobQuestRewardMoney(level),
+    reward_gems: 0,
+    target_screen: 'job',
+    condition: { type: 'active_job_level', level },
+  };
+});
+
+interface QuestCatalogEntry {
+  quest: QuestDefinition;
+  chapterIndex: number;
+  chapterOrder: number;
+}
+
+const STATIC_QUEST_ENTRIES: QuestCatalogEntry[] = STATIC_QUESTS_RAW
+  .map((quest, index) => ({
+    quest,
+    chapterIndex:
+      STATIC_QUEST_CHAPTER_OVERRIDES[quest.id] ?? getLegacyQuestChapterIndexByRawIndex(index),
+    chapterOrder: index,
+  }))
+  .filter((entry) => !LEGACY_ACTIVE_JOB_QUEST_IDS.has(entry.quest.id));
+
+const GENERATED_JOB_QUEST_ENTRIES: QuestCatalogEntry[] = GENERATED_JOB_LEVEL_QUESTS.map((quest, index) => ({
+  quest,
+  chapterIndex: getJobQuestChapterIndex(index + 1),
+  chapterOrder: 10_000 + index,
+}));
+
+const QUEST_CATALOG: QuestCatalogEntry[] = [...STATIC_QUEST_ENTRIES, ...GENERATED_JOB_QUEST_ENTRIES].sort(
+  (left, right) => left.chapterIndex - right.chapterIndex || left.chapterOrder - right.chapterOrder
+);
+
+export const LOCAL_QUESTS: QuestDefinition[] = QUEST_CATALOG.map((entry) => entry.quest);
+
+const QUEST_ID_TO_CHAPTER_INDEX = new Map(
+  QUEST_CATALOG.map((entry) => [entry.quest.id, entry.chapterIndex] as const)
+);
+
 export function createInitialQuestProgress(): QuestProgress {
   return {
     unlockedChapterIndex: 0,
@@ -989,7 +1080,8 @@ export function getQuestByIndex(index: number): QuestDefinition | null {
 }
 
 export function getQuestChapterIndexByQuestIndex(index: number) {
-  return Math.floor(index / QUESTS_PER_CHAPTER);
+  const quest = LOCAL_QUESTS[index];
+  return quest ? QUEST_ID_TO_CHAPTER_INDEX.get(quest.id) ?? -1 : -1;
 }
 
 export function getQuestChapterIndex(questId: string) {
@@ -998,8 +1090,9 @@ export function getQuestChapterIndex(questId: string) {
 }
 
 export function getQuestsForChapter(chapterIndex: number) {
-  const start = chapterIndex * QUESTS_PER_CHAPTER;
-  return LOCAL_QUESTS.slice(start, start + QUESTS_PER_CHAPTER);
+  return QUEST_CATALOG
+    .filter((entry) => entry.chapterIndex === chapterIndex)
+    .map((entry) => entry.quest);
 }
 
 export function getQuestChapterByIndex(chapterIndex: number) {
@@ -1046,7 +1139,7 @@ export function isQuestCompleted(quest: QuestDefinition, snapshot: QuestSnapshot
     case 'owned_car_level_at_least': {
       const ownedMaxCarLevel = snapshot.cars
         .filter((car) => snapshot.ownedCars.includes(car.id))
-        .reduce((maxLevel, car) => Math.max(maxLevel, Number(car.level || 0)), 0);
+        .reduce((maxLevel, car) => Math.max(maxLevel, getCarProgressionLevel(car)), 0);
       return ownedMaxCarLevel >= quest.condition.level;
     }
     case 'selected_house_level': {

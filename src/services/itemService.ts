@@ -13,7 +13,7 @@ import {
   saveLocalGameState,
 } from '../data/local/storage';
 import { LOCAL_HOUSES } from '../data/local/houses';
-import { LOCAL_CARS } from '../data/local/cars';
+import { getCarProgressionLevel, LOCAL_CARS } from '../data/local/cars';
 import { recalculateLocalEconomy, recalculateLocalPrestige } from '../data/local/economy';
 import { awardCashback } from '../data/local/bankRewards';
 
@@ -207,7 +207,7 @@ export async function selectCar(playerId: string, carId: string) {
   const car = LOCAL_CARS.find((entry) => entry.id === carId);
   const currentCar = LOCAL_CARS.find((entry) => entry.id === profile.selected_car_id);
   if (!car) throw new Error('Car not found');
-  if (currentCar && car.level < currentCar.level) {
+  if (currentCar && getCarProgressionLevel(car) < getCarProgressionLevel(currentCar)) {
     throw new Error('Cannot switch back to a lower level car');
   }
   const nextProfile = recalculateLocalEconomy({

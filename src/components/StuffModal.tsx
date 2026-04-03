@@ -3,6 +3,7 @@ import { X, Car as CarIcon, Home, Lock, Wallet } from 'lucide-react';
 import type { Car, House } from '../types/game';
 import { getHouseIconAsset, LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
 import { formatMoneyFull, formatMoneyPerHour } from '../utils/money';
+import { getCarProgressionLevel, getMaxJobLevelCoveredByCar } from '../data/local/cars';
 import {
   canAccessCarWithPrestige,
   canAccessHouseWithPrestige,
@@ -110,41 +111,50 @@ export function StuffModal({
         const canAfford = purchaseCurrency === 'gems' ? totalGems >= gemPrice : totalMoney >= cashPrice;
         const requiredPrestige = getRequiredPrestigeForCar(car);
         const isPrestigeLocked = !isOwned && !canAccessCarWithPrestige(car, prestigePoints);
-        const isDowngradeLocked = Boolean(currentSelectedCar && isOwned && car.level < currentSelectedCar.level);
+        const isDowngradeLocked = Boolean(
+          currentSelectedCar && isOwned && getCarProgressionLevel(car) < getCarProgressionLevel(currentSelectedCar)
+        );
         const healthEffect = Number(car.health_effect_per_hour || 0);
         const happinessEffect = Number(car.happiness_effect_per_hour || 0);
         const formatWellbeingRate = (value: number) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}/h`;
+        const premiumMaxJobLevel = isPremium ? getMaxJobLevelCoveredByCar(car) : null;
 
         return (
           <div
             key={car.id}
-            className={`relative bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-xl ${
+            className={`relative overflow-hidden rounded-xl shadow-md transition-all hover:shadow-xl ${
               isSelected
                 ? isPremium
-                  ? 'border-2 border-amber-400'
+                  ? 'border-2 border-amber-400 bg-white shadow-[0_18px_40px_-24px_rgba(245,158,11,0.45)] ring-1 ring-cyan-200/70'
                   : 'border-2 border-blue-500'
                 : isOwned
                   ? isPremium
-                    ? 'border-2 border-amber-300'
+                    ? 'border-2 border-amber-300 bg-white shadow-[0_16px_36px_-24px_rgba(245,158,11,0.35)] ring-1 ring-amber-100'
                     : 'border-2 border-emerald-300'
                   : isPremium
-                    ? 'border-2 border-amber-200'
+                    ? 'border-2 border-amber-300 bg-white shadow-[0_12px_28px_-24px_rgba(245,158,11,0.28)] ring-1 ring-cyan-100/80'
                     : 'border-2 border-slate-200'
             }`}
           >
-            <div className={`p-3 flex gap-3 ${
+            {isPremium && (
+              <>
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.18),transparent_32%),radial-gradient(circle_at_bottom_left,rgba(251,191,36,0.16),transparent_30%),linear-gradient(135deg,rgba(255,251,235,0.97),rgba(248,250,252,0.96))]" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-[linear-gradient(180deg,rgba(255,255,255,0.55),transparent)]" />
+              </>
+            )}
+            <div className={`relative z-10 p-3 flex gap-3 ${
               isSelected
                 ? isPremium
-                  ? 'bg-gradient-to-br from-amber-50 via-yellow-50 to-cyan-50'
+                  ? 'bg-transparent'
                   : 'bg-gradient-to-br from-blue-50 to-cyan-50'
                 : isOwned
                   ? isPremium
-                    ? 'bg-gradient-to-br from-amber-50 to-orange-50'
+                    ? 'bg-transparent'
                     : 'bg-gradient-to-br from-emerald-50 to-teal-50'
                   : isPrestigeLocked
                     ? 'bg-gradient-to-br from-slate-100 to-slate-200'
                     : isPremium
-                      ? 'bg-gradient-to-br from-amber-50 via-white to-cyan-50'
+                      ? 'bg-transparent'
                       : 'bg-gradient-to-br from-slate-50 to-blue-50'
             }`}>
               {isPrestigeLocked ? (
@@ -169,14 +179,14 @@ export function StuffModal({
                     <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-md border flex items-center justify-center ${
                       isSelected
                         ? isPremium
-                          ? 'bg-gradient-to-br from-amber-400 to-cyan-400 border-amber-200'
+                          ? 'bg-gradient-to-br from-amber-300 via-yellow-300 to-cyan-300 border-amber-200 ring-2 ring-white/70 shadow-[0_10px_24px_rgba(251,191,36,0.28)]'
                           : 'bg-gradient-to-br from-blue-500 to-cyan-500 border-blue-200'
                         : isOwned
                           ? isPremium
-                            ? 'bg-gradient-to-br from-amber-400 to-orange-400 border-amber-200'
+                            ? 'bg-gradient-to-br from-amber-300 via-yellow-300 to-orange-300 border-amber-200 ring-2 ring-white/60 shadow-[0_10px_24px_rgba(251,191,36,0.22)]'
                             : 'bg-gradient-to-br from-emerald-500 to-teal-500 border-emerald-200'
                           : isPremium
-                            ? 'bg-gradient-to-br from-slate-700 to-slate-900 border-amber-200'
+                            ? 'bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 border-amber-200 ring-2 ring-amber-100/70'
                             : 'bg-gradient-to-br from-slate-500 to-slate-700 border-slate-200'
                     }`}>
                       {car.image_url ? (
@@ -197,43 +207,60 @@ export function StuffModal({
                   <div className="flex-1 flex flex-col justify-center gap-2 min-w-0">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                          Level {car.level}
+                        <p className={`text-[11px] font-bold uppercase tracking-wide ${isPremium ? 'text-slate-500' : 'text-slate-400'}`}>
+                          {isPremium ? `Premium ${car.premium_rank || car.level}` : `Level ${car.level}`}
                         </p>
                         {isPremium && (
-                          <span className="rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.16em] text-amber-700">
+                          <span className="rounded-full border border-amber-200 bg-gradient-to-r from-amber-100 to-cyan-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.16em] text-amber-700">
                             Premium
                           </span>
                         )}
                       </div>
-                      <h3 className="font-extrabold text-sm text-gray-900 leading-tight">{car.name}</h3>
-                      <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{car.description}</p>
+                      <h3 className={`font-extrabold text-sm leading-tight ${isPremium ? 'text-slate-950' : 'text-gray-900'}`}>{car.name}</h3>
+                      <p className={`mt-1 line-clamp-2 text-[11px] ${isPremium ? 'text-slate-700' : 'text-slate-500'}`}>{car.description}</p>
+                      {isPremium && premiumMaxJobLevel !== null && (
+                        <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-700">
+                          Covers jobs up to Lv {premiumMaxJobLevel}
+                        </p>
+                      )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-white/80 rounded-lg px-2 py-1 border border-white/70">
-                        <div className={`text-[11px] font-black truncate ${purchaseCurrency === 'gems' ? 'text-cyan-700' : 'text-blue-700'}`}>
-                          {purchaseCurrency === 'gems' ? `${gemPrice} Gems` : formatMoneyFull(cashPrice)}
+                    <div className={`grid gap-2 ${isPremium ? 'grid-cols-2' : 'grid-cols-2'}`}>
+                      {isPremium ? (
+                        <div className="col-span-2 rounded-xl border-2 border-amber-200 bg-white/92 px-3 py-2 text-center shadow-[0_6px_16px_rgba(15,23,42,0.06)] backdrop-blur-[2px]">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-4 w-4" />
+                            <div className="text-[13px] font-black text-cyan-800">{gemPrice} Gems</div>
+                          </div>
+                          <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Price</div>
                         </div>
-                        <div className="text-[10px] text-slate-400 font-semibold">Price</div>
-                      </div>
-                      <div className="bg-white/80 rounded-lg px-2 py-1 border border-white/70">
-                        <div className="text-[11px] font-black text-rose-700 truncate">
-                          {formatMoneyPerHour(Number(car.hourly_maintenance_cost || 0))}
+                      ) : (
+                        <div className="rounded-lg border border-white/70 bg-white/80 px-2 py-1">
+                          <div className="text-[11px] font-black truncate text-blue-700">
+                            {formatMoneyFull(cashPrice)}
+                          </div>
+                          <div className="text-[10px] text-slate-400 font-semibold">Price</div>
                         </div>
-                        <div className="text-[10px] text-slate-400 font-semibold">Maintenance</div>
-                      </div>
-                      <div className="bg-white/80 rounded-lg px-2 py-1 border border-white/70">
-                        <div className={`text-[11px] font-black truncate ${healthEffect >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      )}
+                      {!isPremium && (
+                        <div className="bg-white/80 rounded-lg px-2 py-1 border border-white/70">
+                          <div className="text-[11px] font-black text-rose-700 truncate">
+                            {formatMoneyPerHour(Number(car.hourly_maintenance_cost || 0))}
+                          </div>
+                          <div className="text-[10px] text-slate-400 font-semibold">Maintenance</div>
+                        </div>
+                      )}
+                      <div className={`rounded-lg px-2 py-1 ${isPremium ? 'border-2 border-emerald-200 bg-emerald-50/92 shadow-[0_4px_12px_rgba(16,185,129,0.08)] backdrop-blur-[2px]' : 'border border-white/70 bg-white/80'}`}>
+                        <div className={`text-[11px] font-black truncate ${healthEffect >= 0 ? 'text-emerald-800' : 'text-rose-700'}`}>
                           {formatWellbeingRate(healthEffect)}
                         </div>
-                        <div className="text-[10px] text-slate-400 font-semibold">Health</div>
+                        <div className={`text-[10px] font-semibold ${isPremium ? 'text-slate-600' : 'text-slate-400'}`}>Health</div>
                       </div>
-                      <div className="bg-white/80 rounded-lg px-2 py-1 border border-white/70">
-                        <div className={`text-[11px] font-black truncate ${happinessEffect >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      <div className={`rounded-lg px-2 py-1 ${isPremium ? 'border-2 border-cyan-200 bg-cyan-50/92 shadow-[0_4px_12px_rgba(34,211,238,0.08)] backdrop-blur-[2px]' : 'border border-white/70 bg-white/80'}`}>
+                        <div className={`text-[11px] font-black truncate ${happinessEffect >= 0 ? 'text-cyan-800' : 'text-rose-700'}`}>
                           {formatWellbeingRate(happinessEffect)}
                         </div>
-                        <div className="text-[10px] text-slate-400 font-semibold">Happiness</div>
+                        <div className={`text-[10px] font-semibold ${isPremium ? 'text-slate-600' : 'text-slate-400'}`}>Happiness</div>
                       </div>
                     </div>
 

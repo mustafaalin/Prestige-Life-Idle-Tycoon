@@ -69,6 +69,23 @@ export function QuestListModal({
   const chapterCompletedCount = selectedChapterQuests.filter((quest) =>
     questProgress.completedQuestIds.includes(quest.id)
   ).length;
+  const sortedChapterQuests = [...selectedChapterQuests].sort((left, right) => {
+    const leftClaimed = questProgress.claimedQuestIds.includes(left.id);
+    const rightClaimed = questProgress.claimedQuestIds.includes(right.id);
+
+    if (leftClaimed !== rightClaimed) {
+      return leftClaimed ? 1 : -1;
+    }
+
+    const leftClaimable = questProgress.claimableQuestIds.includes(left.id);
+    const rightClaimable = questProgress.claimableQuestIds.includes(right.id);
+
+    if (leftClaimable !== rightClaimable) {
+      return leftClaimable ? -1 : 1;
+    }
+
+    return 0;
+  });
   const chapterProgressPercent =
     selectedChapterQuestCount > 0 ? (chapterCompletedCount / selectedChapterQuestCount) * 100 : 0;
   const isSelectedChapterUnlocked = selectedChapterIndex <= questProgress.unlockedChapterIndex;
@@ -226,7 +243,7 @@ export function QuestListModal({
             </div>
           ) : (
             <div className="space-y-3">
-              {selectedChapterQuests.map((quest) => {
+              {sortedChapterQuests.map((quest) => {
                 const isClaimed = questProgress.claimedQuestIds.includes(quest.id);
                 const isClaimable = questProgress.claimableQuestIds.includes(quest.id);
                 const isCompleted = questProgress.completedQuestIds.includes(quest.id) || isClaimable || isClaimed;

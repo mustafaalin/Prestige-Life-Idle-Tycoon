@@ -308,13 +308,15 @@ export const PREMIUM_CARS: Car[] = [
     id: 'premium-car-1',
     name: 'Premium-1',
     description: 'Gem-exclusive lifestyle vehicle with comfort bonuses.',
-    image_url: null,
+    image_url: '/assets/vehicles/premium-vehicle-1.png',
     price: 0,
     gem_price: 15,
     purchase_currency: 'gems',
     is_premium: true,
+    premium_rank: 1,
     prestige_points: 0,
-    level: 6,
+    level: 1,
+    progression_level_equivalent: 10,
     created_at: null,
     hourly_maintenance_cost: 0,
     display_order: 6,
@@ -325,13 +327,15 @@ export const PREMIUM_CARS: Car[] = [
     id: 'premium-car-2',
     name: 'Premium-2',
     description: 'Gem-exclusive vehicle tuned for comfort and mood.',
-    image_url: null,
+    image_url: '/assets/vehicles/premium-vehicle-2.png',
     price: 0,
     gem_price: 20,
     purchase_currency: 'gems',
     is_premium: true,
+    premium_rank: 2,
     prestige_points: 0,
-    level: 11,
+    level: 2,
+    progression_level_equivalent: 15,
     created_at: null,
     hourly_maintenance_cost: 0,
     display_order: 12,
@@ -342,33 +346,18 @@ export const PREMIUM_CARS: Car[] = [
     id: 'premium-car-3',
     name: 'Premium-3',
     description: 'Gem-exclusive vehicle with stronger wellbeing support.',
-    image_url: null,
+    image_url: '/assets/vehicles/premium-vehicle-3.png',
     price: 0,
     gem_price: 25,
     purchase_currency: 'gems',
     is_premium: true,
+    premium_rank: 3,
     prestige_points: 0,
-    level: 16,
+    level: 3,
+    progression_level_equivalent: 20,
     created_at: null,
     hourly_maintenance_cost: 0,
     display_order: 18,
-    health_effect_per_hour: 8,
-    happiness_effect_per_hour: 8,
-  },
-  {
-    id: 'premium-car-4',
-    name: 'Premium-4',
-    description: 'Top-tier gem vehicle with the best wellbeing bonuses.',
-    image_url: null,
-    price: 0,
-    gem_price: 30,
-    purchase_currency: 'gems',
-    is_premium: true,
-    prestige_points: 0,
-    level: 21,
-    created_at: null,
-    hourly_maintenance_cost: 0,
-    display_order: 24,
     health_effect_per_hour: 10,
     happiness_effect_per_hour: 10,
   },
@@ -377,3 +366,16 @@ export const PREMIUM_CARS: Car[] = [
 export const LOCAL_CARS: Car[] = [...STANDARD_CARS, ...PREMIUM_CARS].sort(
   (a, b) => Number(a.display_order || a.level) - Number(b.display_order || b.level)
 );
+
+export function getCarProgressionLevel(car: Pick<Car, 'level' | 'progression_level_equivalent'>) {
+  return Number(car.progression_level_equivalent || car.level || 0);
+}
+
+export function getMaxJobLevelCoveredByCar(car: Pick<Car, 'level' | 'progression_level_equivalent'>) {
+  const progressionLevel = getCarProgressionLevel(car);
+  if (progressionLevel <= 0) {
+    return 1;
+  }
+
+  return progressionLevel * 2 + 1;
+}

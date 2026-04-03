@@ -1,4 +1,5 @@
 import type { Car, House, Job, JobCategory, JobRequirement, PlayerJob, PlayerProfile } from '../../types/game';
+import { getCarProgressionLevel } from './cars';
 
 export type JobRequirementRouteTarget =
   | 'jobs'
@@ -41,26 +42,11 @@ export function getJobUnlockRequirementSeconds(jobOrOrder: Pick<Job, 'order'> | 
 }
 
 function getJobCarRequirement(order: number) {
-  if (order <= 2) {
+  if (order <= 1) {
     return 0;
   }
 
-  const progressionSteps = [2, 3] as const;
-  let requiredLevel = 1;
-  let nextThreshold = 3;
-  let stepIndex = 0;
-
-  while (requiredLevel < 8) {
-    nextThreshold += progressionSteps[stepIndex % progressionSteps.length];
-    if (order < nextThreshold) {
-      break;
-    }
-
-    requiredLevel += 1;
-    stepIndex += 1;
-  }
-
-  return Math.min(8, requiredLevel);
+  return Math.min(20, Math.ceil((order - 1) / 2));
 }
 
 function getJobHouseRequirement(order: number) {
@@ -117,7 +103,8 @@ function getSelectedHouseLevel(profile: PlayerProfile | null, houses: House[]) {
 }
 
 function getSelectedCarLevel(profile: PlayerProfile | null, cars: Car[]) {
-  return cars.find((car) => car.id === profile?.selected_car_id)?.level || 0;
+  const selectedCar = cars.find((car) => car.id === profile?.selected_car_id);
+  return selectedCar ? getCarProgressionLevel(selectedCar) : 0;
 }
 
 function getTrackedJobSeconds(

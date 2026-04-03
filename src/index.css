@@ -34,6 +34,16 @@
     }
   }
 
+  @keyframes questBarClaimablePulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.025);
+    }
+  }
+
   .animate-float-up {
     animation: floatUp 1s ease-out forwards;
   }

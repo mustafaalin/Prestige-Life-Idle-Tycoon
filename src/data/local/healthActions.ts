@@ -15,12 +15,12 @@ export const HEALTH_AD_BOOST_PERCENT = 50;
 export const HEALTH_AD_COOLDOWN_SECONDS = 30;
 
 export const HEALTH_ACTIONS: HealthActionDefinition[] = [
-  { id: 1, key: 'exercise', title: 'Exercise', healthIncreasePercent: 1, cooldownSeconds: 5, cost: 0 },
-  { id: 2, key: 'take_a_pill', title: 'Take a Pill', healthIncreasePercent: 5, cooldownSeconds: 7, cost: 250 },
-  { id: 3, key: 'go_to_the_doctor', title: 'Go to the Doctor', healthIncreasePercent: 9, cooldownSeconds: 9, cost: 1500 },
-  { id: 4, key: 'get_a_check_up', title: 'Get a Check-Up', healthIncreasePercent: 12, cooldownSeconds: 11, cost: 5000 },
-  { id: 5, key: 'go_to_a_health_resort', title: 'Go to a Health Resort', healthIncreasePercent: 29, cooldownSeconds: 13, cost: 20000 },
-  { id: 6, key: 'get_an_operation', title: 'Get an Operation', healthIncreasePercent: 40, cooldownSeconds: 15, cost: 75000 },
+  { id: 1, key: 'exercise', title: 'Exercise', healthIncreasePercent: 1, cooldownSeconds: 5, cost: 10 },
+  { id: 2, key: 'take_a_pill', title: 'Take a Pill', healthIncreasePercent: 5, cooldownSeconds: 7, cost: 50 },
+  { id: 3, key: 'go_to_the_doctor', title: 'Go to the Doctor', healthIncreasePercent: 9, cooldownSeconds: 9, cost: 200 },
+  { id: 4, key: 'get_a_check_up', title: 'Get a Check-Up', healthIncreasePercent: 12, cooldownSeconds: 11, cost: 500 },
+  { id: 5, key: 'go_to_a_health_resort', title: 'Go to a Health Resort', healthIncreasePercent: 29, cooldownSeconds: 13, cost: 1500 },
+  { id: 6, key: 'get_an_operation', title: 'Get an Operation', healthIncreasePercent: 40, cooldownSeconds: 15, cost: 5000 },
 ];
 
 export function getProfileHealth(profile?: PlayerProfile | null) {
