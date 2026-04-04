@@ -493,7 +493,11 @@ export function Header({
                   <span className="text-[11px] font-black leading-none">{formatStatValue(displayedHealth)}</span>
                 </div>
                 <div className="flex min-w-0 flex-1 items-center justify-center px-2">
-                  <span className="text-[10px] font-black tracking-tight text-rose-500">{formatRate(healthRatePerHour)}</span>
+                  <span className={`text-[10px] font-black tracking-tight ${
+                    healthRatePerHour >= 0 ? 'text-emerald-500' : 'text-rose-500'
+                  }`}>
+                    {formatRate(healthRatePerHour)}
+                  </span>
                 </div>
               </button>
               <button

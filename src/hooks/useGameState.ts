@@ -1246,7 +1246,21 @@ export function useGameState(deviceId: string, userId: string | null) {
     if (!activeId) return false;
     if (itemType === 'car') {
       const targetCar = gameState.cars.find((car) => car.id === itemId);
+      const activePlayerJob = gameState.playerJobs.find((playerJob) => playerJob.is_active);
+      const activeJob = activePlayerJob
+        ? gameState.jobs.find((job) => job.id === activePlayerJob.job_id) || null
+        : null;
+      const minimumSupportedCarLevel = getJobRequirementMinimum(activeJob, 'car_level');
+
       if (!targetCar || !canAccessCarWithPrestige(targetCar, Number(gameState.profile?.prestige_points || 0))) {
+        return false;
+      }
+
+      if (gameState.ownedCars.includes(itemId)) {
+        return false;
+      }
+
+      if (minimumSupportedCarLevel > 0 && getCarProgressionLevel(targetCar) < minimumSupportedCarLevel) {
         return false;
       }
 
@@ -1290,7 +1304,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       moneyMutationInFlightRef.current = false;
       return false;
     }
-  }, [gameState.profile, gameState.cars, loadGameData, flushPendingIfNeeded]);
+  }, [gameState.profile, gameState.cars, gameState.jobs, gameState.playerJobs, gameState.ownedCars, loadGameData, flushPendingIfNeeded]);
 
   const selectCar = useCallback(async (carId: string) => {
     const activeId = gameState.profile?.id;

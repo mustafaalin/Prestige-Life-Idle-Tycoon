@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { X, Lock, Check, Play, ChevronRight, Star } from 'lucide-react';
+import { X, Lock, Check, Play, ChevronRight } from 'lucide-react';
 import type { Car, House, Job, JobCategory, PlayerJob, PlayerProfile } from '../types/game';
 import { resolveLocalAsset } from '../lib/localAssets';
 import { getJobUnlockRequirementSeconds } from '../data/local/jobs';
 import { evaluateJobRequirements, type JobRequirementRouteTarget } from '../data/local/jobRequirements';
 
 const formatMoney = (amount: number) => `$${amount.toLocaleString()}`;
-const MANAGER_PLACEHOLDER_COUNT = 20;
-
 type JobTrackKey = 'worker' | 'specialist' | 'manager';
 
 interface JobsModalProps {
@@ -29,18 +27,6 @@ interface JobsModalProps {
   jobChangeLockedUntil: number | null;
   unsavedJobWorkSeconds: number;
   isSkippingCooldown?: boolean;
-  managerJobs?: Job[];
-}
-
-function formatDurationLabel(totalSeconds: number) {
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-
-  if (minutes > 0) {
-    return `${minutes}m ${seconds}s`;
-  }
-
-  return `${seconds}s`;
 }
 
 function getTrackedJobSeconds(playerJob: PlayerJob | undefined, activeJobId: string | undefined, unsavedSeconds: number) {
@@ -130,7 +116,6 @@ export function JobsModal({
   jobChangeLockedUntil,
   unsavedJobWorkSeconds,
   isSkippingCooldown = false,
-  managerJobs = [],
 }: JobsModalProps) {
   const activeJobCardRef = useRef<HTMLDivElement | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -141,11 +126,8 @@ export function JobsModal({
   const sortedJobs = useMemo(() => [...jobs].sort((a, b) => a.order - b.order), [jobs]);
   const workerJobs = useMemo(() => sortedJobs.filter((job) => job.category === 'worker'), [sortedJobs]);
   const specialistJobs = useMemo(() => sortedJobs.filter((job) => job.category === 'specialist'), [sortedJobs]);
-  const sortedManagerJobs = useMemo(
-    () => [...managerJobs].sort((a, b) => a.order - b.order),
-    [managerJobs]
-  );
-  const allJobs = useMemo(() => [...sortedJobs, ...sortedManagerJobs], [sortedJobs, sortedManagerJobs]);
+  const managerJobs = useMemo(() => sortedJobs.filter((job) => job.category === 'manager'), [sortedJobs]);
+  const allJobs = sortedJobs;
   const activePlayerJob = playerJobs.find((playerJob) => playerJob.is_active);
   const activeJob = activePlayerJob ? allJobs.find((job) => job.id === activePlayerJob.job_id) : null;
   const activeJobTotalTime = getTrackedJobSeconds(activePlayerJob, activePlayerJob?.job_id, unsavedJobWorkSeconds);
@@ -183,11 +165,6 @@ export function JobsModal({
 
     return () => window.clearInterval(interval);
   }, [isOpen, jobChangeLockedUntil]);
-  const workerUnlockedCount = workerJobs.filter((job) => {
-    if (job.is_default_unlocked) return true;
-    return playerJobs.some((entry) => entry.job_id === job.id && entry.is_unlocked);
-  }).length;
-
   const workerCompletedCount = workerJobs.filter((job) => {
     const playerJob = playerJobs.find((entry) => entry.job_id === job.id);
     const trackedSeconds = getTrackedJobSeconds(playerJob, activePlayerJob?.job_id, unsavedJobWorkSeconds);
@@ -205,7 +182,6 @@ export function JobsModal({
   const isCooldownActive = jobChangeLockedUntil !== null && now < jobChangeLockedUntil;
   const activeJobRequiredSeconds = activeJob ? getJobUnlockRequirementSeconds(activeJob) : 150;
   const currentWorkerTrackProgress = Math.min(activeJobTotalTime / activeJobRequiredSeconds, 1);
-  const managerPlaceholderJobs = Array.from({ length: MANAGER_PLACEHOLDER_COUNT }, (_, index) => index + 1);
 
   useEffect(() => {
     if (selectedTrack === 'specialist' && !specialistUnlocked) {
@@ -522,35 +498,7 @@ export function JobsModal({
 
             {selectedTrack === 'manager' && (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  {(sortedManagerJobs.length > 0 ? sortedManagerJobs.map((job) => job.tier) : managerPlaceholderJobs).map((tier) => (
-                    <div
-                      key={`manager-slot-${tier}`}
-                      className="rounded-[24px] border border-dashed border-slate-200 bg-white/80 p-4 shadow-sm"
-                    >
-                      <div className="flex gap-3">
-                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-400">
-                          {managerUnlocked ? <Star className="h-6 w-6" /> : <Lock className="h-6 w-6" />}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
-                            Manager {tier}
-                          </p>
-                          <p className="mt-1 text-sm font-black text-slate-900">
-                            {managerUnlocked ? 'Reserved manager slot' : 'Locked manager slot'}
-                          </p>
-                          <p className="mt-1 text-[11px] leading-5 text-slate-500">
-                            {managerUnlocked
-                              ? 'Waiting for role name, icon and reward tuning.'
-                              : 'This role becomes available after the Worker path is fully completed.'}
-                          </p>
-                          <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
-                            {managerUnlocked ? <Check className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                            {managerUnlocked ? 'Ready for content' : 'Progress gated'}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                {managerJobs.map((job) => renderJobCard(job, 'Manager'))}
               </div>
             )}
           </div>

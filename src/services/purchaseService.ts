@@ -3,6 +3,8 @@ import { LOCAL_CARS } from '../data/local/cars';
 import { recalculateLocalEconomy, recalculateLocalPrestige } from '../data/local/economy';
 import { getLocalBusinesses, getLocalInvestments, getLocalJobs, getLocalPlayerJobs } from '../data/local/storage';
 import { awardCashback } from '../data/local/bankRewards';
+import { getJobRequirementMinimum } from '../data/local/jobRequirements';
+import { getCarProgressionLevel } from '../data/local/cars';
 
 export async function purchaseCarViaRPC(playerId: string, carId: string, price: number) {
   void playerId;
@@ -14,6 +16,21 @@ export async function purchaseCarViaRPC(playerId: string, carId: string, price: 
   const purchaseCurrency = car.purchase_currency || 'cash';
   const cashPrice = Number(car.price || price || 0);
   const gemPrice = Number(car.gem_price || 0);
+  const jobs = getLocalJobs();
+  const playerJobs = getLocalPlayerJobs();
+  const activePlayerJob = playerJobs.find((entry) => entry.is_active);
+  const activeJob = activePlayerJob
+    ? jobs.find((entry) => entry.id === activePlayerJob.job_id) || null
+    : null;
+  const minimumSupportedCarLevel = getJobRequirementMinimum(activeJob, 'car_level');
+
+  if (ownedCars.includes(carId)) {
+    throw new Error('Car already owned');
+  }
+
+  if (minimumSupportedCarLevel > 0 && getCarProgressionLevel(car) < minimumSupportedCarLevel) {
+    throw new Error('Current job requires a higher vehicle level');
+  }
 
   if (purchaseCurrency === 'gems') {
     if (Number(profile.gems || 0) < gemPrice) {
@@ -32,8 +49,8 @@ export async function purchaseCarViaRPC(playerId: string, carId: string, price: 
   };
   const finalProfile = recalculateLocalEconomy({
     profile: profileAfterSpend,
-    jobs: getLocalJobs(),
-    playerJobs: getLocalPlayerJobs(),
+    jobs,
+    playerJobs,
     businesses: getLocalBusinesses(),
     investments: getLocalInvestments(),
   });

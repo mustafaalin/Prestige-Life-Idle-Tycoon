@@ -116,14 +116,15 @@ export function StuffModal({
         const purchaseCurrency = car.purchase_currency || 'cash';
         const cashPrice = Number(car.price || 0);
         const gemPrice = Number(car.gem_price || 0);
-        const sellCashValue = Math.floor(cashPrice / 2);
-        const sellGemValue = Math.floor(gemPrice / 2);
         const canAfford = purchaseCurrency === 'gems' ? totalGems >= gemPrice : totalMoney >= cashPrice;
         const requiredPrestige = getRequiredPrestigeForCar(car);
         const isPrestigeLocked = !isOwned && !canAccessCarWithPrestige(car, prestigePoints);
+        const isBelowActiveJobCarRequirement =
+          minimumSupportedCarLevel > 0 && getCarProgressionLevel(car) < minimumSupportedCarLevel;
         const violatesActiveJobCarRequirement = Boolean(
-          isOwned && !isSelected && minimumSupportedCarLevel > 0 && getCarProgressionLevel(car) < minimumSupportedCarLevel
+          isOwned && !isSelected && isBelowActiveJobCarRequirement
         );
+        const blocksPurchaseForActiveJob = !isOwned && isBelowActiveJobCarRequirement;
         const healthEffect = Number(car.health_effect_per_hour || 0);
         const happinessEffect = Number(car.happiness_effect_per_hour || 0);
         const premiumMaxJobLevel = isPremium ? getMaxJobLevelCoveredByCar(car) : null;
@@ -232,6 +233,11 @@ export function StuffModal({
                           Covers jobs up to Lv {premiumMaxJobLevel}
                         </p>
                       )}
+                      {blocksPurchaseForActiveJob && (
+                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-rose-600">
+                          Current job requires vehicle Lv {minimumSupportedCarLevel}+
+                        </p>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
@@ -313,13 +319,18 @@ export function StuffModal({
                       )
                     ) : (
                       <button
-                        disabled={loading}
+                        disabled={loading || blocksPurchaseForActiveJob}
                         className={`${isPremium ? 'mt-0.5' : ''} w-full rounded-lg py-1.5 px-3 text-[11px] font-bold transition-all ${
                           isPremium
                             ? 'bg-gradient-to-r from-amber-400 to-cyan-500 text-white hover:from-amber-500 hover:to-cyan-600 active:scale-95'
                             : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 active:scale-95'
-                        } ${loading ? 'opacity-60' : ''}`}
+                        } ${loading || blocksPurchaseForActiveJob ? 'opacity-60' : ''}`}
                         onClick={() => {
+                          if (blocksPurchaseForActiveJob) {
+                            setSelectionWarning(`Your current job requires a vehicle level of ${minimumSupportedCarLevel} or higher.`);
+                            return;
+                          }
+
                           if (canAfford) {
                             setSelectedCar(car);
                             setConfirmMode('buy');
