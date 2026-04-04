@@ -50,9 +50,8 @@ Bu dosya aktif urun ve teknik roadmap ozetidir.
 
 Oncelikle su dosyalari oku:
 
-- [session-handoff.md](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/docs/session-handoff.md)
-- [current-roadmap.md](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/docs/current-roadmap.md)
-- [jobs.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/data/local/jobs.ts)
-- [jobRequirements.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/data/local/jobRequirements.ts)
-- [useGameState.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/hooks/useGameState.ts)
-
+- [session-handoff.md](./session-handoff.md)
+- [current-roadmap.md](./current-roadmap.md)
+- [jobs.ts](../src/data/local/jobs.ts)
+- [jobRequirements.ts](../src/data/local/jobRequirements.ts)
+- [useGameState.ts](../src/hooks/useGameState.ts)

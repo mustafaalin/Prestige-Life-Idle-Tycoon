@@ -91,4 +91,4 @@ Default instruction for this repo:
 
 For the expanded version of these standards, see:
 
-- [CODEX_SENIOR_ENGINEERING_UI_UX_GUIDELINES.md](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/CODEX_SENIOR_ENGINEERING_UI_UX_GUIDELINES.md)
+- [CODEX_SENIOR_ENGINEERING_UI_UX_GUIDELINES.md](./CODEX_SENIOR_ENGINEERING_UI_UX_GUIDELINES.md)

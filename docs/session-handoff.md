@@ -45,18 +45,18 @@ Son sprintlerde tamamlanan ana basliklar:
 - Jobs sistemi refactor edildi
   - `category`, `tier`, `order`, `requirements` explicit hale getirildi
   - worker / specialist ayrimi artik level araligindan turemiyor
-  - ilgili veri: [jobs.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/data/local/jobs.ts)
+  - ilgili veri: [jobs.ts](../src/data/local/jobs.ts)
 - Job requirement sistemi kuruldu
   - time, prestige, health, happiness, house, car requirementlari var
-  - degerlendirme mantigi: [jobRequirements.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/data/local/jobRequirements.ts)
+  - degerlendirme mantigi: [jobRequirements.ts](../src/data/local/jobRequirements.ts)
 - Health ve happiness sistemi aktif edildi
   - action modallari var
   - stat animasyonlari var
   - job / house / car wellbeing etkileri header'a bagli
   - ilgili dosyalar:
-    - [wellbeing.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/data/local/wellbeing.ts)
-    - [HealthModal.tsx](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/components/HealthModal.tsx)
-    - [HappinessModal.tsx](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/components/HappinessModal.tsx)
+    - [wellbeing.ts](../src/data/local/wellbeing.ts)
+    - [HealthModal.tsx](../src/components/HealthModal.tsx)
+    - [HappinessModal.tsx](../src/components/HappinessModal.tsx)
 - Specialist job track eklendi
   - manager track halen placeholder
 - Job ve quest UI akislari iyilestirildi
@@ -84,7 +84,7 @@ Olumlu taraflar:
 
 Dikkat edilmesi gereken teknik borclar:
 
-- [useGameState.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/hooks/useGameState.ts) hala cok buyuk
+- [useGameState.ts](../src/hooks/useGameState.ts) hala cok buyuk
 - Supabase kalintilari repoda duruyor
 - manager jobs henuz gercek veriyle tanimli degil
 - stocks / bazi investment alanlari placeholder
@@ -94,16 +94,16 @@ Dikkat edilmesi gereken teknik borclar:
 
 En kritik dosyalar:
 
-- app orchestration: [App.tsx](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/App.tsx)
-- main game orchestration: [useGameState.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/hooks/useGameState.ts)
-- jobs data: [jobs.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/data/local/jobs.ts)
-- job requirements: [jobRequirements.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/data/local/jobRequirements.ts)
-- quests data: [quests.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/data/local/quests.ts)
-- wellbeing: [wellbeing.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/data/local/wellbeing.ts)
-- cars data: [cars.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/data/local/cars.ts)
-- houses data: [houses.ts](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/data/local/houses.ts)
-- stuff modal: [StuffModal.tsx](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/components/StuffModal.tsx)
-- jobs modal: [JobsModal.tsx](/Users/tugbaalin/Desktop/idle-guy-life-sim/idle-guy-life-sim/src/components/JobsModal.tsx)
+- app orchestration: [App.tsx](../src/App.tsx)
+- main game orchestration: [useGameState.ts](../src/hooks/useGameState.ts)
+- jobs data: [jobs.ts](../src/data/local/jobs.ts)
+- job requirements: [jobRequirements.ts](../src/data/local/jobRequirements.ts)
+- quests data: [quests.ts](../src/data/local/quests.ts)
+- wellbeing: [wellbeing.ts](../src/data/local/wellbeing.ts)
+- cars data: [cars.ts](../src/data/local/cars.ts)
+- houses data: [houses.ts](../src/data/local/houses.ts)
+- stuff modal: [StuffModal.tsx](../src/components/StuffModal.tsx)
+- jobs modal: [JobsModal.tsx](../src/components/JobsModal.tsx)
 
 ## What Still Needs Work
 
@@ -150,4 +150,3 @@ Son guncelleme aninda:
 - calisma agaci temizdi
 - son commit: `a3821d2`
 - `npm run build` basariliydi
-
