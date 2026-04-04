@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Gift, DollarSign, Play, Lock, Monitor, ShoppingBag, Sparkles, Shirt, Check, Flame } from 'lucide-react';
 import * as rewardService from '../services/rewardService';
 import * as itemService from '../services/itemService';
@@ -14,6 +14,7 @@ interface ShopModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialTab?: 'shop' | 'outfits';
+  initialShopSection?: 'money' | 'gems';
   userId: string;
   prestigePoints: number;
   ownedInvestmentCount: number;
@@ -141,6 +142,7 @@ export function ShopModal({
   isOpen,
   onClose,
   initialTab = 'shop',
+  initialShopSection = 'money',
   userId,
   prestigePoints,
   ownedInvestmentCount,
@@ -159,6 +161,8 @@ export function ShopModal({
   onOutfitChange,
 }: ShopModalProps) {
   const [activeTab, setActiveTab] = useState<'shop' | 'outfits'>('shop');
+  const moneySectionRef = useRef<HTMLDivElement | null>(null);
+  const gemSectionRef = useRef<HTMLDivElement | null>(null);
   const [accumulatedMoney, setAccumulatedMoney] = useState(0);
   const [timeUntilFull, setTimeUntilFull] = useState(0);
   const [timeUntilUnlock, setTimeUntilUnlock] = useState(0);
@@ -209,6 +213,17 @@ export function ShopModal({
     if (!isOpen) return;
     setActiveTab(initialTab);
   }, [isOpen, initialTab]);
+
+  useEffect(() => {
+    if (!isOpen || activeTab !== 'shop') return;
+
+    const targetRef = initialShopSection === 'gems' ? gemSectionRef : moneySectionRef;
+    const timeout = window.setTimeout(() => {
+      targetRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 60);
+
+    return () => window.clearTimeout(timeout);
+  }, [isOpen, activeTab, initialShopSection]);
 
   const refreshDailyRewardStatus = async () => {
     if (!userId) return;
@@ -884,7 +899,10 @@ export function ShopModal({
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border-2 border-green-200 shadow-lg">
+          <div
+            ref={moneySectionRef}
+            className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border-2 border-green-200 shadow-lg"
+          >
             <div className="flex items-center gap-2 mb-3">
               <ShoppingBag className="w-5 h-5 text-green-600" />
               <h3 className="text-base font-black text-green-700">Money Packages</h3>
@@ -935,7 +953,10 @@ export function ShopModal({
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-5 border-2 border-purple-200 shadow-lg">
+          <div
+            ref={gemSectionRef}
+            className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-5 border-2 border-purple-200 shadow-lg"
+          >
             <div className="flex items-center gap-2 mb-3">
               <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-5 w-5 object-contain" />
               <h3 className="text-base font-black text-purple-700">Gem Packages</h3>

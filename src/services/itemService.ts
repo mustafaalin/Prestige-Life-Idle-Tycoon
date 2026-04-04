@@ -180,11 +180,7 @@ export async function selectHouse(playerId: string, houseId: string) {
   const profile = getLocalProfile();
   if (!profile) throw new Error('Player not found');
   const house = LOCAL_HOUSES.find((entry) => entry.id === houseId);
-  const currentHouse = LOCAL_HOUSES.find((entry) => entry.id === profile.selected_house_id);
   if (!house) throw new Error('House not found');
-  if (currentHouse && house.level < currentHouse.level) {
-    throw new Error('Cannot move back to a lower level house');
-  }
   const nextProfile = recalculateLocalEconomy({
     profile: {
       ...profile,
@@ -205,11 +201,7 @@ export async function selectCar(playerId: string, carId: string) {
   const profile = getLocalProfile();
   if (!profile) throw new Error('Player not found');
   const car = LOCAL_CARS.find((entry) => entry.id === carId);
-  const currentCar = LOCAL_CARS.find((entry) => entry.id === profile.selected_car_id);
   if (!car) throw new Error('Car not found');
-  if (currentCar && getCarProgressionLevel(car) < getCarProgressionLevel(currentCar)) {
-    throw new Error('Cannot switch back to a lower level car');
-  }
   const nextProfile = recalculateLocalEconomy({
     profile: {
       ...profile,

@@ -1,5 +1,15 @@
 import type { Car } from '../../types/game';
 
+const CAR_HEALTH_EFFECT_PER_HOUR = [
+  -1.8, -1.2, -1.4, -0.9, -0.6, -0.2, 0.1, 0.4, 0.2, 0.7,
+  1.0, 1.3, 1.1, 1.6, 1.9, 2.2, 2.5, 2.8, 3.1, 3.4,
+] as const;
+
+const CAR_HAPPINESS_EFFECT_PER_HOUR = [
+  -2.0, -1.6, -1.8, -1.2, -1.0, -0.5, -0.3, 0.1, 0.4, 0.8,
+  1.1, 1.5, 1.8, 2.2, 2.5, 2.9, 3.2, 3.6, 4.0, 4.5,
+] as const;
+
 const STANDARD_CARS: Car[] = [
   {
     id: 'local-car-1',
@@ -13,8 +23,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 0,
     display_order: 1,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[0],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[0],
   },
   {
     id: 'local-car-2',
@@ -28,8 +38,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 5,
     display_order: 2,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[1],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[1],
   },
   {
     id: 'local-car-3',
@@ -43,8 +53,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 15,
     display_order: 3,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[2],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[2],
   },
   {
     id: 'local-car-4',
@@ -58,8 +68,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 40,
     display_order: 4,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[3],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[3],
   },
   {
     id: 'local-car-5',
@@ -73,8 +83,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 80,
     display_order: 5,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[4],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[4],
   },
   {
     id: 'local-car-6',
@@ -88,8 +98,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 150,
     display_order: 7,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[5],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[5],
   },
   {
     id: 'local-car-7',
@@ -103,8 +113,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 220,
     display_order: 8,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[6],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[6],
   },
   {
     id: 'local-car-8',
@@ -118,8 +128,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 320,
     display_order: 9,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[7],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[7],
   },
   {
     id: 'local-car-9',
@@ -133,8 +143,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 450,
     display_order: 10,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[8],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[8],
   },
   {
     id: 'local-car-10',
@@ -148,8 +158,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 650,
     display_order: 11,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[9],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[9],
   },
   {
     id: 'local-car-11',
@@ -163,8 +173,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 750,
     display_order: 13,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[10],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[10],
   },
   {
     id: 'local-car-12',
@@ -178,8 +188,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 1200,
     display_order: 14,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[11],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[11],
   },
   {
     id: 'local-car-13',
@@ -193,8 +203,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 1600,
     display_order: 15,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[12],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[12],
   },
   {
     id: 'local-car-14',
@@ -208,8 +218,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 3000,
     display_order: 16,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[13],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[13],
   },
   {
     id: 'local-car-15',
@@ -223,8 +233,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 4500,
     display_order: 17,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[14],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[14],
   },
   {
     id: 'local-car-16',
@@ -238,8 +248,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 5200,
     display_order: 19,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[15],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[15],
   },
   {
     id: 'local-car-17',
@@ -253,8 +263,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 8000,
     display_order: 20,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[16],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[16],
   },
   {
     id: 'local-car-18',
@@ -268,8 +278,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 25000,
     display_order: 21,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[17],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[17],
   },
   {
     id: 'local-car-19',
@@ -283,8 +293,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 60000,
     display_order: 22,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[18],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[18],
   },
   {
     id: 'local-car-20',
@@ -298,8 +308,8 @@ const STANDARD_CARS: Car[] = [
     hourly_maintenance_cost: 150000,
     display_order: 23,
     purchase_currency: 'cash',
-    health_effect_per_hour: 0,
-    happiness_effect_per_hour: 0,
+    health_effect_per_hour: CAR_HEALTH_EFFECT_PER_HOUR[19],
+    happiness_effect_per_hour: CAR_HAPPINESS_EFFECT_PER_HOUR[19],
   },
 ] as const;
 
@@ -310,7 +320,7 @@ export const PREMIUM_CARS: Car[] = [
     description: 'Gem-exclusive lifestyle vehicle with comfort bonuses.',
     image_url: '/assets/vehicles/premium-vehicle-1.png',
     price: 0,
-    gem_price: 15,
+    gem_price: 50,
     purchase_currency: 'gems',
     is_premium: true,
     premium_rank: 1,
@@ -329,7 +339,7 @@ export const PREMIUM_CARS: Car[] = [
     description: 'Gem-exclusive vehicle tuned for comfort and mood.',
     image_url: '/assets/vehicles/premium-vehicle-2.png',
     price: 0,
-    gem_price: 20,
+    gem_price: 75,
     purchase_currency: 'gems',
     is_premium: true,
     premium_rank: 2,
@@ -348,7 +358,7 @@ export const PREMIUM_CARS: Car[] = [
     description: 'Gem-exclusive vehicle with stronger wellbeing support.',
     image_url: '/assets/vehicles/premium-vehicle-3.png',
     price: 0,
-    gem_price: 25,
+    gem_price: 100,
     purchase_currency: 'gems',
     is_premium: true,
     premium_rank: 3,

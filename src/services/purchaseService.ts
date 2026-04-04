@@ -48,6 +48,45 @@ export async function purchaseCarViaRPC(playerId: string, carId: string, price: 
   return { success: true, message: 'Car purchased', new_balance: Number(cashbackResult.updatedProfile.total_money) };
 }
 
+export async function sellOwnedCar(playerId: string, carId: string) {
+  void playerId;
+  const profile = getLocalProfile();
+  if (!profile) throw new Error('Player not found');
+
+  const ownedCars = getLocalOwnedCars();
+  if (!ownedCars.includes(carId)) {
+    throw new Error('Car not owned');
+  }
+
+  if (profile.selected_car_id === carId) {
+    throw new Error('Selected car cannot be sold');
+  }
+
+  const car = LOCAL_CARS.find((entry) => entry.id === carId);
+  if (!car) throw new Error('Car not found');
+
+  const purchaseCurrency = car.purchase_currency || 'cash';
+  const cashSellValue = Math.floor(Number(car.price || 0) / 2);
+  const gemSellValue = Math.floor(Number(car.gem_price || 0) / 2);
+
+  saveLocalGameState({
+    profile: {
+      ...profile,
+      total_money:
+        purchaseCurrency === 'cash'
+          ? Number(profile.total_money || 0) + cashSellValue
+          : Number(profile.total_money || 0),
+      gems:
+        purchaseCurrency === 'gems'
+          ? Number(profile.gems || 0) + gemSellValue
+          : Number(profile.gems || 0),
+    },
+    ownedCars: ownedCars.filter((ownedCarId) => ownedCarId !== carId),
+  });
+
+  return true;
+}
+
 export async function purchaseGeneralItem(
   playerId: string, 
   itemType: 'character' | 'house', 

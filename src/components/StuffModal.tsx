@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { X, Car as CarIcon, Home, Lock, Wallet } from 'lucide-react';
-import type { Car, House } from '../types/game';
+import { DollarSign, Heart, Home, Lock, Smile, Wrench, X, Car as CarIcon, Wallet } from 'lucide-react';
+import type { Car, House, Job } from '../types/game';
 import { getHouseIconAsset, LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
 import { formatMoneyFull, formatMoneyPerHour } from '../utils/money';
 import { getCarProgressionLevel, getMaxJobLevelCoveredByCar } from '../data/local/cars';
@@ -10,6 +10,7 @@ import {
   getRequiredPrestigeForCar,
   getRequiredPrestigeForHouse,
 } from '../data/local/prestigeRequirements';
+import { getJobRequirementMinimum } from '../data/local/jobRequirements';
 
 const formatMoney = formatMoneyFull;
 
@@ -23,7 +24,10 @@ interface StuffModalProps {
   selectedCarId: string | null;
   selectedHouseId: string | null;
   ownedCars: string[];
+  activeJob: Job | null;
   onPurchaseCar: (carId: string, price: number) => Promise<boolean>;
+  onSellCar: (carId: string) => Promise<boolean>;
+  onOpenShopForCurrency: (currency: 'cash' | 'gems') => void;
   onSelectCar: (carId: string) => Promise<boolean>;
   onSelectHouse: (houseId: string) => Promise<boolean>;
   onClose: () => void;
@@ -40,7 +44,10 @@ export function StuffModal({
   selectedCarId,
   selectedHouseId,
   ownedCars,
+  activeJob,
   onPurchaseCar,
+  onSellCar,
+  onOpenShopForCurrency,
   onSelectCar,
   onSelectHouse,
   onClose,
@@ -50,6 +57,8 @@ export function StuffModal({
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmMode, setConfirmMode] = useState<'buy' | 'sell'>('buy');
+  const [selectionWarning, setSelectionWarning] = useState<string | null>(null);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -72,28 +81,27 @@ export function StuffModal({
 
   const currentSelectedCar = cars.find((car) => car.id === selectedCarId) || null;
   const currentSelectedHouse = houses.find((house) => house.id === selectedHouseId) || null;
+  const minimumSupportedHouseLevel = getJobRequirementMinimum(activeJob, 'house_level');
+  const minimumSupportedCarLevel = getJobRequirementMinimum(activeJob, 'car_level');
   const sortedCars = [...cars].sort(
     (a, b) => Number(a.display_order || a.level) - Number(b.display_order || b.level)
   );
+  const formatWellbeingRate = (value: number) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}/h`;
 
-  const handlePurchase = async () => {
-    if (!selectedCar || !canAccessCarWithPrestige(selectedCar, prestigePoints)) return;
-
-    const canAffordSelection =
-      selectedCar.purchase_currency === 'gems'
-        ? totalGems >= Number(selectedCar.gem_price || 0)
-        : totalMoney >= Number(selectedCar.price || 0);
-
-    if (!canAffordSelection) return;
-
+  const handleConfirmAction = async () => {
+    if (!selectedCar) return;
     setIsPurchasing(true);
     try {
-      const success = await onPurchaseCar(selectedCar.id, selectedCar.price);
+      const success =
+        confirmMode === 'sell'
+          ? await onSellCar(selectedCar.id)
+          : await onPurchaseCar(selectedCar.id, selectedCar.price);
       if (success) {
         setShowConfirm(false);
+        setSelectedCar(null);
       }
     } catch (error) {
-      console.error('Error purchasing car:', error);
+      console.error(`Error ${confirmMode === 'sell' ? 'selling' : 'purchasing'} car:`, error);
     } finally {
       setIsPurchasing(false);
     }
@@ -108,15 +116,16 @@ export function StuffModal({
         const purchaseCurrency = car.purchase_currency || 'cash';
         const cashPrice = Number(car.price || 0);
         const gemPrice = Number(car.gem_price || 0);
+        const sellCashValue = Math.floor(cashPrice / 2);
+        const sellGemValue = Math.floor(gemPrice / 2);
         const canAfford = purchaseCurrency === 'gems' ? totalGems >= gemPrice : totalMoney >= cashPrice;
         const requiredPrestige = getRequiredPrestigeForCar(car);
         const isPrestigeLocked = !isOwned && !canAccessCarWithPrestige(car, prestigePoints);
-        const isDowngradeLocked = Boolean(
-          currentSelectedCar && isOwned && getCarProgressionLevel(car) < getCarProgressionLevel(currentSelectedCar)
+        const violatesActiveJobCarRequirement = Boolean(
+          isOwned && !isSelected && minimumSupportedCarLevel > 0 && getCarProgressionLevel(car) < minimumSupportedCarLevel
         );
         const healthEffect = Number(car.health_effect_per_hour || 0);
         const happinessEffect = Number(car.happiness_effect_per_hour || 0);
-        const formatWellbeingRate = (value: number) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}/h`;
         const premiumMaxJobLevel = isPremium ? getMaxJobLevelCoveredByCar(car) : null;
 
         return (
@@ -125,14 +134,14 @@ export function StuffModal({
             className={`relative overflow-hidden rounded-xl shadow-md transition-all hover:shadow-xl ${
               isSelected
                 ? isPremium
-                  ? 'border-2 border-amber-400 bg-white shadow-[0_18px_40px_-24px_rgba(245,158,11,0.45)] ring-1 ring-cyan-200/70'
+                  ? 'border-[2.5px] border-amber-400 bg-white shadow-[0_22px_48px_-26px_rgba(245,158,11,0.52)] ring-2 ring-amber-200/80'
                   : 'border-2 border-blue-500'
                 : isOwned
                   ? isPremium
-                    ? 'border-2 border-amber-300 bg-white shadow-[0_16px_36px_-24px_rgba(245,158,11,0.35)] ring-1 ring-amber-100'
+                    ? 'border-[2.5px] border-amber-300 bg-white shadow-[0_18px_42px_-26px_rgba(245,158,11,0.4)] ring-2 ring-amber-100/90'
                     : 'border-2 border-emerald-300'
                   : isPremium
-                    ? 'border-2 border-amber-300 bg-white shadow-[0_12px_28px_-24px_rgba(245,158,11,0.28)] ring-1 ring-cyan-100/80'
+                    ? 'border-[2.5px] border-amber-300 bg-white shadow-[0_16px_34px_-24px_rgba(245,158,11,0.32)] ring-2 ring-amber-100/80'
                     : 'border-2 border-slate-200'
             }`}
           >
@@ -140,6 +149,12 @@ export function StuffModal({
               <>
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.18),transparent_32%),radial-gradient(circle_at_bottom_left,rgba(251,191,36,0.16),transparent_30%),linear-gradient(135deg,rgba(255,251,235,0.97),rgba(248,250,252,0.96))]" />
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-[linear-gradient(180deg,rgba(255,255,255,0.55),transparent)]" />
+                <div className="pointer-events-none absolute left-[-34px] top-[14px] z-20 rotate-[-34deg] rounded-md border border-amber-300/80 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-300 px-10 py-1 shadow-[0_8px_18px_rgba(245,158,11,0.28)]">
+                  <span className="text-[11px] font-black uppercase tracking-[0.26em] text-white">
+                    Premium
+                  </span>
+                </div>
+                <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-white/70" />
               </>
             )}
             <div className={`relative z-10 p-3 flex gap-3 ${
@@ -175,25 +190,25 @@ export function StuffModal({
                 </div>
               ) : (
                 <>
-                  <div className="shrink-0 w-[104px] flex items-center justify-center">
-                    <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-md border flex items-center justify-center ${
+                  <div className={`${isPremium ? 'shrink-0 w-[48%] max-w-[210px] flex items-center justify-center' : 'shrink-0 w-[42%] max-w-[172px] flex items-center justify-center'}`}>
+                    <div className={`aspect-square w-full ${isPremium ? 'max-w-[188px]' : 'max-w-[152px]'} rounded-[24px] shadow-md border flex items-center justify-center ${
                       isSelected
                         ? isPremium
-                          ? 'bg-gradient-to-br from-amber-300 via-yellow-300 to-cyan-300 border-amber-200 ring-2 ring-white/70 shadow-[0_10px_24px_rgba(251,191,36,0.28)]'
-                          : 'bg-gradient-to-br from-blue-500 to-cyan-500 border-blue-200'
+                          ? 'bg-gradient-to-br from-white via-amber-50 to-cyan-50 border-amber-200 ring-2 ring-white/70 shadow-[0_10px_24px_rgba(251,191,36,0.20)]'
+                          : 'bg-gradient-to-br from-white via-sky-50 to-cyan-50 border-blue-200 shadow-[0_10px_24px_rgba(59,130,246,0.14)]'
                         : isOwned
                           ? isPremium
-                            ? 'bg-gradient-to-br from-amber-300 via-yellow-300 to-orange-300 border-amber-200 ring-2 ring-white/60 shadow-[0_10px_24px_rgba(251,191,36,0.22)]'
-                            : 'bg-gradient-to-br from-emerald-500 to-teal-500 border-emerald-200'
+                            ? 'bg-gradient-to-br from-white via-amber-50 to-orange-50 border-amber-200 ring-2 ring-white/60 shadow-[0_10px_24px_rgba(251,191,36,0.16)]'
+                            : 'bg-gradient-to-br from-white via-emerald-50 to-teal-50 border-emerald-200 shadow-[0_10px_24px_rgba(16,185,129,0.14)]'
                           : isPremium
-                            ? 'bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 border-amber-200 ring-2 ring-amber-100/70'
-                            : 'bg-gradient-to-br from-slate-500 to-slate-700 border-slate-200'
+                            ? 'bg-gradient-to-br from-white via-slate-50 to-amber-50 border-amber-200 ring-2 ring-amber-100/70'
+                            : 'bg-gradient-to-br from-white via-slate-50 to-slate-100 border-slate-200 shadow-[0_10px_24px_rgba(15,23,42,0.08)]'
                     }`}>
                       {car.image_url ? (
                         <img
                           src={resolveLocalAsset(car.image_url, 'car')}
                           alt={car.name}
-                          className="w-[90%] h-[90%] object-contain"
+                          className="h-[86%] w-[86%] object-contain"
                           loading="lazy"
                         />
                       ) : (
@@ -204,96 +219,118 @@ export function StuffModal({
                     </div>
                   </div>
 
-                  <div className="flex-1 flex flex-col justify-center gap-2 min-w-0">
-                    <div>
+                  <div className="flex-1 flex flex-col justify-center gap-2.5 min-w-0">
+                    <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className={`text-[11px] font-bold uppercase tracking-wide ${isPremium ? 'text-slate-500' : 'text-slate-400'}`}>
+                        <p className={`text-[10px] font-black uppercase tracking-[0.18em] ${isPremium ? 'text-slate-500' : 'text-slate-400'}`}>
                           {isPremium ? `Premium ${car.premium_rank || car.level}` : `Level ${car.level}`}
                         </p>
-                        {isPremium && (
-                          <span className="rounded-full border border-amber-200 bg-gradient-to-r from-amber-100 to-cyan-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.16em] text-amber-700">
-                            Premium
-                          </span>
-                        )}
                       </div>
                       <h3 className={`font-extrabold text-sm leading-tight ${isPremium ? 'text-slate-950' : 'text-gray-900'}`}>{car.name}</h3>
-                      <p className={`mt-1 line-clamp-2 text-[11px] ${isPremium ? 'text-slate-700' : 'text-slate-500'}`}>{car.description}</p>
                       {isPremium && premiumMaxJobLevel !== null && (
-                        <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-700">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-700">
                           Covers jobs up to Lv {premiumMaxJobLevel}
                         </p>
                       )}
                     </div>
 
-                    <div className={`grid gap-2 ${isPremium ? 'grid-cols-2' : 'grid-cols-2'}`}>
+                    <div className="grid grid-cols-2 gap-2">
                       {isPremium ? (
-                        <div className="col-span-2 rounded-xl border-2 border-amber-200 bg-white/92 px-3 py-2 text-center shadow-[0_6px_16px_rgba(15,23,42,0.06)] backdrop-blur-[2px]">
+                        <div className="col-span-2 rounded-xl border-2 border-amber-200 bg-white/92 px-3 py-2 shadow-[0_6px_16px_rgba(15,23,42,0.06)] backdrop-blur-[2px]">
                           <div className="flex items-center justify-center gap-1.5">
                             <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-4 w-4" />
                             <div className="text-[13px] font-black text-cyan-800">{gemPrice} Gems</div>
                           </div>
-                          <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Price</div>
                         </div>
                       ) : (
-                        <div className="rounded-lg border border-white/70 bg-white/80 px-2 py-1">
-                          <div className="text-[11px] font-black truncate text-blue-700">
-                            {formatMoneyFull(cashPrice)}
+                        <div className="rounded-lg border border-white/70 bg-white/80 px-2.5 py-2">
+                          <div className="flex items-center gap-1.5 text-blue-700">
+                            <DollarSign className="h-3.5 w-3.5" />
+                            <div className="truncate text-[11px] font-black">{formatMoneyFull(cashPrice)}</div>
                           </div>
-                          <div className="text-[10px] text-slate-400 font-semibold">Price</div>
                         </div>
                       )}
                       {!isPremium && (
-                        <div className="bg-white/80 rounded-lg px-2 py-1 border border-white/70">
-                          <div className="text-[11px] font-black text-rose-700 truncate">
-                            {formatMoneyPerHour(Number(car.hourly_maintenance_cost || 0))}
+                        <div className="bg-white/80 rounded-lg px-2.5 py-2 border border-white/70">
+                          <div className="flex items-center gap-1.5 text-rose-700">
+                            <Wrench className="h-3.5 w-3.5" />
+                            <div className="truncate text-[11px] font-black">
+                              {formatMoneyPerHour(Number(car.hourly_maintenance_cost || 0))}
+                            </div>
                           </div>
-                          <div className="text-[10px] text-slate-400 font-semibold">Maintenance</div>
                         </div>
                       )}
-                      <div className={`rounded-lg px-2 py-1 ${isPremium ? 'border-2 border-emerald-200 bg-emerald-50/92 shadow-[0_4px_12px_rgba(16,185,129,0.08)] backdrop-blur-[2px]' : 'border border-white/70 bg-white/80'}`}>
-                        <div className={`text-[11px] font-black truncate ${healthEffect >= 0 ? 'text-emerald-800' : 'text-rose-700'}`}>
-                          {formatWellbeingRate(healthEffect)}
+                      <div className={`rounded-lg px-2.5 py-2 ${isPremium ? 'border-2 border-emerald-200 bg-emerald-50/92 shadow-[0_4px_12px_rgba(16,185,129,0.08)] backdrop-blur-[2px]' : 'border border-white/70 bg-white/80'}`}>
+                        <div className={`flex items-center gap-1.5 ${healthEffect >= 0 ? 'text-emerald-800' : 'text-rose-700'}`}>
+                          <Heart className="h-3.5 w-3.5" />
+                          <div className="truncate text-[11px] font-black">{formatWellbeingRate(healthEffect)}</div>
                         </div>
-                        <div className={`text-[10px] font-semibold ${isPremium ? 'text-slate-600' : 'text-slate-400'}`}>Health</div>
                       </div>
-                      <div className={`rounded-lg px-2 py-1 ${isPremium ? 'border-2 border-cyan-200 bg-cyan-50/92 shadow-[0_4px_12px_rgba(34,211,238,0.08)] backdrop-blur-[2px]' : 'border border-white/70 bg-white/80'}`}>
-                        <div className={`text-[11px] font-black truncate ${happinessEffect >= 0 ? 'text-cyan-800' : 'text-rose-700'}`}>
-                          {formatWellbeingRate(happinessEffect)}
+                      <div className={`rounded-lg px-2.5 py-2 ${isPremium ? 'border-2 border-cyan-200 bg-cyan-50/92 shadow-[0_4px_12px_rgba(34,211,238,0.08)] backdrop-blur-[2px]' : 'border border-white/70 bg-white/80'}`}>
+                        <div className={`flex items-center gap-1.5 ${happinessEffect >= 0 ? 'text-cyan-800' : 'text-rose-700'}`}>
+                          <Smile className="h-3.5 w-3.5" />
+                          <div className="truncate text-[11px] font-black">{formatWellbeingRate(happinessEffect)}</div>
                         </div>
-                        <div className={`text-[10px] font-semibold ${isPremium ? 'text-slate-600' : 'text-slate-400'}`}>Happiness</div>
                       </div>
                     </div>
 
                     {isOwned ? (
-                      <button
-                        onClick={() => onSelectCar(car.id)}
-                        disabled={isSelected || isDowngradeLocked || loading}
-                        className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
-                          isSelected
-                            ? 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border border-blue-300'
-                            : isDowngradeLocked
-                              ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                              : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 active:scale-95'
-                        }`}
-                      >
-                        {isSelected ? 'Selected' : isDowngradeLocked ? 'Lower Tier Locked' : 'Use Car'}
-                      </button>
+                      isSelected ? (
+                        <button
+                          disabled
+                          className={`${isPremium ? 'mt-0.5' : ''} w-full rounded-lg py-1.5 px-3 text-[11px] font-bold transition-all bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border border-blue-300`}
+                        >
+                          Selected
+                        </button>
+                      ) : (
+                        <div className={`${isPremium ? 'mt-0.5' : ''} grid grid-cols-2 gap-2`}>
+                          <button
+                            onClick={async () => {
+                              if (violatesActiveJobCarRequirement) {
+                                setSelectionWarning('Your current job does not support using this vehicle.');
+                                return;
+                              }
+
+                              await onSelectCar(car.id);
+                            }}
+                            disabled={loading}
+                            className="rounded-lg py-1.5 px-3 text-[11px] font-bold transition-all bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 active:scale-95"
+                          >
+                            Use
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedCar(car);
+                              setConfirmMode('sell');
+                              setShowConfirm(true);
+                            }}
+                            disabled={loading}
+                            className="rounded-lg py-1.5 px-3 text-[11px] font-bold transition-all bg-gradient-to-r from-rose-500 to-red-500 text-white hover:from-rose-600 hover:to-red-600 active:scale-95"
+                          >
+                            Sell
+                          </button>
+                        </div>
+                      )
                     ) : (
                       <button
+                        disabled={loading}
+                        className={`${isPremium ? 'mt-0.5' : ''} w-full rounded-lg py-1.5 px-3 text-[11px] font-bold transition-all ${
+                          isPremium
+                            ? 'bg-gradient-to-r from-amber-400 to-cyan-500 text-white hover:from-amber-500 hover:to-cyan-600 active:scale-95'
+                            : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 active:scale-95'
+                        } ${loading ? 'opacity-60' : ''}`}
                         onClick={() => {
-                          setSelectedCar(car);
-                          setShowConfirm(true);
+                          if (canAfford) {
+                            setSelectedCar(car);
+                            setConfirmMode('buy');
+                            setShowConfirm(true);
+                            return;
+                          }
+
+                          onOpenShopForCurrency(purchaseCurrency);
                         }}
-                        disabled={!canAfford || loading}
-                        className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
-                          canAfford
-                            ? isPremium
-                              ? 'bg-gradient-to-r from-amber-400 to-cyan-500 text-white hover:from-amber-500 hover:to-cyan-600 active:scale-95'
-                              : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 active:scale-95'
-                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                        }`}
                       >
-                        {canAfford ? (isPremium ? 'Buy with Gems' : 'Buy Car') : purchaseCurrency === 'gems' ? 'Need More Gems' : 'Need More Money'}
+                        Buy
                       </button>
                     )}
                   </div>
@@ -312,7 +349,11 @@ export function StuffModal({
         const isSelected = selectedHouseId === house.id;
         const requiredPrestige = getRequiredPrestigeForHouse(house);
         const isPrestigeLocked = !isSelected && !canAccessHouseWithPrestige(house, prestigePoints);
-        const isDowngradeLocked = Boolean(currentSelectedHouse && !isSelected && house.level < currentSelectedHouse.level);
+        const violatesActiveJobHouseRequirement = Boolean(
+          !isSelected && minimumSupportedHouseLevel > 0 && house.level < minimumSupportedHouseLevel
+        );
+        const healthEffect = Number(house.health_effect_per_hour || 0);
+        const happinessEffect = Number(house.happiness_effect_per_hour || 0);
         return (
           <div
             key={house.id}
@@ -345,51 +386,69 @@ export function StuffModal({
                 </div>
               ) : (
                 <>
-                  <div className="shrink-0 w-[104px] flex items-center justify-center">
-                    <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-md border flex items-center justify-center ${
+                  <div className="shrink-0 w-[42%] max-w-[172px] flex items-center justify-center">
+                    <div className={`aspect-square w-full max-w-[152px] rounded-[24px] shadow-md border flex items-center justify-center ${
                       isSelected
-                        ? 'bg-gradient-to-br from-blue-500 to-cyan-500 border-blue-200'
-                        : 'bg-gradient-to-br from-violet-500 to-indigo-500 border-violet-200'
+                        ? 'bg-gradient-to-br from-white via-sky-50 to-cyan-50 border-blue-200 shadow-[0_10px_24px_rgba(59,130,246,0.14)]'
+                        : 'bg-gradient-to-br from-white via-violet-50 to-indigo-50 border-violet-200 shadow-[0_10px_24px_rgba(99,102,241,0.14)]'
                     }`}>
                       <img
                         src={getHouseIconAsset(house.level)}
                         alt={house.name}
-                        className="w-[90%] h-[90%] object-contain"
+                        className="w-[86%] h-[86%] object-contain"
                         loading="lazy"
                       />
                     </div>
                   </div>
 
-                  <div className="flex-1 flex flex-col justify-center gap-2 min-w-0">
-                    <div>
-                      <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                  <div className="flex-1 flex flex-col justify-center gap-2.5 min-w-0">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
                         Level {house.level}
                       </p>
                       <h3 className="font-extrabold text-sm text-gray-900 leading-tight">{house.name}</h3>
-                      <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{house.description}</p>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-2">
-                      <div className="bg-white/80 rounded-lg px-2 py-1 border border-white/70">
-                        <div className="text-[11px] font-black text-rose-700 truncate">
-                          {formatMoneyPerHour(Number(house.hourly_rent_cost || 0))}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-lg border border-white/70 bg-white/80 px-2.5 py-2">
+                        <div className="flex items-center gap-1.5 text-rose-700">
+                          <Home className="h-3.5 w-3.5" />
+                          <div className="truncate text-[11px] font-black">
+                            {formatMoneyPerHour(Number(house.hourly_rent_cost || 0))}
+                          </div>
                         </div>
-                        <div className="text-[10px] text-slate-400 font-semibold">Rent</div>
+                      </div>
+                      <div className="rounded-lg border border-white/70 bg-white/80 px-2.5 py-2">
+                        <div className={`flex items-center gap-1.5 ${healthEffect >= 0 ? 'text-emerald-800' : 'text-rose-700'}`}>
+                          <Heart className="h-3.5 w-3.5" />
+                          <div className="truncate text-[11px] font-black">{formatWellbeingRate(healthEffect)}</div>
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-white/70 bg-white/80 px-2.5 py-2">
+                        <div className={`flex items-center gap-1.5 ${happinessEffect >= 0 ? 'text-cyan-800' : 'text-rose-700'}`}>
+                          <Smile className="h-3.5 w-3.5" />
+                          <div className="truncate text-[11px] font-black">{formatWellbeingRate(happinessEffect)}</div>
+                        </div>
                       </div>
                     </div>
 
                     <button
-                      onClick={() => onSelectHouse(house.id)}
-                      disabled={isSelected || isDowngradeLocked || loading}
+                      onClick={async () => {
+                        if (violatesActiveJobHouseRequirement) {
+                          setSelectionWarning('Your current job does not support moving to this home.');
+                          return;
+                        }
+
+                        await onSelectHouse(house.id);
+                      }}
+                      disabled={isSelected || loading}
                       className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
                         isSelected
                           ? 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border border-blue-300'
-                          : isDowngradeLocked
-                            ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 active:scale-95'
+                          : 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 active:scale-95'
                       }`}
                     >
-                      {isSelected ? 'Current Home' : isDowngradeLocked ? 'Lower Tier Locked' : 'Move Here'}
+                      {isSelected ? 'Current Home' : 'Move Here'}
                     </button>
                   </div>
                 </>
@@ -484,17 +543,50 @@ export function StuffModal({
         </div>
       </div>
 
+      {selectionWarning && (
+        <div className="absolute inset-0 z-[70] flex items-center justify-center bg-slate-950/25 px-5 pointer-events-auto">
+          <div className="w-full max-w-[320px] rounded-2xl border border-violet-100 bg-white p-4 shadow-2xl">
+            <p className="text-sm font-semibold leading-5 text-slate-700">
+              {selectionWarning}
+            </p>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setSelectionWarning(null)}
+                className="rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 px-4 py-2 text-xs font-bold text-white transition-all hover:from-violet-600 hover:to-indigo-600 active:scale-95"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showConfirm && selectedCar && (
         <div className="fixed inset-0 bg-black/90 z-[110] flex items-center justify-center p-4 pointer-events-auto">
           <div className="bg-slate-900 rounded-3xl p-6 max-w-sm w-full border border-white/10 shadow-2xl">
-            <h3 className="text-2xl font-black text-white mb-2">Confirm Purchase</h3>
+            <h3 className="text-2xl font-black text-white mb-2">
+              {confirmMode === 'sell' ? 'Confirm Sale' : 'Confirm Purchase'}
+            </h3>
             <p className="text-slate-300 mb-6">
-              Do you want to buy <span className="text-white font-bold">{selectedCar.name}</span> for{' '}
-              <span className={`font-bold ${(selectedCar.purchase_currency || 'cash') === 'gems' ? 'text-cyan-400' : 'text-emerald-400'}`}>
-                {(selectedCar.purchase_currency || 'cash') === 'gems'
-                  ? `${Number(selectedCar.gem_price || 0)} gems`
-                  : formatMoney(selectedCar.price)}
-              </span>?
+              {confirmMode === 'sell' ? (
+                <>
+                  Do you want to sell <span className="text-white font-bold">{selectedCar.name}</span> for{' '}
+                  <span className={`font-bold ${(selectedCar.purchase_currency || 'cash') === 'gems' ? 'text-cyan-400' : 'text-emerald-400'}`}>
+                    {(selectedCar.purchase_currency || 'cash') === 'gems'
+                      ? `${Math.floor(Number(selectedCar.gem_price || 0) / 2)} gems`
+                      : formatMoney(Math.floor(Number(selectedCar.price || 0) / 2))}
+                  </span>?
+                </>
+              ) : (
+                <>
+                  Do you want to buy <span className="text-white font-bold">{selectedCar.name}</span> for{' '}
+                  <span className={`font-bold ${(selectedCar.purchase_currency || 'cash') === 'gems' ? 'text-cyan-400' : 'text-emerald-400'}`}>
+                    {(selectedCar.purchase_currency || 'cash') === 'gems'
+                      ? `${Number(selectedCar.gem_price || 0)} gems`
+                      : formatMoney(selectedCar.price)}
+                  </span>?
+                </>
+              )}
             </p>
             
             <div className="flex gap-3">
@@ -506,9 +598,13 @@ export function StuffModal({
                 Cancel
               </button>
               <button
-                onClick={handlePurchase}
+                onClick={handleConfirmAction}
                 disabled={isPurchasing}
-                className="flex-1 py-3 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-500 transition-colors flex items-center justify-center"
+                className={`flex-1 py-3 rounded-xl font-bold text-white transition-colors flex items-center justify-center ${
+                  confirmMode === 'sell'
+                    ? 'bg-rose-600 hover:bg-rose-500'
+                    : 'bg-emerald-600 hover:bg-emerald-500'
+                }`}
               >
                 {isPurchasing ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

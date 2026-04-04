@@ -27,6 +27,7 @@ import { getDailyRewardStatus } from './data/local/rewards';
 import { getScaledShopRewards } from './data/local/rewardScaling';
 import { sumWellbeingEffectsPerHour } from './data/local/wellbeing';
 import { LOCAL_QUESTS } from './data/local/quests';
+import { getJobUnlockRequirementSeconds } from './data/local/jobs';
 import type { BankDepositPlanId } from './types/game';
 import { getCashbackRate } from './data/local/bankRewards';
 import { hasPremiumBankCard } from './data/local/bankPremium';
@@ -104,6 +105,7 @@ export default function App() {
   const [showInvestmentsModal, setShowInvestmentsModal] = useState(false);
   const [showStuffModal, setShowStuffModal] = useState(false);
   const [shopModalInitialTab, setShopModalInitialTab] = useState<'shop' | 'outfits'>('shop');
+  const [shopModalInitialSection, setShopModalInitialSection] = useState<'money' | 'gems'>('money');
   const [stuffModalInitialTab, setStuffModalInitialTab] = useState<'cars' | 'houses'>('cars');
   const [showIncomeBreakdown, setShowIncomeBreakdown] = useState(false);
   const [showQuestList, setShowQuestList] = useState(false);
@@ -148,6 +150,7 @@ export default function App() {
   const openQuestTarget = (quest: (typeof LOCAL_QUESTS)[number]) => {
     if (quest.target_screen === 'shop') {
       setShopModalInitialTab(quest.condition.type === 'owned_outfit_count' ? 'outfits' : 'shop');
+      setShopModalInitialSection('money');
     }
 
     if (quest.target_screen === 'stuff') {
@@ -744,6 +747,7 @@ export default function App() {
   const hasReadyBankDeposit = gameState.bankDeposits.some(
     (deposit) => new Date(deposit.matures_at).getTime() <= Date.now()
   );
+  const hasClaimableCashback = Number(gameState.profile.cashback_pool || 0) > 0;
   const canClaimDailyReward = gameState.gameStats ? getDailyRewardStatus(gameState.gameStats).canClaim : false;
   const canClaimAccumulatedMoney = getCanClaimAccumulatedMoney({
     claimPool: scaledShopRewards.claimPool,
@@ -757,6 +761,14 @@ export default function App() {
   const wellbeingRatePerHour = sumWellbeingEffectsPerHour([activeJob, currentHouse, currentCar]);
   const healthRatePerHour = wellbeingRatePerHour.health;
   const happinessRatePerHour = wellbeingRatePerHour.happiness;
+  const activeJobRequiredSeconds = activeJob ? getJobUnlockRequirementSeconds(activeJob) : 0;
+  const activeJobTrackedSeconds = activePlayerJob
+    ? Number(activePlayerJob.total_time_worked_seconds || 0) + Number(gameState.unsavedJobWorkSeconds || 0)
+    : 0;
+  const jobProgress = activeJobRequiredSeconds > 0
+    ? Math.min(activeJobTrackedSeconds / activeJobRequiredSeconds, 1)
+    : 0;
+  const isJobReadyToAdvance = Boolean(activeJob && activeJobTrackedSeconds >= activeJobRequiredSeconds);
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-slate-900">
@@ -862,8 +874,10 @@ export default function App() {
         hasQuestAttention={gameState.hasClaimableQuestRewards || Boolean(gameState.claimableChapterReward)}
         attentionTabs={{
           shop: canClaimDailyReward || canClaimAccumulatedMoney,
-          investments: hasReadyBankDeposit,
+          job: isJobReadyToAdvance,
+          investments: hasReadyBankDeposit || hasClaimableCashback,
         }}
+        jobProgress={jobProgress}
       />
 
       <Shop
@@ -889,6 +903,7 @@ export default function App() {
           setActiveTab('shop');
         }}
         initialTab={shopModalInitialTab}
+        initialShopSection={shopModalInitialSection}
         userId={user.id}
         prestigePoints={gameState.profile.prestige_points || 0}
         ownedInvestmentCount={ownedInvestmentCount}
@@ -980,7 +995,15 @@ export default function App() {
           selectedCarId={gameState.profile.selected_car_id}
           selectedHouseId={gameState.profile.selected_house_id}
           ownedCars={gameState.ownedCars}
+          activeJob={activeJob}
           onPurchaseCar={(carId, price) => gameState.purchaseitem('car', carId, price)}
+          onSellCar={gameState.sellCar}
+          onOpenShopForCurrency={(currency) => {
+            setShowStuffModal(false);
+            setShopModalInitialTab('shop');
+            setShopModalInitialSection(currency === 'gems' ? 'gems' : 'money');
+            setShowShopModal(true);
+          }}
           onSelectCar={gameState.selectCar}
           onSelectHouse={gameState.selectHouse}
           onClose={() => {

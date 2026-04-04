@@ -41,6 +41,18 @@ export function getJobUnlockRequirementSeconds(jobOrOrder: Pick<Job, 'order'> | 
   return 150 + fiveSecondSteps * 5;
 }
 
+export function getJobRequirementMinimum(
+  job: Pick<Job, 'requirements'> | null | undefined,
+  type: JobRequirement['type']
+) {
+  if (!job) {
+    return 0;
+  }
+
+  const requirement = job.requirements.find((entry) => entry.type === type);
+  return requirement?.minimum ?? 0;
+}
+
 function getJobCarRequirement(order: number) {
   if (order <= 1) {
     return 0;

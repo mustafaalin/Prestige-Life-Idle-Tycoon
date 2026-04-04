@@ -40,6 +40,7 @@ import {
   HEALTH_AD_BOOST_PERCENT,
   normalizeProfileWellbeing,
 } from '../data/local/healthActions';
+import { getJobRequirementMinimum } from '../data/local/jobRequirements';
 import { calculateWellbeingDeltaForSeconds } from '../data/local/wellbeing';
 import {
   getHappinessCooldownRemaining,
@@ -1295,27 +1296,51 @@ export function useGameState(deviceId: string, userId: string | null) {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
     if (!gameState.ownedCars.includes(carId)) return false;
-    const currentCar = gameState.cars.find((car) => car.id === gameState.profile?.selected_car_id);
     const targetCar = gameState.cars.find((car) => car.id === carId);
+    const activePlayerJob = gameState.playerJobs.find((playerJob) => playerJob.is_active);
+    const activeJob = activePlayerJob
+      ? gameState.jobs.find((job) => job.id === activePlayerJob.job_id) || null
+      : null;
+    const minimumSupportedCarLevel = getJobRequirementMinimum(activeJob, 'car_level');
     if (!targetCar) return false;
-    if (currentCar && getCarProgressionLevel(targetCar) < getCarProgressionLevel(currentCar)) return false;
+    if (minimumSupportedCarLevel > 0 && getCarProgressionLevel(targetCar) < minimumSupportedCarLevel) return false;
     try {
       await itemService.selectCar(activeId, carId);
       await loadGameData(false);
       return true;
     } catch (error) { return false; }
-  }, [gameState.profile?.id, gameState.profile?.selected_car_id, gameState.ownedCars, gameState.cars, loadGameData]);
+  }, [gameState.profile?.id, gameState.ownedCars, gameState.cars, gameState.jobs, gameState.playerJobs, loadGameData]);
+
+  const sellCar = useCallback(async (carId: string) => {
+    const activeId = gameState.profile?.id;
+    if (!activeId) return false;
+    try {
+      moneyMutationInFlightRef.current = true;
+      await flushPendingIfNeeded();
+      await purchaseService.sellOwnedCar(activeId, carId);
+      moneyMutationInFlightRef.current = false;
+      await loadGameData(false);
+      return true;
+    } catch (error) {
+      moneyMutationInFlightRef.current = false;
+      return false;
+    }
+  }, [gameState.profile?.id, flushPendingIfNeeded, loadGameData]);
 
   const selectHouse = useCallback(async (houseId: string) => {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
     const targetHouse = gameState.houses.find((house) => house.id === houseId);
-    const currentHouse = gameState.houses.find((house) => house.id === gameState.profile?.selected_house_id);
     const isCurrentHouse = gameState.profile?.selected_house_id === houseId;
+    const activePlayerJob = gameState.playerJobs.find((playerJob) => playerJob.is_active);
+    const activeJob = activePlayerJob
+      ? gameState.jobs.find((job) => job.id === activePlayerJob.job_id) || null
+      : null;
+    const minimumSupportedHouseLevel = getJobRequirementMinimum(activeJob, 'house_level');
     if (!targetHouse || (!isCurrentHouse && !canAccessHouseWithPrestige(targetHouse, Number(gameState.profile?.prestige_points || 0)))) {
       return false;
     }
-    if (currentHouse && targetHouse.level < currentHouse.level) {
+    if (!isCurrentHouse && minimumSupportedHouseLevel > 0 && targetHouse.level < minimumSupportedHouseLevel) {
       return false;
     }
     try {
@@ -1329,7 +1354,7 @@ export function useGameState(deviceId: string, userId: string | null) {
       moneyMutationInFlightRef.current = false;
       return false; 
     }
-  }, [gameState.profile, gameState.houses, loadGameData, flushPendingIfNeeded]);
+  }, [gameState.profile, gameState.houses, gameState.jobs, gameState.playerJobs, loadGameData, flushPendingIfNeeded]);
 
   const selectCharacter = useCallback(async (characterId: string) => {
     await saveProfile({ selected_character_id: characterId });
@@ -1828,6 +1853,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     saveProfile,
     handleClick,
     purchaseitem,
+    sellCar,
     selectCharacter,
     selectHouse,
     selectCar,

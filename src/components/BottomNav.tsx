@@ -7,6 +7,7 @@ interface BottomNavProps {
   attentionTabs?: Partial<Record<'shop' | 'job' | 'business' | 'investments' | 'stuff', boolean>>;
   onOpenQuestList: () => void;
   hasQuestAttention?: boolean;
+  jobProgress?: number;
 }
 
 export function BottomNav({
@@ -15,6 +16,7 @@ export function BottomNav({
   attentionTabs = {},
   onOpenQuestList,
   hasQuestAttention = false,
+  jobProgress = 0,
 }: BottomNavProps) {
   const navItems = [
     { id: 'shop' as const, iconUrl: LOCAL_ICON_ASSETS.shop, label: 'Shop' },
@@ -43,6 +45,19 @@ export function BottomNav({
               }
               aria-label={item.label}
             >
+              {item.id === 'job' && jobProgress > 0 && (
+                <div
+                  className="pointer-events-none absolute inset-0 rounded-xl"
+                  style={{
+                    background: `conic-gradient(from -90deg, rgba(52,211,153,0.98) 0deg, rgba(45,212,191,0.98) ${Math.max(0, Math.min(1, jobProgress)) * 360}deg, rgba(255,255,255,0.14) ${Math.max(0, Math.min(1, jobProgress)) * 360}deg, rgba(255,255,255,0.14) 360deg)`,
+                    padding: '2px',
+                    WebkitMask:
+                      'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    WebkitMaskComposite: 'xor',
+                    maskComposite: 'exclude',
+                  }}
+                />
+              )}
               {hasAttention && (
                 <div className="absolute -right-1.5 -top-1.5 z-20 flex h-8 w-8 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 text-base font-black leading-none text-white shadow-[0_0_18px_rgba(239,68,68,0.75)]">
                   !

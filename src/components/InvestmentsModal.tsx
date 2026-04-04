@@ -161,6 +161,7 @@ export function InvestmentsModal({
     parsedBankAmount <= selectedBankPlanMaxAmount &&
     parsedBankAmount <= totalMoney;
   const readyBankDeposits = bankDeposits.filter((deposit) => isBankDepositReady(deposit, timeNow));
+  const hasBankAttention = readyBankDeposits.length > 0 || cashbackPool > 0;
 
   useEffect(() => {
     if (activeTab !== 'bank') return;
@@ -415,7 +416,7 @@ export function InvestmentsModal({
                 : 'flex-1 bg-emerald-50 text-emerald-700'
             }`}
           >
-            {readyBankDeposits.length > 0 && (
+            {hasBankAttention && (
               <div className="absolute -right-1.5 -top-1.5 z-20 flex h-6 w-6 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-black leading-none text-white shadow-[0_0_14px_rgba(239,68,68,0.65)]">
                 !
               </div>
