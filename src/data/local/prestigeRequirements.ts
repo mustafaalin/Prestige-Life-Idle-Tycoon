@@ -26,6 +26,10 @@ const HOUSE_PRESTIGE_REQUIREMENTS: Record<number, number> = {
   23: 132,
   24: 136,
   25: 140,
+  // Premium houses (level 50/51/52) — interleaved after houses 6, 13, 20
+  50: 16,
+  51: 62,
+  52: 115,
 };
 
 const CAR_PRESTIGE_REQUIREMENTS: Record<number, number> = {
@@ -62,7 +66,7 @@ export function getRequiredPrestigeForCar(car: Pick<Car, 'level' | 'is_premium'>
   return CAR_PRESTIGE_REQUIREMENTS[Number(car.level || 0)] ?? 0;
 }
 
-export function canAccessHouseWithPrestige(house: Pick<House, 'level'>, prestigePoints: number) {
+export function canAccessHouseWithPrestige(house: Pick<House, 'level' | 'is_premium'>, prestigePoints: number) {
   return Number(prestigePoints || 0) >= getRequiredPrestigeForHouse(house);
 }
 

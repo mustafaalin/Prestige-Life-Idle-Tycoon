@@ -105,8 +105,20 @@ export default function App() {
   const [showInvestmentsModal, setShowInvestmentsModal] = useState(false);
   const [showStuffModal, setShowStuffModal] = useState(false);
   const [shopModalInitialTab, setShopModalInitialTab] = useState<'shop' | 'outfits'>('shop');
-  const [shopModalInitialSection, setShopModalInitialSection] = useState<'money' | 'gems'>('money');
+  const [shopModalInitialSection, setShopModalInitialSection] = useState<'money' | 'gems' | null>(null);
+  const [shopModalInitialNotification, setShopModalInitialNotification] = useState<string | null>(null);
   const [stuffModalInitialTab, setStuffModalInitialTab] = useState<'cars' | 'houses'>('cars');
+  const [celebrationTrigger, setCelebrationTrigger] = useState(0);
+  const [displayedCarImage, setDisplayedCarImage] = useState<string | undefined>(undefined);
+  const pendingCelebration = useRef(false);
+  const currentCarImageRef = useRef<string | undefined>(undefined);
+  const initialCarSynced = useRef(false);
+  const [displayedHouseImage, setDisplayedHouseImage] = useState<string | undefined>(undefined);
+  const [outgoingHouseImage, setOutgoingHouseImage] = useState<string | undefined>(undefined);
+  const [houseAnimState, setHouseAnimState] = useState<'idle' | 'transitioning'>('idle');
+  const currentHouseImageRef = useRef<string | undefined>(undefined);
+  const initialHouseSynced = useRef(false);
+  const houseTransitionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showIncomeBreakdown, setShowIncomeBreakdown] = useState(false);
   const [showQuestList, setShowQuestList] = useState(false);
   const [moneyAnchorRect, setMoneyAnchorRect] = useState<DOMRect | null>(null);
@@ -146,6 +158,28 @@ export default function App() {
       console.warn('[ads] initialization failed', error);
     });
   }, []);
+
+  useEffect(() => {
+    const carImageUrl = gameState.cars.find(
+      (c) => c.id === gameState.profile?.selected_car_id
+    )?.image_url;
+    currentCarImageRef.current = carImageUrl;
+    if (!initialCarSynced.current && carImageUrl) {
+      initialCarSynced.current = true;
+      setDisplayedCarImage(carImageUrl);
+    }
+  }, [gameState.profile?.selected_car_id, gameState.cars]);
+
+  useEffect(() => {
+    const houseImageUrl = gameState.houses.find(
+      (h) => h.id === gameState.profile?.selected_house_id
+    )?.image_url;
+    currentHouseImageRef.current = houseImageUrl;
+    if (!initialHouseSynced.current && houseImageUrl) {
+      initialHouseSynced.current = true;
+      setDisplayedHouseImage(houseImageUrl);
+    }
+  }, [gameState.profile?.selected_house_id, gameState.houses]);
 
   const openQuestTarget = (quest: (typeof LOCAL_QUESTS)[number]) => {
     if (quest.target_screen === 'shop') {
@@ -735,6 +769,7 @@ export default function App() {
     (h) => h.id === gameState.profile?.selected_house_id
   );
   const currentCar = gameState.cars.find((c) => c.id === gameState.profile?.selected_car_id);
+
   const activePlayerJob = gameState.playerJobs.find((playerJob) => playerJob.is_active);
   const activeJob = activePlayerJob
     ? gameState.jobs.find((job) => job.id === activePlayerJob.job_id) || null
@@ -772,10 +807,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-slate-900">
-      {currentHouse?.image_url ? (
+      {outgoingHouseImage && houseAnimState === 'transitioning' && (
         <div
-          className="fixed inset-0 bg-cover bg-center z-0 opacity-65"
-          style={{ backgroundImage: `url(${currentHouse.image_url})` }}
+          className="fixed inset-0 bg-cover bg-center z-0 opacity-65 animate-house-slide-out"
+          style={{ backgroundImage: `url(${outgoingHouseImage})` }}
+        />
+      )}
+      {displayedHouseImage ? (
+        <div
+          className={`fixed inset-0 bg-cover bg-center z-0 opacity-65 ${houseAnimState === 'transitioning' ? 'animate-house-slide-in' : ''}`}
+          style={{ backgroundImage: `url(${displayedHouseImage})` }}
         />
       ) : (
         <div className="fixed inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-black z-0" />
@@ -828,8 +869,9 @@ export default function App() {
         <CharacterDisplay
           characterImage={currentCharacter?.image_url || ''}
           characterName={currentCharacter?.name || 'Character'}
-          carImage={currentCar?.image_url}
+          carImage={displayedCarImage}
           outfitImage={gameState.selectedOutfit?.image_url}
+          celebrationTrigger={celebrationTrigger}
           onClickCharacter={gameState.handleClick}
         />
       </main>
@@ -901,9 +943,12 @@ export default function App() {
         onClose={() => {
           setShowShopModal(false);
           setActiveTab('shop');
+          setShopModalInitialSection(null);
+          setShopModalInitialNotification(null);
         }}
         initialTab={shopModalInitialTab}
         initialShopSection={shopModalInitialSection}
+        initialNotification={shopModalInitialNotification}
         userId={user.id}
         prestigePoints={gameState.profile.prestige_points || 0}
         ownedInvestmentCount={ownedInvestmentCount}
@@ -995,20 +1040,63 @@ export default function App() {
           selectedCarId={gameState.profile.selected_car_id}
           selectedHouseId={gameState.profile.selected_house_id}
           ownedCars={gameState.ownedCars}
+          ownedHouses={gameState.ownedHouses}
           activeJob={activeJob}
-          onPurchaseCar={(carId, price) => gameState.purchaseitem('car', carId, price)}
+          onPurchaseCar={async (carId, price) => {
+            const result = await gameState.purchaseitem('car', carId, price);
+            if (result) pendingCelebration.current = true;
+            return result;
+          }}
           onSellCar={gameState.sellCar}
           onOpenShopForCurrency={(currency) => {
             setShowStuffModal(false);
             setShopModalInitialTab('shop');
             setShopModalInitialSection(currency === 'gems' ? 'gems' : 'money');
+            setShopModalInitialNotification(
+              currency === 'gems' ? 'Not enough gems — get some here!' : 'Not enough cash — get some here!'
+            );
             setShowShopModal(true);
           }}
-          onSelectCar={gameState.selectCar}
-          onSelectHouse={gameState.selectHouse}
+          onSelectCar={async (carId) => {
+            const result = await gameState.selectCar(carId);
+            if (result) pendingCelebration.current = true;
+            return result;
+          }}
+          onSelectHouse={async (houseId) => {
+            const result = await gameState.selectHouse(houseId);
+            if (result) pendingCelebration.current = true;
+            return result;
+          }}
+          onPurchasePremiumHouse={async (houseId) => {
+            const result = await gameState.purchaseitem('house', houseId, 0);
+            if (result) pendingCelebration.current = true;
+            return result;
+          }}
           onClose={() => {
             setShowStuffModal(false);
             setActiveTab('stuff');
+            if (pendingCelebration.current) {
+              pendingCelebration.current = false;
+              setTimeout(() => {
+                const newCarImage = currentCarImageRef.current;
+                const newHouseImage = currentHouseImageRef.current;
+
+                setDisplayedCarImage(newCarImage);
+
+                if (newHouseImage && newHouseImage !== displayedHouseImage) {
+                  if (houseTransitionTimeout.current) clearTimeout(houseTransitionTimeout.current);
+                  setOutgoingHouseImage(displayedHouseImage);
+                  setDisplayedHouseImage(newHouseImage);
+                  setHouseAnimState('transitioning');
+                  houseTransitionTimeout.current = setTimeout(() => {
+                    setOutgoingHouseImage(undefined);
+                    setHouseAnimState('idle');
+                  }, 500);
+                }
+
+                setCelebrationTrigger(Date.now());
+              }, 150);
+            }
           }}
           loading={gameState.loading}
         />

@@ -1,5 +1,6 @@
 import { getLocalOwnedCars, getLocalOwnedCharacters, getLocalOwnedHouses, getLocalProfile, saveLocalGameState } from '../data/local/storage';
 import { LOCAL_CARS } from '../data/local/cars';
+import { LOCAL_HOUSES } from '../data/local/houses';
 import { recalculateLocalEconomy, recalculateLocalPrestige } from '../data/local/economy';
 import { getLocalBusinesses, getLocalInvestments, getLocalJobs, getLocalPlayerJobs } from '../data/local/storage';
 import { awardCashback } from '../data/local/bankRewards';
@@ -99,6 +100,40 @@ export async function sellOwnedCar(playerId: string, carId: string) {
           : Number(profile.gems || 0),
     },
     ownedCars: ownedCars.filter((ownedCarId) => ownedCarId !== carId),
+  });
+
+  return true;
+}
+
+export async function purchasePremiumHouseWithGems(playerId: string, houseId: string) {
+  void playerId;
+  const profile = getLocalProfile();
+  if (!profile) throw new Error('Player not found');
+
+  const house = LOCAL_HOUSES.find((entry) => entry.id === houseId);
+  if (!house || !house.is_premium) throw new Error('Premium house not found');
+
+  const gemPrice = Number(house.gem_price || 0);
+  if (Number(profile.gems || 0) < gemPrice) throw new Error('Not enough gems');
+
+  if (getLocalOwnedHouses().includes(houseId)) throw new Error('House already owned');
+
+  const nextProfile = recalculateLocalEconomy({
+    profile: {
+      ...profile,
+      gems: Number(profile.gems || 0) - gemPrice,
+      selected_house_id: houseId,
+      house_rent_expense: 0,
+    },
+    jobs: getLocalJobs(),
+    playerJobs: getLocalPlayerJobs(),
+    businesses: getLocalBusinesses(),
+    investments: getLocalInvestments(),
+  });
+
+  saveLocalGameState({
+    profile: nextProfile,
+    ownedHouses: Array.from(new Set([...getLocalOwnedHouses(), houseId])),
   });
 
   return true;

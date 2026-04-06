@@ -5,21 +5,13 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const AD_COOLDOWN_SECONDS = 30;
 
 export const DAILY_REWARDS = [
-  { day: 1, money: 1000, gems: 0 },
-  { day: 2, money: 3000, gems: 0 },
-  { day: 3, money: 7000, gems: 0 },
-  { day: 4, money: 15000, gems: 0 },
-  { day: 5, money: 20000, gems: 0 },
-  { day: 6, money: 25000, gems: 0 },
-  { day: 7, money: 30000, gems: 5 },
-  { day: 8, money: 40000, gems: 0 },
-  { day: 9, money: 50000, gems: 1 },
-  { day: 10, money: 65000, gems: 0 },
-  { day: 11, money: 75000, gems: 0 },
-  { day: 12, money: 100000, gems: 5 },
-  { day: 13, money: 125000, gems: 0 },
-  { day: 14, money: 150000, gems: 10 },
-  { day: 15, money: 200000, gems: 15 },
+  { day: 1, money: 5000, gems: 0 },
+  { day: 2, money: 15000, gems: 0 },
+  { day: 3, money: 30000, gems: 0 },
+  { day: 4, money: 60000, gems: 2 },
+  { day: 5, money: 100000, gems: 0 },
+  { day: 6, money: 175000, gems: 5 },
+  { day: 7, money: 300000, gems: 15 },
 ] as const;
 
 function getTodayUtcString(now: Date) {

@@ -14,7 +14,7 @@ interface ShopModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialTab?: 'shop' | 'outfits';
-  initialShopSection?: 'money' | 'gems';
+  initialShopSection?: 'money' | 'gems' | null;
   userId: string;
   prestigePoints: number;
   ownedInvestmentCount: number;
@@ -31,6 +31,7 @@ interface ShopModalProps {
   totalMoney: number;
   selectedOutfitId: string | null;
   onOutfitChange: () => void;
+  initialNotification?: string | null;
 }
 
 interface MoneyPackage {
@@ -142,7 +143,7 @@ export function ShopModal({
   isOpen,
   onClose,
   initialTab = 'shop',
-  initialShopSection = 'money',
+  initialShopSection = null,
   userId,
   prestigePoints,
   ownedInvestmentCount,
@@ -159,6 +160,7 @@ export function ShopModal({
   totalMoney,
   selectedOutfitId,
   onOutfitChange,
+  initialNotification = null,
 }: ShopModalProps) {
   const [activeTab, setActiveTab] = useState<'shop' | 'outfits'>('shop');
   const moneySectionRef = useRef<HTMLDivElement | null>(null);
@@ -212,10 +214,15 @@ export function ShopModal({
   useEffect(() => {
     if (!isOpen) return;
     setActiveTab(initialTab);
-  }, [isOpen, initialTab]);
+    if (initialNotification) {
+      setNotification(initialNotification);
+      const t = window.setTimeout(() => setNotification(null), 3000);
+      return () => window.clearTimeout(t);
+    }
+  }, [isOpen, initialTab, initialNotification]);
 
   useEffect(() => {
-    if (!isOpen || activeTab !== 'shop') return;
+    if (!isOpen || activeTab !== 'shop' || !initialShopSection) return;
 
     const targetRef = initialShopSection === 'gems' ? gemSectionRef : moneySectionRef;
     const timeout = window.setTimeout(() => {
@@ -1126,18 +1133,27 @@ export function ShopModal({
       </div>
 
       {showDailyRewardsModal && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/45 p-4 pointer-events-auto">
-          <div className="w-full max-w-md overflow-hidden rounded-[28px] border border-orange-200 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.28)]">
-            <div className="bg-[linear-gradient(160deg,#fff7df_0%,#ffe9a8_45%,#fffaf2_100%)] px-4 pb-4 pt-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1 text-[10px] font-black text-orange-700 ring-1 ring-orange-200">
+        <div
+          className="absolute inset-0 z-20 flex items-end justify-center bg-slate-950/50 pointer-events-auto"
+          onClick={() => setShowDailyRewardsModal(false)}
+        >
+          <div
+            className="w-full max-w-md overflow-hidden rounded-t-[28px] bg-white shadow-[0_-20px_60px_rgba(15,23,42,0.25)] flex flex-col"
+            style={{ maxHeight: 'calc(100dvh - 80px)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="bg-[linear-gradient(160deg,#fff7df_0%,#ffe9a8_50%,#fffaf2_100%)] px-4 pt-5 pb-4 shrink-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-white/85 px-3 py-1 text-[10px] font-black text-orange-700 ring-1 ring-orange-200">
                     <Flame className="h-3.5 w-3.5 text-orange-500" />
-                    {dailyRewardStatus?.currentStreak ?? 0} streak
+                    {dailyRewardStatus?.currentStreak ?? 0} day streak
                   </div>
-                  <h3 className="mt-3 text-lg font-black text-orange-900">Daily Rewards</h3>
+                  <span className="text-[10px] font-black text-orange-400">
+                    Day {spotlightDay} / {cycleLength}
+                  </span>
                 </div>
-
                 <button
                   onClick={() => setShowDailyRewardsModal(false)}
                   className="rounded-full bg-white/85 p-2 text-orange-700 ring-1 ring-orange-200 transition-all active:scale-95"
@@ -1145,128 +1161,282 @@ export function ShopModal({
                   <X className="h-4 w-4" />
                 </button>
               </div>
-
-              <div className="mt-4 rounded-[20px] border border-white/70 bg-white/88 px-4 py-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-500">
-                      {hasClaimedToday ? 'Next Reward' : 'Daily Reward'}
-                    </p>
-                    <div className="mt-1 flex flex-wrap items-center gap-2">
-                      <p className="text-[30px] font-black leading-none text-emerald-600">
-                        {formatMoneyFull(spotlightReward.money)}
-                      </p>
-
-                      {spotlightReward.gems > 0 && (
-                        <div className="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-2.5 py-1 text-[11px] font-black text-cyan-700 ring-1 ring-cyan-200">
-                          <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-3.5 w-3.5 object-contain" />
-                          +{spotlightReward.gems}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-end gap-2 shrink-0">
-                    <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[10px] font-black text-orange-700">
-                      Day {spotlightDay} / {cycleLength}
-                    </span>
-                    <DailyRewardActionButton
-                      state={dailyActionState}
-                      label={dailyActionLabel}
-                      onClick={handleClaimDaily}
-                    />
-                  </div>
-                </div>
-              </div>
+              <h3 className="mt-3 text-xl font-black text-orange-900">Daily Rewards</h3>
+              <p className="mt-0.5 text-[11px] text-orange-600/70">Login every day to earn bigger rewards</p>
             </div>
 
-            <div className="p-4">
+            {/* Cards */}
+            <div className="overflow-y-auto flex-1 p-4 space-y-2.5">
+              {/* Row 1: Days 1–3 (3 columns, small) */}
               <div className="grid grid-cols-3 gap-2">
-                {DAILY_REWARDS.map((reward) => {
+                {DAILY_REWARDS.slice(0, 3).map((reward) => {
                   const isCompleted = reward.day <= completedRewardDay;
-                  const isCurrentSpotlight = reward.day === spotlightDay;
-                  const isClaimableSpotlight =
-                    isCurrentSpotlight && !hasClaimedToday && isDailyAvailable;
+                  const isToday = reward.day === spotlightDay;
+                  const isClaimable = isToday && isDailyAvailable && !hasClaimedToday;
 
                   return (
                     <div
                       key={reward.day}
-                      className={`rounded-[18px] border px-2.5 py-3 text-center shadow-sm ${
-                        isClaimableSpotlight
-                          ? 'border-orange-300 bg-gradient-to-br from-orange-500 via-amber-400 to-yellow-300 text-white shadow-[0_12px_24px_rgba(249,115,22,0.22)]'
-                        : isCompleted
-                          ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
-                          : isCurrentSpotlight
-                            ? 'border-orange-200 bg-orange-50 text-orange-900'
-                            : 'border-slate-200 bg-slate-50 text-slate-800'
+                      className={`rounded-2xl border px-2 py-3 text-center transition-all ${
+                        isClaimable
+                          ? 'border-orange-300 bg-gradient-to-br from-orange-500 via-amber-400 to-yellow-300 shadow-[0_8px_20px_rgba(249,115,22,0.25)]'
+                          : isCompleted
+                            ? 'border-emerald-200 bg-emerald-50'
+                            : isToday
+                              ? 'border-orange-200 bg-orange-50'
+                              : 'border-slate-200 bg-slate-50'
                       }`}
                     >
-                      <div className="flex items-center justify-between gap-1">
-                        <span className={`text-[10px] font-black ${
-                          isClaimableSpotlight ? 'text-white/90' : isCurrentSpotlight ? 'text-orange-500' : 'text-slate-500'
-                        }`}>
-                          Day {reward.day}
-                        </span>
-                        {isCompleted ? (
-                          <Check className={`h-3.5 w-3.5 ${isClaimableSpotlight ? 'text-white' : 'text-emerald-600'}`} />
-                        ) : reward.gems > 0 ? (
-                          <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-3.5 w-3.5 object-contain" />
-                        ) : null}
-                      </div>
-
-                      <div className="mt-3">
-                        <p className={`text-sm font-black leading-tight ${
-                          isClaimableSpotlight ? 'text-white' : isCurrentSpotlight ? 'text-orange-900' : 'text-slate-900'
+                      <p className={`text-[9px] font-black uppercase tracking-wide mb-2 ${
+                        isClaimable ? 'text-white/80' : isToday ? 'text-orange-500' : 'text-slate-400'
+                      }`}>
+                        Day {reward.day}
+                      </p>
+                      {isCompleted ? (
+                        <Check className="h-4 w-4 mx-auto text-emerald-500" />
+                      ) : (
+                        <p className={`text-[11px] font-black leading-tight ${
+                          isClaimable ? 'text-white' : 'text-slate-800'
                         }`}>
                           {formatMoneyFull(reward.money)}
                         </p>
-                        {reward.gems > 0 && (
-                          <div className={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-black ${
-                            isClaimableSpotlight
-                              ? 'bg-white/20 text-white'
-                              : isCurrentSpotlight
-                                ? 'bg-white text-cyan-700 ring-1 ring-cyan-200'
-                              : 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200'
-                          }`}>
-                            <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-3 w-3 object-contain" />
-                            +{reward.gems}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="mt-3">
-                        {isClaimableSpotlight ? (
-                          <DailyRewardActionButton
-                            state={dailyActionState}
-                            label={dailyActionLabel}
-                            onClick={handleClaimDaily}
-                            size="sm"
-                          />
-                        ) : isCompleted ? (
-                          <DailyRewardStateChip state="claimed" label="Claimed" />
-                        ) : isCurrentSpotlight ? (
-                          <DailyRewardStateChip state="next" label="Next" />
-                        ) : null}
-                      </div>
+                      )}
+                      {!isCompleted && reward.gems > 0 && (
+                        <div className={`mt-1 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-black ${
+                          isClaimable ? 'bg-white/25 text-white' : 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200'
+                        }`}>
+                          <img src={LOCAL_ICON_ASSETS.gem} alt="" className="h-2.5 w-2.5 object-contain" />
+                          +{reward.gems}
+                        </div>
+                      )}
+                      {isToday && !isCompleted && (
+                        <div className={`mt-1.5 text-[8px] font-black rounded-full px-2 py-0.5 ${
+                          isClaimable ? 'bg-white/25 text-white' : 'bg-orange-100 text-orange-600'
+                        }`}>
+                          {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : 'NEXT'}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
               </div>
 
-              {rescueAvailable && !hasClaimedToday && (
-                <div className="mt-4">
-                  <button
-                    onClick={handleRescueDailyStreak}
-                    disabled={adCooldown > 0 || isWatchingAd}
-                    className={`w-full rounded-xl px-3 py-3 text-sm font-black transition-all ${
-                      adCooldown > 0 || isWatchingAd
-                        ? 'bg-gray-200 text-gray-400'
-                        : 'bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-[0_10px_24px_rgba(244,63,94,0.22)] active:scale-95'
-                    }`}
-                  >
-                    {isWatchingAd ? 'Watching...' : adCooldown > 0 ? `Rescue ${formatTime(adCooldown)}` : 'Rescue'}
-                  </button>
-                </div>
+              {/* Row 2: Days 4–5 (2 columns, medium) */}
+              <div className="grid grid-cols-2 gap-2">
+                {DAILY_REWARDS.slice(3, 5).map((reward) => {
+                  const isCompleted = reward.day <= completedRewardDay;
+                  const isToday = reward.day === spotlightDay;
+                  const isClaimable = isToday && isDailyAvailable && !hasClaimedToday;
+
+                  return (
+                    <div
+                      key={reward.day}
+                      className={`rounded-2xl border px-3 py-3.5 transition-all ${
+                        isClaimable
+                          ? 'border-orange-300 bg-gradient-to-br from-orange-500 via-amber-400 to-yellow-300 shadow-[0_8px_20px_rgba(249,115,22,0.25)]'
+                          : isCompleted
+                            ? 'border-emerald-200 bg-emerald-50'
+                            : isToday
+                              ? 'border-orange-200 bg-orange-50'
+                              : 'border-slate-200 bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <p className={`text-[10px] font-black uppercase tracking-wide ${
+                          isClaimable ? 'text-white/80' : isToday ? 'text-orange-500' : 'text-slate-400'
+                        }`}>
+                          Day {reward.day}
+                        </p>
+                        {isCompleted
+                          ? <Check className="h-3.5 w-3.5 text-emerald-500" />
+                          : isToday
+                            ? <div className={`text-[8px] font-black rounded-full px-2 py-0.5 ${
+                                isClaimable ? 'bg-white/25 text-white' : 'bg-orange-100 text-orange-600'
+                              }`}>
+                                {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : 'NEXT'}
+                              </div>
+                            : null
+                        }
+                      </div>
+                      {isCompleted ? (
+                        <p className="text-sm font-black text-emerald-700 line-through opacity-50">
+                          {formatMoneyFull(reward.money)}
+                        </p>
+                      ) : (
+                        <p className={`text-base font-black leading-tight ${
+                          isClaimable ? 'text-white' : 'text-slate-900'
+                        }`}>
+                          {formatMoneyFull(reward.money)}
+                        </p>
+                      )}
+                      {!isCompleted && reward.gems > 0 && (
+                        <div className={`mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black ${
+                          isClaimable ? 'bg-white/25 text-white' : 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200'
+                        }`}>
+                          <img src={LOCAL_ICON_ASSETS.gem} alt="" className="h-3 w-3 object-contain" />
+                          +{reward.gems}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Day 6: Full width */}
+              {(() => {
+                const reward = DAILY_REWARDS[5];
+                const isCompleted = reward.day <= completedRewardDay;
+                const isToday = reward.day === spotlightDay;
+                const isClaimable = isToday && isDailyAvailable && !hasClaimedToday;
+
+                return (
+                  <div className={`rounded-2xl border px-4 py-4 flex items-center justify-between gap-3 transition-all ${
+                    isClaimable
+                      ? 'border-orange-300 bg-gradient-to-r from-orange-500 via-amber-400 to-yellow-300 shadow-[0_10px_24px_rgba(249,115,22,0.28)]'
+                      : isCompleted
+                        ? 'border-emerald-200 bg-emerald-50'
+                        : isToday
+                          ? 'border-orange-200 bg-orange-50'
+                          : 'border-slate-200 bg-slate-50'
+                  }`}>
+                    <div className="min-w-0">
+                      <p className={`text-[10px] font-black uppercase tracking-wide mb-1 ${
+                        isClaimable ? 'text-white/80' : isToday ? 'text-orange-500' : 'text-slate-400'
+                      }`}>
+                        Day {reward.day}
+                      </p>
+                      {isCompleted ? (
+                        <p className="text-lg font-black text-emerald-700 line-through opacity-50">
+                          {formatMoneyFull(reward.money)}
+                        </p>
+                      ) : (
+                        <p className={`text-xl font-black ${isClaimable ? 'text-white' : 'text-slate-900'}`}>
+                          {formatMoneyFull(reward.money)}
+                        </p>
+                      )}
+                      {!isCompleted && reward.gems > 0 && (
+                        <div className={`mt-1.5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black ${
+                          isClaimable ? 'bg-white/25 text-white' : 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200'
+                        }`}>
+                          <img src={LOCAL_ICON_ASSETS.gem} alt="" className="h-3.5 w-3.5 object-contain" />
+                          +{reward.gems} gems
+                        </div>
+                      )}
+                    </div>
+                    <div className="shrink-0">
+                      {isCompleted
+                        ? <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100">
+                            <Check className="h-5 w-5 text-emerald-500" />
+                          </div>
+                        : isToday
+                          ? <div className={`text-[9px] font-black rounded-full px-3 py-1.5 ${
+                              isClaimable ? 'bg-white/25 text-white' : 'bg-orange-100 text-orange-600'
+                            }`}>
+                              {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : 'NEXT'}
+                            </div>
+                          : null
+                      }
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Day 7: JACKPOT — special card */}
+              {(() => {
+                const reward = DAILY_REWARDS[6];
+                const isCompleted = reward.day <= completedRewardDay;
+                const isToday = reward.day === spotlightDay;
+                const isClaimable = isToday && isDailyAvailable && !hasClaimedToday;
+
+                return (
+                  <div className={`rounded-2xl border-2 px-4 py-4 transition-all ${
+                    isClaimable
+                      ? 'border-amber-400 bg-gradient-to-br from-amber-400 via-yellow-300 to-orange-400 shadow-[0_12px_30px_rgba(251,191,36,0.4)]'
+                      : isCompleted
+                        ? 'border-emerald-300 bg-emerald-50'
+                        : 'border-amber-200 bg-[linear-gradient(135deg,#fffbeb_0%,#fef3c7_100%)]'
+                  }`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Sparkles className={`h-4 w-4 shrink-0 ${isClaimable ? 'text-white' : 'text-amber-500'}`} />
+                          <span className={`text-[11px] font-black uppercase tracking-wider ${
+                            isClaimable ? 'text-white' : 'text-amber-700'
+                          }`}>
+                            Jackpot — Day 7
+                          </span>
+                        </div>
+                        {isCompleted ? (
+                          <p className="text-2xl font-black text-emerald-700 line-through opacity-50">
+                            {formatMoneyFull(reward.money)}
+                          </p>
+                        ) : (
+                          <p className={`text-2xl font-black leading-tight ${
+                            isClaimable ? 'text-white' : 'text-slate-900'
+                          }`}>
+                            {formatMoneyFull(reward.money)}
+                          </p>
+                        )}
+                        {!isCompleted && (
+                          <div className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-black ${
+                            isClaimable ? 'bg-white/30 text-white' : 'bg-cyan-100 text-cyan-700 ring-1 ring-cyan-300'
+                          }`}>
+                            <img src={LOCAL_ICON_ASSETS.gem} alt="" className="h-3.5 w-3.5 object-contain" />
+                            +{reward.gems} gems bonus!
+                          </div>
+                        )}
+                      </div>
+                      <div className="shrink-0">
+                        {isCompleted ? (
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
+                            <Check className="h-6 w-6 text-emerald-500" />
+                          </div>
+                        ) : isToday ? (
+                          <div className={`text-[9px] font-black rounded-full px-3 py-1.5 ${
+                            isClaimable ? 'bg-white/30 text-white' : 'bg-amber-200 text-amber-800'
+                          }`}>
+                            {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : 'NEXT'}
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Bottom action */}
+            <div className="px-4 pb-6 pt-3 shrink-0 border-t border-slate-100 bg-white">
+              {rescueAvailable && !hasClaimedToday ? (
+                <button
+                  onClick={handleRescueDailyStreak}
+                  disabled={adCooldown > 0 || isWatchingAd}
+                  className={`w-full rounded-2xl px-4 py-3.5 text-sm font-black transition-all ${
+                    adCooldown > 0 || isWatchingAd
+                      ? 'bg-gray-200 text-gray-400'
+                      : 'bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-[0_10px_24px_rgba(244,63,94,0.22)] active:scale-[0.98]'
+                  }`}
+                >
+                  {isWatchingAd ? 'Watching...' : adCooldown > 0 ? `Rescue Streak (${formatTime(adCooldown)})` : 'Watch Ad — Rescue Streak'}
+                </button>
+              ) : (
+                <button
+                  onClick={isDailyAvailable && !hasClaimedToday ? handleClaimDaily : undefined}
+                  disabled={!isDailyAvailable || hasClaimedToday || isClaimingDaily}
+                  className={`w-full rounded-2xl px-4 py-3.5 text-base font-black transition-all ${
+                    hasClaimedToday
+                      ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200'
+                      : isDailyAvailable
+                        ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_12px_28px_rgba(249,115,22,0.28)] active:scale-[0.98]'
+                        : 'bg-slate-100 text-slate-400'
+                  }`}
+                >
+                  {isClaimingDaily
+                    ? 'Claiming...'
+                    : hasClaimedToday
+                      ? `Come back in ${Math.ceil(dailyRewardStatus?.hoursUntilReset ?? 0)}h`
+                      : 'Claim Daily Reward'}
+                </button>
               )}
             </div>
           </div>

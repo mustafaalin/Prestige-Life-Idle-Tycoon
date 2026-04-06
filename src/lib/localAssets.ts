@@ -47,3 +47,11 @@ export function getHouseIconAsset(level: number) {
 export function getHouseBackgroundAsset(level: number) {
   return `/assets/houses/backgrounds/house-${level}.webp`;
 }
+
+export function getPremiumHouseIconAsset(premiumTier: 1 | 2 | 3) {
+  return `/assets/houses/icons/house-premium-${premiumTier}.webp`;
+}
+
+export function getPremiumHouseBackgroundAsset(premiumTier: 1 | 2 | 3) {
+  return `/assets/houses/backgrounds/house-premium-${premiumTier}.webp`;
+}

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DollarSign, Heart, Home, Lock, Smile, Wrench, X, Car as CarIcon, Wallet } from 'lucide-react';
 import type { Car, House, Job } from '../types/game';
 import { getHouseIconAsset, LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
+import { Gem } from 'lucide-react';
 import { formatMoneyFull, formatMoneyPerHour } from '../utils/money';
 import { getCarProgressionLevel, getMaxJobLevelCoveredByCar } from '../data/local/cars';
 import {
@@ -24,12 +25,14 @@ interface StuffModalProps {
   selectedCarId: string | null;
   selectedHouseId: string | null;
   ownedCars: string[];
+  ownedHouses: string[];
   activeJob: Job | null;
   onPurchaseCar: (carId: string, price: number) => Promise<boolean>;
   onSellCar: (carId: string) => Promise<boolean>;
   onOpenShopForCurrency: (currency: 'cash' | 'gems') => void;
   onSelectCar: (carId: string) => Promise<boolean>;
   onSelectHouse: (houseId: string) => Promise<boolean>;
+  onPurchasePremiumHouse: (houseId: string) => Promise<boolean>;
   onClose: () => void;
   loading?: boolean;
 }
@@ -44,16 +47,21 @@ export function StuffModal({
   selectedCarId,
   selectedHouseId,
   ownedCars,
+  ownedHouses,
   activeJob,
   onPurchaseCar,
   onSellCar,
   onOpenShopForCurrency,
   onSelectCar,
   onSelectHouse,
+  onPurchasePremiumHouse,
   onClose,
   loading
 }: StuffModalProps) {
   const [activeTab, setActiveTab] = useState<'cars' | 'houses'>('cars');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const selectedCarRef = useRef<HTMLDivElement>(null);
+  const selectedHouseRef = useRef<HTMLDivElement>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -63,6 +71,21 @@ export function StuffModal({
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
+
+  useEffect(() => {
+    const selectedRef = activeTab === 'cars' ? selectedCarRef : selectedHouseRef;
+    const container = scrollContainerRef.current;
+    const card = selectedRef.current;
+    if (!container || !card) return;
+
+    const timer = setTimeout(() => {
+      const cardTop = card.offsetTop;
+      const cardCenter = cardTop - container.clientHeight / 2 + card.clientHeight / 2;
+      container.scrollTo({ top: Math.max(0, cardCenter), behavior: 'smooth' });
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [activeTab]);
 
   useState;
   useState;
@@ -132,6 +155,7 @@ export function StuffModal({
         return (
           <div
             key={car.id}
+            ref={isSelected ? selectedCarRef : undefined}
             className={`relative overflow-hidden rounded-xl shadow-md transition-all hover:shadow-xl ${
               isSelected
                 ? isPremium
@@ -358,16 +382,147 @@ export function StuffModal({
     <div className="grid grid-cols-1 gap-3">
       {houses.map((house) => {
         const isSelected = selectedHouseId === house.id;
+        const isPremium = Boolean(house.is_premium);
+        const isOwned = isPremium && ownedHouses.includes(house.id);
         const requiredPrestige = getRequiredPrestigeForHouse(house);
         const isPrestigeLocked = !isSelected && !canAccessHouseWithPrestige(house, prestigePoints);
         const violatesActiveJobHouseRequirement = Boolean(
-          !isSelected && minimumSupportedHouseLevel > 0 && house.level < minimumSupportedHouseLevel
+          !isSelected && !isPremium && minimumSupportedHouseLevel > 0 && house.level < minimumSupportedHouseLevel
         );
         const healthEffect = Number(house.health_effect_per_hour || 0);
         const happinessEffect = Number(house.happiness_effect_per_hour || 0);
+
+        // Premium ev kartı
+        if (isPremium) {
+          const gemPrice = Number(house.gem_price || 0);
+          const canAffordGems = totalGems >= gemPrice;
+          return (
+            <div
+              key={house.id}
+              ref={isSelected ? selectedHouseRef : undefined}
+              className={`relative overflow-hidden rounded-xl shadow-md transition-all hover:shadow-xl ${
+                isSelected
+                  ? 'border-2 border-amber-400 shadow-[0_4px_20px_rgba(251,191,36,0.3)]'
+                  : isOwned
+                    ? 'border-2 border-amber-300'
+                    : isPrestigeLocked
+                      ? 'border-2 border-slate-200'
+                      : 'border-2 border-amber-200'
+              }`}
+            >
+              {/* Premium gradient arka plan */}
+              <div className={`p-3 flex gap-3 ${
+                isSelected
+                  ? 'bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50'
+                  : isPrestigeLocked
+                    ? 'bg-gradient-to-br from-slate-100 to-slate-200'
+                    : 'bg-gradient-to-br from-amber-50 via-white to-yellow-50'
+              }`}>
+                {/* PREMIUM etiketi */}
+                {!isPrestigeLocked && (
+                  <div className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 shadow-sm">
+                    <Gem className="h-2.5 w-2.5 text-white" />
+                    <span className="text-[9px] font-black uppercase tracking-wider text-white">Premium</span>
+                  </div>
+                )}
+
+                {isPrestigeLocked ? (
+                  <div className="flex min-h-[176px] w-full flex-col items-center justify-center rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 via-white to-amber-100 px-5 py-6 text-center shadow-inner">
+                    <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-700 shadow-sm">
+                      <Lock className="h-7 w-7" />
+                    </div>
+                    <div className="flex items-center gap-1.5 text-amber-700">
+                      <img src={LOCAL_ICON_ASSETS.prestige} alt="Prestige" className="h-4 w-4" />
+                      <span className="text-base font-black">{requiredPrestige}</span>
+                    </div>
+                    <p className="mt-1.5 text-xs font-black text-slate-900">Requires {requiredPrestige} Prestige</p>
+                    <div className="mt-1.5 flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1">
+                      <Gem className="h-3 w-3 text-amber-600" />
+                      <span className="text-[10px] font-black text-amber-700">{gemPrice} gems to unlock</span>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="shrink-0 w-[42%] max-w-[172px] flex items-center justify-center">
+                      <div className={`aspect-square w-full max-w-[152px] rounded-[24px] shadow-md border flex items-center justify-center ${
+                        isSelected
+                          ? 'bg-gradient-to-br from-amber-50 to-yellow-100 border-amber-300 shadow-[0_10px_24px_rgba(251,191,36,0.25)]'
+                          : 'bg-gradient-to-br from-white via-amber-50 to-yellow-50 border-amber-200 shadow-[0_10px_24px_rgba(251,191,36,0.15)]'
+                      }`}>
+                        <img
+                          src={house.icon_url || getHouseIconAsset(house.level)}
+                          alt={house.name}
+                          className="w-[86%] h-[86%] object-contain"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col justify-center gap-2 min-w-0 pt-4">
+                      <div className="space-y-0.5">
+                        <h3 className="font-extrabold text-sm text-gray-900 leading-tight">{house.name}</h3>
+                        <p className="text-[10px] text-slate-500 leading-snug">{house.description}</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-2 py-1.5">
+                          <div className="flex items-center gap-1 text-emerald-700">
+                            <Home className="h-3 w-3" />
+                            <span className="text-[10px] font-black">No Rent</span>
+                          </div>
+                        </div>
+                        <div className="rounded-lg border border-white/70 bg-white/80 px-2 py-1.5">
+                          <div className="flex items-center gap-1 text-emerald-700">
+                            <Heart className="h-3 w-3" />
+                            <span className="text-[10px] font-black">{formatWellbeingRate(healthEffect)}</span>
+                          </div>
+                        </div>
+                        <div className="col-span-2 rounded-lg border border-white/70 bg-white/80 px-2 py-1.5">
+                          <div className="flex items-center gap-1 text-cyan-700">
+                            <Smile className="h-3 w-3" />
+                            <span className="text-[10px] font-black">{formatWellbeingRate(happinessEffect)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {isSelected ? (
+                        <button disabled className="w-full rounded-lg py-2 px-3 text-xs font-bold bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 border border-amber-300">
+                          Current Home
+                        </button>
+                      ) : isOwned ? (
+                        <button
+                          onClick={async () => { await onSelectHouse(house.id); }}
+                          disabled={loading}
+                          className="w-full rounded-lg py-2 px-3 text-xs font-bold bg-gradient-to-r from-amber-400 to-orange-400 text-white active:scale-95 transition-all"
+                        >
+                          Move Here
+                        </button>
+                      ) : (
+                        <button
+                          onClick={async () => { await onPurchasePremiumHouse(house.id); }}
+                          disabled={loading || !canAffordGems}
+                          className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                            canAffordGems
+                              ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-white active:scale-95'
+                              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                          }`}
+                        >
+                          <Gem className="h-3.5 w-3.5" />
+                          {canAffordGems ? `Buy — ${gemPrice} Gems` : `Need ${gemPrice - totalGems} more gems`}
+                        </button>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div
             key={house.id}
+            ref={isSelected ? selectedHouseRef : undefined}
             className={`relative bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-xl ${
               isSelected ? 'border-2 border-blue-500' : 'border-2 border-slate-200'
             }`}
@@ -444,22 +599,21 @@ export function StuffModal({
                     </div>
 
                     <button
-                      onClick={async () => {
-                        if (violatesActiveJobHouseRequirement) {
-                          setSelectionWarning('Your current job does not support moving to this home.');
-                          return;
-                        }
-
-                        await onSelectHouse(house.id);
-                      }}
-                      disabled={isSelected || loading}
+                      onClick={async () => { await onSelectHouse(house.id); }}
+                      disabled={isSelected || loading || violatesActiveJobHouseRequirement}
                       className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
                         isSelected
                           ? 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border border-blue-300'
-                          : 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 active:scale-95'
+                          : violatesActiveJobHouseRequirement
+                            ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 active:scale-95'
                       }`}
                     >
-                      {isSelected ? 'Current Home' : 'Move Here'}
+                      {isSelected
+                        ? 'Current Home'
+                        : violatesActiveJobHouseRequirement
+                          ? `Job needs Lv ${minimumSupportedHouseLevel}+`
+                          : 'Move Here'}
                     </button>
                   </div>
                 </>
@@ -539,7 +693,7 @@ export function StuffModal({
           </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3 bg-white">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-3 bg-white">
           {activeTab === 'cars' ? (
             cars.length > 0 ? renderCars() : (
               <div className="h-40 flex items-center justify-center text-slate-400 font-semibold">

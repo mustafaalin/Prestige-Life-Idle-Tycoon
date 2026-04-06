@@ -111,7 +111,11 @@ export function createJobRequirements(params: { category: JobCategory; order: nu
 }
 
 function getSelectedHouseLevel(profile: PlayerProfile | null, houses: House[]) {
-  return houses.find((house) => house.id === profile?.selected_house_id)?.level || 0;
+  const selectedHouse = houses.find((house) => house.id === profile?.selected_house_id);
+  if (!selectedHouse) return 0;
+  // Premium ev tüm house_level gereksinimlerini otomatik karşılar
+  if (selectedHouse.is_premium) return Number.MAX_SAFE_INTEGER;
+  return selectedHouse.level || 0;
 }
 
 function getSelectedCarLevel(profile: PlayerProfile | null, cars: Car[]) {

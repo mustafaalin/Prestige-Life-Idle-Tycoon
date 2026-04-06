@@ -1,5 +1,5 @@
 import type { House } from '../../types/game';
-import { getHouseBackgroundAsset } from '../../lib/localAssets';
+import { getHouseBackgroundAsset, getPremiumHouseBackgroundAsset, getPremiumHouseIconAsset } from '../../lib/localAssets';
 
 export const LOCAL_STARTER_HOUSE_ID = 'local-house-1';
 
@@ -268,8 +268,76 @@ const HOUSE_SEEDS: House[] = [
   },
 ];
 
-export const LOCAL_HOUSES: House[] = HOUSE_SEEDS.map((house, index) => ({
+const REGULAR_HOUSES: House[] = HOUSE_SEEDS.map((house, index) => ({
   ...house,
   happiness_effect_per_hour: HOUSE_HAPPINESS_EFFECT_PER_HOUR[index] ?? 0,
   health_effect_per_hour: HOUSE_HEALTH_EFFECT_PER_HOUR[index] ?? 0,
 }));
+
+// Premium evler: level 50/51/52 (regular 1-25 aralığının dışında)
+// Sıralı yerleşim: house-6 sonrası, house-13 sonrası, house-20 sonrası
+const PREMIUM_HOUSES: House[] = [
+  {
+    id: 'local-house-premium-1',
+    name: 'Sky Loft',
+    description: 'A modern loft above the city. No rent, pure comfort.',
+    image_url: getPremiumHouseBackgroundAsset(1),
+    icon_url: getPremiumHouseIconAsset(1),
+    level: 50,
+    created_at: null,
+    hourly_rent_cost: 0,
+    prestige_points: 35,
+    is_premium: true,
+    purchase_currency: 'gems',
+    gem_price: 50,
+    health_effect_per_hour: 1.8,
+    happiness_effect_per_hour: 2.2,
+  },
+  {
+    id: 'local-house-premium-2',
+    name: 'Crystal Villa',
+    description: 'A stunning glass villa with private grounds. Rent-free luxury.',
+    image_url: getPremiumHouseBackgroundAsset(2),
+    icon_url: getPremiumHouseIconAsset(2),
+    level: 51,
+    created_at: null,
+    hourly_rent_cost: 0,
+    prestige_points: 120,
+    is_premium: true,
+    purchase_currency: 'gems',
+    gem_price: 150,
+    health_effect_per_hour: 3.5,
+    happiness_effect_per_hour: 4.0,
+  },
+  {
+    id: 'local-house-premium-3',
+    name: 'Apex Penthouse',
+    description: 'The highest floor in the city. Unmatched views, zero costs.',
+    image_url: getPremiumHouseBackgroundAsset(3),
+    icon_url: getPremiumHouseIconAsset(3),
+    level: 52,
+    created_at: null,
+    hourly_rent_cost: 0,
+    prestige_points: 350,
+    is_premium: true,
+    purchase_currency: 'gems',
+    gem_price: 300,
+    health_effect_per_hour: 5.5,
+    happiness_effect_per_hour: 6.0,
+  },
+];
+
+// Regular evlerle premium evleri interleave et:
+// premium-1 → house-6 sonrası, premium-2 → house-13 sonrası, premium-3 → house-20 sonrası
+function buildHouseList(): House[] {
+  const result: House[] = [];
+  for (const house of REGULAR_HOUSES) {
+    result.push(house);
+    if (house.id === 'local-house-6') result.push(PREMIUM_HOUSES[0]);
+    if (house.id === 'local-house-13') result.push(PREMIUM_HOUSES[1]);
+    if (house.id === 'local-house-20') result.push(PREMIUM_HOUSES[2]);
+  }
+  return result;
+}
+
+export const LOCAL_HOUSES: House[] = buildHouseList();

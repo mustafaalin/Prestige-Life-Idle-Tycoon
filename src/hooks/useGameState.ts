@@ -1272,7 +1272,16 @@ export function useGameState(deviceId: string, userId: string | null) {
       } else if (gameState.profile!.total_money < price) {
         return false;
       }
-    } else if (itemType !== 'house' && gameState.profile!.total_money < price) {
+    } else if (itemType === 'house') {
+      const targetHouse = gameState.houses.find((h) => h.id === itemId);
+      if (!targetHouse) return false;
+      if (targetHouse.is_premium) {
+        // Premium ev: gem ile satın alma
+        if (gameState.ownedHouses.includes(itemId)) return false;
+        if (!canAccessHouseWithPrestige(targetHouse, Number(gameState.profile?.prestige_points || 0))) return false;
+        if (Number(gameState.profile?.gems || 0) < Number(targetHouse.gem_price || 0)) return false;
+      }
+    } else if (gameState.profile!.total_money < price) {
       return false;
     }
 
@@ -1281,6 +1290,13 @@ export function useGameState(deviceId: string, userId: string | null) {
         moneyMutationInFlightRef.current = true;
         await flushPendingIfNeeded();
         await purchaseService.purchaseCarViaRPC(activeId, itemId, price);
+        moneyMutationInFlightRef.current = false;
+        await loadGameData(false);
+        return true;
+      } else if (itemType === 'house' && gameState.houses.find((h) => h.id === itemId)?.is_premium) {
+        moneyMutationInFlightRef.current = true;
+        await flushPendingIfNeeded();
+        await purchaseService.purchasePremiumHouseWithGems(activeId, itemId);
         moneyMutationInFlightRef.current = false;
         await loadGameData(false);
         return true;
@@ -1354,7 +1370,12 @@ export function useGameState(deviceId: string, userId: string | null) {
     if (!targetHouse || (!isCurrentHouse && !canAccessHouseWithPrestige(targetHouse, Number(gameState.profile?.prestige_points || 0)))) {
       return false;
     }
-    if (!isCurrentHouse && minimumSupportedHouseLevel > 0 && targetHouse.level < minimumSupportedHouseLevel) {
+    // Premium ev: owned değilse seçilemez (önce satın alınmalı)
+    if (!isCurrentHouse && targetHouse.is_premium && !gameState.ownedHouses.includes(houseId)) {
+      return false;
+    }
+    // Premium ev house_level gereksinimini zaten karşılar (jobRequirements.ts'te)
+    if (!isCurrentHouse && !targetHouse.is_premium && minimumSupportedHouseLevel > 0 && targetHouse.level < minimumSupportedHouseLevel) {
       return false;
     }
     try {
