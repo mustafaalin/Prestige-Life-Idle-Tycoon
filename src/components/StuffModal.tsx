@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { DollarSign, Heart, Home, Lock, Smile, Wrench, X, Car as CarIcon, Wallet } from 'lucide-react';
+import { Heart, Home, Lock, Smile, Wrench, X, Car as CarIcon, Wallet } from 'lucide-react';
 import type { Car, House, Job } from '../types/game';
 import { getHouseIconAsset, LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
 import { Gem } from 'lucide-react';
@@ -275,7 +275,7 @@ export function StuffModal({
                       ) : (
                         <div className="rounded-lg border border-white/70 bg-white/80 px-2.5 py-2">
                           <div className="flex items-center gap-1.5 text-blue-700">
-                            <DollarSign className="h-3.5 w-3.5" />
+                            <img src={LOCAL_ICON_ASSETS.money} alt="Price" className="h-3.5 w-3.5 object-contain" />
                             <div className="truncate text-[11px] font-black">{formatMoneyFull(cashPrice)}</div>
                           </div>
                         </div>

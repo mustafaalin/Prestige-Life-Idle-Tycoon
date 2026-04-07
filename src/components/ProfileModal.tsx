@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react';
-import { X, User, Trophy, MousePointerClick, Clock, Save, LogOut } from 'lucide-react';
+import { X, Pencil, Check, Clock, Wallet, TrendingUp, Star, AlertTriangle } from 'lucide-react';
 import { ResetProgressModal } from './ResetProgressModal';
+import { LOCAL_ICON_ASSETS } from '../lib/localAssets';
+import { formatMoneyFull } from '../utils/money';
 
 const toSafeNumber = (value: number | null | undefined) => {
   const normalized = Number(value ?? 0);
   return Number.isFinite(normalized) ? normalized : 0;
 };
 
-const formatMoney = (amount: number | null | undefined) => `$${toSafeNumber(amount).toLocaleString()}`;
-const formatNumber = (amount: number | null | undefined) => toSafeNumber(amount).toLocaleString();
 const formatTime = (totalSeconds: number | null | undefined) => {
   const safeSeconds = Math.max(0, toSafeNumber(totalSeconds));
   const h = Math.floor(safeSeconds / 3600);
   const m = Math.floor((safeSeconds % 3600) / 60);
-  const s = Math.floor(safeSeconds % 60);
-  if (h > 0) return `${h}h ${m}m ${s}s`;
-  if (m > 0) return `${m}m ${s}s`;
-  return `${s}s`;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m`;
+  return `<1m`;
 };
 
 interface ProfileModalProps {
@@ -26,8 +25,7 @@ interface ProfileModalProps {
   onPlayerNameChange: (newName: string) => Promise<void>;
   totalMoney: number;
   lifetimeEarnings: number;
-  totalClicks: number;
-  sessionStartTime: number; 
+  sessionStartTime: number;
   onResetProgress: () => Promise<void>;
   prestigePoints: number;
 }
@@ -39,7 +37,6 @@ export default function ProfileModal({
   onPlayerNameChange,
   totalMoney,
   lifetimeEarnings,
-  totalClicks,
   sessionStartTime,
   onResetProgress,
   prestigePoints,
@@ -49,7 +46,6 @@ export default function ProfileModal({
   const [isSaving, setIsSaving] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
-  
   const [sessionPlayTime, setSessionPlayTime] = useState(0);
 
   useEffect(() => {
@@ -58,14 +54,11 @@ export default function ProfileModal({
 
   useEffect(() => {
     if (!isOpen) return;
-
     const updateTime = () => {
       setSessionPlayTime(Math.floor((Date.now() - sessionStartTime) / 1000));
     };
-    
     updateTime();
-    const interval = setInterval(updateTime, 1000); 
-    
+    const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, [isOpen, sessionStartTime]);
 
@@ -76,7 +69,6 @@ export default function ProfileModal({
       setIsEditingName(false);
       return;
     }
-
     setIsSaving(true);
     await onPlayerNameChange(editName);
     setIsSaving(false);
@@ -91,109 +83,115 @@ export default function ProfileModal({
     onClose();
   };
 
+  const stats = [
+    {
+      icon: <img src={LOCAL_ICON_ASSETS.wallet} alt="" className="h-5 w-5 object-contain" />,
+      label: 'Net Worth',
+      value: formatMoneyFull(toSafeNumber(totalMoney)),
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50',
+    },
+    {
+      icon: <TrendingUp className="h-5 w-5 text-blue-500" />,
+      label: 'Lifetime Earned',
+      value: formatMoneyFull(toSafeNumber(lifetimeEarnings)),
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+    },
+    {
+      icon: <img src={LOCAL_ICON_ASSETS.prestige} alt="" className="h-5 w-5 object-contain" />,
+      label: 'Prestige',
+      value: toSafeNumber(prestigePoints).toLocaleString(),
+      color: 'text-amber-600',
+      bg: 'bg-amber-50',
+    },
+    {
+      icon: <Clock className="h-5 w-5 text-purple-500" />,
+      label: 'Session',
+      value: formatTime(sessionPlayTime),
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
+    },
+  ];
+
   return (
-    <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-      <div className="bg-slate-900 rounded-3xl w-full max-w-md overflow-hidden border border-white/10 shadow-2xl flex flex-col max-h-[90vh]">
-        <div className="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 relative shrink-0">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-sm overflow-hidden rounded-[28px] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.28)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="relative bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 px-5 pb-6 pt-5">
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+            className="absolute right-4 top-4 rounded-full bg-white/20 p-2 text-white transition-all active:scale-95"
           >
-            <X className="w-6 h-6" />
+            <X className="h-4 w-4" />
           </button>
-          
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center border-2 border-white/30 shadow-inner">
-              <User className="w-10 h-10 text-white" />
+
+          {/* Avatar */}
+          <div className="flex flex-col items-center gap-3 text-center">
+            <div className="flex h-20 w-20 items-center justify-center rounded-[24px] bg-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.15)]">
+              <Wallet className="h-9 w-9 text-white" />
             </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-black text-white mb-1">Player Profile</h2>
-              {isEditingName ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    className="bg-black/20 text-white px-3 py-1.5 rounded-xl border border-white/20 outline-none focus:border-white/40 w-full font-medium"
-                    maxLength={20}
-                    autoFocus
-                  />
-                  <button
-                    onClick={handleSaveName}
-                    disabled={isSaving}
-                    className="p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-colors disabled:opacity-50"
-                  >
-                    <Save className="w-5 h-5" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <p className="text-white/90 font-medium text-lg">{playerName}</p>
-                  <button
-                    onClick={() => setIsEditingName(true)}
-                    className="text-white/50 hover:text-white/90 text-sm underline decoration-white/30 underline-offset-4"
-                  >
-                    Edit
-                  </button>
-                </div>
-              )}
-            </div>
+
+            {isEditingName ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="rounded-xl bg-white/20 px-3 py-1.5 text-center text-white placeholder-white/50 outline-none ring-1 ring-white/30 focus:ring-white/60 font-bold text-base w-44"
+                  maxLength={20}
+                  autoFocus
+                />
+                <button
+                  onClick={handleSaveName}
+                  disabled={isSaving}
+                  className="rounded-full bg-white/20 p-1.5 text-white transition-all active:scale-95 disabled:opacity-50"
+                >
+                  <Check className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <p className="text-lg font-black text-white">{playerName}</p>
+                <button
+                  onClick={() => setIsEditingName(true)}
+                  className="rounded-full bg-white/20 p-1.5 text-white transition-all active:scale-95"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="p-6 space-y-6 overflow-y-auto">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-slate-800 p-4 rounded-2xl border border-white/5">
-              <div className="flex items-center gap-2 text-emerald-400 mb-2">
-                <Trophy className="w-5 h-5" />
-                <span className="font-bold text-sm">Net Worth</span>
+        {/* Stats */}
+        <div className="p-4">
+          <div className="grid grid-cols-2 gap-2.5">
+            {stats.map((stat) => (
+              <div key={stat.label} className={`rounded-2xl ${stat.bg} p-3`}>
+                <div className="flex items-center gap-2 mb-1.5">
+                  {stat.icon}
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">{stat.label}</span>
+                </div>
+                <p className={`text-base font-black ${stat.color}`}>{stat.value}</p>
               </div>
-              <p className="text-xl font-black text-white">{formatMoney(totalMoney)}</p>
-            </div>
-            
-            <div className="bg-slate-800 p-4 rounded-2xl border border-white/5">
-              <div className="flex items-center gap-2 text-blue-400 mb-2">
-                <Trophy className="w-5 h-5" />
-                <span className="font-bold text-sm">Lifetime Earned</span>
-              </div>
-              <p className="text-xl font-black text-white">{formatMoney(lifetimeEarnings)}</p>
-            </div>
-
-            <div className="bg-slate-800 p-4 rounded-2xl border border-white/5">
-              <div className="flex items-center gap-2 text-purple-400 mb-2">
-                <MousePointerClick className="w-5 h-5" />
-                <span className="font-bold text-sm">Total Clicks</span>
-              </div>
-              <p className="text-xl font-black text-white">{formatNumber(totalClicks)}</p>
-            </div>
-
-            <div className="bg-slate-800 p-4 rounded-2xl border border-white/5">
-              <div className="flex items-center gap-2 text-amber-400 mb-2">
-                <Clock className="w-5 h-5" />
-                <span className="font-bold text-sm">Session Time</span>
-              </div>
-              <p className="text-xl font-black text-white">{formatTime(sessionPlayTime)}</p>
-            </div>
-
-            <div className="bg-slate-800 p-4 rounded-2xl border border-white/5 col-span-2">
-              <div className="flex items-center gap-2 text-yellow-400 mb-2">
-                <Trophy className="w-5 h-5" />
-                <span className="font-bold text-sm">Prestige Points</span>
-              </div>
-              <p className="text-xl font-black text-white">{formatNumber(prestigePoints)}</p>
-            </div>
+            ))}
           </div>
 
-        <div className="mt-8 pt-6 border-t border-red-500/20">
-          <h3 className="text-red-400 font-bold mb-4 uppercase text-sm tracking-wider">Danger Zone</h3>
+          {/* Danger zone */}
           <button
             onClick={() => setShowResetConfirm(true)}
-            className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-3.5 rounded-xl transition-colors border border-red-500/20"
+            className="mt-4 w-full flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 py-3 text-sm font-black text-red-500 transition-all active:scale-[0.98]"
           >
-            <LogOut className="w-5 h-5" />
+            <AlertTriangle className="h-4 w-4" />
             Reset Game Progress
           </button>
-          </div>
         </div>
       </div>
 

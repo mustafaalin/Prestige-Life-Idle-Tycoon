@@ -328,7 +328,7 @@ export function JobsModal({
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
-                    {trackLabel} {job.tier}
+                    {trackLabel} {job.tier} · <span className="text-slate-300">Lv {job.order}</span>
                   </p>
                   <h3 className="mt-1 text-sm font-black leading-tight text-slate-900">
                     {job.name}

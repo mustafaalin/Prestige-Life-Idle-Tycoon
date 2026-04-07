@@ -183,8 +183,11 @@ export default function App() {
 
   const openQuestTarget = (quest: (typeof LOCAL_QUESTS)[number]) => {
     if (quest.target_screen === 'shop') {
-      setShopModalInitialTab(quest.condition.type === 'owned_outfit_count' ? 'outfits' : 'shop');
-      setShopModalInitialSection('money');
+      const conditionType = quest.condition.type;
+      setShopModalInitialTab(conditionType === 'owned_outfit_count' ? 'outfits' : 'shop');
+      // Daily ile ilgili questler scroll gerektirmiyor — sadece shop açılsın
+      const isDailyRelated = conditionType === 'daily_reward_claimed' || conditionType === 'daily_streak_at_least';
+      setShopModalInitialSection(isDailyRelated ? null : 'money');
     }
 
     if (quest.target_screen === 'stuff') {
@@ -1133,7 +1136,6 @@ export default function App() {
         onPlayerNameChange={handlePlayerNameChange}
         totalMoney={gameState.profile.total_money}
         lifetimeEarnings={gameState.profile.lifetime_earnings}
-        totalClicks={gameState.profile.total_clicks}
         sessionStartTime={sessionStartTimeRef.current}
         onResetProgress={handleResetProgress}
         prestigePoints={gameState.profile?.prestige_points ?? 0}

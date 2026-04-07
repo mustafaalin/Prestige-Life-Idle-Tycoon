@@ -23,6 +23,7 @@ export const LOCAL_ICON_ASSETS = {
   stuff: '/assets/icons/stuff.png',
   buyMoreMoney: '/assets/icons/buy-more-money.png',
   gemBox: '/assets/icons/gem-box.png',
+  ads: '/assets/icons/ads.png',
 } as const;
 
 export const LOCAL_PROFILE_PLACEHOLDER = LOCAL_ASSET_PATHS.profile;

@@ -53,35 +53,19 @@ export function getJobRequirementMinimum(
   return requirement?.minimum ?? 0;
 }
 
-function getJobCarRequirement(order: number) {
-  if (order <= 1) {
-    return 0;
-  }
+// Toplam job sayısı ve eşya limitleri — ileride artırılırsa sadece bu sabitleri güncelle
+const TOTAL_JOB_COUNT = 60;
+const MAX_CAR_LEVEL = 20;
+const MAX_HOUSE_LEVEL = 25;
 
-  return Math.min(20, Math.ceil((order - 1) / 2));
+function getJobCarRequirement(order: number) {
+  if (order <= 1) return 0;
+  return Math.min(MAX_CAR_LEVEL, Math.ceil((order * MAX_CAR_LEVEL) / TOTAL_JOB_COUNT));
 }
 
 function getJobHouseRequirement(order: number) {
-  if (order <= 2) {
-    return 0;
-  }
-
-  const progressionSteps = [2, 3] as const;
-  let requiredLevel = 1;
-  let nextThreshold = 3;
-  let stepIndex = 0;
-
-  while (requiredLevel < 10) {
-    nextThreshold += progressionSteps[stepIndex % progressionSteps.length];
-    if (order < nextThreshold) {
-      break;
-    }
-
-    requiredLevel += 1;
-    stepIndex += 1;
-  }
-
-  return Math.min(10, requiredLevel);
+  if (order <= 1) return 0;
+  return Math.min(MAX_HOUSE_LEVEL, Math.ceil((order * MAX_HOUSE_LEVEL) / TOTAL_JOB_COUNT));
 }
 
 export function createJobRequirements(params: { category: JobCategory; order: number }): JobRequirement[] {
@@ -113,8 +97,8 @@ export function createJobRequirements(params: { category: JobCategory; order: nu
 function getSelectedHouseLevel(profile: PlayerProfile | null, houses: House[]) {
   const selectedHouse = houses.find((house) => house.id === profile?.selected_house_id);
   if (!selectedHouse) return 0;
-  // Premium ev tüm house_level gereksinimlerini otomatik karşılar
-  if (selectedHouse.is_premium) return Number.MAX_SAFE_INTEGER;
+  // Premium ev: progression_level_equivalent ile karşıladığı maksimum house_level'ı döndür
+  if (selectedHouse.is_premium) return Number(selectedHouse.progression_level_equivalent || MAX_HOUSE_LEVEL);
   return selectedHouse.level || 0;
 }
 

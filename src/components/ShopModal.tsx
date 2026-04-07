@@ -733,177 +733,89 @@ export function ShopModal({
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-5 border-2 border-blue-200 shadow-lg">
-            <div className="flex items-center gap-2 mb-3">
-              <DollarSign className="w-5 h-5 text-blue-600" />
-              <h3 className="text-base font-black text-blue-700">Collect Earnings</h3>
-            </div>
+          <div className="grid grid-cols-2 gap-3">
+            {/* Collect Earnings */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 flex flex-col items-center text-center gap-2">
+              <img src={LOCAL_ICON_ASSETS.money} alt="Money" className="h-16 w-16 object-contain mt-1" />
 
-            <div className="bg-white rounded-xl p-4 border-2 border-blue-100">
-              <div className="mb-3">
-                <div className="flex items-baseline justify-between mb-2">
-                  <span className="text-xs font-bold text-slate-500">Daily Limit</span>
-                  <span className="text-xs font-bold text-slate-400">
-                    {formatMoneyFull(resolvedDailyClaimedTotal)} / {formatMoneyFull(dailyLimit)}
-                  </span>
-                </div>
-
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden border border-gray-200 mb-3">
-                  <div
-                    className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-300 rounded-full"
-                    style={{ width: `${dailyLimitPercent}%` }}
-                  />
-                </div>
-
-                <div className="flex items-baseline justify-between mb-2">
-                  <span className="text-xs font-bold text-slate-500">Accumulated</span>
-                  <span className="text-xs font-bold text-slate-400">
-                    {formatMoneyFull(claimableAccumulated)} / {formatMoneyFull(
-                      effectiveAccumulatedCap > 0 ? effectiveAccumulatedCap : maxAccumulated
-                    )}
-                  </span>
-                </div>
-
-                <div className="h-3 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
-                  <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-300 rounded-full"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-
-                {timeUntilFull > 0 && !isLocked && (
-                  <p className="text-[10px] text-slate-400 font-bold mt-1 text-center">
-                    Full in: {formatTime(timeUntilFull)}
-                  </p>
-                )}
-
-                {claimableAccumulated < accumulatedMoney && !isLocked && (
-                  <p className="text-[10px] text-center font-bold text-orange-500 mt-1">
-                    Daily limit reached. You can claim {formatMoneyFull(claimableAccumulated)} this time.
-                  </p>
+              <div className="w-full">
+                <p className={`text-sm font-black leading-tight ${canClaim ? 'text-emerald-600' : 'text-slate-400'}`}>
+                  {formatMoneyFull(claimableAccumulated)}
+                </p>
+                <p className="text-[9px] font-bold text-slate-400 mt-0.5">
+                  {formatMoneyFull(resolvedDailyClaimedTotal)} / {formatMoneyFull(dailyLimit)}
+                </p>
+                {isLocked && (
+                  <p className="text-[9px] font-bold text-orange-500 mt-0.5">{formatLockTime(timeUntilUnlock)}</p>
                 )}
               </div>
 
-              {isLocked && (
-                <div className="mb-3 bg-orange-50 border-2 border-orange-200 rounded-lg p-3 flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-orange-600 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-xs font-bold text-orange-700">Daily limit reached</p>
-                    <p className="text-[10px] text-orange-600">Available in {formatLockTime(timeUntilUnlock)}</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex gap-2">
+              <div className="flex gap-1.5 w-full mt-auto">
                 <button
                   onClick={() => handleClaimMoney(false)}
                   disabled={!canClaim || isClaimingEarnings}
-                  className={`
-                    flex-1 py-2.5 rounded-lg font-bold text-sm transition-all shadow-md
-                    ${canClaim && !isClaimingEarnings
-                      ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white active:scale-95'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    }
-                  `}
+                  className={`flex-1 rounded-xl py-2 text-[11px] font-black transition-all active:scale-95 ${
+                    canClaim && !isClaimingEarnings
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-slate-100 text-slate-400'
+                  }`}
                 >
-                  {isLocked ? <Lock className="w-4 h-4 mx-auto" /> : isClaimingEarnings ? 'Claiming...' : 'Claim'}
+                  {isClaimingEarnings ? '...' : 'Claim'}
                 </button>
-
-                <button
-                  onClick={() => handleClaimMoney(true)}
-                  disabled={!canClaim || isClaimingEarnings}
-                  className={`
-                    flex-1 py-2.5 rounded-lg font-bold text-sm transition-all shadow-md flex items-center justify-center gap-1
-                    ${canClaim && !isClaimingEarnings
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white active:scale-95'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    }
-                  `}
-                >
-                  {isLocked ? (
-                    <Lock className="w-4 h-4" />
-                  ) : isClaimingEarnings ? (
-                    'Claiming...'
-                  ) : (
-                    <>
-                      <Play className="w-4 h-4" />
-                      Claim x3
-                    </>
-                  )}
-                </button>
+                <div className="relative flex-1">
+                  <img
+                    src={LOCAL_ICON_ASSETS.ads}
+                    alt="Ad"
+                    className="absolute -top-4 left-1/2 -translate-x-1/2 h-8 w-8 object-contain drop-shadow-sm z-10"
+                  />
+                  <button
+                    onClick={() => handleClaimMoney(true)}
+                    disabled={!canClaim || isClaimingEarnings}
+                    className={`w-full rounded-xl py-2 text-[11px] font-black transition-all active:scale-95 ${
+                      canClaim && !isClaimingEarnings
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                        : 'bg-slate-100 text-slate-400'
+                    }`}
+                  >
+                    x3
+                  </button>
+                </div>
               </div>
-
-              {!canClaim && !isLocked && (
-                <p className="text-[10px] text-center text-slate-400 font-bold mt-2">
-                  Keep playing to accumulate earnings
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-5 border-2 border-purple-200 shadow-lg">
-            <div className="flex items-center gap-2 mb-3">
-              <Monitor className="w-5 h-5 text-purple-600" />
-              <h3 className="text-base font-black text-purple-700">Watch Ad</h3>
             </div>
 
-            <div className="bg-white rounded-xl p-4 border-2 border-purple-100">
-              <div className="text-center mb-3">
-                <p className="text-xs font-bold text-slate-500 mb-1">Earn money by watching ads</p>
-                <p className="text-2xl font-black text-purple-600">
-                  {formatMoneyFull(scaledRewards.adReward)}
-                </p>
-                <p className="text-[10px] text-slate-400 font-bold">per ad</p>
-              </div>
-
-              {isWatchingAd && (
-                <div className="mb-3 bg-purple-50 border-2 border-purple-200 rounded-lg p-4">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                    <p className="text-xs font-bold text-purple-700">Watching ad...</p>
-                  </div>
-                </div>
-              )}
-
-              {adCooldown > 0 && !isWatchingAd && (
-                <div className="mb-3 bg-orange-50 border-2 border-orange-200 rounded-lg p-3 flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-orange-600 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-xs font-bold text-orange-700">Ad cooldown</p>
-                    <p className="text-[10px] text-orange-600">Available in {formatTime(adCooldown)}</p>
-                  </div>
-                </div>
-              )}
-
-              <button
-                onClick={handleWatchAd}
-                disabled={isWatchingAd || adCooldown > 0}
-                className={`
-                  w-full py-3 rounded-lg font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2
-                  ${isWatchingAd || adCooldown > 0
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white active:scale-95'
-                  }
-                `}
-              >
+            {/* Watch Ad */}
+            <button
+              onClick={handleWatchAd}
+              disabled={isWatchingAd || adCooldown > 0}
+              className={`rounded-2xl border p-3 flex flex-col items-center text-center transition-all active:scale-[0.97] ${
+                isWatchingAd || adCooldown > 0
+                  ? 'border-slate-200 bg-slate-50 cursor-not-allowed'
+                  : 'border-slate-200 bg-white'
+              }`}
+            >
+              <div className="flex items-center justify-center my-1">
                 {isWatchingAd ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Watching...
-                  </>
-                ) : adCooldown > 0 ? (
-                  <>
-                    <Lock className="w-4 h-4" />
-                    Locked
-                  </>
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-400" />
                 ) : (
-                  <>
-                    <Monitor className="w-4 h-4" />
-                    Watch Ad
-                  </>
+                  <img src={LOCAL_ICON_ASSETS.ads} alt="Ad" className="h-16 w-16 object-contain" />
                 )}
-              </button>
-            </div>
+              </div>
+
+              <p className={`text-sm font-black leading-tight mt-1 ${isWatchingAd || adCooldown > 0 ? 'text-slate-400' : 'text-purple-700'}`}>
+                {isWatchingAd ? '...' : formatMoneyFull(scaledRewards.adReward)}
+              </p>
+              {adCooldown > 0 && !isWatchingAd && (
+                <p className="text-[9px] font-bold text-orange-500 mt-0.5">{formatTime(adCooldown)}</p>
+              )}
+
+              <div className={`w-full rounded-xl py-2 mt-2 text-[11px] font-black transition-all ${
+                isWatchingAd || adCooldown > 0
+                  ? 'bg-slate-200 text-slate-400'
+                  : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+              }`}>
+                {isWatchingAd ? 'Watching...' : adCooldown > 0 ? 'Wait' : 'Free'}
+              </div>
+            </button>
           </div>
 
           <div
@@ -1017,10 +929,10 @@ export function ShopModal({
           )}
 
           {activeTab === 'outfits' && (
-            <div className="space-y-3">
+            <div>
               {outfitsLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600" />
                 </div>
               ) : outfits.length === 0 ? (
                 <div className="text-center py-12">
@@ -1028,103 +940,81 @@ export function ShopModal({
                   <p className="text-slate-500 font-bold">No outfits available</p>
                 </div>
               ) : (
-                outfits.map((outfit) => {
-                  const isSelected = selectedOutfitId === outfit.id;
-                  const canAfford = totalMoney >= outfit.price;
+                <div className="grid grid-cols-2 gap-3">
+                  {outfits.map((outfit) => {
+                    const isSelected = selectedOutfitId === outfit.id;
+                    const canAfford = totalMoney >= outfit.price;
 
-                  return (
-                    <div
-                      key={outfit.id}
-                      className={`relative bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl overflow-hidden border-2 transition-all ${
-                        isSelected
-                          ? 'border-green-400 shadow-lg shadow-green-200/50'
-                          : 'border-slate-200 hover:border-slate-300 hover:shadow-lg'
-                      }`}
-                    >
-                      <div className="flex">
-                        <div className="w-1/3 bg-gradient-to-br from-blue-100 to-purple-100 p-4 flex items-center justify-center">
-                          {outfit.image_url ? (
-                            <img
-                              src={resolveLocalAsset(outfit.image_url, 'outfit')}
-                              alt={outfit.name}
-                              className="w-full h-auto object-contain"
-                              style={{ minHeight: '280px', maxHeight: '320px' }}
-                            />
-                          ) : (
-                            <div className="w-full min-h-[280px] max-h-[320px] rounded-2xl border-2 border-dashed border-blue-200 bg-white/70 flex flex-col items-center justify-center text-blue-500">
-                              <img
-                                src={resolveLocalAsset(undefined, 'outfit')}
-                                alt={outfit.name}
-                                className="w-full h-auto object-contain p-4"
-                                style={{ minHeight: '280px', maxHeight: '320px' }}
-                              />
-                            </div>
-                          )}
+                    return (
+                      <div
+                        key={outfit.id}
+                        className={`relative rounded-2xl overflow-hidden border-2 transition-all flex flex-col ${
+                          isSelected
+                            ? 'border-emerald-400 shadow-[0_0_0_1px_rgba(52,211,153,0.3)]'
+                            : outfit.is_owned
+                              ? 'border-slate-200'
+                              : 'border-slate-200'
+                        }`}
+                      >
+                        {/* Görsel */}
+                        <div className="bg-gradient-to-br from-blue-50 to-purple-50 flex items-end justify-center pt-3 px-2" style={{ minHeight: '160px' }}>
+                          <img
+                            src={resolveLocalAsset(outfit.image_url, 'outfit')}
+                            alt={outfit.name}
+                            className="w-full object-contain"
+                            style={{ maxHeight: '180px' }}
+                          />
                         </div>
 
-                        <div className="w-2/3 p-4 flex flex-col justify-between">
-                          <div>
-                            <div className="flex items-start justify-between mb-2">
-                              <h3 className="text-lg font-black text-slate-800">{outfit.name}</h3>
-                              {isSelected && (
-                                <span className="bg-green-500 text-white text-[10px] font-black px-2 py-1 rounded-full">
-                                  SELECTED
-                                </span>
-                              )}
-                            </div>
-
-                            {outfit.description && (
-                              <p className="text-xs text-slate-600 mb-3 line-clamp-2">
-                                {outfit.description}
-                              </p>
-                            )}
-
-                            <div className="space-y-2 mb-3">
-                              {!outfit.is_owned && (
-                                <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-1.5">
-                                  <DollarSign className="w-4 h-4 text-green-600" />
-                                  <span className="text-xs font-bold text-green-700">
-                                    {formatMoneyFull(outfit.price)}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
+                        {/* Rozet */}
+                        {isSelected && (
+                          <div className="absolute top-2 right-2 bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            ON
                           </div>
+                        )}
+                        {!outfit.is_owned && !canAfford && (
+                          <div className="absolute top-2 right-2 bg-slate-700/70 text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Lock className="w-2.5 h-2.5" />
+                          </div>
+                        )}
 
-                          <div>
-                            {outfit.is_owned ? (
-                              isSelected ? (
-                                <div className="w-full bg-green-500 text-white rounded-lg py-2.5 text-sm font-bold text-center flex items-center justify-center gap-2">
-                                  <Sparkles className="w-4 h-4" />
-                                  Currently Equipped
-                                </div>
-                              ) : (
-                                <button
-                                  onClick={() => handleSelectOutfit(outfit.id)}
-                                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg py-2.5 text-sm font-bold hover:from-blue-600 hover:to-cyan-600 transition-all active:scale-95"
-                                >
-                                  Select
-                                </button>
-                              )
+                        {/* Alt bilgi */}
+                        <div className="p-2.5 flex flex-col gap-2 bg-white flex-1">
+                          <p className="text-[12px] font-black text-slate-800 leading-tight truncate">{outfit.name}</p>
+
+                          {outfit.is_owned ? (
+                            isSelected ? (
+                              <div className="w-full rounded-xl py-2 text-[11px] font-black text-center bg-emerald-500 text-white">
+                                Equipped
+                              </div>
                             ) : (
                               <button
-                                onClick={() => handlePurchaseOutfit(outfit.id, outfit.price)}
-                                disabled={!canAfford}
-                                className={`w-full rounded-lg py-2.5 text-sm font-bold transition-all ${
-                                  canAfford
-                                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 active:scale-95'
-                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                }`}
+                                onClick={() => handleSelectOutfit(outfit.id)}
+                                className="w-full rounded-xl py-2 text-[11px] font-black bg-gradient-to-r from-blue-500 to-cyan-500 text-white transition-all active:scale-95"
                               >
-                                {canAfford ? 'Purchase' : 'Not Enough Money'}
+                                Select
                               </button>
-                            )}
-                          </div>
+                            )
+                          ) : (
+                            <button
+                              onClick={() => handlePurchaseOutfit(outfit.id, outfit.price)}
+                              disabled={!canAfford}
+                              className={`w-full rounded-xl py-2 text-[11px] font-black transition-all active:scale-95 flex items-center justify-center gap-1 ${
+                                canAfford
+                                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                                  : 'bg-slate-100 text-slate-400'
+                              }`}
+                            >
+                              <img src={LOCAL_ICON_ASSETS.money} alt="" className="h-3.5 w-3.5 object-contain" />
+                              {formatMoneyFull(outfit.price)}
+                            </button>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  );
-                })
+                    );
+                  })}
+                </div>
               )}
             </div>
           )}

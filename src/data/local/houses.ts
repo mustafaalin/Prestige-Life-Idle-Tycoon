@@ -290,6 +290,7 @@ const PREMIUM_HOUSES: House[] = [
     is_premium: true,
     purchase_currency: 'gems',
     gem_price: 50,
+    progression_level_equivalent: 9,  // Job 20'ye kadar destekler (ceil(20*25/60)=9)
     health_effect_per_hour: 1.8,
     happiness_effect_per_hour: 2.2,
   },
@@ -306,6 +307,7 @@ const PREMIUM_HOUSES: House[] = [
     is_premium: true,
     purchase_currency: 'gems',
     gem_price: 150,
+    progression_level_equivalent: 17, // Job 40'a kadar destekler (ceil(40*25/60)=17)
     health_effect_per_hour: 3.5,
     happiness_effect_per_hour: 4.0,
   },
@@ -322,6 +324,7 @@ const PREMIUM_HOUSES: House[] = [
     is_premium: true,
     purchase_currency: 'gems',
     gem_price: 300,
+    progression_level_equivalent: 25, // Tüm jobları destekler
     health_effect_per_hour: 5.5,
     happiness_effect_per_hour: 6.0,
   },

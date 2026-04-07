@@ -1,4 +1,5 @@
-import { Clock3, MoonStar, Play, TrendingUp } from 'lucide-react';
+import { Clock3, MoonStar, TrendingUp } from 'lucide-react';
+import { LOCAL_ICON_ASSETS } from '../lib/localAssets';
 import { formatMoneyFull } from '../utils/money';
 
 interface OfflineEarningsModalProps {
@@ -100,26 +101,26 @@ export default function OfflineEarningsModal({
               {isClaiming ? 'Collecting...' : 'Collect'}
             </button>
 
-            <button
-              onClick={onClaimDouble}
-              disabled={isClaiming || isWatchingAd}
-              className="rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm font-black text-cyan-700 transition-all active:scale-[0.98] disabled:opacity-60"
-            >
-              <span className="inline-flex items-center gap-1.5">
-                <Play className="h-4 w-4 fill-current" />
-                {isWatchingAd ? 'Watching...' : 'Boost'}
-              </span>
-            </button>
+            <div className="relative">
+              <img
+                src={LOCAL_ICON_ASSETS.ads}
+                alt="Ad"
+                className="absolute -top-4 left-1/2 -translate-x-1/2 h-8 w-8 object-contain drop-shadow-sm z-10"
+              />
+              <button
+                onClick={onClaimDouble}
+                disabled={isClaiming || isWatchingAd}
+                className={`w-full rounded-2xl py-3 text-sm font-black transition-all active:scale-[0.98] disabled:opacity-60 ${
+                  isWatchingAd
+                    ? 'bg-slate-100 text-slate-400'
+                    : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                }`}
+              >
+                {isWatchingAd ? '...' : 'Boost x2'}
+              </button>
+            </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-center">
-            <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-              Ad Boost
-            </div>
-            <div className="mt-2 text-sm font-black text-cyan-700">
-              {formatMoneyFull(earnedAmount * 2)}
-            </div>
-          </div>
         </div>
       </div>
     </div>

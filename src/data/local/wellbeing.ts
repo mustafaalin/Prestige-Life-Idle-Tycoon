@@ -51,3 +51,21 @@ export function calculateWellbeingDeltaForSeconds(
     happiness: perHour.happiness * ratio,
   };
 }
+
+// Birden fazla kaynağın (job, car, house, ...) etkisini birleştirerek
+// verilen süre için toplam wellbeing delta'sını hesaplar.
+// Yeni bir kaynak eklemek için sadece sources array'ini genişletmek yeterlidir.
+export function calculateWellbeingDeltaFromSources(
+  sources: Array<WellbeingEffectSource | null | undefined>,
+  workedSeconds: number
+): WellbeingDelta {
+  if (workedSeconds <= 0) return ZERO_WELLBEING_DELTA;
+
+  const perHour = sumWellbeingEffectsPerHour(sources);
+  const ratio = workedSeconds / 3600;
+
+  return {
+    health: perHour.health * ratio,
+    happiness: perHour.happiness * ratio,
+  };
+}

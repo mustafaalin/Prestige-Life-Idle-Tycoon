@@ -326,7 +326,7 @@ export const PREMIUM_CARS: Car[] = [
     premium_rank: 1,
     prestige_points: 0,
     level: 1,
-    progression_level_equivalent: 10,
+    progression_level_equivalent: 7,  // Job 20'ye kadar destekler (ceil(20*20/60)=7)
     created_at: null,
     hourly_maintenance_cost: 0,
     display_order: 6,
@@ -345,7 +345,7 @@ export const PREMIUM_CARS: Car[] = [
     premium_rank: 2,
     prestige_points: 0,
     level: 2,
-    progression_level_equivalent: 15,
+    progression_level_equivalent: 14, // Job 40'a kadar destekler (ceil(40*20/60)=14)
     created_at: null,
     hourly_maintenance_cost: 0,
     display_order: 12,
@@ -364,7 +364,7 @@ export const PREMIUM_CARS: Car[] = [
     premium_rank: 3,
     prestige_points: 0,
     level: 3,
-    progression_level_equivalent: 20,
+    progression_level_equivalent: 20, // Tüm jobları destekler
     created_at: null,
     hourly_maintenance_cost: 0,
     display_order: 18,

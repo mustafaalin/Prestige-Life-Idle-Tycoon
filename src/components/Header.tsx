@@ -454,7 +454,7 @@ export function Header({
                     : 'scale-100')
                 }
               >
-                <img src={LOCAL_ICON_ASSETS.money} alt="Money" className="w-5 h-5" />
+                <img src={LOCAL_ICON_ASSETS.wallet} alt="Balance" className="w-5 h-5" />
                 <span className="text-[13px] font-black leading-none tracking-tight sm:text-[15px]">
                   {formatMoneyFull(displayedMoney)}
                 </span>
@@ -470,7 +470,7 @@ export function Header({
                 }
                 title={`Job ${formatMoneyPerHour(jobIncome)} • Business ${formatMoneyPerHour(businessIncome)} • Investment ${formatMoneyPerHour(investmentIncome)} • House -$${formatMoneyPlain(houseRentExpense)}/h • Vehicle -$${formatMoneyPlain(vehicleExpense)}/h • Other -$${formatMoneyPlain(otherExpenses)}/h`}
               >
-                <img src={LOCAL_ICON_ASSETS.wallet} alt="Money per hour" className="w-4 h-4" />
+                <img src={LOCAL_ICON_ASSETS.money} alt="Income per hour" className="w-4 h-4" />
                 <span className="text-[11px] font-bold leading-none">
                   {formatMoneyPerHour(hourlyIncome)}
                 </span>

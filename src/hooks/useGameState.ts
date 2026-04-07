@@ -41,7 +41,7 @@ import {
   normalizeProfileWellbeing,
 } from '../data/local/healthActions';
 import { getJobRequirementMinimum } from '../data/local/jobRequirements';
-import { calculateWellbeingDeltaForSeconds } from '../data/local/wellbeing';
+import { calculateWellbeingDeltaFromSources } from '../data/local/wellbeing';
 import {
   getHappinessCooldownRemaining,
   HAPPINESS_ACTIONS,
@@ -533,9 +533,13 @@ export function useGameState(deviceId: string, userId: string | null) {
     setGameState((prev) => {
       const syncTimestamp = new Date().toISOString();
       const activeJob = prev.jobs.find((job) => job.id === jobId);
-      const wellbeingDelta = activeJob
-        ? calculateWellbeingDeltaForSeconds(activeJob, secondsToAdd)
-        : null;
+      const selectedCar = prev.cars.find((car) => car.id === prev.profile?.selected_car_id) ?? null;
+      const selectedHouse = prev.houses.find((house) => house.id === prev.profile?.selected_house_id) ?? null;
+      // Yeni kaynak eklemek için sources array'ine eklemek yeterli (OCP)
+      const wellbeingDelta = calculateWellbeingDeltaFromSources(
+        [activeJob, selectedCar, selectedHouse],
+        secondsToAdd
+      );
       const nextPlayerJobs = prev.playerJobs.map((job) =>
         job.job_id === jobId && job.is_active
           ? {

@@ -67,8 +67,12 @@ export function getDailyRewardStatus(gameStats: GameStats | null) {
   const todayUtcStr = getTodayUtcString(now);
   const dayDiff = getUtcDayDiff(gameStats?.last_claim_date, todayUtcStr);
   const hasClaimedToday = dayDiff === 0;
+  // Rescue: tam 1 gün atlandı (dayDiff=2). dayDiff>2 ise kurtarma süresi geçmiş.
   const rescueAvailable = dayDiff === 2 && streak > 0;
-  const canClaim = !hasClaimedToday;
+  // Rescue gerektiğinde claim engellenmelidir — önce reklam izlenecek.
+  const canClaim = !hasClaimedToday && !rescueAvailable;
+  // Rescue durumunda streak'in devam edeceği günü göster (motivasyon),
+  // ama gerçek broken (dayDiff>2) durumunda 1. günden başla.
   const nextRewardDay = hasClaimedToday
     ? resolveRewardDay(streak + 1)
     : dayDiff === null || dayDiff === 1 || rescueAvailable
@@ -85,7 +89,8 @@ export function getDailyRewardStatus(gameStats: GameStats | null) {
     displayRewardDay,
     hasClaimedToday,
     rescueAvailable,
-    streakBroken: Boolean(dayDiff && dayDiff > 1),
+    // Gerçek "broken": rescue süresi de geçti (dayDiff > 2)
+    streakBroken: Boolean(dayDiff !== null && dayDiff > 2),
     hoursUntilReset,
     cycleLength: DAILY_REWARDS.length,
   };
@@ -99,6 +104,11 @@ export function claimDailyReward(profile: PlayerProfile, gameStats: GameStats) {
 
   if (dayDiff === 0) {
     throw new Error('Daily reward already claimed today');
+  }
+
+  // 1 gün atlandıysa rescue reklamı zorunlu — direkt claim geçemez
+  if (dayDiff === 2 && (gameStats.daily_login_streak || 0) > 0) {
+    throw new Error('Streak rescue required — watch an ad first');
   }
 
   const continuedStreak = dayDiff === null || dayDiff === 1;
