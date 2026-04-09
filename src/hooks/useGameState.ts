@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { deviceIdentity } from '../lib/deviceIdentity';
 import type { Database } from '../lib/database.types';
 import { LOCAL_BUSINESSES } from '../data/local/businesses';
 import { LOCAL_INVESTMENTS } from '../data/local/investments';
@@ -59,8 +58,18 @@ import type {
   QuestProgress,
 } from '../types/game';
 import { recalculateLocalEconomy } from '../data/local/economy';
-import { getBusinessPrestigeForLevel } from '../data/local/businessPrestigePoints';
 import { calculateOfflineEarnings, calculateOfflineWellbeingDecay } from '../utils/game/calculations';
+import {
+  createLocalGameStats,
+  createLocalProfile,
+  ensureOwnedSelection,
+  ensurePlayerOutfits,
+  getCurrentQuestFromProgress,
+  migrateLocalBusinesses,
+  migrateLocalInvestments,
+  normalizeGameStats,
+  syncQuestPrestige,
+} from '../utils/game/gameStateHelpers';
 import { canAccessCarWithPrestige, canAccessHouseWithPrestige } from '../data/local/prestigeRequirements';
 import { usePassiveIncome } from './usePassiveIncome';
 import { useAutoSave } from './useAutoSave';
@@ -127,187 +136,6 @@ interface GameState {
 }
 
 const GAME_STATE_KEY = 'idle_guy_game_state';
-
-function ensurePlayerOutfits(playerId: string, outfits?: PlayerOutfit[]): PlayerOutfit[] {
-  if (outfits?.length) {
-    const hasStarter = outfits.some((outfit) => outfit.outfit_id === LOCAL_STARTER_OUTFIT_ID && outfit.is_owned);
-    return hasStarter ? outfits : [createStarterPlayerOutfit(playerId), ...outfits];
-  }
-
-  return [createStarterPlayerOutfit(playerId)];
-}
-
-function ensureOwnedSelection(ids: string[] | undefined, selectedId: string | null, fallbackIds: string[] = []): string[] {
-  const nextIds = ids?.length ? [...ids] : [...fallbackIds];
-
-  if (selectedId && !nextIds.includes(selectedId)) {
-    nextIds.push(selectedId);
-  }
-
-  return nextIds;
-}
-
-function normalizeGameStats(stats: GameStats | null | undefined, playerId: string): GameStats {
-  return stats
-    ? {
-        ...createLocalGameStats(playerId),
-        ...stats,
-        player_id: playerId,
-      }
-    : createLocalGameStats(playerId);
-}
-
-function createLocalGameStats(playerId: string): GameStats {
-  const now = new Date().toISOString();
-
-  return {
-    id: 'local-game-stats',
-    player_id: playerId,
-    play_time_seconds: 0,
-    highest_combo: 0,
-    achievements_unlocked: [],
-    daily_login_streak: 0,
-    last_daily_reward: null,
-    created_at: now,
-    updated_at: now,
-    claimed_reward_days: [],
-    last_claim_date: null,
-  };
-}
-
-function createLocalProfile(userId: string, deviceId: string): PlayerProfile {
-  const now = new Date().toISOString();
-  const playerName = deviceIdentity.getPlayerName();
-
-  return {
-    id: userId,
-    username: playerName,
-    total_money: 100,
-    lifetime_earnings: 0,
-    money_per_click: 1,
-    total_clicks: 0,
-    prestige_points: 0,
-    selected_character_id: LOCAL_MIKE_CHARACTER_ID,
-    selected_house_id: LOCAL_STARTER_HOUSE_ID,
-    selected_car_id: null,
-    created_at: now,
-    last_played_at: now,
-    device_id: deviceId,
-    display_name: playerName,
-    auth_user_id: userId,
-    linked_at: null,
-    hourly_income: 0,
-    current_job_id: null,
-    gems: 0,
-    last_claim_time: now,
-    last_claim_reset_date: null,
-    daily_claimed_total: 0,
-    claim_locked_until: null,
-    last_ad_watch_time: null,
-    times_reset: 0,
-    last_reset_at: null,
-    job_income: 0,
-    business_income: 0,
-    investment_income: 0,
-    house_rent_expense: 0,
-    vehicle_expense: 0,
-    other_expenses: 0,
-    gross_income: 0,
-    total_expenses: 0,
-    selected_outfit_id: LOCAL_STARTER_OUTFIT_ID,
-    cashback_pool: 0,
-    cashback_claimed_total: 0,
-    premium_bank_card_owned: false,
-    premium_bank_card_purchased_at: null,
-    premium_bank_card_purchase_source: null,
-    health: DEFAULT_HEALTH,
-    happiness: DEFAULT_HAPPINESS,
-    health_action_cooldowns: {},
-    health_ad_cooldown_until: null,
-    happiness_action_cooldowns: {},
-    happiness_ad_cooldown_until: null,
-  };
-}
-
-function getCurrentQuestFromProgress(progress: QuestProgress) {
-  const chapterQuests = getQuestsForChapter(progress.unlockedChapterIndex);
-
-  return (
-    chapterQuests.find((quest) => progress.claimableQuestIds.includes(quest.id)) ||
-    chapterQuests.find((quest) => !progress.completedQuestIds.includes(quest.id)) ||
-    null
-  );
-}
-
-function syncQuestPrestige(profile: PlayerProfile, questProgress: QuestProgress): PlayerProfile {
-  const questPrestige = calculatePrestigeFromQuestProgress(questProgress);
-
-  return {
-    ...profile,
-    bonus_prestige_points: questPrestige,
-    prestige_points: questPrestige,
-  } as PlayerProfile;
-}
-
-function migrateLocalBusinesses(
-  storedBusinesses: BusinessWithPlayerData[] | undefined,
-  seedBusinesses: BusinessWithPlayerData[]
-): BusinessWithPlayerData[] {
-  if (!storedBusinesses?.length) return seedBusinesses;
-
-  return seedBusinesses.map((seedBusiness) => {
-    const storedBusiness =
-      storedBusinesses.find((business) => business.id === seedBusiness.id) ||
-      storedBusinesses.find((business) => business.unlock_order === seedBusiness.unlock_order) ||
-      storedBusinesses.find((business) => business.name === seedBusiness.name);
-
-    if (!storedBusiness) {
-      return seedBusiness;
-    }
-
-    const currentLevel = storedBusiness.current_level ?? seedBusiness.current_level ?? 1;
-    const resolvedPrestigePoints = getBusinessPrestigeForLevel(seedBusiness.id, currentLevel);
-
-    return {
-      ...seedBusiness,
-      is_owned: storedBusiness.is_owned ?? seedBusiness.is_owned,
-      can_unlock: storedBusiness.can_unlock ?? seedBusiness.can_unlock,
-      current_level: currentLevel,
-      current_hourly_income: storedBusiness.current_hourly_income ?? seedBusiness.current_hourly_income,
-      total_invested: storedBusiness.total_invested ?? seedBusiness.total_invested,
-      current_prestige_points: resolvedPrestigePoints,
-    };
-  });
-}
-
-function migrateLocalInvestments(
-  storedInvestments: InvestmentWithPlayerData[] | undefined,
-  seedInvestments: InvestmentWithPlayerData[]
-): InvestmentWithPlayerData[] {
-  if (!storedInvestments?.length) return seedInvestments;
-
-  return seedInvestments.map((seedInvestment) => {
-    const storedInvestment =
-      storedInvestments.find((investment) => investment.id === seedInvestment.id) ||
-      storedInvestments.find((investment) => investment.sort_order === seedInvestment.sort_order) ||
-      storedInvestments.find((investment) => investment.region === seedInvestment.region);
-
-    if (!storedInvestment) {
-      return seedInvestment;
-    }
-
-    return {
-      ...seedInvestment,
-      is_owned: storedInvestment.is_owned ?? seedInvestment.is_owned,
-      current_level: storedInvestment.current_level ?? seedInvestment.current_level,
-      current_rental_income:
-        storedInvestment.current_rental_income ?? seedInvestment.current_rental_income,
-      total_invested: storedInvestment.total_invested ?? seedInvestment.total_invested,
-      purchased_at: storedInvestment.purchased_at ?? seedInvestment.purchased_at,
-      upgrades_applied: storedInvestment.upgrades_applied ?? seedInvestment.upgrades_applied,
-    };
-  });
-}
 
 export function useGameState(deviceId: string, userId: string | null) {
   const [gameState, setGameState] = useState<GameState>({
