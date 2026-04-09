@@ -60,7 +60,7 @@ import type {
 } from '../types/game';
 import { recalculateLocalEconomy } from '../data/local/economy';
 import { getBusinessPrestigeForLevel } from '../data/local/businessPrestigePoints';
-import { calculateOfflineEarnings } from '../utils/game/calculations';
+import { calculateOfflineEarnings, calculateOfflineWellbeingDecay } from '../utils/game/calculations';
 import { canAccessCarWithPrestige, canAccessHouseWithPrestige } from '../data/local/prestigeRequirements';
 import { usePassiveIncome } from './usePassiveIncome';
 import { useAutoSave } from './useAutoSave';
@@ -621,11 +621,25 @@ export function useGameState(deviceId: string, userId: string | null) {
         ...currentProfile,
         last_played_at: lastPlayedAt,
       });
+
+      // Arka planda geçirilen süre için wellbeing decay
+      const { jobs, playerJobs, cars, houses } = gameStateRef.current;
+      const activePlayerJob = playerJobs.find((pj) => pj.is_active);
+      const activeJob = activePlayerJob ? jobs.find((j) => j.id === activePlayerJob.job_id) ?? null : null;
+      const selectedCar = cars.find((c) => c.id === currentProfile.selected_car_id) ?? null;
+      const selectedHouse = houses.find((h) => h.id === currentProfile.selected_house_id) ?? null;
+      const wellbeingDecay = calculateOfflineWellbeingDecay(
+        [activeJob, selectedCar, selectedHouse],
+        lastPlayedAt,
+      );
+
       const resumedAt = new Date().toISOString();
-      const updatedProfile = {
+      const updatedProfile = normalizeProfileWellbeing({
         ...currentProfile,
+        health: Number(currentProfile.health ?? DEFAULT_HEALTH) + (wellbeingDecay?.health ?? 0),
+        happiness: Number(currentProfile.happiness ?? DEFAULT_HAPPINESS) + (wellbeingDecay?.happiness ?? 0),
         last_played_at: resumedAt,
-      };
+      });
 
       hiddenAtRef.current = null;
       setGameState((prev) => ({
@@ -781,11 +795,26 @@ export function useGameState(deviceId: string, userId: string | null) {
       if (currentProfile && shouldCalculateOfflineEarnings) {
         offlineEarnings = calculateOfflineEarnings(currentProfile);
 
-        if (offlineEarnings) {
-          currentProfile = {
+        // Offline wellbeing: job + car + house etkilerini offline süreye uygula
+        const activePlayerJob = (playerJobsRes || []).find((pj) => pj.is_active);
+        const activeJob = activePlayerJob
+          ? (jobsRes || []).find((j) => j.id === activePlayerJob.job_id) ?? null
+          : null;
+        const selectedCar = (carsRes || []).find((c) => c.id === currentProfile!.selected_car_id) ?? null;
+        const selectedHouse = (housesRes || []).find((h) => h.id === currentProfile!.selected_house_id) ?? null;
+
+        const wellbeingDecay = calculateOfflineWellbeingDecay(
+          [activeJob, selectedCar, selectedHouse],
+          currentProfile.last_played_at,
+        );
+
+        if (wellbeingDecay || offlineEarnings) {
+          currentProfile = normalizeProfileWellbeing({
             ...currentProfile,
+            health: Number(currentProfile.health ?? DEFAULT_HEALTH) + (wellbeingDecay?.health ?? 0),
+            happiness: Number(currentProfile.happiness ?? DEFAULT_HAPPINESS) + (wellbeingDecay?.happiness ?? 0),
             last_played_at: new Date().toISOString(),
-          };
+          });
           saveToLocalStorage({ profile: currentProfile });
         }
       }
@@ -957,7 +986,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     const finalRewardMoney = activeQuest.reward_money * normalizedRewardMultiplier;
     const finalRewardGems =
       activeQuest.reward_gems > 0
-        ? activeQuest.reward_gems + (rewardMultiplier > 1 ? 2 : 0)
+        ? activeQuest.reward_gems * normalizedRewardMultiplier
         : 0;
 
     const nextQuestProgress: QuestProgress = {

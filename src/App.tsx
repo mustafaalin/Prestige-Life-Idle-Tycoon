@@ -26,6 +26,7 @@ import { HappinessModal } from './components/HappinessModal';
 import { getDailyRewardStatus } from './data/local/rewards';
 import { getScaledShopRewards } from './data/local/rewardScaling';
 import { sumWellbeingEffectsPerHour } from './data/local/wellbeing';
+import type { WellbeingFactor } from './types/game';
 import { LOCAL_QUESTS } from './data/local/quests';
 import { getJobUnlockRequirementSeconds } from './data/local/jobs';
 import type { BankDepositPlanId } from './types/game';
@@ -580,7 +581,7 @@ export default function App() {
       const normalizedRewardMultiplier = rewardMultiplier > 1 ? 2 : 1;
       await playRewardAnimationSequence({
         money: rewardMoney * normalizedRewardMultiplier,
-        gems: rewardGems > 0 ? rewardGems + (rewardMultiplier > 1 ? 2 : 0) : 0,
+        gems: rewardGems > 0 ? rewardGems * normalizedRewardMultiplier : 0,
       });
       const result = await gameState.claimQuestReward(questId, rewardMultiplier);
 
@@ -799,6 +800,17 @@ export default function App() {
   const wellbeingRatePerHour = sumWellbeingEffectsPerHour([activeJob, currentHouse, currentCar]);
   const healthRatePerHour = wellbeingRatePerHour.health;
   const happinessRatePerHour = wellbeingRatePerHour.happiness;
+  const wellbeingFactors: WellbeingFactor[] = [
+    activeJob && (activeJob.health_effect_per_hour || activeJob.happiness_effect_per_hour)
+      ? { label: activeJob.name, source: 'job', healthPerHour: Number(activeJob.health_effect_per_hour ?? 0), happinessPerHour: Number(activeJob.happiness_effect_per_hour ?? 0) }
+      : null,
+    currentCar && (currentCar.health_effect_per_hour || currentCar.happiness_effect_per_hour)
+      ? { label: currentCar.name, source: 'car', healthPerHour: Number(currentCar.health_effect_per_hour ?? 0), happinessPerHour: Number(currentCar.happiness_effect_per_hour ?? 0) }
+      : null,
+    currentHouse && (currentHouse.health_effect_per_hour || currentHouse.happiness_effect_per_hour)
+      ? { label: currentHouse.name, source: 'house', healthPerHour: Number(currentHouse.health_effect_per_hour ?? 0), happinessPerHour: Number(currentHouse.happiness_effect_per_hour ?? 0) }
+      : null,
+  ].filter((f): f is WellbeingFactor => f !== null);
   const activeJobRequiredSeconds = activeJob ? getJobUnlockRequirementSeconds(activeJob) : 0;
   const activeJobTrackedSeconds = activePlayerJob
     ? Number(activePlayerJob.total_time_worked_seconds || 0) + Number(gameState.unsavedJobWorkSeconds || 0)
@@ -1006,6 +1018,7 @@ export default function App() {
         onApplyAction={handleAnimatedHealthAction}
         onApplyAdBoost={handleAnimatedHealthAdBoost}
         onWatchAd={handleWatchHealthAd}
+        wellbeingFactors={wellbeingFactors}
       />
 
       <HappinessModal
@@ -1015,6 +1028,7 @@ export default function App() {
         onApplyAction={handleAnimatedHappinessAction}
         onApplyAdBoost={handleAnimatedHappinessAdBoost}
         onWatchAd={handleWatchHappinessAd}
+        wellbeingFactors={wellbeingFactors}
       />
 
       {showBusinessModal && (
@@ -1139,6 +1153,7 @@ export default function App() {
         sessionStartTime={sessionStartTimeRef.current}
         onResetProgress={handleResetProgress}
         prestigePoints={gameState.profile?.prestige_points ?? 0}
+        selectedOutfitImage={gameState.selectedOutfit?.image_url ?? null}
       />
 
       <IncomeBreakdownModal

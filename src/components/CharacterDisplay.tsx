@@ -68,7 +68,7 @@ export function CharacterDisplay({
       {/* OUTGOING CAR (slides out left) */}
       {outgoingCar && carAnimState === 'transitioning' && (
         <div className="absolute bottom-40 left-4 z-10 select-none pointer-events-none animate-car-slide-out">
-          <div className="w-[420px] h-[280px] sm:w-[480px] sm:h-[320px]">
+          <div className="w-[280px] h-[187px] min-[420px]:w-[420px] min-[420px]:h-[280px] sm:w-[480px] sm:h-[320px]">
             <img src={outgoingCar} alt="" className="w-full h-full object-contain" draggable={false} />
           </div>
         </div>
@@ -82,7 +82,7 @@ export function CharacterDisplay({
           }`}
           style={carAnimState === 'idle' ? { transform: 'translateX(-10px)', opacity: 0.95 } : undefined}
         >
-          <div className="w-[420px] h-[280px] sm:w-[480px] sm:h-[320px]">
+          <div className="w-[280px] h-[187px] min-[420px]:w-[420px] min-[420px]:h-[280px] sm:w-[480px] sm:h-[320px]">
             <img src={visibleCar} alt="Car" className="w-full h-full object-contain" draggable={false} />
           </div>
         </div>
@@ -92,7 +92,7 @@ export function CharacterDisplay({
       <div className="absolute bottom-12 right-0 z-20 w-1/3 flex justify-end pr-2">
         <div className="select-none transform origin-bottom scale-90 translate-x-6">
           <div
-            className={`relative w-72 h-[500px] sm:w-80 sm:h-[550px] ${
+            className={`relative w-48 h-[333px] min-[420px]:w-72 min-[420px]:h-[500px] sm:w-80 sm:h-[550px] ${
               isCelebrating ? 'animate-character-celebrate' : ''
             }`}
           >

@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Activity,
+  Briefcase,
+  Car,
   Dumbbell,
   HeartPulse,
+  Home,
   Pill,
   ShieldPlus,
   Stethoscope,
@@ -16,7 +18,7 @@ import {
   getHealthCooldownRemaining,
 } from '../data/local/healthActions';
 import { LOCAL_ICON_ASSETS } from '../lib/localAssets';
-import type { HealthActionKey, PlayerProfile } from '../types/game';
+import type { HealthActionKey, PlayerProfile, WellbeingFactor } from '../types/game';
 import { formatMoneyFull } from '../utils/money';
 
 const actionIcons: Record<HealthActionKey, typeof Dumbbell> = {
@@ -28,6 +30,14 @@ const actionIcons: Record<HealthActionKey, typeof Dumbbell> = {
   get_an_operation: Syringe,
 };
 
+const sourceIcons = { job: Briefcase, car: Car, house: Home } as const;
+
+function formatRate(value: number): string {
+  if (value === 0) return '0/h';
+  const sign = value > 0 ? '+' : '';
+  return `${sign}${value % 1 === 0 ? value : value.toFixed(1)}/h`;
+}
+
 interface HealthModalProps {
   isOpen: boolean;
   profile: PlayerProfile | null;
@@ -35,6 +45,7 @@ interface HealthModalProps {
   onApplyAction: (actionKey: HealthActionKey) => Promise<{ success: boolean; appliedAmount: number }>;
   onApplyAdBoost: () => Promise<{ success: boolean; appliedAmount: number }>;
   onWatchAd: () => Promise<boolean>;
+  wellbeingFactors?: WellbeingFactor[];
 }
 
 function formatCooldown(seconds: number) {
@@ -58,6 +69,7 @@ export function HealthModal({
   onApplyAction,
   onApplyAdBoost,
   onWatchAd,
+  wellbeingFactors = [],
 }: HealthModalProps) {
   const [isApplyingAd, setIsApplyingAd] = useState(false);
   const [processingActionKey, setProcessingActionKey] = useState<HealthActionKey | null>(null);
@@ -134,60 +146,73 @@ export function HealthModal({
         </div>
 
         <div className="flex-1 overflow-y-auto bg-white p-3">
-          <div className="overflow-hidden rounded-[24px] border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 via-lime-50 to-white shadow-[0_14px_32px_rgba(16,185,129,0.12)]">
-            <div className="flex items-center gap-4 p-4">
-              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[22px] bg-white/85 shadow-[0_8px_18px_rgba(16,185,129,0.12)]">
-                <img src={LOCAL_ICON_ASSETS.healthy} alt="Health" className="h-14 w-14 object-contain" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="text-[11px] font-black uppercase tracking-[0.22em] text-emerald-600">
-                  Recovery
-                </div>
-                <div className="mt-1 text-xl font-black leading-tight text-slate-900">
-                  Restore your energy fast
-                </div>
-                <div className="mt-3 h-3 overflow-hidden rounded-full bg-emerald-100">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-lime-500 transition-[width] duration-300"
-                    style={{ width: `${currentHealth}%` }}
-                  />
-                </div>
-              </div>
+          {/* Faktörler kartı */}
+          <div className="rounded-[20px] border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 via-lime-50 to-white p-3 shadow-[0_8px_20px_rgba(16,185,129,0.10)]">
+            <div className="mb-2 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">
+              Factors (per hour)
             </div>
+            {wellbeingFactors.length === 0 ? (
+              <p className="text-[11px] text-slate-400 italic">No active factors</p>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                {wellbeingFactors.map((f) => {
+                  const Icon = sourceIcons[f.source];
+                  const val = f.healthPerHour;
+                  const color = val > 0 ? 'text-emerald-600' : val < 0 ? 'text-rose-500' : 'text-slate-400';
+                  return (
+                    <div key={f.source} className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Icon className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                        <span className="text-[12px] text-slate-600 truncate">{f.label}</span>
+                      </div>
+                      <span className={`text-[12px] font-black shrink-0 ${color}`}>{formatRate(val)}</span>
+                    </div>
+                  );
+                })}
+                <div className="flex items-center justify-between border-t border-emerald-100 pt-1.5 mt-0.5">
+                  <span className="text-[10px] font-black uppercase tracking-[0.12em] text-slate-500">Total</span>
+                  <span className={`text-[13px] font-black ${
+                    wellbeingFactors.reduce((s, f) => s + f.healthPerHour, 0) >= 0 ? 'text-emerald-600' : 'text-rose-500'
+                  }`}>
+                    {formatRate(wellbeingFactors.reduce((s, f) => s + f.healthPerHour, 0))}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
 
-            <div className="border-t border-emerald-100 bg-white/70 p-3">
+          {/* Reklam kartı */}
+          <div className="rounded-[20px] border-2 border-slate-200 bg-white p-3 shadow-[0_8px_20px_rgba(15,23,42,0.06)]">
+            <div className="flex items-center gap-3">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center">
+                <img src={LOCAL_ICON_ASSETS.ads} alt="Ad" className="h-14 w-14 object-contain" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] font-black text-slate-800">Watch Ad</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Instant <span className="font-black text-emerald-600">+{HEALTH_AD_BOOST_PERCENT}%</span> health boost
+                </p>
+              </div>
               <button
                 onClick={async () => {
-                  if (isApplyingAd) {
-                    return;
-                  }
-
+                  if (isApplyingAd) return;
                   setIsApplyingAd(true);
                   try {
                     const rewarded = await onWatchAd();
-                    if (!rewarded) {
-                      return;
-                    }
+                    if (!rewarded) return;
                     await onApplyAdBoost();
                   } finally {
                     setIsApplyingAd(false);
                   }
                 }}
                 disabled={isApplyingAd}
-                className={`ml-auto flex items-center gap-2 rounded-[16px] px-3 py-2 text-left transition-all border shadow-[inset_0_-4px_0_rgba(0,0,0,0.12)] ${
+                className={`shrink-0 min-w-[120px] rounded-[16px] px-4 py-2.5 text-center text-sm font-black transition-all border shadow-[inset_0_-4px_0_rgba(0,0,0,0.12)] ${
                   isApplyingAd
-                    ? 'cursor-not-allowed border-emerald-300 bg-gradient-to-r from-lime-300 to-emerald-300 text-slate-700 opacity-75'
-                    : 'border-emerald-400 bg-gradient-to-r from-lime-400 to-emerald-400 text-slate-900 active:scale-[0.99]'
+                    ? 'border-emerald-400 bg-gradient-to-r from-lime-300 to-emerald-300 text-slate-700 opacity-70 cursor-not-allowed'
+                    : 'border-emerald-500 bg-gradient-to-r from-lime-400 to-emerald-400 text-slate-900 active:scale-[0.98]'
                 }`}
               >
-                <Activity className="h-4 w-4" />
-                <span className="text-[11px] font-black uppercase tracking-[0.12em]">
-                  Ad
-                </span>
-                <span className="rounded-full bg-white/80 px-2.5 py-1 text-xs font-black">
-                  {isApplyingAd ? '...' : `+${HEALTH_AD_BOOST_PERCENT}%`}
-                </span>
+                {isApplyingAd ? '...' : 'Free'}
               </button>
             </div>
           </div>

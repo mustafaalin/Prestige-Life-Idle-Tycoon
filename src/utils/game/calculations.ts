@@ -1,4 +1,12 @@
 import type { PlayerProfile, OfflineEarnings } from '../../types/game';
+import type { WellbeingEffectSource } from '../../types/game';
+import { sumWellbeingEffectsPerHour } from '../../data/local/wellbeing';
+
+export interface OfflineWellbeingDecay {
+  health: number;
+  happiness: number;
+  appliedHours: number;
+}
 
 /**
  * Calculates offline earnings based on player's hourly income and time away
@@ -29,6 +37,39 @@ export function calculateOfflineEarnings(profile: PlayerProfile): OfflineEarning
     amount: Math.floor(offlineEarnings),
     minutes: minutesOffline,
     appliedMinutes: actualMinutes,
+  };
+}
+
+/**
+ * Calculates offline wellbeing change based on equipped items' per-hour effects.
+ * Capped at MAX_OFFLINE_HOURS regardless of actual time away.
+ */
+export function calculateOfflineWellbeingDecay(
+  sources: Array<WellbeingEffectSource | null | undefined>,
+  lastPlayedAt: string | null,
+  maxOfflineHours = 24,
+): OfflineWellbeingDecay | null {
+  if (!lastPlayedAt) return null;
+
+  const perHour = sumWellbeingEffectsPerHour(sources);
+  if (perHour.health === 0 && perHour.happiness === 0) return null;
+
+  const now = Date.now();
+  const last = new Date(lastPlayedAt).getTime();
+  const elapsedHours = (now - last) / 1000 / 3600;
+  if (elapsedHours < 1 / 60) return null; // 1 dakikadan az, yoksay
+
+  const appliedHours = Math.min(elapsedHours, maxOfflineHours);
+
+  // Offline iken negatif etkileri maks -2/h ile sınırla; pozitif etkiler aynen uygulanır
+  const MAX_OFFLINE_DECAY_PER_HOUR = -2;
+  const offlineHealthPerHour = perHour.health < 0 ? Math.max(perHour.health, MAX_OFFLINE_DECAY_PER_HOUR) : perHour.health;
+  const offlineHappinessPerHour = perHour.happiness < 0 ? Math.max(perHour.happiness, MAX_OFFLINE_DECAY_PER_HOUR) : perHour.happiness;
+
+  return {
+    health: offlineHealthPerHour * appliedHours,
+    happiness: offlineHappinessPerHour * appliedHours,
+    appliedHours,
   };
 }
 

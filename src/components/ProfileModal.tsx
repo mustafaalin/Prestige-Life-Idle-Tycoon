@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Pencil, Check, Clock, Wallet, TrendingUp, Star, AlertTriangle } from 'lucide-react';
+import { X, Pencil, Check, Clock, Wallet, TrendingUp, AlertTriangle } from 'lucide-react';
 import { ResetProgressModal } from './ResetProgressModal';
 import { LOCAL_ICON_ASSETS } from '../lib/localAssets';
 import { formatMoneyFull } from '../utils/money';
@@ -28,6 +28,7 @@ interface ProfileModalProps {
   sessionStartTime: number;
   onResetProgress: () => Promise<void>;
   prestigePoints: number;
+  selectedOutfitImage?: string | null;
 }
 
 export default function ProfileModal({
@@ -40,6 +41,7 @@ export default function ProfileModal({
   sessionStartTime,
   onResetProgress,
   prestigePoints,
+  selectedOutfitImage,
 }: ProfileModalProps) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editName, setEditName] = useState(playerName);
@@ -124,7 +126,7 @@ export default function ProfileModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="relative bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 px-5 pb-6 pt-5">
+        <div className="relative bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 px-5 pb-5 pt-5">
           <button
             onClick={onClose}
             className="absolute right-4 top-4 rounded-full bg-white/20 p-2 text-white transition-all active:scale-95"
@@ -132,41 +134,57 @@ export default function ProfileModal({
             <X className="h-4 w-4" />
           </button>
 
-          {/* Avatar */}
-          <div className="flex flex-col items-center gap-3 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-[24px] bg-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.15)]">
-              <Wallet className="h-9 w-9 text-white" />
+          {/* Character + name row */}
+          <div className="flex items-center gap-4">
+            {/* Portrait card */}
+            <div className="relative h-36 w-24 flex-shrink-0 overflow-hidden rounded-3xl bg-white/20 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+              {selectedOutfitImage ? (
+                <img
+                  src={selectedOutfitImage}
+                  alt="character"
+                  className="absolute inset-0 h-full w-full object-cover object-top"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <Wallet className="h-10 w-10 text-white/60" />
+                </div>
+              )}
             </div>
 
-            {isEditingName ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="rounded-xl bg-white/20 px-3 py-1.5 text-center text-white placeholder-white/50 outline-none ring-1 ring-white/30 focus:ring-white/60 font-bold text-base w-44"
-                  maxLength={20}
-                  autoFocus
-                />
-                <button
-                  onClick={handleSaveName}
-                  disabled={isSaving}
-                  className="rounded-full bg-white/20 p-1.5 text-white transition-all active:scale-95 disabled:opacity-50"
-                >
-                  <Check className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <p className="text-lg font-black text-white">{playerName}</p>
-                <button
-                  onClick={() => setIsEditingName(true)}
-                  className="rounded-full bg-white/20 p-1.5 text-white transition-all active:scale-95"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            )}
+            {/* Name + label */}
+            <div className="flex flex-1 flex-col gap-1.5 pb-1 pr-8">
+              <p className="text-[11px] font-black uppercase tracking-widest text-white/60">Player</p>
+
+              {isEditingName ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="rounded-xl bg-white/20 px-3 py-1.5 text-white placeholder-white/50 outline-none ring-1 ring-white/30 focus:ring-white/60 font-bold text-base w-36"
+                    maxLength={20}
+                    autoFocus
+                  />
+                  <button
+                    onClick={handleSaveName}
+                    disabled={isSaving}
+                    className="rounded-full bg-white/20 p-1.5 text-white transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <p className="text-xl font-black leading-tight text-white">{playerName}</p>
+                  <button
+                    onClick={() => setIsEditingName(true)}
+                    className="rounded-full bg-white/20 p-1.5 text-white transition-all active:scale-95"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

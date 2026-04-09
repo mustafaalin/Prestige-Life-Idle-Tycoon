@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { deviceIdentity } from '../lib/deviceIdentity';
+import { ensureAnonymousSession } from '../lib/auth';
 
 export interface LocalAuthUser {
   id: string;
@@ -14,7 +15,7 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initAuth = () => {
+    const initAuth = async () => {
       const identity = deviceIdentity.initialize();
       setDeviceId(identity.deviceId);
       setUser({
@@ -24,6 +25,11 @@ export function useAuth() {
       });
       setIsAuthenticated(true);
       setLoading(false);
+
+      // Supabase anonymous auth'u arka planda başlat (IAP için)
+      ensureAnonymousSession().catch((err) =>
+        console.warn('[Auth] Supabase anonymous session failed:', err)
+      );
     };
 
     initAuth();

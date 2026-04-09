@@ -19,6 +19,13 @@ export interface WellbeingEffectSource {
   health_effect_per_hour?: number;
   happiness_effect_per_hour?: number;
 }
+
+export interface WellbeingFactor {
+  label: string;
+  source: 'job' | 'car' | 'house';
+  healthPerHour: number;
+  happinessPerHour: number;
+}
 export type ItemPurchaseCurrency = 'cash' | 'gems';
 export interface PremiumCatalogItem {
   purchase_currency?: ItemPurchaseCurrency;

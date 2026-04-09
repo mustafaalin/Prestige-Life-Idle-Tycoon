@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Gift, DollarSign, Play, Lock, Monitor, ShoppingBag, Sparkles, Shirt, Check, Flame } from 'lucide-react';
 import * as rewardService from '../services/rewardService';
 import * as itemService from '../services/itemService';
+import { purchasePackage } from '../services/iapService';
 import { PurchaseConfirmModal } from './PurchaseConfirmModal';
 import { LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
 import { DAILY_REWARDS } from '../data/local/rewards';
@@ -499,9 +500,21 @@ export function ShopModal({
     setIsProcessingPurchase(true);
 
     try {
-      const moneyAdded = selectedPackage.type === 'money' ? selectedPackage.amount : 0;
-      const gemsAdded = selectedPackage.type === 'gem' ? selectedPackage.amount : 0;
-      await onPurchaseComplete(moneyAdded, gemsAdded);
+      const result = await purchasePackage(
+        selectedPackage.packageId,
+        selectedPackage.type === 'gem' ? 'gems' : 'money',
+        selectedPackage.amount,
+        selectedPackage.price,
+      );
+
+      if (!result.success) {
+        if (result.error !== 'cancelled') {
+          showNotification(result.error || 'Purchase failed');
+        }
+        return;
+      }
+
+      await onPurchaseComplete(result.moneyAdded, result.gemsAdded);
       setShowPurchaseConfirm(false);
       setSelectedPackage(null);
     } catch (error: any) {
