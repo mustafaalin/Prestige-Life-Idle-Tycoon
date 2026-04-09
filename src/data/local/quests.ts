@@ -16,19 +16,18 @@ import { LOCAL_JOBS } from './jobs';
 import { getCarProgressionLevel } from './cars';
 
 export const TOTAL_QUEST_CHAPTERS = 10;
-const LEGACY_QUESTS_PER_CHAPTER = 10;
 
 export const QUEST_CHAPTERS: QuestChapterDefinition[] = [
-  { id: 'chapter-1', title: 'Starting Out', reward_prestige_points: 3 },
-  { id: 'chapter-2', title: 'Moving Up', reward_prestige_points: 4 },
-  { id: 'chapter-3', title: 'Building Wealth', reward_prestige_points: 5 },
-  { id: 'chapter-4', title: 'Chapter 4', reward_prestige_points: 5 },
-  { id: 'chapter-5', title: 'Chapter 5', reward_prestige_points: 5 },
-  { id: 'chapter-6', title: 'Chapter 6', reward_prestige_points: 5 },
-  { id: 'chapter-7', title: 'Chapter 7', reward_prestige_points: 5 },
-  { id: 'chapter-8', title: 'Chapter 8', reward_prestige_points: 5 },
-  { id: 'chapter-9', title: 'Chapter 9', reward_prestige_points: 5 },
-  { id: 'chapter-10', title: 'Chapter 10', reward_prestige_points: 5 },
+  { id: 'chapter-1',  title: 'Starting Out',      reward_prestige_points: 3  },
+  { id: 'chapter-2',  title: 'Getting Started',   reward_prestige_points: 5  },
+  { id: 'chapter-3',  title: 'Building Momentum', reward_prestige_points: 8  },
+  { id: 'chapter-4',  title: 'Growing Empire',    reward_prestige_points: 12 },
+  { id: 'chapter-5',  title: 'Passive Income',    reward_prestige_points: 16 },
+  { id: 'chapter-6',  title: 'Style & Commerce',  reward_prestige_points: 22 },
+  { id: 'chapter-7',  title: 'Real Estate',       reward_prestige_points: 30 },
+  { id: 'chapter-8',  title: 'Industrial Scale',  reward_prestige_points: 40 },
+  { id: 'chapter-9',  title: 'Elite Status',      reward_prestige_points: 55 },
+  { id: 'chapter-10', title: 'Idle Legend',       reward_prestige_points: 75 },
 ];
 
 const STATIC_QUESTS_RAW: QuestDefinition[] = [
@@ -73,7 +72,7 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
     title: 'Buy Your First Vehicle',
     description: 'Purchase your first vehicle upgrade.',
     reward_money: 400,
-    reward_gems: 0,
+    reward_gems: 1,
     target_screen: 'stuff',
     condition: { type: 'owned_car_count', count: 1 },
   },
@@ -181,7 +180,7 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
     title: 'Buy Your First Property',
     description: 'Pick up your first real estate investment.',
     reward_money: 1750,
-    reward_gems: 0,
+    reward_gems: 2,
     target_screen: 'investments',
     condition: { type: 'owned_investment_count', count: 1 },
   },
@@ -411,15 +410,6 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
     condition: { type: 'owned_business_count', count: 6 },
   },
   {
-    id: 'quest-43-own-five-businesses',
-    title: 'Own 5 Businesses',
-    description: 'Reach five owned businesses in total.',
-    reward_money: 12000,
-    reward_gems: 0,
-    target_screen: 'business',
-    condition: { type: 'owned_business_count', count: 5 },
-  },
-  {
     id: 'quest-44-total-five-business-upgrades',
     title: 'Make 5 Business Upgrades',
     description: 'Accumulate five total business upgrades.',
@@ -549,7 +539,7 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
     id: 'quest-58-claim-ten-quest-rewards',
     title: 'Claim 10 Quest Rewards',
     description: 'Claim ten quest rewards in total.',
-    reward_money: 45000,
+    reward_money: 18000,
     reward_gems: 0,
     target_screen: 'shop',
     condition: { type: 'claimed_quest_count', count: 10 },
@@ -625,15 +615,6 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
     reward_gems: 0,
     target_screen: 'investments',
     condition: { type: 'investment_level_at_least_count', level: 3, count: 2 },
-  },
-  {
-    id: 'quest-67-upgrade-home-level-8',
-    title: 'Move To A Level 8 Home',
-    description: 'Reach an elite home tier.',
-    reward_money: 100000,
-    reward_gems: 0,
-    target_screen: 'stuff',
-    condition: { type: 'selected_house_level', level: 8 },
   },
   {
     id: 'quest-68-buy-sixth-outfit',
@@ -789,15 +770,6 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
     condition: { type: 'business_level_at_least_count', level: 4, count: 4 },
   },
   {
-    id: 'quest-85-own-eight-businesses',
-    title: 'Own 8 Businesses',
-    description: 'Reach eight owned businesses in total.',
-    reward_money: 425000,
-    reward_gems: 0,
-    target_screen: 'business',
-    condition: { type: 'owned_business_count', count: 8 },
-  },
-  {
     id: 'quest-86-three-full-properties',
     title: 'Fully Upgrade 3 Properties',
     description: 'Finish all upgrades on three properties.',
@@ -938,15 +910,108 @@ const LEGACY_ACTIVE_JOB_QUEST_IDS = new Set(
   STATIC_QUESTS_RAW.filter((quest) => quest.condition.type === 'active_job_level').map((quest) => quest.id)
 );
 
+// Explicit chapter assignment for every static quest.
+// Chapter indices: 0=Starting Out, 1=Getting Started, 2=Building Momentum,
+// 3=Growing Empire, 4=Passive Income, 5=Style & Commerce,
+// 6=Real Estate, 7=Industrial Scale, 8=Elite Status, 9=Idle Legend
 const STATIC_QUEST_CHAPTER_OVERRIDES: Partial<Record<string, number>> = {
-  'quest-27-buy-fourth-business': 3,
-  'quest-28-buy-second-investment': 3,
-  'quest-30-two-level-two-properties': 4,
+  // Chapter 0 — Starting Out (10 quests)
+  'quest-1-start-first-job':           0,
+  'quest-2-claim-daily-reward':        0,
+  'quest-3-work-three-minutes':        0,
+  'quest-5-buy-first-car':             0,
+  'quest-6-upgrade-home-level-2':      0,
+  'quest-7-buy-first-outfit':          0,
+  'quest-8-claim-three-quest-rewards': 0,  // count:3 — 3rd claim within ch0
+  'quest-9-buy-first-business':        0,
+  'quest-11-first-claim':              0,
+  'quest-58-claim-ten-quest-rewards':  0,  // count:10 — near end of ch0 (~10 quests in ch0)
+  // Chapter 1 — Getting Started (6 quests)
+  'quest-10-upgrade-first-business':   1,
+  'quest-14-buy-second-business':      1,
+  'quest-15-upgrade-home-level-3':     1,
+  'quest-16-buy-second-outfit':        1,
+  'quest-17-buy-first-investment':     1,
+  'quest-18-upgrade-first-investment': 1,
+  // Chapter 2 — Building Momentum (10 quests)
+  'quest-13-claim-earnings-two-times': 2,
+  'quest-20-make-three-business-upgrades': 2,
+  'quest-21-buy-third-business':       2,
+  'quest-22-business-level-3':         2,
+  'quest-23-upgrade-home-level-4':     2,
+  'quest-24-buy-second-car':           2,
+  'quest-25-own-level-four-vehicle':   2,
+  'quest-28-buy-second-investment':    2,
+  'quest-37-investment-level-3':       2,  // natural next step after ch1's invest level-2
+  'quest-56-claim-twenty-five-quest-rewards': 2,  // count:25 — achievable mid-ch2
+  // Chapter 3 — Growing Empire (10 quests)
+  'quest-27-buy-fourth-business':      3,
+  'quest-29-upgrade-home-level-5':     3,
+  'quest-30-two-level-two-properties': 3,
+  'quest-32-claim-earnings-three-times': 3,
+  'quest-33-buy-fifth-business':       3,
+  'quest-34-business-level-4':         3,
+  'quest-35-buy-third-outfit':         3,
+  'quest-36-buy-third-investment':     3,
+  'quest-46-investment-level-4':       3,  // natural next step after ch2's invest level-3
+  'quest-74-claim-forty-quest-rewards': 3, // count:40 — achievable mid-ch3
+  // Chapter 4 — Passive Income (7 quests)
+  'quest-38-two-level-four-businesses': 4,
+  'quest-39-buy-third-car':            4,
+  'quest-40-upgrade-home-level-6':     4,
+  'quest-42-buy-sixth-business':       4,
+  'quest-44-total-five-business-upgrades': 4,
+  'quest-45-buy-fourth-investment':    4,
+  'quest-47-make-six-property-upgrades': 4,
+  // Chapter 5 — Style & Commerce (8 quests)
+  'quest-48-buy-fourth-outfit':        5,
+  'quest-49-buy-fourth-car':           5,
+  'quest-50-upgrade-home-level-7':     5,
+  'quest-52-buy-sixth-investment':     5,
+  'quest-53-buy-seventh-business':     5,
+  'quest-54-max-one-business':         5,
+  'quest-55-luxury-home-band':         5,
+  'quest-57-buy-fifth-outfit':         5,
+  // Chapter 6 — Real Estate (10 quests)
+  'quest-59-daily-streak-seven':       6,
+  'quest-60-buy-fifth-car':            6,
+  'quest-62-buy-eight-investments':    6,
+  'quest-63-buy-eighth-business':      6,  // CRITICAL FIX: was missing from overrides, defaulted to ch0
+  'quest-64-make-ten-business-upgrades': 6,
+  'quest-65-full-upgrade-one-property': 6,
+  'quest-66-two-properties-level-3':   6,
+  'quest-68-buy-sixth-outfit':         6,
+  'quest-69-claim-earnings-five-times': 6,
+  'quest-94-claim-seventy-quest-rewards': 6,  // count:70 — achievable early ch6
+  // Chapter 7 — Industrial Scale (9 quests)
+  'quest-70-buy-sixth-car':            7,
+  'quest-72-buy-ten-investments':      7,
+  'quest-73-buy-ninth-business':       7,
+  'quest-75-three-businesses-level-4': 7,
+  'quest-76-two-full-properties':      7,
+  'quest-77-upgrade-home-level-9':     7,
+  'quest-78-buy-seventh-outfit':       7,
+  'quest-79-buy-seventh-car':          7,
+  'quest-99-claim-eighty-five-quest-rewards': 7,  // count:85 — achievable mid-ch7
+  // Chapter 8 — Elite Status (9 quests)
+  'quest-80-daily-streak-fifteen':     8,
+  'quest-82-buy-twelve-investments':   8,
+  'quest-83-buy-tenth-business':       8,
+  'quest-84-four-level-four-businesses': 8,
+  'quest-86-three-full-properties':    8,
+  'quest-87-upgrade-home-level-10':    8,
+  'quest-88-buy-eighth-outfit':        8,
+  'quest-89-buy-eighth-car':           8,
+  'quest-90-investment-income-100k':   8,
+  // Chapter 9 — Idle Legend (7 quests)
+  'quest-92-buy-fifteen-investments':  9,
+  'quest-93-own-twelve-businesses':    9,
+  'quest-95-own-ten-cars':             9,
+  'quest-96-own-ten-outfits':          9,
+  'quest-97-five-full-properties':     9,
+  'quest-98-upgrade-home-level-12':    9,
+  'quest-100-idle-guy-elite':          9,
 };
-
-function getLegacyQuestChapterIndexByRawIndex(index: number) {
-  return Math.floor(index / LEGACY_QUESTS_PER_CHAPTER);
-}
 
 const MAX_JOB_LEVEL = LOCAL_JOBS.reduce((maxLevel, job) => Math.max(maxLevel, Number(job.level || 0)), 0);
 
@@ -1001,8 +1066,7 @@ interface QuestCatalogEntry {
 const STATIC_QUEST_ENTRIES: QuestCatalogEntry[] = STATIC_QUESTS_RAW
   .map((quest, index) => ({
     quest,
-    chapterIndex:
-      STATIC_QUEST_CHAPTER_OVERRIDES[quest.id] ?? getLegacyQuestChapterIndexByRawIndex(index),
+    chapterIndex: STATIC_QUEST_CHAPTER_OVERRIDES[quest.id] ?? 0,
     chapterOrder: index,
   }))
   .filter((entry) => !LEGACY_ACTIVE_JOB_QUEST_IDS.has(entry.quest.id));
