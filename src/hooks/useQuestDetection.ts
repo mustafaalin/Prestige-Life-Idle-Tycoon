@@ -94,13 +94,13 @@ export function useQuestDetection({
         questProgress: nextQuestProgress,
       });
 
-      questRewardInFlightRef.current = false;
       return {
         ...prev,
         profile: nextProfile,
         questProgress: nextQuestProgress,
       };
     });
+    questRewardInFlightRef.current = false;
   }, [
     gameState.profile,
     gameState.gameStats,

@@ -12,7 +12,6 @@ import {
 import { calculateWellbeingDeltaFromSources } from '../data/local/wellbeing';
 import type {
   GameState,
-  InvestmentUpgradeKey,
   PlayerProfile,
 } from '../types/game';
 import { calculateOfflineEarnings, calculateOfflineWellbeingDecay } from '../utils/game/calculations';
@@ -29,8 +28,8 @@ import { useQuestActions } from './useQuestActions';
 import { useRewardActions } from './useRewardActions';
 import { useStuffActions } from './useStuffActions';
 import { useWellbeingActions } from './useWellbeingActions';
+import { useInvestmentActions } from './useInvestmentActions';
 import * as profileService from '../services/profileService';
-import * as investmentService from '../services/investmentService';
 
 export function useGameState(deviceId: string, userId: string | null) {
   const [gameState, setGameState] = useState<GameState>({
@@ -290,11 +289,11 @@ export function useGameState(deviceId: string, userId: string | null) {
   }, [userId, loadGameData]);
 
   const saveProfile = useCallback(async (updates: Partial<PlayerProfile>) => {
-    const activeId = gameState.profile?.id;
+    const activeId = gameStateRef.current.profile?.id;
     if (!activeId) return;
     try {
       await profileService.updateProfile(activeId, updates);
-      const updatedProfile = { ...gameState.profile!, ...updates };
+      const updatedProfile = { ...gameStateRef.current.profile!, ...updates };
       gameStateRef.current = {
         ...gameStateRef.current,
         profile: updatedProfile,
@@ -304,7 +303,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     } catch (error) {
       console.error('Error saving profile:', error);
     }
-  }, [gameState.profile, saveToLocalStorage]);
+  }, [gameStateRef, saveToLocalStorage]);
 
   const {
     applyHealthAction,
@@ -420,37 +419,12 @@ export function useGameState(deviceId: string, userId: string | null) {
     return earnedMoney;
   }, [gameState.profile, saveToLocalStorage]);
 
-  const purchaseInvestment = useCallback(async (investmentId: string) => {
-    const activeId = gameState.profile?.id;
-    if (!activeId) return false;
-    try {
-      moneyMutationInFlightRef.current = true;
-      await flushPendingIfNeeded();
-      await investmentService.purchaseInvestment(activeId, investmentId);
-      moneyMutationInFlightRef.current = false;
-      await loadGameData(false);
-      return true;
-    } catch {
-      moneyMutationInFlightRef.current = false;
-      return false;
-    }
-  }, [gameState.profile?.id, loadGameData, flushPendingIfNeeded]);
-
-  const upgradeInvestment = useCallback(async (investmentId: string, upgradeKey: InvestmentUpgradeKey) => {
-    const activeId = gameState.profile?.id;
-    if (!activeId) return false;
-    try {
-      moneyMutationInFlightRef.current = true;
-      await flushPendingIfNeeded();
-      await investmentService.upgradeInvestment(activeId, investmentId, upgradeKey);
-      moneyMutationInFlightRef.current = false;
-      await loadGameData(false);
-      return true;
-    } catch {
-      moneyMutationInFlightRef.current = false;
-      return false;
-    }
-  }, [gameState.profile?.id, loadGameData, flushPendingIfNeeded]);
+  const { purchaseInvestment, upgradeInvestment } = useInvestmentActions({
+    gameState,
+    moneyMutationInFlightRef,
+    flushPendingIfNeeded,
+    loadGameData,
+  });
 
   const updatePlayerName = useCallback(async (newName: string) => {
     await saveProfile({ display_name: newName, username: newName });
