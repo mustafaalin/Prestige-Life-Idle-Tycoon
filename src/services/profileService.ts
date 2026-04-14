@@ -179,14 +179,22 @@ export async function resetProgress(userId: string) {
   const now = new Date().toISOString();
   const playerName = profile.display_name || profile.username || deviceIdentity.getPlayerName();
   const deviceId = profile.device_id || deviceIdentity.getDeviceId() || deviceIdentity.initialize().deviceId;
-  const freshProfile = createBaseProfile({
-    userId,
-    deviceId,
-    now,
-    playerName,
-    timesReset: Number(profile.times_reset || 0) + 1,
-    lastResetAt: now,
-  });
+  const iapGems = Number(profile.iap_gems_total || 0);
+  const iapMoney = Number(profile.iap_money_total || 0);
+  const freshProfile = {
+    ...createBaseProfile({
+      userId,
+      deviceId,
+      now,
+      playerName,
+      timesReset: Number(profile.times_reset || 0) + 1,
+      lastResetAt: now,
+    }),
+    gems: iapGems,
+    total_money: 100 + iapMoney,
+    iap_gems_total: iapGems,
+    iap_money_total: iapMoney,
+  };
 
   clearLocalStorage();
   saveLocalGameState({

@@ -5,6 +5,9 @@ interface ResetProgressModalProps {
   onClose: () => void;
   onConfirm: () => Promise<void>;
   isResetting?: boolean;
+  currentGems?: number;
+  iapGems?: number;
+  iapMoney?: number;
 }
 
 export function ResetProgressModal({
@@ -12,6 +15,9 @@ export function ResetProgressModal({
   onClose,
   onConfirm,
   isResetting = false,
+  currentGems = 0,
+  iapGems = 0,
+  iapMoney = 0,
 }: ResetProgressModalProps) {
   if (!isOpen) return null;
 
@@ -41,22 +47,43 @@ export function ResetProgressModal({
           </div>
         </div>
 
-        <div className="space-y-4 px-5 pb-5 pt-5">
-          <div className="rounded-3xl border border-rose-100 bg-gradient-to-br from-rose-50 to-white p-5">
+        <div className="space-y-3 px-5 pb-5 pt-5">
+          <div className="rounded-3xl border border-rose-100 bg-gradient-to-br from-rose-50 to-white p-4">
             <div className="flex items-center gap-2 text-rose-600">
-              <AlertTriangle className="h-5 w-5" />
+              <AlertTriangle className="h-4 w-4" />
               <span className="text-xs font-black uppercase tracking-[0.18em]">This Will Reset</span>
             </div>
-            <div className="mt-3 space-y-2 text-sm font-semibold text-slate-700">
-              <p>Money, gems, lifetime earnings, clicks, jobs, businesses, properties, outfits and quests.</p>
-              <p>You will restart with the level 1 outfit, level 1 house and no vehicle.</p>
+            <div className="mt-2 text-sm font-semibold text-slate-600">
+              Money, jobs, businesses, investments, houses, vehicles, outfits and quest progress.
             </div>
           </div>
 
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
-            <div className="flex items-center gap-2">
+          <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-4">
+            <div className="flex items-center gap-2 text-emerald-700">
               <Sparkles className="h-4 w-4" />
-              <span>Starter balance after reset: $100</span>
+              <span className="text-xs font-black uppercase tracking-[0.18em]">This Will Be Kept</span>
+            </div>
+            <div className="mt-2 space-y-1.5 text-sm font-semibold text-slate-700">
+              <div className="flex items-center justify-between">
+                <span>Purchased gems</span>
+                <span className="font-black text-violet-600">{iapGems} gems</span>
+              </div>
+              {iapMoney > 0 && (
+                <div className="flex items-center justify-between">
+                  <span>Purchased money</span>
+                  <span className="font-black text-emerald-600">${iapMoney.toLocaleString()}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span>Starter balance</span>
+                <span className="font-black text-emerald-600">$100</span>
+              </div>
+              {currentGems - iapGems > 0 && (
+                <div className="flex items-center justify-between text-slate-400">
+                  <span>Earned gems (reset)</span>
+                  <span className="font-black">-{currentGems - iapGems} gems</span>
+                </div>
+              )}
             </div>
           </div>
 

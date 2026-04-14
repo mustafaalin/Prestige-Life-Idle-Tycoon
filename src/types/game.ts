@@ -2,6 +2,8 @@ import type { Database } from '../lib/database.types';
 
 export type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'] & {
   bonus_prestige_points?: number;
+  iap_gems_total?: number;
+  iap_money_total?: number;
   cashback_pool?: number;
   cashback_claimed_total?: number;
   premium_bank_card_owned?: boolean;
@@ -118,6 +120,7 @@ export interface QuestChapterDefinition {
   id: string;
   title: string;
   reward_prestige_points: number;
+  reward_gems: number;
 }
 
 export interface QuestProgress {

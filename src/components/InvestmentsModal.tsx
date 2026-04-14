@@ -828,7 +828,7 @@ export function InvestmentsModal({
                                     +{formatMoney(incomeGain)}/hr
                                   </span>
                                   <span
-                                    className={`rounded-full px-2 py-1 text-[10px] font-black ${
+                                    className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-black ${
                                       isApplied || !isNextUpgrade
                                         ? 'bg-slate-200 text-slate-500'
                                         : totalMoney < cost
@@ -836,7 +836,12 @@ export function InvestmentsModal({
                                           : 'bg-slate-100 text-slate-700'
                                     }`}
                                   >
-                                    {formatMoney(cost)}
+                                    <img
+                                      src={LOCAL_ICON_ASSETS.money}
+                                      alt=""
+                                      className="h-3 w-3 object-contain"
+                                    />
+                                    {cost.toLocaleString()}
                                   </span>
                                 </div>
                                 {hasPremiumBankCard && (

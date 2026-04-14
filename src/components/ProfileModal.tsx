@@ -29,6 +29,9 @@ interface ProfileModalProps {
   onResetProgress: () => Promise<void>;
   prestigePoints: number;
   selectedOutfitImage?: string | null;
+  gems?: number;
+  iapGems?: number;
+  iapMoney?: number;
 }
 
 export default function ProfileModal({
@@ -42,6 +45,9 @@ export default function ProfileModal({
   onResetProgress,
   prestigePoints,
   selectedOutfitImage,
+  gems = 0,
+  iapGems = 0,
+  iapMoney = 0,
 }: ProfileModalProps) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editName, setEditName] = useState(playerName);
@@ -218,6 +224,9 @@ export default function ProfileModal({
         onClose={() => setShowResetConfirm(false)}
         onConfirm={handleReset}
         isResetting={isResetting}
+        currentGems={gems}
+        iapGems={iapGems}
+        iapMoney={iapMoney}
       />
     </div>
   );

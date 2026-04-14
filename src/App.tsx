@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useGameState } from './hooks/useGameState';
 import ProfileModal from './components/ProfileModal';
+import { SettingsModal } from './components/SettingsModal';
 import OfflineEarningsModal from './components/OfflineEarningsModal';
 import { Header } from './components/Header';
 import { CharacterDisplay } from './components/CharacterDisplay';
@@ -90,6 +91,7 @@ export default function App() {
   const [showShop, setShowShop] = useState(false);
   const [showJobs, setShowJobs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [activeTab, setActiveTab] = useState<'shop' | 'job' | 'business' | 'investments' | 'stuff'>('shop');
   
   // PERFORMANS ÇÖZÜMÜ: Her saniye render tetikleyen state yerine, 
@@ -409,6 +411,8 @@ export default function App() {
         await gameState.saveProfile({
           total_money: gameState.profile.total_money + moneyAdded,
           gems: gameState.profile.gems + gemsAdded,
+          iap_gems_total: (gameState.profile.iap_gems_total ?? 0) + gemsAdded,
+          iap_money_total: (gameState.profile.iap_money_total ?? 0) + moneyAdded,
         });
       }
 
@@ -876,7 +880,7 @@ export default function App() {
           setShowIncomeBreakdown(true);
         }}
         onOpenSettings={() => {
-          void 0;
+          setShowSettings(true);
         }}
       />
 
@@ -1154,6 +1158,18 @@ export default function App() {
         onResetProgress={handleResetProgress}
         prestigePoints={gameState.profile?.prestige_points ?? 0}
         selectedOutfitImage={gameState.selectedOutfit?.image_url ?? null}
+        gems={gameState.profile.gems ?? 0}
+        iapGems={gameState.profile.iap_gems_total ?? 0}
+        iapMoney={gameState.profile.iap_money_total ?? 0}
+      />
+
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        onResetProgress={handleResetProgress}
+        currentGems={gameState.profile.gems ?? 0}
+        iapGems={gameState.profile.iap_gems_total ?? 0}
+        iapMoney={gameState.profile.iap_money_total ?? 0}
       />
 
       <IncomeBreakdownModal

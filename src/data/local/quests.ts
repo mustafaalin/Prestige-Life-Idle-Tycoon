@@ -18,16 +18,16 @@ import { getCarProgressionLevel } from './cars';
 export const TOTAL_QUEST_CHAPTERS = 10;
 
 export const QUEST_CHAPTERS: QuestChapterDefinition[] = [
-  { id: 'chapter-1',  title: 'Starting Out',      reward_prestige_points: 3  },
-  { id: 'chapter-2',  title: 'Getting Started',   reward_prestige_points: 5  },
-  { id: 'chapter-3',  title: 'Building Momentum', reward_prestige_points: 8  },
-  { id: 'chapter-4',  title: 'Growing Empire',    reward_prestige_points: 12 },
-  { id: 'chapter-5',  title: 'Passive Income',    reward_prestige_points: 16 },
-  { id: 'chapter-6',  title: 'Style & Commerce',  reward_prestige_points: 22 },
-  { id: 'chapter-7',  title: 'Real Estate',       reward_prestige_points: 30 },
-  { id: 'chapter-8',  title: 'Industrial Scale',  reward_prestige_points: 40 },
-  { id: 'chapter-9',  title: 'Elite Status',      reward_prestige_points: 55 },
-  { id: 'chapter-10', title: 'Idle Legend',       reward_prestige_points: 75 },
+  { id: 'chapter-1',  title: 'Starting Out',      reward_prestige_points: 3,  reward_gems: 3  },
+  { id: 'chapter-2',  title: 'Getting Started',   reward_prestige_points: 5,  reward_gems: 5  },
+  { id: 'chapter-3',  title: 'Building Momentum', reward_prestige_points: 8,  reward_gems: 8  },
+  { id: 'chapter-4',  title: 'Growing Empire',    reward_prestige_points: 12, reward_gems: 10 },
+  { id: 'chapter-5',  title: 'Passive Income',    reward_prestige_points: 16, reward_gems: 12 },
+  { id: 'chapter-6',  title: 'Style & Commerce',  reward_prestige_points: 22, reward_gems: 15 },
+  { id: 'chapter-7',  title: 'Real Estate',       reward_prestige_points: 30, reward_gems: 18 },
+  { id: 'chapter-8',  title: 'Industrial Scale',  reward_prestige_points: 40, reward_gems: 20 },
+  { id: 'chapter-9',  title: 'Elite Status',      reward_prestige_points: 55, reward_gems: 22 },
+  { id: 'chapter-10', title: 'Idle Legend',       reward_prestige_points: 75, reward_gems: 25 },
 ];
 
 const STATIC_QUESTS_RAW: QuestDefinition[] = [
@@ -51,12 +51,12 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
   },
   {
     id: 'quest-3-work-three-minutes',
-    title: 'Work 3 Minutes',
-    description: 'Spend at least 3 minutes on your first job.',
+    title: 'Work 2 Minutes',
+    description: 'Spend at least 2 minutes on your first job.',
     reward_money: 250,
     reward_gems: 0,
     target_screen: 'job',
-    condition: { type: 'job_time_seconds', jobLevel: 1, seconds: 180 },
+    condition: { type: 'job_time_seconds', jobLevel: 1, seconds: 120 },
   },
   {
     id: 'quest-4-switch-second-job',
@@ -88,20 +88,11 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
   {
     id: 'quest-7-buy-first-outfit',
     title: 'Buy Your First Outfit',
-    description: 'Pick up a fresh outfit from the shop.',
+    description: 'Buy Outfit 2 from the shop.',
     reward_money: 500,
     reward_gems: 0,
     target_screen: 'shop',
     condition: { type: 'owned_outfit_count', count: 2 },
-  },
-  {
-    id: 'quest-8-claim-three-quest-rewards',
-    title: 'Claim 3 Quest Rewards',
-    description: 'Collect three quest rewards in total.',
-    reward_money: 0,
-    reward_gems: 2,
-    target_screen: 'shop',
-    condition: { type: 'claimed_quest_count', count: 3 },
   },
   {
     id: 'quest-9-buy-first-business',
@@ -168,8 +159,8 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
   },
   {
     id: 'quest-16-buy-second-outfit',
-    title: 'Buy A Second Outfit',
-    description: 'Expand your wardrobe with another outfit.',
+    title: 'Buy Outfit 3',
+    description: 'Purchase Outfit 3 from the shop.',
     reward_money: 1500,
     reward_gems: 0,
     target_screen: 'shop',
@@ -339,8 +330,8 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
   },
   {
     id: 'quest-35-buy-third-outfit',
-    title: 'Buy A Third Outfit',
-    description: 'Add another look to your wardrobe.',
+    title: 'Buy Outfit 4',
+    description: 'Purchase Outfit 4 from the shop.',
     reward_money: 6000,
     reward_gems: 0,
     target_screen: 'shop',
@@ -447,8 +438,8 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
   },
   {
     id: 'quest-48-buy-fourth-outfit',
-    title: 'Buy A Fourth Outfit',
-    description: 'Expand your wardrobe again.',
+    title: 'Buy Outfit 5',
+    description: 'Purchase Outfit 5 from the shop.',
     reward_money: 18000,
     reward_gems: 0,
     target_screen: 'shop',
@@ -518,31 +509,13 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
     condition: { type: 'selected_house_level', level: 8 },
   },
   {
-    id: 'quest-56-claim-twenty-five-quest-rewards',
-    title: 'Claim 25 Quest Rewards',
-    description: 'Collect twenty-five quest rewards in total.',
-    reward_money: 0,
-    reward_gems: 16,
-    target_screen: 'shop',
-    condition: { type: 'claimed_quest_count', count: 25 },
-  },
-  {
     id: 'quest-57-buy-fifth-outfit',
-    title: 'Buy A Fifth Outfit',
-    description: 'Grow your outfit collection further.',
+    title: 'Buy Outfit 6',
+    description: 'Purchase Outfit 6 from the shop.',
     reward_money: 40000,
     reward_gems: 0,
     target_screen: 'shop',
     condition: { type: 'owned_outfit_count', count: 6 },
-  },
-  {
-    id: 'quest-58-claim-ten-quest-rewards',
-    title: 'Claim 10 Quest Rewards',
-    description: 'Claim ten quest rewards in total.',
-    reward_money: 18000,
-    reward_gems: 0,
-    target_screen: 'shop',
-    condition: { type: 'claimed_quest_count', count: 10 },
   },
   {
     id: 'quest-59-daily-streak-seven',
@@ -618,8 +591,8 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
   },
   {
     id: 'quest-68-buy-sixth-outfit',
-    title: 'Buy A Sixth Outfit',
-    description: 'Keep building your style collection.',
+    title: 'Buy Outfit 7',
+    description: 'Purchase Outfit 7 from the shop.',
     reward_money: 110000,
     reward_gems: 0,
     target_screen: 'shop',
@@ -671,15 +644,6 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
     condition: { type: 'owned_business_count', count: 9 },
   },
   {
-    id: 'quest-74-claim-forty-quest-rewards',
-    title: 'Claim 40 Quest Rewards',
-    description: 'Collect forty quest rewards in total.',
-    reward_money: 0,
-    reward_gems: 20,
-    target_screen: 'shop',
-    condition: { type: 'claimed_quest_count', count: 40 },
-  },
-  {
     id: 'quest-75-three-businesses-level-4',
     title: 'Own 3 Level 4 Businesses',
     description: 'Have three businesses at level 4 or higher.',
@@ -708,8 +672,8 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
   },
   {
     id: 'quest-78-buy-seventh-outfit',
-    title: 'Buy A Seventh Outfit',
-    description: 'Expand your wardrobe once again.',
+    title: 'Buy Outfit 8',
+    description: 'Purchase Outfit 8 from the shop.',
     reward_money: 250000,
     reward_gems: 0,
     target_screen: 'shop',
@@ -789,8 +753,8 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
   },
   {
     id: 'quest-88-buy-eighth-outfit',
-    title: 'Buy An Eighth Outfit',
-    description: 'Reach eight owned outfits in total.',
+    title: 'Buy Outfit 9',
+    description: 'Purchase Outfit 9 from the shop.',
     reward_money: 575000,
     reward_gems: 0,
     target_screen: 'shop',
@@ -842,15 +806,6 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
     condition: { type: 'owned_business_count', count: 12 },
   },
   {
-    id: 'quest-94-claim-seventy-quest-rewards',
-    title: 'Claim 70 Quest Rewards',
-    description: 'Collect seventy quest rewards in total.',
-    reward_money: 0,
-    reward_gems: 25,
-    target_screen: 'shop',
-    condition: { type: 'claimed_quest_count', count: 70 },
-  },
-  {
     id: 'quest-95-own-ten-cars',
     title: 'Own 10 Vehicles',
     description: 'Reach ten owned vehicles in total.',
@@ -861,8 +816,8 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
   },
   {
     id: 'quest-96-own-ten-outfits',
-    title: 'Own 10 Outfits',
-    description: 'Reach ten owned outfits in total.',
+    title: 'Buy Outfit 10',
+    description: 'Purchase Outfit 10 from the shop.',
     reward_money: 1300000,
     reward_gems: 0,
     target_screen: 'shop',
@@ -887,22 +842,13 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
     condition: { type: 'selected_house_level', level: 12 },
   },
   {
-    id: 'quest-99-claim-eighty-five-quest-rewards',
-    title: 'Claim 85 Quest Rewards',
-    description: 'Collect eighty-five quest rewards in total.',
-    reward_money: 0,
-    reward_gems: 30,
-    target_screen: 'shop',
-    condition: { type: 'claimed_quest_count', count: 85 },
-  },
-  {
     id: 'quest-100-idle-guy-elite',
     title: 'Become Idle Guy Elite',
-    description: 'Claim the previous 99 quest rewards and reach elite status.',
+    description: 'Own 20 real estate properties and reach elite status.',
     reward_money: 2000000,
     reward_gems: 50,
-    target_screen: 'shop',
-    condition: { type: 'claimed_quest_count', count: 99 },
+    target_screen: 'investments',
+    condition: { type: 'owned_investment_count', count: 20 },
   },
 ];
 
@@ -915,36 +861,34 @@ const LEGACY_ACTIVE_JOB_QUEST_IDS = new Set(
 // 3=Growing Empire, 4=Passive Income, 5=Style & Commerce,
 // 6=Real Estate, 7=Industrial Scale, 8=Elite Status, 9=Idle Legend
 const STATIC_QUEST_CHAPTER_OVERRIDES: Partial<Record<string, number>> = {
-  // Chapter 0 — Starting Out (10 quests)
+  // Chapter 0 — Starting Out (8 quests)
   'quest-1-start-first-job':           0,
   'quest-2-claim-daily-reward':        0,
   'quest-3-work-three-minutes':        0,
   'quest-5-buy-first-car':             0,
   'quest-6-upgrade-home-level-2':      0,
   'quest-7-buy-first-outfit':          0,
-  'quest-8-claim-three-quest-rewards': 0,  // count:3 — 3rd claim within ch0
   'quest-9-buy-first-business':        0,
   'quest-11-first-claim':              0,
-  'quest-58-claim-ten-quest-rewards':  0,  // count:10 — near end of ch0 (~10 quests in ch0)
-  // Chapter 1 — Getting Started (6 quests)
+  // Chapter 1 — Getting Started (8 quests)
   'quest-10-upgrade-first-business':   1,
+  'quest-13-claim-earnings-two-times': 1,
   'quest-14-buy-second-business':      1,
   'quest-15-upgrade-home-level-3':     1,
   'quest-16-buy-second-outfit':        1,
   'quest-17-buy-first-investment':     1,
   'quest-18-upgrade-first-investment': 1,
-  // Chapter 2 — Building Momentum (10 quests)
-  'quest-13-claim-earnings-two-times': 2,
+  'quest-28-buy-second-investment':    1,
+  // Chapter 2 — Building Momentum (8 quests)
   'quest-20-make-three-business-upgrades': 2,
   'quest-21-buy-third-business':       2,
   'quest-22-business-level-3':         2,
   'quest-23-upgrade-home-level-4':     2,
   'quest-24-buy-second-car':           2,
   'quest-25-own-level-four-vehicle':   2,
-  'quest-28-buy-second-investment':    2,
-  'quest-37-investment-level-3':       2,  // natural next step after ch1's invest level-2
-  'quest-56-claim-twenty-five-quest-rewards': 2,  // count:25 — achievable mid-ch2
-  // Chapter 3 — Growing Empire (10 quests)
+  'quest-37-investment-level-3':       2,
+  'quest-46-investment-level-4':       2,
+  // Chapter 3 — Growing Empire (8 quests)
   'quest-27-buy-fourth-business':      3,
   'quest-29-upgrade-home-level-5':     3,
   'quest-30-two-level-two-properties': 3,
@@ -953,8 +897,6 @@ const STATIC_QUEST_CHAPTER_OVERRIDES: Partial<Record<string, number>> = {
   'quest-34-business-level-4':         3,
   'quest-35-buy-third-outfit':         3,
   'quest-36-buy-third-investment':     3,
-  'quest-46-investment-level-4':       3,  // natural next step after ch2's invest level-3
-  'quest-74-claim-forty-quest-rewards': 3, // count:40 — achievable mid-ch3
   // Chapter 4 — Passive Income (7 quests)
   'quest-38-two-level-four-businesses': 4,
   'quest-39-buy-third-car':            4,
@@ -972,18 +914,17 @@ const STATIC_QUEST_CHAPTER_OVERRIDES: Partial<Record<string, number>> = {
   'quest-54-max-one-business':         5,
   'quest-55-luxury-home-band':         5,
   'quest-57-buy-fifth-outfit':         5,
-  // Chapter 6 — Real Estate (10 quests)
+  // Chapter 6 — Real Estate (9 quests)
   'quest-59-daily-streak-seven':       6,
   'quest-60-buy-fifth-car':            6,
   'quest-62-buy-eight-investments':    6,
-  'quest-63-buy-eighth-business':      6,  // CRITICAL FIX: was missing from overrides, defaulted to ch0
+  'quest-63-buy-eighth-business':      6,
   'quest-64-make-ten-business-upgrades': 6,
   'quest-65-full-upgrade-one-property': 6,
   'quest-66-two-properties-level-3':   6,
   'quest-68-buy-sixth-outfit':         6,
   'quest-69-claim-earnings-five-times': 6,
-  'quest-94-claim-seventy-quest-rewards': 6,  // count:70 — achievable early ch6
-  // Chapter 7 — Industrial Scale (9 quests)
+  // Chapter 7 — Industrial Scale (8 quests)
   'quest-70-buy-sixth-car':            7,
   'quest-72-buy-ten-investments':      7,
   'quest-73-buy-ninth-business':       7,
@@ -992,7 +933,6 @@ const STATIC_QUEST_CHAPTER_OVERRIDES: Partial<Record<string, number>> = {
   'quest-77-upgrade-home-level-9':     7,
   'quest-78-buy-seventh-outfit':       7,
   'quest-79-buy-seventh-car':          7,
-  'quest-99-claim-eighty-five-quest-rewards': 7,  // count:85 — achievable mid-ch7
   // Chapter 8 — Elite Status (9 quests)
   'quest-80-daily-streak-fifteen':     8,
   'quest-82-buy-twelve-investments':   8,
@@ -1043,8 +983,8 @@ function getJobQuestRewardMoney(level: number) {
   return 300 + level * 350 + Math.floor(level / 5) * 250;
 }
 
-const GENERATED_JOB_LEVEL_QUESTS: QuestDefinition[] = Array.from({ length: MAX_JOB_LEVEL }, (_, index) => {
-  const level = index + 1;
+const GENERATED_JOB_LEVEL_QUESTS: QuestDefinition[] = Array.from({ length: MAX_JOB_LEVEL - 1 }, (_, index) => {
+  const level = index + 2;
 
   return {
     id: `quest-job-level-${level}`,
@@ -1073,7 +1013,7 @@ const STATIC_QUEST_ENTRIES: QuestCatalogEntry[] = STATIC_QUESTS_RAW
 
 const GENERATED_JOB_QUEST_ENTRIES: QuestCatalogEntry[] = GENERATED_JOB_LEVEL_QUESTS.map((quest, index) => ({
   quest,
-  chapterIndex: getJobQuestChapterIndex(index + 1),
+  chapterIndex: getJobQuestChapterIndex(index + 2),
   chapterOrder: 10_000 + index,
 }));
 

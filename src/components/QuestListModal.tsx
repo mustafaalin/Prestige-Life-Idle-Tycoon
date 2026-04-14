@@ -175,12 +175,20 @@ export function QuestListModal({
                 </div>
 
                 <div className="w-[122px] shrink-0 rounded-2xl border border-amber-200 bg-white/90 p-2.5 shadow-sm">
-                  <div className="mb-2 flex items-center justify-center gap-1.5">
+                  <div className="mb-1 flex items-center justify-center gap-1.5">
                     <img src={LOCAL_ICON_ASSETS.prestige} alt="Prestige" className="h-4 w-4" />
                     <span className="text-sm font-black text-amber-700">
                       +{selectedChapter.reward_prestige_points}
                     </span>
                   </div>
+                  {selectedChapter.reward_gems > 0 && (
+                    <div className="mb-2 flex items-center justify-center gap-1.5">
+                      <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-4 w-4" />
+                      <span className="text-sm font-black text-violet-700">
+                        +{selectedChapter.reward_gems}
+                      </span>
+                    </div>
+                  )}
 
                   {isSelectedChapterRewardClaimed ? (
                     <div className="flex items-center justify-center gap-1 rounded-xl bg-emerald-50 px-2 py-2 text-[11px] font-black text-emerald-700">

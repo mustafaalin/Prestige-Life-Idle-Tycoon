@@ -76,17 +76,19 @@ export function useQuestActions({
       return null;
     }
 
+    const rewardGems = chapter.reward_gems ?? 0;
     const nextQuestProgress: QuestProgress = {
       ...gameState.questProgress,
       unlockedChapterIndex: Math.min(gameState.questProgress.unlockedChapterIndex + 1, 9),
       claimableChapterRewardId: null,
       claimedChapterRewardIds: [...gameState.questProgress.claimedChapterRewardIds, chapter.id],
       totalClaimedMoney: gameState.questProgress.totalClaimedMoney,
-      totalClaimedGems: gameState.questProgress.totalClaimedGems,
+      totalClaimedGems: gameState.questProgress.totalClaimedGems + rewardGems,
     };
     const nextProfile = syncQuestPrestige(
       {
         ...gameState.profile,
+        gems: Number(gameState.profile.gems || 0) + rewardGems,
       } as PlayerProfile,
       nextQuestProgress
     );
@@ -105,6 +107,7 @@ export function useQuestActions({
     return {
       success: true,
       rewardPrestigePoints: chapter.reward_prestige_points,
+      rewardGems,
       chapterId: chapter.id,
     };
   }, [gameState.profile, gameState.questProgress, saveToLocalStorage, setGameState]);

@@ -16,8 +16,8 @@ export const INVESTMENT_UPGRADE_LABELS: Record<InvestmentUpgradeKey, string> = {
   parking: 'Build Parking',
 };
 
-export const INVESTMENT_UPGRADE_COST_DIVISORS = [10, 4, 3, 2, 1] as const;
-export const INVESTMENT_UPGRADE_INCOME_BOOSTS = [0.2, 0.4, 0.75, 1, 1.5] as const;
+export const INVESTMENT_UPGRADE_COST_DIVISORS = [10, 6, 4, 3, 2] as const;
+export const INVESTMENT_UPGRADE_INCOME_BOOSTS = [0.2, 0.45, 0.75, 1.1, 1.5] as const;
 
 function getInvestmentImageAsset(id: number) {
   if (id >= 1 && id <= 25) {
