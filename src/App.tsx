@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import { useAuth } from './hooks/useAuth';
 import { useGameState } from './hooks/useGameState';
 import ProfileModal from './components/ProfileModal';
@@ -344,6 +345,21 @@ export default function App() {
       setMoneyRewardFx(null);
       setIsQuestRewardAnimating(false);
     }
+  }
+
+  function fireConfetti() {
+    confetti({
+      particleCount: 90,
+      spread: 70,
+      origin: { y: 0.55 },
+      colors: ['#6366f1', '#8b5cf6', '#a78bfa', '#fbbf24', '#34d399'],
+    });
+  }
+
+  async function handleBusinessPurchase(businessId: string) {
+    const success = await gameState.purchaseBusiness(businessId);
+    if (success) fireConfetti();
+    return success;
   }
 
   async function handleBusinessUpgradeWithAdDiscount(businessId: string) {
@@ -985,6 +1001,7 @@ export default function App() {
         selectedOutfitId={gameState.profile.selected_outfit_id}
         onOutfitChange={() => {
           gameState.reload();
+          fireConfetti();
         }}
       />
 
@@ -1039,7 +1056,7 @@ export default function App() {
         <BusinessModal
           businesses={gameState.businesses}
           totalMoney={gameState.profile.total_money}
-          onPurchase={gameState.purchaseBusiness}
+          onPurchase={handleBusinessPurchase}
           onUpgrade={gameState.upgradeBusiness}
           onUpgradeWithAdDiscount={handleBusinessUpgradeWithAdDiscount}
           onClose={() => {
@@ -1065,7 +1082,7 @@ export default function App() {
           activeJob={activeJob}
           onPurchaseCar={async (carId, price) => {
             const result = await gameState.purchaseitem('car', carId, price);
-            if (result) pendingCelebration.current = true;
+            if (result) { pendingCelebration.current = true; fireConfetti(); }
             return result;
           }}
           onSellCar={gameState.sellCar}
@@ -1090,7 +1107,7 @@ export default function App() {
           }}
           onPurchasePremiumHouse={async (houseId) => {
             const result = await gameState.purchaseitem('house', houseId, 0);
-            if (result) pendingCelebration.current = true;
+            if (result) { pendingCelebration.current = true; fireConfetti(); }
             return result;
           }}
           onClose={() => {
@@ -1132,7 +1149,11 @@ export default function App() {
           cashbackPool={Number(gameState.profile.cashback_pool || 0)}
           cashbackRate={getCashbackRate(gameState.profile)}
           hasPremiumBankCard={hasPremiumBankCard(gameState.profile)}
-          onPurchase={gameState.purchaseInvestment}
+          onPurchase={async (id) => {
+            const result = await gameState.purchaseInvestment(id);
+            if (result) fireConfetti();
+            return result;
+          }}
           onUpgrade={gameState.upgradeInvestment}
           onStartBankDeposit={handleStartBankDeposit}
           onClaimBankDeposit={handleAnimatedBankDepositClaim}
