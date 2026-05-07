@@ -168,9 +168,11 @@ export default function App() {
       (c) => c.id === gameState.profile?.selected_car_id
     )?.image_url;
     currentCarImageRef.current = carImageUrl;
-    if (!initialCarSynced.current && carImageUrl) {
+    if (!initialCarSynced.current) {
       initialCarSynced.current = true;
       setDisplayedCarImage(carImageUrl);
+    } else if (gameState.profile?.selected_car_id === null) {
+      setDisplayedCarImage(undefined);
     }
   }, [gameState.profile?.selected_car_id, gameState.cars]);
 
@@ -179,11 +181,13 @@ export default function App() {
       (h) => h.id === gameState.profile?.selected_house_id
     )?.image_url;
     currentHouseImageRef.current = houseImageUrl;
-    if (!initialHouseSynced.current && houseImageUrl) {
+    if (!initialHouseSynced.current) {
       initialHouseSynced.current = true;
       setDisplayedHouseImage(houseImageUrl);
+    } else if (gameState.profile?.selected_house_id && houseImageUrl && houseImageUrl !== displayedHouseImage) {
+      setDisplayedHouseImage(houseImageUrl);
     }
-  }, [gameState.profile?.selected_house_id, gameState.houses]);
+  }, [gameState.profile?.selected_house_id, gameState.houses, displayedHouseImage]);
 
   const openQuestTarget = (quest: (typeof LOCAL_QUESTS)[number]) => {
     if (quest.target_screen === 'shop') {
@@ -724,6 +728,8 @@ export default function App() {
 
   async function handleResetProgress() {
     await gameState.resetProgress();
+    setHealthAnimationSequenceId((prev) => prev + 1);
+    setHappinessAnimationSequenceId((prev) => prev + 1);
   }
 
   async function handleWatchHealthAd() {
@@ -1184,7 +1190,7 @@ export default function App() {
         iapGems={gameState.profile.iap_gems_total ?? 0}
         iapMoney={gameState.profile.iap_money_total ?? 0}
         claimedQuestCount={gameState.questProgress.claimedQuestIds.length}
-        currentBonusPrestige={gameState.profile.bonus_prestige_points ?? 0}
+        currentBonusPrestige={(gameState.profile as typeof gameState.profile & { reset_prestige_bonus?: number }).reset_prestige_bonus ?? 0}
       />
 
       <SettingsModal
@@ -1195,7 +1201,7 @@ export default function App() {
         iapGems={gameState.profile.iap_gems_total ?? 0}
         iapMoney={gameState.profile.iap_money_total ?? 0}
         claimedQuestCount={gameState.questProgress.claimedQuestIds.length}
-        currentBonusPrestige={gameState.profile.bonus_prestige_points ?? 0}
+        currentBonusPrestige={(gameState.profile as typeof gameState.profile & { reset_prestige_bonus?: number }).reset_prestige_bonus ?? 0}
       />
 
       <IncomeBreakdownModal

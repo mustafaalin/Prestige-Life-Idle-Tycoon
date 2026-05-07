@@ -434,12 +434,14 @@ export function useGameState(deviceId: string, userId: string | null) {
     const activeId = gameState.profile?.id;
     if (!activeId) return false;
     try {
+      const claimedCount = gameStateRef.current.questProgress.claimedQuestIds.length;
       gameStateRef.current = {
         ...gameStateRef.current,
         pendingMoneyDelta: 0,
         offlineEarnings: null,
         unsavedJobWorkSeconds: 0,
         bankDeposits: [],
+        jobChangeLockedUntil: null,
       };
       setGameState((prev) => ({
         ...prev,
@@ -447,16 +449,16 @@ export function useGameState(deviceId: string, userId: string | null) {
         offlineEarnings: null,
         unsavedJobWorkSeconds: 0,
         bankDeposits: [],
+        jobChangeLockedUntil: null,
       }));
-      saveToLocalStorage({ bankDeposits: [] });
-      await profileService.resetProgress(activeId, gameStateRef.current.questProgress.claimedQuestIds.length);
+      await profileService.resetProgress(activeId, claimedCount);
       await loadGameData(false);
       return true;
     } catch (error) {
       console.error('Error resetting progress:', error);
       return false;
     }
-  }, [gameState.profile?.id, loadGameData, saveToLocalStorage]);
+  }, [gameState.profile?.id, loadGameData]);
 
   const reload = useCallback(() => { loadGameData(false); }, [loadGameData]);
 

@@ -2,6 +2,7 @@ import type { Database } from '../lib/database.types';
 
 export type PlayerProfile = Database['public']['Tables']['player_profiles']['Row'] & {
   bonus_prestige_points?: number;
+  reset_prestige_bonus?: number;
   iap_gems_total?: number;
   iap_money_total?: number;
   cashback_pool?: number;

@@ -134,10 +134,12 @@ export function syncQuestPrestige(
   questProgress: QuestProgress
 ): PlayerProfile {
   const questPrestige = calculatePrestigeFromQuestProgress(questProgress);
+  const resetBonus = Number((profile as PlayerProfile & { reset_prestige_bonus?: number }).reset_prestige_bonus || 0);
+  const totalPrestige = questPrestige + resetBonus;
   return {
     ...profile,
-    bonus_prestige_points: questPrestige,
-    prestige_points: questPrestige,
+    bonus_prestige_points: totalPrestige,
+    prestige_points: totalPrestige,
   } as PlayerProfile;
 }
 
