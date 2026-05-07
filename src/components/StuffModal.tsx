@@ -102,8 +102,6 @@ export function StuffModal({
 
   useState;
 
-  const currentSelectedCar = cars.find((car) => car.id === selectedCarId) || null;
-  const currentSelectedHouse = houses.find((house) => house.id === selectedHouseId) || null;
   const minimumSupportedHouseLevel = getJobRequirementMinimum(activeJob, 'house_level');
   const minimumSupportedCarLevel = getJobRequirementMinimum(activeJob, 'car_level');
   const sortedCars = [...cars].sort(

@@ -13,7 +13,7 @@ import {
   saveLocalGameState,
 } from '../data/local/storage';
 import { LOCAL_HOUSES } from '../data/local/houses';
-import { getCarProgressionLevel, LOCAL_CARS } from '../data/local/cars';
+import { LOCAL_CARS } from '../data/local/cars';
 import { recalculateLocalEconomy, recalculateLocalPrestige } from '../data/local/economy';
 import { awardCashback } from '../data/local/bankRewards';
 

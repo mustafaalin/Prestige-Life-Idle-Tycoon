@@ -1,4 +1,5 @@
 import { AlertTriangle, RotateCcw, Sparkles, X } from 'lucide-react';
+import { calculateResetPrestigeBonus } from '../services/profileService';
 
 interface ResetProgressModalProps {
   isOpen: boolean;
@@ -8,6 +9,8 @@ interface ResetProgressModalProps {
   currentGems?: number;
   iapGems?: number;
   iapMoney?: number;
+  claimedQuestCount?: number;
+  currentBonusPrestige?: number;
 }
 
 export function ResetProgressModal({
@@ -18,7 +21,11 @@ export function ResetProgressModal({
   currentGems = 0,
   iapGems = 0,
   iapMoney = 0,
+  claimedQuestCount = 0,
+  currentBonusPrestige = 0,
 }: ResetProgressModalProps) {
+  const bonusEarned = calculateResetPrestigeBonus(claimedQuestCount);
+  const totalBonusAfter = currentBonusPrestige + bonusEarned;
   if (!isOpen) return null;
 
   return (
@@ -56,6 +63,37 @@ export function ResetProgressModal({
             <div className="mt-2 text-sm font-semibold text-slate-600">
               Money, jobs, businesses, investments, houses, vehicles, outfits and quest progress.
             </div>
+          </div>
+
+          <div className={`rounded-3xl border p-4 ${bonusEarned > 0 ? 'border-amber-200 bg-gradient-to-br from-amber-50 to-white' : 'border-slate-200 bg-gradient-to-br from-slate-50 to-white'}`}>
+            <div className={`flex items-center gap-2 ${bonusEarned > 0 ? 'text-amber-700' : 'text-slate-500'}`}>
+              <Sparkles className="h-4 w-4" />
+              <span className="text-xs font-black uppercase tracking-[0.18em]">Prestige Bonus</span>
+            </div>
+            {bonusEarned > 0 ? (
+              <>
+                <div className="mt-2.5 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-black text-slate-800">+{bonusEarned} Permanent Prestige</p>
+                    <p className="text-xs font-semibold text-slate-500">
+                      {currentBonusPrestige > 0
+                        ? `${currentBonusPrestige} → ${totalBonusAfter} total bonus`
+                        : `Total after reset: ${totalBonusAfter}`}
+                    </p>
+                  </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg">
+                    <span className="text-lg font-black text-white">+{bonusEarned}</span>
+                  </div>
+                </div>
+                <p className="mt-2 text-[11px] font-semibold text-amber-700/80">
+                  Earned from {claimedQuestCount} completed quests. Stacks with future resets.
+                </p>
+              </>
+            ) : (
+              <p className="mt-2 text-sm font-semibold text-slate-500">
+                Complete at least 5 quests to earn prestige bonus on reset.
+              </p>
+            )}
           </div>
 
           <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-4">

@@ -304,6 +304,16 @@ Henüz detaylandırılacak alanlar:
   - local demo akışı var
   - money package coin miktarları da prestige odaklı scale tablosundan hesaplanıyor
 
+## Quest Balance Notları (2026-05-07 analiz)
+
+- 100 static quest + generated job level quest'leri birlikte chapter'lara dağılmış
+- Chapter başına gerçek quest sayısı: 10 (ch0), 11 (ch1-2), 14-16 (ch3-9)
+- Chapter tamamlamak için o chapter'daki TÜM quest'ler gerekiyor (`every()`)
+- Job quest'leri paralel ilerlediği için bottleneck en zorlu static quest'tir
+- Quest 90 (rental income eşiği): $100K → $20K düzeltildi; orijinal $100K Chapter 8'de 12 investment ile ulaşılamazdı (~$32K max)
+- `claimed_quest_count` mantığı doğru çalışıyor (eski "broken" notu geçersiz)
+- Chapter 3'ten itibaren prestige doğal olarak dolduruluyor: Chapter 7 sonunda ~245 prestige → job 53 için gereken 206 prestige karşılanıyor
+
 ## Kural Önceliği Notları
 
 - Şemada duran ama oyunda kullanılmayan alanlar gerçek kural sayılmamalıdır.

@@ -66,7 +66,8 @@ async function upsertProfile(authUserId: string): Promise<void> {
   const displayName = deviceIdentity.getPlayerName();
   const deviceId = deviceIdentity.getDeviceId();
 
-  const { error } = await supabase.from('profiles').upsert(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any).from('profiles').upsert(
     { id: authUserId, display_name: displayName, device_id: deviceId },
     { onConflict: 'id', ignoreDuplicates: false }
   );

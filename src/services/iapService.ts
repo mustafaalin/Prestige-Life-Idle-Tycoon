@@ -102,7 +102,8 @@ async function purchaseMock(
 
   // Supabase'e kaydet (auth user varsa)
   if (authUserId) {
-    const { error } = await supabase.from('iap_purchases').insert({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any).from('iap_purchases').insert({
       auth_user_id: authUserId,
       package_id: packageId,
       product_id: packageId,

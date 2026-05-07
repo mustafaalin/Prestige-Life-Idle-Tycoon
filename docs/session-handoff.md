@@ -1,6 +1,6 @@
 # Session Handoff
 
-Last updated: 2026-04-09
+Last updated: 2026-05-07
 
 Bu dosya yeni bir oturumda projeye hızlı geri dönmek için güncel durum özetidir.
 
@@ -19,99 +19,108 @@ Sonra en mantıklı sıradaki ürün ve teknik adımı öner.
 
 ## Current Product State
 
-Oyunun ana omurgası local-first olarak çalışıyor.
+Oyunun ana omurgası local-first olarak çalışıyor. Repo playable durumda, ürün tamamlanmış değil.
 
 Çalışan ana sistemler:
 
-- local auth / local profile bootstrap
-- worker + specialist job progression (manager placeholder)
-- chapter tabanlı quest sistemi
-- daily reward ve collect earnings
-- business progression
-- real estate / bank / cashback / premium bank card
-- health ve happiness stat sistemi (action modals + offline decay)
-- premium cars ve gem ile satın alma akışı
-- modal bazlı mobil-first UI akışları
-- Supabase anonymous auth (IAP altyapısı için)
-- RevenueCat-ready IAP altyapısı (mock purchase çalışıyor)
-- Wellbeing factors panel (HealthModal / HappinessModal'da faktör kartı)
+- Local auth / local profile bootstrap
+- Worker (20) + Specialist (20) + Manager (20) job progression — toplam 60 job
+- Chapter tabanlı quest sistemi — 100 static quest + generated job level quest'leri
+- Daily reward / collect earnings / ad reward
+- Business progression (40 işletme, max level 6)
+- Real estate investments (50 mülk)
+- Bank deposits / cashback / premium bank card
+- Health ve happiness stat sistemi (action modals + offline decay + wellbeing factors panel)
+- Premium cars (3 adet, gem ile)
+- Premium houses (3 adet, gem ile) — Sky Loft / Crystal Villa / Apex Penthouse
+- Stuff modal — araç/ev/karakter/outfit satın alma ve seçim akışları
+- Bottom nav job progress feedback
+- Header outfit avatar — seçili outfit başı profil dairesinde gösteriliyor
+- Supabase anonymous auth (IAP altyapısı için hazır)
+- RevenueCat-ready IAP altyapısı (mock purchase çalışıyor, native SDK kurulmadı)
+- Wellbeing factors panel (HealthModal / HappinessModal)
 
-Repo şu anda playable durumda, ürün tamamlanmış değil.
+## What Was Done Recently (2026-05-07)
 
-## What Was Finished Recently (2026-04-09)
+### Manager Job Görselleri
+- 20 manager job ikonu işlendi: arka plan kaldırıldı, 512×512'ye düşürüldü, ~50-95KB
+- `public/assets/jobs/manager/` klasörüne kopyalandı
+- `src/data/local/jobs.ts`'te tüm manager job `icon_url`'leri bağlandı
 
-### IAP Altyapısı
-- Supabase anonymous auth kuruldu (`src/lib/auth.ts` — singleton promise, StrictMode safe)
-- `iap_purchases` tablosu + `profiles` tablosu + `leaderboard_scores` tablosu (migration: `supabase/migrations/20260409000001_iap_and_leaderboard.sql`)
-- `src/services/iapService.ts` — mock purchase flow çalışıyor (Supabase'e kayıt atıyor)
-- RevenueCat webhook Edge Function hazır (`supabase/functions/revenuecat-webhook/index.ts`)
-- `.env.local` dosyası oluşturuldu (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY)
+### Quest Balance Turu
+- Tüm 100 quest + job level quest'leri, ekonomi ve job gereksinimleri incelendi
+- Tek broken quest bulundu: `quest-90` (rental income eşiği $100K → $20K düzeltildi)
+- Chapter 8'de 12 investment ile max $32K/h kazanılabiliyordu; $100K ulaşılamaz bir eşikti
+- `claimed_quest_count` mantığı doğru çalışıyor — eski "~15 broken quest" notu geçersiz
+- Prestige doğal seyriyle dolduruluyor: Chapter 7 sonu ~245 prestige; job 53 için gereken 206 ✓
 
-### Offline Wellbeing Decay
-- `src/utils/game/calculations.ts` → `calculateOfflineWellbeingDecay()` eklendi
-- Kişinin sahip olduğu iş/araç/eve göre (hardcoded değil) sağlık ve mutluluk pasif olarak etkileniyor
-- Maks 24 saat etki süresi
-- **Offline'da negatif etki -2/h ile sınırlandırıldı** (24 saat × 2 = maks %48 düşüş)
-- Pozitif etkiler (yüksek tier iş/araba/ev varsa) tam olarak uygulanıyor
-- `useGameState.ts`'te: initial load + visibility change (background→foreground) anında uygulanıyor
+### Premium House Görselleri
+- `p-house-1/2/3.webp` (backgrounds + icons) assets'e eklendi
+- `localAssets.ts` path'leri güncellendi (`house-premium-N` → `p-house-N`)
 
-### Wellbeing Factors Panel
-- `WellbeingFactor` tipi eklendi (`src/types/game.ts`)
-- `App.tsx`'te `wellbeingFactors` hesaplanıp her iki modal'a prop olarak geçiliyor
-- `HealthModal.tsx` ve `HappinessModal.tsx` yeniden tasarlandı:
-  - Üstte "Factors (per hour)" kartı: job/car/house etkilerini listeler + toplam gösterir
-  - Ayrı "Watch Ad" kartı: ads.png ikonu, açıklama, sabit boyutlu buton
-  - Reklam butonu CSS'i, alttaki action butonlarıyla birebir eşleşiyor (aynı gölge, rounded, border)
+### Header Outfit Avatar
+- Header profil dairesinde seçili outfit görselinin baş kısmı gösteriliyor
+- `object-top scale-150 origin-top` ile krop yapılıyor
 
 ## Current Architecture Notes
 
-### IAP akışı (mevcut durum)
+### Quest Sistemi Gerçek Yapısı
+- Chapter başına gerçek quest sayısı: 10 (ch0), 11 (ch1-2), 14-16 (ch3-9)
+- Job level quest'leri (level 2-60) static quest'lerle aynı chapter'a dağıtılmış
+- Chapter tamamlamak için o chapter'daki TÜM quest'ler gerekiyor (`every()` kontrolü)
+- Bottleneck her zaman en zorlu static quest'tir; job quest'leri paralel ilerler
+- Quest prestige kaynağı: her claim +1, chapter reward'lar ayrıca bonus prestige verir
+
+### IAP Akışı (Mevcut Durum)
 - Anonymous auth: `src/lib/auth.ts` → `ensureAnonymousSession()`
 - Purchase kayıt: `src/services/iapService.ts` → `purchasePackage()`
-- Native RevenueCat: henüz `npm install @revenuecat/purchases-capacitor` yapılmadı, TODO block var
+- Native RevenueCat: `npm install @revenuecat/purchases-capacitor` yapılmadı, TODO block var
 - Webhook: deploy edilmedi (`npx supabase functions deploy revenuecat-webhook`)
 
-### Dikkat edilmesi gereken teknik borçlar
-- `useGameState.ts` hala çok büyük (~1667+ satır)
-- Manager jobs henüz gerçek veriyle tanımlı değil (placeholder)
-- RevenueCat SDK kurulmadı
-- AdMob üretim ID'leri set edilmedi (`isTesting: false`)
-- Quest'lerde ~15 broken quest (`claimed_quest_count` mantığı hatalı, tekrarlı purchase quest'leri)
+### Dikkat Edilmesi Gereken Teknik Borçlar
+- `useGameState.ts` ~1667 satır (SRP ihlali, refactor roadmap'te ama öncelikli değil)
+- AdMob tüm placement'lar Google test ID kullanıyor (üretim geçişi gerekli)
+- RevenueCat SDK kurulmadı (native IAP mock çalışıyor)
+- Gem ekonomisi: kaynak (daily reward + quest gem ödülleri) ile sink (premium car/house/skip) dengesi test edilmedi
+- Prestige/reset loop oyuncuya UI'da net açıklanmıyor
 
 ## Current Important Files
-
-En kritik dosyalar:
 
 - app orchestration: [App.tsx](../src/App.tsx)
 - main game orchestration: [useGameState.ts](../src/hooks/useGameState.ts)
 - jobs data: [jobs.ts](../src/data/local/jobs.ts)
 - job requirements: [jobRequirements.ts](../src/data/local/jobRequirements.ts)
 - quests data: [quests.ts](../src/data/local/quests.ts)
+- economy / prestige recalc: [economy.ts](../src/data/local/economy.ts)
 - wellbeing: [wellbeing.ts](../src/data/local/wellbeing.ts)
-- wellbeing calculations: [calculations.ts](../src/utils/game/calculations.ts)
+- calculations: [calculations.ts](../src/utils/game/calculations.ts)
+- businesses: [businesses.ts](../src/data/local/businesses.ts)
+- investments: [investments.ts](../src/data/local/investments.ts)
+- cars: [cars.ts](../src/data/local/cars.ts)
+- houses: [houses.ts](../src/data/local/houses.ts)
+- reward scaling: [rewardScaling.ts](../src/data/local/rewardScaling.ts)
 - IAP service: [iapService.ts](../src/services/iapService.ts)
 - auth: [auth.ts](../src/lib/auth.ts)
-- cars data: [cars.ts](../src/data/local/cars.ts)
-- houses data: [houses.ts](../src/data/local/houses.ts)
-- stuff modal: [StuffModal.tsx](../src/components/StuffModal.tsx)
-- jobs modal: [JobsModal.tsx](../src/components/JobsModal.tsx)
-- health modal: [HealthModal.tsx](../src/components/HealthModal.tsx)
-- happiness modal: [HappinessModal.tsx](../src/components/HappinessModal.tsx)
 
 ## What Still Needs Work
 
-1. **Manager jobs** — veri listesi yok, modalda placeholder
+### Yayın Bloklayıcılar
+1. **AdMob production** — `isTesting: false` + gerçek ad unit ID'leri set edilmeli
 2. **RevenueCat native SDK** — `npm install @revenuecat/purchases-capacitor` + iapService TODO block
 3. **Edge Function deploy** — `npx supabase functions deploy revenuecat-webhook`
-4. **AdMob production** — `isTesting: false` + gerçek ad unit ID'leri
-5. **Quest cleanup** — ~15 broken quest düzeltilmeli (claimed_quest_count hatalı)
-6. **Premium houses** — gem sink olarak güçlü aday
-7. **useGameState refactor** — SRP ihlali, parçalanabilir
-8. **Gem economy design** — source/sink dengesi netleştirilmeli
-9. **Leaderboard UI** — tablo schema hazır, frontend yok
+
+### Önemli Eksikler (Oynanabilirlik / Retention)
+4. **Gem ekonomisi dengesi** — gem kaynakları yeterli mi, sink'ler erken baskı yapıyor mu, test edilmeli
+5. **Prestige/reset loop UI** — reset ne kazandırır? Oyuncuya net gösterilmiyor; en güçlü retention hook'u
+6. **Geçici boost sistemi** — 2x income 1 saat gibi reklamlı boost yok; monetization + engagement fırsatı kaçıyor
+7. **Leaderboard UI** — schema ve tablo hazır, frontend yok
+
+### Sonraki Aşama
+8. **Stocks / investment 3. sekme** — InvestmentsModal'da kilitli placeholder
+9. **useGameState refactor** — SRP ihlali, büyüdükçe bug riski artar (öncelik düşük)
+10. **Supabase legacy remnant cleanup** — kullanılmayan tablo/sorgu kalıntıları
 
 ## Validation Status
 
-Son güncelleme anında:
-- son commit: `7acef4f`
-- TypeScript check temiz (tsc --noEmit başarılı)
+- TypeScript check: `npm run typecheck` ile doğrulanmalı
+- Quest 90 düzeltmesi: `quests.ts` line ~779 — `investment_income_at_least: 20000`

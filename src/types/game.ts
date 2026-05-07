@@ -36,6 +36,7 @@ export interface PremiumCatalogItem {
   display_order?: number;
   premium_rank?: number;
   progression_level_equivalent?: number;
+  icon_url?: string;
 }
 export type House = Database['public']['Tables']['houses']['Row'] & WellbeingEffectSource & PremiumCatalogItem;
 export type Car = Database['public']['Tables']['cars']['Row'] & WellbeingEffectSource & PremiumCatalogItem;

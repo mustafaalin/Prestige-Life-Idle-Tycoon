@@ -16,7 +16,7 @@ interface HeaderProps {
   vehicleExpense: number;
   otherExpenses: number;
   username: string;
-  characterImage?: string;
+  outfitImage?: string;
   health: number;
   happiness: number;
   healthAnimationSequenceId?: number;
@@ -50,7 +50,7 @@ export function Header({
   vehicleExpense,
   otherExpenses,
   username,
-  characterImage,
+  outfitImage,
   health,
   happiness,
   healthAnimationSequenceId = 0,
@@ -426,9 +426,9 @@ export function Header({
                 className="flex-shrink-0 w-12 h-12 max-[420px]:w-9 max-[420px]:h-9 rounded-full overflow-hidden bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 shadow-xl transition-transform active:scale-90"
               >
                 <img
-                  src={characterImage || LOCAL_PROFILE_PLACEHOLDER}
+                  src={outfitImage || LOCAL_PROFILE_PLACEHOLDER}
                   alt={username}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-top scale-150 origin-top"
                 />
               </button>
 

@@ -449,7 +449,7 @@ export function useGameState(deviceId: string, userId: string | null) {
         bankDeposits: [],
       }));
       saveToLocalStorage({ bankDeposits: [] });
-      await profileService.resetProgress(activeId);
+      await profileService.resetProgress(activeId, gameStateRef.current.questProgress.claimedQuestIds.length);
       await loadGameData(false);
       return true;
     } catch (error) {

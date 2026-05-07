@@ -771,12 +771,12 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
   },
   {
     id: 'quest-90-investment-income-100k',
-    title: 'Reach 100K Rental Income',
-    description: 'Push your total rental income to at least 100K per hour.',
+    title: 'Reach 20K Rental Income',
+    description: 'Push your total rental income to at least 20K per hour.',
     reward_money: 725000,
     reward_gems: 0,
     target_screen: 'investments',
-    condition: { type: 'investment_income_at_least', amount: 100000 },
+    condition: { type: 'investment_income_at_least', amount: 20000 },
   },
   {
     id: 'quest-91-switch-twelfth-job',

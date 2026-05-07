@@ -32,6 +32,8 @@ interface ProfileModalProps {
   gems?: number;
   iapGems?: number;
   iapMoney?: number;
+  claimedQuestCount?: number;
+  currentBonusPrestige?: number;
 }
 
 export default function ProfileModal({
@@ -48,6 +50,8 @@ export default function ProfileModal({
   gems = 0,
   iapGems = 0,
   iapMoney = 0,
+  claimedQuestCount = 0,
+  currentBonusPrestige = 0,
 }: ProfileModalProps) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editName, setEditName] = useState(playerName);
@@ -227,6 +231,8 @@ export default function ProfileModal({
         currentGems={gems}
         iapGems={iapGems}
         iapMoney={iapMoney}
+        claimedQuestCount={claimedQuestCount}
+        currentBonusPrestige={currentBonusPrestige}
       />
     </div>
   );

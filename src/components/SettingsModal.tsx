@@ -30,6 +30,8 @@ interface SettingsModalProps {
   currentGems?: number;
   iapGems?: number;
   iapMoney?: number;
+  claimedQuestCount?: number;
+  currentBonusPrestige?: number;
 }
 
 export function SettingsModal({
@@ -39,6 +41,8 @@ export function SettingsModal({
   currentGems = 0,
   iapGems = 0,
   iapMoney = 0,
+  claimedQuestCount = 0,
+  currentBonusPrestige = 0,
 }: SettingsModalProps) {
   const [settings, setSettings] = useState<Settings>(loadSettings);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -160,6 +164,8 @@ export function SettingsModal({
         currentGems={currentGems}
         iapGems={iapGems}
         iapMoney={iapMoney}
+        claimedQuestCount={claimedQuestCount}
+        currentBonusPrestige={currentBonusPrestige}
       />
     </>
   );

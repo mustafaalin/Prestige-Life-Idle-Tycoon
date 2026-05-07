@@ -173,7 +173,17 @@ export async function updateProfile(userId: string, updates: Partial<PlayerProfi
   return updatedProfile;
 }
 
-export async function resetProgress(userId: string) {
+export const PRESTIGE_BONUS_PER_RESET = 10;
+
+// Bonus prestige kazanmak için gereken minimum claimed quest sayısı
+const MIN_QUESTS_FOR_BONUS = 5;
+
+export function calculateResetPrestigeBonus(claimedQuestCount: number): number {
+  if (claimedQuestCount < MIN_QUESTS_FOR_BONUS) return 0;
+  return Math.floor(claimedQuestCount * 0.5);
+}
+
+export async function resetProgress(userId: string, claimedQuestCount = 0) {
   const profile = getLocalProfile();
   if (!profile) throw new Error('Player not found');
   const now = new Date().toISOString();
@@ -181,19 +191,25 @@ export async function resetProgress(userId: string) {
   const deviceId = profile.device_id || deviceIdentity.getDeviceId() || deviceIdentity.initialize().deviceId;
   const iapGems = Number(profile.iap_gems_total || 0);
   const iapMoney = Number(profile.iap_money_total || 0);
+  const timesResetAfter = Number(profile.times_reset || 0) + 1;
+  const previousBonus = Number(profile.bonus_prestige_points || 0);
+  const earnedBonus = calculateResetPrestigeBonus(claimedQuestCount);
+  const bonusPrestige = previousBonus + earnedBonus;
   const freshProfile = {
     ...createBaseProfile({
       userId,
       deviceId,
       now,
       playerName,
-      timesReset: Number(profile.times_reset || 0) + 1,
+      timesReset: timesResetAfter,
       lastResetAt: now,
     }),
     gems: iapGems,
     total_money: 100 + iapMoney,
     iap_gems_total: iapGems,
     iap_money_total: iapMoney,
+    bonus_prestige_points: bonusPrestige,
+    prestige_points: bonusPrestige,
   };
 
   clearLocalStorage();

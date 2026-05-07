@@ -871,6 +871,7 @@ export default function App() {
         vehicleExpense={Number(gameState.profile.vehicle_expense ?? 0)}
         otherExpenses={Number(gameState.profile.other_expenses ?? 0)}
         username={gameState.profile.display_name || gameState.profile.username}
+        outfitImage={gameState.selectedOutfit?.image_url ?? undefined}
         health={profileHealth}
         happiness={profileHappiness}
         healthAnimationSequenceId={healthAnimationSequenceId}
@@ -1182,6 +1183,8 @@ export default function App() {
         gems={gameState.profile.gems ?? 0}
         iapGems={gameState.profile.iap_gems_total ?? 0}
         iapMoney={gameState.profile.iap_money_total ?? 0}
+        claimedQuestCount={gameState.questProgress.claimedQuestIds.length}
+        currentBonusPrestige={gameState.profile.bonus_prestige_points ?? 0}
       />
 
       <SettingsModal
@@ -1191,6 +1194,8 @@ export default function App() {
         currentGems={gameState.profile.gems ?? 0}
         iapGems={gameState.profile.iap_gems_total ?? 0}
         iapMoney={gameState.profile.iap_money_total ?? 0}
+        claimedQuestCount={gameState.questProgress.claimedQuestIds.length}
+        currentBonusPrestige={gameState.profile.bonus_prestige_points ?? 0}
       />
 
       <IncomeBreakdownModal

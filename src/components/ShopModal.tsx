@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Gift, DollarSign, Play, Lock, Monitor, ShoppingBag, Sparkles, Shirt, Check, Flame } from 'lucide-react';
+import { X, Gift, Lock, ShoppingBag, Sparkles, Shirt, Check, Flame } from 'lucide-react';
 import * as rewardService from '../services/rewardService';
 import * as itemService from '../services/itemService';
 import { purchasePackage } from '../services/iapService';
@@ -120,23 +120,6 @@ function DailyRewardActionButton(props: {
     >
       {label}
     </button>
-  );
-}
-
-function DailyRewardStateChip(props: {
-  state: 'claimable' | 'claimed' | 'next';
-  label: string;
-}) {
-  const { state, label } = props;
-
-  return (
-    <span
-      className={`inline-flex rounded-full px-2 py-1 text-[9px] font-black ${getDailyRewardActionClasses(
-        state
-      )}`}
-    >
-      {label}
-    </span>
   );
 }
 
@@ -588,15 +571,10 @@ export function ShopModal({
       ? 0
       : Math.max(0, featuredDay - 1);
   const dailyLimit = scaledRewards.dailyClaimLimit;
-  const dailyLimitPercent =
-    dailyLimit > 0 ? Math.min((resolvedDailyClaimedTotal / dailyLimit) * 100, 100) : 0;
   const remainingDailyCapacity = Math.max(0, dailyLimit - resolvedDailyClaimedTotal);
   const claimableAccumulated = Math.min(accumulatedMoney, remainingDailyCapacity);
-  const effectiveAccumulatedCap = Math.min(maxAccumulated, remainingDailyCapacity);
-  const progressPercent =
-    effectiveAccumulatedCap > 0
-      ? Math.min((claimableAccumulated / effectiveAccumulatedCap) * 100, 100)
-      : 0;
+  void timeUntilFull;
+  void maxAccumulated;
   const canClaim = claimableAccumulated > 0 && !isLocked;
   const dailyActionState: DailyRewardActionState =
     isClaimingDaily

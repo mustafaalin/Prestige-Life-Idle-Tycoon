@@ -50,9 +50,9 @@ export function getHouseBackgroundAsset(level: number) {
 }
 
 export function getPremiumHouseIconAsset(premiumTier: 1 | 2 | 3) {
-  return `/assets/houses/icons/house-premium-${premiumTier}.webp`;
+  return `/assets/houses/icons/p-house-${premiumTier}.webp`;
 }
 
 export function getPremiumHouseBackgroundAsset(premiumTier: 1 | 2 | 3) {
-  return `/assets/houses/backgrounds/house-premium-${premiumTier}.webp`;
+  return `/assets/houses/backgrounds/p-house-${premiumTier}.webp`;
 }

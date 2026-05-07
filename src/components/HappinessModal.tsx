@@ -193,27 +193,33 @@ export function HappinessModal({
                   Instant <span className="font-black text-amber-600">+{HAPPINESS_AD_BOOST_PERCENT}%</span> happiness boost
                 </p>
               </div>
-              <button
-                onClick={async () => {
-                  if (isApplyingAd) return;
-                  setIsApplyingAd(true);
-                  try {
-                    const rewarded = await onWatchAd();
-                    if (!rewarded) return;
-                    await onApplyAdBoost();
-                  } finally {
-                    setIsApplyingAd(false);
-                  }
-                }}
-                disabled={isApplyingAd}
-                className={`shrink-0 min-w-[120px] rounded-[16px] px-4 py-2.5 text-center text-sm font-black transition-all border shadow-[inset_0_-4px_0_rgba(0,0,0,0.12)] ${
-                  isApplyingAd
-                    ? 'border-amber-300 bg-gradient-to-r from-amber-200 to-orange-200 text-slate-700 opacity-70 cursor-not-allowed'
-                    : 'border-amber-500 bg-gradient-to-r from-amber-300 to-orange-400 text-slate-900 active:scale-[0.98]'
-                }`}
-              >
-                {isApplyingAd ? '...' : 'Free'}
-              </button>
+              {currentHappiness >= 100 ? (
+                <div className="shrink-0 min-w-[120px] rounded-[16px] border border-slate-200 bg-slate-100 px-4 py-2.5 text-center text-sm font-black text-slate-400">
+                  Max Mood
+                </div>
+              ) : (
+                <button
+                  onClick={async () => {
+                    if (isApplyingAd) return;
+                    setIsApplyingAd(true);
+                    try {
+                      const rewarded = await onWatchAd();
+                      if (!rewarded) return;
+                      await onApplyAdBoost();
+                    } finally {
+                      setIsApplyingAd(false);
+                    }
+                  }}
+                  disabled={isApplyingAd}
+                  className={`shrink-0 min-w-[120px] rounded-[16px] px-4 py-2.5 text-center text-sm font-black transition-all border shadow-[inset_0_-4px_0_rgba(0,0,0,0.12)] ${
+                    isApplyingAd
+                      ? 'border-amber-300 bg-gradient-to-r from-amber-200 to-orange-200 text-slate-700 opacity-70 cursor-not-allowed'
+                      : 'border-amber-500 bg-gradient-to-r from-amber-300 to-orange-400 text-slate-900 active:scale-[0.98]'
+                  }`}
+                >
+                  {isApplyingAd ? '...' : 'Free'}
+                </button>
+              )}
             </div>
           </div>
 
@@ -264,13 +270,14 @@ export function HappinessModal({
                         <div className="min-w-[120px] rounded-[16px] border border-sky-200 bg-sky-50 px-4 py-2.5 text-center text-sm font-black text-sky-700">
                           {formatCooldown(cooldownRemaining)}
                         </div>
+                      ) : isMaxed || !canAfford ? (
+                        <div className="min-w-[120px] rounded-[16px] border border-slate-200 bg-slate-100 px-4 py-2.5 text-center text-sm font-black text-slate-400">
+                          {formatMoneyFull(action.cost)}
+                        </div>
                       ) : (
                         <button
                           onClick={async () => {
-                            if (isDisabled || !canAfford || isMaxed) {
-                              return;
-                            }
-
+                            if (isDisabled) return;
                             setProcessingActionKey(action.key);
                             try {
                               await onApplyAction(action.key);
