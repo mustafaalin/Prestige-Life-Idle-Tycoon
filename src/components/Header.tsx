@@ -34,6 +34,7 @@ interface HeaderProps {
   onOpenHappiness: () => void;
   onOpenIncomeBreakdown: () => void;
   onOpenSettings: () => void;
+  onOpenLeaderboard: () => void;
 }
 
 export function Header({
@@ -67,7 +68,8 @@ export function Header({
   onOpenHealth,
   onOpenHappiness,
   onOpenIncomeBreakdown,
-  onOpenSettings
+  onOpenSettings,
+  onOpenLeaderboard
 }: HeaderProps) {
   const [isMoneyAnimating, setIsMoneyAnimating] = useState(false);
   const [displayedMoney, setDisplayedMoney] = useState(totalMoney);
@@ -432,7 +434,10 @@ export function Header({
                 />
               </button>
 
-              <div className="flex items-center gap-1 bg-gradient-to-r from-yellow-500/25 to-amber-500/25 px-1.5 py-0.5 rounded-md border border-yellow-400/40 shadow-lg">
+              <button
+                onClick={onOpenLeaderboard}
+                className="flex items-center gap-1 bg-gradient-to-r from-yellow-500/25 to-amber-500/25 px-1.5 py-0.5 rounded-md border border-yellow-400/40 shadow-lg transition-transform active:scale-90"
+              >
                 <img
                   src={LOCAL_ICON_ASSETS.prestige}
                   alt="Prestige"
@@ -441,7 +446,7 @@ export function Header({
                 <span className="text-[11px] font-black text-yellow-100 leading-none">
                   {prestigePoints}
                 </span>
-              </div>
+              </button>
             </div>
 
             <div className="flex flex-col gap-1 min-w-0">

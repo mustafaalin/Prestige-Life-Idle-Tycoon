@@ -43,6 +43,8 @@ import {
   useAdServiceState,
   type AdPlacement,
 } from './services/adService';
+import { LeaderboardModal } from './components/LeaderboardModal';
+import { useLeaderboardSync } from './hooks/useLeaderboardSync';
 
 function getCanClaimAccumulatedMoney(params: {
   claimPool: number;
@@ -89,10 +91,12 @@ function wait(ms: number) {
 export default function App() {
   const { deviceId, isAuthenticated, user, loading: authLoading } = useAuth();
   const gameState = useGameState(deviceId, user?.id || null);
+  useLeaderboardSync({ profile: gameState.profile });
   const [showShop, setShowShop] = useState(false);
   const [showJobs, setShowJobs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [activeTab, setActiveTab] = useState<'shop' | 'job' | 'business' | 'investments' | 'stuff'>('shop');
   
   // PERFORMANS ÇÖZÜMÜ: Her saniye render tetikleyen state yerine, 
@@ -902,6 +906,7 @@ export default function App() {
         onOpenIncomeBreakdown={() => {
           setShowIncomeBreakdown(true);
         }}
+        onOpenLeaderboard={() => setShowLeaderboard(true)}
         onOpenSettings={() => {
           setShowSettings(true);
         }}
@@ -1202,6 +1207,11 @@ export default function App() {
         iapMoney={gameState.profile.iap_money_total ?? 0}
         claimedQuestCount={gameState.questProgress.claimedQuestIds.length}
         currentBonusPrestige={(gameState.profile as typeof gameState.profile & { reset_prestige_bonus?: number }).reset_prestige_bonus ?? 0}
+      />
+
+      <LeaderboardModal
+        isOpen={showLeaderboard}
+        onClose={() => setShowLeaderboard(false)}
       />
 
       <IncomeBreakdownModal

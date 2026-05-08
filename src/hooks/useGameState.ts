@@ -83,7 +83,9 @@ export function useGameState(deviceId: string, userId: string | null) {
   useEffect(() => {
     if (!gameState.profile) return;
 
-    const expectedPrestige = calculatePrestigeFromQuestProgress(gameState.questProgress);
+    const questPrestige = calculatePrestigeFromQuestProgress(gameState.questProgress);
+    const resetBonus = Number((gameState.profile as PlayerProfile).reset_prestige_bonus || 0);
+    const expectedPrestige = questPrestige + resetBonus;
     const currentPrestige = Number(gameState.profile.prestige_points || 0);
     const currentBonusPrestige = Number(
       (gameState.profile as PlayerProfile).bonus_prestige_points || 0
