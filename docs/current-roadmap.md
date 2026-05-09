@@ -1,6 +1,6 @@
 # Current Roadmap
 
-Last updated: 2026-05-07
+Last updated: 2026-05-08
 
 Bu dosya aktif ürün ve teknik roadmap özetidir.
 
@@ -26,27 +26,28 @@ Bu dosya aktif ürün ve teknik roadmap özetidir.
 - Offline wellbeing decay — `calculateOfflineWellbeingDecay()`, maks 24h, -2/h cap
 - Business progression (40 işletme, max level 6, prestige sistemi)
 - Real estate investments (50 mülk, 5 upgrade seviyesi)
+- **Prestige/reset loop** — `reset_prestige_bonus` birikimi, 4 reset bug düzeltmesi, sonsuz döngü fix
+- **Global Leaderboard** — Supabase `leaderboard_scores`, top 100, kendi sıra, 3dk sync, Header entegrasyonu
+- **Outfit isimleri** — 20 outfit için anlamlı isimler (Bare Basics → Elite)
 
 ## In Progress / Immediate Next
 
 1. **Gem ekonomisi test ve dengesi** — kaç gem kazanılıyor (daily+quest), kaç gem harcanıyor (car/house/skip); sink'ler erken baskı yapıyor mu analiz edilmeli
-2. **Prestige/reset loop UI** — reset ne kazandırır? Oyuncuya net gösterilmiyor; idle oyunlarda en güçlü retention hook
-3. **RevenueCat native SDK** — `npm install @revenuecat/purchases-capacitor` + iapService TODO block aktif edilmeli
-4. **Edge Function deploy** — `npx supabase functions deploy revenuecat-webhook`
+2. **Prestige/reset loop UI** — reset ne kazandırır? Oyuncuya net anlatılmıyor; idle oyunlarda en güçlü retention hook
+3. **Geçici boost sistemi** — 2x income (1 saat) gibi reklamlı boostlar; hem monetization hem engagement
 
 ## Next
 
-1. Geçici boost sistemi — 2x income (1 saat) gibi reklamlı boostlar; hem monetization hem engagement
-2. AdMob production IDs — `isTesting: false` + gerçek ad unit ID'leri
-3. Leaderboard UI — schema ve Supabase tablosu hazır, sadece frontend yok
-4. Outfit isimleri — "Outfit 2...20" yerine karakter anlatan gerçek isimler
+1. RevenueCat native SDK — `npm install @revenuecat/purchases-capacitor` + iapService TODO block aktif edilmeli
+2. Edge Function deploy — `npx supabase functions deploy revenuecat-webhook`
+3. AdMob production IDs — `isTesting: false` + gerçek ad unit ID'leri
+4. Stocks / investment 3. sekme — InvestmentsModal'da kilitli placeholder
 
 ## Later
 
-1. Stocks / investment 3. sekme — InvestmentsModal'da kilitli placeholder
-2. useGameState decomposition (SRP, ~1667 satır)
-3. Supabase legacy remnant cleanup
-4. Code splitting / bundle size cleanup
+1. useGameState decomposition (SRP, ~1667 satır)
+2. Supabase legacy remnant cleanup
+3. Code splitting / bundle size cleanup
 
 ## Risks / Debt
 

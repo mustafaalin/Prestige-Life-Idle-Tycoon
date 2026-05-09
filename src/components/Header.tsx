@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { LOCAL_ICON_ASSETS, LOCAL_PROFILE_PLACEHOLDER } from '../lib/localAssets';
 import { formatMoneyFull, formatMoneyPerHour, formatMoneyPlain } from '../utils/money';
+import type { BoostStatus } from '../hooks/useBoosts';
 
 interface HeaderProps {
   totalMoney: number;
@@ -35,6 +36,8 @@ interface HeaderProps {
   onOpenIncomeBreakdown: () => void;
   onOpenSettings: () => void;
   onOpenLeaderboard: () => void;
+  totalIncomeBoost: BoostStatus;
+  onTotalIncomeBoostWatch: () => void;
 }
 
 export function Header({
@@ -69,7 +72,9 @@ export function Header({
   onOpenHappiness,
   onOpenIncomeBreakdown,
   onOpenSettings,
-  onOpenLeaderboard
+  onOpenLeaderboard,
+  totalIncomeBoost,
+  onTotalIncomeBoostWatch,
 }: HeaderProps) {
   const [isMoneyAnimating, setIsMoneyAnimating] = useState(false);
   const [displayedMoney, setDisplayedMoney] = useState(totalMoney);
@@ -465,21 +470,47 @@ export function Header({
                 </span>
               </div>
 
-              <button
-                onClick={onOpenIncomeBreakdown}
-                className={
-                  'flex items-center gap-1.5 rounded-lg px-2 py-1 w-fit border transition-colors active:scale-[0.98] ' +
-                  (hourlyIncome < 0
-                    ? 'bg-red-500/25 border-red-400/35'
-                    : 'bg-emerald-500/22 border-emerald-300/35')
-                }
-                title={`Job ${formatMoneyPerHour(jobIncome)} • Business ${formatMoneyPerHour(businessIncome)} • Investment ${formatMoneyPerHour(investmentIncome)} • House -$${formatMoneyPlain(houseRentExpense)}/h • Vehicle -$${formatMoneyPlain(vehicleExpense)}/h • Other -$${formatMoneyPlain(otherExpenses)}/h`}
-              >
-                <img src={LOCAL_ICON_ASSETS.money} alt="Income per hour" className="w-4 h-4 max-[420px]:w-3 max-[420px]:h-3" />
-                <span className="text-[11px] max-[420px]:text-[10px] font-bold leading-none">
-                  {formatMoneyPerHour(hourlyIncome)}
-                </span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={onOpenIncomeBreakdown}
+                  className={
+                    'flex items-center gap-1.5 rounded-lg px-2 py-1 w-fit border transition-colors active:scale-[0.98] ' +
+                    (hourlyIncome < 0
+                      ? 'bg-red-500/25 border-red-400/35'
+                      : 'bg-emerald-500/22 border-emerald-300/35')
+                  }
+                  title={`Job ${formatMoneyPerHour(jobIncome)} • Business ${formatMoneyPerHour(businessIncome)} • Investment ${formatMoneyPerHour(investmentIncome)} • House -$${formatMoneyPlain(houseRentExpense)}/h • Vehicle -$${formatMoneyPlain(vehicleExpense)}/h • Other -$${formatMoneyPlain(otherExpenses)}/h`}
+                >
+                  <img src={LOCAL_ICON_ASSETS.money} alt="Income per hour" className="w-4 h-4 max-[420px]:w-3 max-[420px]:h-3" />
+                  <span className="text-[11px] max-[420px]:text-[10px] font-bold leading-none">
+                    {formatMoneyPerHour(hourlyIncome)}
+                  </span>
+                  {totalIncomeBoost.active && (
+                    <span className="text-[9px] font-black text-amber-300 bg-amber-400/20 rounded px-1">⚡2×</span>
+                  )}
+                </button>
+
+                {totalIncomeBoost.active ? (
+                  <div className="flex items-center gap-1 rounded-lg bg-amber-400/20 border border-amber-400/30 px-1.5 py-1">
+                    <span className="text-[9px] font-black text-amber-300">⚡</span>
+                    <span className="text-[9px] font-semibold text-amber-200/80">{totalIncomeBoost.remainingLabel}</span>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <img
+                      src={LOCAL_ICON_ASSETS.ads}
+                      alt="Ad"
+                      className="absolute -top-3 left-1/2 -translate-x-1/2 h-6 w-6 object-contain drop-shadow-sm z-10"
+                    />
+                    <button
+                      onClick={onTotalIncomeBoostWatch}
+                      className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-1 text-[9px] font-black text-white transition-all active:scale-95 mt-0.5"
+                    >
+                      2× 1h
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

@@ -30,7 +30,6 @@ interface ProfileModalProps {
   prestigePoints: number;
   selectedOutfitImage?: string | null;
   gems?: number;
-  iapGems?: number;
   iapMoney?: number;
   claimedQuestCount?: number;
   currentBonusPrestige?: number;
@@ -48,7 +47,6 @@ export default function ProfileModal({
   prestigePoints,
   selectedOutfitImage,
   gems = 0,
-  iapGems = 0,
   iapMoney = 0,
   claimedQuestCount = 0,
   currentBonusPrestige = 0,
@@ -229,7 +227,6 @@ export default function ProfileModal({
         onConfirm={handleReset}
         isResetting={isResetting}
         currentGems={gems}
-        iapGems={iapGems}
         iapMoney={iapMoney}
         claimedQuestCount={claimedQuestCount}
         currentBonusPrestige={currentBonusPrestige}

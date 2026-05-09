@@ -29,6 +29,7 @@ import { useRewardActions } from './useRewardActions';
 import { useStuffActions } from './useStuffActions';
 import { useWellbeingActions } from './useWellbeingActions';
 import { useInvestmentActions } from './useInvestmentActions';
+import { useBoosts } from './useBoosts';
 import * as profileService from '../services/profileService';
 
 export function useGameState(deviceId: string, userId: string | null) {
@@ -103,7 +104,16 @@ export function useGameState(deviceId: string, userId: string | null) {
     saveToLocalStorage({ profile: syncedProfile });
   }, [gameState.profile, gameState.questProgress, saveToLocalStorage]);
 
-  const incomePerSecond = gameState.profile ? Number(gameState.profile.hourly_income || 0) / 3600 : 0;
+  const activeBoosts = useBoosts(gameState.profile);
+  const boostedHourlyIncome = gameState.profile
+    ? (
+        Number(gameState.profile.job_income || 0)
+        + Number(gameState.profile.business_income || 0) * activeBoosts.business.multiplier
+        + Number(gameState.profile.investment_income || 0) * activeBoosts.investment.multiplier
+        - Number(gameState.profile.total_expenses || 0)
+      ) * activeBoosts.total.multiplier
+    : 0;
+  const incomePerSecond = boostedHourlyIncome / 3600;
 
   const handleMoneyUpdate = useCallback((moneyToAdd: number) => {
     setGameState((prev) => {
@@ -325,6 +335,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     claimOfflineEarnings,
     dismissOfflineEarnings,
     watchAd,
+    activateBoost,
   } = useRewardActions({
     gameState,
     setGameState,
@@ -511,5 +522,8 @@ export function useGameState(deviceId: string, userId: string | null) {
     claimOfflineEarnings,
     dismissOfflineEarnings,
     reload,
+    activeBoosts,
+    activateBoost,
+    boostedHourlyIncome,
   };
 }

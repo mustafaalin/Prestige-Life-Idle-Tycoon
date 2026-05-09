@@ -16,6 +16,9 @@ export type PlayerProfile = Database['public']['Tables']['player_profiles']['Row
   health_ad_cooldown_until?: string | null;
   happiness_action_cooldowns?: Partial<Record<HappinessActionKey, string>>;
   happiness_ad_cooldown_until?: string | null;
+  business_boost_expires_at?: string | null;
+  investment_boost_expires_at?: string | null;
+  income_boost_expires_at?: string | null;
 };
 export type Character = Database['public']['Tables']['characters']['Row'];
 export interface WellbeingEffectSource {

@@ -1,6 +1,6 @@
 # Session Handoff
 
-Last updated: 2026-05-07
+Last updated: 2026-05-08
 
 Bu dosya yeni bir oturumda projeye hızlı geri dönmek için güncel durum özetidir.
 
@@ -39,37 +39,44 @@ Oyunun ana omurgası local-first olarak çalışıyor. Repo playable durumda, ü
 - Supabase anonymous auth (IAP altyapısı için hazır)
 - RevenueCat-ready IAP altyapısı (mock purchase çalışıyor, native SDK kurulmadı)
 - Wellbeing factors panel (HealthModal / HappinessModal)
+- **Prestige/reset loop** — reset bonusu `reset_prestige_bonus` alanında birikir, her reset kalıcıdır
+- **Global Leaderboard** — Supabase `leaderboard_scores` tablosu, top 100 + kendi sıra, 3dk sync
+- **Outfit isimleri** — "Outfit 2-20" yerine anlamlı isimler (Bare Basics → Elite)
 
-## What Was Done Recently (2026-05-07)
+## What Was Done This Session (2026-05-08)
 
-### Manager Job Görselleri
-- 20 manager job ikonu işlendi: arka plan kaldırıldı, 512×512'ye düşürüldü, ~50-95KB
-- `public/assets/jobs/manager/` klasörüne kopyalandı
-- `src/data/local/jobs.ts`'te tüm manager job `icon_url`'leri bağlandı
+### Reset Döngüsü Bug Düzeltmeleri (4 adet)
+1. **Prestige = 0 sonrası reset**: `syncQuestPrestige()` quest prestige'i `reset_prestige_bonus`'u eziyor sorunu. `PlayerProfile`'a `reset_prestige_bonus?: number` eklendi; `syncQuestPrestige` artık `questPrestige + resetBonus` döndürüyor. `profileService.ts`'teki `resetProgress()` bonusu `reset_prestige_bonus` alanında biriktirir.
+2. **Health/Happiness barları 100'e gelmiyor**: Header animasyonu `healthAnimationSequenceId` / `happinessAnimationSequenceId` increment olmadan tetiklenmiyor. `handleResetProgress()` her iki ID'yi de artırıyor.
+3. **Seçili araç/ev ekranda kalmaya devam ediyor**: `initialCarSynced` flag reset olmuyordu; `selected_car_id = null` olduğunda `displayedCarImage` temizlendi.
+4. **İlk job seçilemiyor**: `gameStateRef.current.jobChangeLockedUntil` silinmiyordu; reset'te `jobChangeLockedUntil: null` setlendi.
 
-### Quest Balance Turu
-- Tüm 100 quest + job level quest'leri, ekonomi ve job gereksinimleri incelendi
-- Tek broken quest bulundu: `quest-90` (rental income eşiği $100K → $20K düzeltildi)
-- Chapter 8'de 12 investment ile max $32K/h kazanılabiliyordu; $100K ulaşılamaz bir eşikti
-- `claimed_quest_count` mantığı doğru çalışıyor — eski "~15 broken quest" notu geçersiz
-- Prestige doğal seyriyle dolduruluyor: Chapter 7 sonu ~245 prestige; job 53 için gereken 206 ✓
+### Sonsuz Döngü Bug Düzeltmesi (KRİTİK)
+- **Sorun**: `useGameState.ts:86` — `expectedPrestige = calculatePrestigeFromQuestProgress()` quest prestige'i hesaplıyordu ama `syncQuestPrestige()` artık `questPrestige + resetBonus` döndürüyor. Reset sonrası `resetBonus=5`, `questPrestige=0` → `currentPrestige(5) ≠ expectedPrestige(0)` → sonsuz `setGameState` döngüsü → "Maximum update depth exceeded" 1700+ kez.
+- **Düzeltme**: `useGameState.ts:86`'da `expectedPrestige = questPrestige + resetBonus` olarak güncellendi. Exit condition artık `syncQuestPrestige`'in hesapladığıyla birebir eşleşiyor.
 
-### Premium House Görselleri
-- `p-house-1/2/3.webp` (backgrounds + icons) assets'e eklendi
-- `localAssets.ts` path'leri güncellendi (`house-premium-N` → `p-house-N`)
+### Leaderboard Implementasyonu (Yeni)
+- `src/services/leaderboardService.ts` — `upsertLeaderboardScore()`, `fetchLeaderboard()` (top 100 + kendi sıra)
+- `src/hooks/useLeaderboardSync.ts` — 3 dakikada bir Supabase upsert, `getCachedAuthUserId()` ile (user.id değil!)
+- `src/components/LeaderboardModal.tsx` — top 100 liste, 100 dışındaysa separator + kendi sıra, freshness label
+- Header'a trophy butonu eklendi → LeaderboardModal açar
+- **Önemli**: `user.id` (deviceId) değil `getCachedAuthUserId()` kullanılmalı — `iapService.ts` ile aynı pattern
 
-### Header Outfit Avatar
-- Header profil dairesinde seçili outfit görselinin baş kısmı gösteriliyor
-- `object-top scale-150 origin-top` ile krop yapılıyor
+### Outfit İsimleri
+- `src/data/local/outfits.ts` — 20 outfit'e gerçek isimler verildi (Bare Basics, Street Casual, … Elite)
 
 ## Current Architecture Notes
 
-### Quest Sistemi Gerçek Yapısı
-- Chapter başına gerçek quest sayısı: 10 (ch0), 11 (ch1-2), 14-16 (ch3-9)
-- Job level quest'leri (level 2-60) static quest'lerle aynı chapter'a dağıtılmış
-- Chapter tamamlamak için o chapter'daki TÜM quest'ler gerekiyor (`every()` kontrolü)
-- Bottleneck her zaman en zorlu static quest'tir; job quest'leri paralel ilerler
-- Quest prestige kaynağı: her claim +1, chapter reward'lar ayrıca bonus prestige verir
+### Prestige / Reset Sistemi
+- `reset_prestige_bonus` (PlayerProfile) — her reset'te birikir, silinmez
+- `bonus_prestige_points` = `calculatePrestigeFromQuestProgress(questProgress)` + `reset_prestige_bonus`
+- `prestige_points` = `bonus_prestige_points` (aynı değer, farklı alan)
+- `useGameState.ts` prestige sync effect: exit condition her iki alanı `questPrestige + resetBonus` ile kıyaslar
+
+### Leaderboard Senkronizasyonu
+- `useLeaderboardSync` — 3 dakika interval, `profileRef` ile stale closure'dan kaçınılır
+- Supabase RLS: `auth.uid() = auth_user_id` — anonymous session gerekli
+- `getCachedAuthUserId()` → `src/lib/auth.ts` → Supabase anonymous user ID
 
 ### IAP Akışı (Mevcut Durum)
 - Anonymous auth: `src/lib/auth.ts` → `ensureAnonymousSession()`
@@ -82,25 +89,22 @@ Oyunun ana omurgası local-first olarak çalışıyor. Repo playable durumda, ü
 - AdMob tüm placement'lar Google test ID kullanıyor (üretim geçişi gerekli)
 - RevenueCat SDK kurulmadı (native IAP mock çalışıyor)
 - Gem ekonomisi: kaynak (daily reward + quest gem ödülleri) ile sink (premium car/house/skip) dengesi test edilmedi
-- Prestige/reset loop oyuncuya UI'da net açıklanmıyor
 
 ## Current Important Files
 
 - app orchestration: [App.tsx](../src/App.tsx)
 - main game orchestration: [useGameState.ts](../src/hooks/useGameState.ts)
+- prestige helpers: [gameStateHelpers.ts](../src/utils/game/gameStateHelpers.ts)
+- profile / reset: [profileService.ts](../src/services/profileService.ts)
+- leaderboard service: [leaderboardService.ts](../src/services/leaderboardService.ts)
+- leaderboard sync hook: [useLeaderboardSync.ts](../src/hooks/useLeaderboardSync.ts)
+- leaderboard modal: [LeaderboardModal.tsx](../src/components/LeaderboardModal.tsx)
 - jobs data: [jobs.ts](../src/data/local/jobs.ts)
-- job requirements: [jobRequirements.ts](../src/data/local/jobRequirements.ts)
 - quests data: [quests.ts](../src/data/local/quests.ts)
+- outfits data: [outfits.ts](../src/data/local/outfits.ts)
 - economy / prestige recalc: [economy.ts](../src/data/local/economy.ts)
-- wellbeing: [wellbeing.ts](../src/data/local/wellbeing.ts)
-- calculations: [calculations.ts](../src/utils/game/calculations.ts)
-- businesses: [businesses.ts](../src/data/local/businesses.ts)
-- investments: [investments.ts](../src/data/local/investments.ts)
-- cars: [cars.ts](../src/data/local/cars.ts)
-- houses: [houses.ts](../src/data/local/houses.ts)
-- reward scaling: [rewardScaling.ts](../src/data/local/rewardScaling.ts)
-- IAP service: [iapService.ts](../src/services/iapService.ts)
 - auth: [auth.ts](../src/lib/auth.ts)
+- IAP service: [iapService.ts](../src/services/iapService.ts)
 
 ## What Still Needs Work
 
@@ -113,14 +117,13 @@ Oyunun ana omurgası local-first olarak çalışıyor. Repo playable durumda, ü
 4. **Gem ekonomisi dengesi** — gem kaynakları yeterli mi, sink'ler erken baskı yapıyor mu, test edilmeli
 5. **Prestige/reset loop UI** — reset ne kazandırır? Oyuncuya net gösterilmiyor; en güçlü retention hook'u
 6. **Geçici boost sistemi** — 2x income 1 saat gibi reklamlı boost yok; monetization + engagement fırsatı kaçıyor
-7. **Leaderboard UI** — schema ve tablo hazır, frontend yok
 
 ### Sonraki Aşama
-8. **Stocks / investment 3. sekme** — InvestmentsModal'da kilitli placeholder
-9. **useGameState refactor** — SRP ihlali, büyüdükçe bug riski artar (öncelik düşük)
-10. **Supabase legacy remnant cleanup** — kullanılmayan tablo/sorgu kalıntıları
+7. **Stocks / investment 3. sekme** — InvestmentsModal'da kilitli placeholder
+8. **useGameState refactor** — SRP ihlali, büyüdükçe bug riski artar (öncelik düşük)
+9. **Supabase legacy remnant cleanup** — kullanılmayan tablo/sorgu kalıntıları
 
 ## Validation Status
 
 - TypeScript check: `npm run typecheck` ile doğrulanmalı
-- Quest 90 düzeltmesi: `quests.ts` line ~779 — `investment_income_at_least: 20000`
+- Sonsuz döngü düzeltmesi: `useGameState.ts:86` — `expectedPrestige = questPrestige + resetBonus`

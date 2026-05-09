@@ -45,6 +45,8 @@ import {
 } from './services/adService';
 import { LeaderboardModal } from './components/LeaderboardModal';
 import { useLeaderboardSync } from './hooks/useLeaderboardSync';
+import { useAudioManager } from './hooks/useAudioManager';
+import { playSfx, ensureMusicStarted } from './services/audioService';
 
 function getCanClaimAccumulatedMoney(params: {
   claimPool: number;
@@ -129,6 +131,14 @@ export default function App() {
   const houseTransitionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showIncomeBreakdown, setShowIncomeBreakdown] = useState(false);
   const [showQuestList, setShowQuestList] = useState(false);
+
+  const anyModalOpen =
+    showShop || showJobs || showProfile || showSettings || showLeaderboard ||
+    showHealthModal || showHappinessModal || showShopModal || showBusinessModal ||
+    showInvestmentsModal || showStuffModal || showIncomeBreakdown || showQuestList;
+
+  useAudioManager(anyModalOpen);
+
   const [moneyAnchorRect, setMoneyAnchorRect] = useState<DOMRect | null>(null);
   const [gemAnchorRect, setGemAnchorRect] = useState<DOMRect | null>(null);
   const [healthAnchorRect, setHealthAnchorRect] = useState<DOMRect | null>(null);
@@ -286,10 +296,12 @@ export default function App() {
       }
 
       if (reward.money > 0) {
+        playSfx('coin');
         setMoneyAnimationSequenceId((prev) => prev + 1);
       }
 
       if (reward.gems > 0) {
+        playSfx('gem');
         setGemAnimationSequenceId((prev) => prev + 1);
       }
 
@@ -320,6 +332,7 @@ export default function App() {
       await playRewardAnimationSequence({ money: result.claimedAmount, gems: 0 });
 
       if (result.claimedAmount > 0) {
+        playSfx('coin');
         setMoneyAnimationSequenceId((prev) => prev + 1);
       }
 
@@ -345,6 +358,7 @@ export default function App() {
 
       const result = await gameState.watchAd();
       if (result.success && reward > 0) {
+        playSfx('coin');
         setMoneyAnimationSequenceId((prev) => prev + 1);
       }
 
@@ -366,8 +380,23 @@ export default function App() {
 
   async function handleBusinessPurchase(businessId: string) {
     const success = await gameState.purchaseBusiness(businessId);
-    if (success) fireConfetti();
+    if (success) { fireConfetti(); playSfx('purchase'); }
     return success;
+  }
+
+  async function handleTotalIncomeBoostWatch() {
+    const rewarded = await requestRewardedAd('total_income_boost');
+    if (rewarded) gameState.activateBoost('total');
+  }
+
+  async function handleBusinessBoostWatch() {
+    const rewarded = await requestRewardedAd('business_income_boost');
+    if (rewarded) gameState.activateBoost('business');
+  }
+
+  async function handleInvestmentBoostWatch() {
+    const rewarded = await requestRewardedAd('investment_income_boost');
+    if (rewarded) gameState.activateBoost('investment');
   }
 
   async function handleBusinessUpgradeWithAdDiscount(businessId: string) {
@@ -441,10 +470,12 @@ export default function App() {
       }
 
       if (moneyAdded > 0) {
+        playSfx('coin');
         setMoneyAnimationSequenceId((prev) => prev + 1);
       }
 
       if (gemsAdded > 0) {
+        playSfx('gem');
         setGemAnimationSequenceId((prev) => prev + 1);
       }
 
@@ -470,6 +501,7 @@ export default function App() {
       const result = await gameState.claimOfflineEarnings(1);
 
       if (result) {
+        playSfx('coin');
         setMoneyAnimationSequenceId((prev) => prev + 1);
       }
 
@@ -499,6 +531,7 @@ export default function App() {
       const result = await gameState.claimOfflineEarnings(2);
 
       if (result) {
+        playSfx('coin');
         setMoneyAnimationSequenceId((prev) => prev + 1);
       }
 
@@ -614,10 +647,12 @@ export default function App() {
       const result = await gameState.claimQuestReward(questId, rewardMultiplier);
 
       if (result?.success) {
+        playSfx('coin');
         if (rewardMoney > 0) {
           setMoneyAnimationSequenceId((prev) => prev + 1);
         }
         if (rewardGems > 0) {
+          playSfx('gem');
           setGemAnimationSequenceId((prev) => prev + 1);
         }
       }
@@ -676,6 +711,7 @@ export default function App() {
 
     try {
       await gameState.claimQuestChapterReward();
+      playSfx('levelUp');
     } finally {
       setIsQuestRewardAnimating(false);
     }
@@ -732,6 +768,7 @@ export default function App() {
 
   async function handleResetProgress() {
     await gameState.resetProgress();
+    playSfx('levelUp');
     setHealthAnimationSequenceId((prev) => prev + 1);
     setHappinessAnimationSequenceId((prev) => prev + 1);
   }
@@ -851,7 +888,7 @@ export default function App() {
   const isJobReadyToAdvance = Boolean(activeJob && activeJobTrackedSeconds >= activeJobRequiredSeconds);
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-slate-900">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-slate-900" onClick={ensureMusicStarted}>
       {outgoingHouseImage && houseAnimState === 'transitioning' && (
         <div
           className="fixed inset-0 bg-cover bg-center z-0 opacity-65 animate-house-slide-out"
@@ -873,10 +910,10 @@ export default function App() {
         moneyAnimationDelayMs={0}
         gemAnimationSequenceId={gemAnimationSequenceId}
         gemAnimationDelayMs={0}
-        hourlyIncome={Number(gameState.profile.hourly_income ?? 1000)}
+        hourlyIncome={gameState.boostedHourlyIncome}
         jobIncome={Number(gameState.profile.job_income ?? 0)}
-        businessIncome={Number(gameState.profile.business_income ?? 0)}
-        investmentIncome={Number(gameState.profile.investment_income ?? 0)}
+        businessIncome={Number(gameState.profile.business_income ?? 0) * gameState.activeBoosts.business.multiplier}
+        investmentIncome={Number(gameState.profile.investment_income ?? 0) * gameState.activeBoosts.investment.multiplier}
         houseRentExpense={Number(gameState.profile.house_rent_expense ?? 0)}
         vehicleExpense={Number(gameState.profile.vehicle_expense ?? 0)}
         otherExpenses={Number(gameState.profile.other_expenses ?? 0)}
@@ -910,6 +947,8 @@ export default function App() {
         onOpenSettings={() => {
           setShowSettings(true);
         }}
+        totalIncomeBoost={gameState.activeBoosts.total}
+        onTotalIncomeBoostWatch={handleTotalIncomeBoostWatch}
       />
 
       <main className="flex-1 px-3 py-4 pb-40 overflow-y-auto relative z-10">
@@ -982,7 +1021,11 @@ export default function App() {
         ownedHouses={gameState.ownedHouses}
         ownedCars={gameState.ownedCars}
         totalMoney={gameState.profile.total_money}
-        onPurchase={(type, itemId, price) => gameState.purchaseitem(type, itemId, price)}
+        onPurchase={async (type, itemId, price) => {
+          const result = await gameState.purchaseitem(type, itemId, price);
+          if (result) playSfx('purchase');
+          return result;
+        }}
       />
 
       <ShopModal
@@ -1076,6 +1119,8 @@ export default function App() {
             setActiveTab('business');
           }}
           loading={gameState.businessesLoading}
+          boost={gameState.activeBoosts.business}
+          onBoostWatch={handleBusinessBoostWatch}
         />
       )}
 
@@ -1094,7 +1139,7 @@ export default function App() {
           activeJob={activeJob}
           onPurchaseCar={async (carId, price) => {
             const result = await gameState.purchaseitem('car', carId, price);
-            if (result) { pendingCelebration.current = true; fireConfetti(); }
+            if (result) { pendingCelebration.current = true; fireConfetti(); playSfx('purchase'); }
             return result;
           }}
           onSellCar={gameState.sellCar}
@@ -1119,7 +1164,7 @@ export default function App() {
           }}
           onPurchasePremiumHouse={async (houseId) => {
             const result = await gameState.purchaseitem('house', houseId, 0);
-            if (result) { pendingCelebration.current = true; fireConfetti(); }
+            if (result) { pendingCelebration.current = true; fireConfetti(); playSfx('purchase'); }
             return result;
           }}
           onClose={() => {
@@ -1163,7 +1208,7 @@ export default function App() {
           hasPremiumBankCard={hasPremiumBankCard(gameState.profile)}
           onPurchase={async (id) => {
             const result = await gameState.purchaseInvestment(id);
-            if (result) fireConfetti();
+            if (result) { fireConfetti(); playSfx('purchase'); }
             return result;
           }}
           onUpgrade={gameState.upgradeInvestment}
@@ -1175,6 +1220,8 @@ export default function App() {
             setShowInvestmentsModal(false);
             setActiveTab('investments');
           }}
+          boost={gameState.activeBoosts.investment}
+          onBoostWatch={handleInvestmentBoostWatch}
         />
       )}
 
@@ -1192,7 +1239,6 @@ export default function App() {
         prestigePoints={gameState.profile?.prestige_points ?? 0}
         selectedOutfitImage={gameState.selectedOutfit?.image_url ?? null}
         gems={gameState.profile.gems ?? 0}
-        iapGems={gameState.profile.iap_gems_total ?? 0}
         iapMoney={gameState.profile.iap_money_total ?? 0}
         claimedQuestCount={gameState.questProgress.claimedQuestIds.length}
         currentBonusPrestige={(gameState.profile as typeof gameState.profile & { reset_prestige_bonus?: number }).reset_prestige_bonus ?? 0}
@@ -1203,7 +1249,6 @@ export default function App() {
         onClose={() => setShowSettings(false)}
         onResetProgress={handleResetProgress}
         currentGems={gameState.profile.gems ?? 0}
-        iapGems={gameState.profile.iap_gems_total ?? 0}
         iapMoney={gameState.profile.iap_money_total ?? 0}
         claimedQuestCount={gameState.questProgress.claimedQuestIds.length}
         currentBonusPrestige={(gameState.profile as typeof gameState.profile & { reset_prestige_bonus?: number }).reset_prestige_bonus ?? 0}
@@ -1218,14 +1263,18 @@ export default function App() {
         isOpen={showIncomeBreakdown}
         onClose={() => setShowIncomeBreakdown(false)}
         jobIncome={Number(gameState.profile.job_income ?? 0)}
-        businessIncome={Number(gameState.profile.business_income ?? 0)}
-        investmentIncome={Number(gameState.profile.investment_income ?? 0)}
+        businessIncome={Number(gameState.profile.business_income ?? 0) * gameState.activeBoosts.business.multiplier}
+        investmentIncome={Number(gameState.profile.investment_income ?? 0) * gameState.activeBoosts.investment.multiplier}
         houseRentExpense={Number(gameState.profile.house_rent_expense ?? 0)}
         vehicleExpense={Number(gameState.profile.vehicle_expense ?? 0)}
         otherExpenses={Number(gameState.profile.other_expenses ?? 0)}
-        grossIncome={Number(gameState.profile.gross_income ?? 0)}
+        grossIncome={
+          Number(gameState.profile.job_income ?? 0)
+          + Number(gameState.profile.business_income ?? 0) * gameState.activeBoosts.business.multiplier
+          + Number(gameState.profile.investment_income ?? 0) * gameState.activeBoosts.investment.multiplier
+        }
         totalExpenses={Number(gameState.profile.total_expenses ?? 0)}
-        netIncome={Number(gameState.profile.hourly_income ?? 0)}
+        netIncome={gameState.boostedHourlyIncome}
       />
 
       {gameState.offlineEarnings && gameState.offlineEarnings.amount > 0 && (

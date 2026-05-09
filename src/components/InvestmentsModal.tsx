@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { BoostAdButton } from './BoostAdButton';
+import type { BoostStatus } from '../hooks/useBoosts';
 import {
   ArrowLeft,
   Clock3,
@@ -92,6 +94,8 @@ interface InvestmentsModalProps {
   onClaimCashback: () => Promise<boolean>;
   onPurchasePremiumBankCard: (purchaseMethod: 'gems' | 'cash') => Promise<boolean>;
   onClose: () => void;
+  boost: BoostStatus;
+  onBoostWatch: () => void;
 }
 
 export function InvestmentsModal({
@@ -109,6 +113,8 @@ export function InvestmentsModal({
   onClaimCashback,
   onPurchasePremiumBankCard,
   onClose,
+  boost,
+  onBoostWatch,
 }: InvestmentsModalProps) {
   const [activeTab, setActiveTab] = useState<'real-estate' | 'bank' | 'stocks'>('real-estate');
   const [activeView, setActiveView] = useState<'menu' | 'market' | 'properties'>('menu');
@@ -388,13 +394,22 @@ export function InvestmentsModal({
             <h2 className="text-xl font-black bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">
               Investments
             </h2>
-            <p className="text-[10px] text-emerald-600 font-bold mt-1">
-              {ownedInvestments.length}/{investments.length} properties • {formatMoney(totalInvestmentIncome)}/hr
+            <p className="text-[10px] text-emerald-600 font-bold mt-1 flex items-center gap-1">
+              {ownedInvestments.length}/{investments.length} properties •{' '}
+              {boost.active
+                ? formatMoney(totalInvestmentIncome * 2)
+                : formatMoney(totalInvestmentIncome)}/hr
+              {boost.active && (
+                <span className="text-[9px] font-black text-amber-500 bg-amber-50 rounded px-1">⚡2×</span>
+              )}
             </p>
           </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-emerald-100/50 rounded-full transition-all active:scale-90">
-            <X className="w-5 h-5 text-emerald-700" />
-          </button>
+          <div className="flex items-center gap-2">
+            <BoostAdButton boost={boost} onWatch={onBoostWatch} />
+            <button onClick={onClose} className="p-1.5 hover:bg-emerald-100/50 rounded-full transition-all active:scale-90">
+              <X className="w-5 h-5 text-emerald-700" />
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-2 p-3 border-b border-emerald-100 bg-white">

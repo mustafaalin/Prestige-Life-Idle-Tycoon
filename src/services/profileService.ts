@@ -190,6 +190,7 @@ export async function resetProgress(userId: string, claimedQuestCount = 0) {
   const playerName = profile.display_name || profile.username || deviceIdentity.getPlayerName();
   const deviceId = profile.device_id || deviceIdentity.getDeviceId() || deviceIdentity.initialize().deviceId;
   const iapGems = Number(profile.iap_gems_total || 0);
+  const allGems = Number(profile.gems || 0);
   const iapMoney = Number(profile.iap_money_total || 0);
   const timesResetAfter = Number(profile.times_reset || 0) + 1;
   const previousBonus = Number((profile as typeof profile & { reset_prestige_bonus?: number }).reset_prestige_bonus || 0);
@@ -204,7 +205,7 @@ export async function resetProgress(userId: string, claimedQuestCount = 0) {
       timesReset: timesResetAfter,
       lastResetAt: now,
     }),
-    gems: iapGems,
+    gems: allGems,
     total_money: 100 + iapMoney,
     iap_gems_total: iapGems,
     iap_money_total: iapMoney,

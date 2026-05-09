@@ -10,7 +10,10 @@ export type AdPlacement =
   | 'job_unlock_skip'
   | 'bank_premium_deposit'
   | 'health_boost'
-  | 'happiness_boost';
+  | 'happiness_boost'
+  | 'business_income_boost'
+  | 'investment_income_boost'
+  | 'total_income_boost';
 
 export interface RewardedAdRequest {
   id: number;

@@ -45,6 +45,18 @@ const REWARDED_AD_UNIT_IDS: Record<AdPlacement, { android: string; ios: string }
     android: DEFAULT_ANDROID_REWARDED_TEST_AD_UNIT_ID,
     ios: DEFAULT_IOS_REWARDED_TEST_AD_UNIT_ID,
   },
+  business_income_boost: {
+    android: DEFAULT_ANDROID_REWARDED_TEST_AD_UNIT_ID,
+    ios: DEFAULT_IOS_REWARDED_TEST_AD_UNIT_ID,
+  },
+  investment_income_boost: {
+    android: DEFAULT_ANDROID_REWARDED_TEST_AD_UNIT_ID,
+    ios: DEFAULT_IOS_REWARDED_TEST_AD_UNIT_ID,
+  },
+  total_income_boost: {
+    android: DEFAULT_ANDROID_REWARDED_TEST_AD_UNIT_ID,
+    ios: DEFAULT_IOS_REWARDED_TEST_AD_UNIT_ID,
+  },
 };
 
 export function getRewardedAdUnitId(placement: AdPlacement) {

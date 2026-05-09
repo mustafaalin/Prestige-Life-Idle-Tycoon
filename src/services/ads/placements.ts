@@ -66,4 +66,22 @@ export const PLACEMENT_COPY: Record<
     ctaLabel: 'Boost Happiness',
     minWatchSeconds: DEFAULT_MIN_WATCH_SECONDS,
   },
+  business_income_boost: {
+    title: '2× Business Income',
+    description: 'Watch an ad to double your business income for 1 hour.',
+    ctaLabel: 'Activate 2× Boost',
+    minWatchSeconds: DEFAULT_MIN_WATCH_SECONDS,
+  },
+  investment_income_boost: {
+    title: '2× Investment Income',
+    description: 'Watch an ad to double your investment income for 1 hour.',
+    ctaLabel: 'Activate 2× Boost',
+    minWatchSeconds: DEFAULT_MIN_WATCH_SECONDS,
+  },
+  total_income_boost: {
+    title: '2× Total Income',
+    description: 'Watch an ad to double your total income for 1 hour.',
+    ctaLabel: 'Activate 2× Boost',
+    minWatchSeconds: DEFAULT_MIN_WATCH_SECONDS,
+  },
 };

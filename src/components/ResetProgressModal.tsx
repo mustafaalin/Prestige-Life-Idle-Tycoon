@@ -7,7 +7,6 @@ interface ResetProgressModalProps {
   onConfirm: () => Promise<void>;
   isResetting?: boolean;
   currentGems?: number;
-  iapGems?: number;
   iapMoney?: number;
   claimedQuestCount?: number;
   currentBonusPrestige?: number;
@@ -19,7 +18,6 @@ export function ResetProgressModal({
   onConfirm,
   isResetting = false,
   currentGems = 0,
-  iapGems = 0,
   iapMoney = 0,
   claimedQuestCount = 0,
   currentBonusPrestige = 0,
@@ -103,8 +101,8 @@ export function ResetProgressModal({
             </div>
             <div className="mt-2 space-y-1.5 text-sm font-semibold text-slate-700">
               <div className="flex items-center justify-between">
-                <span>Purchased gems</span>
-                <span className="font-black text-violet-600">{iapGems} gems</span>
+                <span>All gems</span>
+                <span className="font-black text-violet-600">{currentGems} gems</span>
               </div>
               {iapMoney > 0 && (
                 <div className="flex items-center justify-between">
@@ -116,12 +114,6 @@ export function ResetProgressModal({
                 <span>Starter balance</span>
                 <span className="font-black text-emerald-600">$100</span>
               </div>
-              {currentGems - iapGems > 0 && (
-                <div className="flex items-center justify-between text-slate-400">
-                  <span>Earned gems (reset)</span>
-                  <span className="font-black">-{currentGems - iapGems} gems</span>
-                </div>
-              )}
             </div>
           </div>
 

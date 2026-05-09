@@ -8,6 +8,8 @@ import {
   getBusinessUpgradeCost,
   getDiscountedBusinessUpgradeCost,
 } from '../utils/businessUpgrade';
+import { BoostAdButton } from './BoostAdButton';
+import type { BoostStatus } from '../hooks/useBoosts';
 
 type ProcessingAction = 'purchase' | 'upgrade' | 'discount';
 
@@ -19,6 +21,8 @@ interface BusinessModalProps {
   onUpgradeWithAdDiscount: (businessId: string) => Promise<boolean>;
   onClose: () => void;
   loading?: boolean;
+  boost: BoostStatus;
+  onBoostWatch: () => void;
 }
 
 export function BusinessModal({
@@ -28,7 +32,9 @@ export function BusinessModal({
   onUpgrade,
   onUpgradeWithAdDiscount,
   onClose,
-  loading = false
+  loading = false,
+  boost,
+  onBoostWatch,
 }: BusinessModalProps) {
   const [activeTab, setActiveTab] = useState<'small' | 'large'>('small');
   const [processingState, setProcessingState] = useState<{
@@ -160,16 +166,25 @@ export function BusinessModal({
             <div className="flex items-center gap-2 mt-0.5">
               <p className="text-[10px] text-orange-600 font-bold flex items-center gap-1">
                 <Store className="w-3 h-3" />
-                {ownedCount}/40 owned • {formatMoneyPerHour(totalBusinessIncome)}
+                {ownedCount}/40 owned •{' '}
+                {boost.active
+                  ? formatMoneyPerHour(totalBusinessIncome * 2)
+                  : formatMoneyPerHour(totalBusinessIncome)}
               </p>
+              {boost.active && (
+                <span className="text-[9px] font-black text-amber-500 bg-amber-50 rounded px-1">⚡2×</span>
+              )}
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-orange-100/50 rounded-full transition-all active:scale-90"
-          >
-            <X className="w-5 h-5 text-orange-700" />
-          </button>
+          <div className="flex items-center gap-2">
+            <BoostAdButton boost={boost} onWatch={onBoostWatch} />
+            <button
+              onClick={onClose}
+              className="p-1.5 hover:bg-orange-100/50 rounded-full transition-all active:scale-90"
+            >
+              <X className="w-5 h-5 text-orange-700" />
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-2 p-3 bg-white border-b border-orange-100">

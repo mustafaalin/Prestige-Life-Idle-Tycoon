@@ -116,6 +116,26 @@ export function useRewardActions({
     setGameState((prev) => ({ ...prev, offlineEarnings: null }));
   }, [gameStateRef, setGameState]);
 
+  const BOOST_DURATION_MS = 60 * 60 * 1000; // 1 saat
+
+  const activateBoost = useCallback((type: 'business' | 'investment' | 'total') => {
+    const currentProfile = gameStateRef.current.profile;
+    if (!currentProfile) return false;
+
+    const field =
+      type === 'business' ? 'business_boost_expires_at' :
+      type === 'investment' ? 'investment_boost_expires_at' :
+      'income_boost_expires_at';
+    const expiresAt = new Date(Date.now() + BOOST_DURATION_MS).toISOString();
+
+    const updatedProfile = { ...currentProfile, [field]: expiresAt };
+
+    gameStateRef.current = { ...gameStateRef.current, profile: updatedProfile };
+    setGameState((prev) => ({ ...prev, profile: updatedProfile }));
+    saveToLocalStorage({ profile: updatedProfile });
+    return true;
+  }, [gameStateRef, saveToLocalStorage, setGameState]);
+
   const watchAd = useCallback(async () => {
     const activeId = gameState.profile?.id;
     if (!activeId) return { success: false, reward: 0, cooldown: 0 };
@@ -136,5 +156,6 @@ export function useRewardActions({
     claimOfflineEarnings,
     dismissOfflineEarnings,
     watchAd,
+    activateBoost,
   };
 }
