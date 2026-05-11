@@ -4,5 +4,5 @@
     <string name="title_activity_main">Idle Guy Life Sim</string>
     <string name="package_name">com.idleguy.lifesim</string>
     <string name="custom_url_scheme">com.idleguy.lifesim</string>
-    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="admob_app_id">ca-app-pub-8950990027285549~9898475278</string>
 </resources>

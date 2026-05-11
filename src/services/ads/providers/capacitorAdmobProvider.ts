@@ -50,8 +50,15 @@ async function ensureInitialized() {
       return;
     }
 
+    const isTesting = import.meta.env.VITE_ADMOB_TESTING === 'true';
+    const testDeviceIds = (import.meta.env.VITE_ADMOB_TEST_DEVICE_IDS || '')
+      .split(',')
+      .map((id: string) => id.trim())
+      .filter(Boolean);
+
     await AdMob.initialize({
-      initializeForTesting: true,
+      initializeForTesting: isTesting,
+      testingDevices: testDeviceIds.length ? testDeviceIds : undefined,
     });
 
     try {
@@ -121,7 +128,7 @@ export const capacitorAdmobProvider: RewardedAdProvider = {
       try {
         const options: RewardAdOptions = {
           adId: getRewardedAdUnitId(placement),
-          isTesting: true,
+          isTesting: import.meta.env.VITE_ADMOB_TESTING === 'true',
           npa: false,
         };
 
