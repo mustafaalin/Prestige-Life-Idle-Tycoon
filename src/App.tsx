@@ -1121,6 +1121,11 @@ export default function App() {
           loading={gameState.businessesLoading}
           boost={gameState.activeBoosts.business}
           onBoostWatch={handleBusinessBoostWatch}
+          onGoToShop={() => {
+            setShowBusinessModal(false);
+            setShopModalInitialSection('money');
+            setShowShopModal(true);
+          }}
         />
       )}
 
@@ -1222,6 +1227,11 @@ export default function App() {
           }}
           boost={gameState.activeBoosts.investment}
           onBoostWatch={handleInvestmentBoostWatch}
+          onGoToShop={() => {
+            setShowInvestmentsModal(false);
+            setShopModalInitialSection('money');
+            setShowShopModal(true);
+          }}
         />
       )}
 

@@ -10,6 +10,8 @@ import {
 } from '../utils/businessUpgrade';
 import { BoostAdButton } from './BoostAdButton';
 import type { BoostStatus } from '../hooks/useBoosts';
+import { InsufficientFundsModal } from './InsufficientFundsModal';
+import { useInsufficientFunds } from '../hooks/useInsufficientFunds';
 
 type ProcessingAction = 'purchase' | 'upgrade' | 'discount';
 
@@ -23,6 +25,7 @@ interface BusinessModalProps {
   loading?: boolean;
   boost: BoostStatus;
   onBoostWatch: () => void;
+  onGoToShop: () => void;
 }
 
 export function BusinessModal({
@@ -35,8 +38,11 @@ export function BusinessModal({
   loading = false,
   boost,
   onBoostWatch,
+  onGoToShop,
 }: BusinessModalProps) {
   const [activeTab, setActiveTab] = useState<'small' | 'large'>('small');
+  const { insufficientFundsState, showInsufficientFunds, hideInsufficientFunds } = useInsufficientFunds();
+
   const [processingState, setProcessingState] = useState<{
     businessId: string;
     action: ProcessingAction;
@@ -149,6 +155,7 @@ export function BusinessModal({
   }
 
   return (
+    <>
     <div
       className="fixed inset-x-0 z-[50] flex flex-col pointer-events-none"
       style={{
@@ -323,15 +330,21 @@ export function BusinessModal({
                               </div>
 
                               <button
-                                onClick={() => handlePurchase(business.id)}
-                                disabled={!canAffordPurchase || isProcessing}
-                                className={`w-full py-2 px-3 rounded-lg font-bold text-xs transition-all ${
+                                onClick={() => {
+                                  if (!canAffordPurchase) {
+                                    showInsufficientFunds({ currency: 'cash', required: business.base_price, available: totalMoney, itemName: business.name });
+                                    return;
+                                  }
+                                  handlePurchase(business.id);
+                                }}
+                                disabled={isProcessing}
+                                className={`w-full py-2 px-3 rounded-lg font-bold text-xs transition-all active:scale-95 ${
                                   canAffordPurchase && !isProcessing
-                                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 active:scale-95'
-                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+                                    : 'bg-gradient-to-r from-amber-400 to-orange-400 text-white'
                                 }`}
                               >
-                                {processingAction === 'purchase' ? 'Buying...' : canAffordPurchase ? 'Buy' : 'Need $'}
+                                {processingAction === 'purchase' ? 'Buying...' : canAffordPurchase ? 'Buy' : '$ Get Cash'}
                               </button>
                             </>
                           ) : (
@@ -389,15 +402,21 @@ export function BusinessModal({
 
                                   <div className="mt-2 grid grid-cols-2 gap-2">
                                     <button
-                                      onClick={() => handleUpgrade(business.id)}
-                                      disabled={!canAffordStandardUpgrade || isProcessing}
-                                      className={`rounded-lg px-2.5 py-1.5 text-[11px] font-black transition-all ${
+                                      onClick={() => {
+                                        if (!canAffordStandardUpgrade) {
+                                          showInsufficientFunds({ currency: 'cash', required: upgradeCost, available: totalMoney, itemName: `${business.name} upgrade` });
+                                          return;
+                                        }
+                                        handleUpgrade(business.id);
+                                      }}
+                                      disabled={isProcessing}
+                                      className={`rounded-lg px-2.5 py-1.5 text-[11px] font-black transition-all active:scale-[0.99] ${
                                         canAffordStandardUpgrade && !isProcessing
-                                          ? 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-sm hover:from-orange-500 hover:to-amber-600 active:scale-[0.99]'
-                                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                          ? 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-sm'
+                                          : 'bg-gradient-to-r from-amber-300 to-orange-300 text-white'
                                       }`}
                                     >
-                                      {processingAction === 'upgrade' ? '...' : 'Upgrade'}
+                                      {processingAction === 'upgrade' ? '...' : canAffordStandardUpgrade ? 'Upgrade' : '$ Cash'}
                                     </button>
 
                                     <button
@@ -405,7 +424,7 @@ export function BusinessModal({
                                       disabled={!canAffordDiscountedUpgrade || isProcessing}
                                       className={`rounded-lg border px-2.5 py-1.5 text-[11px] font-black transition-all ${
                                         canAffordDiscountedUpgrade && !isProcessing
-                                          ? 'border-fuchsia-300 bg-gradient-to-r from-fuchsia-500 via-pink-500 to-rose-500 text-white shadow-sm hover:from-fuchsia-600 hover:via-pink-600 hover:to-rose-600 active:scale-[0.99]'
+                                          ? 'border-fuchsia-300 bg-gradient-to-r from-fuchsia-500 via-pink-500 to-rose-500 text-white shadow-sm active:scale-[0.99]'
                                           : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
                                       }`}
                                     >
@@ -441,5 +460,11 @@ export function BusinessModal({
         </div>
       </div>
     </div>
+    <InsufficientFundsModal
+      {...insufficientFundsState}
+      onClose={hideInsufficientFunds}
+      onGoToShop={onGoToShop}
+    />
+    </>
   );
 }

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BoostAdButton } from './BoostAdButton';
 import type { BoostStatus } from '../hooks/useBoosts';
+import { InsufficientFundsModal } from './InsufficientFundsModal';
+import { useInsufficientFunds } from '../hooks/useInsufficientFunds';
 import {
   ArrowLeft,
   Clock3,
@@ -96,6 +98,7 @@ interface InvestmentsModalProps {
   onClose: () => void;
   boost: BoostStatus;
   onBoostWatch: () => void;
+  onGoToShop: () => void;
 }
 
 export function InvestmentsModal({
@@ -115,7 +118,10 @@ export function InvestmentsModal({
   onClose,
   boost,
   onBoostWatch,
+  onGoToShop,
 }: InvestmentsModalProps) {
+  const { insufficientFundsState, showInsufficientFunds, hideInsufficientFunds } = useInsufficientFunds();
+
   const [activeTab, setActiveTab] = useState<'real-estate' | 'bank' | 'stocks'>('real-estate');
   const [activeView, setActiveView] = useState<'menu' | 'market' | 'properties'>('menu');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -384,6 +390,7 @@ export function InvestmentsModal({
   );
 
   return (
+    <>
     <div
       className="fixed inset-x-0 z-[50] flex flex-col pointer-events-none"
       style={{ top: '88px', bottom: '0', height: 'calc(100dvh - 88px)' }}
@@ -983,15 +990,21 @@ export function InvestmentsModal({
               </div>
 
               <button
-                onClick={handleConfirmPurchase}
-                disabled={totalMoney < confirmingInvestment.price || processingKey === confirmingInvestment.id}
-                className={`w-full rounded-2xl py-3 px-4 font-black ${
+                onClick={() => {
+                  if (totalMoney < confirmingInvestment.price) {
+                    showInsufficientFunds({ currency: 'cash', required: confirmingInvestment.price, available: totalMoney, itemName: confirmingInvestment.name });
+                    return;
+                  }
+                  handleConfirmPurchase();
+                }}
+                disabled={processingKey === confirmingInvestment.id}
+                className={`w-full rounded-2xl py-3 px-4 font-black transition-all active:scale-[0.98] ${
                   totalMoney >= confirmingInvestment.price
                     ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white'
-                    : 'bg-slate-200 text-slate-400'
+                    : 'bg-gradient-to-r from-amber-400 to-orange-400 text-white'
                 }`}
               >
-                {processingKey === confirmingInvestment.id ? 'Buying...' : 'Buy'}
+                {processingKey === confirmingInvestment.id ? 'Buying...' : totalMoney >= confirmingInvestment.price ? 'Buy' : '$ Get Cash'}
               </button>
             </div>
           </div>
@@ -1105,6 +1118,13 @@ export function InvestmentsModal({
           </div>
         </div>
       )}
+
     </div>
+    <InsufficientFundsModal
+      {...insufficientFundsState}
+      onClose={hideInsufficientFunds}
+      onGoToShop={onGoToShop}
+    />
+    </>
   );
 }
