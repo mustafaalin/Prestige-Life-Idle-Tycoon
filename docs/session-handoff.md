@@ -1,6 +1,6 @@
 # Session Handoff
 
-Last updated: 2026-05-08
+Last updated: 2026-05-14
 
 Bu dosya yeni bir oturumda projeye hızlı geri dönmek için güncel durum özetidir.
 
@@ -19,7 +19,7 @@ Sonra en mantıklı sıradaki ürün ve teknik adımı öner.
 
 ## Current Product State
 
-Oyunun ana omurgası local-first olarak çalışıyor. Repo playable durumda, ürün tamamlanmış değil.
+Oyunun ana omurgası local-first olarak çalışıyor. Repo playable durumda, Play Store süreci devam ediyor.
 
 Çalışan ana sistemler:
 
@@ -28,102 +28,104 @@ Oyunun ana omurgası local-first olarak çalışıyor. Repo playable durumda, ü
 - Chapter tabanlı quest sistemi — 100 static quest + generated job level quest'leri
 - Daily reward / collect earnings / ad reward
 - Business progression (40 işletme, max level 6)
-- Real estate investments (50 mülk)
+- Real estate investments (50 mülk, 5 upgrade seviyesi)
 - Bank deposits / cashback / premium bank card
 - Health ve happiness stat sistemi (action modals + offline decay + wellbeing factors panel)
 - Premium cars (3 adet, gem ile)
-- Premium houses (3 adet, gem ile) — Sky Loft / Crystal Villa / Apex Penthouse
+- Premium houses (3 adet, gem ile)
 - Stuff modal — araç/ev/karakter/outfit satın alma ve seçim akışları
 - Bottom nav job progress feedback
-- Header outfit avatar — seçili outfit başı profil dairesinde gösteriliyor
-- Supabase anonymous auth (IAP altyapısı için hazır)
-- RevenueCat-ready IAP altyapısı (mock purchase çalışıyor, native SDK kurulmadı)
-- Wellbeing factors panel (HealthModal / HappinessModal)
-- **Prestige/reset loop** — reset bonusu `reset_prestige_bonus` alanında birikir, her reset kalıcıdır
-- **Global Leaderboard** — Supabase `leaderboard_scores` tablosu, top 100 + kendi sıra, 3dk sync
-- **Outfit isimleri** — "Outfit 2-20" yerine anlamlı isimler (Bare Basics → Elite)
+- Header outfit avatar
+- Supabase anonymous auth
+- Global Leaderboard — top 100, kendi sıra, 3dk sync
+- Prestige/reset loop — quest bazlı prestige, reset_prestige_bonus birikimi
+- Geçici boost sistemi — Business 2×, Investment 2×, Total Income 2× (reklam ile, 1 saat)
+- Ses/müzik sistemi — Howler.js, lazy init, modal ducking, ayarlar
+- InsufficientFundsModal — para yetersizse Shop'a yönlendirme
+- AdMob production entegrasyonu — gerçek ad unit ID'leri, isTesting env bazlı
+- RevenueCat SDK kurulumu — @revenuecat/purchases-capacitor, API key env'den
+- IAP ürünleri — 8 ürün Play Console'da tanımlı (com.prestigelife.*)
 
-## What Was Done This Session (2026-05-08)
+## Uygulama Kimliği
 
-### Reset Döngüsü Bug Düzeltmeleri (4 adet)
-1. **Prestige = 0 sonrası reset**: `syncQuestPrestige()` quest prestige'i `reset_prestige_bonus`'u eziyor sorunu. `PlayerProfile`'a `reset_prestige_bonus?: number` eklendi; `syncQuestPrestige` artık `questPrestige + resetBonus` döndürüyor. `profileService.ts`'teki `resetProgress()` bonusu `reset_prestige_bonus` alanında biriktirir.
-2. **Health/Happiness barları 100'e gelmiyor**: Header animasyonu `healthAnimationSequenceId` / `happinessAnimationSequenceId` increment olmadan tetiklenmiyor. `handleResetProgress()` her iki ID'yi de artırıyor.
-3. **Seçili araç/ev ekranda kalmaya devam ediyor**: `initialCarSynced` flag reset olmuyordu; `selected_car_id = null` olduğunda `displayedCarImage` temizlendi.
-4. **İlk job seçilemiyor**: `gameStateRef.current.jobChangeLockedUntil` silinmiyordu; reset'te `jobChangeLockedUntil: null` setlendi.
+- **Paket adı:** `com.prestigelife.idletycoon`
+- **Uygulama adı:** Prestige Life: Idle Tycoon
+- **Android App ID (AdMob):** `ca-app-pub-8950990027285549~9898475278`
+- **iOS App ID (AdMob):** `ca-app-pub-8950990027285549~3253175874`
+- **versionCode:** 2
 
-### Sonsuz Döngü Bug Düzeltmesi (KRİTİK)
-- **Sorun**: `useGameState.ts:86` — `expectedPrestige = calculatePrestigeFromQuestProgress()` quest prestige'i hesaplıyordu ama `syncQuestPrestige()` artık `questPrestige + resetBonus` döndürüyor. Reset sonrası `resetBonus=5`, `questPrestige=0` → `currentPrestige(5) ≠ expectedPrestige(0)` → sonsuz `setGameState` döngüsü → "Maximum update depth exceeded" 1700+ kez.
-- **Düzeltme**: `useGameState.ts:86`'da `expectedPrestige = questPrestige + resetBonus` olarak güncellendi. Exit condition artık `syncQuestPrestige`'in hesapladığıyla birebir eşleşiyor.
+## Prestij Sistemi (Güncel)
 
-### Leaderboard Implementasyonu (Yeni)
-- `src/services/leaderboardService.ts` — `upsertLeaderboardScore()`, `fetchLeaderboard()` (top 100 + kendi sıra)
-- `src/hooks/useLeaderboardSync.ts` — 3 dakikada bir Supabase upsert, `getCachedAuthUserId()` ile (user.id değil!)
-- `src/components/LeaderboardModal.tsx` — top 100 liste, 100 dışındaysa separator + kendi sıra, freshness label
-- Header'a trophy butonu eklendi → LeaderboardModal açar
-- **Önemli**: `user.id` (deviceId) değil `getCachedAuthUserId()` kullanılmalı — `iapService.ts` ile aynı pattern
+- Prestij yalnızca quest ilerlemesinden gelir
+- Her claim edilen quest: +1 prestige
+- Chapter reward'ları: bonus prestige
+- Reset bonusu: `reset_prestige_bonus` alanında kalıcı birikir
+- `syncQuestPrestige()` her güncellemeyi yönetir
+- Job/business/house/car/outfit prestige katkısı YOKTUR
 
-### Outfit İsimleri
-- `src/data/local/outfits.ts` — 20 outfit'e gerçek isimler verildi (Bare Basics, Street Casual, … Elite)
+## IAP Ürün Listesi
+
+| Ürün Kimliği | Tür | Miktar | Fiyat |
+|---|---|---|---|
+| com.prestigelife.money_pack_1 | money | 8,000 | $0.99 |
+| com.prestigelife.money_pack_2 | money | 25,000 | $1.99 |
+| com.prestigelife.money_pack_3 | money | 75,000 | $4.99 |
+| com.prestigelife.money_pack_4 | money | 250,000 | $9.99 |
+| com.prestigelife.gems_pack_1 | gems | 30 | $0.99 |
+| com.prestigelife.gems_pack_2 | gems | 75 | $1.99 |
+| com.prestigelife.gems_pack_3 | gems | 300 | $4.99 |
+| com.prestigelife.gems_pack_4 | gems | 750 | $9.99 |
+
+Not: Satın alınan money miktarı prestige puanına göre dinamik ölçekleniyor — açıklamada sabit miktar yazılmadı.
 
 ## Current Architecture Notes
 
 ### Prestige / Reset Sistemi
 - `reset_prestige_bonus` (PlayerProfile) — her reset'te birikir, silinmez
-- `bonus_prestige_points` = `calculatePrestigeFromQuestProgress(questProgress)` + `reset_prestige_bonus`
-- `prestige_points` = `bonus_prestige_points` (aynı değer, farklı alan)
-- `useGameState.ts` prestige sync effect: exit condition her iki alanı `questPrestige + resetBonus` ile kıyaslar
+- `bonus_prestige_points` = quest prestige + reset_prestige_bonus
+- `syncQuestPrestige()` her ikisini birleştirerek profile'a yazar
 
-### Leaderboard Senkronizasyonu
-- `useLeaderboardSync` — 3 dakika interval, `profileRef` ile stale closure'dan kaçınılır
-- Supabase RLS: `auth.uid() = auth_user_id` — anonymous session gerekli
-- `getCachedAuthUserId()` → `src/lib/auth.ts` → Supabase anonymous user ID
+### Boost Sistemi
+- `business_boost_expires_at`, `investment_boost_expires_at`, `income_boost_expires_at` — PlayerProfile'da
+- `useBoosts` hook — expiry parse, multiplier, countdown
+- `activateBoost('business'|'investment'|'total')` — 1 saatlik expiry set eder
+- `incomePerSecond` boost'lu hesaplanır, `boostedHourlyIncome` Header'a geçilir
 
-### IAP Akışı (Mevcut Durum)
-- Anonymous auth: `src/lib/auth.ts` → `ensureAnonymousSession()`
-- Purchase kayıt: `src/services/iapService.ts` → `purchasePackage()`
-- Native RevenueCat: `npm install @revenuecat/purchases-capacitor` yapılmadı, TODO block var
-- Webhook: deploy edilmedi (`npx supabase functions deploy revenuecat-webhook`)
+### RevenueCat
+- SDK kuruldu: `@revenuecat/purchases-capacitor@13.1.1`
+- `revenueCatService.ts` — initialize, getOfferings, purchaseProduct
+- API key'ler env'den: `VITE_REVENUECAT_API_KEY_IOS`, `VITE_REVENUECAT_API_KEY_ANDROID`
+- Şu an placeholder (`appl_xxxx`, `goog_xxxx`) — RevenueCat hesabı açılınca gerçek key girilecek
 
-### Dikkat Edilmesi Gereken Teknik Borçlar
-- `useGameState.ts` ~1667 satır (SRP ihlali, refactor roadmap'te ama öncelikli değil)
-- AdMob tüm placement'lar Google test ID kullanıyor (üretim geçişi gerekli)
-- RevenueCat SDK kurulmadı (native IAP mock çalışıyor)
-- Gem ekonomisi: kaynak (daily reward + quest gem ödülleri) ile sink (premium car/house/skip) dengesi test edilmedi
+### AdMob
+- `isTesting`: `.env.local`'de `true`, `.env.production`'da `false`
+- Test cihazı ID'si: `VITE_ADMOB_TEST_DEVICE_IDS` env değişkeni
 
-## Current Important Files
+### Ses Sistemi
+- `audioService.ts` — Howler.js, lazy init (AudioContext policy)
+- Modal açılınca müzik %75'e duck eder
+- Settings modal'dan ses/müzik toggle + volume slider
 
-- app orchestration: [App.tsx](../src/App.tsx)
-- main game orchestration: [useGameState.ts](../src/hooks/useGameState.ts)
-- prestige helpers: [gameStateHelpers.ts](../src/utils/game/gameStateHelpers.ts)
-- profile / reset: [profileService.ts](../src/services/profileService.ts)
-- leaderboard service: [leaderboardService.ts](../src/services/leaderboardService.ts)
-- leaderboard sync hook: [useLeaderboardSync.ts](../src/hooks/useLeaderboardSync.ts)
-- leaderboard modal: [LeaderboardModal.tsx](../src/components/LeaderboardModal.tsx)
-- jobs data: [jobs.ts](../src/data/local/jobs.ts)
-- quests data: [quests.ts](../src/data/local/quests.ts)
-- outfits data: [outfits.ts](../src/data/local/outfits.ts)
-- economy / prestige recalc: [economy.ts](../src/data/local/economy.ts)
-- auth: [auth.ts](../src/lib/auth.ts)
-- IAP service: [iapService.ts](../src/services/iapService.ts)
+### IAP Akışı
+- `purchasePackage()` → native: RevenueCat, web: mock
+- `PACKAGE_ID_TO_PRODUCT_ID` mapping — ShopModal local ID → Store product ID
+- Webhook: `supabase/functions/revenuecat-webhook` — deploy bekliyor
 
 ## What Still Needs Work
 
 ### Yayın Bloklayıcılar
-1. **AdMob production** — `isTesting: false` + gerçek ad unit ID'leri set edilmeli
-2. **RevenueCat native SDK** — `npm install @revenuecat/purchases-capacitor` + iapService TODO block
-3. **Edge Function deploy** — `npx supabase functions deploy revenuecat-webhook`
+1. **RevenueCat hesabı** — hesap aç, ürünleri import et, API key'leri al
+2. **Edge Function deploy** — `npx supabase functions deploy revenuecat-webhook`
+3. **Play Store yayın süreci** — store listing, ekran görüntüleri, gizlilik politikası
+4. **iOS geliştirici hesabı** — sonraya bırakıldı
 
-### Önemli Eksikler (Oynanabilirlik / Retention)
-4. **Gem ekonomisi dengesi** — gem kaynakları yeterli mi, sink'ler erken baskı yapıyor mu, test edilmeli
-5. **Prestige/reset loop UI** — reset ne kazandırır? Oyuncuya net gösterilmiyor; en güçlü retention hook'u
-6. **Geçici boost sistemi** — 2x income 1 saat gibi reklamlı boost yok; monetization + engagement fırsatı kaçıyor
+### Önemli Eksikler
+5. **Onboarding** — ilk açılışta mini tutorial yok
+6. **Push notification** — "Daily reward hazır" bildirimleri
+7. **Stocks / investment 3. sekme** — placeholder kilitli
+8. **Manager job kategorisi** — placeholder, gerçek içerik yok
 
-### Sonraki Aşama
-7. **Stocks / investment 3. sekme** — InvestmentsModal'da kilitli placeholder
-8. **useGameState refactor** — SRP ihlali, büyüdükçe bug riski artar (öncelik düşük)
-9. **Supabase legacy remnant cleanup** — kullanılmayan tablo/sorgu kalıntıları
-
-## Validation Status
-
-- TypeScript check: `npm run typecheck` ile doğrulanmalı
-- Sonsuz döngü düzeltmesi: `useGameState.ts:86` — `expectedPrestige = questPrestige + resetBonus`
+### Teknik Borç
+9. `useGameState.ts` ~529 satır (makul, refactor öncelikli değil)
+10. AdMob test mode — production build'de otomatik kapanıyor
+11. Supabase legacy remnant cleanup

@@ -54,8 +54,7 @@ All game state lives in `GameState` (`src/types/game.ts`). The central hook is `
 ### Key Game Rules (source of truth: `docs/game-rules.md`)
 
 - **Income:** `hourly_income = job_income + business_income + investment_income − house_rent − vehicle_cost − other_expenses`. Net income can be negative.
-- **Prestige** is computed centrally from: active job + business levels + selected house + selected car + selected outfit (NOT all owned items).
-- **Quest prestige:** only claimed quests and claimed chapter rewards count toward prestige.
+- **Prestige** comes exclusively from quests: each claimed quest = +1, chapter rewards = bonus prestige, resets accumulate `reset_prestige_bonus`. Job/business/house/car/outfit have no prestige contribution.
 - **Jobs:** unlock requires 3 min worked at current job (not money). Completed jobs cannot be revisited.
 - **Businesses:** sequential unlock by `unlock_order`, max level 6, upgrade cost = `current_hourly_income × multiplier` (30/60/120/180/240).
 - **Investment upgrades:** must be sequential (1→5), each level multiplies `base_rental_income`, not current income.

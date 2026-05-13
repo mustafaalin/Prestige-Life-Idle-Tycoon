@@ -27,16 +27,15 @@ Bu dosya oyunun gerçek işleyiş kurallarını tutar.
 
 ## Prestij Sistemi
 
-- Toplam prestij merkezi olarak yeniden hesaplanır.
-- Toplam prestij bileşenleri:
-  - aktif iş prestiji
-  - sahip olunan işletmelerin seviye bazlı prestiji
-  - seçili ev prestiji
-  - seçili araç prestiji
-  - seçili outfit prestiji
-- Tüm sahip olunan outfit'lerin toplamı kullanılmaz; yalnızca seçili outfit dikkate alınır.
-- Tüm sahip olunan ev/araç toplamı da kullanılmaz; yalnızca seçili ev ve seçili araç dikkate alınır.
-- İşletme prestiji `business_prestige_points` tablosundan level bazlı okunur.
+- Toplam prestij yalnızca quest ilerlemesinden hesaplanır.
+- Prestij kaynakları:
+  - Her claim edilen quest: +1 prestige
+  - Chapter reward'ları: ayrıca bonus prestige verir
+  - Reset bonusu: her reset'te `reset_prestige_bonus` alanında birikir, kalıcıdır
+- `bonus_prestige_points` = quest prestige + reset_prestige_bonus
+- `prestige_points` = `bonus_prestige_points` ile eşit
+- İş, işletme, ev, araç, outfit'in prestige katkısı yoktur — bu alanlar eski sistemden kalan kalıntıdır.
+- `syncQuestPrestige()` fonksiyonu quest ilerlemesini ve reset bonusunu birleştirerek prestige'i günceller.
 
 ## İş Sistemi
 
