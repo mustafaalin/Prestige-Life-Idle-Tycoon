@@ -22,15 +22,27 @@ export interface PurchaseResult {
 }
 
 // Product ID → package mapping (App Store / Play Store ile eşleşmeli)
+// ShopModal local ID → Store product ID
+const PACKAGE_ID_TO_PRODUCT_ID: Record<string, string> = {
+  'money-pack-1': 'com.prestigelife.money_pack_1',
+  'money-pack-2': 'com.prestigelife.money_pack_2',
+  'money-pack-3': 'com.prestigelife.money_pack_3',
+  'money-pack-4': 'com.prestigelife.money_pack_4',
+  'gem-pack-1':   'com.prestigelife.gems_pack_1',
+  'gem-pack-2':   'com.prestigelife.gems_pack_2',
+  'gem-pack-3':   'com.prestigelife.gems_pack_3',
+  'gem-pack-4':   'com.prestigelife.gems_pack_4',
+};
+
 const PRODUCT_MAP: Record<string, { type: IAPPackageType; amount: number }> = {
-  'com.idleguy.money_pack_1':  { type: 'money', amount: 8000 },
-  'com.idleguy.money_pack_2':  { type: 'money', amount: 25000 },
-  'com.idleguy.money_pack_3':  { type: 'money', amount: 75000 },
-  'com.idleguy.money_pack_4':  { type: 'money', amount: 250000 },
-  'com.idleguy.gems_pack_1':   { type: 'gems',  amount: 30 },
-  'com.idleguy.gems_pack_2':   { type: 'gems',  amount: 75 },
-  'com.idleguy.gems_pack_3':   { type: 'gems',  amount: 300 },
-  'com.idleguy.gems_pack_4':   { type: 'gems',  amount: 750 },
+  'com.prestigelife.money_pack_1': { type: 'money', amount: 8000 },
+  'com.prestigelife.money_pack_2': { type: 'money', amount: 25000 },
+  'com.prestigelife.money_pack_3': { type: 'money', amount: 75000 },
+  'com.prestigelife.money_pack_4': { type: 'money', amount: 250000 },
+  'com.prestigelife.gems_pack_1':  { type: 'gems',  amount: 30 },
+  'com.prestigelife.gems_pack_2':  { type: 'gems',  amount: 75 },
+  'com.prestigelife.gems_pack_3':  { type: 'gems',  amount: 300 },
+  'com.prestigelife.gems_pack_4':  { type: 'gems',  amount: 750 },
 };
 
 /**
@@ -47,7 +59,8 @@ export async function purchasePackage(
   const isNative = Capacitor.isNativePlatform();
 
   if (isNative) {
-    return purchaseNative(packageId, type, amount);
+    const productId = PACKAGE_ID_TO_PRODUCT_ID[packageId] ?? packageId;
+    return purchaseNative(productId, type, amount);
   }
 
   // Web/dev ortamında mock purchase (test)
