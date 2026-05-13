@@ -1,4 +1,4 @@
-package com.idleguy.lifesim;
+package com.prestigelife.idletycoon;
 
 import com.getcapacitor.BridgeActivity;
 

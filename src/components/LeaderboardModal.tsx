@@ -96,7 +96,7 @@ export function LeaderboardModal({ isOpen, onClose }: LeaderboardModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[80] flex flex-col bg-gradient-to-br from-slate-900/97 via-slate-800/97 to-slate-900/97 backdrop-blur-xl">
+    <div className="fixed inset-x-0 z-[80] flex flex-col bg-slate-700" style={{ top: '88px', bottom: 0 }}>
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
         <div className="flex items-center gap-2">
           <Trophy className="h-5 w-5 text-amber-400" />

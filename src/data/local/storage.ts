@@ -33,7 +33,28 @@ export function loadLocalGameState(): Partial<GameState> {
 
 export function saveLocalGameState(state: Partial<GameState>): void {
   const current = loadLocalGameState();
-  localStorage.setItem(GAME_STATE_KEY, JSON.stringify({ ...current, ...state }));
+  const currentProfile = current.profile as Record<string, unknown> | undefined;
+  const incomingProfile = state.profile as Record<string, unknown> | undefined;
+
+  // Wellbeing alanları profile'ın her yazılmasında kaybolmamalı.
+  // Gelen profile'da bu alanlar eksikse mevcut değeri koru.
+  const mergedProfile =
+    incomingProfile && currentProfile
+      ? {
+          ...incomingProfile,
+          health: (incomingProfile.health as number) > 0 ? incomingProfile.health : (currentProfile.health ?? incomingProfile.health),
+          happiness: (incomingProfile.happiness as number) > 0 ? incomingProfile.happiness : (currentProfile.happiness ?? incomingProfile.happiness),
+          health_action_cooldowns: incomingProfile.health_action_cooldowns ?? currentProfile.health_action_cooldowns,
+          health_ad_cooldown_until: incomingProfile.health_ad_cooldown_until ?? currentProfile.health_ad_cooldown_until,
+          happiness_action_cooldowns: incomingProfile.happiness_action_cooldowns ?? currentProfile.happiness_action_cooldowns,
+          happiness_ad_cooldown_until: incomingProfile.happiness_ad_cooldown_until ?? currentProfile.happiness_ad_cooldown_until,
+        }
+      : incomingProfile ?? currentProfile;
+
+  localStorage.setItem(
+    GAME_STATE_KEY,
+    JSON.stringify({ ...current, ...state, ...(mergedProfile ? { profile: mergedProfile } : {}) })
+  );
 }
 
 export function getLocalJobs(): Job[] {

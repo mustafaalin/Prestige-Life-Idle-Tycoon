@@ -33,20 +33,40 @@ function persistAudioSettings(patch: Partial<AudioSettings>) {
 const FADE_DURATION_MS = 400;
 const DUCK_RATIO = 0.75;
 
-const SFX: Record<string, Howl> = {
-  coin:     new Howl({ src: ['/assets/audio/sfx/coin_collect.mp3'],     volume: 0.7 }),
-  gem:      new Howl({ src: ['/assets/audio/sfx/gem_collect.mp3'],      volume: 0.7 }),
-  purchase: new Howl({ src: ['/assets/audio/sfx/purchase_success.mp3'], volume: 0.7 }),
-  click:    new Howl({ src: ['/assets/audio/sfx/button_click.mp3'],     volume: 0.5 }),
-  levelUp:  new Howl({ src: ['/assets/audio/sfx/level_up.mp3'],         volume: 0.8 }),
+// Howl nesneleri ilk kullanıcı etkileşimine kadar yaratılmaz —
+// browser AudioContext politikası gereği (gesture required)
+type SfxKey = 'coin' | 'gem' | 'purchase' | 'click' | 'levelUp';
+
+const SFX_CONFIGS: Record<SfxKey, { src: string; volume: number }> = {
+  coin:     { src: '/assets/audio/sfx/coin_collect.mp3',     volume: 0.7 },
+  gem:      { src: '/assets/audio/sfx/gem_collect.mp3',      volume: 0.7 },
+  purchase: { src: '/assets/audio/sfx/purchase_success.mp3', volume: 0.7 },
+  click:    { src: '/assets/audio/sfx/button_click.mp3',     volume: 0.5 },
+  levelUp:  { src: '/assets/audio/sfx/level_up.mp3',         volume: 0.8 },
 };
 
-const music = new Howl({
-  src: ['/assets/audio/music/main_theme.mp3'],
-  loop: true,
-  volume: 0,
-  autoplay: false,
-});
+const sfxInstances: Partial<Record<SfxKey, Howl>> = {};
+let musicInstance: Howl | null = null;
+
+function getSfx(key: SfxKey): Howl {
+  if (!sfxInstances[key]) {
+    const cfg = SFX_CONFIGS[key];
+    sfxInstances[key] = new Howl({ src: [cfg.src], volume: cfg.volume });
+  }
+  return sfxInstances[key]!;
+}
+
+function getMusic(): Howl {
+  if (!musicInstance) {
+    musicInstance = new Howl({
+      src: ['/assets/audio/music/main_theme.mp3'],
+      loop: true,
+      volume: 0,
+      autoplay: false,
+    });
+  }
+  return musicInstance;
+}
 
 let musicStarted = false;
 let modalOpen = false;
@@ -62,20 +82,21 @@ function targetVolume() {
 }
 
 function applyVolume(fade = false) {
+  const m = getMusic();
   const target = targetVolume();
   if (fade) {
-    const current = typeof music.volume() === 'number' ? (music.volume() as number) : target;
+    const current = typeof m.volume() === 'number' ? (m.volume() as number) : target;
     if (Math.abs(current - target) < 0.01) return;
-    music.fade(current, target, FADE_DURATION_MS);
+    m.fade(current, target, FADE_DURATION_MS);
   } else {
-    music.volume(target);
+    m.volume(target);
   }
 }
 
 function startMusic() {
   if (musicStarted) return;
   musicStarted = true;
-  music.play();
+  getMusic().play();
   applyVolume(true);
 }
 
@@ -83,10 +104,10 @@ export function ensureMusicStarted() {
   if (!musicStarted) startMusic();
 }
 
-export function playSfx(name: keyof typeof SFX) {
+export function playSfx(name: SfxKey) {
   ensureMusicStarted();
   if (!sfxEnabled) return;
-  SFX[name]?.play();
+  getSfx(name).play();
 }
 
 export function setModalOpen(open: boolean) {

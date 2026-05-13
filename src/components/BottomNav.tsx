@@ -27,8 +27,8 @@ export function BottomNav({
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-transparent border-t border-white/25 h-[88px] pb-[env(safe-area-inset-bottom)]">
-      <div className="h-full flex items-center justify-between px-2 py-2 gap-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 flex justify-center pb-[env(safe-area-inset-bottom)] px-3 py-3">
+      <div className="flex items-center gap-2 bg-black/30 border border-white/20 rounded-2xl px-2 py-2 w-full max-w-[500px]">
         {navItems.map((item) => {
           const isActive = activeTab === item.id;
           const hasAttention = attentionTabs[item.id];
@@ -38,10 +38,10 @@ export function BottomNav({
               key={item.id}
               onClick={() => onTabChange(item.id)}
               className={
-                'relative flex-1 aspect-square rounded-xl transition-all duration-200 border ' +
+                'relative flex-1 h-14 rounded-xl transition-all duration-200 border ' +
                 (isActive
                   ? 'bg-white/22 border-white/40 shadow-lg scale-[1.02]'
-                  : 'bg-white/10 border-white/20 hover:bg-white/16 hover:border-white/30 hover:shadow-md active:scale-95')
+                  : 'bg-white/10 border-white/20 active:scale-95')
               }
               aria-label={item.label}
             >
@@ -51,15 +51,14 @@ export function BottomNav({
                   style={{
                     background: `conic-gradient(from -90deg, rgba(52,211,153,0.98) 0deg, rgba(45,212,191,0.98) ${Math.max(0, Math.min(1, jobProgress)) * 360}deg, rgba(255,255,255,0.14) ${Math.max(0, Math.min(1, jobProgress)) * 360}deg, rgba(255,255,255,0.14) 360deg)`,
                     padding: '2px',
-                    WebkitMask:
-                      'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                     WebkitMaskComposite: 'xor',
                     maskComposite: 'exclude',
                   }}
                 />
               )}
               {hasAttention && (
-                <div className="absolute -right-1.5 -top-1.5 z-20 flex h-8 w-8 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 text-base font-black leading-none text-white shadow-[0_0_18px_rgba(239,68,68,0.75)]">
+                <div className="absolute -right-1.5 -top-1.5 z-20 flex h-6 w-6 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-black leading-none text-white shadow-[0_0_14px_rgba(239,68,68,0.75)]">
                   !
                 </div>
               )}
@@ -68,9 +67,9 @@ export function BottomNav({
                   src={item.iconUrl}
                   alt={item.label}
                   className={
-                    'w-[70%] h-[70%] object-contain transition-all duration-200 ' +
-                    (item.id === 'stuff' ? 'scale-110' : '') + // 👈 sadece Stuff büyür
-                    (isActive ? ' scale-125' : '')
+                    'w-7 h-7 object-contain transition-all duration-200 ' +
+                    (item.id === 'stuff' ? 'scale-110 ' : '') +
+                    (isActive ? 'scale-125' : '')
                   }
                 />
               </div>
@@ -80,16 +79,16 @@ export function BottomNav({
 
         <button
           onClick={onOpenQuestList}
-          className="relative flex-1 aspect-square rounded-xl border bg-white/10 border-white/20 transition-all duration-200 hover:bg-white/16 hover:border-white/30 hover:shadow-md active:scale-95"
+          className="relative flex-1 h-14 rounded-xl border bg-white/10 border-white/20 transition-all duration-200 active:scale-95"
           aria-label="Quest"
         >
           {hasQuestAttention && (
-            <div className="absolute -right-1.5 -top-1.5 z-20 flex h-8 w-8 animate-pulse items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-base font-black leading-none text-white shadow-[0_0_18px_rgba(16,185,129,0.75)]">
+            <div className="absolute -right-1.5 -top-1.5 z-20 flex h-6 w-6 animate-pulse items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-xs font-black leading-none text-white shadow-[0_0_14px_rgba(16,185,129,0.75)]">
               !
             </div>
           )}
           <div className="flex h-full w-full items-center justify-center">
-            <ListTodo className="h-8 w-8 text-white" />
+            <ListTodo className="h-6 w-6 text-white" />
           </div>
         </button>
       </div>

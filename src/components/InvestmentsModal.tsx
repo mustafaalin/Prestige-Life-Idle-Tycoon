@@ -372,9 +372,9 @@ export function InvestmentsModal({
   }) => (
     <button
       onClick={onClick}
-      className="w-full overflow-hidden rounded-[28px] border border-emerald-100 bg-white text-left shadow-md transition-all hover:shadow-xl"
+      className="w-full overflow-hidden rounded-[24px] border border-emerald-100 bg-white text-left shadow-md transition-all active:scale-[0.98] hover:shadow-xl"
     >
-      <div className="aspect-square bg-gradient-to-br from-emerald-100 via-cyan-50 to-white p-4">
+      <div className="aspect-[4/3] bg-gradient-to-br from-emerald-100 via-cyan-50 to-white p-4">
         <img
           src={resolveLocalAsset(imageUrl, 'house')}
           alt={fallbackLabel}
@@ -382,9 +382,9 @@ export function InvestmentsModal({
           loading="lazy"
         />
       </div>
-      <div className="p-4">
-        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-600">{subtitle}</p>
-        <h3 className="mt-1 text-lg font-black text-slate-900">{title}</h3>
+      <div className="p-3">
+        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-emerald-600">{subtitle}</p>
+        <h3 className="mt-0.5 text-[15px] font-black leading-tight text-slate-900">{title}</h3>
       </div>
     </button>
   );
@@ -459,8 +459,8 @@ export function InvestmentsModal({
         </div>
 
         {activeTab === 'real-estate' && activeView === 'menu' && (
-          <div className="flex-1 overflow-y-auto bg-white p-4">
-            <div className="flex flex-col gap-4">
+          <div className="flex-1 bg-white p-4 flex flex-col justify-start">
+            <div className="grid grid-cols-2 gap-3">
               {renderEntryCard({
                 title: 'Real Estate Market',
                 subtitle: 'Browse And Buy',
@@ -773,10 +773,10 @@ export function InvestmentsModal({
                       const incomeGain = Math.max(0, nextIncome - currentIncome);
                       const isProcessing =
                         processingKey === `${selectedInvestment.id}:${upgradeKey}`;
+                      const cannotAfford = !isApplied && isNextUpgrade && totalMoney < cost;
                       const isDisabled =
                         isApplied ||
                         !isNextUpgrade ||
-                        totalMoney < cost ||
                         isProcessing;
                       const statusLabel = isApplied
                         ? 'Done'
@@ -784,14 +784,20 @@ export function InvestmentsModal({
                           ? 'Locked'
                           : isProcessing
                             ? 'Upgrading...'
-                            : totalMoney < cost
-                              ? 'Need Cash'
+                            : cannotAfford
+                              ? '$ Get Cash'
                               : 'Upgrade';
                       return (
                         <button
                           key={upgradeKey}
-                          disabled={isDisabled}
-                          onClick={() => handleUpgrade(upgradeKey)}
+                          disabled={isDisabled && !cannotAfford}
+                          onClick={() => {
+                            if (cannotAfford) {
+                              showInsufficientFunds({ currency: 'cash', required: cost, available: totalMoney, itemName: INVESTMENT_UPGRADE_LABELS[upgradeKey] });
+                              return;
+                            }
+                            handleUpgrade(upgradeKey);
+                          }}
                           className={`w-full rounded-[22px] border p-3 text-left transition-all ${
                             isApplied
                               ? 'bg-slate-50 border-slate-200 text-slate-400'

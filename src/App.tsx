@@ -178,6 +178,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!gameState.cars.length) return; // araç listesi henüz yüklenmedi
     const carImageUrl = gameState.cars.find(
       (c) => c.id === gameState.profile?.selected_car_id
     )?.image_url;
@@ -191,6 +192,7 @@ export default function App() {
   }, [gameState.profile?.selected_car_id, gameState.cars]);
 
   useEffect(() => {
+    if (!gameState.houses.length) return; // ev listesi henüz yüklenmedi
     const houseImageUrl = gameState.houses.find(
       (h) => h.id === gameState.profile?.selected_house_id
     )?.image_url;
@@ -572,6 +574,7 @@ export default function App() {
       const result = await gameState.claimBankDeposit(depositId);
 
       if (result?.success) {
+        playSfx('coin');
         setMoneyAnimationSequenceId((prev) => prev + 1);
       }
 
@@ -599,6 +602,7 @@ export default function App() {
       const result = await gameState.claimCashback();
 
       if (result?.success) {
+        playSfx('coin');
         setMoneyAnimationSequenceId((prev) => prev + 1);
       }
 
@@ -1216,7 +1220,11 @@ export default function App() {
             if (result) { fireConfetti(); playSfx('purchase'); }
             return result;
           }}
-          onUpgrade={gameState.upgradeInvestment}
+          onUpgrade={async (id, key) => {
+            const result = await gameState.upgradeInvestment(id, key);
+            if (result) playSfx('purchase');
+            return result;
+          }}
           onStartBankDeposit={handleStartBankDeposit}
           onClaimBankDeposit={handleAnimatedBankDepositClaim}
           onClaimCashback={handleAnimatedCashbackClaim}

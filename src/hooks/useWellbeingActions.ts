@@ -18,8 +18,6 @@ import type {
   HappinessActionKey,
   HealthActionKey,
 } from '../types/game';
-import * as profileService from '../services/profileService';
-
 interface UseWellbeingActionsParams {
   gameState: GameState;
   setGameState: Dispatch<SetStateAction<GameState>>;
@@ -66,7 +64,6 @@ export function useWellbeingActions({
       },
     });
 
-    await profileService.updateProfile(activeId, updatedProfile);
     gameStateRef.current = {
       ...gameStateRef.current,
       profile: updatedProfile,
@@ -93,7 +90,6 @@ export function useWellbeingActions({
       health_ad_cooldown_until: null,
     });
 
-    await profileService.updateProfile(activeId, updatedProfile);
     gameStateRef.current = {
       ...gameStateRef.current,
       profile: updatedProfile,
@@ -137,7 +133,6 @@ export function useWellbeingActions({
       },
     });
 
-    await profileService.updateProfile(activeId, updatedProfile);
     gameStateRef.current = {
       ...gameStateRef.current,
       profile: updatedProfile,
@@ -164,7 +159,6 @@ export function useWellbeingActions({
       happiness_ad_cooldown_until: null,
     });
 
-    await profileService.updateProfile(activeId, updatedProfile);
     gameStateRef.current = {
       ...gameStateRef.current,
       profile: updatedProfile,
