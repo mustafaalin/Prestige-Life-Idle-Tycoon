@@ -45,6 +45,7 @@ import {
 } from './services/adService';
 import { LeaderboardModal } from './components/LeaderboardModal';
 import { useLeaderboardSync } from './hooks/useLeaderboardSync';
+import { initializeRevenueCat } from './services/revenueCatService';
 import { useAudioManager } from './hooks/useAudioManager';
 import { playSfx, ensureMusicStarted } from './services/audioService';
 
@@ -94,6 +95,10 @@ export default function App() {
   const { deviceId, isAuthenticated, user, loading: authLoading } = useAuth();
   const gameState = useGameState(deviceId, user?.id || null);
   useLeaderboardSync({ profile: gameState.profile });
+
+  useEffect(() => {
+    initializeRevenueCat(user?.id ?? null);
+  }, [user?.id]);
   const [showShop, setShowShop] = useState(false);
   const [showJobs, setShowJobs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);

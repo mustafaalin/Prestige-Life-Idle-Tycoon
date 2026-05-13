@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { supabase } from '../lib/supabase';
 import { getCachedAuthUserId } from '../lib/auth';
+import { purchaseProduct } from './revenueCatService';
 
 export type IAPPackageType = 'money' | 'gems';
 
@@ -67,36 +68,22 @@ export async function purchasePackage(
   return purchaseMock(packageId, type, amount, priceUsd);
 }
 
-/**
- * Native RevenueCat satın alma.
- * @revenuecat/purchases-capacitor kurulduktan sonra implement edilecek.
- */
 async function purchaseNative(
-  packageId: string,
+  productId: string,
   type: IAPPackageType,
   amount: number,
 ): Promise<PurchaseResult> {
-  // TODO: RevenueCat SDK kurulunca açılacak
-  // import { Purchases } from '@revenuecat/purchases-capacitor';
-  //
-  // try {
-  //   const offerings = await Purchases.getOfferings();
-  //   const pkg = offerings.current?.availablePackages.find(p => p.identifier === packageId);
-  //   if (!pkg) throw new Error('Package not found in offerings');
-  //
-  //   const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
-  //   // Webhook üzerinden Supabase'e işlenir, biz sadece local state'i güncelliyoruz
-  //   const moneyAdded = type === 'money' ? amount : 0;
-  //   const gemsAdded = type === 'gems' ? amount : 0;
-  //   return { success: true, moneyAdded, gemsAdded };
-  // } catch (err: any) {
-  //   if (err.userCancelled) return { success: false, moneyAdded: 0, gemsAdded: 0, error: 'cancelled' };
-  //   throw err;
-  // }
-
-  // Şimdilik native'de de mock çalışsın (RevenueCat kurulana kadar)
-  console.warn('[IAP] Native purchase not yet implemented, using mock');
-  return purchaseMock(packageId, type, amount, 0);
+  try {
+    await purchaseProduct(productId);
+    const moneyAdded = type === 'money' ? amount : 0;
+    const gemsAdded  = type === 'gems'  ? amount : 0;
+    return { success: true, moneyAdded, gemsAdded };
+  } catch (err: unknown) {
+    if (err && typeof err === 'object' && 'userCancelled' in err && err.userCancelled) {
+      return { success: false, moneyAdded: 0, gemsAdded: 0, error: 'cancelled' };
+    }
+    throw err;
+  }
 }
 
 /**
