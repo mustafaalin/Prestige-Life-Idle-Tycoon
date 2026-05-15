@@ -73,11 +73,9 @@ All game state lives in `GameState` (`src/types/game.ts`). The central hook is `
 
 ### Known Technical Debt
 
-- `useGameState.ts` is ~1667 lines (SRP violation, decomposition is in the roadmap but not urgent).
 - Manager job category is a placeholder — no real data yet.
 - RevenueCat native SDK not installed; IAP is mock-only.
 - AdMob is in test mode (`isTesting: true`).
-- ~15 broken quests (`claimed_quest_count` logic incorrect).
 
 ## Session Startup
 

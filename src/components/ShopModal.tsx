@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Gift, Lock, ShoppingBag, Sparkles, Shirt, Check, Flame } from 'lucide-react';
+import { X, Gift, Lock, ShoppingBag, Sparkles, Shirt, Check, Flame, AlertTriangle } from 'lucide-react';
 import * as rewardService from '../services/rewardService';
 import * as itemService from '../services/itemService';
 import { purchasePackage } from '../services/iapService';
@@ -679,8 +679,15 @@ export function ShopModal({
                     <span className="rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-black text-orange-700 ring-1 ring-orange-200">
                       Day {spotlightDay}
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-black text-orange-700 ring-1 ring-orange-200">
-                      <Flame className="h-3.5 w-3.5 text-orange-500" />
+                    <span className={`inline-flex items-center gap-1 rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-black ring-1 ${
+                      rescueAvailable && !hasClaimedToday
+                        ? 'text-rose-700 ring-rose-200'
+                        : 'text-orange-700 ring-orange-200'
+                    }`}>
+                      {rescueAvailable && !hasClaimedToday
+                        ? <AlertTriangle className="h-3.5 w-3.5 text-rose-500" />
+                        : <Flame className="h-3.5 w-3.5 text-orange-500" />
+                      }
                       {dailyRewardStatus?.currentStreak ?? 0}
                     </span>
                   </div>
@@ -691,8 +698,10 @@ export function ShopModal({
             <div className="relative mt-4 rounded-[18px] border border-white/70 bg-white/88 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-500">
-                    {hasClaimedToday ? 'Next Reward' : 'Daily Reward'}
+                  <p className={`text-[10px] font-black uppercase tracking-[0.18em] ${
+                    rescueAvailable && !hasClaimedToday ? 'text-rose-500' : 'text-orange-500'
+                  }`}>
+                    {hasClaimedToday ? 'Next Reward' : rescueAvailable ? 'Streak at Risk!' : 'Daily Reward'}
                   </p>
                   <div className="mt-1 flex flex-wrap items-center gap-2">
                     <p className="text-[30px] font-black leading-none text-emerald-600">
@@ -714,11 +723,26 @@ export function ShopModal({
                     event.stopPropagation();
                   }}
                 >
-                  <DailyRewardActionButton
-                    state={dailyActionState}
-                    label={dailyActionLabel}
-                    onClick={handleClaimDaily}
-                  />
+                  {rescueAvailable && !hasClaimedToday ? (
+                    <button
+                      type="button"
+                      onClick={handleRescueDailyStreak}
+                      disabled={adCooldown > 0 || isWatchingAd}
+                      className={`min-w-[96px] rounded-[16px] px-4 py-2.5 text-[11px] font-black transition-all active:scale-95 ${
+                        adCooldown > 0 || isWatchingAd
+                          ? 'bg-slate-100 text-slate-400 cursor-default'
+                          : 'bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-[0_8px_18px_rgba(244,63,94,0.22)]'
+                      }`}
+                    >
+                      {isWatchingAd ? 'Saving...' : adCooldown > 0 ? formatTime(adCooldown) : 'Save Streak'}
+                    </button>
+                  ) : (
+                    <DailyRewardActionButton
+                      state={dailyActionState}
+                      label={dailyActionLabel}
+                      onClick={handleClaimDaily}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -1092,9 +1116,9 @@ export function ShopModal({
                       )}
                       {isToday && !isCompleted && (
                         <div className={`mt-1.5 text-[8px] font-black rounded-full px-2 py-0.5 ${
-                          isClaimable ? 'bg-white/25 text-white' : 'bg-orange-100 text-orange-600'
+                          isClaimable ? 'bg-white/25 text-white' : (rescueAvailable && isToday) ? 'bg-rose-100 text-rose-600' : 'bg-orange-100 text-orange-600'
                         }`}>
-                          {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : 'NEXT'}
+                          {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : (rescueAvailable && isToday) ? 'RESCUE' : 'NEXT'}
                         </div>
                       )}
                     </div>
@@ -1132,9 +1156,9 @@ export function ShopModal({
                           ? <Check className="h-3.5 w-3.5 text-emerald-500" />
                           : isToday
                             ? <div className={`text-[8px] font-black rounded-full px-2 py-0.5 ${
-                                isClaimable ? 'bg-white/25 text-white' : 'bg-orange-100 text-orange-600'
+                                isClaimable ? 'bg-white/25 text-white' : (rescueAvailable && isToday) ? 'bg-rose-100 text-rose-600' : 'bg-orange-100 text-orange-600'
                               }`}>
-                                {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : 'NEXT'}
+                                {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : (rescueAvailable && isToday) ? 'RESCUE' : 'NEXT'}
                               </div>
                             : null
                         }
@@ -1211,9 +1235,9 @@ export function ShopModal({
                           </div>
                         : isToday
                           ? <div className={`text-[9px] font-black rounded-full px-3 py-1.5 ${
-                              isClaimable ? 'bg-white/25 text-white' : 'bg-orange-100 text-orange-600'
+                              isClaimable ? 'bg-white/25 text-white' : (rescueAvailable && isToday) ? 'bg-rose-100 text-rose-600' : 'bg-orange-100 text-orange-600'
                             }`}>
-                              {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : 'NEXT'}
+                              {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : (rescueAvailable && isToday) ? 'RESCUE' : 'NEXT'}
                             </div>
                           : null
                       }
@@ -1274,9 +1298,9 @@ export function ShopModal({
                           </div>
                         ) : isToday ? (
                           <div className={`text-[9px] font-black rounded-full px-3 py-1.5 ${
-                            isClaimable ? 'bg-white/30 text-white' : 'bg-amber-200 text-amber-800'
+                            isClaimable ? 'bg-white/30 text-white' : (rescueAvailable && isToday) ? 'bg-rose-100 text-rose-600' : 'bg-amber-200 text-amber-800'
                           }`}>
-                            {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : 'NEXT'}
+                            {isClaimable ? 'TODAY' : hasClaimedToday ? 'DONE' : (rescueAvailable && isToday) ? 'RESCUE' : 'NEXT'}
                           </div>
                         ) : null}
                       </div>
