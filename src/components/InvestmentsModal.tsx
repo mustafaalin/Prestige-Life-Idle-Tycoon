@@ -463,14 +463,14 @@ export function InvestmentsModal({
             <div className="grid grid-cols-2 gap-3">
               {renderEntryCard({
                 title: 'Real Estate Market',
-                subtitle: 'Browse And Buy',
+                subtitle: `${marketInvestments.length} Available`,
                 imageUrl: marketPreview?.image_url,
                 fallbackLabel: 'Real Estate Market',
                 onClick: () => setActiveView('market'),
               })}
               {renderEntryCard({
                 title: 'My Properties',
-                subtitle: `${ownedInvestments.length} Owned Properties`,
+                subtitle: `${ownedInvestments.length} Owned`,
                 imageUrl: propertiesPreview?.image_url,
                 fallbackLabel: 'My Properties',
                 onClick: () => setActiveView('properties'),
