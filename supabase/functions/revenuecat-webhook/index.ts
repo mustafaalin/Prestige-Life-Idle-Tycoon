@@ -18,14 +18,14 @@ const WEBHOOK_SECRET = Deno.env.get('REVENUECAT_WEBHOOK_SECRET') ?? '';
 
 // product_id → { type, amount } mapping
 const PRODUCT_MAP: Record<string, { type: 'money' | 'gems'; amount: number }> = {
-  'com.idleguy.money_pack_1': { type: 'money', amount: 8000 },
-  'com.idleguy.money_pack_2': { type: 'money', amount: 25000 },
-  'com.idleguy.money_pack_3': { type: 'money', amount: 75000 },
-  'com.idleguy.money_pack_4': { type: 'money', amount: 250000 },
-  'com.idleguy.gems_pack_1':  { type: 'gems',  amount: 30 },
-  'com.idleguy.gems_pack_2':  { type: 'gems',  amount: 75 },
-  'com.idleguy.gems_pack_3':  { type: 'gems',  amount: 300 },
-  'com.idleguy.gems_pack_4':  { type: 'gems',  amount: 750 },
+  'com.prestigelife.money_pack_1': { type: 'money', amount: 8000 },
+  'com.prestigelife.money_pack_2': { type: 'money', amount: 25000 },
+  'com.prestigelife.money_pack_3': { type: 'money', amount: 75000 },
+  'com.prestigelife.money_pack_4': { type: 'money', amount: 250000 },
+  'com.prestigelife.gems_pack_1':  { type: 'gems',  amount: 30 },
+  'com.prestigelife.gems_pack_2':  { type: 'gems',  amount: 75 },
+  'com.prestigelife.gems_pack_3':  { type: 'gems',  amount: 300 },
+  'com.prestigelife.gems_pack_4':  { type: 'gems',  amount: 750 },
 };
 
 Deno.serve(async (req) => {

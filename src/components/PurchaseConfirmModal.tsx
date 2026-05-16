@@ -1,4 +1,4 @@
-import { X, ShoppingBag, AlertCircle } from 'lucide-react';
+import { X, ShoppingBag } from 'lucide-react';
 import { formatMoneyFull } from '../utils/money';
 
 interface PurchaseConfirmModalProps {
@@ -37,18 +37,6 @@ export function PurchaseConfirmModal({
           >
             <X className="w-5 h-5 text-slate-600" />
           </button>
-        </div>
-
-        <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 mb-4 border-2 border-yellow-200">
-          <div className="flex items-start gap-3 mb-3">
-            <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-xs font-bold text-orange-800 mb-1">DEMO MODE</p>
-              <p className="text-[11px] text-orange-700 leading-relaxed">
-                No real payment will be charged. This is a demonstration of the purchase flow.
-              </p>
-            </div>
-          </div>
         </div>
 
         <div className="bg-slate-50 rounded-xl p-4 mb-4 border border-slate-200">

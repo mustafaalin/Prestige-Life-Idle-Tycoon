@@ -33,11 +33,8 @@ export async function getOfferings() {
 
 export async function purchaseProduct(productId: string) {
   if (!initialized) throw new Error('RevenueCat not initialized');
-  const offerings = await Purchases.getOfferings();
-  const allPackages = Object.values(offerings.all).flatMap(
-    (o: { availablePackages: { product: { identifier: string } }[] }) => o.availablePackages
-  );
-  const pkg = allPackages.find(p => p.product.identifier === productId);
-  if (!pkg) throw new Error(`Product not found: ${productId}`);
-  return Purchases.purchasePackage({ aPackage: pkg as Parameters<typeof Purchases.purchasePackage>[0]['aPackage'] });
+  const { products } = await Purchases.getProducts({ productIdentifiers: [productId] });
+  const product = products.find((p: { identifier: string }) => p.identifier === productId);
+  if (!product) throw new Error(`Product not found: ${productId}`);
+  return Purchases.purchaseStoreProduct({ product: product as Parameters<typeof Purchases.purchaseStoreProduct>[0]['product'] });
 }

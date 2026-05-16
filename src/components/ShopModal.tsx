@@ -8,6 +8,10 @@ import { LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
 import { DAILY_REWARDS } from '../data/local/rewards';
 import { getScaledMoneyPackageAmount, getScaledShopRewards } from '../data/local/rewardScaling';
 import { formatMoneyFull } from '../utils/money';
+import {
+  canAccessOutfitWithPrestige,
+  getRequiredPrestigeForOutfit,
+} from '../data/local/prestigeRequirements';
 
 const AD_COOLDOWN_SECONDS = 30;
 
@@ -842,13 +846,6 @@ export function ShopModal({
               <h3 className="text-base font-black text-green-700">Money Packages</h3>
             </div>
 
-            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3 mb-3 flex items-start gap-2">
-              <Sparkles className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
-              <p className="text-[10px] font-bold text-yellow-800 leading-relaxed">
-                DEMO MODE - No real payment will be charged
-              </p>
-            </div>
-
             <div className="grid grid-cols-2 gap-2">
               {moneyPackages.map((pkg) => (
                 <div
@@ -894,13 +891,6 @@ export function ShopModal({
             <div className="flex items-center gap-2 mb-3">
               <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-5 w-5 object-contain" />
               <h3 className="text-base font-black text-purple-700">Gem Packages</h3>
-            </div>
-
-            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3 mb-3 flex items-start gap-2">
-              <Sparkles className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
-              <p className="text-[10px] font-bold text-yellow-800 leading-relaxed">
-                DEMO MODE - No real payment will be charged
-              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
@@ -959,26 +949,39 @@ export function ShopModal({
                   {outfits.map((outfit) => {
                     const isSelected = selectedOutfitId === outfit.id;
                     const canAfford = totalMoney >= outfit.price;
+                    const isPrestigeLocked = !outfit.is_owned && !canAccessOutfitWithPrestige(outfit.unlock_order, prestigePoints);
+                    const requiredPrestige = getRequiredPrestigeForOutfit(outfit.unlock_order);
 
                     return (
                       <div
                         key={outfit.id}
                         className={`relative rounded-2xl overflow-hidden border-2 transition-all flex flex-col ${
-                          isSelected
-                            ? 'border-emerald-400 shadow-[0_0_0_1px_rgba(52,211,153,0.3)]'
-                            : outfit.is_owned
-                              ? 'border-slate-200'
+                          isPrestigeLocked
+                            ? 'border-slate-200 opacity-75'
+                            : isSelected
+                              ? 'border-emerald-400 shadow-[0_0_0_1px_rgba(52,211,153,0.3)]'
                               : 'border-slate-200'
                         }`}
                       >
                         {/* Görsel */}
-                        <div className="bg-gradient-to-br from-blue-50 to-purple-50 flex items-end justify-center pt-3 px-2" style={{ minHeight: '160px' }}>
+                        <div className="bg-gradient-to-br from-blue-50 to-purple-50 flex items-end justify-center pt-3 px-2 relative" style={{ minHeight: '160px' }}>
                           <img
                             src={resolveLocalAsset(outfit.image_url, 'outfit')}
                             alt={outfit.name}
-                            className="w-full object-contain"
+                            className={`w-full object-contain ${isPrestigeLocked ? 'blur-[2px]' : ''}`}
                             style={{ maxHeight: '180px' }}
                           />
+                          {isPrestigeLocked && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/40 gap-1.5">
+                              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-800/80">
+                                <Lock className="h-4 w-4 text-white" />
+                              </div>
+                              <div className="flex items-center gap-1 rounded-full bg-slate-800/80 px-2.5 py-1">
+                                <img src={LOCAL_ICON_ASSETS.prestige} alt="" className="h-3.5 w-3.5 object-contain" />
+                                <span className="text-[11px] font-black text-white">{requiredPrestige}</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         {/* Rozet */}
@@ -988,17 +991,17 @@ export function ShopModal({
                             ON
                           </div>
                         )}
-                        {!outfit.is_owned && !canAfford && (
-                          <div className="absolute top-2 right-2 bg-slate-700/70 text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <Lock className="w-2.5 h-2.5" />
-                          </div>
-                        )}
 
                         {/* Alt bilgi */}
                         <div className="p-2.5 flex flex-col gap-2 bg-white flex-1">
                           <p className="text-[12px] font-black text-slate-800 leading-tight truncate">{outfit.name}</p>
 
-                          {outfit.is_owned ? (
+                          {isPrestigeLocked ? (
+                            <div className="w-full rounded-xl py-2 text-[11px] font-black text-center bg-slate-100 text-slate-400 flex items-center justify-center gap-1">
+                              <img src={LOCAL_ICON_ASSETS.prestige} alt="" className="h-3 w-3 object-contain opacity-60" />
+                              {requiredPrestige} needed
+                            </div>
+                          ) : outfit.is_owned ? (
                             isSelected ? (
                               <div className="w-full rounded-xl py-2 text-[11px] font-black text-center bg-emerald-500 text-white">
                                 Equipped
