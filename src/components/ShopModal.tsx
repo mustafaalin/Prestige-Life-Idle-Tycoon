@@ -35,7 +35,7 @@ interface ShopModalProps {
   onPurchaseComplete: (moneyAdded: number, gemsAdded: number) => Promise<void>;
   totalMoney: number;
   selectedOutfitId: string | null;
-  onOutfitChange: () => void;
+  onOutfitChange: (outfitId: string, moneySpent?: number) => void;
   initialNotification?: string | null;
 }
 
@@ -533,7 +533,7 @@ export function ShopModal({
           outfit.id === outfitId ? { ...outfit, is_owned: true, is_unlocked: true } : outfit
         )
       );
-      onOutfitChange();
+      onOutfitChange(outfitId, result.money_spent ?? 0);
     } catch (error: any) {
       console.error('Error purchasing outfit:', error);
       showNotification(`Failed to purchase outfit: ${error.message || 'Unknown error'}`);
@@ -545,7 +545,7 @@ export function ShopModal({
 
     try {
       await itemService.selectOutfit(userId, outfitId);
-      onOutfitChange();
+      onOutfitChange(outfitId);
     } catch (error) {
       console.error('Error selecting outfit:', error);
       showNotification('Failed to select outfit');

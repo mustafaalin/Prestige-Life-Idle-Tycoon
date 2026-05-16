@@ -1,13 +1,25 @@
 import { useEffect, useRef } from 'react';
-import { setModalOpen, ensureMusicStarted } from '../services/audioService';
+import { setModalOpen, ensureMusicStarted, pauseMusic, resumeMusic } from '../services/audioService';
 
 export function useAudioManager(anyModalOpen: boolean) {
   const prevOpen = useRef(false);
 
-  // İlk render'da müziği başlatmak için kullanıcı etkileşimi beklenir,
-  // ama state değişimlerinde (modal açma gibi) tetikleyebiliriz.
   useEffect(() => {
     ensureMusicStarted();
+  }, []);
+
+  // Uygulama arka plana geçince müziği durdur, ön plana gelince devam ettir
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        pauseMusic();
+      } else {
+        resumeMusic();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
   useEffect(() => {

@@ -104,6 +104,16 @@ export function ensureMusicStarted() {
   if (!musicStarted) startMusic();
 }
 
+export function pauseMusic() {
+  if (!musicStarted) return;
+  getMusic().pause();
+}
+
+export function resumeMusic() {
+  if (!musicStarted) return;
+  if (musicEnabled) getMusic().play();
+}
+
 export function playSfx(name: SfxKey) {
   ensureMusicStarted();
   if (!sfxEnabled) return;

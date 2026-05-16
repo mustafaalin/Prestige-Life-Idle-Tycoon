@@ -475,6 +475,18 @@ export function useGameState(deviceId: string, userId: string | null) {
 
   const reload = useCallback(() => { loadGameData(false); }, [loadGameData]);
 
+  const updateOutfitLocally = useCallback((outfitId: string, moneySpent: number) => {
+    setGameState((prev) => {
+      if (!prev.profile) return prev;
+      const updatedProfile = {
+        ...prev.profile,
+        selected_outfit_id: outfitId,
+        total_money: Math.max(0, Number(prev.profile.total_money) - moneySpent),
+      };
+      return { ...prev, profile: updatedProfile };
+    });
+  }, [setGameState]);
+
   return {
     ...gameState,
     currentQuest: getCurrentQuestFromProgress(gameState.questProgress),
@@ -522,6 +534,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     claimOfflineEarnings,
     dismissOfflineEarnings,
     reload,
+    updateOutfitLocally,
     activeBoosts,
     activateBoost,
     boostedHourlyIncome,

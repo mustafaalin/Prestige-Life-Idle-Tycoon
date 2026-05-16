@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import confetti from 'canvas-confetti';
 import { useAuth } from './hooks/useAuth';
 import { useGameState } from './hooks/useGameState';
 import ProfileModal from './components/ProfileModal';
@@ -214,9 +213,9 @@ export default function App() {
     if (quest.target_screen === 'shop') {
       const conditionType = quest.condition.type;
       setShopModalInitialTab(conditionType === 'owned_outfit_count' ? 'outfits' : 'shop');
-      // Daily ile ilgili questler scroll gerektirmiyor — sadece shop açılsın
-      const isDailyRelated = conditionType === 'daily_reward_claimed' || conditionType === 'daily_streak_at_least';
-      setShopModalInitialSection(isDailyRelated ? null : 'money');
+      // Claim ve daily questler scroll gerektirmiyor — sadece shop açılsın
+      const noScrollTypes = ['daily_reward_claimed', 'daily_streak_at_least', 'accumulated_money_claimed_once', 'accumulated_money_claim_count'];
+      setShopModalInitialSection(noScrollTypes.includes(conditionType) ? null : 'money');
     }
 
     if (quest.target_screen === 'stuff') {
@@ -376,18 +375,9 @@ export default function App() {
     }
   }
 
-  function fireConfetti() {
-    confetti({
-      particleCount: 90,
-      spread: 70,
-      origin: { y: 0.55 },
-      colors: ['#6366f1', '#8b5cf6', '#a78bfa', '#fbbf24', '#34d399'],
-    });
-  }
-
-  async function handleBusinessPurchase(businessId: string) {
+async function handleBusinessPurchase(businessId: string) {
     const success = await gameState.purchaseBusiness(businessId);
-    if (success) { fireConfetti(); playSfx('purchase'); }
+    if (success) { playSfx('purchase'); }
     return success;
   }
 
@@ -1042,6 +1032,7 @@ export default function App() {
         onClose={() => {
           setShowShopModal(false);
           setActiveTab('shop');
+          setShopModalInitialTab('shop');
           setShopModalInitialSection(null);
           setShopModalInitialNotification(null);
         }}
@@ -1063,9 +1054,8 @@ export default function App() {
         onPurchaseComplete={handleAnimatedPackagePurchase}
         totalMoney={gameState.profile.total_money}
         selectedOutfitId={gameState.profile.selected_outfit_id}
-        onOutfitChange={() => {
-          gameState.reload();
-          fireConfetti();
+        onOutfitChange={(outfitId, moneySpent) => {
+          gameState.updateOutfitLocally(outfitId, moneySpent ?? 0);
         }}
       />
 
@@ -1132,6 +1122,7 @@ export default function App() {
           onBoostWatch={handleBusinessBoostWatch}
           onGoToShop={() => {
             setShowBusinessModal(false);
+            setShopModalInitialTab('shop');
             setShopModalInitialSection('money');
             setShowShopModal(true);
           }}
@@ -1153,7 +1144,7 @@ export default function App() {
           activeJob={activeJob}
           onPurchaseCar={async (carId, price) => {
             const result = await gameState.purchaseitem('car', carId, price);
-            if (result) { pendingCelebration.current = true; fireConfetti(); playSfx('purchase'); }
+            if (result) { pendingCelebration.current = true; playSfx('purchase'); }
             return result;
           }}
           onSellCar={gameState.sellCar}
@@ -1178,7 +1169,7 @@ export default function App() {
           }}
           onPurchasePremiumHouse={async (houseId) => {
             const result = await gameState.purchaseitem('house', houseId, 0);
-            if (result) { pendingCelebration.current = true; fireConfetti(); playSfx('purchase'); }
+            if (result) { pendingCelebration.current = true; playSfx('purchase'); }
             return result;
           }}
           onClose={() => {
@@ -1222,7 +1213,7 @@ export default function App() {
           hasPremiumBankCard={hasPremiumBankCard(gameState.profile)}
           onPurchase={async (id) => {
             const result = await gameState.purchaseInvestment(id);
-            if (result) { fireConfetti(); playSfx('purchase'); }
+            if (result) { playSfx('purchase'); }
             return result;
           }}
           onUpgrade={async (id, key) => {
@@ -1242,6 +1233,7 @@ export default function App() {
           onBoostWatch={handleInvestmentBoostWatch}
           onGoToShop={() => {
             setShowInvestmentsModal(false);
+            setShopModalInitialTab('shop');
             setShopModalInitialSection('money');
             setShowShopModal(true);
           }}
@@ -1270,11 +1262,6 @@ export default function App() {
       <SettingsModal
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
-        onResetProgress={handleResetProgress}
-        currentGems={gameState.profile.gems ?? 0}
-        iapMoney={gameState.profile.iap_money_total ?? 0}
-        claimedQuestCount={gameState.questProgress.claimedQuestIds.length}
-        currentBonusPrestige={(gameState.profile as typeof gameState.profile & { reset_prestige_bonus?: number }).reset_prestige_bonus ?? 0}
       />
 
       <LeaderboardModal
