@@ -8,6 +8,7 @@ import {
   type RewardedAdProvider,
   type RewardedAdResult,
 } from '../types';
+import { pauseMusic, resumeMusic } from '../../audioService';
 
 const listeners = new Set<() => void>();
 
@@ -110,6 +111,7 @@ export const capacitorAdmobProvider: RewardedAdProvider = {
         if (settled) return;
         settled = true;
         adInProgress = false;
+        resumeMusic();
         await clearRewardListeners();
         setState(createEmptyAdState('capacitor-admob'));
         resolve(result);
@@ -140,6 +142,7 @@ export const capacitorAdmobProvider: RewardedAdProvider = {
         };
 
         await AdMob.prepareRewardVideoAd(options);
+        pauseMusic();
         await AdMob.showRewardVideoAd();
       } catch (error) {
         console.warn('[ads] Rewarded ad request failed', error);
