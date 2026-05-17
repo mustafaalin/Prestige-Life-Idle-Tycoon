@@ -34,7 +34,12 @@ export async function getOfferings() {
 export async function purchaseProduct(productId: string) {
   if (!initialized) throw new Error('RevenueCat not initialized');
   const { products } = await Purchases.getProducts({ productIdentifiers: [productId] });
+  console.log(`[RevenueCat] getProducts(${productId}) returned ${products.length} product(s):`, products.map((p: { identifier: string }) => p.identifier));
   const product = products.find((p: { identifier: string }) => p.identifier === productId);
-  if (!product) throw new Error(`Product not found: ${productId}`);
+  if (!product) {
+    throw new Error(
+      `Product not found: ${productId}. Make sure it is approved in Play Console and your test account is added as an internal tester.`
+    );
+  }
   return Purchases.purchaseStoreProduct({ product: product as Parameters<typeof Purchases.purchaseStoreProduct>[0]['product'] });
 }

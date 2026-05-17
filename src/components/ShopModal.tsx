@@ -3,7 +3,6 @@ import { X, Gift, Lock, ShoppingBag, Sparkles, Shirt, Check, Flame, AlertTriangl
 import * as rewardService from '../services/rewardService';
 import * as itemService from '../services/itemService';
 import { purchasePackage } from '../services/iapService';
-import { PurchaseConfirmModal } from './PurchaseConfirmModal';
 import { LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
 import { DAILY_REWARDS } from '../data/local/rewards';
 import { getScaledMoneyPackageAmount, getScaledShopRewards } from '../data/local/rewardScaling';
@@ -176,14 +175,7 @@ export function ShopModal({
   } | null>(null);
   const [moneyPackages, setMoneyPackages] = useState<MoneyPackage[]>([]);
   const [gemPackages, setGemPackages] = useState<GemPackage[]>([]);
-  const [showPurchaseConfirm, setShowPurchaseConfirm] = useState(false);
   const [showDailyRewardsModal, setShowDailyRewardsModal] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<{
-    type: 'money' | 'gem';
-    amount: number;
-    price: number;
-    packageId: string;
-  } | null>(null);
   const [isProcessingPurchase, setIsProcessingPurchase] = useState(false);
   const [outfits, setOutfits] = useState<CharacterOutfit[]>([]);
   const [outfitsLoading, setOutfitsLoading] = useState(false);
@@ -456,54 +448,34 @@ export function ShopModal({
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleSelectMoneyPackage = (pkg: MoneyPackage) => {
-    setSelectedPackage({
-      type: 'money',
-      amount: pkg.calculated_amount,
-      price: Number(pkg.price_usd),
-      packageId: pkg.id,
-    });
-    setShowPurchaseConfirm(true);
-  };
-
-  const handleSelectGemPackage = (pkg: GemPackage) => {
-    setSelectedPackage({
-      type: 'gem',
-      amount: pkg.gem_amount,
-      price: Number(pkg.price_usd),
-      packageId: pkg.id,
-    });
-    setShowPurchaseConfirm(true);
-  };
-
-  const handleConfirmPurchase = async () => {
-    if (!selectedPackage) return;
-
-    if (!userId) {
-      showNotification('Error: Profile not found');
-      return;
-    }
-
+  const handleSelectMoneyPackage = async (pkg: MoneyPackage) => {
+    if (isProcessingPurchase || !userId) return;
     setIsProcessingPurchase(true);
-
     try {
-      const result = await purchasePackage(
-        selectedPackage.packageId,
-        selectedPackage.type === 'gem' ? 'gems' : 'money',
-        selectedPackage.amount,
-        selectedPackage.price,
-      );
-
+      const result = await purchasePackage(pkg.id, 'money', pkg.calculated_amount, Number(pkg.price_usd));
       if (!result.success) {
-        if (result.error !== 'cancelled') {
-          showNotification(result.error || 'Purchase failed');
-        }
+        if (result.error !== 'cancelled') showNotification(result.error || 'Purchase failed');
         return;
       }
-
       await onPurchaseComplete(result.moneyAdded, result.gemsAdded);
-      setShowPurchaseConfirm(false);
-      setSelectedPackage(null);
+    } catch (error: any) {
+      console.error('Purchase error:', error);
+      showNotification(`Error: ${error.message || 'Purchase failed'}`);
+    } finally {
+      setIsProcessingPurchase(false);
+    }
+  };
+
+  const handleSelectGemPackage = async (pkg: GemPackage) => {
+    if (isProcessingPurchase || !userId) return;
+    setIsProcessingPurchase(true);
+    try {
+      const result = await purchasePackage(pkg.id, 'gems', pkg.gem_amount, Number(pkg.price_usd));
+      if (!result.success) {
+        if (result.error !== 'cancelled') showNotification(result.error || 'Purchase failed');
+        return;
+      }
+      await onPurchaseComplete(result.moneyAdded, result.gemsAdded);
     } catch (error: any) {
       console.error('Purchase error:', error);
       showNotification(`Error: ${error.message || 'Purchase failed'}`);
@@ -875,9 +847,10 @@ export function ShopModal({
                   </div>
                   <button
                     onClick={() => handleSelectMoneyPackage(pkg)}
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg py-2 text-sm font-bold hover:from-green-600 hover:to-emerald-600 transition-all active:scale-95"
+                    disabled={isProcessingPurchase}
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg py-2 text-sm font-bold hover:from-green-600 hover:to-emerald-600 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-default"
                   >
-                    Buy
+                    {isProcessingPurchase ? '...' : 'Buy'}
                   </button>
                 </div>
               ))}
@@ -922,9 +895,10 @@ export function ShopModal({
                   </div>
                   <button
                     onClick={() => handleSelectGemPackage(pkg)}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg py-2 text-sm font-bold hover:from-purple-600 hover:to-pink-600 transition-all active:scale-95"
+                    disabled={isProcessingPurchase}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg py-2 text-sm font-bold hover:from-purple-600 hover:to-pink-600 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-default"
                   >
-                    Buy
+                    {isProcessingPurchase ? '...' : 'Buy'}
                   </button>
                 </div>
               ))}
@@ -1351,16 +1325,6 @@ export function ShopModal({
         </div>
       )}
 
-      <PurchaseConfirmModal
-        isOpen={showPurchaseConfirm}
-        onClose={() => {
-          setShowPurchaseConfirm(false);
-          setSelectedPackage(null);
-        }}
-        onConfirm={handleConfirmPurchase}
-        packageInfo={selectedPackage}
-        isProcessing={isProcessingPurchase}
-      />
     </div>
   );
 }
