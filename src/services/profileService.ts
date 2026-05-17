@@ -192,6 +192,7 @@ export async function resetProgress(userId: string, claimedQuestCount = 0) {
   const iapGems = Number(profile.iap_gems_total || 0);
   const allGems = Number(profile.gems || 0);
   const iapMoney = Number(profile.iap_money_total || 0);
+  const hasPremiumCard = Boolean(profile.premium_bank_card_owned);
   const timesResetAfter = Number(profile.times_reset || 0) + 1;
   const previousBonus = Number((profile as typeof profile & { reset_prestige_bonus?: number }).reset_prestige_bonus || 0);
   const earnedBonus = calculateResetPrestigeBonus(claimedQuestCount);
@@ -210,6 +211,9 @@ export async function resetProgress(userId: string, claimedQuestCount = 0) {
     iap_gems_total: iapGems,
     iap_money_total: iapMoney,
     reset_prestige_bonus: bonusPrestige,
+    premium_bank_card_owned: hasPremiumCard,
+    premium_bank_card_purchased_at: hasPremiumCard ? profile.premium_bank_card_purchased_at : null,
+    premium_bank_card_purchase_source: hasPremiumCard ? profile.premium_bank_card_purchase_source : null,
   };
 
   clearLocalStorage();
