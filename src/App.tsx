@@ -44,7 +44,7 @@ import {
 } from './services/adService';
 import { LeaderboardModal } from './components/LeaderboardModal';
 import { useLeaderboardSync } from './hooks/useLeaderboardSync';
-import { initializeRevenueCat } from './services/revenueCatService';
+import { initializeRevenueCat, purchaseProduct } from './services/revenueCatService';
 import { useAudioManager } from './hooks/useAudioManager';
 import { playSfx, ensureMusicStarted } from './services/audioService';
 
@@ -609,6 +609,16 @@ async function handleBusinessPurchase(businessId: string) {
   }
 
   async function handlePurchasePremiumBankCard(purchaseMethod: 'gems' | 'cash') {
+    if (purchaseMethod === 'cash') {
+      try {
+        await purchaseProduct('com.prestigelife.premium_bank_card');
+      } catch (err: any) {
+        if (err?.userCancelled) return false;
+        console.error('[IAP] Premium bank card purchase failed:', err);
+        return false;
+      }
+    }
+
     const success = await gameState.purchasePremiumBankCard(purchaseMethod);
 
     if (success && purchaseMethod === 'gems') {
