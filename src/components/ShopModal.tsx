@@ -429,17 +429,24 @@ export function ShopModal({
     }
   };
 
+  const adInProgressRef = useRef(false);
   const handleWatchAd = async () => {
+    if (adInProgressRef.current) return;
+    adInProgressRef.current = true;
     setIsWatchingAd(true);
-    const adRewardAmount = getScaledShopRewards(prestigePoints, ownedInvestmentCount).adReward;
-    const result = await onWatchAd(adRewardAmount);
-    setIsWatchingAd(false);
+    try {
+      const adRewardAmount = getScaledShopRewards(prestigePoints, ownedInvestmentCount).adReward;
+      const result = await onWatchAd(adRewardAmount);
 
-    if (result.success) {
-      setAdCooldown(result.cooldown);
-    } else if (result.cooldown > 0) {
-      setAdCooldown(result.cooldown);
-      showNotification('Please wait before watching another ad');
+      if (result.success) {
+        setAdCooldown(result.cooldown);
+      } else if (result.cooldown > 0) {
+        setAdCooldown(result.cooldown);
+        showNotification('Please wait before watching another ad');
+      }
+    } finally {
+      setIsWatchingAd(false);
+      adInProgressRef.current = false;
     }
   };
 

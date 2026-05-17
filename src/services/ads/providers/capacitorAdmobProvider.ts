@@ -19,6 +19,7 @@ let state = createEmptyAdState('capacitor-admob');
 let initializePromise: Promise<void> | null = null;
 let initialized = false;
 let rewardListenerHandles: PluginListenerHandle[] = [];
+let adInProgress = false;
 
 function setState(nextState: typeof state) {
   state = nextState;
@@ -94,6 +95,11 @@ export const capacitorAdmobProvider: RewardedAdProvider = {
       return { rewarded: false };
     }
 
+    if (adInProgress) {
+      return { rewarded: false };
+    }
+    adInProgress = true;
+
     await ensureInitialized();
     await clearRewardListeners();
 
@@ -103,6 +109,7 @@ export const capacitorAdmobProvider: RewardedAdProvider = {
       const finish = async (result: RewardedAdResult) => {
         if (settled) return;
         settled = true;
+        adInProgress = false;
         await clearRewardListeners();
         setState(createEmptyAdState('capacitor-admob'));
         resolve(result);
