@@ -1,5 +1,5 @@
 import { Capacitor } from '@capacitor/core';
-import { Purchases, LOG_LEVEL } from '@revenuecat/purchases-capacitor';
+import { Purchases, LOG_LEVEL, PRODUCT_CATEGORY } from '@revenuecat/purchases-capacitor';
 
 let initialized = false;
 
@@ -33,7 +33,7 @@ export async function getOfferings() {
 
 export async function purchaseProduct(productId: string) {
   if (!initialized) throw new Error('RevenueCat not initialized');
-  const { products } = await Purchases.getProducts({ productIdentifiers: [productId] });
+  const { products } = await Purchases.getProducts({ productIdentifiers: [productId], type: PRODUCT_CATEGORY.NON_SUBSCRIPTION });
   console.log(`[RevenueCat] getProducts(${productId}) returned ${products.length} product(s):`, products.map((p: { identifier: string }) => p.identifier));
   const product = products.find((p: { identifier: string }) => p.identifier === productId);
   if (!product) {

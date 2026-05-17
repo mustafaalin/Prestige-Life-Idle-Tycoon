@@ -152,6 +152,7 @@ export function ShopModal({
   const [activeTab, setActiveTab] = useState<'shop' | 'outfits'>('shop');
   const moneySectionRef = useRef<HTMLDivElement | null>(null);
   const gemSectionRef = useRef<HTMLDivElement | null>(null);
+  const adInProgressRef = useRef(false);
   const [accumulatedMoney, setAccumulatedMoney] = useState(0);
   const [timeUntilFull, setTimeUntilFull] = useState(0);
   const [timeUntilUnlock, setTimeUntilUnlock] = useState(0);
@@ -429,7 +430,6 @@ export function ShopModal({
     }
   };
 
-  const adInProgressRef = useRef(false);
   const handleWatchAd = async () => {
     if (adInProgressRef.current) return;
     adInProgressRef.current = true;
