@@ -15,7 +15,10 @@ export function QuestBar({ quest, isClaimable, isBusy = false, onPress }: QuestB
   const hasMoneyReward = Number(quest.reward_money || 0) > 0;
 
   return (
-    <div className="fixed bottom-[84px] left-1/2 z-[60] mb-1.5 flex w-[88vw] max-w-[468px] -translate-x-1/2 items-stretch gap-2">
+    <div
+      className="fixed left-1/2 z-40 flex w-[88vw] max-w-[468px] -translate-x-1/2 items-stretch gap-2"
+      style={{ bottom: 'calc(env(safe-area-inset-bottom) + 92px)' }}
+    >
       <button
         onClick={onPress}
         disabled={isBusy}

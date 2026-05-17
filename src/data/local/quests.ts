@@ -1003,11 +1003,16 @@ interface QuestCatalogEntry {
   chapterOrder: number;
 }
 
+// Quests that should appear after generated job quests within their chapter.
+const AFTER_JOB_QUESTS = new Set([
+  'quest-16-buy-second-outfit',
+]);
+
 const STATIC_QUEST_ENTRIES: QuestCatalogEntry[] = STATIC_QUESTS_RAW
   .map((quest, index) => ({
     quest,
     chapterIndex: STATIC_QUEST_CHAPTER_OVERRIDES[quest.id] ?? 0,
-    chapterOrder: index,
+    chapterOrder: AFTER_JOB_QUESTS.has(quest.id) ? 20_000 + index : index,
   }))
   .filter((entry) => !LEGACY_ACTIVE_JOB_QUEST_IDS.has(entry.quest.id));
 

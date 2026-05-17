@@ -37,7 +37,7 @@ export function CharacterDisplay({
     setIsCelebrating(false);
     requestAnimationFrame(() => {
       setIsCelebrating(true);
-      celebrationTimeout.current = setTimeout(() => setIsCelebrating(false), 850);
+      celebrationTimeout.current = setTimeout(() => setIsCelebrating(false), 1200);
     });
   }, [celebrationTrigger]);
 
@@ -103,6 +103,33 @@ export function CharacterDisplay({
               draggable={false}
               onClick={() => onClickCharacter?.()}
             />
+            {isCelebrating && (
+              <div className="absolute inset-0 pointer-events-none overflow-visible">
+                {([
+                  { deg: 0,   color: '#FBBF24', delay: 80  },
+                  { deg: 45,  color: '#EC4899', delay: 40  },
+                  { deg: 90,  color: '#06B6D4', delay: 100 },
+                  { deg: 135, color: '#8B5CF6', delay: 60  },
+                  { deg: 180, color: '#F97316', delay: 90  },
+                  { deg: 225, color: '#10B981', delay: 50  },
+                  { deg: 270, color: '#3B82F6', delay: 70  },
+                  { deg: 315, color: '#F43F5E', delay: 30  },
+                ] as const).map(({ deg, color, delay }) => (
+                  <div
+                    key={deg}
+                    className="absolute w-3 h-3 rounded-full animate-sparkle"
+                    style={{
+                      top: '30%',
+                      left: '50%',
+                      background: color,
+                      boxShadow: `0 0 6px 2px ${color}88`,
+                      animationDelay: `${delay}ms`,
+                      '--spark-deg': `${deg}deg`,
+                    } as React.CSSProperties}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

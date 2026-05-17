@@ -1,6 +1,5 @@
-import { X, Volume2, Music, RotateCcw } from 'lucide-react';
+import { X, Volume2, Music } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { ResetProgressModal } from './ResetProgressModal';
 import {
   getAudioSettings,
   setSoundEnabled,
@@ -11,27 +10,15 @@ import {
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onResetProgress: () => Promise<void>;
-  currentGems?: number;
-  iapMoney?: number;
-  claimedQuestCount?: number;
-  currentBonusPrestige?: number;
 }
 
 export function SettingsModal({
   isOpen,
   onClose,
-  onResetProgress,
-  currentGems = 0,
-  iapMoney = 0,
-  claimedQuestCount = 0,
-  currentBonusPrestige = 0,
 }: SettingsModalProps) {
   const [soundEnabled, setSoundState] = useState(true);
   const [musicEnabled, setMusicState] = useState(true);
   const [musicVol, setMusicVol] = useState(0.6);
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -60,14 +47,6 @@ export function SettingsModal({
     setMusicVolume(vol);
     if (!musicEnabled) { setMusicState(true); setMusicEnabled(true); }
   }
-
-  const handleReset = async () => {
-    setIsResetting(true);
-    await onResetProgress();
-    setIsResetting(false);
-    setShowResetConfirm(false);
-    onClose();
-  };
 
   if (!isOpen) return null;
 
@@ -160,33 +139,9 @@ export function SettingsModal({
               </div>
             </div>
 
-            {/* Reset */}
-            <button
-              onClick={() => setShowResetConfirm(true)}
-              className="flex w-full items-center gap-3 rounded-2xl border border-red-100 bg-red-50 px-4 py-3.5 transition-all active:scale-[0.98]"
-            >
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm">
-                <RotateCcw className="h-4 w-4 text-red-500" />
-              </div>
-              <div className="text-left">
-                <p className="text-sm font-black text-red-600">Reset Game Progress</p>
-                <p className="text-[11px] font-semibold text-red-400">All gems are kept, everything else resets</p>
-              </div>
-            </button>
           </div>
         </div>
       </div>
-
-      <ResetProgressModal
-        isOpen={showResetConfirm}
-        onClose={() => setShowResetConfirm(false)}
-        onConfirm={handleReset}
-        isResetting={isResetting}
-        currentGems={currentGems}
-        iapMoney={iapMoney}
-        claimedQuestCount={claimedQuestCount}
-        currentBonusPrestige={currentBonusPrestige}
-      />
     </>
   );
 }

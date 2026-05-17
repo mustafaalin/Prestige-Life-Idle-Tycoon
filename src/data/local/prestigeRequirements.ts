@@ -79,3 +79,36 @@ export function canAccessCarWithPrestige(car: Pick<Car, 'level' | 'is_premium'>,
   }
   return Number(prestigePoints || 0) >= getRequiredPrestigeForCar(car);
 }
+
+// Outfit unlock thresholds by unlock_order (1-based).
+// Tuned so each outfit is available before the quest that requires buying it.
+const OUTFIT_PRESTIGE_REQUIREMENTS: Record<number, number> = {
+  1:  0,    // starter, always owned
+  2:  5,    // Ch1 — Quest 7  "buy first outfit"
+  3:  20,   // Ch2 — Quest 16 "buy second outfit"
+  4:  60,   // Ch4 — Quest 35 "buy third outfit"
+  5:  110,  // Ch5 — Quest 48 "buy fourth outfit"
+  6:  150,  // Ch6 — Quest 57 "buy fifth outfit"
+  7:  195,  // Ch7 — Quest 68 "buy sixth outfit"
+  8:  245,  // Ch8 — Quest 78 "buy seventh outfit"
+  9:  310,  // Ch9 — Quest 88 "buy eighth outfit"
+  10: 370,  // Ch10 — Quest 96 "own 10 outfits"
+  11: 440,
+  12: 520,
+  13: 610,
+  14: 710,
+  15: 830,
+  16: 970,
+  17: 1140,
+  18: 1340,
+  19: 1590,
+  20: 1980,
+};
+
+export function getRequiredPrestigeForOutfit(unlockOrder: number): number {
+  return OUTFIT_PRESTIGE_REQUIREMENTS[unlockOrder] ?? 0;
+}
+
+export function canAccessOutfitWithPrestige(unlockOrder: number, prestigePoints: number): boolean {
+  return Number(prestigePoints || 0) >= getRequiredPrestigeForOutfit(unlockOrder);
+}

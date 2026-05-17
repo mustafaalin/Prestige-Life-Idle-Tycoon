@@ -67,7 +67,7 @@ export function BottomNav({
                   src={item.iconUrl}
                   alt={item.label}
                   className={
-                    'w-7 h-7 object-contain transition-all duration-200 ' +
+                    'w-9 h-9 object-contain transition-all duration-200 ' +
                     (item.id === 'stuff' ? 'scale-110 ' : '') +
                     (isActive ? 'scale-125' : '')
                   }
@@ -88,7 +88,7 @@ export function BottomNav({
             </div>
           )}
           <div className="flex h-full w-full items-center justify-center">
-            <ListTodo className="h-6 w-6 text-white" />
+            <ListTodo className="h-7 w-7 text-white" />
           </div>
         </button>
       </div>
