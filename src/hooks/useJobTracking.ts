@@ -39,9 +39,19 @@ export function useJobTracking({
           ? new Date(activePlayerJob.last_work_started_at).getTime()
           : Date.now();
         const safeStartedAt = Number.isFinite(parsedStartedAt) ? parsedStartedAt : Date.now();
-        const elapsedSinceStart = Math.max(0, Math.floor((Date.now() - safeStartedAt) / 1000));
+        // Cap elapsed at 60s: anything more means the user was offline and the
+        // wellbeing decay system has already accounted for that time separately.
+        // Without this cap, a stale last_work_started_at (from before an app
+        // close) would be applied as live work time on the next autosave,
+        // crashing health/happiness to 0.
+        const MAX_INITIAL_ELAPSED_SECONDS = 60;
+        const rawElapsed = Math.max(0, Math.floor((Date.now() - safeStartedAt) / 1000));
+        const elapsedSinceStart = Math.min(rawElapsed, MAX_INITIAL_ELAPSED_SECONDS);
+        const effectiveStartedAt = rawElapsed > MAX_INITIAL_ELAPSED_SECONDS
+          ? Date.now() - elapsedSinceStart * 1000
+          : safeStartedAt;
 
-        workSessionStartedAtRef.current = safeStartedAt;
+        workSessionStartedAtRef.current = effectiveStartedAt;
         unsavedJobWorkSecondsRef.current = elapsedSinceStart;
         onJobWorkSecondsUpdate(elapsedSinceStart);
       }

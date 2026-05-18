@@ -141,6 +141,14 @@ export function useGameState(deviceId: string, userId: string | null) {
   const handleJobWorkTimeSync = useCallback((jobId: string, secondsToAdd: number) => {
     if (secondsToAdd <= 0) return;
 
+    // Defense in depth: a stale last_work_started_at could ask us to apply
+    // hours of "live" work in a single sync, which would crash wellbeing to 0
+    // because calculateWellbeingDeltaFromSources has no per-hour cap. Live
+    // work in a single autosave interval should never exceed ~30s; cap at
+    // 5min so a rare edge case can't zero out the user's stats.
+    const MAX_LIVE_WORK_SECONDS_PER_SYNC = 5 * 60;
+    const cappedSeconds = Math.min(secondsToAdd, MAX_LIVE_WORK_SECONDS_PER_SYNC);
+
     setGameState((prev) => {
       const syncTimestamp = new Date().toISOString();
       const activeJob = prev.jobs.find((job) => job.id === jobId);
@@ -149,13 +157,13 @@ export function useGameState(deviceId: string, userId: string | null) {
       // Yeni kaynak eklemek için sources array'ine eklemek yeterli (OCP)
       const wellbeingDelta = calculateWellbeingDeltaFromSources(
         [activeJob, selectedCar, selectedHouse],
-        secondsToAdd
+        cappedSeconds
       );
       const nextPlayerJobs = prev.playerJobs.map((job) =>
         job.job_id === jobId && job.is_active
           ? {
               ...job,
-              total_time_worked_seconds: (job.total_time_worked_seconds || 0) + secondsToAdd,
+              total_time_worked_seconds: (job.total_time_worked_seconds || 0) + cappedSeconds,
               last_work_started_at: syncTimestamp,
           }
           : job

@@ -313,6 +313,27 @@ export function useGameLoader({
       const currentPending = gameStateRef.current.pendingMoneyDelta;
       let offlineEarnings = null;
 
+      // Active job'ların stale last_work_started_at değerlerini normalize et.
+      // Kullanıcı 24 saat offline kaldıktan sonra geri döndüğünde, eski
+      // last_work_started_at değeri ile autosave fire ettiğinde, devasa
+      // negatif wellbeing delta uygulanıyor (24 saatlik birikim, -2/h cap
+      // olmadan). Offline süre için wellbeing zaten ayrı sistemde (offline
+      // decay) hesaplanıyor — bu yüzden 60s'den eski timestamp'leri NOW'a
+      // çekiyoruz.
+      const MAX_LIVE_WORK_GAP_MS = 60_000;
+      const nowMs = Date.now();
+      const nowIso = new Date(nowMs).toISOString();
+      const normalizedPlayerJobs = (playerJobsRes || []).map((pj) => {
+        if (!pj.is_active || !pj.last_work_started_at) return pj;
+        const startedAtMs = new Date(pj.last_work_started_at).getTime();
+        if (!Number.isFinite(startedAtMs)) return pj;
+        if (nowMs - startedAtMs <= MAX_LIVE_WORK_GAP_MS) return pj;
+        return { ...pj, last_work_started_at: nowIso };
+      });
+      const playerJobsChanged = normalizedPlayerJobs.some(
+        (pj, idx) => pj !== (playerJobsRes || [])[idx]
+      );
+
       if (currentProfile && shouldCalculateOfflineEarnings) {
         offlineEarnings = calculateOfflineEarnings(currentProfile);
 
@@ -336,10 +357,14 @@ export function useGameLoader({
             health: Number(currentProfile.health ?? DEFAULT_HEALTH) + (wellbeingDecay?.health ?? 0),
             happiness:
               Number(currentProfile.happiness ?? DEFAULT_HAPPINESS) + (wellbeingDecay?.happiness ?? 0),
-            last_played_at: new Date().toISOString(),
+            last_played_at: nowIso,
           });
           saveToLocalStorage({ profile: currentProfile });
         }
+      }
+
+      if (playerJobsChanged) {
+        saveToLocalStorage({ playerJobs: normalizedPlayerJobs });
       }
 
       if (currentProfile) {
@@ -361,7 +386,7 @@ export function useGameLoader({
         houses: housesRes || [],
         cars: carsRes || [],
         jobs: jobsRes || [],
-        playerJobs: playerJobsRes || [],
+        playerJobs: normalizedPlayerJobs,
         businesses: [],
         investments: investmentsRes?.investments || [],
         businessesPrestige: 0,
@@ -390,7 +415,7 @@ export function useGameLoader({
         houses: housesRes || [],
         cars: carsRes || [],
         jobs: jobsRes || [],
-        playerJobs: playerJobsRes || [],
+        playerJobs: normalizedPlayerJobs,
         investments: investmentsRes?.investments || [],
         gameStats: normalizedGameStats,
         ownedCharacters: normalizedOwnedCharacters,
