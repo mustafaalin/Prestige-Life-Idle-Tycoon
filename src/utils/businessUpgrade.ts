@@ -1,6 +1,7 @@
 export const BUSINESS_MAX_LEVEL = 6;
-export const BUSINESS_UPGRADE_MULTIPLIERS = [30, 60, 120, 180, 240] as const;
+export const BUSINESS_UPGRADE_MULTIPLIERS = [10, 20, 40, 60, 80] as const;
 export const BUSINESS_AD_DISCOUNT_MULTIPLIER = 0.5;
+export const BUSINESS_INCOME_GROWTH_FACTOR = 1.5;
 
 export function isBusinessAtMaxLevel(currentLevel: number) {
   return Math.max(1, Number(currentLevel || 1)) >= BUSINESS_MAX_LEVEL;
@@ -27,5 +28,5 @@ export function getDiscountedBusinessUpgradeCost(currentIncome: number, currentL
 }
 
 export function getNextBusinessIncome(currentIncome: number) {
-  return Math.floor(Math.max(0, Number(currentIncome || 0)) * 1.25);
+  return Math.floor(Math.max(0, Number(currentIncome || 0)) * BUSINESS_INCOME_GROWTH_FACTOR);
 }
