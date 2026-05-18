@@ -8,35 +8,81 @@ export interface OfflineWellbeingDecay {
   appliedHours: number;
 }
 
+const OFFLINE_RATE = 0.20;
+const MAX_OFFLINE_MS = 12 * 60 * 60 * 1000;
+
+function parseBoostExpiry(iso: string | null | undefined): number {
+  if (!iso) return 0;
+  return new Date(iso).getTime();
+}
+
 /**
- * Calculates offline earnings based on player's hourly income and time away
+ * Calculates offline earnings, respecting active income boosts.
  *
- * @param profile - Player profile with last_played_at and hourly_income
- * @returns Offline earnings object with amount and minutes, or null if not applicable
+ * The offline period is split at each boost expiry boundary so that the
+ * boosted rate (job + biz×2 + inv×2) × total×2 applies only for the
+ * portion of the offline window where each boost was still active.
  */
 export function calculateOfflineEarnings(profile: PlayerProfile): OfflineEarnings | null {
   if (!profile.last_played_at) return null;
 
-  const hourlyIncome = Number(profile.hourly_income || 0);
-  if (hourlyIncome <= 0) return null;
+  const job  = Number(profile.job_income        || 0);
+  const biz  = Number(profile.business_income   || 0);
+  const inv  = Number(profile.investment_income || 0);
+  const base = Number(profile.hourly_income     || 0);
 
-  const now = new Date();
-  const lastPlayed = new Date(profile.last_played_at);
-  const minutesOffline = Math.floor((now.getTime() - lastPlayed.getTime()) / 1000 / 60);
+  // Fallback: if income components aren't stored yet use hourly_income directly
+  const hasComponents = job > 0 || biz > 0 || inv > 0;
+  if (!hasComponents && base <= 0) return null;
 
-  if (minutesOffline < 1) return null;
+  const startMs = new Date(profile.last_played_at).getTime();
+  const nowMs   = Date.now();
+  const offlineMs = nowMs - startMs;
 
-  const maxOfflineMinutes = 12 * 60; // 12 hours
-  const actualMinutes = Math.min(minutesOffline, maxOfflineMinutes);
-  const offlineRate = 0.20; // 20% of normal income
-  const offlineEarnings = (hourlyIncome / 60) * actualMinutes * offlineRate;
+  if (offlineMs < 60_000) return null;
 
-  if (offlineEarnings <= 0) return null;
+  const endMs = startMs + Math.min(offlineMs, MAX_OFFLINE_MS);
+
+  const bizExpiry = parseBoostExpiry(profile.business_boost_expires_at);
+  const invExpiry = parseBoostExpiry(profile.investment_boost_expires_at);
+  const totExpiry = parseBoostExpiry(profile.income_boost_expires_at);
+
+  // Collect segment boundaries: start, end, and any boost expiry within the window
+  const breakpoints = Array.from(new Set([
+    startMs,
+    endMs,
+    ...[bizExpiry, invExpiry, totExpiry].filter((t) => t > startMs && t < endMs),
+  ])).sort((a, b) => a - b);
+
+  let totalEarnings = 0;
+
+  for (let i = 0; i < breakpoints.length - 1; i++) {
+    const segStart = breakpoints[i];
+    const segEnd   = breakpoints[i + 1];
+    const segHours = (segEnd - segStart) / 3_600_000;
+    const mid      = (segStart + segEnd) / 2;
+
+    let segIncome: number;
+    if (hasComponents) {
+      const bizMult = bizExpiry > mid ? 2 : 1;
+      const invMult = invExpiry > mid ? 2 : 1;
+      const totMult = totExpiry > mid ? 2 : 1;
+      segIncome = (job + biz * bizMult + inv * invMult) * totMult;
+    } else {
+      // No component data — apply total boost multiplier to hourly_income
+      const totMult = totExpiry > mid ? 2 : 1;
+      segIncome = base * totMult;
+    }
+
+    totalEarnings += segIncome * segHours * OFFLINE_RATE;
+  }
+
+  if (totalEarnings <= 0) return null;
 
   return {
-    amount: Math.floor(offlineEarnings),
-    minutes: minutesOffline,
-    appliedMinutes: actualMinutes,
+    amount: Math.floor(totalEarnings),
+    minutes: Math.floor(offlineMs / 60_000),
+    appliedMinutes: Math.floor((endMs - startMs) / 60_000),
   };
 }
 
