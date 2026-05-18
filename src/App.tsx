@@ -47,6 +47,8 @@ import { useLeaderboardSync } from './hooks/useLeaderboardSync';
 import { initializeRevenueCat, purchaseProduct } from './services/revenueCatService';
 import { useAudioManager } from './hooks/useAudioManager';
 import { playSfx, ensureMusicStarted } from './services/audioService';
+import { formatMoneyFull } from './utils/money';
+import { LOCAL_ICON_ASSETS } from './lib/localAssets';
 
 function getCanClaimAccumulatedMoney(params: {
   claimPool: number;
@@ -115,6 +117,9 @@ export default function App() {
   const [showHealthModal, setShowHealthModal] = useState(false);
   const [showHappinessModal, setShowHappinessModal] = useState(false);
   const [showShopModal, setShowShopModal] = useState(false);
+  const [mainAdCooldown, setMainAdCooldown] = useState(0);
+  const [isMainAdWatching, setIsMainAdWatching] = useState(false);
+  const mainAdInProgressRef = useRef(false);
   const [showBusinessModal, setShowBusinessModal] = useState(false);
   const [showInvestmentsModal, setShowInvestmentsModal] = useState(false);
   const [showStuffModal, setShowStuffModal] = useState(false);
@@ -375,7 +380,34 @@ export default function App() {
     }
   }
 
-async function handleBusinessPurchase(businessId: string) {
+  const AD_COOLDOWN_SECONDS = 30;
+  useEffect(() => {
+    const lastWatch = gameState.profile?.last_ad_watch_time;
+    if (!lastWatch) { setMainAdCooldown(0); return; }
+    const calc = () => {
+      const elapsed = (Date.now() - new Date(lastWatch).getTime()) / 1000;
+      setMainAdCooldown(Math.max(0, Math.ceil(AD_COOLDOWN_SECONDS - elapsed)));
+    };
+    calc();
+    const id = setInterval(calc, 1000);
+    return () => clearInterval(id);
+  }, [gameState.profile?.last_ad_watch_time]);
+
+  async function handleMainAdWatch() {
+    if (mainAdInProgressRef.current) return;
+    mainAdInProgressRef.current = true;
+    setIsMainAdWatching(true);
+    try {
+      const reward = scaledShopRewards.adReward;
+      const result = await handleAnimatedAdReward(reward);
+      if (result?.success) setMainAdCooldown(AD_COOLDOWN_SECONDS);
+    } finally {
+      setIsMainAdWatching(false);
+      mainAdInProgressRef.current = false;
+    }
+  }
+
+  async function handleBusinessPurchase(businessId: string) {
     const success = await gameState.purchaseBusiness(businessId);
     if (success) { playSfx('purchase'); }
     return success;
@@ -958,7 +990,45 @@ async function handleBusinessPurchase(businessId: string) {
         }}
         totalIncomeBoost={gameState.activeBoosts.total}
         onTotalIncomeBoostWatch={handleTotalIncomeBoostWatch}
+        onOpenMoneyShop={() => {
+          setShopModalInitialTab('shop');
+          setShopModalInitialSection('money');
+          setShopModalInitialNotification(null);
+          setShowShopModal(true);
+        }}
+        onOpenGemShop={() => {
+          setShopModalInitialTab('shop');
+          setShopModalInitialSection('gems');
+          setShopModalInitialNotification(null);
+          setShowShopModal(true);
+        }}
       />
+
+      {/* Main screen ad button — top right, below header */}
+      <div className="absolute top-[90px] right-3 z-30 flex flex-col items-center">
+        <button
+          onClick={handleMainAdWatch}
+          disabled={isMainAdWatching || mainAdCooldown > 0}
+          className={`flex flex-col items-center gap-0.5 rounded-2xl px-2.5 py-2 shadow-lg border transition-all active:scale-95 ${
+            isMainAdWatching || mainAdCooldown > 0
+              ? 'bg-slate-800/60 border-white/10 opacity-60 cursor-default'
+              : 'bg-black/40 border-white/20 backdrop-blur-md'
+          }`}
+        >
+          {isMainAdWatching ? (
+            <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-white" />
+          ) : (
+            <img src={LOCAL_ICON_ASSETS.ads} alt="Watch Ad" className="h-7 w-7 object-contain" />
+          )}
+          <span className="text-[10px] font-black text-white leading-none">
+            {isMainAdWatching
+              ? '...'
+              : mainAdCooldown > 0
+                ? `${Math.floor(mainAdCooldown / 60)}:${String(mainAdCooldown % 60).padStart(2, '0')}`
+                : `+${formatMoneyFull(scaledShopRewards.adReward)}`}
+          </span>
+        </button>
+      </div>
 
       <main className="flex-1 px-3 py-4 pb-40 overflow-y-auto relative z-10">
         <CharacterDisplay

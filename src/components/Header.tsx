@@ -36,6 +36,8 @@ interface HeaderProps {
   onOpenIncomeBreakdown: () => void;
   onOpenSettings: () => void;
   onOpenLeaderboard: () => void;
+  onOpenMoneyShop?: () => void;
+  onOpenGemShop?: () => void;
   totalIncomeBoost: BoostStatus;
   onTotalIncomeBoostWatch: () => void;
 }
@@ -75,6 +77,8 @@ export function Header({
   onOpenLeaderboard,
   totalIncomeBoost,
   onTotalIncomeBoostWatch,
+  onOpenMoneyShop,
+  onOpenGemShop,
 }: HeaderProps) {
   const [isMoneyAnimating, setIsMoneyAnimating] = useState(false);
   const [displayedMoney, setDisplayedMoney] = useState(totalMoney);
@@ -457,11 +461,14 @@ export function Header({
             <div className="flex flex-col gap-1 min-w-0">
               <div
                 ref={moneyContainerRef}
+                onClick={onOpenMoneyShop}
+                role={onOpenMoneyShop ? 'button' : undefined}
                 className={
                   'flex items-center gap-1.5 bg-black/30 rounded-lg px-2 py-1 border border-white/10 w-fit transition-all duration-300 ' +
                   (isMoneyAnimating
                     ? 'scale-[1.06] shadow-[0_0_16px_rgba(250,204,21,0.55)] border-yellow-400/40'
-                    : 'scale-100')
+                    : 'scale-100') +
+                  (onOpenMoneyShop ? ' active:scale-95 cursor-pointer' : '')
                 }
               >
                 <img src={LOCAL_ICON_ASSETS.wallet} alt="Balance" className="w-5 h-5 max-[420px]:w-4 max-[420px]:h-4" />
@@ -561,11 +568,14 @@ export function Header({
             <div className="flex flex-col items-end gap-1">
               <div
                 ref={gemContainerRef}
+                onClick={onOpenGemShop}
+                role={onOpenGemShop ? 'button' : undefined}
                 className={
                   'flex items-center gap-1.5 bg-white/12 px-2 max-[420px]:px-1.5 py-1 rounded-lg min-w-[76px] max-[420px]:min-w-[58px] justify-center transition-all duration-300 ' +
                   (isGemAnimating
                     ? 'scale-[1.06] shadow-[0_0_16px_rgba(34,211,238,0.55)]'
-                    : 'scale-100')
+                    : 'scale-100') +
+                  (onOpenGemShop ? ' active:scale-95 cursor-pointer' : '')
                 }
               >
                 <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="w-4 h-4" />
