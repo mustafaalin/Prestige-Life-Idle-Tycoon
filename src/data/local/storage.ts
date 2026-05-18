@@ -14,6 +14,7 @@ import type {
 import { GAME_STATE_KEY } from '../../utils/game/storage';
 import { LOCAL_JOBS } from './jobs';
 import { LOCAL_BUSINESSES } from './businesses';
+import { getBusinessIncomeAtLevel } from '../../utils/businessUpgrade';
 import {
   calculateInvestmentRentalIncome,
   INVESTMENT_UPGRADE_ORDER,
@@ -87,7 +88,10 @@ export function getLocalBusinesses(): BusinessWithPlayerData[] {
       is_owned: storedBusiness.is_owned ?? seedBusiness.is_owned,
       can_unlock: storedBusiness.can_unlock ?? seedBusiness.can_unlock,
       current_level: storedBusiness.current_level ?? seedBusiness.current_level,
-      current_hourly_income: storedBusiness.current_hourly_income ?? seedBusiness.current_hourly_income,
+      current_hourly_income: getBusinessIncomeAtLevel(
+        seedBusiness.base_hourly_income,
+        storedBusiness.current_level ?? seedBusiness.current_level ?? 1
+      ),
       total_invested: storedBusiness.total_invested ?? seedBusiness.total_invested,
       current_prestige_points:
         storedBusiness.current_prestige_points ?? seedBusiness.current_prestige_points,
