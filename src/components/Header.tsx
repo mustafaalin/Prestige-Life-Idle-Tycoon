@@ -436,7 +436,7 @@ export function Header({
             <div className="flex flex-col items-center gap-1">
               <button
                 onClick={onOpenProfile}
-                className="flex-shrink-0 w-12 h-12 max-[420px]:w-9 max-[420px]:h-9 rounded-full overflow-hidden bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 shadow-xl transition-transform active:scale-90"
+                className="flex-shrink-0 w-12 h-12 max-[500px]:w-9 max-[500px]:h-9 rounded-full overflow-hidden bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 shadow-xl transition-transform active:scale-90"
               >
                 <img
                   src={outfitImage || LOCAL_PROFILE_PLACEHOLDER}
@@ -473,8 +473,8 @@ export function Header({
                   (onOpenMoneyShop ? ' active:scale-95 cursor-pointer' : '')
                 }
               >
-                <img src={LOCAL_ICON_ASSETS.wallet} alt="Balance" className="w-5 h-5 max-[420px]:w-4 max-[420px]:h-4" />
-                <span className="text-[13px] max-[420px]:text-[11px] font-black leading-none tracking-tight">
+                <img src={LOCAL_ICON_ASSETS.wallet} alt="Balance" className="w-5 h-5 max-[500px]:w-4 max-[500px]:h-4" />
+                <span className="text-[13px] max-[500px]:text-[11px] font-black leading-none tracking-tight">
                   {formatMoneyFull(displayedMoney)}
                 </span>
               </div>
@@ -490,8 +490,8 @@ export function Header({
                   }
                   title={`Job ${formatMoneyPerHour(jobIncome)} • Business ${formatMoneyPerHour(businessIncome)} • Investment ${formatMoneyPerHour(investmentIncome)} • House -$${formatMoneyPlain(houseRentExpense)}/h • Vehicle -$${formatMoneyPlain(vehicleExpense)}/h • Other -$${formatMoneyPlain(otherExpenses)}/h`}
                 >
-                  <img src={LOCAL_ICON_ASSETS.money} alt="Income per hour" className="w-4 h-4 max-[420px]:w-3 max-[420px]:h-3" />
-                  <span className="text-[11px] max-[420px]:text-[10px] font-bold leading-none">
+                  <img src={LOCAL_ICON_ASSETS.money} alt="Income per hour" className="w-4 h-4 max-[500px]:w-3 max-[500px]:h-3" />
+                  <span className="text-[11px] max-[500px]:text-[10px] font-bold leading-none">
                     {formatMoneyPerHour(hourlyIncome)}
                   </span>
                   {totalIncomeBoost.active && (
@@ -537,13 +537,13 @@ export function Header({
                 ref={healthContainerRef}
                 onClick={onOpenHealth}
                 className={
-                  'flex h-7 max-[420px]:h-6 w-[120px] max-[420px]:w-[100px] items-center overflow-hidden rounded-full border border-white/35 bg-white/95 shadow-[0_4px_10px_rgba(15,23,42,0.12)] active:scale-[0.98] transition-all ' +
+                  'flex h-7 max-[500px]:h-6 w-[120px] max-[500px]:w-[100px] items-center overflow-hidden rounded-full border border-white/35 bg-white/95 shadow-[0_4px_10px_rgba(15,23,42,0.12)] active:scale-[0.98] transition-all ' +
                   (isHealthAnimating ? 'scale-[1.03] shadow-[0_0_16px_rgba(16,185,129,0.35)]' : '')
                 }
               >
-                <div className="flex h-full min-w-[60px] max-[420px]:min-w-[48px] items-center gap-1 rounded-r-[14px] bg-gradient-to-r from-lime-400 to-lime-500 px-2 max-[420px]:px-1.5 text-slate-900">
-                  <img src={LOCAL_ICON_ASSETS.healthy} alt="Health" className="h-3.5 w-3.5 max-[420px]:h-3 max-[420px]:w-3 shrink-0" />
-                  <span className="text-[11px] max-[420px]:text-[10px] font-black leading-none">{formatStatValue(displayedHealth)}</span>
+                <div className="flex h-full min-w-[60px] max-[500px]:min-w-[48px] items-center gap-1 rounded-r-[14px] bg-gradient-to-r from-lime-400 to-lime-500 px-2 max-[500px]:px-1.5 text-slate-900">
+                  <img src={LOCAL_ICON_ASSETS.healthy} alt="Health" className="h-3.5 w-3.5 max-[500px]:h-3 max-[500px]:w-3 shrink-0" />
+                  <span className="text-[11px] max-[500px]:text-[10px] font-black leading-none">{formatStatValue(displayedHealth)}</span>
                 </div>
                 <div className="flex min-w-0 flex-1 items-center justify-center px-2">
                   <span className={`text-[10px] font-black tracking-tight ${
@@ -557,13 +557,13 @@ export function Header({
                 ref={happinessContainerRef}
                 onClick={onOpenHappiness}
                 className={
-                  'flex h-7 max-[420px]:h-6 w-[120px] max-[420px]:w-[100px] items-center overflow-hidden rounded-full border border-white/35 bg-white/95 shadow-[0_4px_10px_rgba(15,23,42,0.12)] active:scale-[0.98] transition-all ' +
+                  'flex h-7 max-[500px]:h-6 w-[120px] max-[500px]:w-[100px] items-center overflow-hidden rounded-full border border-white/35 bg-white/95 shadow-[0_4px_10px_rgba(15,23,42,0.12)] active:scale-[0.98] transition-all ' +
                   (isHappinessAnimating ? 'scale-[1.03] shadow-[0_0_16px_rgba(245,158,11,0.35)]' : '')
                 }
               >
-                <div className="flex h-full min-w-[60px] max-[420px]:min-w-[48px] items-center gap-1 rounded-r-[14px] bg-gradient-to-r from-lime-400 to-lime-500 px-2 max-[420px]:px-1.5 text-slate-900">
-                  <img src={LOCAL_ICON_ASSETS.happiness} alt="Happiness" className="h-3.5 w-3.5 max-[420px]:h-3 max-[420px]:w-3 shrink-0" />
-                  <span className="text-[11px] max-[420px]:text-[10px] font-black leading-none">{formatStatValue(displayedHappiness)}</span>
+                <div className="flex h-full min-w-[60px] max-[500px]:min-w-[48px] items-center gap-1 rounded-r-[14px] bg-gradient-to-r from-lime-400 to-lime-500 px-2 max-[500px]:px-1.5 text-slate-900">
+                  <img src={LOCAL_ICON_ASSETS.happiness} alt="Happiness" className="h-3.5 w-3.5 max-[500px]:h-3 max-[500px]:w-3 shrink-0" />
+                  <span className="text-[11px] max-[500px]:text-[10px] font-black leading-none">{formatStatValue(displayedHappiness)}</span>
                 </div>
                 <div className="flex min-w-0 flex-1 items-center justify-center px-2">
                   <span className={`text-[11px] font-black tracking-tight ${
@@ -581,7 +581,7 @@ export function Header({
                 onClick={onOpenGemShop}
                 role={onOpenGemShop ? 'button' : undefined}
                 className={
-                  'flex items-center gap-1.5 bg-white/12 px-2 max-[420px]:px-1.5 py-1 rounded-lg min-w-[76px] max-[420px]:min-w-[58px] justify-center transition-all duration-300 ' +
+                  'flex items-center gap-1.5 bg-white/12 px-2 max-[500px]:px-1.5 py-1 rounded-lg min-w-[76px] max-[500px]:min-w-[58px] justify-center transition-all duration-300 ' +
                   (isGemAnimating
                     ? 'scale-[1.06] shadow-[0_0_16px_rgba(34,211,238,0.55)]'
                     : 'scale-100') +
@@ -589,14 +589,14 @@ export function Header({
                 }
               >
                 <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="w-4 h-4" />
-                <span className="text-sm max-[420px]:text-[11px] font-black leading-none">{Math.round(displayedGems)}</span>
+                <span className="text-sm max-[500px]:text-[11px] font-black leading-none">{Math.round(displayedGems)}</span>
               </div>
 
               <button
                 onClick={onOpenSettings}
-                className="p-2 max-[420px]:p-1.5 bg-white/12 hover:bg-white/18 active:scale-95 rounded-lg transition-all shadow-lg"
+                className="p-2 max-[500px]:p-1.5 bg-white/12 hover:bg-white/18 active:scale-95 rounded-lg transition-all shadow-lg"
               >
-                <img src={LOCAL_ICON_ASSETS.settings} alt="Settings" className="w-6 h-6 max-[420px]:w-5 max-[420px]:h-5" />
+                <img src={LOCAL_ICON_ASSETS.settings} alt="Settings" className="w-6 h-6 max-[500px]:w-5 max-[500px]:h-5" />
               </button>
             </div>
           </div>
