@@ -14,7 +14,7 @@ import type {
   GameState,
   PlayerProfile,
 } from '../types/game';
-import { calculateOfflineEarnings, calculateOfflineWellbeingDecay } from '../utils/game/calculations';
+import { calculateOfflineEarnings } from '../utils/game/calculations';
 import { getCurrentQuestFromProgress, syncQuestPrestige } from '../utils/game/gameStateHelpers';
 import { usePassiveIncome } from './usePassiveIncome';
 import { useAutoSave } from './useAutoSave';
@@ -241,22 +241,11 @@ export function useGameState(deviceId: string, userId: string | null) {
         last_played_at: lastPlayedAt,
       });
 
-      // Arka planda geçirilen süre için wellbeing decay
-      const { jobs, playerJobs, cars, houses } = gameStateRef.current;
-      const activePlayerJob = playerJobs.find((pj) => pj.is_active);
-      const activeJob = activePlayerJob ? jobs.find((j) => j.id === activePlayerJob.job_id) ?? null : null;
-      const selectedCar = cars.find((c) => c.id === currentProfile.selected_car_id) ?? null;
-      const selectedHouse = houses.find((h) => h.id === currentProfile.selected_house_id) ?? null;
-      const wellbeingDecay = calculateOfflineWellbeingDecay(
-        [activeJob, selectedCar, selectedHouse],
-        lastPlayedAt,
-      );
-
+      // Wellbeing (health/happiness) is intentionally frozen while the app is
+      // in the background — it only changes during active play.
       const resumedAt = new Date().toISOString();
       const updatedProfile = normalizeProfileWellbeing({
         ...currentProfile,
-        health: Number(currentProfile.health ?? DEFAULT_HEALTH) + (wellbeingDecay?.health ?? 0),
-        happiness: Number(currentProfile.happiness ?? DEFAULT_HAPPINESS) + (wellbeingDecay?.happiness ?? 0),
         last_played_at: resumedAt,
       });
 

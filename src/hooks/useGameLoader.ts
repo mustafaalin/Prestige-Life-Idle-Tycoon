@@ -9,8 +9,8 @@ import { LOCAL_CHARACTERS, LOCAL_MIKE_CHARACTER_ID } from '../data/local/charact
 import { LOCAL_OUTFITS, LOCAL_STARTER_OUTFIT_ID } from '../data/local/outfits';
 import { normalizeQuestProgress } from '../data/local/quests';
 import { recalculateLocalEconomy } from '../data/local/economy';
-import { DEFAULT_HAPPINESS, DEFAULT_HEALTH, normalizeProfileWellbeing } from '../data/local/healthActions';
-import { calculateOfflineEarnings, calculateOfflineWellbeingDecay } from '../utils/game/calculations';
+import { normalizeProfileWellbeing } from '../data/local/healthActions';
+import { calculateOfflineEarnings } from '../utils/game/calculations';
 import {
   createLocalProfile,
   ensureOwnedSelection,
@@ -337,26 +337,12 @@ export function useGameLoader({
       if (currentProfile && shouldCalculateOfflineEarnings) {
         offlineEarnings = calculateOfflineEarnings(currentProfile);
 
-        const activePlayerJob = (playerJobsRes || []).find((pj) => pj.is_active);
-        const activeJob = activePlayerJob
-          ? (jobsRes || []).find((j) => j.id === activePlayerJob.job_id) ?? null
-          : null;
-        const selectedCar =
-          (carsRes || []).find((c) => c.id === currentProfile!.selected_car_id) ?? null;
-        const selectedHouse =
-          (housesRes || []).find((h) => h.id === currentProfile!.selected_house_id) ?? null;
-
-        const wellbeingDecay = calculateOfflineWellbeingDecay(
-          [activeJob, selectedCar, selectedHouse],
-          currentProfile.last_played_at
-        );
-
-        if (wellbeingDecay || offlineEarnings) {
+        // Wellbeing (health/happiness) is intentionally frozen while offline —
+        // it only changes during active play. Only update last_played_at so
+        // offline earnings reset cleanly.
+        if (offlineEarnings) {
           currentProfile = normalizeProfileWellbeing({
             ...currentProfile,
-            health: Number(currentProfile.health ?? DEFAULT_HEALTH) + (wellbeingDecay?.health ?? 0),
-            happiness:
-              Number(currentProfile.happiness ?? DEFAULT_HAPPINESS) + (wellbeingDecay?.happiness ?? 0),
             last_played_at: nowIso,
           });
           saveToLocalStorage({ profile: currentProfile });
