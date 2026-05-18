@@ -53,7 +53,7 @@ export function BoostAdButton({
           disabled={!canAffordGem}
           className="flex items-center gap-1 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 px-3 py-1.5 text-[11px] font-black text-white transition-all active:scale-95 disabled:opacity-40"
         >
-          <span>💎</span>
+          <img src={LOCAL_ICON_ASSETS.gem} alt="gem" className="h-3.5 w-3.5 object-contain" />
           <span>{gemCost}</span>
         </button>
       )}

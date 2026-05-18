@@ -249,7 +249,7 @@ export function HappinessModal({
                         : 'border-violet-500 bg-gradient-to-r from-violet-500 to-purple-600 text-white active:scale-[0.98]'
                     }`}
                   >
-                    {isApplyingGem ? '...' : <><span>💎</span><span>{gemCost}</span></>}
+                    {isApplyingGem ? '...' : <><img src={LOCAL_ICON_ASSETS.gem} alt="gem" className="h-4 w-4 object-contain" /><span>{gemCost}</span></>}
                   </button>
                 </div>
               )}

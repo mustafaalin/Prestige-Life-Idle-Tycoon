@@ -524,7 +524,7 @@ export function Header({
                       disabled={gems < 3}
                       className="flex items-center gap-0.5 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 px-1.5 py-1 text-[9px] font-black text-white transition-all active:scale-95 disabled:opacity-40"
                     >
-                      <span>💎</span>
+                      <img src={LOCAL_ICON_ASSETS.gem} alt="gem" className="h-3.5 w-3.5 object-contain" />
                       <span>3</span>
                     </button>
                   </div>
