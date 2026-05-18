@@ -8,6 +8,7 @@ import {
   getQuestsForChapter,
 } from '../../data/local/quests';
 import { getBusinessPrestigeForLevel } from '../../data/local/businessPrestigePoints';
+import { getBusinessIncomeAtLevel } from '../businessUpgrade';
 import { DEFAULT_HAPPINESS, DEFAULT_HEALTH } from '../../data/local/healthActions';
 import type {
   BusinessWithPlayerData,
@@ -165,7 +166,9 @@ export function migrateLocalBusinesses(
       is_owned: storedBusiness.is_owned ?? seedBusiness.is_owned,
       can_unlock: storedBusiness.can_unlock ?? seedBusiness.can_unlock,
       current_level: currentLevel,
-      current_hourly_income: storedBusiness.current_hourly_income ?? seedBusiness.current_hourly_income,
+      // Always derive income from the canonical formula so stale stored
+      // values (e.g. from an old growth factor) are corrected on load.
+      current_hourly_income: getBusinessIncomeAtLevel(seedBusiness.base_hourly_income, currentLevel),
       total_invested: storedBusiness.total_invested ?? seedBusiness.total_invested,
       current_prestige_points: resolvedPrestigePoints,
     };

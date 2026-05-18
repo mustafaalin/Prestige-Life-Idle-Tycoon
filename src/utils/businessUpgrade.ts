@@ -30,3 +30,18 @@ export function getDiscountedBusinessUpgradeCost(currentIncome: number, currentL
 export function getNextBusinessIncome(currentIncome: number) {
   return Math.floor(Math.max(0, Number(currentIncome || 0)) * BUSINESS_INCOME_GROWTH_FACTOR);
 }
+
+/**
+ * Derives current_hourly_income from base income and level using the
+ * canonical growth formula. Used during migration so stored values are
+ * never trusted — the formula is always the source of truth.
+ */
+export function getBusinessIncomeAtLevel(baseIncome: number, level: number): number {
+  const normalizedBase = Math.max(0, Number(baseIncome || 0));
+  const normalizedLevel = Math.max(1, Math.min(Number(level || 1), BUSINESS_MAX_LEVEL));
+  let income = normalizedBase;
+  for (let i = 1; i < normalizedLevel; i++) {
+    income = Math.floor(income * BUSINESS_INCOME_GROWTH_FACTOR);
+  }
+  return income;
+}
