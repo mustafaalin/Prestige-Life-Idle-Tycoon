@@ -1005,14 +1005,14 @@ export default function App() {
       />
 
       {/* Main screen ad button — top right, below header */}
-      <div className="absolute top-[90px] right-3 z-30 flex flex-col items-center">
+      <div className="absolute top-[106px] right-3 z-30 flex flex-col items-center">
         <button
           onClick={handleMainAdWatch}
           disabled={isMainAdWatching || mainAdCooldown > 0}
           className={`flex flex-col items-center gap-0.5 rounded-2xl px-2.5 py-2 shadow-lg border transition-all active:scale-95 ${
             isMainAdWatching || mainAdCooldown > 0
-              ? 'bg-slate-800/60 border-white/10 opacity-60 cursor-default'
-              : 'bg-black/40 border-white/20 backdrop-blur-md'
+              ? 'bg-white/30 border-white/20 opacity-60 cursor-default'
+              : 'bg-white/25 border-white/30 backdrop-blur-md'
           }`}
         >
           {isMainAdWatching ? (
