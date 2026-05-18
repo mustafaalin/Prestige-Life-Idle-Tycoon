@@ -31,6 +31,33 @@ export async function getOfferings() {
   }
 }
 
+export interface StoreProductPrice {
+  price: number;
+  priceString: string;
+}
+
+export async function fetchProductPrices(
+  productIds: string[]
+): Promise<Record<string, StoreProductPrice>> {
+  if (!initialized) return {};
+  try {
+    const { products } = await Purchases.getProducts({
+      productIdentifiers: productIds,
+      type: PRODUCT_CATEGORY.NON_SUBSCRIPTION,
+    });
+    const result: Record<string, StoreProductPrice> = {};
+    for (const p of products) {
+      result[(p as { identifier: string; price: number; priceString: string }).identifier] = {
+        price: (p as { price: number }).price,
+        priceString: (p as { priceString: string }).priceString,
+      };
+    }
+    return result;
+  } catch {
+    return {};
+  }
+}
+
 export async function purchaseProduct(productId: string) {
   if (!initialized) throw new Error('RevenueCat not initialized');
   const { products } = await Purchases.getProducts({ productIdentifiers: [productId], type: PRODUCT_CATEGORY.NON_SUBSCRIPTION });

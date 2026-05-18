@@ -24,7 +24,7 @@ export interface PurchaseResult {
 
 // Product ID → package mapping (App Store / Play Store ile eşleşmeli)
 // ShopModal local ID → Store product ID
-const PACKAGE_ID_TO_PRODUCT_ID: Record<string, string> = {
+export const PACKAGE_ID_TO_PRODUCT_ID: Record<string, string> = {
   'money-pack-1': 'com.prestigelife.money_pack_1',
   'money-pack-2': 'com.prestigelife.money_pack_2',
   'money-pack-3': 'com.prestigelife.money_pack_3',

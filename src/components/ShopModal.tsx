@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Gift, Lock, ShoppingBag, Sparkles, Shirt, Check, Flame, AlertTriangle } from 'lucide-react';
 import * as rewardService from '../services/rewardService';
 import * as itemService from '../services/itemService';
-import { purchasePackage } from '../services/iapService';
+import { purchasePackage, PACKAGE_ID_TO_PRODUCT_ID } from '../services/iapService';
+import { fetchProductPrices } from '../services/revenueCatService';
+import { Capacitor } from '@capacitor/core';
 import { LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/localAssets';
 import { DAILY_REWARDS } from '../data/local/rewards';
 import { getScaledMoneyPackageAmount, getScaledShopRewards } from '../data/local/rewardScaling';
@@ -46,6 +48,8 @@ interface MoneyPackage {
   display_order: number;
   is_popular: boolean;
   is_best_value: boolean;
+  display_price?: string;
+  on_sale?: boolean;
 }
 
 interface GemPackage {
@@ -55,6 +59,8 @@ interface GemPackage {
   display_order: number;
   is_popular: boolean;
   is_best_value: boolean;
+  display_price?: string;
+  on_sale?: boolean;
 }
 
 interface CharacterOutfit {
@@ -260,13 +266,46 @@ export function ShopModal({
 
   useEffect(() => {
     if (!isOpen) return;
-    setMoneyPackages(
-      LOCAL_MONEY_PACKAGES.map((pkg) => ({
-        ...pkg,
-        calculated_amount: getScaledMoneyPackageAmount(pkg.id, prestigePoints, ownedInvestmentCount),
-      }))
-    );
+    const baseMoneyPkgs = LOCAL_MONEY_PACKAGES.map((pkg) => ({
+      ...pkg,
+      calculated_amount: getScaledMoneyPackageAmount(pkg.id, prestigePoints, ownedInvestmentCount),
+    }));
+    setMoneyPackages(baseMoneyPkgs);
     setGemPackages(LOCAL_GEM_PACKAGES);
+
+    if (!Capacitor.isNativePlatform()) return;
+    const allIds = [
+      ...LOCAL_MONEY_PACKAGES.map((p) => PACKAGE_ID_TO_PRODUCT_ID[p.id]),
+      ...LOCAL_GEM_PACKAGES.map((p) => PACKAGE_ID_TO_PRODUCT_ID[p.id]),
+    ].filter(Boolean);
+
+    fetchProductPrices(allIds).then((prices) => {
+      if (!prices || Object.keys(prices).length === 0) return;
+      setMoneyPackages((prev) =>
+        prev.map((pkg) => {
+          const productId = PACKAGE_ID_TO_PRODUCT_ID[pkg.id];
+          const storePrice = productId ? prices[productId] : undefined;
+          if (!storePrice) return pkg;
+          return {
+            ...pkg,
+            display_price: storePrice.priceString,
+            on_sale: storePrice.price < pkg.price_usd * 0.99,
+          };
+        })
+      );
+      setGemPackages((prev) =>
+        prev.map((pkg) => {
+          const productId = PACKAGE_ID_TO_PRODUCT_ID[pkg.id];
+          const storePrice = productId ? prices[productId] : undefined;
+          if (!storePrice) return pkg;
+          return {
+            ...pkg,
+            display_price: storePrice.priceString,
+            on_sale: storePrice.price < pkg.price_usd * 0.99,
+          };
+        })
+      );
+    });
   }, [isOpen, prestigePoints, ownedInvestmentCount]);
 
   useEffect(() => {
@@ -849,8 +888,18 @@ export function ShopModal({
                   <p className="text-lg font-black text-green-600 mb-2">
                     {formatMoneyFull(pkg.calculated_amount)}
                   </p>
-                  <div className="bg-green-50 text-green-700 rounded-lg py-1 px-2 text-xs font-bold mb-2">
-                    ${Number(pkg.price_usd).toFixed(2)}
+                  <div className="relative mb-2">
+                    {pkg.on_sale && (
+                      <span className="absolute -top-2 -left-1 bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">
+                        SALE
+                      </span>
+                    )}
+                    <div className={`rounded-lg py-1 px-2 text-xs font-bold text-center ${pkg.on_sale ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'}`}>
+                      {pkg.on_sale && (
+                        <span className="line-through text-slate-400 mr-1">${Number(pkg.price_usd).toFixed(2)}</span>
+                      )}
+                      {pkg.display_price ?? `$${Number(pkg.price_usd).toFixed(2)}`}
+                    </div>
                   </div>
                   <button
                     onClick={() => handleSelectMoneyPackage(pkg)}
@@ -897,8 +946,18 @@ export function ShopModal({
                   <p className="text-lg font-black text-purple-600 mb-2">
                     {pkg.gem_amount} Gems
                   </p>
-                  <div className="bg-purple-50 text-purple-700 rounded-lg py-1 px-2 text-xs font-bold mb-2">
-                    ${Number(pkg.price_usd).toFixed(2)}
+                  <div className="relative mb-2">
+                    {pkg.on_sale && (
+                      <span className="absolute -top-2 -left-1 bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">
+                        SALE
+                      </span>
+                    )}
+                    <div className={`rounded-lg py-1 px-2 text-xs font-bold text-center ${pkg.on_sale ? 'bg-red-50 text-red-600' : 'bg-purple-50 text-purple-700'}`}>
+                      {pkg.on_sale && (
+                        <span className="line-through text-slate-400 mr-1">${Number(pkg.price_usd).toFixed(2)}</span>
+                      )}
+                      {pkg.display_price ?? `$${Number(pkg.price_usd).toFixed(2)}`}
+                    </div>
                   </div>
                   <button
                     onClick={() => handleSelectGemPackage(pkg)}
