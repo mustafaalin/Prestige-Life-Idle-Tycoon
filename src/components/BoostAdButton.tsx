@@ -22,9 +22,12 @@ export function BoostAdButton({
 }: BoostAdButtonProps) {
   if (boost.active) {
     return (
-      <div className="flex items-center gap-1.5 rounded-xl bg-amber-400/20 border border-amber-400/40 px-3 py-1.5">
-        <span className="text-[11px] font-black text-amber-300">⚡ 2×</span>
-        <span className="text-[11px] font-semibold text-amber-200/80">{boost.remainingLabel}</span>
+      <div className="flex flex-col items-center gap-0.5">
+        <span className="text-[10px] font-black uppercase tracking-widest text-amber-600">⚡ 2× Active</span>
+        <div className="flex items-center gap-1.5 rounded-xl bg-amber-400 border border-amber-500 px-3 py-1.5">
+          <span className="text-[12px] font-black text-amber-900">⏱</span>
+          <span className="text-[12px] font-black text-amber-900">{boost.remainingLabel}</span>
+        </div>
       </div>
     );
   }

@@ -479,55 +479,52 @@ export function Header({
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={onOpenIncomeBreakdown}
-                  className={
-                    'flex items-center gap-1.5 rounded-lg px-2 py-1 w-fit border transition-colors active:scale-[0.98] ' +
-                    (hourlyIncome < 0
-                      ? 'bg-red-500/25 border-red-400/35'
-                      : 'bg-emerald-500/22 border-emerald-300/35')
-                  }
-                  title={`Job ${formatMoneyPerHour(jobIncome)} • Business ${formatMoneyPerHour(businessIncome)} • Investment ${formatMoneyPerHour(investmentIncome)} • House -$${formatMoneyPlain(houseRentExpense)}/h • Vehicle -$${formatMoneyPlain(vehicleExpense)}/h • Other -$${formatMoneyPlain(otherExpenses)}/h`}
-                >
-                  <img src={LOCAL_ICON_ASSETS.money} alt="Income per hour" className="w-4 h-4 max-[500px]:w-3 max-[500px]:h-3" />
-                  <span className="text-[11px] max-[500px]:text-[10px] font-bold leading-none">
-                    {formatMoneyPerHour(hourlyIncome)}
-                  </span>
-                  {totalIncomeBoost.active && (
-                    <span className="text-[9px] font-black text-amber-300 bg-amber-400/20 rounded px-1">⚡2×</span>
-                  )}
-                </button>
-
-                {totalIncomeBoost.active ? (
-                  <div className="flex items-center gap-1 rounded-lg bg-amber-400/20 border border-amber-400/30 px-1.5 py-1">
-                    <span className="text-[9px] font-black text-amber-300">⚡</span>
-                    <span className="text-[9px] font-semibold text-amber-200/80">{totalIncomeBoost.remainingLabel}</span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-0.5">
-                    <span className="text-[8px] font-black uppercase tracking-widest text-amber-300">⚡ 2× · 1hr</span>
-                    <div className="flex overflow-hidden rounded-lg border border-amber-400/30">
-                      <button
-                        onClick={onTotalIncomeBoostWatch}
-                        className="flex items-center gap-0.5 bg-amber-500/20 px-1.5 py-1 text-[9px] font-black text-amber-200 transition-all active:scale-95 hover:bg-amber-500/30"
-                      >
-                        <img src={LOCAL_ICON_ASSETS.ads} alt="Ad" className="h-3.5 w-3.5 object-contain" />
-                        <span>Free</span>
-                      </button>
-                      <div className="w-px bg-amber-400/30" />
-                      <button
-                        onClick={onTotalIncomeBoostGem}
-                        disabled={gems < 3}
-                        className="flex items-center gap-0.5 bg-violet-500/20 px-1.5 py-1 text-[9px] font-black text-violet-300 transition-all active:scale-95 disabled:opacity-40 hover:bg-violet-500/30"
-                      >
-                        <img src={LOCAL_ICON_ASSETS.gem} alt="gem" className="h-3 w-3 object-contain" />
-                        <span>3</span>
-                      </button>
-                    </div>
-                  </div>
+              <button
+                onClick={onOpenIncomeBreakdown}
+                className={
+                  'flex items-center gap-1.5 rounded-lg px-2 py-1 w-fit border transition-colors active:scale-[0.98] ' +
+                  (hourlyIncome < 0
+                    ? 'bg-red-500/25 border-red-400/35'
+                    : 'bg-emerald-500/22 border-emerald-300/35')
+                }
+                title={`Job ${formatMoneyPerHour(jobIncome)} • Business ${formatMoneyPerHour(businessIncome)} • Investment ${formatMoneyPerHour(investmentIncome)} • House -$${formatMoneyPlain(houseRentExpense)}/h • Vehicle -$${formatMoneyPlain(vehicleExpense)}/h • Other -$${formatMoneyPlain(otherExpenses)}/h`}
+              >
+                <img src={LOCAL_ICON_ASSETS.money} alt="Income per hour" className="w-4 h-4 max-[500px]:w-3 max-[500px]:h-3" />
+                <span className="text-[11px] max-[500px]:text-[10px] font-bold leading-none">
+                  {formatMoneyPerHour(hourlyIncome)}
+                </span>
+                {totalIncomeBoost.active && (
+                  <span className="text-[9px] font-black text-amber-900 bg-amber-400 rounded px-1">⚡2×</span>
                 )}
-              </div>
+              </button>
+
+              {totalIncomeBoost.active ? (
+                <div className="flex items-center gap-1 rounded-lg bg-amber-400 px-2 py-1 w-fit">
+                  <span className="text-[9px] font-black text-amber-900">{totalIncomeBoost.remainingLabel}</span>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-[8px] font-black uppercase tracking-widest text-amber-300">⚡ 2× · 1hr</span>
+                  <div className="flex overflow-hidden rounded-lg border border-amber-400/30">
+                    <button
+                      onClick={onTotalIncomeBoostWatch}
+                      className="flex items-center gap-0.5 bg-amber-500/20 px-1.5 py-1 text-[9px] font-black text-amber-200 transition-all active:scale-95 hover:bg-amber-500/30"
+                    >
+                      <img src={LOCAL_ICON_ASSETS.ads} alt="Ad" className="h-3.5 w-3.5 object-contain" />
+                      <span>Free</span>
+                    </button>
+                    <div className="w-px bg-amber-400/30" />
+                    <button
+                      onClick={onTotalIncomeBoostGem}
+                      disabled={gems < 3}
+                      className="flex items-center gap-0.5 bg-violet-500/20 px-1.5 py-1 text-[9px] font-black text-violet-300 transition-all active:scale-95 disabled:opacity-40 hover:bg-violet-500/30"
+                    >
+                      <img src={LOCAL_ICON_ASSETS.gem} alt="gem" className="h-3 w-3 object-contain" />
+                      <span>3</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
