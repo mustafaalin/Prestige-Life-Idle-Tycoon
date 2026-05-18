@@ -44,8 +44,10 @@ interface HealthModalProps {
   onClose: () => void;
   onApplyAction: (actionKey: HealthActionKey) => Promise<{ success: boolean; appliedAmount: number }>;
   onApplyAdBoost: () => Promise<{ success: boolean; appliedAmount: number }>;
+  onApplyGemBoost: () => Promise<{ success: boolean; appliedAmount: number }>;
   onWatchAd: () => Promise<boolean>;
   wellbeingFactors?: WellbeingFactor[];
+  gemCost?: number;
 }
 
 function formatCooldown(seconds: number) {
@@ -68,10 +70,13 @@ export function HealthModal({
   onClose,
   onApplyAction,
   onApplyAdBoost,
+  onApplyGemBoost,
   onWatchAd,
   wellbeingFactors = [],
+  gemCost = 2,
 }: HealthModalProps) {
   const [isApplyingAd, setIsApplyingAd] = useState(false);
+  const [isApplyingGem, setIsApplyingGem] = useState(false);
   const [processingActionKey, setProcessingActionKey] = useState<HealthActionKey | null>(null);
   const [timeNow, setTimeNow] = useState(Date.now());
 
@@ -93,6 +98,12 @@ export function HealthModal({
   const currentHealth = Math.max(0, Math.min(100, Number(profile?.health ?? 100)));
   const currentHealthDisplay = Math.round(currentHealth);
   const totalMoney = Math.max(0, Number(profile?.total_money ?? 0));
+  const gems = Math.max(0, Number(profile?.gems ?? 0));
+
+  const healthAdCooldownUntil = profile?.health_ad_cooldown_until;
+  const adCooldownActive = Boolean(healthAdCooldownUntil && new Date(healthAdCooldownUntil).getTime() > timeNow);
+  const canAffordGem = gems >= gemCost;
+
   const actionStates = useMemo(
     () =>
       HEALTH_ACTIONS.map((action) => {
@@ -107,10 +118,10 @@ export function HealthModal({
           isCoolingDown,
           canAfford,
           isMaxed,
-          isDisabled: processingActionKey !== null || isApplyingAd,
+          isDisabled: processingActionKey !== null || isApplyingAd || isApplyingGem,
         };
       }),
-    [currentHealth, isApplyingAd, processingActionKey, profile, timeNow, totalMoney]
+    [currentHealth, isApplyingAd, isApplyingGem, processingActionKey, profile, timeNow, totalMoney]
   );
 
   if (!isOpen) {
@@ -181,44 +192,66 @@ export function HealthModal({
             )}
           </div>
 
-          {/* Reklam kartı */}
+          {/* Boost kartı */}
           <div className="rounded-[20px] border-2 border-slate-200 bg-white p-3 shadow-[0_8px_20px_rgba(15,23,42,0.06)]">
             <div className="flex items-center gap-3">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center">
                 <img src={LOCAL_ICON_ASSETS.ads} alt="Ad" className="h-14 w-14 object-contain" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-black text-slate-800">Watch Ad</p>
+                <p className="text-[13px] font-black text-slate-800">Instant Boost</p>
                 <p className="text-[11px] text-slate-500 mt-0.5">
-                  Instant <span className="font-black text-emerald-600">+{HEALTH_AD_BOOST_PERCENT}%</span> health boost
+                  <span className="font-black text-emerald-600">+{HEALTH_AD_BOOST_PERCENT}%</span> health
+                  {adCooldownActive && <span className="ml-1 text-rose-400">(cooldown)</span>}
                 </p>
               </div>
               {currentHealth >= 100 ? (
-                <div className="shrink-0 min-w-[120px] rounded-[16px] border border-slate-200 bg-slate-100 px-4 py-2.5 text-center text-sm font-black text-slate-400">
-                  Max Health
+                <div className="shrink-0 rounded-[16px] border border-slate-200 bg-slate-100 px-3 py-2 text-center text-sm font-black text-slate-400">
+                  Max
                 </div>
               ) : (
-                <button
-                  onClick={async () => {
-                    if (isApplyingAd) return;
-                    setIsApplyingAd(true);
-                    try {
-                      const rewarded = await onWatchAd();
-                      if (!rewarded) return;
-                      await onApplyAdBoost();
-                    } finally {
-                      setIsApplyingAd(false);
-                    }
-                  }}
-                  disabled={isApplyingAd}
-                  className={`shrink-0 min-w-[120px] rounded-[16px] px-4 py-2.5 text-center text-sm font-black transition-all border shadow-[inset_0_-4px_0_rgba(0,0,0,0.12)] ${
-                    isApplyingAd
-                      ? 'border-emerald-400 bg-gradient-to-r from-lime-300 to-emerald-300 text-slate-700 opacity-70 cursor-not-allowed'
-                      : 'border-emerald-500 bg-gradient-to-r from-lime-400 to-emerald-400 text-slate-900 active:scale-[0.98]'
-                  }`}
-                >
-                  {isApplyingAd ? '...' : 'Free'}
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={async () => {
+                      if (isApplyingAd || adCooldownActive) return;
+                      setIsApplyingAd(true);
+                      try {
+                        const rewarded = await onWatchAd();
+                        if (!rewarded) return;
+                        await onApplyAdBoost();
+                      } finally {
+                        setIsApplyingAd(false);
+                      }
+                    }}
+                    disabled={isApplyingAd || adCooldownActive}
+                    className={`rounded-[16px] px-3 py-2 text-center text-sm font-black transition-all border shadow-[inset_0_-3px_0_rgba(0,0,0,0.12)] ${
+                      isApplyingAd || adCooldownActive
+                        ? 'border-emerald-400 bg-gradient-to-r from-lime-300 to-emerald-300 text-slate-700 opacity-70 cursor-not-allowed'
+                        : 'border-emerald-500 bg-gradient-to-r from-lime-400 to-emerald-400 text-slate-900 active:scale-[0.98]'
+                    }`}
+                  >
+                    {isApplyingAd ? '...' : 'Free'}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (isApplyingGem || adCooldownActive || !canAffordGem) return;
+                      setIsApplyingGem(true);
+                      try {
+                        await onApplyGemBoost();
+                      } finally {
+                        setIsApplyingGem(false);
+                      }
+                    }}
+                    disabled={isApplyingGem || adCooldownActive || !canAffordGem}
+                    className={`flex items-center gap-1 rounded-[16px] px-3 py-2 text-sm font-black transition-all border shadow-[inset_0_-3px_0_rgba(0,0,0,0.12)] ${
+                      isApplyingGem || adCooldownActive || !canAffordGem
+                        ? 'border-violet-300 bg-gradient-to-r from-violet-300 to-purple-300 text-slate-700 opacity-50 cursor-not-allowed'
+                        : 'border-violet-500 bg-gradient-to-r from-violet-500 to-purple-600 text-white active:scale-[0.98]'
+                    }`}
+                  >
+                    {isApplyingGem ? '...' : <><span>💎</span><span>{gemCost}</span></>}
+                  </button>
+                </div>
               )}
             </div>
           </div>

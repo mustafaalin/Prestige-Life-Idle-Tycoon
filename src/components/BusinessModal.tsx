@@ -25,6 +25,8 @@ interface BusinessModalProps {
   loading?: boolean;
   boost: BoostStatus;
   onBoostWatch: () => void;
+  onBoostGem: () => void;
+  gems: number;
   onGoToShop: () => void;
 }
 
@@ -38,6 +40,8 @@ export function BusinessModal({
   loading = false,
   boost,
   onBoostWatch,
+  onBoostGem,
+  gems,
   onGoToShop,
 }: BusinessModalProps) {
   const [activeTab, setActiveTab] = useState<'small' | 'large'>('small');
@@ -184,7 +188,7 @@ export function BusinessModal({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <BoostAdButton boost={boost} onWatch={onBoostWatch} />
+            <BoostAdButton boost={boost} onWatch={onBoostWatch} onGem={onBoostGem} gems={gems} gemCost={3} />
             <button
               onClick={onClose}
               className="p-1.5 hover:bg-orange-100/50 rounded-full transition-all active:scale-90"

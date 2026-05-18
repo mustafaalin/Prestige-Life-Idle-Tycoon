@@ -418,14 +418,26 @@ export default function App() {
     if (rewarded) gameState.activateBoost('total');
   }
 
+  function handleTotalIncomeBoostGem() {
+    gameState.activateBoostWithGems('total');
+  }
+
   async function handleBusinessBoostWatch() {
     const rewarded = await requestRewardedAd('business_income_boost');
     if (rewarded) gameState.activateBoost('business');
   }
 
+  function handleBusinessBoostGem() {
+    gameState.activateBoostWithGems('business');
+  }
+
   async function handleInvestmentBoostWatch() {
     const rewarded = await requestRewardedAd('investment_income_boost');
     if (rewarded) gameState.activateBoost('investment');
+  }
+
+  function handleInvestmentBoostGem() {
+    gameState.activateBoostWithGems('investment');
   }
 
   async function handleBusinessUpgradeWithAdDiscount(businessId: string) {
@@ -459,6 +471,17 @@ export default function App() {
     return result;
   }
 
+  async function handleAnimatedHealthGemBoost() {
+    const result = await gameState.applyHealthGemBoost();
+    if (!result.success || result.appliedAmount <= 0) {
+      return result;
+    }
+
+    await playStatRewardAnimationSequence('health', result.appliedAmount);
+    setHealthAnimationSequenceId((prev) => prev + 1);
+    return result;
+  }
+
   async function handleAnimatedHappinessAction(actionKey: Parameters<typeof gameState.applyHappinessAction>[0]) {
     const result = await gameState.applyHappinessAction(actionKey);
     if (!result.success || result.appliedAmount <= 0) {
@@ -472,6 +495,17 @@ export default function App() {
 
   async function handleAnimatedHappinessAdBoost() {
     const result = await gameState.applyHappinessAdBoost();
+    if (!result.success || result.appliedAmount <= 0) {
+      return result;
+    }
+
+    await playStatRewardAnimationSequence('happiness', result.appliedAmount);
+    setHappinessAnimationSequenceId((prev) => prev + 1);
+    return result;
+  }
+
+  async function handleAnimatedHappinessGemBoost() {
+    const result = await gameState.applyHappinessGemBoost();
     if (!result.success || result.appliedAmount <= 0) {
       return result;
     }
@@ -990,6 +1024,7 @@ export default function App() {
         }}
         totalIncomeBoost={gameState.activeBoosts.total}
         onTotalIncomeBoostWatch={handleTotalIncomeBoostWatch}
+        onTotalIncomeBoostGem={handleTotalIncomeBoostGem}
         onOpenMoneyShop={() => {
           setShopModalInitialTab('shop');
           setShopModalInitialSection('money');
@@ -1172,6 +1207,7 @@ export default function App() {
         onClose={() => setShowHealthModal(false)}
         onApplyAction={handleAnimatedHealthAction}
         onApplyAdBoost={handleAnimatedHealthAdBoost}
+        onApplyGemBoost={handleAnimatedHealthGemBoost}
         onWatchAd={handleWatchHealthAd}
         wellbeingFactors={wellbeingFactors}
       />
@@ -1182,6 +1218,7 @@ export default function App() {
         onClose={() => setShowHappinessModal(false)}
         onApplyAction={handleAnimatedHappinessAction}
         onApplyAdBoost={handleAnimatedHappinessAdBoost}
+        onApplyGemBoost={handleAnimatedHappinessGemBoost}
         onWatchAd={handleWatchHappinessAd}
         wellbeingFactors={wellbeingFactors}
       />
@@ -1200,6 +1237,8 @@ export default function App() {
           loading={gameState.businessesLoading}
           boost={gameState.activeBoosts.business}
           onBoostWatch={handleBusinessBoostWatch}
+          onBoostGem={handleBusinessBoostGem}
+          gems={gameState.profile.gems || 0}
           onGoToShop={() => {
             setShowBusinessModal(false);
             setShopModalInitialTab('shop');
@@ -1311,6 +1350,7 @@ export default function App() {
           }}
           boost={gameState.activeBoosts.investment}
           onBoostWatch={handleInvestmentBoostWatch}
+          onBoostGem={handleInvestmentBoostGem}
           onGoToShop={() => {
             setShowInvestmentsModal(false);
             setShopModalInitialTab('shop');

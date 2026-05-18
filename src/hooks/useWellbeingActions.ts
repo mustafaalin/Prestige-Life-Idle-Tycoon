@@ -13,6 +13,9 @@ import {
   HAPPINESS_ACTIONS,
   HAPPINESS_AD_BOOST_PERCENT,
 } from '../data/local/happinessActions';
+
+export const WELLBEING_GEM_COST = 2;
+const WELLBEING_GEM_COOLDOWN_MS = 60 * 60 * 1000;
 import type {
   GameState,
   HappinessActionKey,
@@ -169,10 +172,70 @@ export function useWellbeingActions({
     return { success: true, appliedAmount };
   }, [gameState.profile, gameStateRef, saveToLocalStorage, setGameState]);
 
+  const applyHealthGemBoost = useCallback(async () => {
+    const currentProfile = gameState.profile;
+    if (!currentProfile) return { success: false, appliedAmount: 0 };
+
+    if (Number(currentProfile.gems || 0) < WELLBEING_GEM_COST) return { success: false, appliedAmount: 0 };
+
+    const cooldownUntil = currentProfile.health_ad_cooldown_until;
+    if (cooldownUntil && new Date(cooldownUntil).getTime() > Date.now()) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    const currentHealth = Number(currentProfile.health ?? DEFAULT_HEALTH);
+    const nextHealth = Math.min(100, currentHealth + HEALTH_AD_BOOST_PERCENT);
+    const appliedAmount = Math.max(0, nextHealth - currentHealth);
+    if (appliedAmount <= 0) return { success: false, appliedAmount: 0 };
+
+    const updatedProfile = normalizeProfileWellbeing({
+      ...currentProfile,
+      gems: Number(currentProfile.gems || 0) - WELLBEING_GEM_COST,
+      health: nextHealth,
+      health_ad_cooldown_until: new Date(Date.now() + WELLBEING_GEM_COOLDOWN_MS).toISOString(),
+    });
+
+    gameStateRef.current = { ...gameStateRef.current, profile: updatedProfile };
+    setGameState((prev) => ({ ...prev, profile: updatedProfile }));
+    saveToLocalStorage({ profile: updatedProfile });
+    return { success: true, appliedAmount };
+  }, [gameState.profile, gameStateRef, saveToLocalStorage, setGameState]);
+
+  const applyHappinessGemBoost = useCallback(async () => {
+    const currentProfile = gameState.profile;
+    if (!currentProfile) return { success: false, appliedAmount: 0 };
+
+    if (Number(currentProfile.gems || 0) < WELLBEING_GEM_COST) return { success: false, appliedAmount: 0 };
+
+    const cooldownUntil = currentProfile.happiness_ad_cooldown_until;
+    if (cooldownUntil && new Date(cooldownUntil).getTime() > Date.now()) {
+      return { success: false, appliedAmount: 0 };
+    }
+
+    const currentHappiness = Number(currentProfile.happiness ?? DEFAULT_HAPPINESS);
+    const nextHappiness = Math.min(100, currentHappiness + HAPPINESS_AD_BOOST_PERCENT);
+    const appliedAmount = Math.max(0, nextHappiness - currentHappiness);
+    if (appliedAmount <= 0) return { success: false, appliedAmount: 0 };
+
+    const updatedProfile = normalizeProfileWellbeing({
+      ...currentProfile,
+      gems: Number(currentProfile.gems || 0) - WELLBEING_GEM_COST,
+      happiness: nextHappiness,
+      happiness_ad_cooldown_until: new Date(Date.now() + WELLBEING_GEM_COOLDOWN_MS).toISOString(),
+    });
+
+    gameStateRef.current = { ...gameStateRef.current, profile: updatedProfile };
+    setGameState((prev) => ({ ...prev, profile: updatedProfile }));
+    saveToLocalStorage({ profile: updatedProfile });
+    return { success: true, appliedAmount };
+  }, [gameState.profile, gameStateRef, saveToLocalStorage, setGameState]);
+
   return {
     applyHealthAction,
     applyHealthAdBoost,
     applyHappinessAction,
     applyHappinessAdBoost,
+    applyHealthGemBoost,
+    applyHappinessGemBoost,
   };
 }

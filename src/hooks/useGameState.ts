@@ -319,6 +319,8 @@ export function useGameState(deviceId: string, userId: string | null) {
     applyHealthAdBoost,
     applyHappinessAction,
     applyHappinessAdBoost,
+    applyHealthGemBoost,
+    applyHappinessGemBoost,
   } = useWellbeingActions({
     gameState,
     setGameState,
@@ -333,6 +335,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     dismissOfflineEarnings,
     watchAd,
     activateBoost,
+    activateBoostWithGems,
   } = useRewardActions({
     gameState,
     setGameState,
@@ -522,6 +525,8 @@ export function useGameState(deviceId: string, userId: string | null) {
     applyHealthAdBoost,
     applyHappinessAction,
     applyHappinessAdBoost,
+    applyHealthGemBoost,
+    applyHappinessGemBoost,
     startBankDeposit,
     claimBankDeposit,
     claimCashback,
@@ -534,6 +539,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     updateOutfitLocally,
     activeBoosts,
     activateBoost,
+    activateBoostWithGems,
     boostedHourlyIncome,
   };
 }

@@ -98,6 +98,7 @@ interface InvestmentsModalProps {
   onClose: () => void;
   boost: BoostStatus;
   onBoostWatch: () => void;
+  onBoostGem: () => void;
   onGoToShop: () => void;
 }
 
@@ -118,6 +119,7 @@ export function InvestmentsModal({
   onClose,
   boost,
   onBoostWatch,
+  onBoostGem,
   onGoToShop,
 }: InvestmentsModalProps) {
   const { insufficientFundsState, showInsufficientFunds, hideInsufficientFunds } = useInsufficientFunds();
@@ -412,7 +414,7 @@ export function InvestmentsModal({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <BoostAdButton boost={boost} onWatch={onBoostWatch} />
+            <BoostAdButton boost={boost} onWatch={onBoostWatch} onGem={onBoostGem} gems={gems} gemCost={3} />
             <button onClick={onClose} className="p-1.5 hover:bg-emerald-100/50 rounded-full transition-all active:scale-90">
               <X className="w-5 h-5 text-emerald-700" />
             </button>

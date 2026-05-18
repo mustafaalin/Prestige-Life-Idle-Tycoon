@@ -40,6 +40,7 @@ interface HeaderProps {
   onOpenGemShop?: () => void;
   totalIncomeBoost: BoostStatus;
   onTotalIncomeBoostWatch: () => void;
+  onTotalIncomeBoostGem: () => void;
 }
 
 export function Header({
@@ -77,6 +78,7 @@ export function Header({
   onOpenLeaderboard,
   totalIncomeBoost,
   onTotalIncomeBoostWatch,
+  onTotalIncomeBoostGem,
   onOpenMoneyShop,
   onOpenGemShop,
 }: HeaderProps) {
@@ -503,17 +505,27 @@ export function Header({
                     <span className="text-[9px] font-semibold text-amber-200/80">{totalIncomeBoost.remainingLabel}</span>
                   </div>
                 ) : (
-                  <div className="relative">
-                    <img
-                      src={LOCAL_ICON_ASSETS.ads}
-                      alt="Ad"
-                      className="absolute -top-3 left-1/2 -translate-x-1/2 h-6 w-6 object-contain drop-shadow-sm z-10"
-                    />
+                  <div className="flex items-center gap-1">
+                    <div className="relative">
+                      <img
+                        src={LOCAL_ICON_ASSETS.ads}
+                        alt="Ad"
+                        className="absolute -top-3 left-1/2 -translate-x-1/2 h-6 w-6 object-contain drop-shadow-sm z-10"
+                      />
+                      <button
+                        onClick={onTotalIncomeBoostWatch}
+                        className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-1 text-[9px] font-black text-white transition-all active:scale-95 mt-0.5"
+                      >
+                        2× 1h
+                      </button>
+                    </div>
                     <button
-                      onClick={onTotalIncomeBoostWatch}
-                      className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-1 text-[9px] font-black text-white transition-all active:scale-95 mt-0.5"
+                      onClick={onTotalIncomeBoostGem}
+                      disabled={gems < 3}
+                      className="flex items-center gap-0.5 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 px-1.5 py-1 text-[9px] font-black text-white transition-all active:scale-95 disabled:opacity-40"
                     >
-                      2× 1h
+                      <span>💎</span>
+                      <span>3</span>
                     </button>
                   </div>
                 )}
