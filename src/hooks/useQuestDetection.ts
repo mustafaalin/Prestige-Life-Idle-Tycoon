@@ -84,6 +84,11 @@ export function useQuestDetection({
           shouldUnlockChapterReward && currentChapter
             ? currentChapter.id
             : prev.questProgress.claimableChapterRewardId,
+        // Unlock next chapter immediately when all quests are done — reward can be claimed later
+        unlockedChapterIndex:
+          shouldUnlockChapterReward && currentChapter
+            ? Math.min(prev.questProgress.unlockedChapterIndex + 1, 9)
+            : prev.questProgress.unlockedChapterIndex,
       };
       const nextProfile = prev.profile
         ? syncQuestPrestige(prev.profile as PlayerProfile, nextQuestProgress)

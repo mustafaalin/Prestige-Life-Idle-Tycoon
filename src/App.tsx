@@ -120,6 +120,8 @@ export default function App() {
   const [mainAdCooldown, setMainAdCooldown] = useState(0);
   const [isMainAdWatching, setIsMainAdWatching] = useState(false);
   const mainAdInProgressRef = useRef(false);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(106);
   const [showBusinessModal, setShowBusinessModal] = useState(false);
   const [showInvestmentsModal, setShowInvestmentsModal] = useState(false);
   const [showStuffModal, setShowStuffModal] = useState(false);
@@ -379,6 +381,17 @@ export default function App() {
       setIsQuestRewardAnimating(false);
     }
   }
+
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => {
+      setHeaderHeight(el.getBoundingClientRect().height);
+    });
+    observer.observe(el);
+    setHeaderHeight(el.getBoundingClientRect().height);
+    return () => observer.disconnect();
+  }, []);
 
   const AD_COOLDOWN_SECONDS = 30;
   useEffect(() => {
@@ -979,6 +992,7 @@ export default function App() {
         <div className="fixed inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-black z-0" />
       )}
 
+      <div ref={headerRef}>
       <Header
         totalMoney={gameState.profile.total_money}
         moneyAnimationSequenceId={moneyAnimationSequenceId}
@@ -1038,16 +1052,17 @@ export default function App() {
           setShowShopModal(true);
         }}
       />
+      </div>
 
-      {/* Main screen ad button — top right, below header */}
-      <div className="absolute top-[106px] right-3 z-30 flex flex-col items-center">
+      {/* Main screen ad button — 15px below header bottom */}
+      <div className="absolute right-3 z-30 flex flex-col items-center" style={{ top: headerHeight + 15 }}>
         <button
           onClick={handleMainAdWatch}
           disabled={isMainAdWatching || mainAdCooldown > 0}
           className={`flex flex-col items-center gap-0.5 rounded-2xl px-2.5 py-2 shadow-lg border transition-all active:scale-95 ${
             isMainAdWatching || mainAdCooldown > 0
               ? 'bg-white/30 border-white/20 opacity-60 cursor-default'
-              : 'bg-white/25 border-white/30 backdrop-blur-md'
+              : 'bg-white/25 border-white/30 backdrop-blur-md animate-breathe'
           }`}
         >
           {isMainAdWatching ? (

@@ -79,7 +79,6 @@ export function useQuestActions({
     const rewardGems = chapter.reward_gems ?? 0;
     const nextQuestProgress: QuestProgress = {
       ...gameState.questProgress,
-      unlockedChapterIndex: Math.min(gameState.questProgress.unlockedChapterIndex + 1, 9),
       claimableChapterRewardId: null,
       claimedChapterRewardIds: [...gameState.questProgress.claimedChapterRewardIds, chapter.id],
       totalClaimedMoney: gameState.questProgress.totalClaimedMoney,
