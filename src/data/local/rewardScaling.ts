@@ -1,21 +1,21 @@
 const MONEY_PACKAGE_BASES = [
-  { id: 'money-pack-1', amount: 5000 },
-  { id: 'money-pack-2', amount: 15000 },
-  { id: 'money-pack-3', amount: 50000 },
-  { id: 'money-pack-4', amount: 150000 },
+  { id: 'money-pack-1', amount: 25000 },
+  { id: 'money-pack-2', amount: 75000 },
+  { id: 'money-pack-3', amount: 250000 },
+  { id: 'money-pack-4', amount: 750000 },
 ] as const;
 
 const REWARD_TIERS = [
-  { minProgress: 0, claimPool: 1500, adReward: 750, packageMultiplier: 1 },
-  { minProgress: 10, claimPool: 3000, adReward: 1500, packageMultiplier: 1.6 },
-  { minProgress: 25, claimPool: 6000, adReward: 3000, packageMultiplier: 2.4 },
-  { minProgress: 50, claimPool: 12000, adReward: 6000, packageMultiplier: 4 },
-  { minProgress: 90, claimPool: 25000, adReward: 12000, packageMultiplier: 6.5 },
-  { minProgress: 150, claimPool: 50000, adReward: 25000, packageMultiplier: 10 },
+  { minProgress: 0,   claimPool: 2000,    adReward: 1000,   packageMultiplier: 1 },
+  { minProgress: 20,  claimPool: 6000,    adReward: 3000,   packageMultiplier: 1.6 },
+  { minProgress: 50,  claimPool: 20000,   adReward: 10000,  packageMultiplier: 2.4 },
+  { minProgress: 120, claimPool: 75000,   adReward: 37500,  packageMultiplier: 4 },
+  { minProgress: 220, claimPool: 300000,  adReward: 150000, packageMultiplier: 6.5 },
+  { minProgress: 350, claimPool: 1500000, adReward: 750000, packageMultiplier: 10 },
 ] as const;
 
 function getEffectiveProgress(prestigePoints: number, ownedInvestmentCount: number) {
-  return Math.max(0, Number(prestigePoints || 0)) + Math.max(0, Number(ownedInvestmentCount || 0)) * 10;
+  return Math.max(0, Number(prestigePoints || 0)) + Math.max(0, Number(ownedInvestmentCount || 0)) * 3;
 }
 
 export function getScaledShopRewards(prestigePoints: number, ownedInvestmentCount: number) {
