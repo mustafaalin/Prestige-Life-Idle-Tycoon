@@ -725,56 +725,72 @@ export function StuffModal({
       )}
 
       {showConfirm && selectedCar && (
-        <div className="fixed inset-0 bg-black/90 z-[110] flex items-center justify-center p-4 pointer-events-auto">
-          <div className="bg-slate-900 rounded-3xl p-6 max-w-sm w-full border border-white/10 shadow-2xl">
-            <h3 className="text-2xl font-black text-white mb-2">
-              {confirmMode === 'sell' ? 'Confirm Sale' : 'Confirm Purchase'}
-            </h3>
-            <p className="text-slate-300 mb-6">
-              {confirmMode === 'sell' ? (
-                <>
-                  Do you want to sell <span className="text-white font-bold">{selectedCar.name}</span> for{' '}
-                  <span className={`font-bold ${(selectedCar.purchase_currency || 'cash') === 'gems' ? 'text-cyan-400' : 'text-emerald-400'}`}>
-                    {(selectedCar.purchase_currency || 'cash') === 'gems'
-                      ? `${Math.floor(Number(selectedCar.gem_price || 0) / 2)} gems`
-                      : formatMoney(Math.floor(Number(selectedCar.price || 0) / 2))}
-                  </span>?
-                </>
-              ) : (
-                <>
-                  Do you want to buy <span className="text-white font-bold">{selectedCar.name}</span> for{' '}
-                  <span className={`font-bold ${(selectedCar.purchase_currency || 'cash') === 'gems' ? 'text-cyan-400' : 'text-emerald-400'}`}>
-                    {(selectedCar.purchase_currency || 'cash') === 'gems'
-                      ? `${Number(selectedCar.gem_price || 0)} gems`
-                      : formatMoney(selectedCar.price)}
-                  </span>?
-                </>
-              )}
-            </p>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowConfirm(false)}
-                disabled={isPurchasing}
-                className="flex-1 py-3 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-700 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmAction}
-                disabled={isPurchasing}
-                className={`flex-1 py-3 rounded-xl font-bold text-white transition-colors flex items-center justify-center ${
-                  confirmMode === 'sell'
-                    ? 'bg-rose-600 hover:bg-rose-500'
-                    : 'bg-emerald-600 hover:bg-emerald-500'
-                }`}
-              >
-                {isPurchasing ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+        <div className="fixed inset-0 bg-black/35 z-[110] flex items-end justify-center p-4 pb-24 pointer-events-auto">
+          <div className="bg-white rounded-[28px] w-full max-w-sm shadow-2xl overflow-hidden">
+
+            {/* Car image banner */}
+            <div className="relative h-36 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+              <img
+                src={resolveLocalAsset(selectedCar.image_url, 'car')}
+                alt={selectedCar.name}
+                className="h-28 w-full object-contain drop-shadow-md"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-white/60 to-transparent" />
+            </div>
+
+            {/* Content */}
+            <div className="px-5 pb-5 pt-3">
+              <p className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-0.5">
+                {confirmMode === 'sell' ? 'Confirm Sale' : 'Confirm Purchase'}
+              </p>
+              <h3 className="text-xl font-black text-slate-900 mb-3">{selectedCar.name}</h3>
+
+              <div className={`flex items-center justify-between rounded-2xl px-4 py-3 mb-4 ${
+                confirmMode === 'sell' ? 'bg-rose-50 border border-rose-100' : 'bg-emerald-50 border border-emerald-100'
+              }`}>
+                <span className="text-sm font-bold text-slate-500">
+                  {confirmMode === 'sell' ? 'You receive' : 'You pay'}
+                </span>
+                {(selectedCar.purchase_currency || 'cash') === 'gems' ? (
+                  <div className="flex items-center gap-1.5">
+                    <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-5 w-5" />
+                    <span className="text-lg font-black text-violet-700">
+                      {confirmMode === 'sell'
+                        ? Math.floor(Number(selectedCar.gem_price || 0) / 2)
+                        : Number(selectedCar.gem_price || 0)}
+                    </span>
+                  </div>
                 ) : (
-                  'Confirm'
+                  <span className={`text-lg font-black ${confirmMode === 'sell' ? 'text-rose-600' : 'text-emerald-700'}`}>
+                    {confirmMode === 'sell'
+                      ? formatMoney(Math.floor(Number(selectedCar.price || 0) / 2))
+                      : formatMoney(selectedCar.price)}
+                  </span>
                 )}
-              </button>
+              </div>
+
+              <div className="flex gap-2.5">
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  disabled={isPurchasing}
+                  className="flex-1 py-3.5 rounded-2xl font-black text-sm bg-slate-100 text-slate-600 active:scale-[0.98] transition-all disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmAction}
+                  disabled={isPurchasing}
+                  className={`flex-1 py-3.5 rounded-2xl font-black text-sm text-white active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center shadow-lg ${
+                    confirmMode === 'sell'
+                      ? 'bg-gradient-to-r from-rose-500 to-rose-600 shadow-rose-200'
+                      : 'bg-gradient-to-r from-emerald-500 to-green-500 shadow-emerald-200'
+                  }`}
+                >
+                  {isPurchasing ? (
+                    <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  ) : confirmMode === 'sell' ? 'Sell' : 'Buy'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
