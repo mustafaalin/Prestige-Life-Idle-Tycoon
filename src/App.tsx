@@ -426,6 +426,12 @@ export default function App() {
     return success;
   }
 
+  async function handleBusinessUpgrade(businessId: string) {
+    const success = await gameState.upgradeBusiness(businessId);
+    if (success) { playSfx('levelUp'); }
+    return success;
+  }
+
   async function handleTotalIncomeBoostWatch() {
     const rewarded = await requestRewardedAd('total_income_boost');
     if (rewarded) gameState.activateBoost('total');
@@ -459,7 +465,9 @@ export default function App() {
       return false;
     }
 
-    return gameState.upgradeBusinessWithAdDiscount(businessId);
+    const success = await gameState.upgradeBusinessWithAdDiscount(businessId);
+    if (success) { playSfx('levelUp'); }
+    return success;
   }
 
   async function handleAnimatedHealthAction(actionKey: Parameters<typeof gameState.applyHealthAction>[0]) {
@@ -819,6 +827,7 @@ export default function App() {
     const result = await gameState.selectJob(jobId);
 
     if (result) {
+      playSfx('levelUp');
       setJobTransitionFx({
         previousJob,
         nextJob,
@@ -1243,7 +1252,7 @@ export default function App() {
           businesses={gameState.businesses}
           totalMoney={gameState.profile.total_money}
           onPurchase={handleBusinessPurchase}
-          onUpgrade={gameState.upgradeBusiness}
+          onUpgrade={handleBusinessUpgrade}
           onUpgradeWithAdDiscount={handleBusinessUpgradeWithAdDiscount}
           onClose={() => {
             setShowBusinessModal(false);
