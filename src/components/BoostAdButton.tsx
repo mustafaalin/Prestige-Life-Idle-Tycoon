@@ -44,7 +44,7 @@ export function BoostAdButton({
           className="flex items-center gap-1.5 bg-orange-500 px-3 py-2 text-[11px] font-black text-white transition-all active:scale-95 disabled:opacity-50 hover:bg-orange-600"
         >
           <img src={LOCAL_ICON_ASSETS.ads} alt="Ad" className="h-4 w-4 object-contain" />
-          <span>{loading ? '...' : 'Watch Ad'}</span>
+          <span>{loading ? '...' : 'Free'}</span>
         </button>
         {onGem && gemCost !== undefined && (
           <>

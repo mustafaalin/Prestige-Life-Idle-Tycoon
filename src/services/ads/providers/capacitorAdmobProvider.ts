@@ -22,6 +22,10 @@ let initialized = false;
 let rewardListenerHandles: PluginListenerHandle[] = [];
 let adInProgress = false;
 
+// Preload state — keep an ad ready so showRewardedAd can display instantly
+let preloadedAdId: string | null = null;
+let preloadPromise: Promise<boolean> | null = null;
+
 function setState(nextState: typeof state) {
   state = nextState;
   emit();
@@ -89,6 +93,38 @@ async function ensureInitialized() {
   return initializePromise;
 }
 
+async function ensurePreloaded(adId: string): Promise<boolean> {
+  if (!Capacitor.isNativePlatform()) return false;
+  if (preloadedAdId === adId) return true;
+
+  // If a preload is already in flight, await it and re-check
+  if (preloadPromise) {
+    await preloadPromise;
+    if (preloadedAdId === adId) return true;
+  }
+
+  preloadPromise = (async () => {
+    try {
+      await ensureInitialized();
+      await AdMob.prepareRewardVideoAd({
+        adId,
+        isTesting: import.meta.env.VITE_ADMOB_TESTING === 'true',
+        npa: false,
+      } as RewardAdOptions);
+      preloadedAdId = adId;
+      return true;
+    } catch (error) {
+      console.warn('[ads] preload failed', error);
+      preloadedAdId = null;
+      return false;
+    }
+  })();
+
+  const ok = await preloadPromise;
+  preloadPromise = null;
+  return ok;
+}
+
 export const capacitorAdmobProvider: RewardedAdProvider = {
   name: 'capacitor-admob',
   async showRewardedAd(placement: AdPlacement): Promise<RewardedAdResult> {
@@ -106,6 +142,7 @@ export const capacitorAdmobProvider: RewardedAdProvider = {
 
     return new Promise<RewardedAdResult>(async (resolve) => {
       let settled = false;
+      const targetAdId = getRewardedAdUnitId(placement);
 
       const finish = async (result: RewardedAdResult) => {
         if (settled) return;
@@ -114,6 +151,8 @@ export const capacitorAdmobProvider: RewardedAdProvider = {
         resumeMusic();
         await clearRewardListeners();
         setState(createEmptyAdState('capacitor-admob'));
+        // Warm up next ad in background — keeps subsequent taps instant
+        void ensurePreloaded(targetAdId);
         resolve(result);
       };
 
@@ -126,22 +165,24 @@ export const capacitorAdmobProvider: RewardedAdProvider = {
         }),
         AdMob.addListener(RewardAdPluginEvents.FailedToLoad, async (error) => {
           console.warn('[ads] Rewarded ad failed to load', error);
+          preloadedAdId = null;
           await finish({ rewarded: false });
         }),
         AdMob.addListener(RewardAdPluginEvents.FailedToShow, async (error) => {
           console.warn('[ads] Rewarded ad failed to show', error);
+          preloadedAdId = null;
           await finish({ rewarded: false });
         }),
       ]);
 
       try {
-        const options: RewardAdOptions = {
-          adId: getRewardedAdUnitId(placement),
-          isTesting: import.meta.env.VITE_ADMOB_TESTING === 'true',
-          npa: false,
-        };
+        const isReady = preloadedAdId === targetAdId || (await ensurePreloaded(targetAdId));
+        if (!isReady) {
+          await finish({ rewarded: false });
+          return;
+        }
 
-        await AdMob.prepareRewardVideoAd(options);
+        preloadedAdId = null; // ad is consumed by show
         pauseMusic();
         await AdMob.showRewardVideoAd();
       } catch (error) {
@@ -169,4 +210,8 @@ export const capacitorAdmobProvider: RewardedAdProvider = {
 
 export async function initializeCapacitorAdMob() {
   await ensureInitialized();
+  // Warm up first ad so the user's first tap doesn't wait on a network round-trip
+  if (Capacitor.isNativePlatform()) {
+    void ensurePreloaded(getRewardedAdUnitId('total_income_boost'));
+  }
 }
