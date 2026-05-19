@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { X, Lock, TrendingUp, CheckCircle2, Building2, Store, Star, Play } from 'lucide-react';
+import { X, Lock, TrendingUp, CheckCircle2, Building2, Store, Star } from 'lucide-react';
 import type { BusinessWithPlayerData } from '../types/game';
-import { resolveLocalAsset } from '../lib/localAssets';
+import { resolveLocalAsset, LOCAL_ICON_ASSETS } from '../lib/localAssets';
 import { formatMoneyFull, formatMoneyPerHour } from '../utils/money';
 import {
   BUSINESS_MAX_LEVEL,
@@ -433,7 +433,7 @@ export function BusinessModal({
                                       }`}
                                     >
                                       <span className="inline-flex items-center justify-center gap-1">
-                                        <Play className="h-3 w-3" />
+                                        <img src={LOCAL_ICON_ASSETS.ads} alt="Ad" className="h-3.5 w-3.5 object-contain" />
                                         {processingAction === 'discount' ? '...' : 'Ad'}
                                       </span>
                                     </button>

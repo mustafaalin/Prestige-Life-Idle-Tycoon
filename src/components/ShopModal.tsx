@@ -800,11 +800,13 @@ export function ShopModal({
                   {isClaimingEarnings ? '...' : 'Claim'}
                 </button>
                 <div className="relative flex-1">
-                  <img
-                    src={LOCAL_ICON_ASSETS.ads}
-                    alt="Ad"
-                    className="absolute -top-4 left-1/2 -translate-x-1/2 h-8 w-8 object-contain drop-shadow-sm z-10"
-                  />
+                  {canClaim && !isClaimingEarnings && (
+                    <img
+                      src={LOCAL_ICON_ASSETS.ads}
+                      alt="Ad"
+                      className="absolute -top-3.5 right-3 h-7 w-7 object-contain drop-shadow-sm z-10"
+                    />
+                  )}
                   <button
                     onClick={() => handleClaimMoney(true)}
                     disabled={!canClaim || isClaimingEarnings}
@@ -834,7 +836,8 @@ export function ShopModal({
                 {isWatchingAd ? (
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-400" />
                 ) : (
-                  <img src={LOCAL_ICON_ASSETS.ads} alt="Ad" className="h-16 w-16 object-contain" />
+                  <img src={LOCAL_ICON_ASSETS.moneyPack0} alt="Ad Reward" className="h-16 w-16 object-contain"
+                    onError={(e) => { (e.target as HTMLImageElement).src = LOCAL_ICON_ASSETS.money; }} />
                 )}
               </div>
 
@@ -845,129 +848,155 @@ export function ShopModal({
                 <p className="text-[9px] font-bold text-orange-500 mt-0.5">{formatTime(adCooldown)}</p>
               )}
 
-              <div className={`w-full rounded-xl py-2 mt-2 text-[11px] font-black transition-all ${
-                isWatchingAd || adCooldown > 0
-                  ? 'bg-slate-200 text-slate-400'
-                  : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-              }`}>
-                {isWatchingAd ? 'Watching...' : adCooldown > 0 ? 'Wait' : 'Free'}
+              <div className="relative w-full mt-2">
+                {!isWatchingAd && adCooldown <= 0 && (
+                  <img
+                    src={LOCAL_ICON_ASSETS.ads}
+                    alt="Ad"
+                    className="absolute -top-3.5 right-3 h-7 w-7 object-contain drop-shadow-sm z-10"
+                  />
+                )}
+                <div className={`w-full rounded-xl py-2 text-[11px] font-black transition-all ${
+                  isWatchingAd || adCooldown > 0
+                    ? 'bg-slate-200 text-slate-400'
+                    : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                }`}>
+                  {isWatchingAd ? 'Watching...' : adCooldown > 0 ? 'Wait' : 'Free'}
+                </div>
               </div>
             </button>
           </div>
 
-          <div
-            ref={moneySectionRef}
-            className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border-2 border-green-200 shadow-lg"
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <ShoppingBag className="w-5 h-5 text-green-600" />
-              <h3 className="text-base font-black text-green-700">Money Packages</h3>
+          {/* Money Packages */}
+          <div ref={moneySectionRef}>
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <img src={LOCAL_ICON_ASSETS.buyMoreMoney} alt="Money" className="h-5 w-5 object-contain" />
+              <h3 className="text-base font-black text-slate-800">Money Packages</h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              {moneyPackages.map((pkg) => (
-                <div
-                  key={pkg.id}
-                  className="bg-white rounded-xl p-3 border-2 border-green-100 hover:border-green-300 hover:shadow-lg transition-all relative"
-                >
-                  {pkg.is_popular && (
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">
-                      POPULAR
-                    </div>
-                  )}
-                  {pkg.is_best_value && (
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">
-                      BEST VALUE
-                    </div>
-                  )}
-                  <img
-                    src={LOCAL_ICON_ASSETS.buyMoreMoney}
-                    alt="Money"
-                    className="w-12 h-12 mx-auto mb-2 object-contain"
-                  />
-                  <p className="text-lg font-black text-green-600 mb-2">
-                    {formatMoneyFull(pkg.calculated_amount)}
-                  </p>
-                  <div className="relative mb-2">
-                    {pkg.on_sale && (
-                      <span className="absolute -top-2 -left-1 bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">
-                        SALE
-                      </span>
-                    )}
-                    <div className={`rounded-lg py-1 px-2 text-xs font-bold text-center ${pkg.on_sale ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'}`}>
-                      {pkg.on_sale && (
-                        <span className="line-through text-slate-400 mr-1">${Number(pkg.price_usd).toFixed(2)}</span>
-                      )}
-                      {pkg.display_price ?? `$${Number(pkg.price_usd).toFixed(2)}`}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleSelectMoneyPackage(pkg)}
-                    disabled={isProcessingPurchase}
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg py-2 text-sm font-bold hover:from-green-600 hover:to-emerald-600 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-default"
+            <div className="grid grid-cols-2 gap-3">
+              {moneyPackages.map((pkg) => {
+                const tierIcon = {
+                  'money-pack-1': LOCAL_ICON_ASSETS.moneyPack1,
+                  'money-pack-2': LOCAL_ICON_ASSETS.moneyPack2,
+                  'money-pack-3': LOCAL_ICON_ASSETS.moneyPack3,
+                  'money-pack-4': LOCAL_ICON_ASSETS.moneyPack4,
+                }[pkg.id] ?? LOCAL_ICON_ASSETS.buyMoreMoney;
+
+                return (
+                  <div
+                    key={pkg.id}
+                    className="relative bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden flex flex-col"
                   >
-                    {isProcessingPurchase ? '...' : 'Buy'}
-                  </button>
-                </div>
-              ))}
+                    {(pkg.is_popular || pkg.is_best_value) && (
+                      <div className={`absolute top-2 right-2 text-white text-[9px] font-black px-2 py-0.5 rounded-full ${
+                        pkg.is_best_value
+                          ? 'bg-gradient-to-r from-violet-500 to-indigo-500'
+                          : 'bg-gradient-to-r from-orange-500 to-amber-400'
+                      }`}>
+                        {pkg.is_best_value ? 'BEST VALUE' : 'POPULAR'}
+                      </div>
+                    )}
+
+                    <div className="flex flex-col items-center pt-5 pb-3 px-3 flex-1">
+                      <img
+                        src={tierIcon}
+                        alt="Money"
+                        className="h-16 w-16 object-contain mb-2 drop-shadow-md"
+                        onError={(e) => { (e.target as HTMLImageElement).src = LOCAL_ICON_ASSETS.buyMoreMoney; }}
+                      />
+                      <p className="text-xl font-black text-slate-900 leading-tight">
+                        {formatMoneyFull(pkg.calculated_amount)}
+                      </p>
+                    </div>
+
+                    {pkg.on_sale && (
+                      <p className="text-center text-[10px] text-slate-400 line-through pb-0.5">
+                        ${Number(pkg.price_usd).toFixed(2)}
+                      </p>
+                    )}
+
+                    <button
+                      onClick={() => handleSelectMoneyPackage(pkg)}
+                      disabled={isProcessingPurchase}
+                      className={`mx-3 mb-3 rounded-xl py-2.5 font-black text-sm transition-all active:scale-[0.98] disabled:opacity-60 shadow-sm ${
+                        pkg.on_sale
+                          ? 'bg-gradient-to-r from-red-500 to-rose-400 text-white'
+                          : 'bg-gradient-to-r from-amber-400 to-orange-400 text-slate-900'
+                      }`}
+                    >
+                      {isProcessingPurchase ? '...' : pkg.display_price ?? `$${Number(pkg.price_usd).toFixed(2)}`}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          <div
-            ref={gemSectionRef}
-            className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-5 border-2 border-purple-200 shadow-lg"
-          >
-            <div className="flex items-center gap-2 mb-3">
+          {/* Gem Packages */}
+          <div ref={gemSectionRef}>
+            <div className="flex items-center gap-2 mb-3 px-1">
               <img src={LOCAL_ICON_ASSETS.gem} alt="Gems" className="h-5 w-5 object-contain" />
-              <h3 className="text-base font-black text-purple-700">Gem Packages</h3>
+              <h3 className="text-base font-black text-slate-800">Gem Packages</h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              {gemPackages.map((pkg) => (
+            <div className="grid grid-cols-2 gap-3">
+              {gemPackages.map((pkg) => {
+                const tierIcon = {
+                  'gem-pack-1': LOCAL_ICON_ASSETS.gemPack1,
+                  'gem-pack-2': LOCAL_ICON_ASSETS.gemPack2,
+                  'gem-pack-3': LOCAL_ICON_ASSETS.gemPack3,
+                  'gem-pack-4': LOCAL_ICON_ASSETS.gemPack4,
+                }[pkg.id] ?? LOCAL_ICON_ASSETS.gemBox;
+
+                return (
                 <div
                   key={pkg.id}
-                  className="bg-white rounded-xl p-3 border-2 border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all relative"
+                  className="relative bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden flex flex-col"
                 >
-                  {pkg.is_popular && (
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">
-                      POPULAR
+                  {(pkg.is_popular || pkg.is_best_value) && (
+                    <div className={`absolute top-2 right-2 text-white text-[9px] font-black px-2 py-0.5 rounded-full ${
+                      pkg.is_best_value
+                        ? 'bg-gradient-to-r from-violet-500 to-indigo-500'
+                        : 'bg-gradient-to-r from-orange-500 to-amber-400'
+                    }`}>
+                      {pkg.is_best_value ? 'BEST VALUE' : 'POPULAR'}
                     </div>
                   )}
-                  {pkg.is_best_value && (
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">
-                      BEST VALUE
-                    </div>
-                  )}
-                  <img
-                    src={LOCAL_ICON_ASSETS.gemBox}
-                    alt="Gems"
-                    className="w-12 h-12 mx-auto mb-2 object-contain"
-                  />
-                  <p className="text-lg font-black text-purple-600 mb-2">
-                    {pkg.gem_amount} Gems
-                  </p>
-                  <div className="relative mb-2">
-                    {pkg.on_sale && (
-                      <span className="absolute -top-2 -left-1 bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">
-                        SALE
-                      </span>
-                    )}
-                    <div className={`rounded-lg py-1 px-2 text-xs font-bold text-center ${pkg.on_sale ? 'bg-red-50 text-red-600' : 'bg-purple-50 text-purple-700'}`}>
-                      {pkg.on_sale && (
-                        <span className="line-through text-slate-400 mr-1">${Number(pkg.price_usd).toFixed(2)}</span>
-                      )}
-                      {pkg.display_price ?? `$${Number(pkg.price_usd).toFixed(2)}`}
-                    </div>
+
+                  <div className="flex flex-col items-center pt-5 pb-3 px-3 flex-1">
+                    <img
+                      src={tierIcon}
+                      alt="Gems"
+                      className="h-16 w-16 object-contain mb-2 drop-shadow-md"
+                      onError={(e) => { (e.target as HTMLImageElement).src = LOCAL_ICON_ASSETS.gemBox; }}
+                    />
+                    <p className="text-xl font-black text-slate-900 leading-tight">
+                      {pkg.gem_amount}
+                    </p>
+                    <p className="text-[11px] font-bold text-violet-500">Gems</p>
                   </div>
+
+                  {pkg.on_sale && (
+                    <p className="text-center text-[10px] text-slate-400 line-through pb-0.5">
+                      ${Number(pkg.price_usd).toFixed(2)}
+                    </p>
+                  )}
+
                   <button
                     onClick={() => handleSelectGemPackage(pkg)}
                     disabled={isProcessingPurchase}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg py-2 text-sm font-bold hover:from-purple-600 hover:to-pink-600 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-default"
+                    className={`mx-3 mb-3 rounded-xl py-2.5 font-black text-sm transition-all active:scale-[0.98] disabled:opacity-60 shadow-sm ${
+                      pkg.on_sale
+                        ? 'bg-gradient-to-r from-red-500 to-rose-400 text-white'
+                        : 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white'
+                    }`}
                   >
-                    {isProcessingPurchase ? '...' : 'Buy'}
+                    {isProcessingPurchase ? '...' : pkg.display_price ?? `$${Number(pkg.price_usd).toFixed(2)}`}
                   </button>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
             </>

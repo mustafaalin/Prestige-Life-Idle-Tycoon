@@ -102,11 +102,13 @@ export default function OfflineEarningsModal({
             </button>
 
             <div className="relative">
-              <img
-                src={LOCAL_ICON_ASSETS.ads}
-                alt="Ad"
-                className="absolute -top-4 left-1/2 -translate-x-1/2 h-8 w-8 object-contain drop-shadow-sm z-10"
-              />
+              {!isWatchingAd && !isClaiming && (
+                <img
+                  src={LOCAL_ICON_ASSETS.ads}
+                  alt="Ad"
+                  className="absolute -top-3.5 right-3 h-7 w-7 object-contain drop-shadow-sm z-10"
+                />
+              )}
               <button
                 onClick={onClaimDouble}
                 disabled={isClaiming || isWatchingAd}

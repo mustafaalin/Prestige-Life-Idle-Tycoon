@@ -21,9 +21,20 @@ export const LOCAL_ICON_ASSETS = {
   business: '/assets/icons/business.png',
   investments: '/assets/icons/investments.png',
   stuff: '/assets/icons/stuff.png',
-  buyMoreMoney: '/assets/icons/buy-more-money.png',
-  gemBox: '/assets/icons/gem-box.png',
+  buyMoreMoney: '/assets/icons/money-pack-1.png',
+  gemBox: '/assets/icons/gem.png',
   ads: '/assets/icons/ads.png',
+  // Money pack tier icons
+  moneyPack0: '/assets/icons/money.png',
+  moneyPack1: '/assets/icons/money-pack-1.png',
+  moneyPack2: '/assets/icons/money-pack-2.png',
+  moneyPack3: '/assets/icons/money-pack-3.png',
+  moneyPack4: '/assets/icons/money-pack-4.png',
+  // Gem pack tier icons
+  gemPack1: '/assets/icons/gem-pack-1.png',
+  gemPack2: '/assets/icons/gem-pack-2.png',
+  gemPack3: '/assets/icons/gem-pack-3.png',
+  gemPack4: '/assets/icons/gem-pack-4.png',
 } as const;
 
 export const LOCAL_PROFILE_PLACEHOLDER = LOCAL_ASSET_PATHS.profile;
