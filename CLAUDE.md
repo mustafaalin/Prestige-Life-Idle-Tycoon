@@ -71,6 +71,104 @@ All game state lives in `GameState` (`src/types/game.ts`). The central hook is `
 - Reward animations (`GemRewardAnimation`, `MoneyRewardAnimation`, `StatRewardAnimation`) must render **above** modals, not behind them.
 - Do not add global loading spinners that wipe content; prefer skeleton or in-place loading.
 
+## Design System
+
+### Color Palette
+
+| Role | Token | Usage |
+|---|---|---|
+| Primary / navigation | `violet-500 → indigo-500` | Tab bars, primary buttons, modal headers |
+| Positive / income | `emerald-500` | Buy buttons, income indicators, success states |
+| Negative / expense | `rose-500 → rose-600` | Sell buttons, expense indicators, danger actions |
+| Boost / active | `amber-400` | Active boost timers, quest rewards, prestige |
+| Ad button | `orange-500` | "Free / Watch Ad" buttons everywhere |
+| Gem / premium | `violet-600` | Gem buttons, gem prices, premium features |
+| Health | `lime-400 → lime-500` | Health bar, health boost |
+| Happiness | `amber-300 → orange-400` | Happiness bar, happiness boost |
+| Neutral text | `slate-900 / slate-800 / slate-500 / slate-400` | Body text hierarchy |
+| Card background | `white` | All modal cards |
+| Subtle background | `slate-50 / slate-100` | Section backgrounds, cancel buttons |
+
+### Gradients (recurring patterns)
+```
+Primary CTA:      from-violet-500 to-indigo-500
+Income/Buy:       from-emerald-500 to-green-500
+Danger/Sell:      from-rose-500 to-rose-600
+Boost (ad):       from-amber-500 to-orange-500
+Health bar:       from-lime-400 to-lime-500
+Happiness bar:    from-amber-300 to-orange-400
+```
+
+### Border Radius
+| Context | Token |
+|---|---|
+| Full-screen modal card | `rounded-[28px]` |
+| Large content cards | `rounded-[22px]` or `rounded-3xl` |
+| Standard cards | `rounded-2xl` |
+| Buttons | `rounded-2xl` (primary) / `rounded-xl` (secondary) |
+| Pills / badges | `rounded-full` |
+| Small chips | `rounded-lg` |
+
+### Modal Patterns
+- **Overlay backdrop:** `bg-black/35` — never go darker; `bg-black/90` is too aggressive
+- **Full-screen modal:** `fixed inset-x-0 z-[50]` starting at `top: 88px` (below header)
+- **Bottom sheet (confirm dialogs):** `fixed inset-0 bg-black/35 flex items-end`; OR `absolute inset-0` inside the parent modal's content area to pin it below the tabs
+- **Dialog card:** `bg-white rounded-[28px] shadow-2xl`
+- **Card header separator:** `border-b border-slate-100` or `border-b border-violet-100`
+
+### Buttons
+```
+Primary CTA:    rounded-2xl py-3.5 font-black text-sm text-white bg-gradient shadow-lg active:scale-[0.98]
+Secondary:      rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 active:scale-[0.98]
+Destructive:    bg-gradient-to-r from-rose-500 to-rose-600
+Icon button:    p-1.5 rounded-full hover:bg-*/10 active:scale-90
+```
+- Always `transition-all` on interactive elements
+- Press feedback: `active:scale-95` for large buttons, `active:scale-[0.98]` for cards/rows, `active:scale-90` for icon buttons
+- Disabled state: `disabled:opacity-50` (never hide disabled buttons entirely)
+
+### Typography
+```
+Modal title:       text-xl font-black text-slate-900
+Section label:     text-[10px] font-black uppercase tracking-widest text-slate-400
+Body:              text-sm font-bold text-slate-600
+Subtext:           text-[11px] font-semibold text-slate-500
+Price / value:     text-lg font-black  (color depends on positive/negative)
+Badge / chip:      text-[10px] font-black
+```
+
+### Z-Index Layering
+```
+50   Full-screen tab modals (BusinessModal, InvestmentsModal, etc.)
+60   IAP confirm modal
+70   Selection warning overlays
+90–100 Reward animations
+110  In-modal confirm overlay (car purchase)
+130–160 Toast / notification overlays
+200  Top-level system dialogs
+```
+
+### Spacing Conventions
+- Modal inner padding: `px-5 pb-5 pt-3`
+- Card padding: `p-3` or `p-4`
+- Button gap in a row: `gap-2.5`
+- Section gap: `gap-3` or `gap-4`
+- Header height assumed: `88px` (used for `top` positioning of modals and ad button)
+
+### Responsive Breakpoint
+- `max-[500px]:` — elements shrink below 500px viewport width (header icons, health/happiness bars)
+
+### Sound Effects
+| Event | SFX key |
+|---|---|
+| Money / coin collected | `coin` |
+| Gem collected | `gem` |
+| Purchase (new item bought) | `purchase` |
+| Upgrade / job change / outfit select | `levelUp` |
+| Button click (minor) | `click` |
+
+Always play a sound for meaningful player actions. Cooldown / disabled states → no sound.
+
 ### Known Technical Debt
 
 - Manager job category is a placeholder — no real data yet.
