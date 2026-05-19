@@ -35,24 +35,24 @@ export function BoostAdButton({
   const canAffordGem = onGem && gemCost !== undefined && gems !== undefined && gems >= gemCost;
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">⚡ 2× · 1hr</span>
-      <div className="flex overflow-hidden rounded-xl border border-amber-400/40">
+    <div className="flex flex-col items-center gap-1.5">
+      <span className="text-[10px] font-black uppercase tracking-widest text-amber-700">⚡ 2× Boost · 1hr</span>
+      <div className="flex overflow-hidden rounded-xl border border-slate-200 shadow-sm">
         <button
           onClick={onWatch}
           disabled={disabled || loading}
-          className="flex items-center gap-1 bg-amber-500/20 px-3 py-1.5 text-[11px] font-black text-amber-200 transition-all active:scale-95 disabled:opacity-40 hover:bg-amber-500/30"
+          className="flex items-center gap-1.5 bg-orange-500 px-3 py-2 text-[11px] font-black text-white transition-all active:scale-95 disabled:opacity-50 hover:bg-orange-600"
         >
           <img src={LOCAL_ICON_ASSETS.ads} alt="Ad" className="h-4 w-4 object-contain" />
-          <span>{loading ? '...' : 'Free'}</span>
+          <span>{loading ? '...' : 'Watch Ad'}</span>
         </button>
         {onGem && gemCost !== undefined && (
           <>
-            <div className="w-px bg-amber-400/30" />
+            <div className="w-px bg-slate-200" />
             <button
               onClick={onGem}
               disabled={!canAffordGem}
-              className="flex items-center gap-1 bg-violet-500/20 px-3 py-1.5 text-[11px] font-black text-violet-300 transition-all active:scale-95 disabled:opacity-40 hover:bg-violet-500/30"
+              className="flex items-center gap-1.5 bg-violet-600 px-3 py-2 text-[11px] font-black text-white transition-all active:scale-95 disabled:opacity-40 hover:bg-violet-700"
             >
               <img src={LOCAL_ICON_ASSETS.gem} alt="gem" className="h-3.5 w-3.5 object-contain" />
               <span>{gemCost}</span>
