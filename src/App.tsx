@@ -1195,6 +1195,7 @@ export default function App() {
         selectedOutfitId={gameState.profile.selected_outfit_id}
         onOutfitChange={(outfitId, moneySpent) => {
           gameState.updateOutfitLocally(outfitId, moneySpent ?? 0);
+          playSfx(moneySpent ? 'purchase' : 'levelUp');
         }}
       />
 

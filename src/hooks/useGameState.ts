@@ -29,6 +29,7 @@ import { useRewardActions } from './useRewardActions';
 import { useStuffActions } from './useStuffActions';
 import { useWellbeingActions } from './useWellbeingActions';
 import { useInvestmentActions } from './useInvestmentActions';
+import { LOCAL_OUTFITS } from '../data/local/outfits';
 import { useBoosts } from './useBoosts';
 import * as profileService from '../services/profileService';
 
@@ -478,14 +479,45 @@ export function useGameState(deviceId: string, userId: string | null) {
   const updateOutfitLocally = useCallback((outfitId: string, moneySpent: number) => {
     setGameState((prev) => {
       if (!prev.profile) return prev;
+
       const updatedProfile = {
         ...prev.profile,
         selected_outfit_id: outfitId,
         total_money: Math.max(0, Number(prev.profile.total_money) - moneySpent),
       };
-      return { ...prev, profile: updatedProfile };
+
+      // Immediately resolve the outfit object so the character display updates at once
+      const newSelectedOutfit = LOCAL_OUTFITS.find((o) => o.id === outfitId) ?? prev.selectedOutfit;
+
+      // If this was a purchase (moneySpent > 0), add to playerOutfits so it shows as owned
+      const alreadyOwned = prev.playerOutfits.some((o) => o.outfit_id === outfitId);
+      const updatedPlayerOutfits =
+        alreadyOwned || moneySpent === 0
+          ? prev.playerOutfits
+          : [
+              ...prev.playerOutfits,
+              {
+                id: `local-${outfitId}-${Date.now()}`,
+                player_id: updatedProfile.id,
+                outfit_id: outfitId,
+                is_owned: true,
+                is_unlocked: true,
+                unlocked_at: new Date().toISOString(),
+                purchased_at: new Date().toISOString(),
+                created_at: new Date().toISOString(),
+              } as (typeof prev.playerOutfits)[number],
+            ];
+
+      saveToLocalStorage({ profile: updatedProfile, playerOutfits: updatedPlayerOutfits });
+
+      return {
+        ...prev,
+        profile: updatedProfile,
+        selectedOutfit: newSelectedOutfit,
+        playerOutfits: updatedPlayerOutfits,
+      };
     });
-  }, [setGameState]);
+  }, [saveToLocalStorage, setGameState]);
 
   return {
     ...gameState,
