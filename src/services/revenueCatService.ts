@@ -2,24 +2,30 @@ import { Capacitor } from '@capacitor/core';
 import { Purchases, LOG_LEVEL, PRODUCT_CATEGORY } from '@revenuecat/purchases-capacitor';
 
 let initialized = false;
+let initPromise: Promise<void> | null = null;
 
 export async function initializeRevenueCat(appUserId: string | null): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
   if (initialized) return;
+  if (initPromise) return initPromise;
 
-  const platform = Capacitor.getPlatform();
-  const apiKey = platform === 'ios'
-    ? import.meta.env.VITE_REVENUECAT_API_KEY_IOS
-    : import.meta.env.VITE_REVENUECAT_API_KEY_ANDROID;
+  initPromise = (async () => {
+    const platform = Capacitor.getPlatform();
+    const apiKey = platform === 'ios'
+      ? import.meta.env.VITE_REVENUECAT_API_KEY_IOS
+      : import.meta.env.VITE_REVENUECAT_API_KEY_ANDROID;
 
-  if (!apiKey || apiKey === 'appl_xxxx' || apiKey === 'goog_xxxx') {
-    console.warn('[RevenueCat] API key henüz tanımlanmadı, atlanıyor.');
-    return;
-  }
+    if (!apiKey || apiKey === 'appl_xxxx' || apiKey === 'goog_xxxx') {
+      console.warn('[RevenueCat] API key henüz tanımlanmadı, atlanıyor.');
+      return;
+    }
 
-  await Purchases.setLogLevel({ level: LOG_LEVEL.ERROR });
-  await Purchases.configure({ apiKey, appUserID: appUserId ?? undefined });
-  initialized = true;
+    await Purchases.setLogLevel({ level: LOG_LEVEL.ERROR });
+    await Purchases.configure({ apiKey, appUserID: appUserId ?? undefined });
+    initialized = true;
+  })().finally(() => { initPromise = null; });
+
+  return initPromise;
 }
 
 export async function getOfferings() {
@@ -39,6 +45,9 @@ export interface StoreProductPrice {
 export async function fetchProductPrices(
   productIds: string[]
 ): Promise<Record<string, StoreProductPrice>> {
+  if (!Capacitor.isNativePlatform()) return {};
+  // Init devam ediyorsa tamamlanmasını bekle
+  if (!initialized && initPromise) await initPromise;
   if (!initialized) return {};
   try {
     const { products } = await Purchases.getProducts({
