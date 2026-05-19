@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   calculatePrestigeFromQuestProgress,
   createInitialQuestProgress,
-  getQuestChapterByIndex,
+  QUEST_CHAPTERS,
 } from '../data/local/quests';
 import {
   DEFAULT_HAPPINESS,
@@ -497,7 +497,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     hasClaimableQuestRewards: gameState.questProgress.claimableQuestIds.length > 0,
     claimableChapterReward:
       gameState.questProgress.claimableChapterRewardId
-        ? getQuestChapterByIndex(gameState.questProgress.unlockedChapterIndex)
+        ? (QUEST_CHAPTERS.find(c => c.id === gameState.questProgress.claimableChapterRewardId) ?? null)
         : null,
     claimQuestReward,
     claimQuestChapterReward,

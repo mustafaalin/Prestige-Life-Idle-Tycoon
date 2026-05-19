@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import { getQuestChapterByIndex, LOCAL_QUESTS } from '../data/local/quests';
+import { QUEST_CHAPTERS, LOCAL_QUESTS } from '../data/local/quests';
 import type { GameState, PlayerProfile, QuestProgress } from '../types/game';
 import { syncQuestPrestige } from '../utils/game/gameStateHelpers';
 
@@ -69,12 +69,11 @@ export function useQuestActions({
 
   const claimQuestChapterReward = useCallback(async () => {
     const claimableChapterRewardId = gameState.questProgress.claimableChapterRewardId;
-    const chapterIndex = gameState.questProgress.unlockedChapterIndex;
-    const chapter = getQuestChapterByIndex(chapterIndex);
+    if (!gameState.profile || !claimableChapterRewardId) return null;
 
-    if (!gameState.profile || !claimableChapterRewardId || !chapter || chapter.id !== claimableChapterRewardId) {
-      return null;
-    }
+    // Find by ID — unlockedChapterIndex is already incremented at detection time
+    const chapter = QUEST_CHAPTERS.find(c => c.id === claimableChapterRewardId);
+    if (!chapter) return null;
 
     const rewardGems = chapter.reward_gems ?? 0;
     const nextQuestProgress: QuestProgress = {

@@ -218,7 +218,7 @@ export function QuestListModal({
                 </p>
               ) : isSelectedChapterRewardClaimable ? (
                 <p className="text-[11px] font-bold text-emerald-700">
-                  All quests finished. Claim the prestige reward to unlock the next chapter.
+                  All quests finished! Claim your prestige reward.
                 </p>
               ) : isSelectedChapterComplete ? (
                 <p className="text-[11px] font-bold text-amber-700">
