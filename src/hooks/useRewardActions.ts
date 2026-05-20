@@ -115,6 +115,7 @@ export function useRewardActions({
     }));
 
     saveToLocalStorage({ profile: updatedProfile });
+    localStorage.removeItem('pending_offline_earnings');
     return true;
   }, [gameStateRef, saveToLocalStorage, setGameState]);
 

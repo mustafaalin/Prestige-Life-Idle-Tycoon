@@ -250,22 +250,33 @@ export function useGameState(deviceId: string, userId: string | null) {
         last_played_at: resumedAt,
       });
 
+      // Persist the offline reward so it survives app kills before claiming
+      let effectiveOfflineReward = offlineReward && offlineReward.amount > 0 ? offlineReward : null;
+      if (effectiveOfflineReward) {
+        try {
+          const raw = localStorage.getItem('pending_offline_earnings');
+          const savedPending = raw ? JSON.parse(raw) : null;
+          if (savedPending && typeof savedPending.amount === 'number' && savedPending.amount > 0) {
+            effectiveOfflineReward = {
+              amount: effectiveOfflineReward.amount + savedPending.amount,
+              minutes: effectiveOfflineReward.minutes + savedPending.minutes,
+              appliedMinutes: effectiveOfflineReward.appliedMinutes + savedPending.appliedMinutes,
+            };
+          }
+          localStorage.setItem('pending_offline_earnings', JSON.stringify(effectiveOfflineReward));
+        } catch { /* ignore */ }
+      }
+
       hiddenAtRef.current = null;
       setGameState((prev) => ({
         ...prev,
         profile: updatedProfile,
-        offlineEarnings:
-          offlineReward && offlineReward.amount > 0
-            ? offlineReward
-            : prev.offlineEarnings,
+        offlineEarnings: effectiveOfflineReward ?? prev.offlineEarnings,
       }));
       gameStateRef.current = {
         ...gameStateRef.current,
         profile: updatedProfile,
-        offlineEarnings:
-          offlineReward && offlineReward.amount > 0
-            ? offlineReward
-            : gameStateRef.current.offlineEarnings,
+        offlineEarnings: effectiveOfflineReward ?? gameStateRef.current.offlineEarnings,
       };
       saveToLocalStorage({ profile: updatedProfile });
     };

@@ -335,6 +335,20 @@ export function useGameLoader({
       );
 
       if (currentProfile && shouldCalculateOfflineEarnings) {
+        // Restore any earnings that were calculated but not claimed in a previous session
+        let savedPending: { amount: number; minutes: number; appliedMinutes: number } | null = null;
+        try {
+          const raw = localStorage.getItem('pending_offline_earnings');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed.amount === 'number' && parsed.amount > 0) {
+              savedPending = parsed;
+            }
+          }
+        } catch {
+          localStorage.removeItem('pending_offline_earnings');
+        }
+
         offlineEarnings = calculateOfflineEarnings(currentProfile);
 
         // Wellbeing (health/happiness) is intentionally frozen while offline —
@@ -346,6 +360,24 @@ export function useGameLoader({
             last_played_at: nowIso,
           });
           saveToLocalStorage({ profile: currentProfile });
+        }
+
+        // Combine new earnings with any unclaimed earnings from previous sessions
+        if (savedPending && savedPending.amount > 0) {
+          offlineEarnings = offlineEarnings
+            ? {
+                amount: offlineEarnings.amount + savedPending.amount,
+                minutes: offlineEarnings.minutes + savedPending.minutes,
+                appliedMinutes: offlineEarnings.appliedMinutes + savedPending.appliedMinutes,
+              }
+            : savedPending;
+        }
+
+        // Persist so earnings survive app kills before the user claims them
+        if (offlineEarnings && offlineEarnings.amount > 0) {
+          localStorage.setItem('pending_offline_earnings', JSON.stringify(offlineEarnings));
+        } else {
+          localStorage.removeItem('pending_offline_earnings');
         }
       }
 
