@@ -140,6 +140,8 @@ export default function App() {
   const currentHouseImageRef = useRef<string | undefined>(undefined);
   const initialHouseSynced = useRef(false);
   const houseTransitionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [introPhase, setIntroPhase] = useState<'pending' | 'house' | 'character' | 'car' | 'done'>('pending');
+  const introStarted = useRef(false);
   const [showIncomeBreakdown, setShowIncomeBreakdown] = useState(false);
   const [showQuestList, setShowQuestList] = useState(false);
 
@@ -196,7 +198,7 @@ export default function App() {
     currentCarImageRef.current = carImageUrl;
     if (!initialCarSynced.current) {
       initialCarSynced.current = true;
-      setDisplayedCarImage(carImageUrl);
+      // intro sequence sets displayedCarImage at the right time
     } else if (gameState.profile?.selected_car_id === null) {
       setDisplayedCarImage(undefined);
     }
@@ -210,9 +212,33 @@ export default function App() {
     currentHouseImageRef.current = houseImageUrl;
     if (!initialHouseSynced.current) {
       initialHouseSynced.current = true;
-      setDisplayedHouseImage(houseImageUrl);
+      // intro sequence sets displayedHouseImage at the right time
     }
   }, [gameState.profile?.selected_house_id, gameState.houses]);
+
+  // Intro sequence: house → character → car → done (offline modal)
+  useEffect(() => {
+    if (gameState.loading || introStarted.current) return;
+    introStarted.current = true;
+
+    const houseImg = currentHouseImageRef.current;
+    if (houseImg) setDisplayedHouseImage(houseImg);
+    setIntroPhase('house');
+
+    const t1 = setTimeout(() => setIntroPhase('character'), 600);
+
+    const t2 = setTimeout(() => {
+      const carImg = currentCarImageRef.current;
+      if (carImg) {
+        setIntroPhase('car');
+        setDisplayedCarImage(carImg);
+      }
+    }, 1100);
+
+    const t3 = setTimeout(() => setIntroPhase('done'), 1650);
+
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [gameState.loading]);
 
   const openQuestTarget = (quest: (typeof LOCAL_QUESTS)[number]) => {
     if (quest.target_screen === 'shop') {
@@ -992,7 +1018,9 @@ export default function App() {
       )}
       {displayedHouseImage ? (
         <div
-          className={`fixed inset-0 bg-cover bg-center z-0 opacity-65 ${houseAnimState === 'transitioning' ? 'animate-house-slide-in' : ''}`}
+          className={`fixed inset-0 bg-cover bg-center z-0 opacity-65 ${
+            houseAnimState === 'transitioning' || introPhase === 'house' ? 'animate-house-slide-in' : ''
+          }`}
           style={{ backgroundImage: `url(${displayedHouseImage})` }}
         />
       ) : (
@@ -1095,6 +1123,7 @@ export default function App() {
           outfitImage={gameState.selectedOutfit?.image_url}
           celebrationTrigger={celebrationTrigger}
           onClickCharacter={gameState.handleClick}
+          charIntroVisible={introPhase !== 'pending' && introPhase !== 'house'}
         />
       </main>
 
@@ -1430,7 +1459,7 @@ export default function App() {
         netIncome={gameState.boostedHourlyIncome}
       />
 
-      {gameState.offlineEarnings && gameState.offlineEarnings.amount > 0 && (
+      {introPhase === 'done' && gameState.offlineEarnings && gameState.offlineEarnings.amount > 0 && (
         <OfflineEarningsModal
           isOpen={true}
           onClaim={handleAnimatedOfflineClaim}

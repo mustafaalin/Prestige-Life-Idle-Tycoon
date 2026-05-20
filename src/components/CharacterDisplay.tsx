@@ -8,6 +8,7 @@ interface CharacterDisplayProps {
   outfitImage?: string;
   celebrationTrigger?: number;
   onClickCharacter: () => number | undefined;
+  charIntroVisible?: boolean;
 }
 
 export function CharacterDisplay({
@@ -17,9 +18,23 @@ export function CharacterDisplay({
   outfitImage,
   celebrationTrigger,
   onClickCharacter,
+  charIntroVisible = true,
 }: CharacterDisplayProps) {
   const [isCelebrating, setIsCelebrating] = useState(false);
   const celebrationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Character intro animation
+  const [charIntroState, setCharIntroState] = useState<'hidden' | 'entering' | 'visible'>(
+    charIntroVisible ? 'visible' : 'hidden'
+  );
+  const charIntroPlayed = useRef(charIntroVisible);
+  useEffect(() => {
+    if (!charIntroVisible || charIntroPlayed.current) return;
+    charIntroPlayed.current = true;
+    setCharIntroState('entering');
+    const t = setTimeout(() => setCharIntroState('visible'), 500);
+    return () => clearTimeout(t);
+  }, [charIntroVisible]);
 
   // Car slide transition state
   const [visibleCar, setVisibleCar] = useState<string | null>(carImage ? resolveLocalAsset(carImage, 'car') : null);
@@ -89,7 +104,10 @@ export function CharacterDisplay({
       )}
 
       {/* CHARACTER */}
-      <div className="absolute bottom-12 right-0 z-20 w-1/3 flex justify-end pr-2">
+      <div className={`absolute bottom-12 right-0 z-20 w-1/3 flex justify-end pr-2 ${
+        charIntroState === 'hidden' ? 'opacity-0 pointer-events-none' :
+        charIntroState === 'entering' ? 'animate-character-intro' : ''
+      }`}>
         <div className="select-none translate-x-6 min-[420px]:scale-90 min-[420px]:origin-bottom">
           <div
             className={`relative w-[190px] h-[330px] [@media(min-width:420px)]:w-[230px] [@media(min-width:420px)]:h-[400px] [@media(min-width:420px)_and_(min-height:700px)]:w-72 [@media(min-width:420px)_and_(min-height:700px)]:h-[500px] [@media(min-width:640px)_and_(min-height:700px)]:w-80 [@media(min-width:640px)_and_(min-height:700px)]:h-[550px] ${
