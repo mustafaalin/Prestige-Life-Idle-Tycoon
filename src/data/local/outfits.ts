@@ -35,7 +35,7 @@ export const LOCAL_OUTFITS: CharacterOutfit[] = rows.map(
     code,
     name,
     description: null,
-    image_url: `/assets/outfits/${code}.png`,
+    image_url: `/assets/outfits/${code}-1.png`,
     price,
     prestige_points,
     unlock_order,

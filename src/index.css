@@ -34,32 +34,19 @@
     }
   }
 
-  /* Squash & stretch jump: anticipation → stretch up → land squash → settle */
-  @keyframes characterCelebrate {
-    0%   { transform: translateY(0)    scaleX(1)    scaleY(1); }
-    10%  { transform: translateY(6px)  scaleX(1.15) scaleY(0.85); }
-    26%  { transform: translateY(-52px) scaleX(0.87) scaleY(1.22); }
-    42%  { transform: translateY(-62px) scaleX(0.90) scaleY(1.18); }
-    56%  { transform: translateY(0)    scaleX(1.14) scaleY(0.86); }
-    66%  { transform: translateY(-24px) scaleX(0.94) scaleY(1.08); }
-    76%  { transform: translateY(0)    scaleX(1.07) scaleY(0.95); }
-    88%  { transform: translateY(-7px)  scaleX(1)    scaleY(1.03); }
-    100% { transform: translateY(0)    scaleX(1)    scaleY(1); }
+  /* Celebrate pose: jump up, hold, land softly */
+  @keyframes celebrateJump {
+    0%   { transform: translateY(0);    opacity: 0; }
+    8%   { transform: translateY(-28px); opacity: 1; }
+    35%  { transform: translateY(-22px); opacity: 1; }
+    65%  { transform: translateY(-22px); opacity: 1; }
+    85%  { transform: translateY(-10px); opacity: 0.6; }
+    100% { transform: translateY(0);    opacity: 0; }
   }
 
-  .animate-character-celebrate {
-    animation: characterCelebrate 1.1s ease-in-out forwards;
+  .animate-celebrate-jump {
+    animation: celebrateJump 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     transform-origin: bottom center;
-  }
-
-  @keyframes sparkleBurst {
-    0%   { transform: translate(-50%, -50%) rotate(var(--spark-deg)) translateY(0)     scale(1.2); opacity: 1; }
-    60%  { opacity: 1; }
-    100% { transform: translate(-50%, -50%) rotate(var(--spark-deg)) translateY(-88px) scale(0);   opacity: 0; }
-  }
-
-  .animate-sparkle {
-    animation: sparkleBurst 0.85s ease-out forwards;
   }
 
   @keyframes carSlideIn {

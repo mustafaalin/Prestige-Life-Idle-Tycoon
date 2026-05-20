@@ -11,6 +11,10 @@ interface CharacterDisplayProps {
   charIntroVisible?: boolean;
 }
 
+function getCelebrateImageUrl(idleUrl: string): string {
+  return idleUrl.replace(/-1\.(png|webp)$/i, '-2.$1');
+}
+
 export function CharacterDisplay({
   characterImage,
   characterName,
@@ -22,6 +26,8 @@ export function CharacterDisplay({
 }: CharacterDisplayProps) {
   const [isCelebrating, setIsCelebrating] = useState(false);
   const celebrationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [celebrateImgFailed, setCelebrateImgFailed] = useState(false);
+  const prevOutfitRef = useRef(outfitImage);
 
   // Character intro animation
   const [charIntroState, setCharIntroState] = useState<'hidden' | 'entering' | 'visible'>(
@@ -35,6 +41,14 @@ export function CharacterDisplay({
     const t = setTimeout(() => setCharIntroState('visible'), 500);
     return () => clearTimeout(t);
   }, [charIntroVisible]);
+
+  // Reset celebrate image error state when outfit changes
+  useEffect(() => {
+    if (outfitImage !== prevOutfitRef.current) {
+      prevOutfitRef.current = outfitImage;
+      setCelebrateImgFailed(false);
+    }
+  }, [outfitImage]);
 
   // Car slide transition state
   const [visibleCar, setVisibleCar] = useState<string | null>(carImage ? resolveLocalAsset(carImage, 'car') : null);
@@ -52,7 +66,7 @@ export function CharacterDisplay({
     setIsCelebrating(false);
     requestAnimationFrame(() => {
       setIsCelebrating(true);
-      celebrationTimeout.current = setTimeout(() => setIsCelebrating(false), 1200);
+      celebrationTimeout.current = setTimeout(() => setIsCelebrating(false), 1400);
     });
   }, [celebrationTrigger]);
 
@@ -65,7 +79,6 @@ export function CharacterDisplay({
 
     if (carTransitionTimeout.current) clearTimeout(carTransitionTimeout.current);
 
-    // Slide out the current car, slide in the new one
     setOutgoingCar(visibleCarRef.current);
     setVisibleCar(newSrc);
     setCarAnimState('transitioning');
@@ -76,7 +89,9 @@ export function CharacterDisplay({
     }, 450);
   }, [carImage]);
 
-  const displayImage = resolveLocalAsset(outfitImage || characterImage, 'character');
+  const idleImage = resolveLocalAsset(outfitImage || characterImage, 'character');
+  const celebrateImage = outfitImage ? getCelebrateImageUrl(idleImage) : null;
+  const showCelebrateImage = isCelebrating && celebrateImage && !celebrateImgFailed;
 
   return (
     <div className="fixed inset-x-0 top-[88px] bottom-[88px] overflow-hidden">
@@ -109,48 +124,37 @@ export function CharacterDisplay({
         charIntroState === 'entering' ? 'animate-character-intro' : ''
       }`}>
         <div className="select-none translate-x-6 min-[420px]:scale-90 min-[420px]:origin-bottom">
-          <div
-            className={`relative w-[190px] h-[330px] [@media(min-width:420px)]:w-[230px] [@media(min-width:420px)]:h-[400px] [@media(min-width:420px)_and_(min-height:700px)]:w-72 [@media(min-width:420px)_and_(min-height:700px)]:h-[500px] [@media(min-width:640px)_and_(min-height:700px)]:w-80 [@media(min-width:640px)_and_(min-height:700px)]:h-[550px] ${
-              isCelebrating ? 'animate-character-celebrate' : ''
-            }`}
-          >
+          <div className="relative w-[190px] h-[330px] [@media(min-width:420px)]:w-[230px] [@media(min-width:420px)]:h-[400px] [@media(min-width:420px)_and_(min-height:700px)]:w-72 [@media(min-width:420px)_and_(min-height:700px)]:h-[500px] [@media(min-width:640px)_and_(min-height:700px)]:w-80 [@media(min-width:640px)_and_(min-height:700px)]:h-[550px]">
+
+            {/* IDLE pose */}
             <img
-              src={displayImage}
+              src={idleImage}
               alt={characterName}
-              className="w-full h-full object-contain"
+              className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-150 ${
+                showCelebrateImage ? 'opacity-0' : 'opacity-100'
+              }`}
               draggable={false}
               onClick={() => onClickCharacter?.()}
             />
-            {isCelebrating && (
-              <div className="absolute inset-0 pointer-events-none overflow-visible">
-                {([
-                  { deg: 0,   color: '#FBBF24', delay: 80  },
-                  { deg: 45,  color: '#EC4899', delay: 40  },
-                  { deg: 90,  color: '#06B6D4', delay: 100 },
-                  { deg: 135, color: '#8B5CF6', delay: 60  },
-                  { deg: 180, color: '#F97316', delay: 90  },
-                  { deg: 225, color: '#10B981', delay: 50  },
-                  { deg: 270, color: '#3B82F6', delay: 70  },
-                  { deg: 315, color: '#F43F5E', delay: 30  },
-                ] as const).map(({ deg, color, delay }) => (
-                  <div
-                    key={deg}
-                    className="absolute w-3 h-3 rounded-full animate-sparkle"
-                    style={{
-                      top: '30%',
-                      left: '50%',
-                      background: color,
-                      boxShadow: `0 0 6px 2px ${color}88`,
-                      animationDelay: `${delay}ms`,
-                      '--spark-deg': `${deg}deg`,
-                    } as React.CSSProperties}
-                  />
-                ))}
-              </div>
+
+            {/* CELEBRATE pose — jumps up, fades back to idle */}
+            {celebrateImage && (
+              <img
+                src={celebrateImage}
+                alt=""
+                className={`absolute inset-0 w-full h-full object-contain ${
+                  showCelebrateImage ? 'animate-celebrate-jump' : 'opacity-0 pointer-events-none'
+                }`}
+                draggable={false}
+                onError={() => setCelebrateImgFailed(true)}
+                onClick={() => onClickCharacter?.()}
+              />
             )}
+
           </div>
         </div>
       </div>
     </div>
   );
 }
+
