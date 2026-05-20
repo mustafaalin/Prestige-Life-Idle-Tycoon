@@ -18,8 +18,8 @@ function formatRemaining(ms: number): string {
   const h = Math.floor(totalSeconds / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
-  if (h > 0) return `${h}s ${m.toString().padStart(2, '0')}d`;
-  if (m > 0) return `${m}d ${s.toString().padStart(2, '0')}s`;
+  if (h > 0) return `${h}hr ${m.toString().padStart(2, '0')}m`;
+  if (m > 0) return `${m}m ${s.toString().padStart(2, '0')}s`;
   return `${s}s`;
 }
 
