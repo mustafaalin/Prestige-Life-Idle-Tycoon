@@ -211,10 +211,8 @@ export default function App() {
     if (!initialHouseSynced.current) {
       initialHouseSynced.current = true;
       setDisplayedHouseImage(houseImageUrl);
-    } else if (gameState.profile?.selected_house_id && houseImageUrl && houseImageUrl !== displayedHouseImage) {
-      setDisplayedHouseImage(houseImageUrl);
     }
-  }, [gameState.profile?.selected_house_id, gameState.houses, displayedHouseImage]);
+  }, [gameState.profile?.selected_house_id, gameState.houses]);
 
   const openQuestTarget = (quest: (typeof LOCAL_QUESTS)[number]) => {
     if (quest.target_screen === 'shop') {

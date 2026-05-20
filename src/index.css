@@ -95,7 +95,7 @@
   }
 
   .animate-house-slide-out {
-    animation: houseSlideOut 0.35s ease-in forwards;
+    animation: houseSlideOut 0.45s ease-in forwards;
   }
 
   @keyframes questBarClaimablePulse {
