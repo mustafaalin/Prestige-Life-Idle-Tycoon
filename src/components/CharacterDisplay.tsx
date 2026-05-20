@@ -15,6 +15,10 @@ function getCelebrateImageUrl(idleUrl: string): string {
   return idleUrl.replace(/-1\.(png|webp)$/i, '-2.$1');
 }
 
+function getAnimatedIdleUrl(staticUrl: string): string {
+  return staticUrl.replace(/\.png$/i, '.webp');
+}
+
 export function CharacterDisplay({
   characterImage,
   characterName,
@@ -27,6 +31,7 @@ export function CharacterDisplay({
   const [isCelebrating, setIsCelebrating] = useState(false);
   const celebrationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [celebrateImgFailed, setCelebrateImgFailed] = useState(false);
+  const [animatedIdleFailed, setAnimatedIdleFailed] = useState(false);
   const prevOutfitRef = useRef(outfitImage);
 
   // Character intro animation
@@ -42,11 +47,12 @@ export function CharacterDisplay({
     return () => clearTimeout(t);
   }, [charIntroVisible]);
 
-  // Reset celebrate image error state when outfit changes
+  // Reset error states when outfit changes
   useEffect(() => {
     if (outfitImage !== prevOutfitRef.current) {
       prevOutfitRef.current = outfitImage;
       setCelebrateImgFailed(false);
+      setAnimatedIdleFailed(false);
     }
   }, [outfitImage]);
 
@@ -89,8 +95,11 @@ export function CharacterDisplay({
     }, 450);
   }, [carImage]);
 
-  const idleImage = resolveLocalAsset(outfitImage || characterImage, 'character');
-  const celebrateImage = outfitImage ? getCelebrateImageUrl(idleImage) : null;
+  const idleImageStatic = resolveLocalAsset(outfitImage || characterImage, 'character');
+  const idleImageAnimated = outfitImage && !animatedIdleFailed
+    ? getAnimatedIdleUrl(idleImageStatic)
+    : null;
+  const celebrateImage = outfitImage ? getCelebrateImageUrl(idleImageStatic) : null;
   const showCelebrateImage = isCelebrating && celebrateImage && !celebrateImgFailed;
 
   return (
@@ -126,14 +135,15 @@ export function CharacterDisplay({
         <div className="select-none translate-x-6 min-[420px]:scale-90 min-[420px]:origin-bottom">
           <div className="relative w-[190px] h-[330px] [@media(min-width:420px)]:w-[230px] [@media(min-width:420px)]:h-[400px] [@media(min-width:420px)_and_(min-height:700px)]:w-72 [@media(min-width:420px)_and_(min-height:700px)]:h-[500px] [@media(min-width:640px)_and_(min-height:700px)]:w-80 [@media(min-width:640px)_and_(min-height:700px)]:h-[550px]">
 
-            {/* IDLE pose — fades out when celebrate is active */}
+            {/* IDLE pose — animated WebP if available, static PNG fallback */}
             <img
-              src={idleImage}
+              src={idleImageAnimated ?? idleImageStatic}
               alt={characterName}
               className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-200 ${
                 showCelebrateImage ? 'opacity-0' : 'opacity-100'
               }`}
               draggable={false}
+              onError={idleImageAnimated ? () => setAnimatedIdleFailed(true) : undefined}
               onClick={() => onClickCharacter?.()}
             />
 
