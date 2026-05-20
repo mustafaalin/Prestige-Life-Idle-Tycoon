@@ -11,9 +11,9 @@ interface CharacterDisplayProps {
   charIntroVisible?: boolean;
 }
 
-// /assets/outfits/ch-1-1.png → /assets/outfits/ch-1-1.webp
-function toWebp(url: string): string {
-  return url.replace(/\.png$/i, '.webp');
+// /assets/outfits/ch-1-1.png → /assets/outfits/ch-1-idle.webp
+function toIdleAnimated(url: string): string {
+  return url.replace(/-1\.png$/i, '-idle.webp');
 }
 
 // /assets/outfits/ch-1-1.png → /assets/outfits/ch-1-2.png
@@ -21,9 +21,9 @@ function toCelebrateStatic(url: string): string {
   return url.replace(/-1\.png$/i, '-2.png');
 }
 
-// /assets/outfits/ch-1-1.png → /assets/outfits/ch-1-2.webp
+// /assets/outfits/ch-1-1.png → /assets/outfits/ch-1-celebrate.webp
 function toCelebrateAnimated(url: string): string {
-  return url.replace(/-1\.png$/i, '-2.webp');
+  return url.replace(/-1\.png$/i, '-celebrate.webp');
 }
 
 export function CharacterDisplay({
@@ -105,7 +105,7 @@ export function CharacterDisplay({
   // ── Derive image URLs ──────────────────────────────────────────────────────
   const idleStatic   = resolveLocalAsset(outfitImage || characterImage, 'character');
   // Idle: prefer animated WebP, fall back to static PNG
-  const idleSrc = outfitImage && !idleAnimFailed ? toWebp(idleStatic) : idleStatic;
+  const idleSrc = outfitImage && !idleAnimFailed ? toIdleAnimated(idleStatic) : idleStatic;
 
   // Celebrate: prefer animated WebP → static PNG → nothing
   const celebAnimUrl   = outfitImage && !celebAnimFailed   ? toCelebrateAnimated(idleStatic) : null;
