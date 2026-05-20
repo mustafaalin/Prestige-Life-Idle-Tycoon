@@ -126,24 +126,26 @@ export function CharacterDisplay({
         <div className="select-none translate-x-6 min-[420px]:scale-90 min-[420px]:origin-bottom">
           <div className="relative w-[190px] h-[330px] [@media(min-width:420px)]:w-[230px] [@media(min-width:420px)]:h-[400px] [@media(min-width:420px)_and_(min-height:700px)]:w-72 [@media(min-width:420px)_and_(min-height:700px)]:h-[500px] [@media(min-width:640px)_and_(min-height:700px)]:w-80 [@media(min-width:640px)_and_(min-height:700px)]:h-[550px]">
 
-            {/* IDLE pose */}
+            {/* IDLE pose — fades out when celebrate is active */}
             <img
               src={idleImage}
               alt={characterName}
-              className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-150 ${
+              className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-200 ${
                 showCelebrateImage ? 'opacity-0' : 'opacity-100'
               }`}
               draggable={false}
               onClick={() => onClickCharacter?.()}
             />
 
-            {/* CELEBRATE pose — jumps up, fades back to idle */}
+            {/* CELEBRATE pose — opacity-only controlled by class, Y-jump by animation */}
             {celebrateImage && (
               <img
                 src={celebrateImage}
                 alt=""
-                className={`absolute inset-0 w-full h-full object-contain ${
-                  showCelebrateImage ? 'animate-celebrate-jump' : 'opacity-0 pointer-events-none'
+                className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-200 ${
+                  showCelebrateImage
+                    ? 'opacity-100 animate-celebrate-jump'
+                    : 'opacity-0 pointer-events-none'
                 }`}
                 draggable={false}
                 onError={() => setCelebrateImgFailed(true)}

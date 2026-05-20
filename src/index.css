@@ -34,14 +34,14 @@
     }
   }
 
-  /* Celebrate pose: jump up, hold, land softly */
+  /* Celebrate pose: jump up, hold, soft land — opacity handled by React classes only */
   @keyframes celebrateJump {
-    0%   { transform: translateY(0);    opacity: 0; }
-    8%   { transform: translateY(-28px); opacity: 1; }
-    35%  { transform: translateY(-22px); opacity: 1; }
-    65%  { transform: translateY(-22px); opacity: 1; }
-    85%  { transform: translateY(-10px); opacity: 0.6; }
-    100% { transform: translateY(0);    opacity: 0; }
+    0%   { transform: translateY(2px); }
+    12%  { transform: translateY(-28px); }
+    38%  { transform: translateY(-24px); }
+    68%  { transform: translateY(-24px); }
+    88%  { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
   }
 
   .animate-celebrate-jump {
