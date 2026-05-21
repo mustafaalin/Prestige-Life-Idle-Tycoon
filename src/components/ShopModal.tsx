@@ -199,7 +199,10 @@ export function ShopModal({
   };
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      setIsProcessingPurchase(false);
+      return;
+    }
     setActiveTab(initialTab);
     if (initialNotification) {
       setNotification(initialNotification);

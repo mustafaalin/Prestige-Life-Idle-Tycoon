@@ -67,15 +67,30 @@ export async function fetchProductPrices(
   }
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms / 1000}s`)), ms)
+    ),
+  ]);
+}
+
 export async function purchaseProduct(productId: string) {
   if (!initialized) throw new Error('RevenueCat not initialized');
-  const { products } = await Purchases.getProducts({ productIdentifiers: [productId], type: PRODUCT_CATEGORY.NON_SUBSCRIPTION });
+  const { products } = await withTimeout(
+    Purchases.getProducts({ productIdentifiers: [productId], type: PRODUCT_CATEGORY.NON_SUBSCRIPTION }),
+    15000,
+    'getProducts'
+  );
   console.log(`[RevenueCat] getProducts(${productId}) returned ${products.length} product(s):`, products.map((p: { identifier: string }) => p.identifier));
   const product = products.find((p: { identifier: string }) => p.identifier === productId);
   if (!product) {
-    throw new Error(
-      `Product not found: ${productId}. Make sure it is approved in Play Console and your test account is added as an internal tester.`
-    );
+    throw new Error(`Product not found in store: ${productId}`);
   }
-  return Purchases.purchaseStoreProduct({ product: product as Parameters<typeof Purchases.purchaseStoreProduct>[0]['product'] });
+  return withTimeout(
+    Purchases.purchaseStoreProduct({ product: product as Parameters<typeof Purchases.purchaseStoreProduct>[0]['product'] }),
+    60000,
+    'purchaseStoreProduct'
+  );
 }

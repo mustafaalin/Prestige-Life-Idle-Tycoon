@@ -79,8 +79,15 @@ async function purchaseNative(
     const gemsAdded  = type === 'gems'  ? amount : 0;
     return { success: true, moneyAdded, gemsAdded };
   } catch (err: unknown) {
-    if (err && typeof err === 'object' && 'userCancelled' in err && err.userCancelled) {
-      return { success: false, moneyAdded: 0, gemsAdded: 0, error: 'cancelled' };
+    if (err && typeof err === 'object') {
+      const e = err as Record<string, unknown>;
+      // RevenueCat v13: check errorCode ("1" = PURCHASE_CANCELLED_ERROR), fallback to deprecated userCancelled
+      const isCancelled =
+        e['code'] === '1' ||
+        (e['userCancelled'] === true);
+      if (isCancelled) {
+        return { success: false, moneyAdded: 0, gemsAdded: 0, error: 'cancelled' };
+      }
     }
     throw err;
   }
