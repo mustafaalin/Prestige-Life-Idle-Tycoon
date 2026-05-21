@@ -1,36 +1,55 @@
 """
-Outfit sprite sheet → animated WebP converter
-Usage:
-  python3 scripts/convert_outfit.py <outfit_number> <idle_spritesheet> <celebrate_spritesheet>
+Outfit animator → animated WebP converter
 
-Example:
-  python3 scripts/convert_outfit.py 2 ~/Downloads/ch2-idle.png ~/Downloads/ch2-celebrate.png
+İki mod desteklenir:
 
-Assumptions:
-  - Idle sheet:     6 columns × 6 rows = 36 frames, 2.5s animation
-  - Celebrate sheet: 5 columns × 5 rows = 25 frames, 2s animation
-  - Output goes to: public/assets/outfits/
+  1. FRAMES modu — Ludo.ai "Download All Frames" çıktısı (ayrı PNG dosyaları):
+     python3 scripts/convert_outfit.py <num> frames <idle_dir> <dur_s> <celebrate_dir> <dur_s>
+
+  2. SHEET modu — Sprite sheet (eski yöntem):
+     python3 scripts/convert_outfit.py <num> sheet <idle.png> <cols>x<rows> <dur_s> <celebrate.png> <cols>x<rows> <dur_s>
+
+Örnekler:
+  python3 scripts/convert_outfit.py 2 frames ~/Downloads/idle_frames 2.5 ~/Downloads/celeb_frames 2.0
+  python3 scripts/convert_outfit.py 3 sheet ~/Downloads/idle.png 6x6 2.5 ~/Downloads/celeb.png 5x5 2.0
+
+Output: public/assets/outfits/ch-<num>-idle.webp + ch-<num>-celebrate.webp
 """
 
 import sys
 import os
+import glob
 from PIL import Image
 
 OUTFITS_DIR = os.path.join(os.path.dirname(__file__), '..', 'public', 'assets', 'outfits')
 
 
+def load_frames_from_dir(dirpath):
+    dirpath = os.path.expanduser(dirpath)
+    pngs = sorted(glob.glob(os.path.join(dirpath, '*.png')))
+    if not pngs:
+        print(f"ERROR: No PNG files found in: {dirpath}")
+        sys.exit(1)
+    frames = [Image.open(p).convert('RGBA') for p in pngs]
+    print(f"  Frames dir: {dirpath}")
+    print(f"  Found {len(frames)} frames  ({frames[0].width}x{frames[0].height} each)")
+    return frames
+
+
 def slice_sheet(path, cols, rows):
-    img = Image.open(path).convert('RGBA')
+    img = Image.open(os.path.expanduser(path)).convert('RGBA')
     fw = img.width // cols
     fh = img.height // rows
-    return [
+    frames = [
         img.crop((c * fw, r * fh, (c + 1) * fw, (r + 1) * fh))
         for r in range(rows)
         for c in range(cols)
     ]
+    print(f"  Sheet: {img.width}x{img.height}  →  {len(frames)} frames ({fw}x{fh} each)")
+    return frames
 
 
-def save_webp(frames, output_path, duration_ms, quality=75):
+def save_webp(frames, output_path, duration_ms, quality):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     frames[0].save(
         output_path,
@@ -42,41 +61,77 @@ def save_webp(frames, output_path, duration_ms, quality=75):
         method=6,
     )
     size_kb = os.path.getsize(output_path) // 1024
-    print(f"  ✓ {os.path.basename(output_path)}  →  {size_kb}KB")
+    print(f"  ✓ {os.path.basename(output_path)}  →  {size_kb}KB  ({len(frames)} frames, {duration_ms}ms/frame)")
+
+
+def parse_grid(s):
+    parts = s.lower().split('x')
+    return int(parts[0]), int(parts[1])
+
+
+def thin_frames(frames, dur_s):
+    total = len(frames)
+    if total > 20:
+        thinned = frames[::2]
+        ms = int(dur_s * 1000 / total * 2)
+        print(f"  Thinned: {total} → {len(thinned)} frames")
+        return thinned, ms
+    return frames, int(dur_s * 1000 / total)
 
 
 def main():
-    if len(sys.argv) != 4:
+    if len(sys.argv) < 2:
         print(__doc__)
         sys.exit(1)
 
-    outfit_num  = sys.argv[1]
-    idle_path   = os.path.expanduser(sys.argv[2])
-    celeb_path  = os.path.expanduser(sys.argv[3])
+    num  = sys.argv[1]
+    mode = sys.argv[2] if len(sys.argv) > 2 else ''
 
-    if not os.path.exists(idle_path):
-        print(f"ERROR: idle file not found: {idle_path}")
+    if mode == 'frames':
+        # frames <idle_dir> <dur_s> <celeb_dir> <dur_s>
+        if len(sys.argv) != 7:
+            print(__doc__)
+            sys.exit(1)
+        idle_dir   = sys.argv[3]
+        idle_dur   = float(sys.argv[4])
+        celeb_dir  = sys.argv[5]
+        celeb_dur  = float(sys.argv[6])
+
+        print(f"\n[Idle]  mode=frames  dur={idle_dur}s")
+        idle_frames, idle_ms = thin_frames(load_frames_from_dir(idle_dir), idle_dur)
+        save_webp(idle_frames, os.path.join(OUTFITS_DIR, f'ch-{num}-idle.webp'), idle_ms, quality=85)
+
+        print(f"\n[Celebrate]  mode=frames  dur={celeb_dur}s")
+        celeb_frames = load_frames_from_dir(celeb_dir)
+        celeb_ms = int(celeb_dur * 1000 / len(celeb_frames))
+        save_webp(celeb_frames, os.path.join(OUTFITS_DIR, f'ch-{num}-celebrate.webp'), celeb_ms, quality=85)
+
+    elif mode == 'sheet':
+        # sheet <idle.png> <cols>x<rows> <dur_s> <celeb.png> <cols>x<rows> <dur_s>
+        if len(sys.argv) != 9:
+            print(__doc__)
+            sys.exit(1)
+        idle_path  = sys.argv[3]
+        idle_grid  = parse_grid(sys.argv[4])
+        idle_dur   = float(sys.argv[5])
+        celeb_path = sys.argv[6]
+        celeb_grid = parse_grid(sys.argv[7])
+        celeb_dur  = float(sys.argv[8])
+
+        print(f"\n[Idle]  mode=sheet  grid={idle_grid[0]}x{idle_grid[1]}  dur={idle_dur}s")
+        idle_frames, idle_ms = thin_frames(slice_sheet(idle_path, *idle_grid), idle_dur)
+        save_webp(idle_frames, os.path.join(OUTFITS_DIR, f'ch-{num}-idle.webp'), idle_ms, quality=75)
+
+        print(f"\n[Celebrate]  mode=sheet  grid={celeb_grid[0]}x{celeb_grid[1]}  dur={celeb_dur}s")
+        celeb_frames = slice_sheet(celeb_path, *celeb_grid)
+        celeb_ms = int(celeb_dur * 1000 / len(celeb_frames))
+        save_webp(celeb_frames, os.path.join(OUTFITS_DIR, f'ch-{num}-celebrate.webp'), celeb_ms, quality=80)
+
+    else:
+        print(__doc__)
         sys.exit(1)
-    if not os.path.exists(celeb_path):
-        print(f"ERROR: celebrate file not found: {celeb_path}")
-        sys.exit(1)
 
-    print(f"\nOutfit {outfit_num}")
-    print(f"  Idle:      {idle_path}")
-    print(f"  Celebrate: {celeb_path}\n")
-
-    # IDLE — 36 frames, her 2. kare alınır (18 frame), 7fps
-    all_idle = slice_sheet(idle_path, cols=6, rows=6)
-    idle_frames = all_idle[::2]   # 36 → 18 frame
-    idle_out = os.path.join(OUTFITS_DIR, f'ch-{outfit_num}-idle.webp')
-    save_webp(idle_frames, idle_out, duration_ms=139, quality=75)
-
-    # CELEBRATE — 25 frames, tamamı kullanılır, 12.5fps
-    celeb_frames = slice_sheet(celeb_path, cols=5, rows=5)
-    celeb_out = os.path.join(OUTFITS_DIR, f'ch-{outfit_num}-celebrate.webp')
-    save_webp(celeb_frames, celeb_out, duration_ms=80, quality=80)
-
-    print("\nDone! Dosyaları projeye ekle ve git push et.")
+    print("\nDone!")
 
 
 if __name__ == '__main__':
