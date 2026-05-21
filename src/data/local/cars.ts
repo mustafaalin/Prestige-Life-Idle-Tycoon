@@ -316,8 +316,8 @@ const STANDARD_CARS: Car[] = [
 export const PREMIUM_CARS: Car[] = [
   {
     id: 'premium-car-1',
-    name: 'Premium-1',
-    description: 'Gem-exclusive lifestyle vehicle with comfort bonuses.',
+    name: 'Gold Phantom',
+    description: 'A golden supercar that commands every street it touches.',
     image_url: '/assets/vehicles/premium-vehicle-1.png',
     price: 0,
     gem_price: 50,
@@ -335,8 +335,8 @@ export const PREMIUM_CARS: Car[] = [
   },
   {
     id: 'premium-car-2',
-    name: 'Premium-2',
-    description: 'Gem-exclusive vehicle tuned for comfort and mood.',
+    name: 'Golden Titan',
+    description: 'Diamond-studded, gold-plated dominance on wheels.',
     image_url: '/assets/vehicles/premium-vehicle-2.png',
     price: 0,
     gem_price: 75,
@@ -354,8 +354,8 @@ export const PREMIUM_CARS: Car[] = [
   },
   {
     id: 'premium-car-3',
-    name: 'Premium-3',
-    description: 'Gem-exclusive vehicle with stronger wellbeing support.',
+    name: 'Royal Legend',
+    description: 'A hand-crafted golden classic. Wealth with a legacy.',
     image_url: '/assets/vehicles/premium-vehicle-3.png',
     price: 0,
     gem_price: 100,
