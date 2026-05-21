@@ -355,7 +355,7 @@ export function InvestmentsModal({
           <span className="text-sm font-black text-emerald-700">{formatMoney(investment.price)}</span>
           <div className="text-right">
             <span className="text-[11px] font-bold text-slate-500">
-              {formatMoney(investment.base_rental_income * realEstateIncomeMultiplier)}/hr
+              {formatMoney((investment.current_rental_income || investment.base_rental_income) * realEstateIncomeMultiplier)}/hr
             </span>
             {hasPremiumBankCard && (
               <div className="mt-1 text-[10px] font-black uppercase tracking-[0.12em] text-amber-600">
