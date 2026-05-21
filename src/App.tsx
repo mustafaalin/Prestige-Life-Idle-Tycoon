@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { useAuth } from './hooks/useAuth';
 import { useGameState } from './hooks/useGameState';
 import ProfileModal from './components/ProfileModal';
@@ -220,6 +222,11 @@ export default function App() {
   useEffect(() => {
     if (gameState.loading || introStarted.current) return;
     introStarted.current = true;
+
+    // Hide Capacitor splash screen so our intro animation takes over
+    if (Capacitor.isNativePlatform()) {
+      SplashScreen.hide({ fadeOutDuration: 400 }).catch(() => {});
+    }
 
     const houseImg = currentHouseImageRef.current;
     if (houseImg) setDisplayedHouseImage(houseImg);
