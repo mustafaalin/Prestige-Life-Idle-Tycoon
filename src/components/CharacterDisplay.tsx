@@ -11,9 +11,12 @@ interface CharacterDisplayProps {
   charIntroVisible?: boolean;
 }
 
-// /assets/outfits/ch-1-1.png → /assets/outfits/ch-1-idle.webp
+const SUPABASE_OUTFITS_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/outfits`;
+
+// /assets/outfits/ch-1-1.png → Supabase: ch-1-idle.webp
 function toIdleAnimated(url: string): string {
-  return url.replace(/-1\.png$/i, '-idle.webp');
+  const filename = url.split('/').pop()?.replace(/-1\.png$/i, '-idle.webp');
+  return filename ? `${SUPABASE_OUTFITS_URL}/${filename}` : url;
 }
 
 // /assets/outfits/ch-1-1.png → /assets/outfits/ch-1-2.png
@@ -21,9 +24,18 @@ function toCelebrateStatic(url: string): string {
   return url.replace(/-1\.png$/i, '-2.png');
 }
 
-// /assets/outfits/ch-1-1.png → /assets/outfits/ch-1-celebrate.webp
+// /assets/outfits/ch-1-1.png → Supabase: ch-1-celebrate.webp
 function toCelebrateAnimated(url: string): string {
-  return url.replace(/-1\.png$/i, '-celebrate.webp');
+  const filename = url.split('/').pop()?.replace(/-1\.png$/i, '-celebrate.webp');
+  return filename ? `${SUPABASE_OUTFITS_URL}/${filename}` : url;
+}
+
+// Preload both animations for an outfit in the background
+function prefetchOutfitAnimations(staticUrl: string) {
+  const idle = toIdleAnimated(staticUrl);
+  const celebrate = toCelebrateAnimated(staticUrl);
+  const img1 = new Image(); img1.src = idle;
+  const img2 = new Image(); img2.src = celebrate;
 }
 
 export function CharacterDisplay({
@@ -101,6 +113,13 @@ export function CharacterDisplay({
       setCarAnimState('idle');
     }, 450);
   }, [carImage]);
+
+  // ── Prefetch Supabase animations when outfit changes ──────────────────────
+  useEffect(() => {
+    if (!outfitImage) return;
+    const staticUrl = resolveLocalAsset(outfitImage, 'character');
+    prefetchOutfitAnimations(staticUrl);
+  }, [outfitImage]);
 
   // ── Derive image URLs ──────────────────────────────────────────────────────
   const idleStatic   = resolveLocalAsset(outfitImage || characterImage, 'character');
