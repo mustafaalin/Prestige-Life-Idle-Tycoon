@@ -232,7 +232,7 @@ export default function App() {
     if (houseImg) setDisplayedHouseImage(houseImg);
     setIntroPhase('house');
 
-    const t1 = setTimeout(() => setIntroPhase('character'), 600);
+    const t1 = setTimeout(() => setIntroPhase('character'), 900);
 
     const t2 = setTimeout(() => {
       const carImg = currentCarImageRef.current;
@@ -240,9 +240,9 @@ export default function App() {
         setIntroPhase('car');
         setDisplayedCarImage(carImg);
       }
-    }, 1100);
+    }, 1650);
 
-    const t3 = setTimeout(() => setIntroPhase('done'), 1650);
+    const t3 = setTimeout(() => setIntroPhase('done'), 2475);
 
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [gameState.loading]);
@@ -1369,7 +1369,7 @@ export default function App() {
                   houseTransitionTimeout.current = setTimeout(() => {
                     setOutgoingHouseImage(undefined);
                     setHouseAnimState('idle');
-                  }, 500);
+                  }, 750);
                 }
 
                 setCelebrationTrigger(Date.now());

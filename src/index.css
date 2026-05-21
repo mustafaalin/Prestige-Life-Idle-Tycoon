@@ -60,11 +60,11 @@
   }
 
   .animate-car-slide-in {
-    animation: carSlideIn 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: carSlideIn 0.68s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
 
   .animate-car-slide-out {
-    animation: carSlideOut 0.35s ease-in forwards;
+    animation: carSlideOut 0.53s ease-in forwards;
   }
 
   @keyframes characterIntroSlideIn {
@@ -73,7 +73,7 @@
   }
 
   .animate-character-intro {
-    animation: characterIntroSlideIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: characterIntroSlideIn 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
 
   @keyframes houseSlideIn {
@@ -87,11 +87,11 @@
   }
 
   .animate-house-slide-in {
-    animation: houseSlideIn 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: houseSlideIn 0.68s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
 
   .animate-house-slide-out {
-    animation: houseSlideOut 0.45s ease-in forwards;
+    animation: houseSlideOut 0.68s ease-in forwards;
   }
 
   @keyframes questBarClaimablePulse {

@@ -231,10 +231,10 @@ export function InvestmentsModal({
     const activeDepositReady = activeDeposit ? isBankDepositReady(activeDeposit, timeNow) : false;
     const planImage =
       plan.id === 'quick'
-        ? LOCAL_ICON_ASSETS.money
+        ? LOCAL_ICON_ASSETS.moneyPack0
         : plan.id === 'growth'
-          ? LOCAL_ICON_ASSETS.wallet
-          : LOCAL_ICON_ASSETS.buyMoreMoney;
+          ? LOCAL_ICON_ASSETS.moneyPack1
+          : LOCAL_ICON_ASSETS.moneyPack2;
 
     return (
       <div
@@ -257,12 +257,21 @@ export function InvestmentsModal({
           </div>
 
           {!activeDeposit ? (
-            <button
-              onClick={() => openBankPlanModal(plan.id)}
-              className="mt-1.5 w-full rounded-[13px] bg-lime-400 px-2 py-2 text-[10px] font-black text-slate-900 shadow-[inset_0_-3px_0_rgba(0,0,0,0.14)] transition-all active:scale-[0.98]"
-            >
-              INVEST
-            </button>
+            <div className="relative mt-1.5">
+              {plan.adRequired && (
+                <img
+                  src={LOCAL_ICON_ASSETS.ads}
+                  alt="Ad"
+                  className="absolute -top-3 right-1.5 z-10 h-6 w-6 object-contain drop-shadow-sm"
+                />
+              )}
+              <button
+                onClick={() => openBankPlanModal(plan.id)}
+                className="w-full rounded-[13px] bg-lime-400 px-2 py-2 text-[10px] font-black text-slate-900 shadow-[inset_0_-3px_0_rgba(0,0,0,0.14)] transition-all active:scale-[0.98]"
+              >
+                INVEST
+              </button>
+            </div>
           ) : (
             <div className="mt-1.5 w-full space-y-1.5">
               <div className="rounded-[13px] border border-slate-200 bg-white px-2 py-1.5 shadow-[0_2px_6px_rgba(15,23,42,0.05)]">
@@ -537,81 +546,75 @@ export function InvestmentsModal({
         {activeTab === 'bank' && (
           <div className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.14),_transparent_38%),linear-gradient(180deg,#f8fffc_0%,#f8fafc_100%)] p-4">
             <div className="space-y-4">
-              <div className="overflow-hidden rounded-[28px] border border-amber-200 bg-[linear-gradient(145deg,#fff4cc_0%,#ffd972_48%,#fff7de_100%)] shadow-[0_14px_34px_rgba(245,158,11,0.18)]">
-                <div className="border-b border-amber-200/70 bg-white/35 px-4 py-3">
-                  <div className="text-sm font-black uppercase tracking-[0.14em] text-amber-900">
-                    Premium Bank Card
+              {/* ── PREMIUM BANK CARD ── */}
+              <div className="overflow-hidden rounded-[28px] border-2 border-amber-300 shadow-[0_16px_40px_rgba(245,158,11,0.25)]" style={{background: 'linear-gradient(145deg,#92400e 0%,#b45309 30%,#d97706 55%,#f59e0b 75%,#fbbf24 100%)'}}>
+                {/* Shine overlay */}
+                <div className="absolute inset-0 rounded-[28px] pointer-events-none" style={{background: 'linear-gradient(135deg,rgba(255,255,255,0.18) 0%,transparent 50%)'}} />
+
+                {/* Header */}
+                <div className="relative px-4 pt-4 pb-2 flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-base font-black uppercase tracking-[0.12em] text-white drop-shadow-sm">Premium Bank Card</span>
+                    </div>
+                    <div className="mt-0.5 text-[11px] font-bold text-amber-100/90">Permanent bank boost</div>
                   </div>
-                  <div className="mt-1 text-xs font-bold text-amber-800/80">
-                    Permanent bank boost
+                  <div className="rounded-xl bg-white/20 px-2.5 py-1 border border-white/30">
+                    <span className="text-[11px] font-black text-white tracking-widest">GOLD</span>
                   </div>
                 </div>
 
-                <div className="px-4 py-4">
-                  <div className="space-y-2 rounded-[20px] border border-white/60 bg-white/60 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-                    <div className="text-sm font-black text-slate-800">x2 Cashback</div>
-                    <div className="text-sm font-black text-slate-800">x2 Real Estate Income</div>
-                    <div className="text-sm font-black text-slate-800">x2 Deposit Income</div>
-                  </div>
+                {/* Benefits */}
+                <div className="relative mx-3 mb-3 rounded-[18px] bg-black/20 backdrop-blur-sm border border-white/15 px-4 py-3 space-y-2">
+                  {[
+                    { label: 'Cashback', value: 'x2' },
+                    { label: 'Real Estate Income', value: 'x2' },
+                    { label: 'Deposit Income', value: 'x2' },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-amber-100">{label}</span>
+                      <span className="rounded-lg bg-amber-400/30 border border-amber-300/40 px-2.5 py-0.5 text-sm font-black text-white">{value}</span>
+                    </div>
+                  ))}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 px-4 pb-4">
-                  <button
-                    onClick={async () => {
-                      setProcessingKey('premium-bank-card:cash');
-                      try {
-                        await onPurchasePremiumBankCard('cash');
-                      } finally {
-                        setProcessingKey(null);
-                      }
-                    }}
-                    disabled={
-                      hasPremiumBankCard ||
-                      processingKey === 'premium-bank-card:cash' ||
-                      processingKey === 'premium-bank-card:gems'
-                    }
-                    className={`rounded-[16px] px-4 py-3 text-sm font-black transition-all ${
-                      hasPremiumBankCard
-                        ? 'bg-slate-200 text-slate-400'
-                        : 'bg-blue-500 text-white shadow-[inset_0_-3px_0_rgba(0,0,0,0.16)] active:scale-[0.99]'
-                    }`}
-                  >
-                    {hasPremiumBankCard
-                      ? 'OWNED'
-                      : processingKey === 'premium-bank-card:cash'
-                        ? 'BUYING...'
-                        : `$${PREMIUM_BANK_CARD_PRICE_USD.toFixed(2)}`}
-                  </button>
-
-                  <button
-                    onClick={async () => {
-                      setProcessingKey('premium-bank-card:gems');
-                      try {
-                        await onPurchasePremiumBankCard('gems');
-                      } finally {
-                        setProcessingKey(null);
-                      }
-                    }}
-                    disabled={
-                      hasPremiumBankCard ||
-                      gems < PREMIUM_BANK_CARD_PRICE_GEMS ||
-                      processingKey === 'premium-bank-card:gems' ||
-                      processingKey === 'premium-bank-card:cash'
-                    }
-                    className={`rounded-[16px] px-4 py-3 text-sm font-black transition-all ${
-                      hasPremiumBankCard
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : gems >= PREMIUM_BANK_CARD_PRICE_GEMS
-                          ? 'bg-violet-500 text-white shadow-[inset_0_-3px_0_rgba(0,0,0,0.16)] active:scale-[0.99]'
-                          : 'bg-slate-200 text-slate-400'
-                    }`}
-                  >
-                    {hasPremiumBankCard
-                      ? 'OWNED'
-                      : processingKey === 'premium-bank-card:gems'
-                        ? 'BUYING...'
-                        : `${PREMIUM_BANK_CARD_PRICE_GEMS} GEMS`}
-                  </button>
+                {/* Buttons */}
+                <div className="relative px-3 pb-3">
+                  {hasPremiumBankCard ? (
+                    <div className="flex items-center justify-center gap-2 rounded-[16px] bg-white/20 border border-white/30 py-3">
+                      <span className="text-lg">✓</span>
+                      <span className="text-sm font-black text-white tracking-wider">OWNED</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <button
+                        onClick={async () => {
+                          setProcessingKey('premium-bank-card:cash');
+                          try { await onPurchasePremiumBankCard('cash'); } finally { setProcessingKey(null); }
+                        }}
+                        disabled={processingKey === 'premium-bank-card:cash' || processingKey === 'premium-bank-card:gems'}
+                        className="flex items-center justify-center gap-1.5 rounded-[16px] bg-white px-4 py-3 text-sm font-black text-amber-900 shadow-[inset_0_-3px_0_rgba(0,0,0,0.12)] transition-all active:scale-[0.98] disabled:opacity-60"
+                      >
+                        <img src={LOCAL_ICON_ASSETS.money} alt="" className="h-5 w-5 object-contain" />
+                        {processingKey === 'premium-bank-card:cash' ? '...' : `$${PREMIUM_BANK_CARD_PRICE_USD.toFixed(2)}`}
+                      </button>
+                      <button
+                        onClick={async () => {
+                          setProcessingKey('premium-bank-card:gems');
+                          try { await onPurchasePremiumBankCard('gems'); } finally { setProcessingKey(null); }
+                        }}
+                        disabled={gems < PREMIUM_BANK_CARD_PRICE_GEMS || processingKey === 'premium-bank-card:gems' || processingKey === 'premium-bank-card:cash'}
+                        className={`flex items-center justify-center gap-1.5 rounded-[16px] px-4 py-3 text-sm font-black shadow-[inset_0_-3px_0_rgba(0,0,0,0.16)] transition-all active:scale-[0.98] disabled:opacity-60 ${
+                          gems >= PREMIUM_BANK_CARD_PRICE_GEMS
+                            ? 'bg-violet-500 text-white'
+                            : 'bg-slate-300 text-slate-500'
+                        }`}
+                      >
+                        <img src={LOCAL_ICON_ASSETS.gem} alt="" className="h-5 w-5 object-contain" />
+                        {processingKey === 'premium-bank-card:gems' ? '...' : `${PREMIUM_BANK_CARD_PRICE_GEMS}`}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1098,30 +1101,41 @@ export function InvestmentsModal({
                 </p>
               </div>
 
-              <button
-                onClick={handleStartBankDeposit}
-                disabled={
-                  !bankAmountValid ||
-                  processingKey === `bank-start:${selectedBankPlan.id}` ||
-                  selectedBankPlanMaxAmount < MIN_BANK_DEPOSIT ||
-                  bankDeposits.some((deposit) => deposit.plan_id === selectedBankPlan.id)
-                }
-                className={`w-full rounded-2xl px-4 py-4 text-sm font-black transition-all ${
-                  bankAmountValid &&
-                  selectedBankPlanMaxAmount >= MIN_BANK_DEPOSIT &&
-                  !bankDeposits.some((deposit) => deposit.plan_id === selectedBankPlan.id)
-                    ? 'bg-lime-400 text-slate-900 shadow-[inset_0_-3px_0_rgba(0,0,0,0.14)]'
-                    : 'bg-slate-200 text-slate-400'
-                }`}
-              >
-                {processingKey === `bank-start:${selectedBankPlan.id}`
-                  ? selectedBankPlan.adRequired
-                    ? 'Starting With Ad...'
-                    : 'Starting Deposit...'
-                  : bankDeposits.some((deposit) => deposit.plan_id === selectedBankPlan.id)
-                    ? 'Plan Already Active'
-                    : 'INVEST'}
-              </button>
+              <div className="relative">
+                {selectedBankPlan.adRequired &&
+                  !processingKey &&
+                  !bankDeposits.some((d) => d.plan_id === selectedBankPlan.id) && (
+                  <img
+                    src={LOCAL_ICON_ASSETS.ads}
+                    alt="Ad"
+                    className="absolute -top-3.5 right-3 z-10 h-7 w-7 object-contain drop-shadow-sm"
+                  />
+                )}
+                <button
+                  onClick={handleStartBankDeposit}
+                  disabled={
+                    !bankAmountValid ||
+                    processingKey === `bank-start:${selectedBankPlan.id}` ||
+                    selectedBankPlanMaxAmount < MIN_BANK_DEPOSIT ||
+                    bankDeposits.some((deposit) => deposit.plan_id === selectedBankPlan.id)
+                  }
+                  className={`w-full rounded-2xl px-4 py-4 text-sm font-black transition-all ${
+                    bankAmountValid &&
+                    selectedBankPlanMaxAmount >= MIN_BANK_DEPOSIT &&
+                    !bankDeposits.some((deposit) => deposit.plan_id === selectedBankPlan.id)
+                      ? 'bg-lime-400 text-slate-900 shadow-[inset_0_-3px_0_rgba(0,0,0,0.14)]'
+                      : 'bg-slate-200 text-slate-400'
+                  }`}
+                >
+                  {processingKey === `bank-start:${selectedBankPlan.id}`
+                    ? selectedBankPlan.adRequired
+                      ? 'Starting With Ad...'
+                      : 'Starting Deposit...'
+                    : bankDeposits.some((deposit) => deposit.plan_id === selectedBankPlan.id)
+                      ? 'Plan Already Active'
+                      : 'INVEST'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
