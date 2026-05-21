@@ -492,25 +492,41 @@ export function InvestmentsModal({
 
         {activeTab === 'real-estate' && activeView !== 'menu' && (
           <>
-            <div className="flex items-center justify-between p-3 border-b border-emerald-100 bg-white">
+            {/* Nav row: Back + tab toggle */}
+            <div className="flex items-center gap-2 px-3 py-2.5 border-b border-emerald-100 bg-white">
               <button
                 onClick={() => setActiveView('menu')}
-                className="flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700"
+                className="flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold text-slate-600 active:scale-95"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Menu
               </button>
-              <div className="text-right">
-                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-600">
-                  {activeView === 'market' ? 'Real Estate Market' : 'My Properties'}
-                </div>
-                <div className="text-xs font-bold text-slate-500">
-                  {activeView === 'market' ? 'Browse all properties' : 'Your owned properties'}
-                </div>
+              <div className="flex flex-1 overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+                <button
+                  onClick={() => setActiveView('market')}
+                  className={`flex-1 py-2 text-[12px] font-black transition-all ${
+                    activeView === 'market'
+                      ? 'bg-emerald-500 text-white shadow-sm'
+                      : 'text-slate-500'
+                  }`}
+                >
+                  🏘 Market
+                </button>
+                <button
+                  onClick={() => setActiveView('properties')}
+                  className={`flex-1 py-2 text-[12px] font-black transition-all ${
+                    activeView === 'properties'
+                      ? 'bg-emerald-500 text-white shadow-sm'
+                      : 'text-slate-500'
+                  }`}
+                >
+                  🏠 My Properties
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-3 border-b border-emerald-100 bg-white">
+            {/* Count + sort row */}
+            <div className="flex items-center justify-between px-3 py-2 border-b border-emerald-100 bg-white">
               <div className="text-xs font-bold text-slate-500">
                 {activeView === 'market'
                   ? `${marketInvestments.length} available listings`
