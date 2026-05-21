@@ -61,7 +61,7 @@ All game state lives in `GameState` (`src/types/game.ts`). The central hook is `
 - **Bank:** same plan type can only have 1 active deposit at a time. Profit-only goes to `lifetime_earnings` on collect.
 - **Cashback:** 2% on business/real-estate/car/character/outfit purchases. Premium Bank Card doubles it.
 - **Claim system:** 60-min cap, daily limit = 2× full-pool, triple claim multiplies payout but not the daily limit cap.
-- **Offline earnings:** calculated on `visibilitychange` (foreground resume). Wellbeing decay capped at −2/h, max 24h.
+- **Offline earnings:** calculated on `visibilitychange` (foreground resume). Wellbeing decay capped at −2/h, max 24h. Unclaimed earnings are persisted to `localStorage` under `pending_offline_earnings` and restored on next session, combining with any newly calculated earnings.
 - Schema fields `jobs.unlock_requirement_money`, `character_outfits.unlock_type/value` are unused in live rules.
 
 ### UI Conventions
@@ -169,11 +169,34 @@ Badge / chip:      text-[10px] font-black
 
 Always play a sound for meaningful player actions. Cooldown / disabled states → no sound.
 
-### Known Technical Debt
+### Monetization Status
 
-- Manager job category is a placeholder — no real data yet.
-- RevenueCat native SDK not installed; IAP is mock-only.
-- AdMob is in test mode (`isTesting: true`).
+- **RevenueCat:** `@revenuecat/purchases-capacitor` installed and configured. Android API key live in `.env.production`. Native purchase flow active on device; web falls back to `purchaseMock` (dev only).
+- **AdMob:** Real ad unit IDs in `src/services/ads/adMobConfig.ts`. `VITE_ADMOB_TESTING=false` in `.env.production`. Rewarded ad provider switches automatically: Capacitor on native, mock on web.
+- **IAP products:** Defined in Play Console. `PACKAGE_ID_TO_PRODUCT_ID` map in `src/services/iapService.ts` links shop packages to store product IDs.
+
+### Character Animation Status
+
+- Outfit images follow naming: `ch-N-1.png` (idle static), `ch-N-2.png` (celebrate static).
+- Animated WebP overlays: `ch-N-idle.webp` (18-frame, 7fps) and `ch-N-celebrate.webp` (25-frame, 12.5fps). Generated from Ludo.ai sprite sheets using `scripts/convert_outfit.py`.
+- `CharacterDisplay` tries `.webp` first, falls back to `.png` via `onError`. No code change needed when adding new animated outfits — just drop the `.webp` files.
+- Celebration window: 2200ms. Animated celebrate plays browser-natively (no CSS needed); static celebrate uses `animate-celebrate-jump` CSS.
+
+### Splash Screen (Android)
+
+- Android 12+ shows a mandatory OS splash (app icon + blue `#0C2FA0` background) before the app window opens. This is system-controlled and cannot be removed.
+- After OS splash: Capacitor `@capacitor/splash-screen` overlay shows `drawable-port-*/splash.png` (full game artwork). Configured with `launchAutoHide: false`; manually hidden via `SplashScreen.hide({ fadeOutDuration: 400 })` when `gameState.loading` becomes false.
+- Splash images live in `android/app/src/main/res/drawable-port-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/splash.png`.
+
+### Intro Sequence
+
+On first game load (web and native), `App.tsx` runs a staged intro:
+1. House background slides in from right (0ms)
+2. Character slides in from right (900ms)
+3. Car slides in from right if present (1650ms)
+4. Offline earnings modal appears (2475ms)
+
+Controlled by `introPhase` state (`'pending' | 'house' | 'character' | 'car' | 'done'`). Offline modal gated on `introPhase === 'done'`.
 
 ## Session Startup
 

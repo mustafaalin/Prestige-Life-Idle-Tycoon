@@ -1464,6 +1464,9 @@ export default function App() {
         }
         totalExpenses={Number(gameState.profile.total_expenses ?? 0)}
         netIncome={gameState.boostedHourlyIncome}
+        businessBoostActive={gameState.activeBoosts.business.active}
+        investmentBoostActive={gameState.activeBoosts.investment.active}
+        totalBoost={gameState.activeBoosts.total}
       />
 
       {introPhase === 'done' && gameState.offlineEarnings && gameState.offlineEarnings.amount > 0 && (
