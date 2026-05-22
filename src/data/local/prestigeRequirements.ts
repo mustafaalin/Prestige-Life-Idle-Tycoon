@@ -1,58 +1,58 @@
 import type { Car, House } from '../../types/game';
 
 const HOUSE_PRESTIGE_REQUIREMENTS: Record<number, number> = {
-  1:  0,   // Ch0 start
-  2:  5,   // Ch0 mid
-  3:  10,  // Ch0 mid
-  4:  18,  // Ch0 end
-  5:  28,  // Ch1 end
-  6:  40,  // Ch2 start
-  7:  52,  // Ch2 end
-  8:  65,  // Ch3 start
-  9:  80,  // Ch3 end
-  10: 95,  // Ch3-4 transition
-  11: 112, // Ch4 end
-  12: 130, // Ch4-5 transition
-  13: 148, // Ch5 end
-  14: 168, // Ch6 start
-  15: 186, // Ch6 mid
-  16: 205, // Ch6 end
-  17: 225, // Ch7 start
-  18: 245, // Ch7 mid
-  19: 268, // Ch7-8 transition
-  20: 290, // Ch8 start
-  21: 312, // Ch8 mid
-  22: 335, // Ch8 end
-  23: 358, // Ch9 start
-  24: 380, // Ch9 mid
-  25: 402, // Ch9 end
+  1:  0,   // Ch1
+  2:  0,   // Ch1
+  3:  8,   // Ch1 end
+  4:  15,  // Ch2
+  5:  22,  // Ch2 end
+  6:  30,  // Ch3
+  7:  38,  // Ch3 end
+  8:  48,  // Ch4       ← was 65 (caused deadlock)
+  9:  58,  // Ch4 end
+  10: 70,  // Ch5
+  11: 82,  // Ch5 end
+  12: 100, // Ch6
+  13: 115, // Ch6 end
+  14: 135, // Ch7
+  15: 148, // Ch7 mid
+  16: 158, // Ch7 end
+  17: 175, // Ch8
+  18: 192, // Ch8 mid
+  19: 205, // Ch8 end
+  20: 225, // Ch9
+  21: 248, // Ch9 mid
+  22: 265, // Ch9 end
+  23: 290, // Ch10
+  24: 320, // Ch10 mid  ← was 380 (impossible)
+  25: 350, // Ch10 end  ← was 402 (impossible)
   // Premium houses (level 50/51/52) — interleaved after houses 6, 13, 20
-  50: 40,  // Ch2 start (same as house-6)
-  51: 148, // Ch5 end   (same as house-13)
-  52: 290, // Ch8 start (same as house-20)
+  50: 30,  // same as house-6
+  51: 115, // same as house-13
+  52: 225, // same as house-20
 };
 
 const CAR_PRESTIGE_REQUIREMENTS: Record<number, number> = {
-  1:  0,   // Ch0 start
-  2:  5,   // Ch0 mid
-  3:  16,  // Ch0 end
-  4:  28,  // Ch1 end
-  5:  42,  // Ch2 start
-  6:  57,  // Ch2 end
-  7:  73,  // Ch3 start
-  8:  90,  // Ch3 end
-  9:  108, // Ch4 start
-  10: 126, // Ch4-5 transition
-  11: 145, // Ch5 mid
-  12: 165, // Ch5 end
-  13: 185, // Ch6 start
-  14: 206, // Ch6 end
-  15: 228, // Ch7 start
-  16: 250, // Ch7 mid
-  17: 274, // Ch7 end
-  18: 300, // Ch8 start
-  19: 328, // Ch8 end
-  20: 370, // Ch9 mid
+  1:  0,   // Ch1
+  2:  0,   // Ch1 end
+  3:  12,  // Ch2
+  4:  22,  // Ch2 end
+  5:  32,  // Ch3
+  6:  40,  // Ch3 end
+  7:  50,  // Ch4       ← was 73
+  8:  60,  // Ch4 end   ← was 90
+  9:  72,  // Ch5
+  10: 84,  // Ch5 end
+  11: 105, // Ch6
+  12: 118, // Ch6 end
+  13: 138, // Ch7
+  14: 152, // Ch7 end
+  15: 178, // Ch8
+  16: 198, // Ch8 end
+  17: 235, // Ch9
+  18: 258, // Ch9 end
+  19: 300, // Ch10
+  20: 345, // Ch10 end  ← was 370 (impossible)
 };
 
 export function getRequiredPrestigeForHouse(house: Pick<House, 'level'>) {
