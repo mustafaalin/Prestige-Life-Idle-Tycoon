@@ -344,3 +344,15 @@ function buildHouseList(): House[] {
 }
 
 export const LOCAL_HOUSES: House[] = buildHouseList();
+
+// Houses gate jobs via formula: requiredHouseLvl = ceil(jobOrder * 25 / 60).
+// Inverting: max job covered by a house of level L = floor(L * 60 / 25).
+export function getMaxJobLevelCoveredByHouse(
+  house: Pick<House, 'level' | 'progression_level_equivalent' | 'is_premium'>
+): number {
+  const effectiveLevel = house.is_premium
+    ? Number(house.progression_level_equivalent || 0)
+    : Number(house.level || 0);
+  if (effectiveLevel <= 0) return 1;
+  return Math.floor((effectiveLevel * 60) / 25);
+}

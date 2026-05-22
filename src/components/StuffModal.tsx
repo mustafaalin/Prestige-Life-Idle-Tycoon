@@ -5,6 +5,7 @@ import { getHouseIconAsset, LOCAL_ICON_ASSETS, resolveLocalAsset } from '../lib/
 import { Gem } from 'lucide-react';
 import { formatMoneyFull, formatMoneyPerHour } from '../utils/money';
 import { getCarProgressionLevel, getMaxJobLevelCoveredByCar } from '../data/local/cars';
+import { getMaxJobLevelCoveredByHouse } from '../data/local/houses';
 import {
   canAccessCarWithPrestige,
   canAccessHouseWithPrestige,
@@ -464,6 +465,9 @@ export function StuffModal({
                       <div className="space-y-0.5">
                         <h3 className="font-extrabold text-sm text-gray-900 leading-tight">{house.name}</h3>
                         <p className="text-[10px] text-slate-500 leading-snug">{house.description}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber-700">
+                          Covers jobs up to Lv {getMaxJobLevelCoveredByHouse(house)}
+                        </p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-1.5">
