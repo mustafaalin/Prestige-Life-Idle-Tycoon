@@ -394,6 +394,10 @@ export function StuffModal({
         if (isPremium) {
           const gemPrice = Number(house.gem_price || 0);
           const canAffordGems = totalGems >= gemPrice;
+          const premiumHouseLevel = Number(house.progression_level_equivalent || 0);
+          const insufficientForCurrentJob = !isOwned && !isSelected
+            && minimumSupportedHouseLevel > 0
+            && premiumHouseLevel < minimumSupportedHouseLevel;
           return (
             <div
               key={house.id}
@@ -496,18 +500,27 @@ export function StuffModal({
                           Move Here
                         </button>
                       ) : (
-                        <button
-                          onClick={async () => { await onPurchasePremiumHouse(house.id); }}
-                          disabled={loading || !canAffordGems}
-                          className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                            canAffordGems
-                              ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-white active:scale-95'
-                              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                          }`}
-                        >
-                          <Gem className="h-3.5 w-3.5" />
-                          {canAffordGems ? `Buy — ${gemPrice} Gems` : `Need ${gemPrice - totalGems} more gems`}
-                        </button>
+                        <div className="flex flex-col gap-1.5">
+                          {insufficientForCurrentJob && (
+                            <div className="rounded-lg bg-rose-50 border border-rose-200 px-2.5 py-1.5 text-[10px] font-black text-rose-600 text-center">
+                              ⚠️ Job {activeJob?.order} needs house Lv {minimumSupportedHouseLevel}+. This covers up to Lv {premiumHouseLevel}.
+                            </div>
+                          )}
+                          <button
+                            onClick={async () => { await onPurchasePremiumHouse(house.id); }}
+                            disabled={loading || !canAffordGems || insufficientForCurrentJob}
+                            className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                              insufficientForCurrentJob
+                                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                : canAffordGems
+                                  ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-white active:scale-95'
+                                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                            }`}
+                          >
+                            <Gem className="h-3.5 w-3.5" />
+                            {!canAffordGems ? `Need ${gemPrice - totalGems} more gems` : `Buy — ${gemPrice} Gems`}
+                          </button>
+                        </div>
                       )}
                     </div>
                   </>

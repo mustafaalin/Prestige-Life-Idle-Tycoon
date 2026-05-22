@@ -12,20 +12,20 @@ const HOUSE_PRESTIGE_REQUIREMENTS: Record<number, number> = {
   9:  58,  // Ch4 end
   10: 70,  // Ch5
   11: 82,  // Ch5 end
-  12: 100, // Ch6
-  13: 115, // Ch6 end
-  14: 135, // Ch7
-  15: 148, // Ch7 mid
-  16: 158, // Ch7 end
-  17: 175, // Ch8
-  18: 192, // Ch8 mid
-  19: 205, // Ch8 end
-  20: 225, // Ch9
-  21: 248, // Ch9 mid
-  22: 265, // Ch9 end
-  23: 290, // Ch10
-  24: 320, // Ch10 mid  ← was 380 (impossible)
-  25: 350, // Ch10 end  ← was 402 (impossible)
+  12: 88,  // Ch6
+  13: 100, // Ch6 mid
+  14: 110, // Ch6 end   ← was 135 (caused deadlock at 120pp)
+  15: 128, // Ch7
+  16: 140, // Ch7 mid
+  17: 150, // Ch7 end
+  18: 168, // Ch8
+  19: 182, // Ch8 mid
+  20: 195, // Ch8 end
+  21: 218, // Ch9
+  22: 240, // Ch9 mid
+  23: 260, // Ch9 end
+  24: 295, // Ch10
+  25: 335, // Ch10 end
   // Premium houses (level 50/51/52) — interleaved after houses 6, 13, 20
   50: 30,  // same as house-6
   51: 115, // same as house-13
