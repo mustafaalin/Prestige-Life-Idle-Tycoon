@@ -447,14 +447,14 @@ export function Header({
 
               <button
                 onClick={onOpenLeaderboard}
-                className="flex items-center gap-1 bg-gradient-to-r from-yellow-500/25 to-amber-500/25 px-1.5 max-[400px]:px-1 py-0.5 rounded-md border border-yellow-400/40 shadow-lg transition-transform active:scale-90 max-w-[48px] max-[400px]:max-w-[38px] overflow-hidden"
+                className="flex items-center gap-1 bg-gradient-to-r from-yellow-500/25 to-amber-500/25 px-1.5 max-[400px]:px-1 py-0.5 rounded-md border border-yellow-400/40 shadow-lg transition-transform active:scale-90 shrink-0"
               >
                 <img
                   src={LOCAL_ICON_ASSETS.prestige}
                   alt="Prestige"
                   className="w-3.5 h-3.5 max-[400px]:w-3 max-[400px]:h-3 shrink-0"
                 />
-                <span className="text-[11px] max-[400px]:text-[9px] font-black text-yellow-100 leading-none truncate">
+                <span className="text-[11px] max-[400px]:text-[9px] font-black text-yellow-100 leading-none">
                   {prestigePoints}
                 </span>
               </button>
