@@ -546,9 +546,21 @@ export function StuffModal({
             key={house.id}
             ref={isSelected ? selectedHouseRef : undefined}
             className={`relative bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-xl ${
-              isSelected ? 'border-2 border-blue-500' : 'border-2 border-slate-200'
+              isSelected
+                ? 'border-2 border-blue-500'
+                : violatesActiveJobHouseRequirement
+                  ? 'border-2 border-slate-200 opacity-60'
+                  : 'border-2 border-slate-200'
             }`}
           >
+            {violatesActiveJobHouseRequirement && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+                <div className="flex flex-col items-center gap-1 rounded-2xl bg-white/80 px-4 py-2.5 shadow-sm backdrop-blur-[2px]">
+                  <Lock className="h-5 w-5 text-slate-500" />
+                  <span className="text-[10px] font-black text-slate-600 whitespace-nowrap">Job needs Lv {minimumSupportedHouseLevel}+ house</span>
+                </div>
+              </div>
+            )}
             <div className={`p-3 flex gap-3 ${
               isSelected
                 ? 'bg-gradient-to-br from-blue-50 to-cyan-50'
@@ -620,23 +632,19 @@ export function StuffModal({
                       </div>
                     </div>
 
-                    <button
-                      onClick={async () => { await onSelectHouse(house.id); }}
-                      disabled={isSelected || loading || violatesActiveJobHouseRequirement}
-                      className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
-                        isSelected
-                          ? 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border border-blue-300'
-                          : violatesActiveJobHouseRequirement
-                            ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    {!violatesActiveJobHouseRequirement && (
+                      <button
+                        onClick={async () => { await onSelectHouse(house.id); }}
+                        disabled={isSelected || loading}
+                        className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border border-blue-300'
                             : 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 active:scale-95'
-                      }`}
-                    >
-                      {isSelected
-                        ? 'Current Home'
-                        : violatesActiveJobHouseRequirement
-                          ? `Job needs Lv ${minimumSupportedHouseLevel}+`
-                          : 'Move Here'}
-                    </button>
+                        }`}
+                      >
+                        {isSelected ? 'Current Home' : 'Move Here'}
+                      </button>
+                    )}
                   </div>
                 </>
               )}
