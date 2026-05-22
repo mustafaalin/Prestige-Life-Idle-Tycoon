@@ -74,9 +74,25 @@ export function QuestRewardClaimModal({
             <button
               onClick={onClaim}
               disabled={isBusy || isWatchingAd}
-              className="rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 px-4 py-3 text-sm font-black text-white transition-all active:scale-[0.98] disabled:opacity-60"
+              className="flex flex-col items-center justify-center gap-1 rounded-2xl bg-slate-200 px-4 py-3 text-slate-600 transition-all active:scale-[0.98] disabled:opacity-60"
             >
-              {isBusy ? 'Claiming...' : 'Claim'}
+              {isBusy ? (
+                <span className="text-sm font-black">Claiming...</span>
+              ) : (
+                <>
+                  <div className="flex items-center gap-1.5">
+                    {hasGemReward ? (
+                      <img src={LOCAL_ICON_ASSETS.gem} alt="" className="h-5 w-5 object-contain opacity-70" />
+                    ) : (
+                      <img src={LOCAL_ICON_ASSETS.moneyPack0} alt="" className="h-5 w-5 object-contain opacity-70" />
+                    )}
+                    <span className="text-sm font-black">
+                      {hasGemReward ? rewardGems : formatMoneyFull(rewardMoney)}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold opacity-60">Claim</span>
+                </>
+              )}
             </button>
 
             <div className="relative">
@@ -90,13 +106,29 @@ export function QuestRewardClaimModal({
               <button
                 onClick={onClaimDouble}
                 disabled={isBusy || isWatchingAd}
-                className={`w-full rounded-2xl py-3 text-sm font-black transition-all active:scale-[0.98] disabled:opacity-60 ${
+                className={`w-full flex flex-col items-center justify-center gap-1 rounded-2xl py-3 transition-all active:scale-[0.98] disabled:opacity-60 ${
                   isWatchingAd
                     ? 'bg-slate-100 text-slate-400'
                     : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
                 }`}
               >
-                {isWatchingAd ? '...' : 'Boost x2'}
+                {isWatchingAd ? (
+                  <span className="text-sm font-black">...</span>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-1.5">
+                      {hasGemReward ? (
+                        <img src={LOCAL_ICON_ASSETS.gem} alt="" className="h-5 w-5 object-contain" />
+                      ) : (
+                        <img src={LOCAL_ICON_ASSETS.moneyPack1} alt="" className="h-5 w-5 object-contain" />
+                      )}
+                      <span className="text-sm font-black">
+                        {hasGemReward ? rewardGems * 2 : formatMoneyFull(rewardMoney * 2)}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold opacity-80">Boost x2</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
