@@ -109,6 +109,6 @@ export function getRequiredPrestigeForOutfit(unlockOrder: number): number {
   return OUTFIT_PRESTIGE_REQUIREMENTS[unlockOrder] ?? 0;
 }
 
-export function canAccessOutfitWithPrestige(unlockOrder: number, prestigePoints: number): boolean {
-  return Number(prestigePoints || 0) >= getRequiredPrestigeForOutfit(unlockOrder);
+export function canAccessOutfitWithPrestige(_unlockOrder: number, _prestigePoints: number): boolean {
+  return true;
 }
