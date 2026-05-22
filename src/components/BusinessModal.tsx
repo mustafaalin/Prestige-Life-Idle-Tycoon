@@ -299,9 +299,9 @@ export function BusinessModal({
                       </div>
                     ) : (
                       <>
-                        <div className="shrink-0 flex items-center justify-center">
+                        <div className="shrink-0 flex items-center justify-center w-[96px]">
                           <div
-                            className={`w-20 h-20 rounded-2xl shadow-md border flex items-center justify-center overflow-hidden ${
+                            className={`w-[88px] h-[88px] rounded-2xl shadow-md border flex items-center justify-center overflow-hidden ${
                               isMaxLevel
                                 ? 'bg-gradient-to-br from-amber-400 to-yellow-500 border-amber-300'
                                 : business.is_owned
