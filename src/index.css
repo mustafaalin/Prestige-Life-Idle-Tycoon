@@ -9,6 +9,14 @@
 }
 
 @layer utilities {
+  @keyframes shimmer {
+    0%   { transform: translateX(-100%) skewX(-15deg); }
+    100% { transform: translateX(250%) skewX(-15deg); }
+  }
+  .animate-shimmer {
+    animation: shimmer 2.4s ease-in-out infinite;
+  }
+
   @keyframes floatUp {
     0% {
       transform: translateY(0) scale(1);

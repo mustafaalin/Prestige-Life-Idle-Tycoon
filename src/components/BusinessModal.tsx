@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { X, Lock, TrendingUp, CheckCircle2, Building2, Store, Star } from 'lucide-react';
+import { X, Lock, TrendingUp, CheckCircle2, Building2, Store } from 'lucide-react';
 import type { BusinessWithPlayerData } from '../types/game';
 import { resolveLocalAsset, LOCAL_ICON_ASSETS } from '../lib/localAssets';
 import { formatMoneyFull, formatMoneyPerHour } from '../utils/money';
@@ -269,6 +269,18 @@ export function BusinessModal({
                         : 'border-2 border-orange-600'
                   }`}
                 >
+                  {/* MAX ribbon */}
+                  {isMaxLevel && (
+                    <>
+                      <div className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-400 px-2 py-0.5 shadow-md">
+                        <span className="text-[10px] font-black text-amber-900 leading-none">✦ MAX</span>
+                      </div>
+                      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
+                        <div className="animate-shimmer absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                      </div>
+                    </>
+                  )}
+
                   <div
                     className={`p-3 flex gap-3 ${
                       isMaxLevel
@@ -362,18 +374,17 @@ export function BusinessModal({
                             </>
                           ) : (
                             <>
-                              <div className="rounded-lg border border-amber-200 bg-white/80 px-2 py-2">
-                                <div className="flex items-center justify-center gap-1">
+                              <div className="rounded-lg border border-amber-200 bg-white/80 px-2 py-2.5">
+                                <div className="flex items-center justify-center gap-2">
                                   {Array.from({ length: 5 }).map((_, index) => {
                                     const isFilled = index < Math.max(0, Number(business.current_level || 1) - 1);
-
                                     return (
-                                      <Star
+                                      <div
                                         key={index}
-                                        className={`h-4 w-4 ${
+                                        className={`w-4 h-4 rounded-full transition-all duration-300 ${
                                           isFilled
-                                            ? 'fill-amber-400 text-amber-400'
-                                            : 'fill-transparent text-slate-300'
+                                            ? 'bg-gradient-to-br from-amber-300 to-amber-500 shadow-[0_0_7px_rgba(251,191,36,0.75)]'
+                                            : 'bg-slate-200'
                                         }`}
                                       />
                                     );
