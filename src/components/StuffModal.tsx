@@ -492,13 +492,24 @@ export function StuffModal({
                           Current Home
                         </button>
                       ) : isOwned ? (
-                        <button
-                          onClick={async () => { await onSelectHouse(house.id); }}
-                          disabled={loading}
-                          className="w-full rounded-lg py-2 px-3 text-xs font-bold bg-gradient-to-r from-amber-400 to-orange-400 text-white active:scale-95 transition-all"
-                        >
-                          Move Here
-                        </button>
+                        <div className="flex flex-col gap-1.5">
+                          {minimumSupportedHouseLevel > 0 && premiumHouseLevel < minimumSupportedHouseLevel && (
+                            <div className="rounded-lg bg-rose-50 border border-rose-200 px-2.5 py-1.5 text-[10px] font-black text-rose-600 text-center">
+                              ⚠️ Job needs house Lv {minimumSupportedHouseLevel}+
+                            </div>
+                          )}
+                          <button
+                            onClick={async () => { await onSelectHouse(house.id); }}
+                            disabled={loading || (minimumSupportedHouseLevel > 0 && premiumHouseLevel < minimumSupportedHouseLevel)}
+                            className={`w-full rounded-lg py-2 px-3 text-xs font-bold transition-all ${
+                              minimumSupportedHouseLevel > 0 && premiumHouseLevel < minimumSupportedHouseLevel
+                                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-amber-400 to-orange-400 text-white active:scale-95'
+                            }`}
+                          >
+                            Move Here
+                          </button>
+                        </div>
                       ) : (
                         <div className="flex flex-col gap-1.5">
                           {insufficientForCurrentJob && (

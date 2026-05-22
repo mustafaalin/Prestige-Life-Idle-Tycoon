@@ -170,7 +170,10 @@ export function useStuffActions({
     if (!isCurrentHouse && targetHouse.is_premium && !gameState.ownedHouses.includes(houseId)) {
       return false;
     }
-    if (!isCurrentHouse && !targetHouse.is_premium && minimumSupportedHouseLevel > 0 && targetHouse.level < minimumSupportedHouseLevel) {
+    const effectiveHouseLevel = targetHouse.is_premium
+      ? Number(targetHouse.progression_level_equivalent || 0)
+      : Number(targetHouse.level || 0);
+    if (!isCurrentHouse && minimumSupportedHouseLevel > 0 && effectiveHouseLevel < minimumSupportedHouseLevel) {
       return false;
     }
 
