@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { X, Lock, Check, Play, ChevronRight } from 'lucide-react';
+import { LOCAL_ICON_ASSETS } from '../lib/localAssets';
 import type { Car, House, Job, JobCategory, PlayerJob, PlayerProfile } from '../types/game';
 import { resolveLocalAsset } from '../lib/localAssets';
 import { getJobUnlockRequirementSeconds } from '../data/local/jobs';
@@ -20,6 +21,8 @@ interface JobsModalProps {
   onUnlockJob: (jobId: string) => Promise<boolean>;
   onSelectJob: (jobId: string) => Promise<boolean>;
   onSkipCooldown: () => Promise<boolean>;
+  onSkipCooldownGem: () => Promise<boolean>;
+  gems: number;
   onOpenHealth: () => void;
   onOpenHappiness: () => void;
   onOpenStuffTab: (tab: 'cars' | 'houses') => void;
@@ -109,6 +112,8 @@ export function JobsModal({
   onUnlockJob,
   onSelectJob,
   onSkipCooldown,
+  onSkipCooldownGem,
+  gems,
   onOpenHealth,
   onOpenHappiness,
   onOpenStuffTab,
@@ -364,15 +369,26 @@ export function JobsModal({
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {isActive && remainingSeconds > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleSkipCooldown}
-                    disabled={isSkippingCooldown}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-2 text-xs font-black text-emerald-700 transition-all hover:border-emerald-300 hover:bg-emerald-100 disabled:opacity-60"
-                  >
-                    <Play className="h-4 w-4 fill-current" />
-                    {isSkippingCooldown ? 'Watching...' : `Skip ${remainingSeconds}s`}
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={handleSkipCooldown}
+                      disabled={isSkippingCooldown}
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-2 text-xs font-black text-emerald-700 transition-all hover:border-emerald-300 hover:bg-emerald-100 disabled:opacity-60"
+                    >
+                      <Play className="h-4 w-4 fill-current" />
+                      {isSkippingCooldown ? 'Watching...' : `Skip ${remainingSeconds}s`}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSkipCooldownGem}
+                      disabled={gems < 2 || isSkippingCooldown}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-full border border-violet-200 bg-white px-3 py-2 text-xs font-black text-violet-700 transition-all hover:border-violet-300 hover:bg-violet-50 disabled:opacity-50"
+                    >
+                      <img src={LOCAL_ICON_ASSETS.gem} alt="gem" className="h-3.5 w-3.5 object-contain" />
+                      2
+                    </button>
+                  </div>
                 )}
 
                 {isCompleted ? (
@@ -425,6 +441,13 @@ export function JobsModal({
 
   const handleSkipCooldown = async () => {
     const success = await onSkipCooldown();
+    if (success) {
+      setNow(Date.now());
+    }
+  };
+
+  const handleSkipCooldownGem = async () => {
+    const success = await onSkipCooldownGem();
     if (success) {
       setNow(Date.now());
     }

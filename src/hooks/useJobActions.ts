@@ -124,9 +124,30 @@ export function useJobActions({
     setGameState,
   ]);
 
+  const GEM_SKIP_COST = 2;
+
+  const skipJobCooldownWithGems = useCallback(async () => {
+    const currentProfile = gameStateRef.current.profile;
+    if (!currentProfile) return false;
+    if (Number(currentProfile.gems || 0) < GEM_SKIP_COST) return false;
+
+    const ok = await skipJobCooldown();
+    if (!ok) return false;
+
+    const updatedProfile = {
+      ...gameStateRef.current.profile!,
+      gems: Number(gameStateRef.current.profile!.gems || 0) - GEM_SKIP_COST,
+    };
+    gameStateRef.current = { ...gameStateRef.current, profile: updatedProfile };
+    setGameState((prev) => ({ ...prev, profile: updatedProfile }));
+    saveToLocalStorage({ profile: updatedProfile });
+    return true;
+  }, [gameStateRef, skipJobCooldown, setGameState, saveToLocalStorage]);
+
   return {
     unlockJob,
     selectJob,
     skipJobCooldown,
+    skipJobCooldownWithGems,
   };
 }

@@ -367,7 +367,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     saveToLocalStorage,
     premiumBankCardMutationInFlightRef,
   });
-  const { unlockJob, selectJob, skipJobCooldown } = useJobActions({
+  const { unlockJob, selectJob, skipJobCooldown, skipJobCooldownWithGems } = useJobActions({
     gameState,
     setGameState,
     gameStateRef,
@@ -555,6 +555,7 @@ export function useGameState(deviceId: string, userId: string | null) {
     unlockJob,
     selectJob,
     skipJobCooldown,
+    skipJobCooldownWithGems,
     purchaseBusiness,
     upgradeBusiness,
     upgradeBusinessWithAdDiscount,

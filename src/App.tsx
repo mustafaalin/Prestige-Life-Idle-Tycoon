@@ -885,6 +885,10 @@ export default function App() {
     }
   }
 
+  async function handleJobCooldownSkipGem() {
+    return await gameState.skipJobCooldownWithGems();
+  }
+
   async function handleRescueDailyStreakWithAd() {
     const rewarded = await requestRewardedAd('daily_streak_rescue');
     if (!rewarded) {
@@ -1248,6 +1252,8 @@ export default function App() {
         onUnlockJob={gameState.unlockJob}
         onSelectJob={handleAnimatedJobSelect}
         onSkipCooldown={handleJobCooldownSkip}
+        onSkipCooldownGem={handleJobCooldownSkipGem}
+        gems={gameState.profile?.gems ?? 0}
         onOpenHealth={() => setShowHealthModal(true)}
         onOpenHappiness={() => setShowHappinessModal(true)}
         onOpenStuffTab={(tab) => {
