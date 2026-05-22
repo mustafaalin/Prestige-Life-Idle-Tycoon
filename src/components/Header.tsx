@@ -90,6 +90,8 @@ export function Header({
   const [displayedHealth, setDisplayedHealth] = useState(health);
   const [isHappinessAnimating, setIsHappinessAnimating] = useState(false);
   const [displayedHappiness, setDisplayedHappiness] = useState(happiness);
+  const [isPrestigeAnimating, setIsPrestigeAnimating] = useState(false);
+  const prevPrestigeRef = useRef(prestigePoints);
   const prevMoneyRef = useRef(totalMoney);
   const prevGemRef = useRef(gems);
   const prevHealthRef = useRef(health);
@@ -111,6 +113,15 @@ export function Header({
 
   const formatStatValue = (value: number) => `${Math.round(value)}`;
   const formatRate = (value: number) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}/h`;
+
+  useEffect(() => {
+    if (prestigePoints > prevPrestigeRef.current) {
+      setIsPrestigeAnimating(true);
+      const t = window.setTimeout(() => setIsPrestigeAnimating(false), 900);
+      return () => window.clearTimeout(t);
+    }
+    prevPrestigeRef.current = prestigePoints;
+  }, [prestigePoints]);
 
   useEffect(() => {
     setDisplayedMoney(totalMoney);
@@ -447,7 +458,11 @@ export function Header({
 
               <button
                 onClick={onOpenLeaderboard}
-                className="flex items-center gap-1 bg-gradient-to-r from-yellow-500/25 to-amber-500/25 px-1.5 max-[400px]:px-1 py-0.5 rounded-md border border-yellow-400/40 shadow-lg transition-transform active:scale-90 shrink-0"
+                className={`flex items-center gap-1 bg-gradient-to-r from-yellow-500/25 to-amber-500/25 px-1.5 max-[400px]:px-1 py-0.5 rounded-md border shadow-lg active:scale-90 shrink-0 transition-all duration-150 ${
+                  isPrestigeAnimating
+                    ? 'scale-[2] border-yellow-300/80 shadow-[0_0_14px_rgba(250,204,21,0.7)] bg-gradient-to-r from-yellow-400/50 to-amber-400/50'
+                    : 'border-yellow-400/40 scale-100'
+                }`}
               >
                 <img
                   src={LOCAL_ICON_ASSETS.prestige}
