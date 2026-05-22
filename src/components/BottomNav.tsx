@@ -22,7 +22,7 @@ export function BottomNav({
     { id: 'shop' as const, iconUrl: LOCAL_ICON_ASSETS.shop, label: 'Shop' },
     { id: 'job' as const, iconUrl: LOCAL_ICON_ASSETS.job, label: 'Job' },
     { id: 'business' as const, iconUrl: LOCAL_ICON_ASSETS.business, label: 'Business' },
-    { id: 'investments' as const, iconUrl: LOCAL_ICON_ASSETS.investments, label: 'Investments' },
+    { id: 'investments' as const, iconUrl: LOCAL_ICON_ASSETS.investments, label: 'Invest' },
     { id: 'stuff' as const, iconUrl: LOCAL_ICON_ASSETS.stuff, label: 'Stuff' }
   ];
 
@@ -62,16 +62,21 @@ export function BottomNav({
                   !
                 </div>
               )}
-              <div className="w-full h-full flex items-center justify-center">
+              <div className="w-full h-full flex flex-col items-center justify-center gap-0.5">
                 <img
                   src={item.iconUrl}
                   alt={item.label}
                   className={
-                    'w-9 h-9 object-contain transition-all duration-200 ' +
+                    'w-7 h-7 object-contain transition-all duration-200 ' +
                     (item.id === 'stuff' ? 'scale-110 ' : '') +
-                    (isActive ? 'scale-125' : '')
+                    (isActive ? 'scale-110' : '')
                   }
                 />
+                <span className={`text-[9px] font-black leading-none tracking-wide transition-all duration-200 ${
+                  isActive ? 'text-white' : 'text-white/60'
+                }`}>
+                  {item.label}
+                </span>
               </div>
             </button>
           );
@@ -87,8 +92,9 @@ export function BottomNav({
               !
             </div>
           )}
-          <div className="flex h-full w-full items-center justify-center">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-0.5">
             <ListTodo className="h-7 w-7 text-white" />
+            <span className="text-[9px] font-black leading-none tracking-wide text-white/60">Quests</span>
           </div>
         </button>
       </div>
