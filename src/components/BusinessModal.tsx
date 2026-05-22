@@ -7,6 +7,7 @@ import {
   BUSINESS_MAX_LEVEL,
   getBusinessUpgradeCost,
   getDiscountedBusinessUpgradeCost,
+  getNextBusinessIncome,
 } from '../utils/businessUpgrade';
 import { BoostAdButton } from './BoostAdButton';
 import type { BoostStatus } from '../hooks/useBoosts';
@@ -253,22 +254,32 @@ export function BusinessModal({
               const canAffordDiscountedUpgrade = totalMoney >= discountedUpgradeCost;
               const isMaxLevel = currentLevel >= BUSINESS_MAX_LEVEL;
 
+              const nextIncome = getNextBusinessIncome(currentIncome);
+
               return (
                 <div
                   key={business.id}
-                  className={`relative bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-xl ${
+                  className={`relative rounded-xl shadow-md overflow-hidden transition-all hover:shadow-xl ${
                     isLocked ? 'opacity-60' : ''
                   } ${
-                    business.category === 'small'
-                      ? 'border-2 border-orange-300'
-                      : 'border-2 border-orange-600'
+                    isMaxLevel
+                      ? 'border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.3)]'
+                      : business.category === 'small'
+                        ? 'border-2 border-orange-300'
+                        : 'border-2 border-orange-600'
                   }`}
                 >
                   <div
                     className={`p-3 flex gap-3 ${
-                      business.category === 'small'
-                        ? 'bg-gradient-to-br from-orange-50 to-amber-50'
-                        : 'bg-gradient-to-br from-orange-100 to-amber-100'
+                      isMaxLevel
+                        ? 'bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-50'
+                        : business.is_owned
+                          ? business.category === 'small'
+                            ? 'bg-gradient-to-br from-emerald-50 via-amber-50 to-orange-50'
+                            : 'bg-gradient-to-br from-emerald-100 via-amber-50 to-orange-100'
+                          : business.category === 'small'
+                            ? 'bg-gradient-to-br from-orange-50 to-amber-50'
+                            : 'bg-gradient-to-br from-orange-100 to-amber-100'
                     }`}
                   >
                     {isLocked ? (
@@ -281,47 +292,45 @@ export function BusinessModal({
                       </div>
                     ) : (
                       <>
-                        <div className="shrink-0 w-[104px] flex items-center justify-center">
-                          <div className="flex flex-col items-center gap-2">
-                            <div
-                              className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-md border flex items-center justify-center overflow-hidden ${
-                                business.is_owned
+                        <div className="shrink-0 flex items-center justify-center">
+                          <div
+                            className={`w-20 h-20 rounded-2xl shadow-md border flex items-center justify-center overflow-hidden ${
+                              isMaxLevel
+                                ? 'bg-gradient-to-br from-amber-400 to-yellow-500 border-amber-300'
+                                : business.is_owned
                                   ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-200'
                                   : 'bg-gradient-to-br from-orange-400 to-amber-500 border-orange-200'
-                              }`}
-                            >
-                              {business.icon_url ? (
-                                <img
-                                  src={resolveLocalAsset(business.icon_url, 'business')}
-                                  alt={business.name}
-                                  className="w-[90%] h-[90%] object-contain"
-                                  loading="lazy"
-                                />
-                              ) : (
-                                <img
-                                  src={resolveLocalAsset(undefined, 'business')}
-                                  alt={business.name}
-                                  className="w-[90%] h-[90%] object-contain"
-                                  loading="lazy"
-                                />
-                              )}
-                            </div>
-
-                            <div className="inline-flex items-center gap-1 rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-[12px] font-black text-green-700 shadow-sm">
-                              <TrendingUp className="w-3 h-3 shrink-0" />
-                              {formatMoneyPerHour(
-                                business.is_owned
-                                  ? Number(business.current_hourly_income || business.base_hourly_income || 0)
-                                  : business.base_hourly_income
-                              )}
-                            </div>
+                            }`}
+                          >
+                            <img
+                              src={resolveLocalAsset(business.icon_url || undefined, 'business')}
+                              alt={business.name}
+                              className="w-[90%] h-[90%] object-contain"
+                              loading="lazy"
+                            />
                           </div>
                         </div>
 
                         <div className="flex-1 flex flex-col justify-center gap-2 min-w-0">
-                          <h3 className="font-extrabold text-sm text-gray-900 leading-tight line-clamp-2">
-                            {business.name}
-                          </h3>
+                          <div className="flex items-start justify-between gap-1">
+                            <h3 className="font-extrabold text-sm text-gray-900 leading-tight line-clamp-2 flex-1">
+                              {business.name}
+                            </h3>
+                            <div className={`shrink-0 flex items-center gap-1 rounded-xl px-2 py-1 ${
+                              isMaxLevel
+                                ? 'bg-amber-400/20 border border-amber-400/40'
+                                : 'bg-emerald-500/15 border border-emerald-400/30'
+                            }`}>
+                              <TrendingUp className={`w-3 h-3 shrink-0 ${isMaxLevel ? 'text-amber-600' : 'text-emerald-600'}`} />
+                              <span className={`text-[13px] font-black leading-none ${isMaxLevel ? 'text-amber-700' : 'text-emerald-700'}`}>
+                                {formatMoneyPerHour(
+                                  business.is_owned
+                                    ? Number(business.current_hourly_income || business.base_hourly_income || 0)
+                                    : business.base_hourly_income
+                                )}
+                              </span>
+                            </div>
+                          </div>
 
                           {!business.is_owned ? (
                             <>
@@ -374,9 +383,15 @@ export function BusinessModal({
 
                               {!isMaxLevel ? (
                                 <>
-                                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-orange-500">
-                                    Upgrade
-                                  </p>
+                                  <div className="flex items-center gap-1.5">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-orange-500">
+                                      Upgrade
+                                    </p>
+                                    <span className="text-[10px] font-black text-slate-400">→</span>
+                                    <span className="text-[11px] font-black text-emerald-600">
+                                      {formatMoneyPerHour(nextIncome)}
+                                    </span>
+                                  </div>
 
                                   <div className="mt-2 grid grid-cols-2 gap-2">
                                     <div className="rounded-lg border border-orange-100 bg-white/80 px-2.5 py-1.5 text-center">
@@ -446,9 +461,9 @@ export function BusinessModal({
                                   )}
                                 </>
                               ) : (
-                                <div className="text-[11px] font-bold text-green-700 bg-gradient-to-r from-green-100 to-emerald-100 py-1.5 px-3 rounded-full border border-green-300 text-center mx-auto w-auto min-w-[96px]">
-                                  <CheckCircle2 className="w-3 h-3 inline mr-1" />
-                                  MAX
+                                <div className="text-[12px] font-black text-amber-800 bg-gradient-to-r from-amber-300 to-yellow-300 py-2 px-4 rounded-xl border border-amber-400 text-center shadow-sm">
+                                  <CheckCircle2 className="w-3.5 h-3.5 inline mr-1 mb-0.5" />
+                                  MASTERED
                                 </div>
                               )}
                             </>
