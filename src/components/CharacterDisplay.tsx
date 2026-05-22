@@ -151,7 +151,7 @@ export function CharacterDisplay({
           className={`absolute bottom-40 left-4 z-10 select-none pointer-events-none ${
             carAnimState === 'transitioning' ? 'animate-car-slide-in' : ''
           }`}
-          style={carAnimState === 'idle' ? { transform: 'translateX(-10px)', opacity: 0.95 } : undefined}
+          style={carAnimState === 'idle' ? { transform: 'translateX(-10px)' } : undefined}
         >
           <div className="w-[300px] h-[200px] [@media(min-width:420px)]:w-[370px] [@media(min-width:420px)]:h-[247px] [@media(min-width:420px)_and_(min-height:700px)]:w-[420px] [@media(min-width:420px)_and_(min-height:700px)]:h-[280px] [@media(min-width:640px)_and_(min-height:700px)]:w-[480px] [@media(min-width:640px)_and_(min-height:700px)]:h-[320px]">
             <img src={visibleCar} alt="Car" className="w-full h-full object-contain" draggable={false} />

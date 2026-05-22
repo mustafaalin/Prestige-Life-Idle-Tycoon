@@ -64,13 +64,13 @@
   }
 
   @keyframes carSlideIn {
-    from { transform: translateX(110%) translateX(-10px); opacity: 0; }
-    to   { transform: translateX(-10px); opacity: 0.95; }
+    from { transform: translateX(110%); }
+    to   { transform: translateX(-10px); }
   }
 
   @keyframes carSlideOut {
-    from { transform: translateX(-10px); opacity: 0.95; }
-    to   { transform: translateX(-130%); opacity: 0; }
+    from { transform: translateX(-10px); }
+    to   { transform: translateX(-130%); }
   }
 
   .animate-car-slide-in {
