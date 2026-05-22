@@ -4,6 +4,7 @@ import {
   getQuestChapterByIndex,
   getQuestsForChapter,
   isQuestCompleted,
+  QUEST_CHAPTERS,
 } from '../data/local/quests';
 import type { GameState, PlayerProfile, QuestProgress } from '../types/game';
 import { syncQuestPrestige } from '../utils/game/gameStateHelpers';
@@ -25,9 +26,6 @@ export function useQuestDetection({
     if (questRewardInFlightRef.current) return;
     if (!gameState.profile) return;
 
-    const openChapterQuests = getQuestsForChapter(gameState.questProgress.unlockedChapterIndex);
-    if (!openChapterQuests.length) return;
-
     const snapshot = {
       profile: gameState.profile,
       questProgress: gameState.questProgress,
@@ -42,36 +40,64 @@ export function useQuestDetection({
       investments: gameState.investments,
     };
 
-    const newlyCompletedQuestIds = openChapterQuests
+    // ── Find the chapter the player is currently working on ──────────────────
+    // = the LOWEST chapter whose reward hasn't been claimed yet.
+    // unlockedChapterIndex is just for visibility (peek-ahead); the chapter
+    // truly being "completed" is determined by claimed state, not by index.
+    let activeChapterIndex = -1;
+    for (let i = 0; i < QUEST_CHAPTERS.length; i += 1) {
+      const chapter = QUEST_CHAPTERS[i];
+      if (!chapter) continue;
+      if (gameState.questProgress.claimedChapterRewardIds.includes(chapter.id)) continue;
+      activeChapterIndex = i;
+      break;
+    }
+    if (activeChapterIndex < 0) return; // all chapters claimed
+
+    const activeChapter = getQuestChapterByIndex(activeChapterIndex);
+    if (!activeChapter) return;
+
+    const activeChapterQuests = getQuestsForChapter(activeChapterIndex);
+    if (activeChapterQuests.length === 0) return;
+
+    // ── Detect newly completed quests in the active chapter ───────────────────
+    const newlyCompletedQuestIds = activeChapterQuests
       .filter((quest) => {
         const alreadyTracked =
           gameState.questProgress.completedQuestIds.includes(quest.id) ||
           gameState.questProgress.claimableQuestIds.includes(quest.id);
-
         if (alreadyTracked) return false;
         return isQuestCompleted(quest, snapshot);
       })
       .map((quest) => quest.id);
 
-    const openChapter = getQuestChapterByIndex(gameState.questProgress.unlockedChapterIndex);
-    const chapterQuestIds = openChapterQuests.map((quest) => quest.id);
-    const completedQuestIds = [
-      ...new Set([...gameState.questProgress.completedQuestIds, ...newlyCompletedQuestIds]),
-    ];
-    const chapterCompleted =
-      chapterQuestIds.length > 0 &&
-      chapterQuestIds.every((questId) => completedQuestIds.includes(questId));
-    const shouldUnlockChapterReward =
-      Boolean(openChapter) &&
-      chapterCompleted &&
-      !gameState.questProgress.claimableChapterRewardId &&
-      !gameState.questProgress.claimedChapterRewardIds.includes(openChapter!.id);
+    const completedQuestIds = new Set([
+      ...gameState.questProgress.completedQuestIds,
+      ...newlyCompletedQuestIds,
+    ]);
 
-    if (!newlyCompletedQuestIds.length && !shouldUnlockChapterReward) return;
+    // Chapter ready for reward when EVERY quest assigned to it is in
+    // completedQuestIds (including the freshly detected ones).
+    const chapterCompleted = activeChapterQuests.every((quest) => completedQuestIds.has(quest.id));
+
+    const desiredClaimableId = chapterCompleted ? activeChapter.id : null;
+    // Visibility: the chapter currently being worked on AND the next one
+    // (so the player can peek at upcoming quests once the current is complete).
+    const desiredUnlockedIndex = chapterCompleted
+      ? Math.min(activeChapterIndex + 1, QUEST_CHAPTERS.length - 1)
+      : activeChapterIndex;
+
+    // ── Decide whether to write anything ─────────────────────────────────────
+    const hasNewQuests = newlyCompletedQuestIds.length > 0;
+    const claimableChanged =
+      desiredClaimableId !== gameState.questProgress.claimableChapterRewardId;
+    const unlockedChanged =
+      desiredUnlockedIndex !== gameState.questProgress.unlockedChapterIndex;
+
+    if (!hasNewQuests && !claimableChanged && !unlockedChanged) return;
 
     questRewardInFlightRef.current = true;
     setGameState((prev) => {
-      const currentChapter = getQuestChapterByIndex(prev.questProgress.unlockedChapterIndex);
       const nextQuestProgress: QuestProgress = {
         ...prev.questProgress,
         completedQuestIds: [
@@ -80,15 +106,8 @@ export function useQuestDetection({
         claimableQuestIds: [
           ...new Set([...prev.questProgress.claimableQuestIds, ...newlyCompletedQuestIds]),
         ],
-        claimableChapterRewardId:
-          shouldUnlockChapterReward && currentChapter
-            ? currentChapter.id
-            : prev.questProgress.claimableChapterRewardId,
-        // Unlock next chapter immediately when all quests are done — reward can be claimed later
-        unlockedChapterIndex:
-          shouldUnlockChapterReward && currentChapter
-            ? Math.min(prev.questProgress.unlockedChapterIndex + 1, 9)
-            : prev.questProgress.unlockedChapterIndex,
+        claimableChapterRewardId: desiredClaimableId,
+        unlockedChapterIndex: desiredUnlockedIndex,
       };
       const nextProfile = prev.profile
         ? syncQuestPrestige(prev.profile as PlayerProfile, nextQuestProgress)
