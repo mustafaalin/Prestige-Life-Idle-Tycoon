@@ -3,7 +3,9 @@ import { X, Lock, Check, Play, ChevronRight } from 'lucide-react';
 import { LOCAL_ICON_ASSETS } from '../lib/localAssets';
 import type { Car, House, Job, JobCategory, PlayerJob, PlayerProfile } from '../types/game';
 import { resolveLocalAsset } from '../lib/localAssets';
-import { getJobUnlockRequirementSeconds } from '../data/local/jobs';
+import { getJobUnlockRequirementSeconds, LOCAL_JOBS } from '../data/local/jobs';
+
+const MAX_JOB_LEVEL = LOCAL_JOBS.reduce((max, job) => Math.max(max, Number(job.level || 0)), 0);
 import { evaluateJobRequirements, type JobRequirementRouteTarget } from '../data/local/jobRequirements';
 
 const formatMoney = (amount: number) => `$${amount.toLocaleString()}`;
@@ -185,8 +187,9 @@ export function JobsModal({
   const specialistUnlocked = workerCompletedCount >= workerJobs.length && workerJobs.length > 0;
   const managerUnlocked = specialistJobs.length > 0 && specialistCompletedCount >= specialistJobs.length;
   const isCooldownActive = jobChangeLockedUntil !== null && now < jobChangeLockedUntil;
-  const activeJobRequiredSeconds = activeJob ? getJobUnlockRequirementSeconds(activeJob) : 150;
-  const currentWorkerTrackProgress = Math.min(activeJobTotalTime / activeJobRequiredSeconds, 1);
+  const isOnFinalJob = Boolean(activeJob && Number(activeJob.level || 0) >= MAX_JOB_LEVEL);
+  const activeJobRequiredSeconds = activeJob && !isOnFinalJob ? getJobUnlockRequirementSeconds(activeJob) : 150;
+  const currentWorkerTrackProgress = isOnFinalJob ? 1 : Math.min(activeJobTotalTime / activeJobRequiredSeconds, 1);
 
   useEffect(() => {
     if (selectedTrack === 'specialist' && !specialistUnlocked) {
@@ -255,7 +258,9 @@ export function JobsModal({
     const isActive = Boolean(playerJob?.is_active);
     const isCompleted = Boolean(playerJob?.is_completed);
     const isNextJob = activeJob ? job.order === activeJob.order + 1 : job.is_default_unlocked;
-    const currentJobRequirement = activeJob ? getJobUnlockRequirementSeconds(activeJob) : getJobUnlockRequirementSeconds(1);
+    const currentJobRequirement = activeJob && !isOnFinalJob
+      ? getJobUnlockRequirementSeconds(activeJob)
+      : 0;
     const isVisibleUnlocked = isPersistedUnlocked || isNextJob;
     const remainingSeconds = Math.max(0, currentJobRequirement - activeJobTotalTime);
 
@@ -355,7 +360,7 @@ export function JobsModal({
                 </div>
               </div>
 
-              {isActive && (
+              {isActive && !isOnFinalJob && (
                 <div className="mt-3 rounded-2xl border border-emerald-100 bg-white/80 px-2 py-2">
                   <div className="relative h-2.5 overflow-hidden rounded-full bg-slate-200">
                     <div className="absolute inset-y-0 right-0 z-10 w-1.5 rounded-full bg-white shadow-[0_0_0_2px_rgba(16,185,129,0.18)]" />

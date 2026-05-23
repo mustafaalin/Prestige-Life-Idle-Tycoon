@@ -31,7 +31,9 @@ import { getScaledShopRewards } from './data/local/rewardScaling';
 import { sumWellbeingEffectsPerHour } from './data/local/wellbeing';
 import type { WellbeingFactor } from './types/game';
 import { LOCAL_QUESTS } from './data/local/quests';
-import { getJobUnlockRequirementSeconds } from './data/local/jobs';
+import { getJobUnlockRequirementSeconds, LOCAL_JOBS } from './data/local/jobs';
+
+const MAX_JOB_LEVEL = LOCAL_JOBS.reduce((max, job) => Math.max(max, Number(job.level || 0)), 0);
 import type { BankDepositPlanId } from './types/game';
 import { getCashbackRate } from './data/local/bankRewards';
 import { hasPremiumBankCard } from './data/local/bankPremium';
@@ -1010,14 +1012,17 @@ export default function App() {
       ? { label: currentHouse.name, source: 'house', healthPerHour: Number(currentHouse.health_effect_per_hour ?? 0), happinessPerHour: Number(currentHouse.happiness_effect_per_hour ?? 0) }
       : null,
   ].filter((f): f is WellbeingFactor => f !== null);
-  const activeJobRequiredSeconds = activeJob ? getJobUnlockRequirementSeconds(activeJob) : 0;
+  const isOnFinalJob = Boolean(activeJob && Number(activeJob.level || 0) >= MAX_JOB_LEVEL);
+  const activeJobRequiredSeconds = activeJob && !isOnFinalJob ? getJobUnlockRequirementSeconds(activeJob) : 0;
   const activeJobTrackedSeconds = activePlayerJob
     ? Number(activePlayerJob.total_time_worked_seconds || 0) + Number(gameState.unsavedJobWorkSeconds || 0)
     : 0;
   const jobProgress = activeJobRequiredSeconds > 0
     ? Math.min(activeJobTrackedSeconds / activeJobRequiredSeconds, 1)
     : 0;
-  const isJobReadyToAdvance = Boolean(activeJob && activeJobTrackedSeconds >= activeJobRequiredSeconds);
+  const isJobReadyToAdvance = Boolean(
+    activeJob && !isOnFinalJob && activeJobTrackedSeconds >= activeJobRequiredSeconds
+  );
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-slate-900" onClick={ensureMusicStarted}>
