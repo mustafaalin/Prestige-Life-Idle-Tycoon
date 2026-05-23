@@ -26,10 +26,10 @@ const HOUSE_PRESTIGE_REQUIREMENTS: Record<number, number> = {
   23: 195,
   24: 200,
   25: 225,
-  // Premium houses (level 50/51/52) — interleaved after houses 6, 13, 20
-  50: 28,  // same as house-6
-  51: 90,  // same as house-13
-  52: 165, // same as house-20
+  // Premium houses (level 50/51/52) bypass PP gating entirely — see
+  // canAccessHouseWithPrestige(). They are always purchasable with gems,
+  // but the buy button is disabled if the player's active job needs a
+  // higher house level than the premium covers (StuffModal handles that).
 };
 
 const CAR_PRESTIGE_REQUIREMENTS: Record<number, number> = {
