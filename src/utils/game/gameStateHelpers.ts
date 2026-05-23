@@ -4,6 +4,7 @@ import { LOCAL_MIKE_CHARACTER_ID } from '../../data/local/characters';
 import { LOCAL_STARTER_HOUSE_ID } from '../../data/local/houses';
 import { LOCAL_STARTER_OUTFIT_ID, createStarterPlayerOutfit } from '../../data/local/outfits';
 import {
+  calculatePrestigeFromBusinesses,
   calculatePrestigeFromQuestProgress,
   getQuestsForChapter,
 } from '../../data/local/quests';
@@ -130,19 +131,24 @@ export function getCurrentQuestFromProgress(progress: QuestProgress) {
   );
 }
 
-export function syncQuestPrestige(
+export function syncPrestige(
   profile: PlayerProfile,
-  questProgress: QuestProgress
+  questProgress: QuestProgress,
+  businesses?: BusinessWithPlayerData[]
 ): PlayerProfile {
   const questPrestige = calculatePrestigeFromQuestProgress(questProgress);
+  const businessPrestige = calculatePrestigeFromBusinesses(businesses);
   const resetBonus = Number((profile as PlayerProfile & { reset_prestige_bonus?: number }).reset_prestige_bonus || 0);
-  const totalPrestige = questPrestige + resetBonus;
+  const totalPrestige = questPrestige + businessPrestige + resetBonus;
   return {
     ...profile,
     bonus_prestige_points: totalPrestige,
     prestige_points: totalPrestige,
   } as PlayerProfile;
 }
+
+/** @deprecated use syncPrestige */
+export const syncQuestPrestige = syncPrestige;
 
 export function migrateLocalBusinesses(
   storedBusinesses: BusinessWithPlayerData[] | undefined,

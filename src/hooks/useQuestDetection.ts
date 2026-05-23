@@ -7,7 +7,7 @@ import {
   QUEST_CHAPTERS,
 } from '../data/local/quests';
 import type { GameState, PlayerProfile, QuestProgress } from '../types/game';
-import { syncQuestPrestige } from '../utils/game/gameStateHelpers';
+import { syncPrestige } from '../utils/game/gameStateHelpers';
 
 interface UseQuestDetectionParams {
   gameState: GameState;
@@ -110,7 +110,7 @@ export function useQuestDetection({
         unlockedChapterIndex: desiredUnlockedIndex,
       };
       const nextProfile = prev.profile
-        ? syncQuestPrestige(prev.profile as PlayerProfile, nextQuestProgress)
+        ? syncPrestige(prev.profile as PlayerProfile, nextQuestProgress, prev.businesses)
         : prev.profile;
 
       saveToLocalStorage({

@@ -18,7 +18,7 @@ import {
   migrateLocalBusinesses,
   migrateLocalInvestments,
   normalizeGameStats,
-  syncQuestPrestige,
+  syncPrestige,
 } from '../utils/game/gameStateHelpers';
 import * as profileService from '../services/profileService';
 import * as itemService from '../services/itemService';
@@ -104,7 +104,7 @@ export function useGameLoader({
     const gameStats = normalizeGameStats(stored?.gameStats as GameState['gameStats'] | undefined, profile.id);
     const questProgress = normalizeQuestProgress(stored?.questProgress as QuestProgress | undefined);
     const bankDeposits = (stored?.bankDeposits as BankDeposit[] | undefined) || [];
-    const syncedProfile = syncQuestPrestige(profile, questProgress);
+    const syncedProfile = syncPrestige(profile, questProgress, businesses);
     const ownedCharacters = ensureOwnedSelection(
       stored?.ownedCharacters as string[] | undefined,
       syncedProfile.selected_character_id,
@@ -307,7 +307,7 @@ export function useGameLoader({
       const bankDeposits = (localData?.bankDeposits as BankDeposit[] | undefined) || [];
 
       if (currentProfile) {
-        currentProfile = syncQuestPrestige(currentProfile, questProgress);
+        currentProfile = syncPrestige(currentProfile, questProgress, gameStateRef.current.businesses);
       }
 
       const currentPending = gameStateRef.current.pendingMoneyDelta;

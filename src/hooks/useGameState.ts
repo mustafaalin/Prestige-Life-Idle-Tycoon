@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
+  calculatePrestigeFromBusinesses,
   calculatePrestigeFromQuestProgress,
   createInitialQuestProgress,
   QUEST_CHAPTERS,
@@ -15,7 +16,7 @@ import type {
   PlayerProfile,
 } from '../types/game';
 import { calculateOfflineEarnings } from '../utils/game/calculations';
-import { getCurrentQuestFromProgress, syncQuestPrestige } from '../utils/game/gameStateHelpers';
+import { getCurrentQuestFromProgress, syncPrestige } from '../utils/game/gameStateHelpers';
 import { usePassiveIncome } from './usePassiveIncome';
 import { useAutoSave } from './useAutoSave';
 import { useJobTracking } from './useJobTracking';
@@ -86,8 +87,9 @@ export function useGameState(deviceId: string, userId: string | null) {
     if (!gameState.profile) return;
 
     const questPrestige = calculatePrestigeFromQuestProgress(gameState.questProgress);
+    const businessPrestige = calculatePrestigeFromBusinesses(gameState.businesses);
     const resetBonus = Number((gameState.profile as PlayerProfile).reset_prestige_bonus || 0);
-    const expectedPrestige = questPrestige + resetBonus;
+    const expectedPrestige = questPrestige + businessPrestige + resetBonus;
     const currentPrestige = Number(gameState.profile.prestige_points || 0);
     const currentBonusPrestige = Number(
       (gameState.profile as PlayerProfile).bonus_prestige_points || 0
@@ -97,13 +99,17 @@ export function useGameState(deviceId: string, userId: string | null) {
       return;
     }
 
-    const syncedProfile = syncQuestPrestige(gameState.profile as PlayerProfile, gameState.questProgress);
+    const syncedProfile = syncPrestige(
+      gameState.profile as PlayerProfile,
+      gameState.questProgress,
+      gameState.businesses
+    );
     setGameState((prev) => ({
       ...prev,
       profile: syncedProfile,
     }));
     saveToLocalStorage({ profile: syncedProfile });
-  }, [gameState.profile, gameState.questProgress, saveToLocalStorage]);
+  }, [gameState.profile, gameState.questProgress, gameState.businesses, saveToLocalStorage]);
 
   const activeBoosts = useBoosts(gameState.profile);
   const boostedHourlyIncome = gameState.profile

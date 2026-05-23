@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { QUEST_CHAPTERS, LOCAL_QUESTS } from '../data/local/quests';
 import type { GameState, PlayerProfile, QuestProgress } from '../types/game';
-import { syncQuestPrestige } from '../utils/game/gameStateHelpers';
+import { syncPrestige } from '../utils/game/gameStateHelpers';
 
 interface UseQuestActionsParams {
   gameState: GameState;
@@ -38,14 +38,15 @@ export function useQuestActions({
       totalClaimedMoney: gameState.questProgress.totalClaimedMoney + finalRewardMoney,
       totalClaimedGems: gameState.questProgress.totalClaimedGems + finalRewardGems,
     };
-    const nextProfile = syncQuestPrestige(
+    const nextProfile = syncPrestige(
       {
         ...gameState.profile,
         total_money: Number(gameState.profile.total_money || 0) + finalRewardMoney,
         lifetime_earnings: Number(gameState.profile.lifetime_earnings || 0) + finalRewardMoney,
         gems: Number(gameState.profile.gems || 0) + finalRewardGems,
       } as PlayerProfile,
-      nextQuestProgress
+      nextQuestProgress,
+      gameState.businesses
     );
 
     setGameState((prev) => ({
@@ -83,12 +84,13 @@ export function useQuestActions({
       totalClaimedMoney: gameState.questProgress.totalClaimedMoney,
       totalClaimedGems: gameState.questProgress.totalClaimedGems + rewardGems,
     };
-    const nextProfile = syncQuestPrestige(
+    const nextProfile = syncPrestige(
       {
         ...gameState.profile,
         gems: Number(gameState.profile.gems || 0) + rewardGems,
       } as PlayerProfile,
-      nextQuestProgress
+      nextQuestProgress,
+      gameState.businesses
     );
 
     setGameState((prev) => ({

@@ -1127,6 +1127,16 @@ export function calculatePrestigeFromQuestProgress(progress: QuestProgress): num
   return claimedQuestPrestige + chapterPrestige;
 }
 
+export const BUSINESS_MAX_PRESTIGE_BONUS = 5;
+
+export function calculatePrestigeFromBusinesses(
+  businesses: { current_level?: number | null }[] | undefined
+): number {
+  if (!businesses?.length) return 0;
+  const maxed = businesses.filter((b) => Number(b.current_level || 0) >= 6).length;
+  return maxed * BUSINESS_MAX_PRESTIGE_BONUS;
+}
+
 export function isQuestCompleted(quest: QuestDefinition, snapshot: QuestSnapshot): boolean {
   switch (quest.condition.type) {
     case 'start_job':
