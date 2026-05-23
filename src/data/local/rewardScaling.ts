@@ -1,17 +1,22 @@
 const MONEY_PACKAGE_BASES = [
-  { id: 'money-pack-1', amount: 25000 },
-  { id: 'money-pack-2', amount: 75000 },
-  { id: 'money-pack-3', amount: 250000 },
-  { id: 'money-pack-4', amount: 750000 },
+  { id: 'money-pack-1', amount: 50000 },
+  { id: 'money-pack-2', amount: 150000 },
+  { id: 'money-pack-3', amount: 500000 },
+  { id: 'money-pack-4', amount: 1500000 },
 ] as const;
 
+// Design rules:
+// - Ad reward = Pack-1 base ($50K) × packageMultiplier × 0.25
+//   (IAP Pack-1 is always 4× the value of a single ad watch)
+// - Claim pool = Ad reward × 2 (preserved historical 2:1 ratio)
 const REWARD_TIERS = [
-  { minProgress: 0,   claimPool: 2000,    adReward: 1000,   packageMultiplier: 1 },
-  { minProgress: 20,  claimPool: 6000,    adReward: 3000,   packageMultiplier: 1.6 },
-  { minProgress: 50,  claimPool: 20000,   adReward: 10000,  packageMultiplier: 2.4 },
-  { minProgress: 120, claimPool: 75000,   adReward: 37500,  packageMultiplier: 4 },
-  { minProgress: 220, claimPool: 300000,  adReward: 150000, packageMultiplier: 6.5 },
-  { minProgress: 350, claimPool: 1500000, adReward: 750000, packageMultiplier: 10 },
+  { minProgress: 0,   claimPool: 25000,   adReward: 12500,  packageMultiplier: 1 },
+  { minProgress: 20,  claimPool: 40000,   adReward: 20000,  packageMultiplier: 1.6 },
+  { minProgress: 50,  claimPool: 60000,   adReward: 30000,  packageMultiplier: 2.4 },
+  { minProgress: 120, claimPool: 100000,  adReward: 50000,  packageMultiplier: 4 },
+  { minProgress: 220, claimPool: 162500,  adReward: 81250,  packageMultiplier: 6.5 },
+  { minProgress: 350, claimPool: 250000,  adReward: 125000, packageMultiplier: 10 },
+  { minProgress: 500, claimPool: 375000,  adReward: 187500, packageMultiplier: 15 },
 ] as const;
 
 function getEffectiveProgress(prestigePoints: number, ownedInvestmentCount: number) {
