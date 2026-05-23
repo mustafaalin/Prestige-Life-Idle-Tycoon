@@ -1,35 +1,35 @@
 import type { Car, House } from '../../types/game';
 
 const HOUSE_PRESTIGE_REQUIREMENTS: Record<number, number> = {
-  1:  0,   // Ch1
-  2:  0,   // Ch1
-  3:  8,   // Ch1 end
-  4:  15,  // Ch2
-  5:  22,  // Ch2 end
-  6:  30,  // Ch3
-  7:  38,  // Ch3 end
-  8:  48,  // Ch4       ← was 65 (caused deadlock)
-  9:  58,  // Ch4 end
-  10: 70,  // Ch5
-  11: 82,  // Ch5 end
-  12: 88,  // Ch6
-  13: 100, // Ch6 mid
-  14: 110, // Ch6 end   ← was 135 (caused deadlock at 120pp)
-  15: 128, // Ch7
-  16: 140, // Ch7 mid
-  17: 150, // Ch7 end
-  18: 168, // Ch8
-  19: 182, // Ch8 mid
-  20: 195, // Ch8 end
-  21: 218, // Ch9
-  22: 240, // Ch9 mid
-  23: 260, // Ch9 end
-  24: 295, // Ch10
-  25: 335, // Ch10 end
+  1:  0,
+  2:  5,
+  3:  10,
+  4:  15,
+  5:  22,
+  6:  28,
+  7:  35,
+  8:  42,
+  9:  50,
+  10: 60,
+  11: 70,
+  12: 80,
+  13: 90,
+  14: 100,
+  15: 110,
+  16: 120,
+  17: 130,
+  18: 140,
+  19: 150,
+  20: 165,
+  21: 175,
+  22: 185,
+  23: 195,
+  24: 200,
+  25: 225,
   // Premium houses (level 50/51/52) — interleaved after houses 6, 13, 20
-  50: 30,  // same as house-6
-  51: 115, // same as house-13
-  52: 225, // same as house-20
+  50: 28,  // same as house-6
+  51: 90,  // same as house-13
+  52: 165, // same as house-20
 };
 
 const CAR_PRESTIGE_REQUIREMENTS: Record<number, number> = {
