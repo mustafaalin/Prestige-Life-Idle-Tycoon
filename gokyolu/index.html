@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>GÖKYOLU — Sonsuz Bulut Yolu</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: #7ec3ff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+  }
+  #game { display: block; position: fixed; inset: 0; touch-action: none; }
+
+  #ui { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+
+  /* Canlı skor */
+  #score {
+    position: absolute; top: env(safe-area-inset-top, 0px); left: 0;
+    margin: 16px; padding: 8px 16px;
+    background: rgba(255,255,255,0.82);
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(20,40,90,0.18);
+    color: #1f3556; font-weight: 800;
+    display: none;
+  }
+  #score .lbl { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; }
+  #score .val { font-size: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
+  #score .val small { font-size: 14px; opacity: 0.6; font-weight: 700; }
+
+  /* Paneller */
+  .panel {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px; padding: 24px;
+    pointer-events: auto;
+    background: radial-gradient(ellipse at 50% 35%, rgba(20,50,110,0.18), rgba(10,25,70,0.45));
+    backdrop-filter: blur(2px);
+    text-align: center; color: #fff;
+  }
+  .panel.hidden { display: none; }
+
+  .title {
+    font-size: clamp(40px, 13vw, 84px); font-weight: 900; letter-spacing: 3px;
+    color: #fff;
+    text-shadow: 0 4px 0 #2f7fd6, 0 10px 28px rgba(10,30,80,0.55);
+  }
+  .subtitle { font-size: 14px; font-weight: 700; opacity: 0.92; letter-spacing: 1px; }
+
+  .instr {
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.28);
+    border-radius: 18px; padding: 14px 20px; max-width: 340px;
+    font-size: 14px; font-weight: 600; line-height: 1.55;
+  }
+  .instr b { color: #ffe27a; }
+
+  .best {
+    font-size: 16px; font-weight: 800;
+    background: rgba(255,226,122,0.22);
+    border: 1px solid rgba(255,226,122,0.5);
+    color: #fff; padding: 8px 18px; border-radius: 999px;
+  }
+  .best span { color: #ffe27a; }
+
+  .bigscore { font-size: clamp(48px, 16vw, 96px); font-weight: 900; line-height: 0.95;
+    text-shadow: 0 4px 0 #2f7fd6, 0 12px 30px rgba(10,30,80,0.55); }
+  .bigscore small { font-size: 0.4em; opacity: 0.7; }
+  .scorelbl { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; opacity: 0.75; }
+
+  .newbest {
+    color: #fff; font-weight: 900; font-size: 15px; letter-spacing: 1px;
+    background: linear-gradient(90deg,#ffb347,#ffcc33); padding: 6px 16px; border-radius: 999px;
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{ transform: scale(1);} 50%{ transform: scale(1.08);} }
+
+  .btn {
+    pointer-events: auto;
+    margin-top: 6px; border: none; cursor: pointer;
+    font-family: inherit; font-weight: 900; font-size: 18px; letter-spacing: 1px;
+    color: #1f3556;
+    background: linear-gradient(180deg, #ffffff, #e7f1ff);
+    padding: 16px 44px; border-radius: 999px;
+    box-shadow: 0 8px 0 #b9d4f5, 0 14px 28px rgba(10,30,80,0.4);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #b9d4f5, 0 8px 18px rgba(10,30,80,0.4); }
+
+  .hint { font-size: 12px; opacity: 0.7; font-weight: 600; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="ui">
+    <!-- Canlı skor -->
+    <div id="score">
+      <div class="lbl">Mesafe</div>
+      <div class="val"><span id="scoreVal">0</span><small> m</small></div>
+    </div>
+
+    <!-- Başlangıç ekranı -->
+    <div class="panel" id="startPanel">
+      <div class="title">GÖKYOLU</div>
+      <div class="subtitle">Sonsuz Bulut Yolu</div>
+      <div class="instr">
+        Bulutların üstündeki yoldan çıkma!<br>
+        <b>Basılı tut:</b> sağa dön &nbsp;•&nbsp; <b>Bırak:</b> düz git<br>
+        Yol yalnızca sağa kıvrılır.
+      </div>
+      <div class="best">En İyi: <span id="bestStart">0</span> m</div>
+      <button class="btn" id="startBtn">BAŞLA</button>
+      <div class="hint">Başlamak için butona dokun</div>
+    </div>
+
+    <!-- Oyun sonu ekranı -->
+    <div class="panel hidden" id="overPanel">
+      <div class="scorelbl">Mesafe</div>
+      <div class="bigscore"><span id="finalScore">0</span><small> m</small></div>
+      <div class="newbest hidden" id="newBest">YENİ REKOR! 🎉</div>
+      <div class="best">En İyi: <span id="bestOver">0</span> m</div>
+      <button class="btn" id="restartBtn">YENİDEN BAŞLA</button>
+    </div>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Canvas kurulum ----------
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  let W = 0, H = 0, DPR = 1;
+
+  // Ekran konum/ölçek değişkenleri (resize'da güncellenir)
+  let SCREEN_CX = 0;     // arabanın yatay ekran konumu (merkez)
+  let CAR_SCREEN_Y = 0;  // arabanın dikey ekran konumu (~%68)
+  let carW = 46;         // araba genişliği (dünya = piksel birimi)
+  let carL = 78;         // araba uzunluğu
+  let halfRoad = 69;     // yol yarı genişliği = 1.5 * carW
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2.5);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    // Responsive boyutlar
+    carW = Math.max(34, Math.min(60, W * 0.11));
+    carL = carW * 1.7;
+    halfRoad = carW * 1.5;            // yol = 3 * araba genişliği
+    SCREEN_CX = W * 0.5;
+    CAR_SCREEN_Y = H * 0.68;
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  // ---------- Sabitler ----------
+  const SPEED = 360;          // ileri hız (px/sn) — SABİT, asla değişmez
+  const TURN_RATE = 1.5;      // direksiyon açısal hızı (rad/sn)
+  const MAX_HEADING = 0.55;   // maks. dönüş açısı (~31°)
+  const SLIP_TAU = 0.16;      // kayma (drift) yumuşatma zaman sabiti
+  const DS = 10;              // yol düğüm aralığı (dünya birimi)
+
+  // ---------- Yol üretimi (sadece düz / sağa) ----------
+  // Yol, centerX(s) fonksiyonu olarak düğümlerle tutulur. s = ileri mesafe.
+  // slope = dCenterX/ds >= 0  → asla negatif (sola) olmaz.
+  let nodes = [];            // { s, x }
+  let gen;                   // üretim durumu
+
+  function pickSegment() {
+    // Segment tipleri: düz veya çeşitli şiddette SAĞA kıvrım (slope >= 0)
+    const r = Math.random();
+    let targetSlope, len;
+    if (r < 0.34) {                 // düz
+      targetSlope = 0;
+      len = 260 + Math.random() * 420;
+    } else if (r < 0.62) {          // hafif sağ
+      targetSlope = 0.16 + Math.random() * 0.10;
+      len = 280 + Math.random() * 360;
+    } else if (r < 0.86) {          // orta sağ
+      targetSlope = 0.28 + Math.random() * 0.12;
+      len = 240 + Math.random() * 320;
+    } else {                        // sert sağ
+      targetSlope = 0.44 + Math.random() * 0.12;
+      len = 200 + Math.random() * 260;
+    }
+    gen.targetSlope = targetSlope;
+    gen.segLeft = len;
+  }
+
+  function resetRoad() {
+    nodes = [];
+    gen = { s: 0, x: 0, slope: 0, segLeft: 0, targetSlope: 0 };
+    // başlangıçta biraz düz yol garanti et
+    gen.targetSlope = 0; gen.segLeft = 600;
+    nodes.push({ s: 0, x: 0 });
+    // ileriyi doldur
+    ensureGenerated(2000);
+  }
+
+  function advanceNode() {
+    if (gen.segLeft <= 0) pickSegment();
+    // slope'u hedefe yumuşakça yaklaştır (sürekli, kink'siz eğri)
+    gen.slope += (gen.targetSlope - gen.slope) * 0.12;
+    gen.x += gen.slope * DS;
+    gen.s += DS;
+    gen.segLeft -= DS;
+    nodes.push({ s: gen.s, x: gen.x });
+  }
+
+  function ensureGenerated(uptoS) {
+    while (nodes[nodes.length - 1].s < uptoS) advanceNode();
+  }
+
+  function dropBehind(minS) {
+    // ekran arkasında kalan düğümleri temizle (sonsuz performans)
+    let drop = 0;
+    while (drop < nodes.length - 2 && nodes[drop + 1].s < minS) drop++;
+    if (drop > 0) nodes.splice(0, drop);
+  }
+
+  function centerXAt(s) {
+    const first = nodes[0].s;
+    let i = Math.floor((s - first) / DS);
+    if (i < 0) i = 0;
+    if (i >= nodes.length - 1) i = nodes.length - 2;
+    const a = nodes[i], b = nodes[i + 1];
+    const t = (s - a.s) / (b.s - a.s);
+    return a.x + (b.x - a.x) * t;
+  }
+
+  // ---------- Bulutlar (parallax) ----------
+  let clouds = [];
+  function resetClouds() {
+    clouds = [];
+    const n = 16;
+    for (let i = 0; i < n; i++) {
+      clouds.push({
+        bx: Math.random(),                  // 0..1 ekran genişliği oranı
+        by: Math.random() * (H + 300),
+        r: 28 + Math.random() * 70,
+        a: 0.10 + Math.random() * 0.16,
+        drift: (Math.random() - 0.5) * 8
+      });
+    }
+  }
+
+  // ---------- Lastik izleri ----------
+  let skids = [];   // { s, xL, xR }
+  let lastSkidS = 0;
+
+  // ---------- Oyun durumu ----------
+  let state = "start";   // start | playing | falling | over
+  let carX = 0;          // arabanın dünya yatay konumu
+  let sCar = 0;          // arabanın kat ettiği ileri mesafe
+  let heading = 0;       // direksiyon açısı (0..MAX_HEADING, sadece sağ)
+  let latVel = 0;        // gerçek yanal hız (kayma için yumuşatılmış)
+  let distance = 0;      // toplam mesafe (skor kaynağı)
+  let holding = false;
+  let fallT = 0;         // düşme animasyonu zamanı
+  let fallSpin = 0;
+  let best = 0;
+
+  try { best = parseInt(localStorage.getItem("gokyolu_best") || "0", 10) || 0; } catch (e) {}
+
+  // ---------- DOM ----------
+  const elScore = document.getElementById("score");
+  const elScoreVal = document.getElementById("scoreVal");
+  const elStartPanel = document.getElementById("startPanel");
+  const elOverPanel = document.getElementById("overPanel");
+  const elBestStart = document.getElementById("bestStart");
+  const elBestOver = document.getElementById("bestOver");
+  const elFinal = document.getElementById("finalScore");
+  const elNewBest = document.getElementById("newBest");
+
+  function fmtMeters(d) { return Math.floor(d / 10); }
+
+  function startGame() {
+    resetRoad();
+    resetClouds();
+    skids = [];
+    lastSkidS = 0;
+    carX = 0;
+    sCar = 0;
+    heading = 0;
+    latVel = 0;
+    distance = 0;
+    fallT = 0;
+    fallSpin = 0;
+    state = "playing";
+    elStartPanel.classList.add("hidden");
+    elOverPanel.classList.add("hidden");
+    elScore.style.display = "block";
+    elScoreVal.textContent = "0";
+  }
+
+  function endGame() {
+    state = "over";
+    const meters = fmtMeters(distance);
+    const isNew = meters > best;
+    if (isNew) {
+      best = meters;
+      try { localStorage.setItem("gokyolu_best", String(best)); } catch (e) {}
+    }
+    elFinal.textContent = meters;
+    elBestOver.textContent = best;
+    elBestStart.textContent = best;
+    elNewBest.classList.toggle("hidden", !isNew);
+    elScore.style.display = "none";
+    elOverPanel.classList.remove("hidden");
+  }
+
+  elBestStart.textContent = best;
+
+  // ---------- Girdi ----------
+  function press() {
+    if (state === "start") { startGame(); holding = true; }
+    else if (state === "playing") { holding = true; }
+  }
+  function release() { holding = false; }
+
+  canvas.addEventListener("pointerdown", function (e) { e.preventDefault(); press(); }, { passive: false });
+  window.addEventListener("pointerup", release);
+  window.addEventListener("pointercancel", release);
+  // Dokunmatik için ekstra (sayfa kaymasını engelle)
+  canvas.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
+  canvas.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
+  // Klavye (masaüstü kolaylığı)
+  window.addEventListener("keydown", function (e) {
+    if (e.code === "Space" || e.code === "ArrowUp" || e.code === "ArrowRight") {
+      e.preventDefault();
+      if (state === "over") { startGame(); holding = true; }
+      else press();
+    }
+  });
+  window.addEventListener("keyup", function (e) {
+    if (e.code === "Space" || e.code === "ArrowUp" || e.code === "ArrowRight") release();
+  });
+
+  document.getElementById("startBtn").addEventListener("click", function (e) { e.stopPropagation(); startGame(); });
+  document.getElementById("restartBtn").addEventListener("click", function (e) { e.stopPropagation(); startGame(); });
+
+  // ---------- Güncelleme ----------
+  function update(dt) {
+    if (state === "playing") {
+      // Direksiyon: basılı → sağa (artı), bırak → düze (0). Asla sola değil.
+      if (holding) heading = Math.min(MAX_HEADING, heading + TURN_RATE * dt);
+      else heading = Math.max(0, heading - TURN_RATE * dt);
+
+      // İlerleme (sabit hız) ve mesafe
+      sCar += SPEED * dt;
+      distance += SPEED * dt;
+
+      // Yanal hareket + hafif kayma (slip): hedef yanal hıza yumuşak geçiş
+      const targetLat = SPEED * Math.tan(heading);
+      const k = 1 - Math.exp(-dt / SLIP_TAU);
+      latVel += (targetLat - latVel) * k;
+      carX += latVel * dt;
+
+      // Yol üretimi / temizliği
+      ensureGenerated(sCar + CAR_SCREEN_Y + 80);
+      dropBehind(sCar - (H - CAR_SCREEN_Y) - 200);
+
+      // Lastik izleri (sert dönüşte)
+      if (heading > 0.27 && sCar - lastSkidS > 6) {
+        const wheel = carW * 0.34;
+        skids.push({ s: sCar - carL * 0.32, xL: carX - wheel, xR: carX + wheel });
+        lastSkidS = sCar;
+      }
+      const skidMinS = sCar - (H - CAR_SCREEN_Y) - 60;
+      while (skids.length && skids[0].s < skidMinS) skids.shift();
+
+      // Sayısal taşmayı önlemek için ara sıra rebase
+      if (carX > 1e6 || carX < -1e6) rebase();
+
+      // Çarpışma: arabanın TAM genişliği yol sınırını aşarsa düş
+      const roadCenter = centerXAt(sCar);
+      const ext = (carW / 2) * Math.cos(heading) + (carL / 2) * Math.sin(heading);
+      const left = carX - ext, right = carX + ext;
+      if (left < roadCenter - halfRoad || right > roadCenter + halfRoad) {
+        state = "falling";
+        fallT = 0;
+        fallSpin = 0;
+      }
+
+      elScoreVal.textContent = fmtMeters(distance);
+    } else if (state === "falling") {
+      fallT += dt;
+      fallSpin += dt * 7;
+      if (fallT > 0.8) endGame();
+    }
+  }
+
+  function rebase() {
+    const off = carX;
+    carX -= off;
+    for (let i = 0; i < nodes.length; i++) nodes[i].x -= off;
+    for (let i = 0; i < skids.length; i++) { skids[i].xL -= off; skids[i].xR -= off; }
+    gen.x -= off;
+  }
+
+  // ---------- Çizim yardımcıları ----------
+  function worldToScreenX(x) { return SCREEN_CX + (x - carX); }
+  function worldToScreenY(s) { return CAR_SCREEN_Y - (s - sCar); }
+
+  function drawSky() {
+    // Mesafeye göre çok hafif gün batımına kayan gök
+    const t = Math.min(1, distance / 60000);
+    const topR = Math.round(174 + t * 40);
+    const topG = Math.round(227 - t * 40);
+    const topB = Math.round(255 - t * 30);
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "rgb(" + topR + "," + topG + "," + topB + ")");
+    g.addColorStop(0.55, "rgb(126,195,255)");
+    g.addColorStop(1, "rgb(96,170,240)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function drawClouds() {
+    const scroll = (state === "playing" || state === "falling") ? sCar * 0.4 : 0;
+    const span = H + 300;
+    for (let i = 0; i < clouds.length; i++) {
+      const c = clouds[i];
+      let y = (c.by + scroll) % span;
+      if (y < 0) y += span;
+      y -= 150;
+      const x = c.bx * W + c.drift;
+      ctx.save();
+      ctx.globalAlpha = c.a;
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.ellipse(x, y, c.r * 1.5, c.r, 0, 0, Math.PI * 2);
+      ctx.ellipse(x - c.r, y + c.r * 0.3, c.r, c.r * 0.7, 0, 0, Math.PI * 2);
+      ctx.ellipse(x + c.r, y + c.r * 0.25, c.r * 1.1, c.r * 0.75, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function buildEdges() {
+    // Yol kenar noktalarını topla (uzaktan yakına)
+    const sTop = sCar + CAR_SCREEN_Y + 60;
+    const sBot = sCar - (H - CAR_SCREEN_Y) - 60;
+    const step = 8;
+    const lefts = [], rights = [], mids = [];
+    for (let s = sTop; s >= sBot; s -= step) {
+      const cx = worldToScreenX(centerXAt(s));
+      const y = worldToScreenY(s);
+      lefts.push([cx - halfRoad, y]);
+      rights.push([cx + halfRoad, y]);
+      mids.push([cx, y]);
+    }
+    return { lefts, rights, mids };
+  }
+
+  function drawRoad(edges) {
+    const { lefts, rights } = edges;
+    if (lefts.length < 2) return;
+
+    // Yol gövdesi yolu (polygon)
+    function tracePath() {
+      ctx.beginPath();
+      ctx.moveTo(lefts[0][0], lefts[0][1]);
+      for (let i = 1; i < lefts.length; i++) ctx.lineTo(lefts[i][0], lefts[i][1]);
+      for (let i = rights.length - 1; i >= 0; i--) ctx.lineTo(rights[i][0], rights[i][1]);
+      ctx.closePath();
+    }
+
+    // 1) Uçurum derinliği: yolun biraz dışına koyu, yumuşak gölge → "asılı" his
+    ctx.save();
+    ctx.shadowColor = "rgba(8,22,60,0.55)";
+    ctx.shadowBlur = 34;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 10;
+    const ag = ctx.createLinearGradient(0, 0, W, 0);
+    ag.addColorStop(0, "#333b48");
+    ag.addColorStop(0.5, "#3c4554");
+    ag.addColorStop(1, "#333b48");
+    ctx.fillStyle = ag;
+    tracePath();
+    ctx.fill();
+    ctx.restore();
+
+    // 2) Kenar bandı (açık şerit kenarlık hissi)
+    ctx.save();
+    tracePath();
+    ctx.clip();
+    // ince doku çizgileri (yatay) — asfalt hissi
+    ctx.strokeStyle = "rgba(255,255,255,0.03)";
+    ctx.lineWidth = 1;
+    for (let i = 0; i < lefts.length; i += 4) {
+      ctx.beginPath();
+      ctx.moveTo(lefts[i][0], lefts[i][1]);
+      ctx.lineTo(rights[i][0], rights[i][1]);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 3) Lastik izleri (yol üstünde, kırpılmış)
+    if (skids.length > 1) {
+      ctx.save();
+      tracePath();
+      ctx.clip();
+      ctx.strokeStyle = "rgba(20,20,25,0.28)";
+      ctx.lineWidth = carW * 0.12;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      for (let i = 0; i < skids.length; i++) {
+        const k = skids[i];
+        const x = worldToScreenX(k.xL), y = worldToScreenY(k.s);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.beginPath();
+      for (let i = 0; i < skids.length; i++) {
+        const k = skids[i];
+        const x = worldToScreenX(k.xR), y = worldToScreenY(k.s);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 4) Kenar çizgileri (kalın beyaz)
+    function strokeSide(pts) {
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+      ctx.stroke();
+    }
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#f4f7fb";
+    ctx.lineWidth = Math.max(3, carW * 0.09);
+    strokeSide(lefts);
+    strokeSide(rights);
+
+    // 5) Şerit ayırıcılar (3 şerit → 2 kesik çizgi), s'e göre kesikli
+    ctx.strokeStyle = "rgba(255,255,255,0.55)";
+    ctx.lineWidth = Math.max(2, carW * 0.05);
+    const sTop = sCar + CAR_SCREEN_Y + 60;
+    const sBot = sCar - (H - CAR_SCREEN_Y) - 60;
+    for (const sign of [-1, 1]) {
+      ctx.beginPath();
+      for (let s = sBot; s <= sTop; s += 6) {
+        const on = Math.floor(s / 34) % 2 === 0;
+        if (!on) continue;
+        const cx = worldToScreenX(centerXAt(s));
+        const y = worldToScreenY(s);
+        const x = cx + sign * (halfRoad / 3);
+        const y2 = worldToScreenY(s + 6);
+        const cx2 = worldToScreenX(centerXAt(s + 6));
+        const x2 = cx2 + sign * (halfRoad / 3);
+        ctx.moveTo(x, y);
+        ctx.lineTo(x2, y2);
+      }
+      ctx.stroke();
+    }
+  }
+
+  function drawCar(cx, cy, angle, scale, alpha) {
+    const w = carW * scale, l = carL * scale;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+
+    // gölge (asılı his)
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.35;
+    ctx.fillStyle = "rgba(10,20,50,1)";
+    roundRect(-w / 2 + 2, -l / 2 + 6, w, l, w * 0.32);
+    ctx.fill();
+    ctx.restore();
+
+    // gövde
+    const bg = ctx.createLinearGradient(-w / 2, 0, w / 2, 0);
+    bg.addColorStop(0, "#d23a3a");
+    bg.addColorStop(0.5, "#ff5a4d");
+    bg.addColorStop(1, "#c22f2f");
+    ctx.fillStyle = bg;
+    roundRect(-w / 2, -l / 2, w, l, w * 0.3);
+    ctx.fill();
+
+    // üst gövde parlaması
+    ctx.fillStyle = "rgba(255,255,255,0.18)";
+    roundRect(-w / 2 + w * 0.12, -l / 2 + l * 0.06, w * 0.3, l * 0.86, w * 0.16);
+    ctx.fill();
+
+    // ön cam (ön = -y yönü, yukarı bakıyor)
+    ctx.fillStyle = "rgba(40,60,90,0.9)";
+    roundRect(-w * 0.32, -l * 0.36, w * 0.64, l * 0.2, w * 0.1);
+    ctx.fill();
+    // arka cam
+    roundRect(-w * 0.30, l * 0.16, w * 0.6, l * 0.18, w * 0.1);
+    ctx.fill();
+    // tavan
+    ctx.fillStyle = "rgba(255,90,77,0.95)";
+    roundRect(-w * 0.30, -l * 0.12, w * 0.6, l * 0.26, w * 0.1);
+    ctx.fill();
+
+    // aynalar
+    ctx.fillStyle = "#b62c2c";
+    roundRect(-w / 2 - w * 0.12, -l * 0.18, w * 0.14, l * 0.08, 2);
+    ctx.fill();
+    roundRect(w / 2 - w * 0.02, -l * 0.18, w * 0.14, l * 0.08, 2);
+    ctx.fill();
+
+    // farlar (ön)
+    ctx.fillStyle = "rgba(255,245,200,0.95)";
+    roundRect(-w * 0.34, -l / 2 + 2, w * 0.18, l * 0.06, 2);
+    ctx.fill();
+    roundRect(w * 0.16, -l / 2 + 2, w * 0.18, l * 0.06, 2);
+    ctx.fill();
+    // stop lambaları (arka)
+    ctx.fillStyle = "rgba(120,10,10,0.95)";
+    roundRect(-w * 0.34, l / 2 - l * 0.06 - 2, w * 0.18, l * 0.06, 2);
+    ctx.fill();
+    roundRect(w * 0.16, l / 2 - l * 0.06 - 2, w * 0.18, l * 0.06, 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function roundRect(x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function render() {
+    drawSky();
+    drawClouds();
+
+    if (state === "playing" || state === "falling" || state === "over") {
+      const edges = buildEdges();
+      drawRoad(edges);
+    }
+
+    if (state === "playing") {
+      drawCar(SCREEN_CX, CAR_SCREEN_Y, heading, 1, 1);
+    } else if (state === "falling") {
+      const sc = Math.max(0, 1 - fallT / 0.8);
+      const al = Math.max(0, 1 - fallT / 0.8);
+      drawCar(SCREEN_CX, CAR_SCREEN_Y, heading + fallSpin, sc, al);
+    }
+  }
+
+  // ---------- Ana döngü ----------
+  let last = performance.now();
+  function loop(now) {
+    let dt = (now - last) / 1000;
+    last = now;
+    if (dt > 0.05) dt = 0.05;   // sekme değişimi vb. büyük sıçramaları sınırla
+    update(dt);
+    render();
+    requestAnimationFrame(loop);
+  }
+
+  // başlangıçta arkaplan için yol hazırla (start ekranında manzara görünmesin, sade kalsın)
+  resetClouds();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
