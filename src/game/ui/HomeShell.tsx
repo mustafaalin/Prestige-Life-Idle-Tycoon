@@ -1,15 +1,21 @@
+import { useState } from 'react';
 import { WEALTH_CLASSES } from '../core/config/classes';
 import { incomePerSecond, tapValue } from '../core/formulas';
+import { nextCareer } from '../core/state';
 import { useT } from '../i18n/useT';
 import { useGameV2 } from '../runtime/useGameV2';
 import { BusinessesScreen } from './businesses/BusinessesScreen';
+import { CareerScreen } from './career/CareerScreen';
+import { TabBar, type TabId } from './TabBar';
 
-// Temporary home layout so v2 is playable while it is built: a HUD, the business list and the
-// offline claim. Replaced piece by piece by the scene (1.6), HUD (1.7), tabs (1.4–1.5) and offline modal (1.13).
+// Temporary home layout so v2 is playable while it is built: a HUD, the tab screens and the
+// offline claim. Replaced piece by piece by the scene (1.6), HUD (1.7), shop (1.5) and offline modal (1.13).
 
 export function HomeShell() {
   const { game, state, actions } = useGameV2();
   const { t, name, money, duration } = useT();
+  const [tab, setTab] = useState<TabId>('businesses');
+  const promotion = nextCareer(game);
 
   const current = WEALTH_CLASSES[game.classIndex];
   const next = WEALTH_CLASSES[game.classIndex + 1];
@@ -52,10 +58,16 @@ export function HomeShell() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom)+56px)]">
-        <BusinessesScreen />
-        <p className="text-[11px] font-semibold text-slate-400 text-center mt-4">{t('placeholder.body')}</p>
+      <main className="flex-1 overflow-y-auto px-4 pb-4">
+        {tab === 'businesses' && <BusinessesScreen />}
+        {tab === 'career' && <CareerScreen />}
       </main>
+
+      <TabBar
+        active={tab}
+        onChange={setTab}
+        attention={{ career: promotion !== null && game.cash >= promotion.cost }}
+      />
 
       {state.offline && (
         <div className="fixed inset-0 z-[60] bg-black/35 flex items-end">

@@ -12,7 +12,7 @@ Oyun v2 olarak yeniden tasarlanıyor; çalışma `v2-rebuild` dalında.
 - Runtime: `src/game/runtime/` (`GameV2Provider` + `useGameV2`, kayıt anahtarı `prestige_life_v2`)
 - i18n: `src/game/i18n/` — Türkçe + İngilizce, sonra başka diller. v2'de sabit metin yok.
 - Çalıştırma: `npm run dev:v2` (v1 için `npm run dev`)
-- Durum: Faz 0, 1.1 (runtime), 1.2 (AppV2 + geliştirici menüsü + i18n), 1.3 (işletmeler ekranı) tamam. Sıradaki: Faz 1.4 kariyer ekranı.
+- Durum: Faz 0, 1.1 (runtime), 1.2 (AppV2 + geliştirici menüsü + i18n), 1.3 (işletmeler ekranı), 1.4 (kariyer ekranı + alt sekmeler) tamam. Sıradaki: Faz 1.5 alışveriş ekranı.
 - v1 (aşağıdaki her şey) v2 onu karşılayana kadar dokunulmadan duruyor.
 
 Bu dosya yeni bir oturumda projeye hızlı geri dönmek için güncel durum özetidir.

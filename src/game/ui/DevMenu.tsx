@@ -55,7 +55,7 @@ export function DevMenu() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed right-3 bottom-[calc(env(safe-area-inset-bottom)+12px)] z-[200] rounded-full bg-slate-900/80 text-white px-3 py-1.5 text-[10px] font-black transition-all active:scale-90"
+        className="fixed right-3 bottom-[calc(env(safe-area-inset-bottom)+84px)] z-[200] rounded-full bg-slate-900/80 text-white px-3 py-1.5 text-[10px] font-black transition-all active:scale-90"
       >
         {t('dev.open')}
         {speed !== 1 && ` ×${speed}`}

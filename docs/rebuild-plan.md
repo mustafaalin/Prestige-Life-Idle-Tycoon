@@ -71,7 +71,9 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
   - `ui/businesses/`: kademeli açılma (sahip olunanlar + sıradaki + kilitli bir önizleme), döngü çubuğu tick'ler arasında `requestAnimationFrame` ile akıcı dolar (React yeniden çizmeden), 0,5 sn'den hızlı döngüler dolu ve nabız atan çubuk.
   - Boşta duran yöneticisiz işletme amber halka ile "dokun" der. Ses ve efektler 1.11'de.
   - Not: üst bardaki gelir/sn yöneticisiz işletmeleri %60 verimle sayar (simülatörle aynı tahmin); oyuncu dokunmazsa gerçek gelir daha düşük. Oyun testinde kafa karıştırırsa sadece çalışan gelir gösterilecek.
-- [ ] **1.4 Kariyer ekranı:** Mevcut iş, sonraki terfi kartı (fiyat, maaş, bonus).
+- [x] **1.4 Kariyer ekranı:** Mevcut iş, sonraki terfi kartı (fiyat, maaş, bonus).
+  - `ui/career/CareerScreen.tsx`: mevcut iş (maaş, toplam bonus), öne çıkan terfi kartı (gelirdeki toplam artış, maaş, bonus, "~2dk sonra alabilirsin"), 12 basamaklık kariyer merdiveni.
+  - `ui/TabBar.tsx`: alt sekmeler (İşletmeler / Kariyer / Alışveriş-yakında). Terfi alınabilirken Kariyer sekmesinde kırmızı nokta.
 - [ ] **1.5 Alışveriş ekranı:** Ev, araç, kıyafet. Satın alınca sahne anında değişir.
 
 ### 1B. His ve sahne (2. hafta)
