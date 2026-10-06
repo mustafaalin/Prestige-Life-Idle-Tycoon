@@ -7,6 +7,8 @@ import {
   LEGACY_BONUS_PER_POINT,
   LEGACY_EXPONENT,
   LEGACY_SCALE,
+  OFFLINE_CAP_HOURS,
+  OFFLINE_RATE,
   PROFIT_MILESTONES,
   PROFIT_MILESTONE_FACTOR,
   TAP_BASE,
@@ -104,6 +106,19 @@ export function incomePerSecond(state: GameStateV2, mode: IncomeMode) {
     base += businessBaseIncomePerSecond(def, business.owned) * uptime(business.managed, mode);
   }
   return base * globalMultiplier(state);
+}
+
+/** Money a business line pays each time one of its production cycles completes. */
+export function cycleRevenue(state: GameStateV2, def: BusinessDef) {
+  const owned = state.businesses[def.id]?.owned ?? 0;
+  if (owned <= 0) return 0;
+  return def.baseRevenue * owned * milestoneMultiplier(owned) * globalMultiplier(state);
+}
+
+/** Money earned while the app was closed: idle income at OFFLINE_RATE, up to OFFLINE_CAP_HOURS. */
+export function offlineEarnings(state: GameStateV2, awaySeconds: number) {
+  const seconds = Math.min(Math.max(0, awaySeconds), OFFLINE_CAP_HOURS * 3600);
+  return incomePerSecond(state, 'idle') * seconds * OFFLINE_RATE;
 }
 
 export function tapValue(state: GameStateV2) {

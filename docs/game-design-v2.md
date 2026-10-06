@@ -164,5 +164,5 @@ Nesil süreleri (engaged): 1,5 → 1,5 → 2 → 2,5 → 3,5 → 6 gün. Erken n
 ## 8. Açık sorular
 
 - Para ölçeği: İlk Flower Stand döngüsü $0.1 kazandırıyor. "Fakirlik" hissi için iyi olabilir ama küçük kesirler sevimsiz durabilir. Faz 1 oyun testinde bakılacak; gerekirse tüm fiyatlar ×10.
-- Yöneticisiz işletmeye dokunma mekaniği: her döngüyü elle başlatmak mı (AdCap), yoksa "dokundukça hızlanır" mı? Faz 1'de prototiple karar verilecek.
+- Yöneticisiz işletmeye dokunma mekaniği: runtime şimdilik AdCap modelini uyguluyor (dokun → tek döngü). "Dokundukça hızlanır" alternatifi Faz 1 oyun testinden sonra yeniden değerlendirilecek.
 - Emeklilik yaşı/süre baskısı (Idle Guy gibi) eklenmeli mi? Şimdilik hayır; emeklilik oyuncunun kararı.

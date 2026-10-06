@@ -3,7 +3,6 @@
 
 import { BUSINESSES } from '../core/config/businesses';
 import { WEALTH_CLASSES } from '../core/config/classes';
-import { OFFLINE_CAP_HOURS, OFFLINE_RATE } from '../core/config/economy';
 import { LIFESTYLE_ITEMS } from '../core/config/lifestyle';
 import {
   businessBaseIncomePerSecond,
@@ -15,6 +14,7 @@ import {
   costForUnits,
   incomePerSecond,
   nextMilestone,
+  offlineEarnings,
   pendingLegacyPoints,
   tapValue,
 } from '../core/formulas';
@@ -231,8 +231,7 @@ export function simulate(profile: PlayerProfile, days: number): SimResult {
     for (const session of profile.sessionsForDay(day)) {
       const start = (day - 1) * 86400 + session.startHour * 3600;
       if (start > time.clock) {
-        const away = start - time.clock;
-        earnTracked(incomePerSecond(state, 'idle') * Math.min(away, OFFLINE_CAP_HOURS * 3600) * OFFLINE_RATE);
+        earnTracked(offlineEarnings(state, start - time.clock));
         time.clock = start;
       }
       playSession(session.minutes * 60);

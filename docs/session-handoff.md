@@ -1,6 +1,6 @@
 # Session Handoff
 
-Last updated: 2026-10-06
+Last updated: 2026-10-07
 
 ## v2 yeniden yapım (aktif çalışma)
 
@@ -9,7 +9,8 @@ Oyun v2 olarak yeniden tasarlanıyor; çalışma `v2-rebuild` dalında.
 - Plan ve faz durumu: [rebuild-plan.md](./rebuild-plan.md)
 - Tasarım ve ekonomi: [game-design-v2.md](./game-design-v2.md)
 - Ekonomi çekirdeği: `src/game/core/` (saf TS), simülatör: `src/game/sim/`, `npm run sim`
-- Durum: Faz 0 tamam (çekirdek + simülatör, 8/8 tempo hedefi). Sıradaki: Faz 1.1 runtime (`useGameV2`).
+- Runtime: `src/game/runtime/` (`GameV2Provider` + `useGameV2`, kayıt anahtarı `prestige_life_v2`)
+- Durum: Faz 0 tamam (8/8 tempo hedefi). Faz 1.1 runtime tamam. Sıradaki: Faz 1.2 uygulama kökü (`VITE_GAME_V2`, `AppV2`, geliştirici menüsü).
 - v1 (aşağıdaki her şey) v2 onu karşılayana kadar dokunulmadan duruyor.
 
 Bu dosya yeni bir oturumda projeye hızlı geri dönmek için güncel durum özetidir.

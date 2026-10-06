@@ -1,6 +1,6 @@
 # Prestige Life v2 — Yeniden Yapım Planı
 
-Son güncelleme: 2026-10-06 · Dal: `v2-rebuild` · Tasarım: [game-design-v2.md](./game-design-v2.md)
+Son güncelleme: 2026-10-07 · Dal: `v2-rebuild` · Tasarım: [game-design-v2.md](./game-design-v2.md)
 
 ## Amaç
 
@@ -23,7 +23,11 @@ src/game/
     state.ts       Saf durum geçişleri (satın al, terfi, emekli ol...)
     format.ts      $1.23M biçimlendirme, süre biçimlendirme
   sim/             Dengeleme botu ve tempo hedefleri
-  runtime/         (Faz 1) Tick döngüsü, kayıt, çevrimdışı hesap, React hook'u
+  runtime/         Tick döngüsü, kayıt, çevrimdışı hesap, React hook'u
+    engine.ts      Saf zaman motoru: döngü çubukları, ödemeler, çevrimdışı (zaman parametre olarak gelir)
+    storage.ts     `prestige_life_v2` kaydı, bozuk/eski kayıtları normalleştirme
+    store.ts       Canlı oyun: 250 ms tick, otomatik kayıt, ön/arka plan, olaylar (payout, classUp)
+    GameV2Provider.tsx + useGameV2.ts   React bağlantısı (useSyncExternalStore)
   ui/              (Faz 1) v2 ekranları ve bileşenleri
 scripts/sim-economy.ts   `npm run sim` giriş noktası
 ```
@@ -50,7 +54,11 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 
 ### 1A. Çalışan oyun (1. hafta)
 
-- [ ] **1.1 Runtime:** `useGameV2` hook'u. 250 ms'lik tick, işletme döngü ilerlemesi (ekranda dolan çubuklar), satın alma eylemleri, yerel kayıt (`prestige_life_v2` anahtarı, otomatik kayıt), uygulama ön plana gelince çevrimdışı hesap.
+- [x] **1.1 Runtime:** `useGameV2` hook'u. 250 ms'lik tick, işletme döngü ilerlemesi (ekranda dolan çubuklar), satın alma eylemleri, yerel kayıt (`prestige_life_v2` anahtarı, otomatik kayıt), uygulama ön plana gelince çevrimdışı hesap.
+  - Yöneticisiz işletme: dokununca tek döngü çalışır (AdCap modeli); yöneticili döngü kendi kendine döner. Ödeme döngü sonunda toplu gelir.
+  - Çevrimdışı: `visibilitychange` ile; arka planda tick çalışmaz. 60 sn altı sessizce eklenir, üstü `offline` bekleyen ödül olur (`claimOffline(×2)`). 10 sn'den uzun tick boşluğu da çevrimdışı sayılır. Elle başlatılmış döngü uzaktayken de tamamlanır.
+  - Çekirdeğe `cycleRevenue` ve `offlineEarnings` eklendi; simülatör de `offlineEarnings` kullanıyor (sim sonucu değişmedi).
+  - Geliştirici eylemleri hazır: `actions.dev.setSpeed/addCash/reset` (menüsü 1.2'de).
 - [ ] **1.2 Uygulama kökü:** `VITE_GAME_V2=true` ise `AppV2` açılır, değilse v1. Geliştirici menüsü: hız ×10, kaydı sıfırla, para ekle (oyun testi için).
 - [ ] **1.3 İşletmeler ekranı:** Liste, döngü çubukları, ×1 / ×10 / Max alım, sonraki kilometre taşı göstergesi ("25'e 3 kaldı → ×2"), yönetici satın alma, yöneticisiz işletmeye dokunarak döngü başlatma.
 - [ ] **1.4 Kariyer ekranı:** Mevcut iş, sonraki terfi kartı (fiyat, maaş, bonus).
