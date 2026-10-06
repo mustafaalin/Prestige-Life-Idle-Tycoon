@@ -1,6 +1,8 @@
 # Current Roadmap
 
-Last updated: 2026-05-14
+Last updated: 2026-10-06
+
+> **v2 yeniden yapım başladı.** Güncel plan [rebuild-plan.md](./rebuild-plan.md) dosyasında. Aşağıdaki liste v1'e aittir ve v2 tamamlanınca arşivlenecek.
 
 ## Done
 
