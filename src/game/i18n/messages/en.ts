@@ -14,12 +14,24 @@ export const en = {
   tap: {
     button: 'Tap to earn',
   },
+  business: {
+    title: 'Businesses',
+    max: 'Max',
+    buy: 'Buy ×{count}',
+    manager: 'Manager',
+    auto: 'AUTO',
+    tapToRun: 'Tap to run',
+    earns: 'Earns {amount} every {duration}',
+    milestone: '{left} more to {target} → ×2 profit',
+    allMilestones: 'All milestones reached',
+    teaser: 'Next · {price}',
+  },
   offline: {
     title: 'Welcome back!',
     body: 'You were away for {duration}. Your managers earned:',
   },
   placeholder: {
-    body: 'Business, career and shopping screens are on the way.',
+    body: 'Career and shopping screens are on the way.',
   },
   dev: {
     open: 'DEV',

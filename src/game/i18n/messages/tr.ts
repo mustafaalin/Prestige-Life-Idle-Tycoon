@@ -7,18 +7,30 @@ export const tr: Messages = {
   },
   hud: {
     perSecond: '{amount}/sn',
-    toNextClass: '{name} sınıfına %{percent}',
+    toNextClass: 'Sonraki: {name} · %{percent}',
     topClass: 'Dünyanın zirvesindesin',
   },
   tap: {
     button: 'Dokun, kazan',
+  },
+  business: {
+    title: 'İşletmeler',
+    max: 'Maks',
+    buy: 'Al ×{count}',
+    manager: 'Yönetici',
+    auto: 'OTOMATİK',
+    tapToRun: 'Çalıştırmak için dokun',
+    earns: 'Her {duration} {amount} kazandırır',
+    milestone: '{target} adede {left} kaldı → ×2 kâr',
+    allMilestones: 'Tüm kilometre taşları tamam',
+    teaser: 'Sıradaki · {price}',
   },
   offline: {
     title: 'Tekrar hoş geldin!',
     body: '{duration} uzaktaydın. Yöneticilerin kazandı:',
   },
   placeholder: {
-    body: 'İşletme, kariyer ve alışveriş ekranları yolda.',
+    body: 'Kariyer ve alışveriş ekranları yolda.',
   },
   dev: {
     open: 'DEV',

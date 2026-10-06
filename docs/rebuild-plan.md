@@ -67,7 +67,10 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
   - Geliştirici menüsü (`npm run dev` ve `VITE_DEV_MENU=true` build'leri): hız ×1/×10/×100, para ekle, "uzakta kal" (5 dk / 1 sa / 3 sa), dil, kaydı sıfırla (iki dokunuşla).
   - i18n: `I18nProvider` + `useT()` (`t`, `name`, `money`, `duration`). Türkçe tam: arayüz + 94 içerik adı. Dil: kayıtlı seçim → cihaz dili → İngilizce. Türkçe sayı biçimi: `$1,23 Mn`, `$12,5 Bin`, `1sa 30dk`.
   - Geçici ana ekran (`ui/HomeShell.tsx`): para, gelir/sn, sınıf ilerlemesi, dokunma, çevrimdışı ödül. 1.3–1.13 ile parça parça değişecek.
-- [ ] **1.3 İşletmeler ekranı:** Liste, döngü çubukları, ×1 / ×10 / Max alım, sonraki kilometre taşı göstergesi ("25'e 3 kaldı → ×2"), yönetici satın alma, yöneticisiz işletmeye dokunarak döngü başlatma.
+- [x] **1.3 İşletmeler ekranı:** Liste, döngü çubukları, ×1 / ×10 / Max alım, sonraki kilometre taşı göstergesi ("25'e 3 kaldı → ×2"), yönetici satın alma, yöneticisiz işletmeye dokunarak döngü başlatma.
+  - `ui/businesses/`: kademeli açılma (sahip olunanlar + sıradaki + kilitli bir önizleme), döngü çubuğu tick'ler arasında `requestAnimationFrame` ile akıcı dolar (React yeniden çizmeden), 0,5 sn'den hızlı döngüler dolu ve nabız atan çubuk.
+  - Boşta duran yöneticisiz işletme amber halka ile "dokun" der. Ses ve efektler 1.11'de.
+  - Not: üst bardaki gelir/sn yöneticisiz işletmeleri %60 verimle sayar (simülatörle aynı tahmin); oyuncu dokunmazsa gerçek gelir daha düşük. Oyun testinde kafa karıştırırsa sadece çalışan gelir gösterilecek.
 - [ ] **1.4 Kariyer ekranı:** Mevcut iş, sonraki terfi kartı (fiyat, maaş, bonus).
 - [ ] **1.5 Alışveriş ekranı:** Ev, araç, kıyafet. Satın alınca sahne anında değişir.
 
