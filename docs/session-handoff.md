@@ -10,7 +10,9 @@ Oyun v2 olarak yeniden tasarlanıyor; çalışma `v2-rebuild` dalında.
 - Tasarım ve ekonomi: [game-design-v2.md](./game-design-v2.md)
 - Ekonomi çekirdeği: `src/game/core/` (saf TS), simülatör: `src/game/sim/`, `npm run sim`
 - Runtime: `src/game/runtime/` (`GameV2Provider` + `useGameV2`, kayıt anahtarı `prestige_life_v2`)
-- Durum: Faz 0 tamam (8/8 tempo hedefi). Faz 1.1 runtime tamam. Sıradaki: Faz 1.2 uygulama kökü (`VITE_GAME_V2`, `AppV2`, geliştirici menüsü).
+- i18n: `src/game/i18n/` — Türkçe + İngilizce, sonra başka diller. v2'de sabit metin yok.
+- Çalıştırma: `npm run dev:v2` (v1 için `npm run dev`)
+- Durum: Faz 0, 1.1 (runtime), 1.2 (AppV2 + geliştirici menüsü + i18n) tamam. Sıradaki: Faz 1.3 işletmeler ekranı.
 - v1 (aşağıdaki her şey) v2 onu karşılayana kadar dokunulmadan duruyor.
 
 Bu dosya yeni bir oturumda projeye hızlı geri dönmek için güncel durum özetidir.

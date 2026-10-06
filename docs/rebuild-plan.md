@@ -12,6 +12,7 @@ Oyunu oynaması keyifli ve oyuncuyu her gün geri getiren bir idle hayat simüla
 2. **Ekonomi kodla değil veriyle değişir.** Denge değerleri `src/game/core/config/` içinde; her değişiklik `npm run sim` ile kontrol edilir.
 3. **v1 bozulmaz.** v2 ayrı klasörde (`src/game/`) ve ayrı uygulama kökünde (`AppV2`) büyür. v1, v2 onu tamamen karşılayana kadar (Faz 2 sonu) yerinde kalır.
 4. **Kapı geçilmeden sonraki faza geçilmez.** Hedef tutmazsa önce düzelt.
+5. **Çok dilli baştan.** Oyun Türkçe ve İngilizce çıkar, sonra başka diller eklenir. v2'de ekrana yazılan her metin `src/game/i18n/` üzerinden gelir; sabit metin yazılmaz. Yeni ekran = `en` + `tr` metinleri birlikte.
 
 ## Mimari
 
@@ -28,7 +29,9 @@ src/game/
     storage.ts     `prestige_life_v2` kaydı, bozuk/eski kayıtları normalleştirme
     store.ts       Canlı oyun: 250 ms tick, otomatik kayıt, ön/arka plan, olaylar (payout, classUp)
     GameV2Provider.tsx + useGameV2.ts   React bağlantısı (useSyncExternalStore)
-  ui/              (Faz 1) v2 ekranları ve bileşenleri
+  i18n/            Diller: messages/<dil>.ts (arayüz), content/<dil>.ts (içerik adları), sayı biçimi
+  ui/              v2 ekranları ve bileşenleri
+  AppV2.tsx        v2 kökü (VITE_GAME_V2=true)
 scripts/sim-economy.ts   `npm run sim` giriş noktası
 ```
 
@@ -59,7 +62,11 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
   - Çevrimdışı: `visibilitychange` ile; arka planda tick çalışmaz. 60 sn altı sessizce eklenir, üstü `offline` bekleyen ödül olur (`claimOffline(×2)`). 10 sn'den uzun tick boşluğu da çevrimdışı sayılır. Elle başlatılmış döngü uzaktayken de tamamlanır.
   - Çekirdeğe `cycleRevenue` ve `offlineEarnings` eklendi; simülatör de `offlineEarnings` kullanıyor (sim sonucu değişmedi).
   - Geliştirici eylemleri hazır: `actions.dev.setSpeed/addCash/reset` (menüsü 1.2'de).
-- [ ] **1.2 Uygulama kökü:** `VITE_GAME_V2=true` ise `AppV2` açılır, değilse v1. Geliştirici menüsü: hız ×10, kaydı sıfırla, para ekle (oyun testi için).
+- [x] **1.2 Uygulama kökü:** `VITE_GAME_V2=true` ise `AppV2` açılır, değilse v1. Geliştirici menüsü: hız ×10, kaydı sıfırla, para ekle (oyun testi için).
+  - `npm run dev:v2` / `build:v2` / `cap:sync:v2` (`.env.v2` modu). `main.tsx` sadece seçilen kökü yükler; v2 build'inde v1 kodu yok.
+  - Geliştirici menüsü (`npm run dev` ve `VITE_DEV_MENU=true` build'leri): hız ×1/×10/×100, para ekle, "uzakta kal" (5 dk / 1 sa / 3 sa), dil, kaydı sıfırla (iki dokunuşla).
+  - i18n: `I18nProvider` + `useT()` (`t`, `name`, `money`, `duration`). Türkçe tam: arayüz + 94 içerik adı. Dil: kayıtlı seçim → cihaz dili → İngilizce. Türkçe sayı biçimi: `$1,23 Mn`, `$12,5 Bin`, `1sa 30dk`.
+  - Geçici ana ekran (`ui/HomeShell.tsx`): para, gelir/sn, sınıf ilerlemesi, dokunma, çevrimdışı ödül. 1.3–1.13 ile parça parça değişecek.
 - [ ] **1.3 İşletmeler ekranı:** Liste, döngü çubukları, ×1 / ×10 / Max alım, sonraki kilometre taşı göstergesi ("25'e 3 kaldı → ×2"), yönetici satın alma, yöneticisiz işletmeye dokunarak döngü başlatma.
 - [ ] **1.4 Kariyer ekranı:** Mevcut iş, sonraki terfi kartı (fiyat, maaş, bonus).
 - [ ] **1.5 Alışveriş ekranı:** Ev, araç, kıyafet. Satın alınca sahne anında değişir.

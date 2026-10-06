@@ -36,8 +36,11 @@ export interface GameActions {
   buyLifestyle(itemId: string): boolean;
   claimOffline(multiplier?: number): boolean;
   dev: {
+    getSpeed(): number;
     setSpeed(speed: number): void;
     addCash(amount: number): void;
+    /** Pretends the app was closed for `seconds`, to test offline earnings. */
+    awayFor(seconds: number): void;
     reset(): void;
   };
 }
@@ -144,11 +147,16 @@ export function createGameStore(clock: () => number = Date.now): GameStore {
       buyLifestyle: (itemId) => act((s) => buyLifestyle(s, itemId)),
       claimOffline: (multiplier) => act((s) => claimOffline(s, multiplier)),
       dev: {
+        getSpeed: () => speed,
         setSpeed: (value) => {
           speed = Math.max(0, value);
         },
         addCash: (amount) => {
           act((s) => ({ ...s, game: earn(s.game, amount) }));
+        },
+        awayFor: (seconds) => {
+          state = { ...state, lastActiveAt: state.lastActiveAt - seconds * 1000 };
+          runResume();
         },
         reset: () => {
           clearSave();
