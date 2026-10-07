@@ -1,6 +1,6 @@
 # Prestige Life v2 — Oyun Tasarım Belgesi
 
-Son güncelleme: 2026-10-06 · Durum: Faz 0 tamamlandı (ekonomi çekirdeği + simülatör)
+Son güncelleme: 2026-10-08 · Durum: Faz 1A bitti; sıfırlama ve ömür modeli yeniden tasarlanıyor ([discussion-notes.md](./discussion-notes.md) §4–5)
 
 Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-v2.md); rapordan sapmalar §9'da. Sayısal değerler kodda `src/game/core/config/` altında durur; buradaki tablolar `npm run sim -- --config` çıktısından alınmıştır. Değer değiştirince önce simülatörü çalıştır, sonra bu belgeyi güncelle.
 
@@ -10,7 +10,7 @@ Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-
 
 - AdVenture Capitalist tarzı üstel idle ekonomi (sayılar her zaman akar, büyük basamaklar "vay" anıdır)
 - 7 basamaklı, törenli sınıf merdiveni (her basamakta sahne, ev, araç, kıyafet değişir)
-- Hanedan prestiji: emekli ol, çocuğun miras çarpanıyla sokaktan yeniden başlasın
+- Hanedan prestiji: emekli ol, çocuğun miras çarpanıyla sokaktan yeniden başlasın. **Değişecek (karar yönü 2026-10-08):** erken emeklilik yok; hikâye tek kahramanın hayatında tamamlanır, varis ömrün sonunda devralır (discussion-notes §4–5)
 - BitLife tadında olay kartları (Faz 2)
 
 Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Şans, Rıza Amca, annesine verilen söz).
@@ -108,7 +108,7 @@ En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%243 (×3,4
 
 ### 4.5 Hanedan / miras (`config/economy.ts`)
 
-- Emeklilik, Multimillionaire sınıfında açılır
+- Emeklilik, Multimillionaire sınıfında açılır (bugünkü kod; tek kahraman/ömür modeliyle değişecek: discussion-notes §4–5)
 - Ailenin toplam miras puanı: `floor(10 × (toplamKazanç / 1M)^(1/3))`
 - Emeklilikte kazanılan = toplam puan − eldeki puan (erken ve sık emeklilik az kazandırır)
 - Her puan: tüm gelire +%1
@@ -117,7 +117,7 @@ En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%243 (×3,4
 ### 4.6 Çevrimdışı kazanç
 
 - Sadece yöneticili işletmeler ve maaş çevrimdışı üretir
-- Oran %50, tavan 2 saat
+- Oran %50, tavan 2 saat (tartışmada: 4–8 saat tavan geç oyunu hızlandırıyor, yeniden ayar gerekir; discussion-notes §6)
 - Reklamla ×2; tavanı yükseltmek kalıcı bir ilerleme ve IAP noktasıdır (Faz 2)
 
 ### 4.7 Tıklama
@@ -150,16 +150,18 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; sahnede o ev 
 - **Engaged:** 1. gün 30 + 10 + 7 dk, sonraki günler 6 × 7 dk. GameAnalytics'teki ilk %10 idle oyuncuya yakın.
 - **Casual:** 1. gün 20 + 5 dk, sonraki günler 3 × 5 dk.
 
-Bot her an en kısa sürede kendini ödeyen alımı yapar, yani optimal oynar. Gerçek oyuncular ~1,3–1,8 kat yavaştır.
+Bot her an en kısa sürede kendini ödeyen alımı yapar, yani optimal oynar. Gerçek oyuncuların ~1,3–1,8 kat yavaş olduğu tahmin, ölçülmüş değil. Bot yöneticisiz işletmeleri %60 verimle çalıştırıyor sayar; gerçek oyunda sadece başlatılan döngü ödenir (sınırlar: discussion-notes §8).
+
+Olay saatleri 2026-10-08'de düzeltildi: çevrimdışı kazançla gelen olaylar artık dönüş oturumuna yazılıyor. Casual oyuncu Milyoner'i ilk oturumda değil, 22:00 dönüşünde görüyor. Engaged "emeklilik açılır" hedefi tam sınırda (D2 12:00).
 
 | Kilometre taşı | Hedef (bot) | Engaged bot | Casual bot |
 | --- | --- | --- | --- |
 | İlk satın alma | ≤ 1 dk oyun | 3 sn | 3 sn |
 | İlk işletme | ≤ 2 dk oyun | 20 sn | 20 sn |
 | İlk yönetici | 2–5 dk oyun | 2 dk 55 sn | 2 dk 55 sn |
-| Milyoner (1. nesil) | 20–30 dk oyun | 28 dk | 20 dk |
-| Emeklilik açılır | ≤ 1,5 gün | 2. gün sabah | 2. gün öğle |
-| İlk emeklilik | 1–2. gün | 2. gün öğle | 2. gün akşam |
+| Milyoner (1. nesil) | 20–30 dk oyun | 28,5 dk | 20 dk (22:00 dönüşünde) |
+| Emeklilik açılır | ≤ 1,5 gün | 2. gün 12:00 | 2. gün akşam |
+| İlk emeklilik | 1–2. gün | 2. gün 12:00 | 2. gün akşam |
 | İlk milyarder | 3–5. gün | 3. gün | 4. gün |
 | İlk "en zengin" | 7–16. gün | 7. gün | 13. gün |
 
@@ -185,9 +187,10 @@ Nesil süreleri (engaged): 1,5 → 1,5 → 2 → 2,5 → 3,5 → 6 gün. Erken n
 
 ## 8. Açık sorular
 
-- Para ölçeği: İlk Flower Stand döngüsü $0.1 kazandırıyor. "Fakirlik" hissi için iyi olabilir ama küçük kesirler sevimsiz durabilir. Faz 1 oyun testinde bakılacak; gerekirse tüm fiyatlar ×10.
+- Para ölçeği: İlk Flower Stand döngüsü $0.1 kazandırıyor. "Fakirlik" hissi için iyi olabilir ama küçük kesirler sevimsiz durabilir. Faz 1 oyun testinde bakılacak; gerekirse tüm fiyatlar ×10. Alternatif: gelir aylık gösterilir (yaş/ömür modeli, discussion-notes §5).
+- Ekranda gelir: üst bar ve "~X sonra alabilirsin" tahminleri sadece otomatik geliri (yönetici, maaş, kira) kullanır; dokunarak çalıştırılan işletmeler sayılmaz (2026-10-08).
 - Yöneticisiz işletmeye dokunma mekaniği: runtime şimdilik AdCap modelini uyguluyor (dokun → tek döngü). "Dokundukça hızlanır" alternatifi Faz 1 oyun testinden sonra yeniden değerlendirilecek.
-- Emeklilik yaşı/süre baskısı (Idle Guy gibi) eklenmeli mi? Şimdilik hayır; emeklilik oyuncunun kararı.
+- Emeklilik yaşı/süre baskısı: yaş ve ömür modeli tartışmada (discussion-notes §5).
 
 ## 9. Rapordan sapmalar
 
@@ -199,7 +202,8 @@ Nesil süreleri (engaged): 1,5 → 1,5 → 2 → 2,5 → 3,5 → 6 gün. Erken n
 | Sınıf eşiği | Net servet | Nesil kazancı, harcayınca düşmez (§4.1) | Alışveriş yapan oyuncu sınıf kaybetmesin |
 | İlk "en zengin" | 2–3 hafta (2–4 nesil) | 7–16. gün (§5) | Simülasyon temposu; uzun vade için Faz 2'de nesil içeriği |
 | Konut | Tek ev kavramı | Kirala → satın al → kiraya ver; ev bonusu yaşanan evin kademesinden (§4.8) | Erken oyunda ev almak zor; kiralamak ilerleme hissi, satın almak kira geliri verir (karar 2026-10-07) |
+| Hanedan zamanlaması | Emeklilik → varis sık ve erken | Hikâye tek kahramanın hayatında biter, varis ömür sonunda (karar yönü 2026-10-08) | Hikâyenin sonu (Milyarder, En Zengin) erken emeklilikte hiç görülmüyordu; ayrıntı discussion-notes §4–5 |
 | Sağlık / mutluluk | Tek "Yaşam Kalitesi" göstergesi, gelire çarpan | Tamamen kaldırılır | Statü eşyaları "hayatın iyileşiyor" hissini zaten veriyor; ayrı gösterge angarya riski (karar 2026-10-07) |
-| Görseller ve karakter animasyonu | Mevcut ~290 görsel ve animasyon boru hattı korunur | Diğer görseller korunur; kahraman ve animasyon yapay zekâ video pilotuyla yeniden değerlendirilir, gerekirse yeni tasarım | Kodla zıplatma yapay duruyor; gerçek animasyon hedefleniyor (karar 2026-10-07, [discussion-notes.md](./discussion-notes.md) §1) |
+| Görseller ve karakter animasyonu | Mevcut ~290 görsel ve animasyon boru hattı korunur | Görsel roman: tutarlı durağan pozlar, ifade portreleri, konuşma balonları; kahraman seti küçük ve yeniden üretilir; diğer görseller seçerek kullanılır | Mevcut 20 kıyafette poz aynı, üst kıyafetler ayırt edilmiyor; kodla zıplatma yapay duruyor (karar 2026-10-08, [story-v2.md §8](./story-v2.md)) |
 
 Kullanıcı kararı bekleyen çelişkiler: [discussion-notes.md](./discussion-notes.md).

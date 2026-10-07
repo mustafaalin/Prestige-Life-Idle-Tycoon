@@ -1,6 +1,6 @@
 # Prestige Life v2 — Yeniden Yapım Planı
 
-Son güncelleme: 2026-10-07 · Dal: `v2-rebuild` · Rapor (neden): [report-v2.md](./report-v2.md) · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikaye: [story-v2.md](./story-v2.md) · Açık kararlar: [discussion-notes.md](./discussion-notes.md)
+Son güncelleme: 2026-10-08 · Dal: `v2-rebuild` · Rapor (neden): [report-v2.md](./report-v2.md) · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikaye: [story-v2.md](./story-v2.md) · Açık kararlar: [discussion-notes.md](./discussion-notes.md)
 
 ## Amaç
 
@@ -73,7 +73,7 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 - [x] **1.3 İşletmeler ekranı:** Liste, döngü çubukları, ×1 / ×10 / Max alım, sonraki kilometre taşı göstergesi ("25'e 3 kaldı → ×2"), yönetici satın alma, yöneticisiz işletmeye dokunarak döngü başlatma.
   - `ui/businesses/`: kademeli açılma (sahip olunanlar + sıradaki + kilitli bir önizleme), döngü çubuğu tick'ler arasında `requestAnimationFrame` ile akıcı dolar (React yeniden çizmeden), 0,5 sn'den hızlı döngüler dolu ve nabız atan çubuk.
   - Boşta duran yöneticisiz işletme amber halka ile "dokun" der. Ses ve efektler 1.11'de.
-  - Not: üst bardaki gelir/sn yöneticisiz işletmeleri %60 verimle sayar (simülatörle aynı tahmin); oyuncu dokunmazsa gerçek gelir daha düşük. Oyun testinde kafa karıştırırsa sadece çalışan gelir gösterilecek.
+  - Üst bar ve "~X sonra alabilirsin" tahminleri sadece otomatik geliri gösterir (`autoIncomePerSecond`: yönetici, maaş, kira); 2026-10-08'de değişti, önceden yöneticisizleri %60 sayıp şişik gösteriyordu.
 - [x] **1.4 Kariyer ekranı:** Mevcut iş, sonraki terfi kartı (fiyat, maaş, bonus).
   - `ui/career/CareerScreen.tsx`: mevcut iş (maaş, toplam bonus), öne çıkan terfi kartı (gelirdeki toplam artış, maaş, bonus, "~2dk sonra alabilirsin"), 12 basamaklık kariyer merdiveni.
   - `ui/TabBar.tsx`: alt sekmeler (İşletmeler / Kariyer / Alışveriş-yakında). Terfi alınabilirken Kariyer sekmesinde kırmızı nokta.
@@ -91,23 +91,27 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
   - `viewport-fit=cover` sadece v2 build'inde (`vite.config.ts`); güvenli alan için `var(--safe-top/bottom)`: Android 15+ için Capacitor 8'in enjekte ettiği değerler, diğerlerinde `env()`.
   - Açık: dil seçimi hâlâ localStorage'da (silinirse cihaz diline döner); ayarlar ekranı gelince Preferences'a taşınır.
 
-- [ ] **1.6 Sahne sistemi:** Tek zemin çizgisi (ev başına `groundY`), gerçek ölçekli araçlar (gerçek boy metadata), temas gölgesi, tam opak arka plan + üst/alt gradyan. Görsel normalizasyon scripti (şeffaf kenar kırpma, hizalama).
-- [ ] **1.7 HUD:** Saniyede birkaç kez akan para sayacı, gelir/sn, sınıf ilerleme çubuğu ("Millionaire'a %62"). Sokak sınıflarında dokunma düğmesi "Şişe topla" (hikaye §4). Paranın fiziksel hali sayacın yanında büyür: cüzdan → kasa → banka kasası → altın dolu oda (rapor §6.3).
-- [ ] **1.8 Hayaller panosu:** Ekranda her zaman sıradaki 3 hayal (en ucuz alınmamış ev/araç/kıyafet), ilerleme yüzdesiyle. Hikaye hayalleri de girer ("Sıcak bir çorba", "Annene ev"; hikaye §5); fiyatları simülatöre eklenir.
+- [ ] **1.6 Sahne sistemi:** Dış mekân sahnesi ana ekranın esas yüzeyi; kirli ara sokakta başlar. Katmanlar: arka plan, dokunulabilir nesneler, kahraman, Şans, ön plan, arayüz. Sokakta şişe ve kutular rastgele belirir, dokununca çuvala uçar (+$, ses), yenisi çıkar; bugünkü "Dokun, kazan" düğmesinin yerini alır ([story-v2.md §4](./story-v2.md)). Kahraman pozu yaşam aşamasına göre değişir (yumuşak geçiş). Tek zemin çizgisi (ev başına `groundY`), gerçek ölçekli araçlar, temas gölgesi. Görsel normalizasyon scripti (şeffaf kenar kırpma, hizalama).
+- [ ] **1.7 HUD:** Saniyede birkaç kez akan para sayacı, otomatik gelir, sınıf ilerleme çubuğu ("Millionaire'a %62"). Yaş göstergesi yaş/ömür kararına bağlı ([discussion-notes.md](./discussion-notes.md) §5). Rich Inc. dersi: ilerleme çubuğunun ucunda somut ödül görünsün. Paranın fiziksel hali sayacın yanında büyür: cüzdan → kasa → banka kasası → altın dolu oda (rapor §6.3).
+- [ ] **1.8 Hayaller panosu:** Ekranda her zaman sıradaki 3 hayal (en ucuz alınmamış ev/araç/kıyafet), ilerleme yüzdesiyle. Hikaye hayalleri ve annenin evi merdiveni de girer ("Sıcak bir çorba", eski aile evi, konak; hikaye §5); fiyatları simülatöre eklenir.
 - [ ] **1.9 Para akışı efekti:** Döngü bitince işletmeden uçan "+$1.2K", dokununca para parçacıkları, sayaç büyüyüp renk değiştirme.
 - [ ] **1.10 Sınıf atlama töreni:** Tam ekran: eski sahne çıkar, yenisi gelir, konfeti, ses, haptik, "Before / Now" kartı. Her sınıfta hikaye kartı (hikaye §4: ilk sıcak yemek, annene ev, Bülent Bey'in şirketi...). İlk yönetici anı da küçük bir törenle verilir: "Artık param benim için çalışıyor" (Rıza Amca; rapor §7).
 - [ ] **1.11 Juice paketi:** Her satın almada efekt ve ses, haptik (`@capacitor/haptics`), basma geri bildirimleri.
 
-- [ ] **1.16 Hikaye görselleri ve karakter animasyonu:** [story-v2.md §8](./story-v2.md) listesi. Higgsfield pilotu hemen (MCP bağlanınca), 1.6 ile paralel: idle + sevinç + Şans; **mevcut kahramanın canlandırılmış hali ile yeni tasarlanmış bir kahraman yan yana** denenir, kullanıcı seçer. Hedef gerçek animasyon (yüz ifadesi, kol hareketi); kodla zıplatma çözüm sayılmaz. Beğenilirse toplu üretim ve şeffaf animasyonlu WebP boru hattı (ayrıntı: [discussion-notes.md](./discussion-notes.md) §1). Özellikler görsel beklemez: 1.6–1.13 yer tutucuyla yapılır, görseller gelince değiştirilir.
+- [ ] **1.16 Hikaye görselleri (görsel roman):** [story-v2.md §8](./story-v2.md) listesi. Önce sanat stili denemesi: mevcut Pixar benzeri yarı 3D ile kalın konturlu düz çizgi film yan yana (kahraman 4 poz + 3 ifade, Şans, kirli sokak); kullanıcı telefonda seçer, sonra toplu üretim. Kodla zıplatma karakter animasyonu sayılmaz; gerçek animasyon sadece 2–3 büyük an için ve isteğe bağlı ([discussion-notes.md](./discussion-notes.md) §1). Özellikler görsel beklemez: 1.6–1.13 yer tutucuyla yapılır, görseller gelince değiştirilir.
 - [x] **1.17 Konut modeli:** Kirala → satın al → kiraya ver ([game-design-v2.md §4.8](./game-design-v2.md)). Kiraya verme Faz 2.5'ten buraya çekildi (karar 2026-10-07): o olmadan ev satın almanın bir getirisi yoktu.
   - Çekirdek: `config/housing.ts` (evler artık statü eşyası değil), durumda `home` + `homesOwned`, `rentHome` / `buyHome` / `moveHome`, `homeBonus` (yaşanan evin kademesi) ve `rentPerSecond` (maaşla birlikte her saniye, çevrimdışı da).
   - Arayüz: `ui/shop/HousingPanel.tsx`: evin (Kiracısın / Senin etiketi, içinde oturduğun evi satın al), sıradaki ev (kirala ve taşın, satın al ve taşın, sadece kiralık etiketi), sıradakiler, mülklerin (kirada +$X/sn, taşın), satılık önceki evler. Sahne yaşanan evi gösterir.
   - Eski kayıtlar: `lifestyleOwned` içindeki en iyi ev, kiralık olarak `home` olur.
   - Simülasyon: 8/8 hedef tutuyor; kira gelirin medyan ~%8'i. İlk ev sahipliği 2. nesilde (oyun ~1 sa 50 dk).
 
+- [ ] **1.18 Önsöz (görsel roman):** 5–6 karelik, geçilebilir açılış: restoran, kovulma, lojmandan çıkış, otogarda anneye söz, ara sokakta Şans ([story-v2.md §4](./story-v2.md)). Konuşan aydınlık / diğeri karartılmış, isim etiketi, tek cümlelik balon. Görsel roman bileşeni törenler (1.10) ve rehber balonlarıyla (1.12) ortak.
+- [x] **1.S Simülatör düzeltmeleri (2026-10-08):** Olay saatleri artık dönüş oturumuna ve adım sonuna yazılıyor (önce çevrimdışı kazançla gelen olaylar bir önceki oturumun saatine yazılıyordu). `--offline-cap <saat>` ve `--life <sn/ay>` (emekliliksiz tek kahraman, yaş ölçümü) seçenekleri. Sonuçlar: [discussion-notes.md](./discussion-notes.md) §4–6.
+- [ ] **1.T Tasarım düğümleri (kullanıcıyla):** Yaş ve ömür modeli, ömür içi sıfırlama olup olmayacağı, çevrimdışı tavan, sınıf eşiklerinin yeni hikâyeye göre dağılımı ([discussion-notes.md](./discussion-notes.md) §4–6). Karar sonrası ekonomi ve simülatör yeniden ayarlanır; 2.1 hanedan buna göre değişir.
+
 ### 1C. İlk izlenim ve ölçüm (3. hafta)
 
-- [ ] **1.12 Onboarding:** İlk 3 dakika parmak işaretiyle yönlendirme (dokun → Flower Stand al → işe gir → yönetici). Metin minimum. Rehber Rıza Amca (konuşma balonları), Çiçek Tezgâhı yöneticisi o olur; ilk satın almadan sonra kahramana isim verilir (hikaye §3).
+- [ ] **1.12 Onboarding:** İlk 3 dakika parmak işaretiyle yönlendirme (şişe topla → Flower Stand al → işe gir → yönetici). Metin minimum. Rehber Rıza Amca (konuşma balonları), Çiçek Tezgâhı yöneticisi o olur; ilk satın almadan sonra kahramana isim verilir (hikaye §3). Sistemler ihtiyaç anında tanıtılır, hepsi baştan gezdirilmez (Rich Inc.'te ilk dakikalarda 12–13 sistem tanıtılıyor; sıkıcı). Kahramanın iç sesi az dozda motivasyon için kullanılabilir.
 - [ ] **1.13 Çevrimdışı kazanç modalı v2:** Gelire oranlı, reklamla ×2, sade. Şans kapıda uyuyup uyanır.
 - [ ] **1.14 Analitik:** Firebase Analytics sarmalayıcı (web'de no-op). Olaylar: `session_start`, `tutorial_step`, `business_buy`, `manager_hire`, `promotion`, `lifestyle_buy`, `class_up`, `offline_claim`, `ad_watch`, `screen_view`.
 - [ ] **1.15 Oyun testi paketi:** Kapalı test sürümü, 5 soruluk kısa anket, test notları şablonu.
@@ -127,7 +131,7 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 
 **Amaç:** Oyuncunun 1., 7. ve 30. gün geri gelmesi için sebep yaratmak.
 
-- [ ] **2.1 Hanedan ekranı:** Emeklilik akışı (ne kazanacağını göster, tören), miras puanı, soy ağacı.
+- [ ] **2.1 Hanedan ekranı:** Ömür sonu emeklilik akışı (ne kazanacağını göster, vakıf töreni), miras puanı, soy ağacı. Zamanlama 1.T kararına bağlı.
 - [ ] **2.2 Yadigarlar:** Miras puanıyla alınan kalıcı yetenekler (çevrimdışı tavanı +1 sa, başlangıç parası, yönetici indirimi...).
 - [ ] **2.3 Nesil içeriği:** Her nesil yeni bir şey açsın (yeni şehir + yeni işletme kademeleri; kullanılmayan 30 işletme görseli). Simülatöre eklenip 30 günlük tempo yeniden ayarlanacak.
 - [ ] **2.4 Olay kartları:** Kart motoru + sınıfa göre değişen 60 kart (risk, duygu, mizah). Günde 3–5 kart.

@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-07 · Dal: `v2-rebuild`
+Son güncelleme: 2026-10-08 · Dal: `v2-rebuild`
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve v2 onu Faz 2.11'de kaldıracak.
 
@@ -20,8 +20,14 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 
 - Tamam: Faz 0 (ekonomi çekirdeği + simülatör), 1.1 runtime, 1.2 AppV2 + geliştirici menüsü + i18n, 1.3 işletmeler, 1.4 kariyer + alt sekmeler, 1.5 alışveriş, 1.M mobil temel, 1.17 konut modeli (kirala → satın al → kiraya ver). Hikaye belgesi yazıldı. Faz 1A (çalışan oyun) bitti.
 - Oyun mobil öncelikli: önce Google Play, sonra iOS App Store (plan ilke 6). Kayıt telefonda `@capacitor/preferences`'ta.
+- 2026-10-08: GPT Astra bağımsız incelemesi (`gpt-astra-inceleme/`) ve Rich Inc. ekran görüntüleri (`rich inc oyun görselleri/`) değerlendirildi. Kararlar:
+  - Görsel roman yaklaşımı (durağan poz + ifade + balon); Higgsfield video pilotu ilk adım değil.
+  - Önsöz: kovulma + lojmandan çıkış; anne teyzenin yanında, kahraman sokakta; annenin evi kendi merdiveni (konağa kadar). story-v2 §4–5.
+  - Ana sahne dış mekân, kirli ara sokak; şişe/kutu sahnede dokunarak toplanır.
+  - Sıfırlama: erken emeklilik yok, hikâye tek kahramanın hayatında; varis ömür sonunda. Yaş/ömür modeli açık (discussion-notes §4–5).
+  - Simülatör olay saati hatası düzeltildi; ekranlar artık sadece otomatik geliri gösteriyor.
 - Kullanıcı oynayınca bakacak: konut taşınma bedeli seçenek B (discussion-notes §3).
-- Sıradaki: Faz 1.6 sahne sistemi. Görsel üretimi (1.16): Higgsfield pilotu, kullanıcı MCP bağlantısını kurunca (bkz. discussion-notes §1).
+- Sıradaki: 1.T tasarım düğümleri (yaş/ömür, çevrimdışı tavan) ve 1.16 sanat stili denemesi; ardından 1.6 sahne (sokak + şişe toplama) ve 1.18 önsöz.
 
 ## Çalıştırma
 

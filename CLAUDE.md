@@ -76,7 +76,7 @@ All game state lives in `GameState` (`src/types/game.ts`). The central hook is `
 - **Income:** `hourly_income = job_income + business_income + investment_income − house_rent − vehicle_cost − other_expenses`. Net income can be negative.
 - **Prestige** comes exclusively from quests: each claimed quest = +1, chapter rewards = bonus prestige, resets accumulate `reset_prestige_bonus`. Job/business/house/car/outfit have no prestige contribution.
 - **Jobs:** unlock requires 3 min worked at current job (not money). Completed jobs cannot be revisited.
-- **Businesses:** sequential unlock by `unlock_order`, max level 6, upgrade cost = `current_hourly_income × multiplier` (30/60/120/180/240).
+- **Businesses:** sequential unlock by `unlock_order`, max level 6, upgrade cost = `current_hourly_income × multiplier` (10/20/40/60/80, `src/utils/businessUpgrade.ts`), each level +50% income.
 - **Investment upgrades:** must be sequential (1→5), each level multiplies `base_rental_income`, not current income.
 - **Bank:** same plan type can only have 1 active deposit at a time. Profit-only goes to `lifetime_earnings` on collect.
 - **Cashback:** 2% on business/real-estate/car/character/outfit purchases. Premium Bank Card doubles it.
@@ -197,7 +197,7 @@ Always play a sound for meaningful player actions. Cooldown / disabled states �
 
 ### Character Animation Status (v1)
 
-v2 animation approach is undecided and tracked in `docs/discussion-notes.md` §1 (AI video pilot via Higgsfield; no code-only squash/jump as the character animation solution).
+v2 uses a visual-novel approach (decided 2026-10-08): consistent static poses, expression portraits, speech bubbles and comic-panel story scenes; no code-only squash/jump as character animation. Art style test and optional AI video for special moments: `docs/discussion-notes.md` §1.
 
 
 - Outfit images follow naming: `ch-N-1.png` (idle static), `ch-N-2.png` (celebrate static).
