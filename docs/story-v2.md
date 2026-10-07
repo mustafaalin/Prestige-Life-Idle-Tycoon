@@ -186,6 +186,8 @@ Kartların bir kısmı bu kadrodan gelir; böylece "tanıdık yüzler geri döne
 - Her komutun sonuna aynen eklenen stil paragrafı: *"Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark."*
 - Karakterler ve nesneler düz açık gri zeminde üretilir, sonra arka planı silinir. Arka planlar 9:16, 2K; komuta *"a frame from a 3D CG animated feature film, NO ink outlines, NO cel shading, NO flat 2D cartoon"* eklenir (yoksa stil 2D'ye kayıyor).
 - Hayvanlar için *"real four-legged dog, quadruped, NOT anthropomorphic"* şart (ilk Şans denemesi iki ayak üstünde çıktı).
+- Sahne ve önsöz kareleri için üç referans verilir: kahraman kılavuzu + bir kahraman pozu + yarı 3D bir arka plan (`art/pilot/02-poses/alley.png`). Tek referansla stil 2D'ye kayıyor (ilk restoran karesi).
+- Kadro kılavuzları: `art/pilot/03-cast/` (anne, Rıza Amca, Bülent Bey); yeni üretimlerde ilgili kılavuz da referans verilir.
 - Görsellere yazı, tabela, logo gömülmez (TR/EN).
 - Oyunda: karakter görselleri stüdyo ışığında; gece sahnelerinde sahnenin ışığına uydurmak için hafif soğuk renk tonu ve sıcak kenar ışığı uygulanır (deneme: `art/pilot/scene-mock-alley.png`).
 
