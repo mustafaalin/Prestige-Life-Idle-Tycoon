@@ -1,3 +1,5 @@
+import { Capacitor } from '@capacitor/core';
+import { Preferences } from '@capacitor/preferences';
 import { CAREERS } from '../core/config/careers';
 import { WEALTH_CLASSES } from '../core/config/classes';
 import { LIFESTYLE_ITEMS } from '../core/config/lifestyle';
@@ -7,6 +9,8 @@ import type { GameStateV2 } from '../core/types';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
 
 // Local save for v2. Separate key from v1 so both games can live side by side until v1 is removed.
+// On phones the save lives in Preferences (SharedPreferences / UserDefaults): the OS may clear a
+// WebView's localStorage. localStorage keeps a copy as the synchronous web fallback.
 
 export const STORAGE_KEY = 'prestige_life_v2';
 const SAVE_SCHEMA = 1;
@@ -79,10 +83,42 @@ function normalizeOffline(raw: unknown): PendingOffline | null {
   return amount > 0 ? { amount, awaySeconds: finite(raw.awaySeconds, 0) } : null;
 }
 
-/** Loads the saved game, or starts a new life. Never throws. */
-export function loadRuntime(now: number): RuntimeState {
+const native = Capacitor.isNativePlatform();
+
+function savedAtOf(text: string | null) {
+  if (!text) return -1;
   try {
-    const text = localStorage.getItem(STORAGE_KEY);
+    const file: unknown = JSON.parse(text);
+    return isRecord(file) ? finite(file.savedAt, 0) : -1;
+  } catch {
+    return -1;
+  }
+}
+
+function readLocal() {
+  try {
+    return localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+/** Reads the newest save text from native storage and localStorage. Never throws. */
+export async function readSave(): Promise<string | null> {
+  const local = readLocal();
+  if (!native) return local;
+  let stored: string | null = null;
+  try {
+    stored = (await Preferences.get({ key: STORAGE_KEY })).value;
+  } catch {
+    // Native storage unavailable: fall back to the local copy.
+  }
+  return savedAtOf(local) > savedAtOf(stored) ? local : stored;
+}
+
+/** Builds the runtime from save text, or starts a new life. Never throws. */
+export function parseRuntime(text: string | null, now: number): RuntimeState {
+  try {
     if (!text) return createRuntimeState(now);
     const file: unknown = JSON.parse(text);
     if (!isRecord(file) || file.schema !== SAVE_SCHEMA || !isRecord(file.runtime)) return createRuntimeState(now);
@@ -99,15 +135,40 @@ export function loadRuntime(now: number): RuntimeState {
   }
 }
 
+// Native writes are async; only the newest pending save is written, one at a time, in order.
+let nativeWriting = false;
+let nativePending: string | null = null;
+
+async function flushNative() {
+  if (nativeWriting) return;
+  nativeWriting = true;
+  while (nativePending !== null) {
+    const value = nativePending;
+    nativePending = null;
+    try {
+      await Preferences.set({ key: STORAGE_KEY, value });
+    } catch {
+      // Keep playing; the next save will try again.
+    }
+  }
+  nativeWriting = false;
+}
+
 export function saveRuntime(runtime: RuntimeState, now: number) {
   const file: SaveFile = { schema: SAVE_SCHEMA, savedAt: now, runtime };
+  const text = JSON.stringify(file);
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(file));
+    localStorage.setItem(STORAGE_KEY, text);
   } catch {
     // Storage full or blocked (private mode): keep playing; the next save will try again.
   }
+  if (native) {
+    nativePending = text;
+    void flushNative();
+  }
 }
 
+/** Drops the local copy. The native save is not removed: a reset saves a fresh life right after. */
 export function clearSave() {
   try {
     localStorage.removeItem(STORAGE_KEY);

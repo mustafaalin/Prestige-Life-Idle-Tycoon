@@ -3,6 +3,7 @@ import { WEALTH_CLASSES } from '../core/config/classes';
 import { incomePerSecond, tapValue } from '../core/formulas';
 import { canBuyAnyLifestyle, nextCareer } from '../core/state';
 import { useT } from '../i18n/useT';
+import { useBackButton } from '../runtime/backButton';
 import { useGameV2 } from '../runtime/useGameV2';
 import { BusinessesScreen } from './businesses/BusinessesScreen';
 import { CareerScreen } from './career/CareerScreen';
@@ -18,6 +19,10 @@ export function HomeShell() {
   const [tab, setTab] = useState<TabId>('businesses');
   const promotion = nextCareer(game);
 
+  // Android back: from another tab, go home first; on the offline sheet, collect (the sheet's only action).
+  useBackButton(tab !== 'businesses', 0, () => setTab('businesses'));
+  useBackButton(state.offline !== null, 60, () => actions.claimOffline());
+
   const current = WEALTH_CLASSES[game.classIndex];
   const next = WEALTH_CLASSES[game.classIndex + 1];
   const classProgress = next
@@ -26,7 +31,7 @@ export function HomeShell() {
 
   return (
     <div className="h-[100dvh] bg-slate-50 flex flex-col">
-      <header className="shrink-0 px-4 pt-[calc(env(safe-area-inset-top)+12px)] pb-3">
+      <header className="shrink-0 px-4 pt-[calc(var(--safe-top)+12px)] pb-3">
         <section className="bg-white rounded-[22px] shadow-lg p-4 flex gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{name('wealthClass', current)}</p>
@@ -73,7 +78,7 @@ export function HomeShell() {
 
       {state.offline && (
         <div className="fixed inset-0 z-[60] bg-black/35 flex items-end">
-          <div className="w-full bg-white rounded-t-[28px] shadow-2xl px-5 pt-5 pb-[calc(env(safe-area-inset-bottom)+20px)] text-center">
+          <div className="w-full bg-white rounded-t-[28px] shadow-2xl px-5 pt-5 pb-[calc(var(--safe-bottom)+20px)] text-center">
             <h2 className="text-xl font-black text-slate-900">{t('offline.title')}</h2>
             <p className="text-sm font-bold text-slate-600 mt-1">
               {t('offline.body', { duration: duration(state.offline.awaySeconds) })}

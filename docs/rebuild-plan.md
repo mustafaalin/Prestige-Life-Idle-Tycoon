@@ -13,7 +13,8 @@ Oyunu oynaması keyifli ve oyuncuyu her gün geri getiren bir idle hayat simüla
 3. **v1 bozulmaz.** v2 ayrı klasörde (`src/game/`) ve ayrı uygulama kökünde (`AppV2`) büyür. v1, v2 onu tamamen karşılayana kadar (Faz 2 sonu) yerinde kalır.
 4. **Kapı geçilmeden sonraki faza geçilmez.** Hedef tutmazsa önce düzelt.
 5. **Çok dilli baştan.** Oyun Türkçe ve İngilizce çıkar, sonra başka diller eklenir. v2'de ekrana yazılan her metin `src/game/i18n/` üzerinden gelir; sabit metin yazılmaz. Yeni ekran = `en` + `tr` metinleri birlikte.
-6. **Belgeler bağlayıcı ama değişmez değil.** Rapor, tasarım ve plan kararlarına uyulur; daha iyi bir fikir çıkarsa kullanıcıyla konuşulur ve belge güncellenir.
+6. **Mobil öncelikli.** Oyun yerel uygulama olarak önce Google Play'de, sonra iOS App Store'da yayınlanır; web sürümü sadece geliştirme içindir. Kod telefona göre yazılır: kayıt `@capacitor/preferences`'ta, Android geri tuşu ve uygulama duraklat/devam olayları ele alınır, güvenli alan payları (`var(--safe-top)` / `var(--safe-bottom)`, `src/game/mobile.css`), en az 44–48 px dokunma alanı, üzerine gelme (hover) gerektiren arayüz yok, düşük seviye Android'de akıcı animasyon, küçük görseller. Doğrulama gerçek cihazda yapılır.
+7. **Belgeler bağlayıcı ama değişmez değil.** Rapor, tasarım ve plan kararlarına uyulur; daha iyi bir fikir çıkarsa kullanıcıyla konuşulur ve belge güncellenir.
 
 ## Mimari
 
@@ -27,7 +28,8 @@ src/game/
   sim/             Dengeleme botu ve tempo hedefleri
   runtime/         Tick döngüsü, kayıt, çevrimdışı hesap, React hook'u
     engine.ts      Saf zaman motoru: döngü çubukları, ödemeler, çevrimdışı (zaman parametre olarak gelir)
-    storage.ts     `prestige_life_v2` kaydı, bozuk/eski kayıtları normalleştirme
+    storage.ts     `prestige_life_v2` kaydı (telefonda Preferences, web'de localStorage), bozuk/eski kayıtları normalleştirme
+    backButton.ts  Android geri tuşu: açık katmanlar (sekme, sayfa, modal) z-index sırasıyla kapanır
     store.ts       Canlı oyun: 250 ms tick, otomatik kayıt, ön/arka plan, olaylar (payout, classUp)
     GameV2Provider.tsx + useGameV2.ts   React bağlantısı (useSyncExternalStore)
   i18n/            Diller: messages/<dil>.ts (arayüz), content/<dil>.ts (içerik adları), sayı biçimi
@@ -81,6 +83,13 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
   - Çekirdek: `nextLifestyle`, `bestOwnedLifestyle`, `canBuyAnyLifestyle`, `LIFESTYLE_KINDS` (simülatör de bunları kullanıyor; sim sonucu değişmedi).
 
 ### 1B. His ve sahne (2. hafta)
+
+- [x] **1.M Mobil temel:** Oyunun telefonda doğru çalışması için altyapı (ilke 6).
+  - Kayıt `@capacitor/preferences`'ta (Android SharedPreferences, iOS UserDefaults); işletim sistemi WebView'in localStorage'ını silebilir. localStorage kopyası web yedeği; açılışta ikisinden yenisi okunur. Açılış kaydı okuyana kadar splash ekranı kalır.
+  - Android geri tuşu (`@capacitor/app`): en üstteki katmanı kapatır (geliştirici menüsü → çevrimdışı ödül = topla → başka sekme = ana sekme); açık katman yoksa uygulama kapanmaz, arka plana gider.
+  - Uygulama duraklat/devam olayları da kaydı ve çevrimdışı hesabı tetikler (`visibilitychange`'e ek).
+  - `viewport-fit=cover` sadece v2 build'inde (`vite.config.ts`); güvenli alan için `var(--safe-top/bottom)`: Android 15+ için Capacitor 8'in enjekte ettiği değerler, diğerlerinde `env()`.
+  - Açık: dil seçimi hâlâ localStorage'da (silinirse cihaz diline döner); ayarlar ekranı gelince Preferences'a taşınır.
 
 - [ ] **1.6 Sahne sistemi:** Tek zemin çizgisi (ev başına `groundY`), gerçek ölçekli araçlar (gerçek boy metadata), temas gölgesi, tam opak arka plan + üst/alt gradyan. Görsel normalizasyon scripti (şeffaf kenar kırpma, hizalama).
 - [ ] **1.7 HUD:** Saniyede birkaç kez akan para sayacı, gelir/sn, sınıf ilerleme çubuğu ("Millionaire'a %62"). Sokak sınıflarında dokunma düğmesi "Şişe topla" (hikaye §4). Paranın fiziksel hali sayacın yanında büyür: cüzdan → kasa → banka kasası → altın dolu oda (rapor §6.3).

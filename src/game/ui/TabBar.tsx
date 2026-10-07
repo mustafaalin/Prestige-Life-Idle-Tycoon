@@ -30,7 +30,7 @@ export function TabBar({ active, onChange, attention }: TabBarProps) {
   const { t } = useT();
 
   return (
-    <nav className="shrink-0 bg-white border-t border-slate-100 px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+8px)] flex gap-2">
+    <nav className="shrink-0 bg-white border-t border-slate-100 px-3 pt-2 pb-[calc(var(--safe-bottom)+8px)] flex gap-2">
       {TABS.map(({ id, label, icon: Icon, soon }) => {
         const selected = id === active;
         return (

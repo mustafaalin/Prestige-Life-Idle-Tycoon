@@ -2,6 +2,7 @@ import { X } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { LOCALES, type Locale } from '../i18n/locales';
 import { useT } from '../i18n/useT';
+import { useBackButton } from '../runtime/backButton';
 import { useGameV2 } from '../runtime/useGameV2';
 
 // Playtest tools. Shown in `npm run dev` and in builds with VITE_DEV_MENU=true.
@@ -50,12 +51,14 @@ export function DevMenu() {
     setConfirmReset(false);
   };
 
+  useBackButton(open, 200, close);
+
   if (!open) {
     return (
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed right-3 bottom-[calc(env(safe-area-inset-bottom)+84px)] z-[200] rounded-full bg-slate-900/80 text-white px-3 py-1.5 text-[10px] font-black transition-all active:scale-90"
+        className="fixed right-3 bottom-[calc(var(--safe-bottom)+84px)] z-[200] rounded-full bg-slate-900/80 text-white px-3 py-1.5 text-[10px] font-black transition-all active:scale-90"
       >
         {t('dev.open')}
         {speed !== 1 && ` ×${speed}`}
@@ -66,7 +69,7 @@ export function DevMenu() {
   return (
     <div className="fixed inset-0 z-[200] bg-black/35 flex items-end" onClick={close}>
       <div
-        className="w-full bg-white rounded-t-[28px] shadow-2xl px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+20px)] flex flex-col gap-4"
+        className="w-full bg-white rounded-t-[28px] shadow-2xl px-5 pt-3 pb-[calc(var(--safe-bottom)+20px)] flex flex-col gap-4"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-2">

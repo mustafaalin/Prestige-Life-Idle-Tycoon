@@ -1,3 +1,5 @@
+import { App } from '@capacitor/app';
+import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import { earn } from '../core/state';
 import {
   buyBusinessUnits,
@@ -13,9 +15,10 @@ import {
   type Payout,
   type RuntimeState,
 } from './engine';
-import { clearSave, loadRuntime, saveRuntime } from './storage';
+import { clearSave, parseRuntime, saveRuntime } from './storage';
 
-// Owns the live game: 250 ms tick, autosave, foreground/background handling.
+// Owns the live game: 250 ms tick, autosave, foreground/background handling (web visibility events
+// plus native app pause/resume, which fire more reliably when the phone suspends the app).
 // Framework-free; React reads it through useSyncExternalStore (see GameV2Provider).
 
 export const TICK_MS = 250;
@@ -54,8 +57,9 @@ export interface GameStore {
   actions: GameActions;
 }
 
-export function createGameStore(clock: () => number = Date.now): GameStore {
-  let state = loadRuntime(clock());
+/** `saveText` comes from readSave(), which is async on phones, so it is read before the store is made. */
+export function createGameStore(saveText: string | null, clock: () => number = Date.now): GameStore {
+  let state = parseRuntime(saveText, clock());
   let speed = 1;
   let lastSavedAt = clock();
   const listeners = new Set<() => void>();
@@ -98,13 +102,14 @@ export function createGameStore(clock: () => number = Date.now): GameStore {
     return true;
   };
 
+  const goBackground = () => {
+    runTick();
+    persist();
+  };
+
   const onVisibilityChange = () => {
-    if (document.hidden) {
-      runTick();
-      persist();
-    } else {
-      runResume();
-    }
+    if (document.hidden) goBackground();
+    else runResume();
   };
 
   return {
@@ -128,10 +133,17 @@ export function createGameStore(clock: () => number = Date.now): GameStore {
       }, TICK_MS);
       document.addEventListener('visibilitychange', onVisibilityChange);
       window.addEventListener('pagehide', persist);
+
+      // Pause and visibilitychange may both fire; a second resume finds no time away and changes nothing.
+      const nativeHandles: Promise<PluginListenerHandle>[] = Capacitor.isNativePlatform()
+        ? [App.addListener('pause', goBackground), App.addListener('resume', runResume)]
+        : [];
+
       return () => {
         window.clearInterval(interval);
         document.removeEventListener('visibilitychange', onVisibilityChange);
         window.removeEventListener('pagehide', persist);
+        nativeHandles.forEach((handle) => handle.then((h) => h.remove()).catch(() => {}));
         persist();
       };
     },
