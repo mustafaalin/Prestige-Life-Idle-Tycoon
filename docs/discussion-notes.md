@@ -43,9 +43,9 @@ Son güncelleme: 2026-10-07
 
 **Öneri:** Yayından önce repoda ayrı bir `video/` klasöründe tanıtım videoları için kurulsun.
 
-## 3. Konut modeli ayrıntıları
+## 3. Konut modeli
 
-Karar: tek ev kavramı, kirala → satın al → kiraya ver ([game-design-v2.md §4.8](./game-design-v2.md)). Simülatörde netleşecekler: depozito oranı (başlangıç %4), kira geri dönüş süresi, aynı anda tek kiralık ev mi. Düzenli kira gideri yok önerisi kullanıcıyla teyit edilecek.
+Karar verildi (2026-10-07) ve [game-design-v2.md §4.8](./game-design-v2.md)'e taşındı. Açık kalan tek şey: taşınma bedeli seçenek B ile başladı (bugünkü fiyat eğrisi = taşınma bedeli, satın alma = ×25). Kullanıcı oyun testinde nasıl hissettirdiğine bakıp tekrar değerlendirecek. Alternatif A: bedel = fiyatın %4'ü, fiyatlar eski eğride (ilk evler bedavaya yakın olur).
 
 ## 4. Faz 2.1 hanedan soruları ([story-v2.md §6](./story-v2.md))
 

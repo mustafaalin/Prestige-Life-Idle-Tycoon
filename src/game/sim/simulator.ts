@@ -15,19 +15,26 @@ import {
   nextMilestone,
   offlineEarnings,
   pendingLegacyPoints,
+  rentPerSecond,
   tapValue,
 } from '../core/formulas';
+import { HOUSES } from '../core/config/housing';
 import {
   buyBusinessUnits,
+  buyHome,
   buyLifestyle,
   canRetire,
   createInitialState,
   earn,
   hireManager,
+  housePrice,
   LIFESTYLE_KINDS,
   nextCareer,
+  nextHome,
   nextLifestyle,
+  ownsHouse,
   promote,
+  rentHome,
   retire,
 } from '../core/state';
 import type { GameStateV2 } from '../core/types';
@@ -49,7 +56,16 @@ export interface PlayerProfile {
   minRetirePoints: number;
 }
 
-export type SimEventKind = 'purchase' | 'business' | 'manager' | 'career' | 'lifestyle' | 'class' | 'retire' | 'session';
+export type SimEventKind =
+  | 'purchase'
+  | 'business'
+  | 'manager'
+  | 'career'
+  | 'lifestyle'
+  | 'home'
+  | 'class'
+  | 'retire'
+  | 'session';
 
 export interface SimEvent {
   kind: SimEventKind;
@@ -122,6 +138,18 @@ function candidates(state: GameStateV2): Candidate[] {
     const next = nextLifestyle(state, kind);
     if (next) {
       list.push({ label: next.name, kind: 'lifestyle', cost: next.cost, apply: (s) => buyLifestyle(s, next.id) });
+    }
+  }
+
+  // Homes: rent the next one; buy any house allowed (the next one moves you in, lower ones pay rent).
+  const next = nextHome(state);
+  if (next && !ownsHouse(state, next.id)) {
+    list.push({ label: `Rent: ${next.name}`, kind: 'home', cost: next.moveInCost, apply: (s) => rentHome(s, next.id) });
+  }
+  for (const house of HOUSES) {
+    const price = housePrice(state, house);
+    if (price !== null) {
+      list.push({ label: `Buy: ${house.name}`, kind: 'home', cost: price, apply: (s) => buyHome(s, house.id) });
     }
   }
 
@@ -295,7 +323,8 @@ export function sessionSummary(state: GameStateV2) {
     .map((line) => ({ ...line, share: line.baseIncome }))
     .sort((a, b) => b.share - a.share);
   const salary = salaryPerSecond(state);
-  const total = lines.reduce((sum, line) => sum + line.share, salary) || 1;
+  const rent = rentPerSecond(state);
+  const total = lines.reduce((sum, line) => sum + line.share, salary + rent) || 1;
   const top = lines
     .slice(0, 3)
     .map((line) => `${line.name} ${line.owned}${line.managed ? 'm' : ''} ${Math.round((line.share / total) * 100)}%`)
@@ -304,7 +333,9 @@ export function sessionSummary(state: GameStateV2) {
     `cash ${state.cash.toExponential(2)}`,
     `x${globalMultiplier(state).toFixed(1)} (career +${Math.round(careerBonus(state) * 100)}%, status +${Math.round(statusBonus(state) * 100)}%, legacy x${legacyMultiplier(state.legacyPoints).toFixed(2)})`,
     `items ${state.lifestyleOwned.length}`,
+    `home ${state.home}${state.homesOwned.includes(state.home) ? ' (owned)' : ''}, owns ${state.homesOwned.length}`,
     `salary ${Math.round((salary / total) * 100)}%`,
+    `rent ${Math.round((rent / total) * 100)}%`,
     top,
   ].join(' | ');
 }

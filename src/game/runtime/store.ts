@@ -3,11 +3,14 @@ import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import { earn } from '../core/state';
 import {
   buyBusinessUnits,
+  buyHome,
   buyLifestyle,
   claimOffline,
   createRuntimeState,
   hireManager,
+  moveHome,
   promote,
+  rentHome,
   resume,
   startCycle,
   tap,
@@ -37,6 +40,9 @@ export interface GameActions {
   startCycle(businessId: string): boolean;
   promote(): boolean;
   buyLifestyle(itemId: string): boolean;
+  rentHome(houseId: string): boolean;
+  buyHome(houseId: string): boolean;
+  moveHome(houseId: string): boolean;
   claimOffline(multiplier?: number): boolean;
   dev: {
     getSpeed(): number;
@@ -157,6 +163,9 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       startCycle: (businessId) => act((s) => startCycle(s, businessId)),
       promote: () => act(promote),
       buyLifestyle: (itemId) => act((s) => buyLifestyle(s, itemId)),
+      rentHome: (houseId) => act((s) => rentHome(s, houseId)),
+      buyHome: (houseId) => act((s) => buyHome(s, houseId)),
+      moveHome: (houseId) => act((s) => moveHome(s, houseId)),
       claimOffline: (multiplier) => act((s) => claimOffline(s, multiplier)),
       dev: {
         getSpeed: () => speed,

@@ -21,7 +21,7 @@ Oyunu oynaması keyifli ve oyuncuyu her gün geri getiren bir idle hayat simüla
 ```
 src/game/
   core/            Saf TypeScript ekonomi çekirdeği (React yok, depolama yok)
-    config/        Denge verisi: işletmeler, kariyer, sınıflar, statü eşyaları, sabitler
+    config/        Denge verisi: işletmeler, kariyer, sınıflar, statü eşyaları, evler, sabitler
     formulas.ts    Fiyat, gelir, çarpan, miras formülleri
     state.ts       Saf durum geçişleri (satın al, terfi, emekli ol...)
     format.ts      $1.23M biçimlendirme, süre biçimlendirme
@@ -99,7 +99,11 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 - [ ] **1.11 Juice paketi:** Her satın almada efekt ve ses, haptik (`@capacitor/haptics`), basma geri bildirimleri.
 
 - [ ] **1.16 Hikaye görselleri ve karakter animasyonu:** [story-v2.md §8](./story-v2.md) listesi. Higgsfield pilotu hemen (MCP bağlanınca), 1.6 ile paralel: idle + sevinç + Şans; **mevcut kahramanın canlandırılmış hali ile yeni tasarlanmış bir kahraman yan yana** denenir, kullanıcı seçer. Hedef gerçek animasyon (yüz ifadesi, kol hareketi); kodla zıplatma çözüm sayılmaz. Beğenilirse toplu üretim ve şeffaf animasyonlu WebP boru hattı (ayrıntı: [discussion-notes.md](./discussion-notes.md) §1). Özellikler görsel beklemez: 1.6–1.13 yer tutucuyla yapılır, görseller gelince değiştirilir.
-- [ ] **1.17 Konut modeli:** Kirala / satın al ([game-design-v2.md §4.8](./game-design-v2.md)). Alışveriş ekranında evler için iki düğme, sahnede yaşanan ev, satın alırken depozito düşülür. Simülatöre eklenir, tempo hedefleri yeniden kontrol edilir.
+- [x] **1.17 Konut modeli:** Kirala → satın al → kiraya ver ([game-design-v2.md §4.8](./game-design-v2.md)). Kiraya verme Faz 2.5'ten buraya çekildi (karar 2026-10-07): o olmadan ev satın almanın bir getirisi yoktu.
+  - Çekirdek: `config/housing.ts` (evler artık statü eşyası değil), durumda `home` + `homesOwned`, `rentHome` / `buyHome` / `moveHome`, `homeBonus` (yaşanan evin kademesi) ve `rentPerSecond` (maaşla birlikte her saniye, çevrimdışı da).
+  - Arayüz: `ui/shop/HousingPanel.tsx`: evin (Kiracısın / Senin etiketi, içinde oturduğun evi satın al), sıradaki ev (kirala ve taşın, satın al ve taşın, sadece kiralık etiketi), sıradakiler, mülklerin (kirada +$X/sn, taşın), satılık önceki evler. Sahne yaşanan evi gösterir.
+  - Eski kayıtlar: `lifestyleOwned` içindeki en iyi ev, kiralık olarak `home` olur.
+  - Simülasyon: 8/8 hedef tutuyor; kira gelirin medyan ~%8'i. İlk ev sahipliği 2. nesilde (oyun ~1 sa 50 dk).
 
 ### 1C. İlk izlenim ve ölçüm (3. hafta)
 
@@ -127,7 +131,7 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 - [ ] **2.2 Yadigarlar:** Miras puanıyla alınan kalıcı yetenekler (çevrimdışı tavanı +1 sa, başlangıç parası, yönetici indirimi...).
 - [ ] **2.3 Nesil içeriği:** Her nesil yeni bir şey açsın (yeni şehir + yeni işletme kademeleri; kullanılmayan 30 işletme görseli). Simülatöre eklenip 30 günlük tempo yeniden ayarlanacak.
 - [ ] **2.4 Olay kartları:** Kart motoru + sınıfa göre değişen 60 kart (risk, duygu, mizah). Günde 3–5 kart.
-- [ ] **2.5 Yatırımlar:** Kiradaki evler (taşınılan sahip olunan evler kira getirir, çevrimdışı da; [game-design-v2.md §4.8](./game-design-v2.md)) ve tek "Yatırım Hesabı" (güvenli / orta / riskli vadeler). Ayrı emlak listesi ve borsa yok.
+- [ ] **2.5 Yatırımlar:** Tek "Yatırım Hesabı" (güvenli / orta / riskli vadeler). Kiradaki evler 1.17'de yapıldı ([game-design-v2.md §4.8](./game-design-v2.md)). Ayrı emlak listesi ve borsa yok.
 - [ ] **2.6 Lüks oyuncaklar sahnede:** Jet gökyüzünden geçer, helikopter süzülür, yat sahil evlerinde görünür; ayrıca Garaj/Marina koleksiyon ekranı.
 - [ ] **2.7 Günlük döngü ve görevler:** Gelire oranlı günlük ödül serisi, günlük çark (reklamla ek çevirme), "sıradaki 3 hedef" görev zinciri (yön gösterir, gem verir). Gem'in kazanıldığı yerler: görevler ve günlük ödül.
 - [ ] **2.8 Bildirimler:** Yerel bildirim: "Kasan doldu", "Emekli olabilirsin", "Günlük ödül hazır".

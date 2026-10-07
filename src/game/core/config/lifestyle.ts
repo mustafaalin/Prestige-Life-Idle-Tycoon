@@ -1,17 +1,8 @@
 import type { LifestyleDef, LifestyleKind } from '../types';
 
-// Status items: houses, vehicles, outfits and luxury toys. They are never an expense;
+// Status items: vehicles, outfits and luxury toys (homes live in housing.ts). They are never an expense;
 // each one adds a permanent (per generation) income bonus, so shopping makes you stronger.
 // Prices are geometric so every next dream sits a few minutes to a few hours of income away.
-
-const HOUSE_NAMES = [
-  'Street Tent', 'Makeshift Shack', 'Shelter Entrance', 'Old Van Sleep Spot', 'Old Rental Apartment',
-  'Basement Rental', 'Newer Rental Apartment', 'Modern Rental Apartment', 'Gated Community Block',
-  'First Owned Small Detached House', 'Owned Suburban House', 'Luxury Villa', 'Lakeside Glass Cabin',
-  'Tropical Jungle Villa', 'Modern Glass Mansion', 'Mountain Chalet Resort', 'Penthouse Entrance Terrace',
-  'Downtown Penthouse Terrace', 'Beachfront Estate', 'Countryside Estate', 'Desert Modern Villa',
-  'Countryside Grand Estate', 'Futuristic Smart Home', 'Ultra Luxury Mansion', 'European Castle Estate',
-];
 
 const VEHICLE_NAMES = [
   'Wheelbarrow', 'City Bike', 'Electric Scooter', 'Moped', 'Used Microcar', 'Old Hatchback', 'Old Sedan',
@@ -40,7 +31,7 @@ function geometric(
   growth: number,
   statusBonus: number
 ): LifestyleDef[] {
-  // Index 0 is the free starting item (tent, wheelbarrow, bare basics).
+  // Index 0 is the free starting item (wheelbarrow, bare basics).
   return names.map((name, index) => ({
     id: `${kind}-${index + 1}`,
     kind,
@@ -51,7 +42,6 @@ function geometric(
   }));
 }
 
-export const HOUSES = geometric('house', HOUSE_NAMES, (n) => `/assets/houses/backgrounds/house-${n}.webp`, 200, 2.75, 0.05);
 export const VEHICLES = geometric('vehicle', VEHICLE_NAMES, (n) => `/assets/vehicles/vehicle-${n}.png`, 20, 3.3, 0.03);
 export const OUTFITS = geometric('outfit', OUTFIT_NAMES, (n) => `/assets/outfits/ch-${n}-1.png`, 30, 3, 0.02);
 export const LUXURY_TOYS: LifestyleDef[] = TOYS.map((toy, index) => ({
@@ -63,7 +53,7 @@ export const LUXURY_TOYS: LifestyleDef[] = TOYS.map((toy, index) => ({
   statusBonus: 0.1,
 }));
 
-export const LIFESTYLE_ITEMS: LifestyleDef[] = [...HOUSES, ...VEHICLES, ...OUTFITS, ...LUXURY_TOYS];
+export const LIFESTYLE_ITEMS: LifestyleDef[] = [...VEHICLES, ...OUTFITS, ...LUXURY_TOYS];
 
 /** Items every new life starts with. */
-export const STARTING_LIFESTYLE_IDS = ['house-1', 'vehicle-1', 'outfit-1'];
+export const STARTING_LIFESTYLE_IDS = ['vehicle-1', 'outfit-1'];

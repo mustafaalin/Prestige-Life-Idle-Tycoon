@@ -1,12 +1,15 @@
 import { BUSINESSES } from '../core/config/businesses';
-import { cycleRevenue, globalMultiplier, offlineEarnings, salaryPerSecond, tapValue } from '../core/formulas';
+import { cycleRevenue, globalMultiplier, offlineEarnings, steadyIncomePerSecond, tapValue } from '../core/formulas';
 import {
   buyBusinessUnits as coreBuyBusinessUnits,
+  buyHome as coreBuyHome,
   buyLifestyle as coreBuyLifestyle,
   createInitialState,
   earn,
   hireManager as coreHireManager,
+  moveHome as coreMoveHome,
   promote as corePromote,
+  rentHome as coreRentHome,
 } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 
@@ -98,15 +101,15 @@ export function tick(state: RuntimeState, now: number, speed = 1): { state: Runt
 
   const seconds = elapsed * speed;
   const { cycles, payouts, earned } = advanceCycles(state, seconds, true);
-  const salary = salaryPerSecond(state.game) * globalMultiplier(state.game) * seconds;
+  const steady = steadyIncomePerSecond(state.game) * globalMultiplier(state.game) * seconds;
   return {
-    state: { ...state, game: earn(state.game, earned + salary), cycles, lastActiveAt: now },
+    state: { ...state, game: earn(state.game, earned + steady), cycles, lastActiveAt: now },
     payouts,
   };
 }
 
 /**
- * Catches up after the app was closed or backgrounded. Managers and salary earn at the offline
+ * Catches up after the app was closed or backgrounded. Managers, salary and rent earn at the offline
  * rate; a cycle the player started by hand still finishes. Long absences become a pending claim.
  */
 export function resume(state: RuntimeState, now: number): { state: RuntimeState; payouts: Payout[] } {
@@ -165,6 +168,18 @@ export function promote(state: RuntimeState) {
 
 export function buyLifestyle(state: RuntimeState, itemId: string) {
   return withGame(state, coreBuyLifestyle(state.game, itemId));
+}
+
+export function rentHome(state: RuntimeState, houseId: string) {
+  return withGame(state, coreRentHome(state.game, houseId));
+}
+
+export function buyHome(state: RuntimeState, houseId: string) {
+  return withGame(state, coreBuyHome(state.game, houseId));
+}
+
+export function moveHome(state: RuntimeState, houseId: string) {
+  return withGame(state, coreMoveHome(state.game, houseId));
 }
 
 /** Collects pending offline earnings; `multiplier` is 2 after a rewarded ad. */

@@ -1,24 +1,22 @@
-import { bestOwnedLifestyle } from '../../core/state';
+import { bestOwnedLifestyle, currentHome } from '../../core/state';
 import type { GameStateV2 } from '../../core/types';
 
-// Temporary mini scene so a purchase visibly changes your life right away.
+// Temporary mini scene so a purchase or a move visibly changes your life right away.
 // Replaced by the real scene system in 1.6 (shared ground line, real vehicle scale, shadows).
 
 export function ScenePreview({ game }: { game: GameStateV2 }) {
-  const house = bestOwnedLifestyle(game, 'house');
+  const house = currentHome(game);
   const vehicle = bestOwnedLifestyle(game, 'vehicle');
   const outfit = bestOwnedLifestyle(game, 'outfit');
 
   return (
     <div className="relative h-48 rounded-[22px] overflow-hidden shadow-lg bg-slate-200">
-      {house && (
-        <img
-          src={house.image}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover object-[center_30%]"
-          draggable={false}
-        />
-      )}
+      <img
+        src={house.image}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover object-[center_30%]"
+        draggable={false}
+      />
       <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/30 to-transparent" />
       {vehicle && (
         <img

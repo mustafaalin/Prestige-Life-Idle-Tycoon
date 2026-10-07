@@ -2,14 +2,16 @@ import { BUSINESSES } from './config/businesses';
 import { CAREERS } from './config/careers';
 import { RETIREMENT_CLASS_INDEX } from './config/classes';
 import { STARTING_CASH } from './config/economy';
+import { HOUSES, STARTING_HOME_ID } from './config/housing';
 import { LIFESTYLE_ITEMS, STARTING_LIFESTYLE_IDS } from './config/lifestyle';
 import { classIndexFor, costForUnits, pendingLegacyPoints } from './formulas';
-import type { BusinessState, GameStateV2, LifestyleDef, LifestyleKind } from './types';
+import type { BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind } from './types';
 
 // Pure state transitions. Every action returns a new state, or null when it is not allowed.
 
 const BUSINESS_BY_ID = new Map(BUSINESSES.map((def) => [def.id, def]));
 const LIFESTYLE_BY_ID = new Map(LIFESTYLE_ITEMS.map((item) => [item.id, item]));
+const HOUSE_INDEX = new Map(HOUSES.map((house, index) => [house.id, index]));
 
 function emptyBusinesses(): Record<string, BusinessState> {
   return Object.fromEntries(BUSINESSES.map((def) => [def.id, { owned: 0, managed: false }]));
@@ -32,6 +34,8 @@ export function createInitialState(
     businesses: emptyBusinesses(),
     careerIndex: -1,
     lifestyleOwned: [...STARTING_LIFESTYLE_IDS],
+    home: STARTING_HOME_ID,
+    homesOwned: [],
     classIndex: 0,
   };
 }
@@ -90,7 +94,7 @@ export function promote(state: GameStateV2): GameStateV2 | null {
   return { ...paid, careerIndex: state.careerIndex + 1 };
 }
 
-export const LIFESTYLE_KINDS: LifestyleKind[] = ['house', 'vehicle', 'outfit', 'toy'];
+export const LIFESTYLE_KINDS: LifestyleKind[] = ['vehicle', 'outfit', 'toy'];
 
 /** The next item of a kind to dream about: the cheapest one not owned yet. Items are bought in order. */
 export function nextLifestyle(state: GameStateV2, kind: LifestyleKind): LifestyleDef | null {
@@ -106,12 +110,17 @@ export function bestOwnedLifestyle(state: GameStateV2, kind: LifestyleKind): Lif
   return best;
 }
 
-/** Whether the next item of any kind can be bought right now. */
+/** Whether the next status item of any kind can be bought right now. */
 export function canBuyAnyLifestyle(state: GameStateV2) {
   return LIFESTYLE_KINDS.some((kind) => {
     const next = nextLifestyle(state, kind);
     return next !== null && state.cash >= next.cost;
   });
+}
+
+/** Whether the shop has something to do right now: a status item or moving up to the next home. */
+export function canBuyAnythingInShop(state: GameStateV2) {
+  return canBuyAnyLifestyle(state) || canMoveUp(state);
 }
 
 export function buyLifestyle(state: GameStateV2, itemId: string): GameStateV2 | null {
@@ -120,6 +129,73 @@ export function buyLifestyle(state: GameStateV2, itemId: string): GameStateV2 | 
   const paid = spend(state, item.cost);
   if (!paid) return null;
   return { ...paid, lifestyleOwned: [...paid.lifestyleOwned, itemId] };
+}
+
+// ── Homes: rent → buy → rent out (config/housing.ts) ─────────────────────────
+
+export function houseIndex(houseId: string) {
+  return HOUSE_INDEX.get(houseId) ?? 0;
+}
+
+export function currentHome(state: GameStateV2): HouseDef {
+  return HOUSES[houseIndex(state.home)];
+}
+
+/** The house one tier above where you live: the next home to dream about. */
+export function nextHome(state: GameStateV2): HouseDef | null {
+  return HOUSES[houseIndex(state.home) + 1] ?? null;
+}
+
+export function ownsHouse(state: GameStateV2, houseId: string) {
+  return state.homesOwned.includes(houseId);
+}
+
+/** Living in someone else's house (the street tent does not count). */
+export function isRenting(state: GameStateV2) {
+  return !ownsHouse(state, state.home) && currentHome(state).moveInCost > 0;
+}
+
+/**
+ * Price to buy a house right now, or null if it cannot be bought: rent-only, already owned, or
+ * above the next home. Buying the house you rent counts the move-in fee you paid.
+ */
+export function housePrice(state: GameStateV2, house: HouseDef): number | null {
+  if (house.buyCost === null || ownsHouse(state, house.id)) return null;
+  if (houseIndex(house.id) > houseIndex(state.home) + 1) return null;
+  return house.id === state.home ? house.buyCost - house.moveInCost : house.buyCost;
+}
+
+/** Whether the next home can be reached right now (rent it, or move in for free if owned). */
+export function canMoveUp(state: GameStateV2) {
+  const next = nextHome(state);
+  return next !== null && (ownsHouse(state, next.id) || state.cash >= next.moveInCost);
+}
+
+/** Rent the next home and move in. Only one rented home at a time: the old lease simply ends. */
+export function rentHome(state: GameStateV2, houseId: string): GameStateV2 | null {
+  const next = nextHome(state);
+  if (!next || next.id !== houseId || ownsHouse(state, houseId)) return null;
+  const paid = spend(state, next.moveInCost);
+  if (!paid) return null;
+  return { ...paid, home: houseId };
+}
+
+/** Buy a house. Buying the next home also moves you in; a house below where you live is rented out. */
+export function buyHome(state: GameStateV2, houseId: string): GameStateV2 | null {
+  const house = HOUSES[houseIndex(houseId)];
+  if (house.id !== houseId) return null;
+  const price = housePrice(state, house);
+  if (price === null) return null;
+  const paid = spend(state, price);
+  if (!paid) return null;
+  const movesIn = houseIndex(houseId) > houseIndex(state.home);
+  return { ...paid, homesOwned: [...paid.homesOwned, houseId], home: movesIn ? houseId : paid.home };
+}
+
+/** Move into a house you own, for free. A home you leave keeps paying rent if you own it. */
+export function moveHome(state: GameStateV2, houseId: string): GameStateV2 | null {
+  if (houseId === state.home || !ownsHouse(state, houseId)) return null;
+  return { ...state, home: houseId };
 }
 
 export function canRetire(state: GameStateV2) {

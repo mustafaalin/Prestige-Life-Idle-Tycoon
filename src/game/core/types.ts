@@ -36,7 +36,8 @@ export interface WealthClassDef {
   threshold: number;
 }
 
-export type LifestyleKind = 'house' | 'vehicle' | 'outfit' | 'toy';
+/** Homes are not status items: you live in one and rent or buy it (HouseDef, config/housing.ts). */
+export type LifestyleKind = 'vehicle' | 'outfit' | 'toy';
 
 export interface LifestyleDef {
   id: string;
@@ -46,6 +47,20 @@ export interface LifestyleDef {
   cost: number;
   /** Additive status bonus to all income (0.05 = +5%). */
   statusBonus: number;
+}
+
+export interface HouseDef {
+  id: string;
+  name: string;
+  image: string;
+  /** One-time price to rent it and move in (deposit + first rent). There is no recurring rent. */
+  moveInCost: number;
+  /** Price to own it; null = rent only (the street and the rental flats). */
+  buyCost: number | null;
+  /** Additive bonus to all income while you live here, rented or owned (0.4 = +40%). */
+  homeBonus: number;
+  /** Base rent per second it pays when you own it but live elsewhere (before global multipliers). */
+  rentPerSecond: number;
 }
 
 export interface BusinessState {
@@ -66,6 +81,10 @@ export interface GameStateV2 {
   /** Index into CAREERS; -1 = no job yet (living on the street). */
   careerIndex: number;
   lifestyleOwned: string[];
+  /** Id of the house you live in (rented unless it is in homesOwned). */
+  home: string;
+  /** Houses you own. Owned houses you do not live in are rented out and pay rent. */
+  homesOwned: string[];
   classIndex: number;
 }
 

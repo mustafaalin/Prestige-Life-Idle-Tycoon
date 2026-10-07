@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { WEALTH_CLASSES } from '../core/config/classes';
 import { incomePerSecond, tapValue } from '../core/formulas';
-import { canBuyAnyLifestyle, nextCareer } from '../core/state';
+import { canBuyAnythingInShop, nextCareer } from '../core/state';
 import { useT } from '../i18n/useT';
 import { useBackButton } from '../runtime/backButton';
 import { useGameV2 } from '../runtime/useGameV2';
@@ -73,7 +73,7 @@ export function HomeShell() {
       <TabBar
         active={tab}
         onChange={setTab}
-        attention={{ career: promotion !== null && game.cash >= promotion.cost, shop: canBuyAnyLifestyle(game) }}
+        attention={{ career: promotion !== null && game.cash >= promotion.cost, shop: canBuyAnythingInShop(game) }}
       />
 
       {state.offline && (

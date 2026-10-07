@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { CAREERS } from '../core/config/careers';
 import { WEALTH_CLASSES } from '../core/config/classes';
+import { HOUSES } from '../core/config/housing';
 import { LIFESTYLE_ITEMS } from '../core/config/lifestyle';
 import { classIndexFor } from '../core/formulas';
 import { createInitialState } from '../core/state';
@@ -44,9 +45,20 @@ function normalizeGame(raw: unknown): GameStateV2 {
   }
 
   const knownItems = new Set(LIFESTYLE_ITEMS.map((item) => item.id));
-  const savedItems = Array.isArray(raw.lifestyleOwned)
-    ? raw.lifestyleOwned.filter((id): id is string => typeof id === 'string' && knownItems.has(id))
+  const savedIds = Array.isArray(raw.lifestyleOwned)
+    ? raw.lifestyleOwned.filter((id): id is string => typeof id === 'string')
     : [];
+  const savedItems = savedIds.filter((id) => knownItems.has(id));
+
+  const houseIds = HOUSES.map((house) => house.id);
+  const buyable = new Set(HOUSES.filter((house) => house.buyCost !== null).map((house) => house.id));
+  const homesOwned = Array.isArray(raw.homesOwned)
+    ? [...new Set(raw.homesOwned.filter((id): id is string => typeof id === 'string' && buyable.has(id)))]
+    : [];
+  // Saves from before the housing model kept houses in lifestyleOwned: move into the best one, rented.
+  const legacyHome = houseIds.filter((id) => savedIds.includes(id)).pop();
+  const home =
+    typeof raw.home === 'string' && houseIds.includes(raw.home) ? raw.home : (legacyHome ?? base.home);
 
   const generationEarnings = finite(raw.generationEarnings, 0);
   const savedClass = Math.min(Math.floor(finite(raw.classIndex, 0)), WEALTH_CLASSES.length - 1);
@@ -61,6 +73,8 @@ function normalizeGame(raw: unknown): GameStateV2 {
     businesses,
     careerIndex: Math.min(Math.floor(finite(raw.careerIndex, -1, -1)), CAREERS.length - 1),
     lifestyleOwned: [...new Set([...base.lifestyleOwned, ...savedItems])],
+    home,
+    homesOwned,
     classIndex: Math.max(savedClass, classIndexFor(generationEarnings)),
   };
 }

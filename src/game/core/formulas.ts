@@ -14,10 +14,12 @@ import {
   TAP_BASE,
   TAP_INCOME_SECONDS,
 } from './config/economy';
+import { HOUSES } from './config/housing';
 import { LIFESTYLE_ITEMS } from './config/lifestyle';
 import type { BusinessDef, GameStateV2, IncomeMode } from './types';
 
 const LIFESTYLE_BY_ID = new Map(LIFESTYLE_ITEMS.map((item) => [item.id, item]));
+const HOUSE_BY_ID = new Map(HOUSES.map((house) => [house.id, house]));
 
 // ── Business costs ────────────────────────────────────────────────────────────
 
@@ -70,8 +72,14 @@ export function careerBonus(state: GameStateV2) {
   return bonus;
 }
 
+/** Bonus from the house you live in (by its tier), whether rented or owned. */
+export function homeBonus(state: GameStateV2) {
+  return HOUSE_BY_ID.get(state.home)?.homeBonus ?? 0;
+}
+
+/** Status = your home plus every owned vehicle, outfit and luxury toy. */
 export function statusBonus(state: GameStateV2) {
-  let bonus = 0;
+  let bonus = homeBonus(state);
   for (const id of state.lifestyleOwned) {
     bonus += LIFESTYLE_BY_ID.get(id)?.statusBonus ?? 0;
   }
@@ -91,15 +99,29 @@ export function salaryPerSecond(state: GameStateV2) {
   return state.careerIndex >= 0 ? CAREERS[state.careerIndex].salaryPerSecond : 0;
 }
 
+/** Base rent per second from owned houses you do not live in (before global multipliers). */
+export function rentPerSecond(state: GameStateV2) {
+  let rent = 0;
+  for (const id of state.homesOwned) {
+    if (id !== state.home) rent += HOUSE_BY_ID.get(id)?.rentPerSecond ?? 0;
+  }
+  return rent;
+}
+
+/** Income paid every second, online and offline: salary plus rent (before global multipliers). */
+export function steadyIncomePerSecond(state: GameStateV2) {
+  return salaryPerSecond(state) + rentPerSecond(state);
+}
+
 /** Share of a business's output the player gets in the given mode. */
 export function uptime(managed: boolean, mode: IncomeMode) {
   if (managed) return 1;
   return mode === 'active' ? ACTIVE_UNMANAGED_EFFICIENCY : 0;
 }
 
-/** Income per second excluding taps. 'idle' counts only managers and salary (offline, app closed). */
+/** Income per second excluding taps. 'idle' counts only managers, salary and rent (offline, app closed). */
 export function incomePerSecond(state: GameStateV2, mode: IncomeMode) {
-  let base = salaryPerSecond(state);
+  let base = steadyIncomePerSecond(state);
   for (const def of BUSINESSES) {
     const business = state.businesses[def.id];
     if (!business || business.owned <= 0) continue;

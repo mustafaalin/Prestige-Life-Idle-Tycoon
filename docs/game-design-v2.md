@@ -95,16 +95,16 @@ Tek iş, para ile terfi. Maaş online ve offline otomatik gelir. Her terfi o nes
 
 ### 4.4 Statü eşyaları (`config/lifestyle.ts`)
 
-Ev, araç, kıyafet ve lüks oyuncaklar **gider değildir**; her biri tüm gelire kalıcı bonus verir. Alışveriş = güçlenme. Fiyatlar geometrik büyür, böylece her sonraki "hayal" birkaç dakika ile birkaç saatlik gelir uzağında durur.
+Araç, kıyafet ve lüks oyuncaklar **gider değildir**; her biri tüm gelire kalıcı bonus verir. Evler ayrı bir modeldir (§4.8). Alışveriş = güçlenme. Fiyatlar geometrik büyür, böylece her sonraki "hayal" birkaç dakika ile birkaç saatlik gelir uzağında durur.
 
 | Tür | Adet | İlk fiyat → büyüme | Bonus (her biri) | Görsel |
 | --- | --- | --- | --- | --- |
-| Ev | 25 (1. bedava) | $200 → ×2.75 | +5% | `houses/backgrounds/house-N.webp` (kirala / satın al: §4.8) |
+| Ev | 25 (1. bedava) | Taşınma bedeli $200 → ×2.75 | Yaşanan evin kademesi: +%5 × (n−1) | `houses/backgrounds/house-N.webp` (kirala / satın al / kiraya ver: §4.8) |
 | Kara aracı | 16 (1. bedava) | $20 → ×3.3 | +3% | `vehicles/vehicle-N.png` |
 | Kıyafet | 20 (1. bedava) | $30 → ×3 | +2% | `outfits/ch-N-1.png` |
 | Lüks oyuncak | 4 (tekne, yat, helikopter, jet) | $5B, $50B, $200B, $1T | +10% | `vehicles/vehicle-17..20.png` |
 
-Tüm eşyalar alındığında statü toplamı +%243 (×3,4).
+En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%243 (×3,4).
 
 ### 4.5 Hanedan / miras (`config/economy.ts`)
 
@@ -124,22 +124,24 @@ Tüm eşyalar alındığında statü toplamı +%243 (×3,4).
 
 Dokunuş başına `1 × mirasÇarpanı + aktifGelir/sn × 0,05`. İlk dakikada asıl gelir kaynağıdır, sonra küçük bir aktif bonus olarak kalır.
 
-### 4.8 Konut modeli: kirala → satın al → kiraya ver (taslak, Faz 1.17 ve 2.5)
+### 4.8 Konut modeli: kirala → satın al → kiraya ver (`config/housing.ts`, Faz 1.17)
 
-Tek ev kavramı (rapor §5). Kiralamak ile satın almak farklı şeylerdir: erken oyunda ev almak zor olduğu için oyuncu önce kiralayarak ilerler, sonra satın alır, en sonda eski evlerini kiraya verir. Sayılar simülatörle ayarlanacak; aşağıdakiler başlangıç noktası.
+Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; sahnede o ev görünür. Erken oyunda ev almak zor olduğu için önce kiralayarak ilerler, sonra satın alır, taşındığı kendi evleri kira getirir.
 
-| Eylem | Bedel | Ne verir | Taşınınca |
-| --- | --- | --- | --- |
-| **Kirala** | Tek seferlik taşınma bedeli (depozito + ilk kira) ≈ fiyatın %4'ü | Evin statü bonusu (+%5), sadece içinde yaşarken | Bonus biter |
-| **Satın al** | Fiyat − o eve ödenmiş depozito | Statü bonusu kalıcı (sahip olunan her ev birikir) | Ev "kirada" olur (Faz 2.5) |
-| **Kiraya ver** (Faz 2.5) | — | Sahip olunan ama içinde yaşanmayan ev kira geliri üretir; çevrimdışı da işler | — |
+| Eylem | Bedel | Ne olur |
+| --- | --- | --- |
+| **Kirala ve taşın** | Tek seferlik taşınma bedeli (depozito + ilk kira). Sadece bir üst kademedeki ev. | O eve taşınırsın. Eski kiran biter (aynı anda tek kiralık ev). |
+| **Satın al** | Fiyat = taşınma bedeli × 25. İçinde kiracı olduğun evi alırken ödediğin taşınma bedeli düşülür. | Bir üst kademedeki evi alırsan taşınırsın. Yaşadığın evden daha alttaki bir evi alırsan kiraya verilir. |
+| **Kiraya ver** | Kendiliğinden | Sahip olunan ama içinde yaşanmayan her ev kira getirir; çevrimdışı da işler (yönetici kuralıyla: %50, 2 saat tavan). |
+| **Taşın** | Ücretsiz | Sahip olduğun herhangi bir eve taşınabilirsin. Kiradaysan kiran biter. |
 
-- **Düzenli kira gideri yok.** v1'in asıl sorunu giderin geliri geçmesiydi (rapor §3); net gelir asla eksiye düşmez. Kiracılık hissi taşınma bedeli ve "bu ev senin değil" etiketiyle verilir.
-- Oyuncu her zaman sahip olduğu ya da kiraladığı evlerden birinde yaşar; sahnede yaşadığı ev görünür.
-- Kiralama satın almadan ~25 kat ucuz olduğu için oyuncu, alabildiği evden 2–3 kademe üstünü kiralayabilir. İlerleme hissi buradan gelir.
-- Hikaye bağı: sokak (çadır) → Gündelikçi kiralık oda → İşçi Sınıfı ilk kiralık daire → Milyoner annene ev ([story-v2.md](./story-v2.md) §4).
-- Kira geliri: ev fiyatı / geri dönüş süresi. Geri dönüş, işletmelerle yarışmayacak ama göz ardı edilmeyecek şekilde simülatörde ayarlanır (başlangıç: aynı fiyattaki işletmenin ~2 katı).
-- Açık: depozito oranı (%4), kira geri dönüş süresi, kiralık ev sayısı sınırı (tek kiralık ev mi?).
+- **Düzenli kira gideri yok** (karar 2026-10-07). Net gelir hiçbir zaman eksiye düşmez. Kiracı olduğun "Kiracısın" etiketi ve taşınma bedeliyle hissettirilir.
+- **Taşınma bedeli:** Evin değerine bağlı sabit bir tutardır; karta yazılır, oyuncunun gelirine göre değişmez. 2. ev $200, sonraki her ev ×2,75 (eski satın alma eğrisi; erken tempo bu yüzden değişmedi). Satın alma fiyatı bedelin 25 katı, yani bedel fiyatın %4'ü. Böylece oyuncu, alabildiği evden yaklaşık 3 kademe üstünü kiralayabilir. 10. ev: kiralamak $654K, satın almak ~$16,4M (karar 2026-10-07, seçenek B; oyun testinden sonra tekrar bakılacak).
+- **Sadece kiralık evler:** 1–9 arası (çadırdan kiralık dairelere). Satın alma 10. evden ("İlk Kendi Müstakil Evin") itibaren açılır; ilk kendi ev bir dönüm noktasıdır.
+- **Ev bonusu:** Yaşadığın evin kademesine bağlı: n. ev tüm gelire +%5 × (n−1) verir (9. ev +%40, 25. ev +%120). Kiralık da olsa sahip olunan da olsa aynı. Sahip olunan evler bonus biriktirmez; onların ödülü kira geliridir.
+- **Kira geliri:** Taban kira/sn = fiyat / geri dönüş süresi. Geri dönüş, işletmelerdeki gibi fiyatla büyür: saat = 1 × (fiyat / $1M)^0,44 (10. ev ~3,4 sa, 15. ev ~32 sa). Tüm gelir çarpanları kiraya da uygulanır. Simülasyonda kira gelirin medyan ~%8'i, nesil sonunda en fazla ~%25'i: işletmelerle yarışmıyor ama görünür.
+- **Nesil:** Emeklilikte evler sıfırlanır; varis çadırdan başlar (2. nesil açılışı Faz 2.1'de tartışılacak: [discussion-notes.md](./discussion-notes.md) §4).
+- Hikaye bağı: sokak (çadır) → Gündelikçi kiralık oda → İşçi Sınıfı ilk kiralık daire → ilk kendi evin → Milyoner: annene ev ([story-v2.md](./story-v2.md) §4).
 
 ## 5. Tempo hedefleri ve simülasyon sonuçları
 
@@ -159,7 +161,7 @@ Bot her an en kısa sürede kendini ödeyen alımı yapar, yani optimal oynar. G
 | Emeklilik açılır | ≤ 1,5 gün | 2. gün sabah | 2. gün öğle |
 | İlk emeklilik | 1–2. gün | 2. gün öğle | 2. gün akşam |
 | İlk milyarder | 3–5. gün | 3. gün | 4. gün |
-| İlk "en zengin" | 7–16. gün | 7. gün | 14. gün |
+| İlk "en zengin" | 7–16. gün | 7. gün | 13. gün |
 
 Nesil süreleri (engaged): 1,5 → 1,5 → 2 → 2,5 → 3,5 → 6 gün. Erken nesiller hızlı geçer, sonrakiler uzar; idle türünün klasik ritmi budur.
 
@@ -196,6 +198,7 @@ Nesil süreleri (engaged): 1,5 → 1,5 → 2 → 2,5 → 3,5 → 6 gün. Erken n
 | Miras formülü | Karekök: √(kazanç / sabit) | Küpkök, puan başı +%1 (§4.5) | Simülasyonda karekök kartopu yaptı (§6.5) |
 | Sınıf eşiği | Net servet | Nesil kazancı, harcayınca düşmez (§4.1) | Alışveriş yapan oyuncu sınıf kaybetmesin |
 | İlk "en zengin" | 2–3 hafta (2–4 nesil) | 7–16. gün (§5) | Simülasyon temposu; uzun vade için Faz 2'de nesil içeriği |
+| Konut | Tek ev kavramı | Kirala → satın al → kiraya ver; ev bonusu yaşanan evin kademesinden (§4.8) | Erken oyunda ev almak zor; kiralamak ilerleme hissi, satın almak kira geliri verir (karar 2026-10-07) |
 | Sağlık / mutluluk | Tek "Yaşam Kalitesi" göstergesi, gelire çarpan | Tamamen kaldırılır | Statü eşyaları "hayatın iyileşiyor" hissini zaten veriyor; ayrı gösterge angarya riski (karar 2026-10-07) |
 | Görseller ve karakter animasyonu | Mevcut ~290 görsel ve animasyon boru hattı korunur | Diğer görseller korunur; kahraman ve animasyon yapay zekâ video pilotuyla yeniden değerlendirilir, gerekirse yeni tasarım | Kodla zıplatma yapay duruyor; gerçek animasyon hedefleniyor (karar 2026-10-07, [discussion-notes.md](./discussion-notes.md) §1) |
 
