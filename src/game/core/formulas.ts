@@ -138,9 +138,17 @@ export function cycleRevenue(state: GameStateV2, def: BusinessDef) {
 }
 
 /** Money earned while the app was closed: idle income at OFFLINE_RATE, up to OFFLINE_CAP_HOURS. */
-export function offlineEarnings(state: GameStateV2, awaySeconds: number) {
-  const seconds = Math.min(Math.max(0, awaySeconds), OFFLINE_CAP_HOURS * 3600);
+export function offlineEarnings(state: GameStateV2, awaySeconds: number, capHours = OFFLINE_CAP_HOURS) {
+  const seconds = Math.min(Math.max(0, awaySeconds), capHours * 3600);
   return incomePerSecond(state, 'idle') * seconds * OFFLINE_RATE;
+}
+
+/**
+ * Income that arrives without the player doing anything: managed businesses, salary and rent.
+ * Screens show this one; 'active' income assumes the player keeps tapping unmanaged businesses.
+ */
+export function autoIncomePerSecond(state: GameStateV2) {
+  return incomePerSecond(state, 'idle');
 }
 
 export function tapValue(state: GameStateV2) {

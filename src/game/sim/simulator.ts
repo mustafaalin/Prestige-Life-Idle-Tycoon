@@ -171,7 +171,14 @@ interface Clock {
   activeGeneration: number;
 }
 
-export function simulate(profile: PlayerProfile, days: number): SimResult {
+export interface SimOptions {
+  /** Overrides OFFLINE_CAP_HOURS, to compare offline caps. */
+  offlineCapHours?: number;
+  /** false = the hero never retires (single-life model test). */
+  retire?: boolean;
+}
+
+export function simulate(profile: PlayerProfile, days: number, options: SimOptions = {}): SimResult {
   let state = createInitialState();
   const events: SimEvent[] = [];
   const time: Clock = { clock: 0, activeTotal: 0, activeGeneration: 0 };
@@ -196,16 +203,18 @@ export function simulate(profile: PlayerProfile, days: number): SimResult {
     let left = seconds;
     while (left > 0) {
       const step = Math.min(left, 30);
-      earnTracked(activeRate() * step);
+      const amount = activeRate() * step;
+      // Advance the clock first so milestones are logged at the end of the slice, never before it.
       time.clock += step;
       time.activeTotal += step;
       time.activeGeneration += step;
+      earnTracked(amount);
       left -= step;
     }
   };
 
   const maybeRetire = () => {
-    if (!canRetire(state)) return;
+    if (options.retire === false || !canRetire(state)) return;
     const pending = pendingLegacyPoints(state);
     if (pending < profile.minRetirePoints || pending < state.legacyPoints * profile.retireRatio) return;
     log('retire', `Retire gen ${state.generation} (+${pending} legacy)`);
@@ -258,8 +267,10 @@ export function simulate(profile: PlayerProfile, days: number): SimResult {
     for (const session of profile.sessionsForDay(day)) {
       const start = (day - 1) * 86400 + session.startHour * 3600;
       if (start > time.clock) {
-        earnTracked(offlineEarnings(state, start - time.clock));
+        // Offline earnings arrive when the player returns, so milestones they cause belong to this session.
+        const amount = offlineEarnings(state, start - time.clock, options.offlineCapHours);
         time.clock = start;
+        earnTracked(amount);
       }
       playSession(session.minutes * 60);
       log('session', sessionSummary(state));

@@ -9,6 +9,7 @@ export const en = {
   },
   hud: {
     perSecond: '{amount}/s',
+    autoPerSecond: 'Auto income {amount}/s',
     toNextClass: '{percent}% to {name}',
     topClass: 'Top of the world',
   },

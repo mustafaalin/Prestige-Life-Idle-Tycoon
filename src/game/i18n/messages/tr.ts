@@ -8,6 +8,7 @@ export const tr: Messages = {
   },
   hud: {
     perSecond: '{amount}/sn',
+    autoPerSecond: 'Otomatik gelir {amount}/sn',
     toNextClass: 'Sonraki: {name} · %{percent}',
     topClass: 'Dünyanın zirvesindesin',
   },

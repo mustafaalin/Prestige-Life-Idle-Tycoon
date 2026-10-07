@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { WEALTH_CLASSES } from '../core/config/classes';
-import { incomePerSecond, tapValue } from '../core/formulas';
+import { autoIncomePerSecond, tapValue } from '../core/formulas';
 import { canBuyAnythingInShop, nextCareer } from '../core/state';
 import { useT } from '../i18n/useT';
 import { useBackButton } from '../runtime/backButton';
@@ -37,7 +37,7 @@ export function HomeShell() {
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{name('wealthClass', current)}</p>
             <p className="text-3xl font-black text-slate-900 tabular-nums mt-0.5 truncate">{money(game.cash)}</p>
             <p className="text-sm font-bold text-emerald-500 tabular-nums">
-              {t('hud.perSecond', { amount: money(incomePerSecond(game, 'active')) })}
+              {t('hud.autoPerSecond', { amount: money(autoIncomePerSecond(game)) })}
             </p>
           </div>
           <button

@@ -1,6 +1,6 @@
 import { Briefcase, Check, Lock } from 'lucide-react';
 import { CAREERS } from '../../core/config/careers';
-import { careerBonus, globalMultiplier, incomePerSecond, salaryPerSecond } from '../../core/formulas';
+import { autoIncomePerSecond, careerBonus, globalMultiplier, salaryPerSecond } from '../../core/formulas';
 import { nextCareer, promote } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
@@ -15,8 +15,8 @@ export function CareerScreen() {
   const current = game.careerIndex >= 0 ? CAREERS[game.careerIndex] : null;
   const next = nextCareer(game);
   const promoted = next ? promote({ ...game, cash: Number.POSITIVE_INFINITY }) : null;
-  const incomeGain = promoted ? incomePerSecond(promoted, 'active') - incomePerSecond(game, 'active') : 0;
-  const income = incomePerSecond(game, 'active');
+  const incomeGain = promoted ? autoIncomePerSecond(promoted) - autoIncomePerSecond(game) : 0;
+  const income = autoIncomePerSecond(game);
   const canPromote = next !== null && game.cash >= next.cost;
   const secondsToAfford = next && !canPromote && income > 0 ? (next.cost - game.cash) / income : null;
 

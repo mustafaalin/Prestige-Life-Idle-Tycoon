@@ -1,7 +1,7 @@
 import { Check, Lock } from 'lucide-react';
 import { useState } from 'react';
 import { LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
-import { incomePerSecond, statusBonus } from '../../core/formulas';
+import { autoIncomePerSecond, statusBonus } from '../../core/formulas';
 import { canMoveUp, nextLifestyle } from '../../core/state';
 import type { GameStateV2, LifestyleKind } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
@@ -79,7 +79,7 @@ function LifestylePanel({ kind }: { kind: LifestyleKind }) {
   const upcoming = items.slice(nextIndex + 1, nextIndex + 1 + UPCOMING_COUNT);
   const hiddenCount = Math.max(0, items.length - (nextIndex + 1 + UPCOMING_COUNT));
 
-  const income = incomePerSecond(game, 'active');
+  const income = autoIncomePerSecond(game);
   const canBuy = next !== null && game.cash >= next.cost;
   const secondsToAfford = next && !canBuy && income > 0 ? (next.cost - game.cash) / income : null;
 

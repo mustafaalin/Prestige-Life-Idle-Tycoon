@@ -1,6 +1,6 @@
 import { Home, KeyRound, Lock } from 'lucide-react';
 import { HOUSES } from '../../core/config/housing';
-import { globalMultiplier, incomePerSecond } from '../../core/formulas';
+import { autoIncomePerSecond, globalMultiplier } from '../../core/formulas';
 import { currentHome, houseIndex, housePrice, isRenting, nextHome, ownsHouse } from '../../core/state';
 import type { HouseDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
@@ -23,7 +23,7 @@ export function HousingPanel() {
   const renting = isRenting(game);
   const homePrice = renting ? housePrice(game, home) : null;
   const multiplier = globalMultiplier(game);
-  const income = incomePerSecond(game, 'active');
+  const income = autoIncomePerSecond(game);
 
   const perSecond = (house: HouseDef) => t('hud.perSecond', { amount: money(house.rentPerSecond * multiplier) });
   const affordIn = (cost: number) =>
