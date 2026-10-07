@@ -36,6 +36,7 @@ export const trContent: ContentNames = {
     millionaire: 'Milyoner',
     multimillionaire: 'Multimilyoner',
     billionaire: 'Milyarder',
+    multibillionaire: 'Multimilyarder',
     richest: 'Dünyanın En Zengini',
   },
   lifestyle: {

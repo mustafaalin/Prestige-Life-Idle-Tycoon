@@ -18,17 +18,20 @@ export const BUSINESS_TUNING = {
   managerCostMultiple: 250,
 };
 
-const TIERS: { id: string; name: string; image: string; costGrowth: number }[] = [
+// revenueFactor shapes the single-life pacing (game-design-v2 §5): the middle tiers are slower so
+// Billionaire is not reached minutes after Multimillionaire; the late tiers are faster so the hero
+// reaches the top in mid-life instead of old age.
+const TIERS: { id: string; name: string; image: string; costGrowth: number; revenueFactor?: number }[] = [
   { id: 'flower-stand', name: 'Flower Stand', image: '/assets/businesses/small/flower-shop.png', costGrowth: 1.07 },
   { id: 'coffee-cart', name: 'Coffee Cart', image: '/assets/businesses/small/coffee-shop.png', costGrowth: 1.15 },
   { id: 'bakery', name: 'Bakery', image: '/assets/businesses/small/bakery.png', costGrowth: 1.14 },
   { id: 'car-wash', name: 'Car Wash', image: '/assets/businesses/small/car-wash.png', costGrowth: 1.13 },
-  { id: 'mini-market', name: 'Mini Market', image: '/assets/businesses/small/grocery-mini-market.png', costGrowth: 1.12 },
-  { id: 'beauty-salon', name: 'Beauty Salon', image: '/assets/businesses/small/beauty-salon.png', costGrowth: 1.11 },
-  { id: 'logistics-warehouse', name: 'Logistics Warehouse', image: '/assets/businesses/large/logistic-warehouse.png', costGrowth: 1.1 },
-  { id: 'factory', name: 'Factory', image: '/assets/businesses/large/manufacturing-factory.png', costGrowth: 1.09 },
-  { id: 'hotel', name: 'Hotel Chain', image: '/assets/businesses/large/hotel.png', costGrowth: 1.09 },
-  { id: 'tech-startup', name: 'Tech Startup', image: '/assets/businesses/large/tech-startup.png', costGrowth: 1.09 },
+  { id: 'mini-market', name: 'Mini Market', image: '/assets/businesses/small/grocery-mini-market.png', costGrowth: 1.12, revenueFactor: 0.7 },
+  { id: 'beauty-salon', name: 'Beauty Salon', image: '/assets/businesses/small/beauty-salon.png', costGrowth: 1.11, revenueFactor: 0.6 },
+  { id: 'logistics-warehouse', name: 'Logistics Warehouse', image: '/assets/businesses/large/logistic-warehouse.png', costGrowth: 1.1, revenueFactor: 2 },
+  { id: 'factory', name: 'Factory', image: '/assets/businesses/large/manufacturing-factory.png', costGrowth: 1.09, revenueFactor: 2.5 },
+  { id: 'hotel', name: 'Hotel Chain', image: '/assets/businesses/large/hotel.png', costGrowth: 1.09, revenueFactor: 2.5 },
+  { id: 'tech-startup', name: 'Tech Startup', image: '/assets/businesses/large/tech-startup.png', costGrowth: 1.09, revenueFactor: 2.5 },
 ];
 
 /** Rounds to 3 significant digits so generated prices read like designed ones. */
@@ -37,7 +40,7 @@ export function roundNice(value: number) {
   return Math.round(value / magnitude) * magnitude;
 }
 
-export const BUSINESSES: BusinessDef[] = TIERS.map((tier, index) => {
+export const BUSINESSES: BusinessDef[] = TIERS.map(({ revenueFactor = 1, ...tier }, index) => {
   const t = BUSINESS_TUNING;
   const baseCost = roundNice(t.firstCost * t.costStep ** index);
   const cycleSeconds = t.firstCycleSeconds * 2 ** index;
@@ -46,7 +49,7 @@ export const BUSINESSES: BusinessDef[] = TIERS.map((tier, index) => {
     ...tier,
     baseCost,
     cycleSeconds,
-    baseRevenue: roundNice((baseCost * cycleSeconds) / payback),
+    baseRevenue: roundNice(((baseCost * cycleSeconds) / payback) * revenueFactor),
     managerCost: roundNice(baseCost * t.managerCostMultiple),
   };
 });

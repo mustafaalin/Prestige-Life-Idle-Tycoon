@@ -9,5 +9,7 @@ export const WEALTH_CLASSES: WealthClassDef[] = [
   { id: 'millionaire', name: 'Millionaire', threshold: 1e6 },
   { id: 'multimillionaire', name: 'Multimillionaire', threshold: 1e8 },
   { id: 'billionaire', name: 'Billionaire', threshold: 1e9 },
+  // Splits the long 1B → 1T climb so the story has a beat in the hero's late thirties.
+  { id: 'multibillionaire', name: 'Multibillionaire', threshold: 1e11 },
   { id: 'richest', name: 'Richest Person Alive', threshold: 1e12 },
 ];
