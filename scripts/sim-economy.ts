@@ -1,14 +1,13 @@
-// Usage: npm run sim [-- --days 30 --timeline --offline-cap 8 --life 60]
+// Usage: npm run sim [-- --days 30 --timeline --sessions --offline-cap 8]
 //   --offline-cap <hours>  try another offline cap (default: OFFLINE_CAP_HOURS)
-//   --life <seconds/month> single-hero test: no retirement; prints the hero's age at each class
-//                          (age 17 at install, aging only while playing)
 // Bundled with esbuild and run in Node; logic lives in src/game/sim.
 
 import { BUSINESSES } from '../src/game/core/config/businesses';
 import { CAREERS } from '../src/game/core/config/careers';
 import { formatDuration, formatMoney } from '../src/game/core/format';
 import { WEALTH_CLASSES } from '../src/game/core/config/classes';
-import { checkTargets, formatClock, timeline } from '../src/game/sim/report';
+import { SECONDS_PER_YEAR, START_AGE } from '../src/game/core/config/life';
+import { checkTargets, timeline } from '../src/game/sim/report';
 import { PROFILES, simulate } from '../src/game/sim/simulator';
 
 const args = process.argv.slice(2);
@@ -21,8 +20,7 @@ const numberArg = (flag: string) => {
   return index >= 0 ? Number(args[index + 1]) : undefined;
 };
 const offlineCapHours = numberArg('--offline-cap');
-const secondsPerMonth = numberArg('--life');
-const START_AGE = 17;
+
 
 if (args.includes('--config')) {
   console.log('Businesses: name | first unit | growth | cycle | revenue/cycle | first-unit payback | manager');
@@ -42,25 +40,9 @@ let failures = 0;
 
 for (const profile of PROFILES) {
   const started = Date.now();
-  const result = simulate(profile, days, { offlineCapHours, retire: secondsPerMonth === undefined });
-  const variant = [
-    offlineCapHours !== undefined ? `offline cap ${offlineCapHours}h` : '',
-    secondsPerMonth !== undefined ? `single life, 1 month = ${secondsPerMonth}s played` : '',
-  ].filter(Boolean).join(', ');
-  console.log(`\n=== ${profile.name} player, ${days} days${variant ? `, ${variant}` : ''} (${Date.now() - started} ms) ===`);
-
-  if (secondsPerMonth !== undefined) {
-    const ageAt = (activeSeconds: number) => START_AGE + activeSeconds / (secondsPerMonth * 12);
-    for (const wealthClass of WEALTH_CLASSES.slice(1)) {
-      const event = result.events.find((x) => x.kind === 'class' && x.label === wealthClass.name);
-      console.log(
-        `  ${wealthClass.name.padEnd(22)} ${event ? `${formatClock(event.clock)}  played ${formatDuration(event.activeTotal).padStart(8)}  age ${ageAt(event.activeTotal).toFixed(1)}` : 'not reached'}`
-      );
-    }
-    const played = result.events.at(-1)?.activeTotal ?? 0;
-    console.log(`  after ${days} days: played ${formatDuration(played)}, age ${ageAt(played).toFixed(1)}, class ${result.finalState.classIndex}`);
-    continue;
-  }
+  const result = simulate(profile, days, { offlineCapHours });
+  const variant = offlineCapHours !== undefined ? `, offline cap ${offlineCapHours}h` : '';
+  console.log(`\n=== ${profile.name} player, ${days} days${variant} (${Date.now() - started} ms) ===`);
 
   if (showTimeline || showSessions) {
     const kinds = showSessions ? new Set(['session', 'retire', 'class']) : undefined;
@@ -73,6 +55,13 @@ for (const profile of PROFILES) {
     const mark = profile.name === 'engaged' ? (check.pass ? 'PASS' : 'FAIL') : 'info';
     console.log(`${mark.padEnd(5)} ${check.label.padEnd(30)} ${check.got.padEnd(36)} target ${check.range}`);
   }
+
+  // The hero's age at each class in the first life (age moves only while playing).
+  const ages = WEALTH_CLASSES.slice(1).map((wealthClass) => {
+    const event = result.events.find((x) => x.kind === 'class' && x.label === wealthClass.name && x.generation === 1);
+    return `${wealthClass.name} ${event ? Math.floor(START_AGE + event.activeGeneration / SECONDS_PER_YEAR) : '–'}`;
+  });
+  console.log(`ages (gen 1): ${ages.join(' · ')}`);
 
   const final = result.finalState;
   console.log(

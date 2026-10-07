@@ -25,10 +25,10 @@ export const PACING_TARGETS: PacingTarget[] = [
   { label: 'First business', find: (e) => e.find((x) => x.kind === 'business'), measure: 'active', min: 0, max: 120 },
   { label: 'First manager', find: (e) => e.find((x) => x.kind === 'manager'), measure: 'active', min: 120, max: 300 },
   { label: 'Millionaire (gen 1)', find: firstClass('Millionaire', 1), measure: 'active', min: 20 * 60, max: 30 * 60 },
-  { label: 'Retirement unlocked (gen 1)', find: firstClass('Multimillionaire', 1), measure: 'clock', min: 0, max: 1.5 * DAY },
-  { label: 'First retirement', find: (e) => e.find((x) => x.kind === 'retire'), measure: 'clock', min: 0.75 * DAY, max: 2 * DAY },
   { label: 'First Billionaire', find: firstClass('Billionaire'), measure: 'clock', min: 2 * DAY, max: 5 * DAY },
   { label: 'First Richest Person Alive', find: firstClass('Richest Person Alive'), measure: 'clock', min: 6 * DAY, max: 16 * DAY },
+  // Single life (§4.9): the first hand-over to the heir comes when the hero's life ends.
+  { label: 'First life ends (age 97)', find: (e) => e.find((x) => x.kind === 'retire'), measure: 'clock', min: 14 * DAY, max: 35 * DAY },
 ];
 
 export function formatClock(seconds: number) {

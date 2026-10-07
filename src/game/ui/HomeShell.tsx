@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { WEALTH_CLASSES } from '../core/config/classes';
-import { autoIncomePerSecond, tapValue } from '../core/formulas';
+import { autoIncomePerSecond, heroAge, isLifeOver, pendingLegacyPoints, tapValue, yearsLeft } from '../core/formulas';
 import { canBuyAnythingInShop, nextCareer } from '../core/state';
 import { useT } from '../i18n/useT';
 import { useBackButton } from '../runtime/backButton';
@@ -23,6 +23,7 @@ export function HomeShell() {
   useBackButton(tab !== 'businesses', 0, () => setTab('businesses'));
   useBackButton(state.offline !== null, 60, () => actions.claimOffline());
 
+  const lifeOver = isLifeOver(game);
   const current = WEALTH_CLASSES[game.classIndex];
   const next = WEALTH_CLASSES[game.classIndex + 1];
   const classProgress = next
@@ -35,6 +36,9 @@ export function HomeShell() {
         <section className="bg-white rounded-[22px] shadow-lg p-4 flex gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{name('wealthClass', current)}</p>
+            <p className="text-[11px] font-semibold text-slate-500 tabular-nums">
+              {t('hud.age', { age: heroAge(game).years, count: yearsLeft(game) })}
+            </p>
             <p className="text-3xl font-black text-slate-900 tabular-nums mt-0.5 truncate">{money(game.cash)}</p>
             <p className="text-sm font-bold text-emerald-500 tabular-nums">
               {t('hud.autoPerSecond', { amount: money(autoIncomePerSecond(game)) })}
@@ -75,6 +79,28 @@ export function HomeShell() {
         onChange={setTab}
         attention={{ career: promotion !== null && game.cash >= promotion.cost, shop: canBuyAnythingInShop(game) }}
       />
+
+      {lifeOver && !state.offline && (
+        <div className="fixed inset-0 z-[60] bg-black/35 flex items-end">
+          <div className="w-full bg-white rounded-t-[28px] shadow-2xl px-5 pt-5 pb-[calc(var(--safe-bottom)+20px)] text-center">
+            <h2 className="text-xl font-black text-slate-900">{t('life.title')}</h2>
+            <p className="text-sm font-bold text-slate-600 mt-2">
+              {t('life.body', {
+                age: heroAge(game).years,
+                total: game.legacyPoints + pendingLegacyPoints(game),
+                gained: pendingLegacyPoints(game),
+              })}
+            </p>
+            <button
+              type="button"
+              onClick={() => actions.retire()}
+              className="w-full mt-4 rounded-2xl py-3.5 font-black text-sm text-white bg-gradient-to-r from-violet-500 to-indigo-500 shadow-lg transition-all active:scale-[0.98]"
+            >
+              {t('life.retire')}
+            </button>
+          </div>
+        </div>
+      )}
 
       {state.offline && (
         <div className="fixed inset-0 z-[60] bg-black/35 flex items-end">

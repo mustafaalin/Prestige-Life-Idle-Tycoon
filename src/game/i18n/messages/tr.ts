@@ -9,6 +9,7 @@ export const tr: Messages = {
   hud: {
     perSecond: '{amount}/sn',
     autoPerSecond: 'Otomatik gelir {amount}/sn',
+    age: { one: '{age} yaş · {count} yıl kaldı', other: '{age} yaş · {count} yıl kaldı' },
     toNextClass: 'Sonraki: {name} · %{percent}',
     topClass: 'Dünyanın zirvesindesin',
   },
@@ -92,12 +93,19 @@ export const tr: Messages = {
     title: 'Tekrar hoş geldin!',
     body: '{duration} uzaktaydın. Yöneticilerin kazandı:',
   },
+  life: {
+    title: 'Bir ömür tamamlandı',
+    body: '{age} yaşında emekli oluyorsun. Çocuğun {total} aile itibarı puanıyla yeni bir hayata başlıyor (bu hayattan +{gained}). Her puan tüm gelire +%1.',
+    retire: 'Emekli ol ve devret',
+  },
   dev: {
     open: 'DEV',
     title: 'Geliştirici menüsü',
     speed: 'Oyun hızı',
     addCash: 'Para ekle',
     away: 'Uzakta kalmayı dene',
+    age: 'Kahramanı yaşlandır',
+    years: '+{count} yıl',
     language: 'Dil',
     reset: 'Kaydı sıfırla',
     resetConfirm: 'Kaydı silmek için tekrar dokun',

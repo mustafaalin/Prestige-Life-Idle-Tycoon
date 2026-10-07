@@ -86,6 +86,8 @@ export interface GameStateV2 {
   /** Houses you own. Owned houses you do not live in are rented out and pay rent. */
   homesOwned: string[];
   classIndex: number;
+  /** Seconds played in this life (only while the game is open); drives the hero's age. */
+  lifeSeconds: number;
 }
 
 export type IncomeMode = 'active' | 'idle';

@@ -10,6 +10,7 @@ import { useGameV2 } from '../runtime/useGameV2';
 const SPEEDS = [1, 10, 100];
 const CASH_AMOUNTS = [1e3, 1e6, 1e9, 1e12];
 const AWAY_SECONDS = [5 * 60, 60 * 60, 3 * 60 * 60];
+const AGE_YEARS = [10, 40];
 
 function Chip({ active, onClick, children }: { active?: boolean; onClick: () => void; children: ReactNode }) {
   return (
@@ -110,6 +111,14 @@ export function DevMenu() {
               }}
             >
               {duration(seconds)}
+            </Chip>
+          ))}
+        </Row>
+
+        <Row label={t('dev.age')}>
+          {AGE_YEARS.map((years) => (
+            <Chip key={years} onClick={() => actions.dev.age(years)}>
+              {t('dev.years', { count: years })}
             </Chip>
           ))}
         </Row>

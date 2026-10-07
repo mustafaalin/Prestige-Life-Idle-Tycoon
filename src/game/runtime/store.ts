@@ -1,6 +1,7 @@
 import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
-import { earn } from '../core/state';
+import { SECONDS_PER_YEAR } from '../core/config/life';
+import { earn, live } from '../core/state';
 import {
   buyBusinessUnits,
   buyHome,
@@ -12,6 +13,7 @@ import {
   promote,
   rentHome,
   resume,
+  retire,
   startCycle,
   tap,
   tick,
@@ -44,12 +46,16 @@ export interface GameActions {
   buyHome(houseId: string): boolean;
   moveHome(houseId: string): boolean;
   claimOffline(multiplier?: number): boolean;
+  /** End of life: hand the family over to the heir. */
+  retire(): boolean;
   dev: {
     getSpeed(): number;
     setSpeed(speed: number): void;
     addCash(amount: number): void;
     /** Pretends the app was closed for `seconds`, to test offline earnings. */
     awayFor(seconds: number): void;
+    /** Ages the hero by `years`, to test the end of life. */
+    age(years: number): void;
     reset(): void;
   };
 }
@@ -167,6 +173,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       buyHome: (houseId) => act((s) => buyHome(s, houseId)),
       moveHome: (houseId) => act((s) => moveHome(s, houseId)),
       claimOffline: (multiplier) => act((s) => claimOffline(s, multiplier)),
+      retire: () => act(retire),
       dev: {
         getSpeed: () => speed,
         setSpeed: (value) => {
@@ -178,6 +185,9 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         awayFor: (seconds) => {
           state = { ...state, lastActiveAt: state.lastActiveAt - seconds * 1000 };
           runResume();
+        },
+        age: (years) => {
+          act((s) => ({ ...s, game: live(s.game, years * SECONDS_PER_YEAR) }));
         },
         reset: () => {
           clearSave();

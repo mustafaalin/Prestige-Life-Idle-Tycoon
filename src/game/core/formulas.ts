@@ -1,3 +1,4 @@
+import { LIFE_SECONDS, SECONDS_PER_MONTH, SECONDS_PER_YEAR, START_AGE } from './config/life';
 import { BUSINESSES } from './config/businesses';
 import { CAREERS } from './config/careers';
 import { WEALTH_CLASSES } from './config/classes';
@@ -153,6 +154,23 @@ export function autoIncomePerSecond(state: GameStateV2) {
 
 export function tapValue(state: GameStateV2) {
   return TAP_BASE * legacyMultiplier(state.legacyPoints) + incomePerSecond(state, 'active') * TAP_INCOME_SECONDS;
+}
+
+// ── Life clock ────────────────────────────────────────────────────────────────
+
+/** The hero's age in whole years and months. */
+export function heroAge(state: GameStateV2) {
+  const months = START_AGE * 12 + Math.floor(state.lifeSeconds / SECONDS_PER_MONTH);
+  return { years: Math.floor(months / 12), months: months % 12 };
+}
+
+/** Whole years of life left (rounded up, so it reads 0 only when life is over). */
+export function yearsLeft(state: GameStateV2) {
+  return Math.max(0, Math.ceil((LIFE_SECONDS - state.lifeSeconds) / SECONDS_PER_YEAR));
+}
+
+export function isLifeOver(state: GameStateV2) {
+  return state.lifeSeconds >= LIFE_SECONDS;
 }
 
 // ── Wealth class and legacy ───────────────────────────────────────────────────

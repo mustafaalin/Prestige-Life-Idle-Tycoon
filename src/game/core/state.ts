@@ -1,10 +1,10 @@
 import { BUSINESSES } from './config/businesses';
 import { CAREERS } from './config/careers';
-import { RETIREMENT_CLASS_INDEX } from './config/classes';
 import { STARTING_CASH } from './config/economy';
 import { HOUSES, STARTING_HOME_ID } from './config/housing';
+import { LIFE_SECONDS } from './config/life';
 import { LIFESTYLE_ITEMS, STARTING_LIFESTYLE_IDS } from './config/lifestyle';
-import { classIndexFor, costForUnits, pendingLegacyPoints } from './formulas';
+import { classIndexFor, costForUnits, isLifeOver, pendingLegacyPoints } from './formulas';
 import type { BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind } from './types';
 
 // Pure state transitions. Every action returns a new state, or null when it is not allowed.
@@ -37,7 +37,14 @@ export function createInitialState(
     home: STARTING_HOME_ID,
     homesOwned: [],
     classIndex: 0,
+    lifeSeconds: 0,
   };
+}
+
+/** Ages the hero by `seconds` of play; stops at the end of life. */
+export function live(state: GameStateV2, seconds: number): GameStateV2 {
+  if (seconds <= 0 || state.lifeSeconds >= LIFE_SECONDS) return state;
+  return { ...state, lifeSeconds: Math.min(LIFE_SECONDS, state.lifeSeconds + seconds) };
 }
 
 /** Adds earned money. Earned money counts toward wealth class and legacy; spending never removes it. */
@@ -198,11 +205,12 @@ export function moveHome(state: GameStateV2, houseId: string): GameStateV2 | nul
   return { ...state, home: houseId };
 }
 
+/** Retirement comes only at the end of life (no early hand-over; game-design-v2 §4.9). */
 export function canRetire(state: GameStateV2) {
-  return state.classIndex >= RETIREMENT_CLASS_INDEX && pendingLegacyPoints(state) > 0;
+  return isLifeOver(state);
 }
 
-/** Retire: the child inherits the family legacy and starts a new life from the street. */
+/** Retire: the heir inherits the family legacy and starts a new life from the street. */
 export function retire(state: GameStateV2): GameStateV2 | null {
   if (!canRetire(state)) return null;
   return createInitialState({

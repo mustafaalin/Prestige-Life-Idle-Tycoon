@@ -10,6 +10,8 @@ import {
   moveHome as coreMoveHome,
   promote as corePromote,
   rentHome as coreRentHome,
+  retire as coreRetire,
+  live,
 } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 
@@ -103,7 +105,8 @@ export function tick(state: RuntimeState, now: number, speed = 1): { state: Runt
   const { cycles, payouts, earned } = advanceCycles(state, seconds, true);
   const steady = steadyIncomePerSecond(state.game) * globalMultiplier(state.game) * seconds;
   return {
-    state: { ...state, game: earn(state.game, earned + steady), cycles, lastActiveAt: now },
+    // Only open-app time ages the hero; resume() (time away) never does.
+    state: { ...state, game: live(earn(state.game, earned + steady), seconds), cycles, lastActiveAt: now },
     payouts,
   };
 }
@@ -180,6 +183,12 @@ export function buyHome(state: RuntimeState, houseId: string) {
 
 export function moveHome(state: RuntimeState, houseId: string) {
   return withGame(state, coreMoveHome(state.game, houseId));
+}
+
+/** End of life: the heir takes over with the family legacy; production starts from scratch. */
+export function retire(state: RuntimeState): RuntimeState | null {
+  const game = coreRetire(state.game);
+  return game ? { ...state, game, cycles: emptyCycles(), offline: null } : null;
 }
 
 /** Collects pending offline earnings; `multiplier` is 2 after a rewarded ad. */

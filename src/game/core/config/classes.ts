@@ -11,6 +11,3 @@ export const WEALTH_CLASSES: WealthClassDef[] = [
   { id: 'billionaire', name: 'Billionaire', threshold: 1e9 },
   { id: 'richest', name: 'Richest Person Alive', threshold: 1e12 },
 ];
-
-/** Retirement (generation prestige) unlocks once this class is reached. */
-export const RETIREMENT_CLASS_INDEX = 4;

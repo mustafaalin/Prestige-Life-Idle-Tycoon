@@ -10,6 +10,7 @@ export const en = {
   hud: {
     perSecond: '{amount}/s',
     autoPerSecond: 'Auto income {amount}/s',
+    age: { one: 'Age {age} · {count} year left', other: 'Age {age} · {count} years left' },
     toNextClass: '{percent}% to {name}',
     topClass: 'Top of the world',
   },
@@ -93,12 +94,19 @@ export const en = {
     title: 'Welcome back!',
     body: 'You were away for {duration}. Your managers earned:',
   },
+  life: {
+    title: 'A life well lived',
+    body: 'You retire at {age}. Your heir starts a new life with {total} family legacy points (+{gained} from this life). Each point gives +1% to all income.',
+    retire: 'Retire and hand over',
+  },
   dev: {
     open: 'DEV',
     title: 'Developer menu',
     speed: 'Game speed',
     addCash: 'Add money',
     away: 'Simulate time away',
+    age: 'Age the hero',
+    years: '+{count} yrs',
     language: 'Language',
     reset: 'Reset save',
     resetConfirm: 'Tap again to wipe the save',

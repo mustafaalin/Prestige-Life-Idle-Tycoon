@@ -36,6 +36,7 @@ import {
   promote,
   rentHome,
   retire,
+  live,
 } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 
@@ -51,9 +52,6 @@ export interface PlayerProfile {
   sessionsForDay: (day: number) => Session[];
   /** Taps per second while playing, given active seconds spent in the current generation. */
   tapsPerSecond: (generationActiveSeconds: number) => number;
-  /** Retire when pending legacy points ≥ this share of points already owned (and ≥ minRetirePoints). */
-  retireRatio: number;
-  minRetirePoints: number;
 }
 
 export type SimEventKind =
@@ -174,8 +172,6 @@ interface Clock {
 export interface SimOptions {
   /** Overrides OFFLINE_CAP_HOURS, to compare offline caps. */
   offlineCapHours?: number;
-  /** false = the hero never retires (single-life model test). */
-  retire?: boolean;
 }
 
 export function simulate(profile: PlayerProfile, days: number, options: SimOptions = {}): SimResult {
@@ -209,15 +205,16 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       time.activeTotal += step;
       time.activeGeneration += step;
       earnTracked(amount);
+      // The hero ages only while playing; retirement comes at the end of life.
+      state = live(state, step);
+      maybeRetire();
       left -= step;
     }
   };
 
   const maybeRetire = () => {
-    if (options.retire === false || !canRetire(state)) return;
-    const pending = pendingLegacyPoints(state);
-    if (pending < profile.minRetirePoints || pending < state.legacyPoints * profile.retireRatio) return;
-    log('retire', `Retire gen ${state.generation} (+${pending} legacy)`);
+    if (!canRetire(state)) return;
+    log('retire', `Life ends, gen ${state.generation} (+${pendingLegacyPoints(state)} legacy)`);
     const next = retire(state);
     if (next) {
       state = next;
@@ -296,8 +293,6 @@ export const ENGAGED_PLAYER: PlayerProfile = {
         ]
       : [8, 12, 15, 18, 21, 23].map((startHour) => ({ startHour, minutes: 7 })),
   tapsPerSecond: earlyTapping,
-  retireRatio: 2,
-  minRetirePoints: 30,
 };
 
 /** Checks in three times a day for a few minutes. */
@@ -311,8 +306,6 @@ export const CASUAL_PLAYER: PlayerProfile = {
         ]
       : [9, 13, 21].map((startHour) => ({ startHour, minutes: 5 })),
   tapsPerSecond: earlyTapping,
-  retireRatio: 2,
-  minRetirePoints: 30,
 };
 
 export const PROFILES = [ENGAGED_PLAYER, CASUAL_PLAYER];

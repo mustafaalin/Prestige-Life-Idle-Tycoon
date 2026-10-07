@@ -3,6 +3,7 @@ import { Preferences } from '@capacitor/preferences';
 import { CAREERS } from '../core/config/careers';
 import { WEALTH_CLASSES } from '../core/config/classes';
 import { HOUSES } from '../core/config/housing';
+import { LIFE_SECONDS } from '../core/config/life';
 import { LIFESTYLE_ITEMS } from '../core/config/lifestyle';
 import { classIndexFor } from '../core/formulas';
 import { createInitialState } from '../core/state';
@@ -76,6 +77,8 @@ function normalizeGame(raw: unknown): GameStateV2 {
     home,
     homesOwned,
     classIndex: Math.max(savedClass, classIndexFor(generationEarnings)),
+    // Saves from before the life clock start at 17.
+    lifeSeconds: Math.min(finite(raw.lifeSeconds, 0), LIFE_SECONDS),
   };
 }
 
