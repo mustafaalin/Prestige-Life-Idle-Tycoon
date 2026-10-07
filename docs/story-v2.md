@@ -6,10 +6,10 @@ Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor]
 
 **Kararlar (2026-10-07):**
 
-- Kahraman: elimizdeki 20 kıyafetli genç adam; adını oyuncu verir.
+- Kahraman: genç bir adam; adını oyuncu verir. Görünüşü pilotla kesinleşir: mevcut 20 kıyafetli set ya da yeni tasarım (§8).
 - Yoldaş: sokak köpeği Şans (İng. Lucky).
 - Ton: sıcak ve umutlu, olay kartlarında hafif mizah.
-- Görseller en sonda, hikaye oturduktan sonra topluca üretilir (Higgsfield pilotu dahil).
+- Görseller: Higgsfield pilotu hemen (2026-10-07 güncellemesi); özellikler görsel beklemez, yer tutucuyla yapılır.
 
 ---
 
@@ -39,7 +39,7 @@ Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor]
 
 ### Kahraman
 
-- 20'li yaşların başında, koyu saçlı genç adam (mevcut `ch-N` seti).
+- 20'li yaşların başında, koyu saçlı genç adam (şimdilik mevcut `ch-N` seti; pilot sonucuna göre yeni tasarım olabilir).
 - Geçmiş: babasının küçük mahalle dükkânı battı; borçlar yüzünden aile evini kaybetti. Baba yok (vefat etmiş; oyunda hiç ayrıntıya girilmez). Annesi memleketteki küçük bir kiralık dairede.
 - Söz: *"Anne, bir gün sana ev alacağım."* Oyunun duygusal omurgası.
 - İsim: ilk satın almadan hemen sonra sorulur (oyun önce eğlendirir, sonra sorar). Varsayılan dolu gelir, tek dokunuşla geçilir. En fazla 16 karakter.
@@ -136,7 +136,7 @@ Kartların bir kısmı bu kadrodan gelir; böylece "tanıdık yüzler geri döne
 
 ## 8. Görsel ihtiyaç listesi
 
-Stil: mevcut Pixar benzeri yarı 3D çizgi tarz (`ch-8-1.png` referans). Hepsi şeffaf arka planlı.
+Stil: mevcut Pixar benzeri yarı 3D çizgi tarz (`ch-8-1.png` referans); pilotta yeni bir tasarım da denenir. Hepsi şeffaf arka planlı. Karakter animasyonları gerçek animasyondur (yüz ifadesi, kol hareketi); durağan resmi kodla zıplatmak çözüm sayılmaz.
 
 **Faz 1 (dikey dilim, ilk 30 dakika):**
 
@@ -154,7 +154,7 @@ Stil: mevcut Pixar benzeri yarı 3D çizgi tarz (`ch-8-1.png` referans). Hepsi �
 
 **Faz 2:** eş portresi ve düğün fotoğrafı, dergi kapakları, kütüphane/vakıf, varis seti, Şans'ın yavrusu, kuzen portresi, olay kartı ikonları.
 
-Üretim yolu: hikaye ve liste onaylanınca Higgsfield pilotu (tek kıyafet + Şans), beğenilirse toplu üretim. Statik portreler görsel modelle, animasyonlar video modelle (başlangıç = bitiş karesi, dikişsiz döngü) → şeffaf animasyonlu WebP.
+Üretim yolu: Higgsfield pilotu (idle + sevinç + Şans; mevcut kahraman ile yeni tasarım yan yana), beğenilen yönle toplu üretim. Statik portreler görsel modelle, animasyonlar video modelle (başlangıç = bitiş karesi, dikişsiz döngü) → şeffaf animasyonlu WebP.
 
 ## 9. Metin ihtiyacı (TR + EN)
 

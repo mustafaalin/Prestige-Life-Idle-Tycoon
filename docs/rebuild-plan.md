@@ -13,6 +13,7 @@ Oyunu oynaması keyifli ve oyuncuyu her gün geri getiren bir idle hayat simüla
 3. **v1 bozulmaz.** v2 ayrı klasörde (`src/game/`) ve ayrı uygulama kökünde (`AppV2`) büyür. v1, v2 onu tamamen karşılayana kadar (Faz 2 sonu) yerinde kalır.
 4. **Kapı geçilmeden sonraki faza geçilmez.** Hedef tutmazsa önce düzelt.
 5. **Çok dilli baştan.** Oyun Türkçe ve İngilizce çıkar, sonra başka diller eklenir. v2'de ekrana yazılan her metin `src/game/i18n/` üzerinden gelir; sabit metin yazılmaz. Yeni ekran = `en` + `tr` metinleri birlikte.
+6. **Belgeler bağlayıcı ama değişmez değil.** Rapor, tasarım ve plan kararlarına uyulur; daha iyi bir fikir çıkarsa kullanıcıyla konuşulur ve belge güncellenir.
 
 ## Mimari
 
@@ -82,13 +83,14 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 ### 1B. His ve sahne (2. hafta)
 
 - [ ] **1.6 Sahne sistemi:** Tek zemin çizgisi (ev başına `groundY`), gerçek ölçekli araçlar (gerçek boy metadata), temas gölgesi, tam opak arka plan + üst/alt gradyan. Görsel normalizasyon scripti (şeffaf kenar kırpma, hizalama).
-- [ ] **1.7 HUD:** Saniyede birkaç kez akan para sayacı, gelir/sn, sınıf ilerleme çubuğu ("Millionaire'a %62"). Sokak sınıflarında dokunma düğmesi "Şişe topla" (hikaye §4).
+- [ ] **1.7 HUD:** Saniyede birkaç kez akan para sayacı, gelir/sn, sınıf ilerleme çubuğu ("Millionaire'a %62"). Sokak sınıflarında dokunma düğmesi "Şişe topla" (hikaye §4). Paranın fiziksel hali sayacın yanında büyür: cüzdan → kasa → banka kasası → altın dolu oda (rapor §6.3).
 - [ ] **1.8 Hayaller panosu:** Ekranda her zaman sıradaki 3 hayal (en ucuz alınmamış ev/araç/kıyafet), ilerleme yüzdesiyle. Hikaye hayalleri de girer ("Sıcak bir çorba", "Annene ev"; hikaye §5); fiyatları simülatöre eklenir.
 - [ ] **1.9 Para akışı efekti:** Döngü bitince işletmeden uçan "+$1.2K", dokununca para parçacıkları, sayaç büyüyüp renk değiştirme.
-- [ ] **1.10 Sınıf atlama töreni:** Tam ekran: eski sahne çıkar, yenisi gelir, konfeti, ses, haptik, "Before / Now" kartı. Her sınıfta hikaye kartı (hikaye §4: ilk sıcak yemek, annene ev, Bülent Bey'in şirketi...).
+- [ ] **1.10 Sınıf atlama töreni:** Tam ekran: eski sahne çıkar, yenisi gelir, konfeti, ses, haptik, "Before / Now" kartı. Her sınıfta hikaye kartı (hikaye §4: ilk sıcak yemek, annene ev, Bülent Bey'in şirketi...). İlk yönetici anı da küçük bir törenle verilir: "Artık param benim için çalışıyor" (Rıza Amca; rapor §7).
 - [ ] **1.11 Juice paketi:** Her satın almada efekt ve ses, haptik (`@capacitor/haptics`), basma geri bildirimleri.
 
-- [ ] **1.16 Hikaye görselleri:** [story-v2.md §8](./story-v2.md) listesi. Önce Higgsfield pilotu (tek kıyafet idle/sevinç + Şans), beğenilirse toplu üretim ve şeffaf animasyonlu WebP boru hattı. 1.6–1.13 yer tutucu görsellerle yapılır, bunlar gelince değiştirilir.
+- [ ] **1.16 Hikaye görselleri ve karakter animasyonu:** [story-v2.md §8](./story-v2.md) listesi. Higgsfield pilotu hemen (MCP bağlanınca), 1.6 ile paralel: idle + sevinç + Şans; **mevcut kahramanın canlandırılmış hali ile yeni tasarlanmış bir kahraman yan yana** denenir, kullanıcı seçer. Hedef gerçek animasyon (yüz ifadesi, kol hareketi); kodla zıplatma çözüm sayılmaz. Beğenilirse toplu üretim ve şeffaf animasyonlu WebP boru hattı (ayrıntı: [discussion-notes.md](./discussion-notes.md) §1). Özellikler görsel beklemez: 1.6–1.13 yer tutucuyla yapılır, görseller gelince değiştirilir.
+- [ ] **1.17 Konut modeli:** Kirala / satın al ([game-design-v2.md §4.8](./game-design-v2.md)). Alışveriş ekranında evler için iki düğme, sahnede yaşanan ev, satın alırken depozito düşülür. Simülatöre eklenir, tempo hedefleri yeniden kontrol edilir.
 
 ### 1C. İlk izlenim ve ölçüm (3. hafta)
 
@@ -116,13 +118,13 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 - [ ] **2.2 Yadigarlar:** Miras puanıyla alınan kalıcı yetenekler (çevrimdışı tavanı +1 sa, başlangıç parası, yönetici indirimi...).
 - [ ] **2.3 Nesil içeriği:** Her nesil yeni bir şey açsın (yeni şehir + yeni işletme kademeleri; kullanılmayan 30 işletme görseli). Simülatöre eklenip 30 günlük tempo yeniden ayarlanacak.
 - [ ] **2.4 Olay kartları:** Kart motoru + sınıfa göre değişen 60 kart (risk, duygu, mizah). Günde 3–5 kart.
-- [ ] **2.5 Yatırımlar:** Emlak (kira geliri) ve basit borsa (risk anları).
+- [ ] **2.5 Yatırımlar:** Kiradaki evler (taşınılan sahip olunan evler kira getirir, çevrimdışı da; [game-design-v2.md §4.8](./game-design-v2.md)) ve tek "Yatırım Hesabı" (güvenli / orta / riskli vadeler). Ayrı emlak listesi ve borsa yok.
 - [ ] **2.6 Lüks oyuncaklar sahnede:** Jet gökyüzünden geçer, helikopter süzülür, yat sahil evlerinde görünür; ayrıca Garaj/Marina koleksiyon ekranı.
-- [ ] **2.7 Günlük döngü:** Gelire oranlı günlük ödül serisi, 3 günlük görev.
+- [ ] **2.7 Günlük döngü ve görevler:** Gelire oranlı günlük ödül serisi, günlük çark (reklamla ek çevirme), "sıradaki 3 hedef" görev zinciri (yön gösterir, gem verir). Gem'in kazanıldığı yerler: görevler ve günlük ödül.
 - [ ] **2.8 Bildirimler:** Yerel bildirim: "Kasan doldu", "Emekli olabilirsin", "Günlük ödül hazır".
-- [ ] **2.9 Monetizasyon v2:** Ödüllü reklam yerleri (çevrimdışı ×2, 4 saatlik ×2 hız, olay kartında ikinci şans), "Golden Spoon" paketi (reklamsız + kalıcı ×2), başlangıç paketi, gem harcama noktaları. RevenueCat ürünleri güncellenir.
+- [ ] **2.9 Monetizasyon v2:** Ödüllü reklam yerleri (çevrimdışı ×2, 4 saatlik ×2 hız, olay kartında ikinci şans), "Golden Spoon" paketi (reklamsız + kalıcı ×2), başlangıç paketi, gem harcama noktaları. RevenueCat ürünleri güncellenir. Zorla reklam (interstitial): ilk 3 gün hiç yok, sonra çok seyrek.
 - [ ] **2.10 Remote Config:** Denge değerlerini güncelleme yayınlamadan değiştirebilmek.
-- [ ] **2.11 v1'in kaldırılması:** Banka, sağlık/mutluluk, v1 görevleri, claim sistemi, Supabase senkronu. Eski oyunculara hoş geldin hediyesi.
+- [ ] **2.11 v1'in kaldırılması:** Banka, sağlık/mutluluk (v2'de karşılığı yok; karar 2026-10-07), v1 görevleri, claim sistemi, Supabase senkronu. Eski oyunculara hoş geldin hediyesi.
 
 ### Faz 2 kapısı
 
@@ -147,7 +149,6 @@ Google Play kapalı testi (≥ 12 kişi, 14 gün):
 
 - [ ] Haftalık etkinlikler (ayrı mini ekonomi, 3–5 gün)
 - [ ] Etkinlik geçişi (ücretli ödül hattı)
-- [ ] Karakter sevinç animasyonu: pozdan poza yöntemi (B seçeneği)
 - [ ] Global lansman, yeni içerik takvimi
 
 ---

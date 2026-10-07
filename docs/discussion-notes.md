@@ -8,7 +8,7 @@ Son güncelleme: 2026-10-07
 
 **Durum:** Kullanıcı kodla "sahte animasyonu" (durağan resme zıplama/esneme) reddetti: yüz ifadesi ve kollar hareket etmeden sevinç yapay kalıyor. Hedef gerçek karakter animasyonu. Araç maliyetlerini kullanıcı karşılar. Mevcut `ch-N-*.png` görsellere bağlı kalmak gerekmiyor; daha iyisi çıkarsa karakter, Şans ve kadro sıfırdan tasarlanabilir.
 
-**Öneri: Higgsfield pilotu (1.16'yı öne çekmek, 1.6'dan önce veya paralel).**
+**Karar (2026-10-07):** Higgsfield pilotu hemen, 1.6 ile paralel; mevcut kahraman ile yeni tasarım yan yana denenir (plan 1.16). Açık kalan: aşağıdaki kurulum ve Ludo.ai sorusu.
 
 - Kurulum (kullanıcı yapacak): `claude mcp add --transport http higgsfield https://mcp.higgsfield.ai/mcp`, ardından `/mcp` ile OAuth girişi. Ücretsiz katman 150 kredi/ay, fazlası $1 = 16 kredi (Mayıs 2026 bilgisi).
 - Erişilen modeller: Kling 3.0, Seedance 2.0, Veo 3.1; karakter tutarlılığı için Soul ID.
@@ -43,7 +43,11 @@ Son güncelleme: 2026-10-07
 
 **Öneri:** Yayından önce repoda ayrı bir `video/` klasöründe tanıtım videoları için kurulsun.
 
-## 3. Faz 2.1 hanedan soruları ([story-v2.md §6](./story-v2.md))
+## 3. Konut modeli ayrıntıları
+
+Karar: tek ev kavramı, kirala → satın al → kiraya ver ([game-design-v2.md §4.8](./game-design-v2.md)). Simülatörde netleşecekler: depozito oranı (başlangıç %4), kira geri dönüş süresi, aynı anda tek kiralık ev mi. Düzenli kira gideri yok önerisi kullanıcıyla teyit edilecek.
+
+## 4. Faz 2.1 hanedan soruları ([story-v2.md §6](./story-v2.md))
 
 Faz 1 bitip oyunun eğlenceli olduğu görülünce karar verilecek.
 

@@ -99,7 +99,7 @@ Ev, araç, kıyafet ve lüks oyuncaklar **gider değildir**; her biri tüm gelir
 
 | Tür | Adet | İlk fiyat → büyüme | Bonus (her biri) | Görsel |
 | --- | --- | --- | --- | --- |
-| Ev | 25 (1. bedava) | $200 → ×2.75 | +5% | `houses/backgrounds/house-N.webp` |
+| Ev | 25 (1. bedava) | $200 → ×2.75 | +5% | `houses/backgrounds/house-N.webp` (kirala / satın al: §4.8) |
 | Kara aracı | 16 (1. bedava) | $20 → ×3.3 | +3% | `vehicles/vehicle-N.png` |
 | Kıyafet | 20 (1. bedava) | $30 → ×3 | +2% | `outfits/ch-N-1.png` |
 | Lüks oyuncak | 4 (tekne, yat, helikopter, jet) | $5B, $50B, $200B, $1T | +10% | `vehicles/vehicle-17..20.png` |
@@ -123,6 +123,23 @@ Tüm eşyalar alındığında statü toplamı +%243 (×3,4).
 ### 4.7 Tıklama
 
 Dokunuş başına `1 × mirasÇarpanı + aktifGelir/sn × 0,05`. İlk dakikada asıl gelir kaynağıdır, sonra küçük bir aktif bonus olarak kalır.
+
+### 4.8 Konut modeli: kirala → satın al → kiraya ver (taslak, Faz 1.17 ve 2.5)
+
+Tek ev kavramı (rapor §5). Kiralamak ile satın almak farklı şeylerdir: erken oyunda ev almak zor olduğu için oyuncu önce kiralayarak ilerler, sonra satın alır, en sonda eski evlerini kiraya verir. Sayılar simülatörle ayarlanacak; aşağıdakiler başlangıç noktası.
+
+| Eylem | Bedel | Ne verir | Taşınınca |
+| --- | --- | --- | --- |
+| **Kirala** | Tek seferlik taşınma bedeli (depozito + ilk kira) ≈ fiyatın %4'ü | Evin statü bonusu (+%5), sadece içinde yaşarken | Bonus biter |
+| **Satın al** | Fiyat − o eve ödenmiş depozito | Statü bonusu kalıcı (sahip olunan her ev birikir) | Ev "kirada" olur (Faz 2.5) |
+| **Kiraya ver** (Faz 2.5) | — | Sahip olunan ama içinde yaşanmayan ev kira geliri üretir; çevrimdışı da işler | — |
+
+- **Düzenli kira gideri yok.** v1'in asıl sorunu giderin geliri geçmesiydi (rapor §3); net gelir asla eksiye düşmez. Kiracılık hissi taşınma bedeli ve "bu ev senin değil" etiketiyle verilir.
+- Oyuncu her zaman sahip olduğu ya da kiraladığı evlerden birinde yaşar; sahnede yaşadığı ev görünür.
+- Kiralama satın almadan ~25 kat ucuz olduğu için oyuncu, alabildiği evden 2–3 kademe üstünü kiralayabilir. İlerleme hissi buradan gelir.
+- Hikaye bağı: sokak (çadır) → Gündelikçi kiralık oda → İşçi Sınıfı ilk kiralık daire → Milyoner annene ev ([story-v2.md](./story-v2.md) §4).
+- Kira geliri: ev fiyatı / geri dönüş süresi. Geri dönüş, işletmelerle yarışmayacak ama göz ardı edilmeyecek şekilde simülatörde ayarlanır (başlangıç: aynı fiyattaki işletmenin ~2 katı).
+- Açık: depozito oranı (%4), kira geri dönüş süresi, kiralık ev sayısı sınırı (tek kiralık ev mi?).
 
 ## 5. Tempo hedefleri ve simülasyon sonuçları
 
@@ -159,7 +176,8 @@ Nesil süreleri (engaged): 1,5 → 1,5 → 2 → 2,5 → 3,5 → 6 gün. Erken n
 
 - **Nesil içeriği:** Her yeni nesil yeni bir şey açmalı. Seçenekler: yeni şehir ve yeni işletme kademeleri (40 işletme görselinin 30'u hâlâ kullanılmıyor), yadigarlar (miras puanıyla alınan kalıcı yetenekler), yeni sınıflar ("Old Money Dynasty" vb.).
 - **Olay kartları:** Günde 3–5 kart, sınıfa göre değişen 60+ kart.
-- **Yatırımlar:** Emlak (kira) ve basit borsa (risk anları).
+- **Yatırımlar:** Kiradaki evler (§4.8) ve tek bir "Yatırım Hesabı": güvenli / orta / riskli vadeler (risk anları). Ayrı emlak listesi ve borsa yok.
+- **Görevler ve gem:** "Sıradaki 3 hedef" görev zinciri yön gösterir ve gem verir; gem ayrıca günlük ödülden gelir.
 - **Lüks oyuncakların sahnede gösterimi:** Jet gökyüzünden geçer, yat sadece sahil evlerinde görünür.
 - **Günlük döngü:** Gelire oranlı günlük ödül ve günlük görevler.
 
@@ -178,5 +196,7 @@ Nesil süreleri (engaged): 1,5 → 1,5 → 2 → 2,5 → 3,5 → 6 gün. Erken n
 | Miras formülü | Karekök: √(kazanç / sabit) | Küpkök, puan başı +%1 (§4.5) | Simülasyonda karekök kartopu yaptı (§6.5) |
 | Sınıf eşiği | Net servet | Nesil kazancı, harcayınca düşmez (§4.1) | Alışveriş yapan oyuncu sınıf kaybetmesin |
 | İlk "en zengin" | 2–3 hafta (2–4 nesil) | 7–16. gün (§5) | Simülasyon temposu; uzun vade için Faz 2'de nesil içeriği |
+| Sağlık / mutluluk | Tek "Yaşam Kalitesi" göstergesi, gelire çarpan | Tamamen kaldırılır | Statü eşyaları "hayatın iyileşiyor" hissini zaten veriyor; ayrı gösterge angarya riski (karar 2026-10-07) |
+| Görseller ve karakter animasyonu | Mevcut ~290 görsel ve animasyon boru hattı korunur | Diğer görseller korunur; kahraman ve animasyon yapay zekâ video pilotuyla yeniden değerlendirilir, gerekirse yeni tasarım | Kodla zıplatma yapay duruyor; gerçek animasyon hedefleniyor (karar 2026-10-07, [discussion-notes.md](./discussion-notes.md) §1) |
 
 Kullanıcı kararı bekleyen çelişkiler: [discussion-notes.md](./discussion-notes.md).
