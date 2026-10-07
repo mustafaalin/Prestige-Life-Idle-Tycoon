@@ -12,7 +12,7 @@ Amaç:
 - ekonomi dengesini bozmadan uzun vadeli ilerleme hissi vermek
 
 Bu doküman plan ve ürün tasarımı içindir.
-Buradaki sistemler henüz aktif oyun kuralı değildir; koda geçirildikten sonra ilgili maddeler `docs/game-rules.md` içine taşınmalıdır.
+Buradaki sistemler henüz aktif oyun kuralı değildir; koda geçirildikten sonra ilgili maddeler `docs/v1/game-rules.md` içine taşınmalıdır.
 
 ## Neden Bu 2 Sistem
 

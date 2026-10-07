@@ -1,6 +1,6 @@
 # Prestige Life v2 — Yeniden Yapım Planı
 
-Son güncelleme: 2026-10-07 · Dal: `v2-rebuild` · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikaye: [story-v2.md](./story-v2.md)
+Son güncelleme: 2026-10-07 · Dal: `v2-rebuild` · Rapor (neden): [report-v2.md](./report-v2.md) · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikaye: [story-v2.md](./story-v2.md) · Açık kararlar: [discussion-notes.md](./discussion-notes.md)
 
 ## Amaç
 

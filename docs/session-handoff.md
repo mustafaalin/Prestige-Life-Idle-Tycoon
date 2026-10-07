@@ -1,146 +1,36 @@
 # Session Handoff
 
-Last updated: 2026-10-07
+Son güncelleme: 2026-10-07 · Dal: `v2-rebuild`
 
-## v2 yeniden yapım (aktif çalışma)
+Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve v2 onu Faz 2.11'de kaldıracak.
 
-Oyun v2 olarak yeniden tasarlanıyor; çalışma `v2-rebuild` dalında.
+## Belgeler (hepsi bu kadar)
 
-- Plan ve faz durumu: [rebuild-plan.md](./rebuild-plan.md)
-- Tasarım ve ekonomi: [game-design-v2.md](./game-design-v2.md)
-- Hikaye ve karakterler: [story-v2.md](./story-v2.md)
-- Kararı bekleyen konular (animasyon yaklaşımı, Higgsfield pilotu, Remotion, Faz 2.1 soruları): [discussion-notes.md](./discussion-notes.md)
-- Ekonomi çekirdeği: `src/game/core/` (saf TS), simülatör: `src/game/sim/`, `npm run sim`
-- Runtime: `src/game/runtime/` (`GameV2Provider` + `useGameV2`, kayıt anahtarı `prestige_life_v2`)
-- i18n: `src/game/i18n/` — Türkçe + İngilizce, sonra başka diller. v2'de sabit metin yok.
-- Çalıştırma: `npm run dev:v2` (v1 için `npm run dev`)
-- Durum: Faz 0, 1.1 (runtime), 1.2 (AppV2 + geliştirici menüsü + i18n), 1.3 (işletmeler ekranı), 1.4 (kariyer ekranı + alt sekmeler) tamam. 1.5 (alışveriş ekranı) tamam. Hikaye belgesi yazıldı. Sıradaki: Faz 1.6 sahne sistemi (1A dikey dilimin çalışan oyun kısmı bitti). Görsel üretimi (Higgsfield pilotu, 1.16) hikaye onaylandıktan sonra.
-- v1 (aşağıdaki her şey) v2 onu karşılayana kadar dokunulmadan duruyor.
+| Belge | Soru | Not |
+| --- | --- | --- |
+| [report-v2.md](./report-v2.md) | **Neden?** | Tasarım analizi ve yeniden doğuş raporu. Değişmez referans. |
+| [game-design-v2.md](./game-design-v2.md) | **Ne?** Kurallar ve sayılar | Rapordan sapmalar §9'da. Rapor ile çelişirse bu geçerli. |
+| [story-v2.md](./story-v2.md) | Hikaye, karakterler, ton, görsel listesi | |
+| [rebuild-plan.md](./rebuild-plan.md) | **Ne zaman?** Fazlar, görevler, durum | Yapılanlar işaretli. |
+| [discussion-notes.md](./discussion-notes.md) | Kararı bekleyen konular | Karar verilince ilgili belgeye taşınır. |
+| [mobile-ad-integration.md](./mobile-ad-integration.md) | Reklam altyapısı | v1'den kalan, v2'de de kullanılacak. |
+| [v1/](./v1/) | v1 arşivi | v2 işinde okunmaz. `v1/game-rules.md` sadece v1 için geçerli. |
 
-Bu dosya yeni bir oturumda projeye hızlı geri dönmek için güncel durum özetidir.
+## Durum
 
-## Quick Resume Prompt
+- Tamam: Faz 0 (ekonomi çekirdeği + simülatör), 1.1 runtime, 1.2 AppV2 + geliştirici menüsü + i18n, 1.3 işletmeler, 1.4 kariyer + alt sekmeler, 1.5 alışveriş. Hikaye belgesi yazıldı. Faz 1A (çalışan oyun) bitti.
+- Sıradaki: Faz 1.6 sahne sistemi. Görsel üretimi (1.16): Higgsfield pilotu, kullanıcı MCP bağlantısını kurunca (bkz. discussion-notes §1).
 
-Yeni sohbette şu prompt yeterli:
+## Çalıştırma
 
-```text
-Bu proje local-first idle life sim. Lütfen önce şu dosyaları oku ve mevcut durumu kısaca özetle:
+- `npm run dev:v2` (v1 için `npm run dev`); telefonda denemek için `npm run dev:v2 -- --host`
+- `npm run sim` ekonomi simülatörü
+- Uygulama olarak: `npm run cap:sync:v2` ve ardından `npx cap open android`
+- Kod: `src/game/` (çekirdek `core/`, simülatör `sim/`, runtime `runtime/`, i18n `i18n/`, ekranlar `ui/`). Kayıt anahtarı `prestige_life_v2`.
+- i18n: Türkçe + İngilizce; v2'de sabit metin yok.
 
-docs/session-handoff.md
-docs/current-roadmap.md
+## Uygulama kimliği (v1 ve v2 ortak)
 
-Sonra en mantıklı sıradaki ürün ve teknik adımı öner.
-```
-
-## Current Product State
-
-Oyunun ana omurgası local-first olarak çalışıyor. Repo playable durumda, Play Store süreci devam ediyor.
-
-Çalışan ana sistemler:
-
-- Local auth / local profile bootstrap
-- Worker (20) + Specialist (20) + Manager (20) job progression — toplam 60 job
-- Chapter tabanlı quest sistemi — 100 static quest + generated job level quest'leri
-- Daily reward / collect earnings / ad reward
-- Business progression (40 işletme, max level 6)
-- Real estate investments (50 mülk, 5 upgrade seviyesi)
-- Bank deposits / cashback / premium bank card
-- Health ve happiness stat sistemi (action modals + offline decay + wellbeing factors panel)
-- Premium cars (3 adet, gem ile)
-- Premium houses (3 adet, gem ile)
-- Stuff modal — araç/ev/karakter/outfit satın alma ve seçim akışları
-- Bottom nav job progress feedback
-- Header outfit avatar
-- Supabase anonymous auth
-- Global Leaderboard — top 100, kendi sıra, 3dk sync
-- Prestige/reset loop — quest bazlı prestige, reset_prestige_bonus birikimi
-- Geçici boost sistemi — Business 2×, Investment 2×, Total Income 2× (reklam ile, 1 saat)
-- Ses/müzik sistemi — Howler.js, lazy init, modal ducking, ayarlar
-- InsufficientFundsModal — para yetersizse Shop'a yönlendirme
-- AdMob production entegrasyonu — gerçek ad unit ID'leri, isTesting env bazlı
-- RevenueCat SDK kurulumu — @revenuecat/purchases-capacitor, API key env'den
-- IAP ürünleri — 8 ürün Play Console'da tanımlı (com.prestigelife.*)
-
-## Uygulama Kimliği
-
-- **Paket adı:** `com.prestigelife.idletycoon`
-- **Uygulama adı:** Prestige Life: Idle Tycoon
-- **Android App ID (AdMob):** `ca-app-pub-8950990027285549~9898475278`
-- **iOS App ID (AdMob):** `ca-app-pub-8950990027285549~3253175874`
-- **versionCode:** 2
-
-## Prestij Sistemi (Güncel)
-
-- Prestij yalnızca quest ilerlemesinden gelir
-- Her claim edilen quest: +1 prestige
-- Chapter reward'ları: bonus prestige
-- Reset bonusu: `reset_prestige_bonus` alanında kalıcı birikir
-- `syncQuestPrestige()` her güncellemeyi yönetir
-- Job/business/house/car/outfit prestige katkısı YOKTUR
-
-## IAP Ürün Listesi
-
-| Ürün Kimliği | Tür | Miktar | Fiyat |
-|---|---|---|---|
-| com.prestigelife.money_pack_1 | money | 8,000 | $0.99 |
-| com.prestigelife.money_pack_2 | money | 25,000 | $1.99 |
-| com.prestigelife.money_pack_3 | money | 75,000 | $4.99 |
-| com.prestigelife.money_pack_4 | money | 250,000 | $9.99 |
-| com.prestigelife.gems_pack_1 | gems | 30 | $0.99 |
-| com.prestigelife.gems_pack_2 | gems | 75 | $1.99 |
-| com.prestigelife.gems_pack_3 | gems | 300 | $4.99 |
-| com.prestigelife.gems_pack_4 | gems | 750 | $9.99 |
-
-Not: Satın alınan money miktarı prestige puanına göre dinamik ölçekleniyor — açıklamada sabit miktar yazılmadı.
-
-## Current Architecture Notes
-
-### Prestige / Reset Sistemi
-- `reset_prestige_bonus` (PlayerProfile) — her reset'te birikir, silinmez
-- `bonus_prestige_points` = quest prestige + reset_prestige_bonus
-- `syncQuestPrestige()` her ikisini birleştirerek profile'a yazar
-
-### Boost Sistemi
-- `business_boost_expires_at`, `investment_boost_expires_at`, `income_boost_expires_at` — PlayerProfile'da
-- `useBoosts` hook — expiry parse, multiplier, countdown
-- `activateBoost('business'|'investment'|'total')` — 1 saatlik expiry set eder
-- `incomePerSecond` boost'lu hesaplanır, `boostedHourlyIncome` Header'a geçilir
-
-### RevenueCat
-- SDK kuruldu: `@revenuecat/purchases-capacitor@13.1.1`
-- `revenueCatService.ts` — initialize, getOfferings, purchaseProduct
-- API key'ler env'den: `VITE_REVENUECAT_API_KEY_IOS`, `VITE_REVENUECAT_API_KEY_ANDROID`
-- Şu an placeholder (`appl_xxxx`, `goog_xxxx`) — RevenueCat hesabı açılınca gerçek key girilecek
-
-### AdMob
-- `isTesting`: `.env.local`'de `true`, `.env.production`'da `false`
-- Test cihazı ID'si: `VITE_ADMOB_TEST_DEVICE_IDS` env değişkeni
-
-### Ses Sistemi
-- `audioService.ts` — Howler.js, lazy init (AudioContext policy)
-- Modal açılınca müzik %75'e duck eder
-- Settings modal'dan ses/müzik toggle + volume slider
-
-### IAP Akışı
-- `purchasePackage()` → native: RevenueCat, web: mock
-- `PACKAGE_ID_TO_PRODUCT_ID` mapping — ShopModal local ID → Store product ID
-- Webhook: `supabase/functions/revenuecat-webhook` — deploy bekliyor
-
-## What Still Needs Work
-
-### Yayın Bloklayıcılar
-1. **RevenueCat hesabı** — hesap aç, ürünleri import et, API key'leri al
-2. **Edge Function deploy** — `npx supabase functions deploy revenuecat-webhook`
-3. **Play Store yayın süreci** — store listing, ekran görüntüleri, gizlilik politikası
-4. **iOS geliştirici hesabı** — sonraya bırakıldı
-
-### Önemli Eksikler
-5. **Onboarding** — ilk açılışta mini tutorial yok
-6. **Push notification** — "Daily reward hazır" bildirimleri
-7. **Stocks / investment 3. sekme** — placeholder kilitli
-8. **Manager job kategorisi** — placeholder, gerçek içerik yok
-
-### Teknik Borç
-9. `useGameState.ts` ~529 satır (makul, refactor öncelikli değil)
-10. AdMob test mode — production build'de otomatik kapanıyor
-11. Supabase legacy remnant cleanup
+- Paket adı: `com.prestigelife.idletycoon` · Uygulama adı: Prestige Life: Idle Tycoon · versionCode: 2
+- AdMob App ID: Android `ca-app-pub-8950990027285549~9898475278`, iOS `ca-app-pub-8950990027285549~3253175874`
+- IAP: 8 ürün Play Console'da tanımlı (`com.prestigelife.*`); liste [v1/session-handoff-v1.md](./v1/session-handoff-v1.md). Faz 2.9'da v2'ye göre güncellenecek.

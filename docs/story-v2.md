@@ -2,7 +2,7 @@
 
 Son güncelleme: 2026-10-07 · İlgili: [game-design-v2.md](./game-design-v2.md), [rebuild-plan.md](./rebuild-plan.md)
 
-Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı "Oyun Tasarım Analizi ve Yeniden Doğuş Raporu" §6 (fakirlikten zenginliğe hissi) ve §7'dir (hanedan, olay kartları).
+Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor](./report-v2.md) §6 (fakirlikten zenginliğe hissi) ve §7'dir (hanedan, olay kartları).
 
 **Kararlar (2026-10-07):**
 

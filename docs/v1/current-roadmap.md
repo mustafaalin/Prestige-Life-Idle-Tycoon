@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-06
 
-> **v2 yeniden yapım başladı.** Güncel plan [rebuild-plan.md](./rebuild-plan.md) dosyasında. Aşağıdaki liste v1'e aittir ve v2 tamamlanınca arşivlenecek.
+> **Arşiv (v1).** Güncel plan: [../rebuild-plan.md](../rebuild-plan.md).
 
 ## Done
 
@@ -58,9 +58,3 @@ Last updated: 2026-10-06
 - iOS geliştirici hesabı açılmadı
 - Edge Function deploy edilmedi — webhook çalışmıyor
 - Push notification yok — retention fırsatı kaçıyor
-
-## When Starting a New Session
-
-Öncelikle şu dosyaları oku:
-- [session-handoff.md](./session-handoff.md)
-- [current-roadmap.md](./current-roadmap.md)

@@ -2,7 +2,7 @@
 
 Son güncelleme: 2026-10-06 · Durum: Faz 0 tamamlandı (ekonomi çekirdeği + simülatör)
 
-Bu belge v2'nin tek doğruluk kaynağıdır. Sayısal değerler kodda `src/game/core/config/` altında durur; buradaki tablolar `npm run sim -- --config` çıktısından alınmıştır. Değer değiştirince önce simülatörü çalıştır, sonra bu belgeyi güncelle.
+Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-v2.md); rapordan sapmalar §9'da. Sayısal değerler kodda `src/game/core/config/` altında durur; buradaki tablolar `npm run sim -- --config` çıktısından alınmıştır. Değer değiştirince önce simülatörü çalıştır, sonra bu belgeyi güncelle.
 
 ## 1. Vaat
 
@@ -168,3 +168,15 @@ Nesil süreleri (engaged): 1,5 → 1,5 → 2 → 2,5 → 3,5 → 6 gün. Erken n
 - Para ölçeği: İlk Flower Stand döngüsü $0.1 kazandırıyor. "Fakirlik" hissi için iyi olabilir ama küçük kesirler sevimsiz durabilir. Faz 1 oyun testinde bakılacak; gerekirse tüm fiyatlar ×10.
 - Yöneticisiz işletmeye dokunma mekaniği: runtime şimdilik AdCap modelini uyguluyor (dokun → tek döngü). "Dokundukça hızlanır" alternatifi Faz 1 oyun testinden sonra yeniden değerlendirilecek.
 - Emeklilik yaşı/süre baskısı (Idle Guy gibi) eklenmeli mi? Şimdilik hayır; emeklilik oyuncunun kararı.
+
+## 9. Rapordan sapmalar
+
+[report-v2.md](./report-v2.md) büyük çoğunlukla uygulanıyor. Bilinçli olarak farklı yapılanlar:
+
+| Konu | Rapor | v2 kararı | Gerekçe |
+| --- | --- | --- | --- |
+| Miras formülü | Karekök: √(kazanç / sabit) | Küpkök, puan başı +%1 (§4.5) | Simülasyonda karekök kartopu yaptı (§6.5) |
+| Sınıf eşiği | Net servet | Nesil kazancı, harcayınca düşmez (§4.1) | Alışveriş yapan oyuncu sınıf kaybetmesin |
+| İlk "en zengin" | 2–3 hafta (2–4 nesil) | 7–16. gün (§5) | Simülasyon temposu; uzun vade için Faz 2'de nesil içeriği |
+
+Kullanıcı kararı bekleyen çelişkiler: [discussion-notes.md](./discussion-notes.md).

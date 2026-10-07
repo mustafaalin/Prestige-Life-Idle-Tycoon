@@ -112,8 +112,8 @@ Hedef:
 
 Bu aşamada:
 
-- RPC mantıkları `docs/rpc-reference.md` içinden TypeScript'e taşınacak
-- oyun kuralları `docs/game-rules.md` ile eşleştirilecek
+- RPC mantıkları `docs/v1/rpc-reference.md` içinden TypeScript'e taşınacak
+- oyun kuralları `docs/v1/game-rules.md` ile eşleştirilecek
 - türetilmiş alanlar merkezi hesaplayıcılarla üretilecek
 
 ## Aşama 4: Local Hesap Motoru
@@ -242,9 +242,9 @@ Geçiş boyunca sadece tablo şemasına bakarak ilerlenmeyecek.
 
 Her değişiklikte öncelik sırası:
 
-1. `docs/game-rules.md`
-2. `docs/rpc-reference.md`
-3. `docs/database-schema.md`
+1. `docs/v1/game-rules.md`
+2. `docs/v1/rpc-reference.md`
+3. `docs/v1/database-schema.md`
 
 Özellikle:
 

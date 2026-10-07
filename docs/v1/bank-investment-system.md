@@ -5,7 +5,7 @@ Amaç: oyuncuya mevcut bakiyesinin bir kısmını belirli süreli mevduata bağl
 
 Not:
 
-- `Cashback` ve `Premium Bank Card` için sonraki genişleme planı `docs/bank-expansion-plan.md` içinde tutulur.
+- `Cashback` ve `Premium Bank Card` için sonraki genişleme planı `docs/v1/bank-expansion-plan.md` içinde tutulur.
 
 ## Hedef
 

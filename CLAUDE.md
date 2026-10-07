@@ -2,21 +2,41 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Active work: v2 rebuild (read this first)
+
+The game is being rebuilt as **v2** on branch `v2-rebuild`, in `src/game/` with its own root `src/game/AppV2.tsx` (loaded when `VITE_GAME_V2=true`). **v1 is frozen**: everything from "Architecture Overview (v1)" down to "Intro Sequence" describes v1 and does not apply to v2 code, except the Design System, which v2 reuses.
+
+Session startup — read in this order:
+1. `docs/session-handoff.md` — current state and the doc map
+2. `docs/rebuild-plan.md` — phases, tasks, what's next
+3. `docs/game-design-v2.md` — v2 rules and numbers (source of truth for v2)
+4. `docs/story-v2.md` — story, characters, tone (when touching text, ceremonies, visuals)
+5. `docs/discussion-notes.md` — open decisions; don't act on them as if decided
+6. `docs/report-v2.md` — the design report behind v2 ("why"); frozen. If it conflicts with `game-design-v2.md`, the design doc wins.
+
+`docs/v1/` is the v1 archive (`v1/game-rules.md` = v1 rules only). Don't use it for v2 work.
+
+v2 rules of thumb: pure-TS economy in `src/game/core/` (no React); every balance change goes through `npm run sim`; every on-screen string via `src/game/i18n/` in both `en` and `tr`; save key `prestige_life_v2`.
+
 ## Commands
 
 ```bash
-npm run dev          # start dev server
-npm run build        # production build
+npm run dev          # start dev server (v1)
+npm run dev:v2       # start dev server (v2); add `-- --host` to open on a phone
+npm run sim          # v2 economy simulator (30-day pacing targets)
+npm run build        # production build (v1)
+npm run build:v2     # production build (v2)
 npm run typecheck    # TypeScript check (no emit)
-npm run lint         # ESLint
-npm run cap:sync     # build + sync to Capacitor native projects
+npm run lint         # ESLint (v1 has known errors; v2 code in src/game must be clean)
+npm run cap:sync     # build + sync to Capacitor native projects (v1)
+npm run cap:sync:v2  # same for v2
 npx cap open android # open in Android Studio
 npx cap open ios     # open in Xcode
 ```
 
-No test suite exists. Validation = `typecheck` + `lint`.
+No test suite exists. Validation = `typecheck` + `lint` (+ `npm run sim` for v2 balance changes).
 
-## Architecture Overview
+## Architecture Overview (v1)
 
 **Stack:** React 18 + TypeScript, Vite, TailwindCSS, Capacitor (iOS/Android), Supabase (auth + remote DB), AdMob via `@capacitor-community/admob`.
 
@@ -51,7 +71,7 @@ All game state lives in `GameState` (`src/types/game.ts`). The central hook is `
 - **Services:** `src/services/` — thin wrappers over Supabase RPC calls (profileService, jobService, businessService, investmentService, itemService, rewardService, purchaseService, iapService, statsService).
 - **Ad system:** `src/services/ads/` — provider pattern: `providerSelector.ts` picks between `capacitorAdmobProvider` (native) and `mockRewardedProvider` (web/dev) based on platform.
 
-### Key Game Rules (source of truth: `docs/game-rules.md`)
+### Key Game Rules (v1; source of truth: `docs/v1/game-rules.md`)
 
 - **Income:** `hourly_income = job_income + business_income + investment_income − house_rent − vehicle_cost − other_expenses`. Net income can be negative.
 - **Prestige** comes exclusively from quests: each claimed quest = +1, chapter rewards = bonus prestige, resets accumulate `reset_prestige_bonus`. Job/business/house/car/outfit have no prestige contribution.
@@ -64,14 +84,14 @@ All game state lives in `GameState` (`src/types/game.ts`). The central hook is `
 - **Offline earnings:** calculated on `visibilitychange` (foreground resume). Wellbeing decay capped at −2/h, max 24h. Unclaimed earnings are persisted to `localStorage` under `pending_offline_earnings` and restored on next session, combining with any newly calculated earnings.
 - Schema fields `jobs.unlock_requirement_money`, `character_outfits.unlock_type/value` are unused in live rules.
 
-### UI Conventions
+### UI Conventions (v1 and v2)
 
 - All screens are **mobile-first**. Never design for desktop-only layouts.
 - Navigation is `BottomNav` → tab modals (full-screen overlay pattern).
 - Reward animations (`GemRewardAnimation`, `MoneyRewardAnimation`, `StatRewardAnimation`) must render **above** modals, not behind them.
 - Do not add global loading spinners that wipe content; prefer skeleton or in-place loading.
 
-## Design System
+## Design System (v1 and v2)
 
 ### Color Palette
 
@@ -169,26 +189,29 @@ Badge / chip:      text-[10px] font-black
 
 Always play a sound for meaningful player actions. Cooldown / disabled states → no sound.
 
-### Monetization Status
+### Monetization Status (v1 wiring, reused by v2)
 
 - **RevenueCat:** `@revenuecat/purchases-capacitor` installed and configured. Android API key live in `.env.production`. Native purchase flow active on device; web falls back to `purchaseMock` (dev only).
 - **AdMob:** Real ad unit IDs in `src/services/ads/adMobConfig.ts`. `VITE_ADMOB_TESTING=false` in `.env.production`. Rewarded ad provider switches automatically: Capacitor on native, mock on web.
 - **IAP products:** Defined in Play Console. `PACKAGE_ID_TO_PRODUCT_ID` map in `src/services/iapService.ts` links shop packages to store product IDs.
 
-### Character Animation Status
+### Character Animation Status (v1)
+
+v2 animation approach is undecided and tracked in `docs/discussion-notes.md` §1 (AI video pilot via Higgsfield; no code-only squash/jump as the character animation solution).
+
 
 - Outfit images follow naming: `ch-N-1.png` (idle static), `ch-N-2.png` (celebrate static).
 - Animated WebP overlays: `ch-N-idle.webp` (18-frame, 7fps) and `ch-N-celebrate.webp` (25-frame, 12.5fps). Generated from Ludo.ai sprite sheets using `scripts/convert_outfit.py`.
 - `CharacterDisplay` tries `.webp` first, falls back to `.png` via `onError`. No code change needed when adding new animated outfits — just drop the `.webp` files.
 - Celebration window: 2200ms. Animated celebrate plays browser-natively (no CSS needed); static celebrate uses `animate-celebrate-jump` CSS.
 
-### Splash Screen (Android)
+### Splash Screen (Android, v1)
 
 - Android 12+ shows a mandatory OS splash (app icon + blue `#0C2FA0` background) before the app window opens. This is system-controlled and cannot be removed.
 - After OS splash: Capacitor `@capacitor/splash-screen` overlay shows `drawable-port-*/splash.png` (full game artwork). Configured with `launchAutoHide: false`; manually hidden via `SplashScreen.hide({ fadeOutDuration: 400 })` when `gameState.loading` becomes false.
 - Splash images live in `android/app/src/main/res/drawable-port-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/splash.png`.
 
-### Intro Sequence
+### Intro Sequence (v1)
 
 On first game load (web and native), `App.tsx` runs a staged intro:
 1. House background slides in from right (0ms)
@@ -200,7 +223,4 @@ Controlled by `introPhase` state (`'pending' | 'house' | 'character' | 'car' | '
 
 ## Session Startup
 
-When resuming work, read:
-1. `docs/session-handoff.md` — last known state and recently finished work
-2. `docs/current-roadmap.md` — what's in progress and what's next
-3. `docs/game-rules.md` — authoritative game logic (beats schema when they conflict)
+See "Active work: v2 rebuild" at the top for the reading order. For v1-only work: `docs/v1/session-handoff-v1.md`, `docs/v1/current-roadmap.md`, `docs/v1/game-rules.md`.
