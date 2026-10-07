@@ -9,6 +9,7 @@ Oyun v2 olarak yeniden tasarlanıyor; çalışma `v2-rebuild` dalında.
 - Plan ve faz durumu: [rebuild-plan.md](./rebuild-plan.md)
 - Tasarım ve ekonomi: [game-design-v2.md](./game-design-v2.md)
 - Hikaye ve karakterler: [story-v2.md](./story-v2.md)
+- Kararı bekleyen konular (animasyon yaklaşımı, Higgsfield pilotu, Remotion, Faz 2.1 soruları): [discussion-notes.md](./discussion-notes.md)
 - Ekonomi çekirdeği: `src/game/core/` (saf TS), simülatör: `src/game/sim/`, `npm run sim`
 - Runtime: `src/game/runtime/` (`GameV2Provider` + `useGameV2`, kayıt anahtarı `prestige_life_v2`)
 - i18n: `src/game/i18n/` — Türkçe + İngilizce, sonra başka diller. v2'de sabit metin yok.
