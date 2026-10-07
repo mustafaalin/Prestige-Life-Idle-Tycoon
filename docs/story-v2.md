@@ -17,7 +17,7 @@ Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor]
 - Önsöz: kahraman işten kovulur, annesiyle lojmandan çıkarılır; anne teyzenin yanına gider, kahraman sokakta kalır (§4). Anne sokakta değildir.
 - Annenin evi kendi merdiveniyle ilerler; zirvesi konak ("seni saraylarda yaşatacağım", §5).
 - Ana sahne dış mekân; kirli bir ara sokakta başlar, şişe ve kutular sahnede dokunarak toplanır (§4).
-- Hikâye tek kahramanın hayatında tamamlanır; varis ömrün sonunda devralır, erken değil (§6, [discussion-notes.md](./discussion-notes.md) §4–5).
+- Hikâye tek kahramanın hayatında tamamlanır; varis ömrün sonunda (97 yaş) devralır, erken değil (§6, [game-design-v2.md §4.9](./game-design-v2.md)).
 
 ---
 
@@ -112,7 +112,7 @@ Mekanik karşılık: dokunma sahnenin içindedir. Ara sokakta rastgele yerlerde 
 | 1 | Gündelikçi ($1K) | İlk sıcak yemek; annesini arar: "Merak etme anne, iyiyim." | Gece → sabah | — |
 | 2 | İşçi Sınıfı ($100K) | Sokaktan çıkış: ilk kiralık daire. Rıza Amca'yla vedalaşma. | İlk kapalı ev | — |
 | 3 | Milyoner ($1M) | **Eski aile evini geri al** (annenin evi, §5): "Eski evimizi geri aldım anne." Annenin ağlayan-mutlu mesajı. İlk oturumun zirvesi. | Annenin evinin fotoğrafı sahnede çerçevede | — |
-| 4 | Multimilyoner ($100M) | Eşle tanışma ve düğün | Düğün fotoğrafı | Emeklilik kuralı değişecek ([discussion-notes](./discussion-notes.md) §4–5) |
+| 4 | Multimilyoner ($100M) | Eşle tanışma ve düğün | Düğün fotoğrafı | — |
 | 5 | Milyarder ($1B) | Bülent Bey'in şirketini satın alma | Dergi haberi: "Bulaşıkçıdan patrona" | — |
 | 6 | Dünyanın En Zengini ($1T) | Dergi kapağı, özel jet; annenin mesajı: "Baban seninle gurur duyardı." | Dergi kapağı çerçevede | — |
 
@@ -156,7 +156,7 @@ Oyuncunun duygusu: *"Ben de anneme en güzel evi alacağım, onu saraylarda yaş
 
 ## 6. Hanedan anlatısı (Faz 2)
 
-- **Ne zaman:** ömrün sonunda, erken değil (karar 2026-10-08; yaş ve ömür modeli tartışmada: [discussion-notes.md](./discussion-notes.md) §4–5).
+- **Ne zaman:** ömrün sonunda, erken değil (97 yaş, karar 2026-10-08; [game-design-v2.md §4.9](./game-design-v2.md)).
 - **Emeklilik = servetini vakfa bağışlamak.** Kahraman "kütüphane/vakıf" çizgisini tamamlar; çocuğuna para değil **adını ve öğrettiklerini** bırakır.
 - **Miras puanı arayüzde "Aile İtibarı" (Family Legacy)** olarak geçer. Her puan +%1 gelir: "Soyadın kapıları açıyor."
 - Çocuk kendini kanıtlamak için sıfırdan başlar. Şans'ın yavrusu ona eşlik eder (yoldaş nesiller boyu sürer).

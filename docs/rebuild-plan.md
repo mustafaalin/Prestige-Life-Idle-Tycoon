@@ -107,7 +107,8 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 
 - [ ] **1.18 Önsöz (görsel roman):** 5–6 karelik, geçilebilir açılış: restoran, kovulma, lojmandan çıkış, otogarda anneye söz, ara sokakta Şans ([story-v2.md §4](./story-v2.md)). Konuşan aydınlık / diğeri karartılmış, isim etiketi, tek cümlelik balon. Görsel roman bileşeni törenler (1.10) ve rehber balonlarıyla (1.12) ortak.
 - [x] **1.S Simülatör düzeltmeleri (2026-10-08):** Olay saatleri artık dönüş oturumuna ve adım sonuna yazılıyor (önce çevrimdışı kazançla gelen olaylar bir önceki oturumun saatine yazılıyordu). `--offline-cap <saat>` ve `--life <sn/ay>` (emekliliksiz tek kahraman, yaş ölçümü) seçenekleri. Sonuçlar: [discussion-notes.md](./discussion-notes.md) §4–6.
-- [ ] **1.T Tasarım düğümleri (kullanıcıyla):** Yaş ve ömür modeli, ömür içi sıfırlama olup olmayacağı, çevrimdışı tavan, sınıf eşiklerinin yeni hikâyeye göre dağılımı ([discussion-notes.md](./discussion-notes.md) §4–6). Karar sonrası ekonomi ve simülatör yeniden ayarlanır; 2.1 hanedan buna göre değişir.
+- [x] **1.L Yaş ve ömür (2026-10-08):** [game-design-v2.md §4.9](./game-design-v2.md). `config/life.ts` (17 → 97, 1 dk = 1 ay), durumda `lifeSeconds`; yaş sadece tick'te ilerler, çevrimdışında ilerlemez. Emeklilik sadece ömür sonunda (`canRetire` = ömür bitti). Üst barda "24 yaş · 73 yıl kaldı"; ömür sonunda "Bir ömür tamamlandı → Emekli ol ve devret" ekranı (geçici; vakıf töreni 2.1). Geliştirici menüsünde "Kahramanı yaşlandır +10 / +40 yıl". Simülatör tek ömür modelinde; hedef tablosu güncellendi.
+- [ ] **1.T Tasarım düğümleri (kullanıcıyla):** Sınıf aralıkları ve tempo (ilk Milyarder 2. gün akşam, hedef 3–6. gün; Milyarder 23 → En Zengin 48 yaş), çevrimdışı tavan, gelirin aylık gösterimi ([discussion-notes.md](./discussion-notes.md) §4–6). Karar sonrası ekonomi ve simülatör yeniden ayarlanır.
 
 ### 1C. İlk izlenim ve ölçüm (3. hafta)
 
@@ -131,7 +132,7 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 
 **Amaç:** Oyuncunun 1., 7. ve 30. gün geri gelmesi için sebep yaratmak.
 
-- [ ] **2.1 Hanedan ekranı:** Ömür sonu emeklilik akışı (ne kazanacağını göster, vakıf töreni), miras puanı, soy ağacı. Zamanlama 1.T kararına bağlı.
+- [ ] **2.1 Hanedan ekranı:** Ömür sonu (97 yaş) emeklilik akışının tam hali: vakıf töreni, ne kazanıldığı, miras puanı, soy ağacı. Geçici ekran 1.L'de var.
 - [ ] **2.2 Yadigarlar:** Miras puanıyla alınan kalıcı yetenekler (çevrimdışı tavanı +1 sa, başlangıç parası, yönetici indirimi...).
 - [ ] **2.3 Nesil içeriği:** Her nesil yeni bir şey açsın (yeni şehir + yeni işletme kademeleri; kullanılmayan 30 işletme görseli). Simülatöre eklenip 30 günlük tempo yeniden ayarlanacak.
 - [ ] **2.4 Olay kartları:** Kart motoru + sınıfa göre değişen 60 kart (risk, duygu, mizah). Günde 3–5 kart.

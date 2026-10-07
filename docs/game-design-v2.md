@@ -1,16 +1,16 @@
 # Prestige Life v2 — Oyun Tasarım Belgesi
 
-Son güncelleme: 2026-10-08 · Durum: Faz 1A bitti; sıfırlama ve ömür modeli yeniden tasarlanıyor ([discussion-notes.md](./discussion-notes.md) §4–5)
+Son güncelleme: 2026-10-08 · Durum: Faz 1A bitti; yaş ve ömür modeli eklendi (§4.9)
 
 Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-v2.md); rapordan sapmalar §9'da. Sayısal değerler kodda `src/game/core/config/` altında durur; buradaki tablolar `npm run sim -- --config` çıktısından alınmıştır. Değer değiştirince önce simülatörü çalıştır, sonra bu belgeyi güncelle.
 
 ## 1. Vaat
 
-**"Sokaktan dünyanın en zenginine — ve her nesil bir öncekinden hızlı."**
+**"Sokaktan dünyanın en zenginine, tek bir ömürde; sonra hikâye çocuğunla sürer."**
 
 - AdVenture Capitalist tarzı üstel idle ekonomi (sayılar her zaman akar, büyük basamaklar "vay" anıdır)
 - 7 basamaklı, törenli sınıf merdiveni (her basamakta sahne, ev, araç, kıyafet değişir)
-- Hanedan prestiji: emekli ol, çocuğun miras çarpanıyla sokaktan yeniden başlasın. **Değişecek (karar yönü 2026-10-08):** erken emeklilik yok; hikâye tek kahramanın hayatında tamamlanır, varis ömrün sonunda devralır (discussion-notes §4–5)
+- Bir ömür: kahraman 17 yaşında başlar, yaş sadece oyun açıkken ilerler (1 dk = 1 ay). 97 yaşında emekli olur ve varis miras çarpanıyla devralır; erken emeklilik yok (§4.9)
 - BitLife tadında olay kartları (Faz 2)
 
 Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Şans, Rıza Amca, annesine verilen söz).
@@ -21,7 +21,7 @@ Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Ş
 | --- | --- | --- | --- |
 | Anlık | saniyeler | Para akar; işletme alır, yükseltir, yönetici atar | İşletmeler, yöneticiler, kilometre taşı çarpanları, tıklama |
 | Hayat | günler | Terfi alır, hayallerini satın alır, sınıf atlar | Kariyer, statü eşyaları, sınıf töreni, çevrimdışı kazanç, (olay kartları — Faz 2) |
-| Hanedan | haftalar | Emekli olur, mirasla yeni nesil başlatır | Miras puanı, (yadigarlar, nesil içeriği — Faz 2) |
+| Ömür ve hanedan | haftalar | Bir ömür boyunca sınıf atlar; ömür sonunda emekli olur, varis mirasla başlar | Yaş, miras puanı, (yadigarlar, nesil içeriği — Faz 2) |
 
 ## 3. Kaynaklar
 
@@ -31,6 +31,7 @@ Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Ş
 | Nesil kazancı | Sınıfı belirler; harcayınca düşmez | Evet |
 | Toplam kazanç | Miras puanını belirler | Hayır |
 | Miras puanı | Her puan tüm gelire +%1 | Hayır |
+| Yaş | Ömrün ne kadarının geçtiği; 97'de emeklilik | Evet (varis 17'den başlar) |
 | Gem | Premium hızlandırma, kozmetik | Hayır |
 
 ## 4. Sistemler
@@ -43,7 +44,7 @@ Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Ş
 | 1 | Day Laborer | 1K |
 | 2 | Working Class | 100K |
 | 3 | Millionaire | 1M |
-| 4 | Multimillionaire (emeklilik açılır) | 100M |
+| 4 | Multimillionaire | 100M |
 | 5 | Billionaire | 1B |
 | 6 | Richest Person Alive | 1T |
 
@@ -108,9 +109,9 @@ En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%243 (×3,4
 
 ### 4.5 Hanedan / miras (`config/economy.ts`)
 
-- Emeklilik, Multimillionaire sınıfında açılır (bugünkü kod; tek kahraman/ömür modeliyle değişecek: discussion-notes §4–5)
+- Emeklilik sadece ömrün sonunda (97 yaş, §4.9); oyuncu erken emekli olamaz
 - Ailenin toplam miras puanı: `floor(10 × (toplamKazanç / 1M)^(1/3))`
-- Emeklilikte kazanılan = toplam puan − eldeki puan (erken ve sık emeklilik az kazandırır)
+- Emeklilikte kazanılan = toplam puan − eldeki puan
 - Her puan: tüm gelire +%1
 - Küpkök bilinçli seçildi: mirası ikiye katlamak 8 kat kazanç ister ve resetler kartopu yapmaz (bkz. §6)
 
@@ -123,6 +124,21 @@ En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%243 (×3,4
 ### 4.7 Tıklama
 
 Dokunuş başına `1 × mirasÇarpanı + aktifGelir/sn × 0,05`. İlk dakikada asıl gelir kaynağıdır, sonra küçük bir aktif bonus olarak kalır.
+
+### 4.9 Yaş ve ömür (`config/life.ts`, karar 2026-10-08)
+
+| Kural | Değer |
+| --- | --- |
+| Başlangıç yaşı | 17 (varis de 17'den başlar) |
+| Emeklilik yaşı | 97 (80 yıl) |
+| Oyun ayı | 1 dakika oyun = 1 ay; 12 dakika = 1 yaş; bir ömür ≈ 16 saat oyun |
+| Yaş ne zaman ilerler | Sadece oyun açıkken. Uzaktayken para birikir ama yaşlanmazsın. 10 sn'den uzun boşluk çevrimdışı sayılır |
+| Ömür sonu | "Bir ömür tamamlandı" ekranı → Emekli ol ve devret. Ölüm gösterilmez; vakıf töreni 2.1'de |
+| Gösterim | Üst barda "24 yaş · 73 yıl kaldı" |
+
+- Sahne ve törenler (1.10, 1.18) gelince tam ekran hikâye anlarında yaş durur.
+- En Zengin'den sonraki yıllar için içerik şimdilik yok (kullanıcı kararı: sonra bakılacak). Engaged bot En Zengin'e 48, casual 39 yaşında ulaşıyor.
+- Gelirin "aylık" gösterilmesi ($/ay) açık bir öneri ([discussion-notes.md](./discussion-notes.md) §5).
 
 ### 4.8 Konut modeli: kirala → satın al → kiraya ver (`config/housing.ts`, Faz 1.17)
 
@@ -140,7 +156,7 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; sahnede o ev 
 - **Sadece kiralık evler:** 1–9 arası (çadırdan kiralık dairelere). Satın alma 10. evden ("İlk Kendi Müstakil Evin") itibaren açılır; ilk kendi ev bir dönüm noktasıdır.
 - **Ev bonusu:** Yaşadığın evin kademesine bağlı: n. ev tüm gelire +%5 × (n−1) verir (9. ev +%40, 25. ev +%120). Kiralık da olsa sahip olunan da olsa aynı. Sahip olunan evler bonus biriktirmez; onların ödülü kira geliridir.
 - **Kira geliri:** Taban kira/sn = fiyat / geri dönüş süresi. Geri dönüş, işletmelerdeki gibi fiyatla büyür: saat = 1 × (fiyat / $1M)^0,44 (10. ev ~3,4 sa, 15. ev ~32 sa). Tüm gelir çarpanları kiraya da uygulanır. Simülasyonda kira gelirin medyan ~%8'i, nesil sonunda en fazla ~%25'i: işletmelerle yarışmıyor ama görünür.
-- **Nesil:** Emeklilikte evler sıfırlanır; varis çadırdan başlar (2. nesil açılışı Faz 2.1'de tartışılacak: [discussion-notes.md](./discussion-notes.md) §4).
+- **Nesil:** Emeklilikte evler sıfırlanır; varis çadırdan başlar (2. nesil açılışı Faz 2.1'de tartışılacak: [discussion-notes.md](./discussion-notes.md) §7).
 - Hikaye bağı: sokak (çadır) → Gündelikçi kiralık oda → İşçi Sınıfı ilk kiralık daire → ilk kendi evin → Milyoner: annene ev ([story-v2.md](./story-v2.md) §4).
 
 ## 5. Tempo hedefleri ve simülasyon sonuçları
@@ -152,20 +168,21 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; sahnede o ev 
 
 Bot her an en kısa sürede kendini ödeyen alımı yapar, yani optimal oynar. Gerçek oyuncuların ~1,3–1,8 kat yavaş olduğu tahmin, ölçülmüş değil. Bot yöneticisiz işletmeleri %60 verimle çalıştırıyor sayar; gerçek oyunda sadece başlatılan döngü ödenir (sınırlar: discussion-notes §8).
 
-Olay saatleri 2026-10-08'de düzeltildi: çevrimdışı kazançla gelen olaylar artık dönüş oturumuna yazılıyor. Casual oyuncu Milyoner'i ilk oturumda değil, 22:00 dönüşünde görüyor. Engaged "emeklilik açılır" hedefi tam sınırda (D2 12:00).
+Olay saatleri 2026-10-08'de düzeltildi: çevrimdışı kazançla gelen olaylar artık dönüş oturumuna yazılıyor. Casual oyuncu Milyoner'i ilk oturumda değil, 22:00 dönüşünde görüyor.
+
+Tek ömür modeli (§4.9, 2026-10-08) ile:
 
 | Kilometre taşı | Hedef (bot) | Engaged bot | Casual bot |
 | --- | --- | --- | --- |
 | İlk satın alma | ≤ 1 dk oyun | 3 sn | 3 sn |
 | İlk işletme | ≤ 2 dk oyun | 20 sn | 20 sn |
 | İlk yönetici | 2–5 dk oyun | 2 dk 55 sn | 2 dk 55 sn |
-| Milyoner (1. nesil) | 20–30 dk oyun | 28,5 dk | 20 dk (22:00 dönüşünde) |
-| Emeklilik açılır | ≤ 1,5 gün | 2. gün 12:00 | 2. gün akşam |
-| İlk emeklilik | 1–2. gün | 2. gün 12:00 | 2. gün akşam |
-| İlk milyarder | 3–5. gün | 3. gün | 4. gün |
-| İlk "en zengin" | 7–16. gün | 7. gün | 13. gün |
+| Milyoner (1. nesil) | 20–30 dk oyun | 28,5 dk (19 yaş) | 20 dk, 22:00 dönüşünde (18 yaş) |
+| İlk milyarder | 3–6. gün | **2. gün 21:00 (23 yaş) — tutmuyor** | 4. gün (21 yaş) |
+| İlk "en zengin" | 7–16. gün | 9. gün (48 yaş) | 18. gün (39 yaş) |
+| İlk ömür sonu (97 yaş) | 14–35. gün | 23. gün (16 sa oyun) | 30 günde gelmiyor (~60. gün) |
 
-Nesil süreleri (engaged): 1,5 → 1,5 → 2 → 2,5 → 3,5 → 6 gün. Erken nesiller hızlı geçer, sonrakiler uzar; idle türünün klasik ritmi budur.
+**Bilinen sorun:** Sınıf aralıkları eşit değil (×100, ×10, ×100, ×10, ×1000). Multimilyoner → Milyarder 21 dakika oyun (21 → 23 yaş), Milyarder → En Zengin 5 saat (23 → 48 yaş). Tek düğmeyle düzelmiyor (geri dönüş adımı 3,4'te bile Milyarder ~3 saat kayıyor, Milyoner sınırı zorluyor). Çözüm sınıf merdiveni ve hikâye anlarıyla birlikte ele alınacak ([discussion-notes.md](./discussion-notes.md) §4).
 
 ## 6. Simülasyondan öğrenilenler
 
@@ -190,7 +207,7 @@ Nesil süreleri (engaged): 1,5 → 1,5 → 2 → 2,5 → 3,5 → 6 gün. Erken n
 - Para ölçeği: İlk Flower Stand döngüsü $0.1 kazandırıyor. "Fakirlik" hissi için iyi olabilir ama küçük kesirler sevimsiz durabilir. Faz 1 oyun testinde bakılacak; gerekirse tüm fiyatlar ×10. Alternatif: gelir aylık gösterilir (yaş/ömür modeli, discussion-notes §5).
 - Ekranda gelir: üst bar ve "~X sonra alabilirsin" tahminleri sadece otomatik geliri (yönetici, maaş, kira) kullanır; dokunarak çalıştırılan işletmeler sayılmaz (2026-10-08).
 - Yöneticisiz işletmeye dokunma mekaniği: runtime şimdilik AdCap modelini uyguluyor (dokun → tek döngü). "Dokundukça hızlanır" alternatifi Faz 1 oyun testinden sonra yeniden değerlendirilecek.
-- Emeklilik yaşı/süre baskısı: yaş ve ömür modeli tartışmada (discussion-notes §5).
+- Yaş ve ömür: kurallar §4.9'da; kalan ayrıntılar (aylık gelir, törende yaşın durması, ömür sonu uyarısı) discussion-notes §5.
 
 ## 9. Rapordan sapmalar
 
@@ -202,7 +219,7 @@ Nesil süreleri (engaged): 1,5 → 1,5 → 2 → 2,5 → 3,5 → 6 gün. Erken n
 | Sınıf eşiği | Net servet | Nesil kazancı, harcayınca düşmez (§4.1) | Alışveriş yapan oyuncu sınıf kaybetmesin |
 | İlk "en zengin" | 2–3 hafta (2–4 nesil) | 7–16. gün (§5) | Simülasyon temposu; uzun vade için Faz 2'de nesil içeriği |
 | Konut | Tek ev kavramı | Kirala → satın al → kiraya ver; ev bonusu yaşanan evin kademesinden (§4.8) | Erken oyunda ev almak zor; kiralamak ilerleme hissi, satın almak kira geliri verir (karar 2026-10-07) |
-| Hanedan zamanlaması | Emeklilik → varis sık ve erken | Hikâye tek kahramanın hayatında biter, varis ömür sonunda (karar yönü 2026-10-08) | Hikâyenin sonu (Milyarder, En Zengin) erken emeklilikte hiç görülmüyordu; ayrıntı discussion-notes §4–5 |
+| Hanedan zamanlaması | Emeklilik → varis sık ve erken | Hikâye tek kahramanın hayatında biter; varis ömür sonunda (97 yaş) devralır (karar 2026-10-08, §4.9) | Hikâyenin sonu (Milyarder, En Zengin) erken emeklilikte hiç görülmüyordu |
 | Sağlık / mutluluk | Tek "Yaşam Kalitesi" göstergesi, gelire çarpan | Tamamen kaldırılır | Statü eşyaları "hayatın iyileşiyor" hissini zaten veriyor; ayrı gösterge angarya riski (karar 2026-10-07) |
 | Görseller ve karakter animasyonu | Mevcut ~290 görsel ve animasyon boru hattı korunur | Görsel roman: tutarlı durağan pozlar, ifade portreleri, konuşma balonları; kahraman seti küçük ve yeniden üretilir; diğer görseller seçerek kullanılır | Mevcut 20 kıyafette poz aynı, üst kıyafetler ayırt edilmiyor; kodla zıplatma yapay duruyor (karar 2026-10-08, [story-v2.md §8](./story-v2.md)) |
 

@@ -24,10 +24,12 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
   - Görsel roman yaklaşımı (durağan poz + ifade + balon); Higgsfield video pilotu ilk adım değil.
   - Önsöz: kovulma + lojmandan çıkış; anne teyzenin yanında, kahraman sokakta; annenin evi kendi merdiveni (konağa kadar). story-v2 §4–5.
   - Ana sahne dış mekân, kirli ara sokak; şişe/kutu sahnede dokunarak toplanır.
-  - Sıfırlama: erken emeklilik yok, hikâye tek kahramanın hayatında; varis ömür sonunda. Yaş/ömür modeli açık (discussion-notes §4–5).
+  - Ömür: yaş sadece oyun açıkken ilerler, 1 dk = 1 ay, 17 → 97; ömür sonunda emeklilik ve devir, erken emeklilik yok (game-design §4.9, kodda).
+  - En Zengin'den sonrası şimdilik bekliyor.
   - Simülatör olay saati hatası düzeltildi; ekranlar artık sadece otomatik geliri gösteriyor.
 - Kullanıcı oynayınca bakacak: konut taşınma bedeli seçenek B (discussion-notes §3).
-- Sıradaki: 1.T tasarım düğümleri (yaş/ömür, çevrimdışı tavan) ve 1.16 sanat stili denemesi; ardından 1.6 sahne (sokak + şişe toplama) ve 1.18 önsöz.
+- Sim: 1 hedef tutmuyor: tek ömürde ilk Milyarder 2. gün 21:00 (hedef 3–6. gün); sınıf aralıkları eşit değil (discussion-notes §4).
+- Sıradaki: 1.T tasarım düğümleri (sınıf aralıkları/tempo, çevrimdışı tavan, aylık gelir) ve 1.16 sanat stili denemesi; ardından 1.6 sahne (sokak + şişe toplama) ve 1.18 önsöz.
 
 ## Çalıştırma
 
