@@ -177,7 +177,17 @@ Kartların bir kısmı bu kadrodan gelir; böylece "tanıdık yüzler geri döne
 
 **Yaklaşım: görsel roman (karar 2026-10-08).** Karakterler tutarlı durağan pozlar ve ifade portreleriyle anlatılır; konuşanlar balonla. Hareket yerine davranış: yaşam aşamasına göre farklı pozlar (üşüyen-kambur, çalışan, Şans'ı okşayan, koltukta kahve içen). Pozlar arasında yumuşak geçiş. Durağan resmi kodla zıplatmak/esnetmek karakter animasyonu sayılmaz. Gerçek animasyon en fazla 2–3 büyük an için ve isteğe bağlı ([discussion-notes.md](./discussion-notes.md) §1).
 
-Stil: sanat stili denemesiyle seçilir: mevcut Pixar benzeri yarı 3D (`ch-8-1.png`) ya da kalın konturlu düz çizgi film. Hepsi şeffaf arka planlı; tabela ve görsellere metin gömülmez (TR/EN).
+**Stil: yarı 3D animasyon filmi görünümü (karar 2026-10-08, kullanıcı A1'i seçti).** Kahraman genç görünür (17 yaştan başlayan ömürle örtüşür).
+
+**Stil kılavuzu (her üretimde uyulur):**
+
+- Araç: fal.ai, `fal-ai/nano-banana-pro/edit` ($0,15/görsel). Arka plan silme `fal-ai/bria/background/remove` ($0,018).
+- Referans görseller, her üretime eklenir: kahraman kılavuzu `art/pilot/01-hero-sheet/A1-semi3d.png`, Şans kılavuzu `art/pilot/02-poses/sans-sheet.png`. Yeni bir karakter önce kendi kılavuzunu alır; kahramanın kılavuzu yanına verilir, boy ve stil eşleşir.
+- Her komutun sonuna aynen eklenen stil paragrafı: *"Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark."*
+- Karakterler ve nesneler düz açık gri zeminde üretilir, sonra arka planı silinir. Arka planlar 9:16, 2K; komuta *"a frame from a 3D CG animated feature film, NO ink outlines, NO cel shading, NO flat 2D cartoon"* eklenir (yoksa stil 2D'ye kayıyor).
+- Hayvanlar için *"real four-legged dog, quadruped, NOT anthropomorphic"* şart (ilk Şans denemesi iki ayak üstünde çıktı).
+- Görsellere yazı, tabela, logo gömülmez (TR/EN).
+- Oyunda: karakter görselleri stüdyo ışığında; gece sahnelerinde sahnenin ışığına uydurmak için hafif soğuk renk tonu ve sıcak kenar ışığı uygulanır (deneme: `art/pilot/scene-mock-alley.png`).
 
 **Karakter ve mekân görselleri sıfırdan üretilir (karar 2026-10-08):** mevcut görseller yeni hikâyeye uymuyor (20 kıyafetin hepsinde poz aynı, 13–20 arası telefonda ayırt edilmiyor; ev arka planları aynı kompozisyon). İlk üretim küçük tutulur.
 

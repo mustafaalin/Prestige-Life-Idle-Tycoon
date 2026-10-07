@@ -29,7 +29,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
   - Simülatör olay saati hatası düzeltildi; ekranlar artık sadece otomatik geliri gösteriyor.
 - Kullanıcı oynayınca bakacak: konut taşınma bedeli seçenek B (discussion-notes §3).
 - Tempo: Multimilyarder ($100B) eklendi; yaşlar Milyoner 19, Milyarder 24, Multimilyarder 39, En Zengin 46; sim 8/8.
-- Görseller sıfırdan üretilecek (karar 2026-10-08): mevcut karakter ve mekân görselleri yeni hikâyeye uymuyor.
+- Görseller sıfırdan üretiliyor: fal.ai MCP bağlı (kullanıcının bakiyesi ~$10, ~2 ay geçerli). Stil yarı 3D (A1). Pilot `art/pilot/` (~$1,84 harcandı). Stil kılavuzu story-v2 §8.
 - Sıradaki: 1.T tasarım düğümleri (sınıf aralıkları/tempo, çevrimdışı tavan, aylık gelir) ve 1.16 sanat stili denemesi; ardından 1.6 sahne (sokak + şişe toplama) ve 1.18 önsöz.
 
 ## Çalıştırma

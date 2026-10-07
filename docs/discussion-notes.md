@@ -12,7 +12,7 @@ Gerekçe: Rich Inc. açılışı (2026-10-07 ekran görüntüleri) hiç animasyo
 
 **Açık kalanlar:**
 
-- **Sanat stili denemesi:** Mevcut Pixar benzeri yarı 3D (`ch-8-1.png`) ile kalın konturlu düz çizgi film stili yan yana: kahraman 4 poz + 3 ifade, Şans, sokak arka planı. Kullanıcı telefonda seçer. Düz stilde tutarlılık daha kolay.
+- **Sanat stili:** Karar verildi (2026-10-08): yarı 3D (A1). Stil kılavuzu [story-v2.md §8](./story-v2.md). Pilot görseller `art/pilot/`.
 - **Özel anlar için video (isteğe bağlı, sonra):** "Eski evimizi geri aldım" gibi 2–3 büyük anda kısa yapay zekâ videosu. Yol: Higgsfield MCP (`claude mcp add --transport http higgsfield https://mcp.higgsfield.ai/mcp`, `/mcp` ile giriş; Kling 3.0, Seedance 2.0, Veo 3.1, Soul ID), yedek fal.ai MCP. Her üretimden önce kredi maliyeti söylenir. Kabul ölçütü klip fiyatı değil, kabul edilen bir animasyonun toplam maliyeti (deneme, temizleme, entegrasyon).
 - **İskeletli 2D (Spine / Rive):** Oyun testi "karakter hareketi şart" demezse gerek yok. Rig işi editörde elle yapılır.
 
