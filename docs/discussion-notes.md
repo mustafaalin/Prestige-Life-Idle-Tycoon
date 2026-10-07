@@ -42,7 +42,9 @@ Karar verildi (2026-10-07) ve [game-design-v2.md §4.8](./game-design-v2.md)'e t
 
 Yaş ve ömür kararı verildi (2026-10-08) ve [game-design-v2.md §4.9](./game-design-v2.md)'a taşındı: yaş sadece oyun açıkken ilerler, 1 dk = 1 ay, 17 → 97, ömür sonunda emeklilik ve devir; ömür içinde sıfırlama yok. En Zengin'den sonrası şimdilik bekliyor (kullanıcı: "ileride bakarız").
 
-**Açık: sınıf aralıkları ve tempo.** Simülasyonda (engaged) yaşlar: Milyoner 19, Multimilyoner 21, Milyarder 23, En Zengin 48. Multimilyoner → Milyarder 21 dakika oyun, Milyarder → En Zengin 5 saat; ilk Milyarder 2. gün akşam geliyor (hedef 3–6. gün). Neden: sınıf eşikleri eşit aralıklı değil (1K, 100K, 1M, 100M, 1B, 1T).
+**Çözüldü (2026-10-08):** Multimilyarder ($100B) eklendi, orta oyun yavaşlatıldı, geç oyun hızlandırıldı; yaşlar 19 / 21 / 24 / 39 / 46, 8/8 hedef ([game-design-v2.md §4.1, §5](./game-design-v2.md)). Aşağıdaki not eski durumu anlatıyor.
+
+**Eski durum: sınıf aralıkları ve tempo.** Simülasyonda (engaged) yaşlar: Milyoner 19, Multimilyoner 21, Milyarder 23, En Zengin 48. Multimilyoner → Milyarder 21 dakika oyun, Milyarder → En Zengin 5 saat; ilk Milyarder 2. gün akşam geliyor (hedef 3–6. gün). Neden: sınıf eşikleri eşit aralıklı değil (1K, 100K, 1M, 100M, 1B, 1T).
 
 Claude'un önerileri (birlikte düşünülmeli):
 

@@ -38,15 +38,18 @@ Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Ş
 
 ### 4.1 Sınıf merdiveni (`config/classes.ts`)
 
-| # | Sınıf | Eşik (nesil kazancı) |
-| --- | --- | --- |
-| 0 | Living on the Street | 0 |
-| 1 | Day Laborer | 1K |
-| 2 | Working Class | 100K |
-| 3 | Millionaire | 1M |
-| 4 | Multimillionaire | 100M |
-| 5 | Billionaire | 1B |
-| 6 | Richest Person Alive | 1T |
+| # | Sınıf | Eşik (nesil kazancı) | Kahramanın yaşı (engaged bot) |
+| --- | --- | --- | --- |
+| 0 | Living on the Street | 0 | 17 |
+| 1 | Day Laborer | 1K | 17 |
+| 2 | Working Class | 100K | 18 |
+| 3 | Millionaire | 1M | 19 |
+| 4 | Multimillionaire | 100M | 21 |
+| 5 | Billionaire | 1B | 24 |
+| 6 | Multibillionaire (Multimilyarder) | 100B | 39 |
+| 7 | Richest Person Alive | 1T | 46 |
+
+Multibillionaire 2026-10-08'de eklendi: Milyarder → En Zengin arasındaki 25 yıllık boşluğa bir hikâye anı koymak için.
 
 Sınıf, harcanan paradan bağımsızdır (kazanılan toplam). Oyuncu alışveriş yaptığı için asla sınıf kaybetmez.
 
@@ -60,7 +63,7 @@ AdVenture Capitalist modeli: her işletme adet adet alınır, her birim bir üre
 - Yöneticisiz işletme sadece oyuncu açıkken ve dokunarak çalışır (aktif verim %60), çevrimdışı üretmez
 - Yönetici: tek seferlik, işletmeyi otomatik ve çevrimdışı çalıştırır
 
-Değerler 6 düğmeden üretilir (`BUSINESS_TUNING`): ilk fiyat 4, kademe fiyat adımı ×15, ilk geri dönüş 36 sn, geri dönüş adımı ×3,3, yönetici = ilk birim × 250.
+Değerler 6 düğmeden üretilir (`BUSINESS_TUNING`): ilk fiyat 4, kademe fiyat adımı ×15, ilk geri dönüş 36 sn, geri dönüş adımı ×3,3, yönetici = ilk birim × 250. Tek ömür temposu için kademe başına gelir çarpanı (`revenueFactor`, 2026-10-08): Mini Market ×0,7, Beauty Salon ×0,6 (orta oyun yavaş), Logistics ×2, Factory / Hotel / Tech ×2,5 (geç oyun hızlı).
 
 | İşletme | İlk birim | Büyüme | Döngü | İlk birim geri dönüşü | Yönetici |
 | --- | --- | --- | --- | --- | --- |
@@ -68,16 +71,16 @@ Değerler 6 düğmeden üretilir (`BUSINESS_TUNING`): ilk fiyat 4, kademe fiyat 
 | Coffee Cart | $60 | ×1.15 | 2 sn | 2 dk | $15K |
 | Bakery | $900 | ×1.14 | 4 sn | 6,5 dk | $225K |
 | Car Wash | $13.5K | ×1.13 | 8 sn | 21,5 dk | $3.38M |
-| Mini Market | $203K | ×1.12 | 16 sn | 1 sa 11 dk | $50.8M |
-| Beauty Salon | $3.04M | ×1.11 | 32 sn | 3 sa 54 dk | $760M |
-| Logistics Warehouse | $45.6M | ×1.10 | 64 sn | 12 sa 54 dk | $11.4B |
-| Factory | $683M | ×1.09 | 128 sn | 1 g 18 sa | $171B |
-| Hotel Chain | $10.3B | ×1.09 | 256 sn | 5 g 20 sa | $2.58T |
-| Tech Startup | $154B | ×1.09 | 512 sn | 19 g 8 sa | $38.5T |
+| Mini Market | $203K | ×1.12 | 16 sn | 1 sa 41 dk | $50.8M |
+| Beauty Salon | $3.04M | ×1.11 | 32 sn | 6 sa 31 dk | $760M |
+| Logistics Warehouse | $45.6M | ×1.10 | 64 sn | 6 sa 26 dk | $11.4B |
+| Factory | $683M | ×1.09 | 128 sn | 17 sa 6 dk | $171B |
+| Hotel Chain | $10.3B | ×1.09 | 256 sn | 2 g 8 sa | $2.58T |
+| Tech Startup | $154B | ×1.09 | 512 sn | 7 g 17 sa | $38.5T |
 
 ### 4.3 Kariyer (`config/careers.ts`)
 
-Tek iş, para ile terfi. Maaş online ve offline otomatik gelir. Her terfi o nesil boyunca tüm gelire kalıcı bonus ekler. Rol: erken oyunda maaş, geç oyunda gelir bonusu.
+Tek iş, para ile terfi. Maaş online ve offline otomatik gelir. Her terfi o nesil boyunca tüm gelire kalıcı bonus ekler. Rol: erken oyunda maaş, geç oyunda gelir bonusu. Tek ömür temposu için (`salaryFactor` / `costFactor`, 2026-10-08): orta kariyer maaşları düşük (Sales ×0,5 → Software Engineer ×0,25), üst işler ucuz (Team Leader ×0,8, Director ×0,6, CEO ×0,5 fiyat; CEO maaşı ×1,5).
 
 | Meslek | Fiyat | Maaş/sn | Gelir bonusu |
 | --- | --- | --- | --- |
@@ -86,13 +89,13 @@ Tek iş, para ile terfi. Maaş online ve offline otomatik gelir. Her terfi o nes
 | Cashier | $810 | $5.6 | +5% |
 | Waiter | $7.29K | $22 | +5% |
 | Delivery Driver | $65.6K | $93 | +10% |
-| Sales Representative | $590K | $382 | +10% |
-| IT Support | $5.31M | $1.56K | +10% |
-| Web Developer | $47.8M | $6.39K | +10% |
-| Software Engineer | $430M | $26.1K | +15% |
-| Team Leader | $3.87B | $107K | +15% |
-| Director | $34.9B | $438K | +20% |
-| CEO | $314B | $1.79M | +25% |
+| Sales Representative | $590K | $191 | +10% |
+| IT Support | $5.31M | $546 | +10% |
+| Web Developer | $47.8M | $1.60K | +10% |
+| Software Engineer | $430M | $6.53K | +15% |
+| Team Leader | $3.10B | $53.4K | +15% |
+| Director | $20.9B | $438K | +20% |
+| CEO | $157B | $2.69M | +25% |
 
 ### 4.4 Statü eşyaları (`config/lifestyle.ts`)
 
@@ -170,19 +173,21 @@ Bot her an en kısa sürede kendini ödeyen alımı yapar, yani optimal oynar. G
 
 Olay saatleri 2026-10-08'de düzeltildi: çevrimdışı kazançla gelen olaylar artık dönüş oturumuna yazılıyor. Casual oyuncu Milyoner'i ilk oturumda değil, 22:00 dönüşünde görüyor.
 
-Tek ömür modeli (§4.9, 2026-10-08) ile:
+Tek ömür modeli (§4.9) ve tempo ayarı (2026-10-08) ile:
 
 | Kilometre taşı | Hedef (bot) | Engaged bot | Casual bot |
 | --- | --- | --- | --- |
 | İlk satın alma | ≤ 1 dk oyun | 3 sn | 3 sn |
 | İlk işletme | ≤ 2 dk oyun | 20 sn | 20 sn |
 | İlk yönetici | 2–5 dk oyun | 2 dk 55 sn | 2 dk 55 sn |
-| Milyoner (1. nesil) | 20–30 dk oyun | 28,5 dk (19 yaş) | 20 dk, 22:00 dönüşünde (18 yaş) |
-| İlk milyarder | 3–6. gün | **2. gün 21:00 (23 yaş) — tutmuyor** | 4. gün (21 yaş) |
-| İlk "en zengin" | 7–16. gün | 9. gün (48 yaş) | 18. gün (39 yaş) |
-| İlk ömür sonu (97 yaş) | 14–35. gün | 23. gün (16 sa oyun) | 30 günde gelmiyor (~60. gün) |
+| Milyoner (1. nesil) | 20–30 dk oyun | 28,8 dk (19 yaş) | 20 dk, 22:00 dönüşünde (18 yaş) |
+| İlk milyarder | 3–6. gün | 3. gün (24 yaş) | 4. gün (22 yaş) |
+| İlk multimilyarder | 6–11. gün | 7. gün (39 yaş) | 13. gün (32 yaş) |
+| İlk "en zengin" | 7–17. gün | 9. gün (46 yaş) | 17. gün (38 yaş) |
+| İlk ömür sonu (97 yaş) | 15–36. gün | 23. gün (16 sa oyun) | 30 günde gelmiyor (~60. gün) |
 
-**Bilinen sorun:** Sınıf aralıkları eşit değil (×100, ×10, ×100, ×10, ×1000). Multimilyoner → Milyarder 21 dakika oyun (21 → 23 yaş), Milyarder → En Zengin 5 saat (23 → 48 yaş). Tek düğmeyle düzelmiyor (geri dönüş adımı 3,4'te bile Milyarder ~3 saat kayıyor, Milyoner sınırı zorluyor). Çözüm sınıf merdiveni ve hikâye anlarıyla birlikte ele alınacak ([discussion-notes.md](./discussion-notes.md) §4).
+- Multimilyoner → Milyarder hâlâ kısa (21 → 24 yaş): 100M → 1B aralığı sadece ×10 ve orta oyunda gelir çevrimdışı ağırlıklı. Daha fazla yavaşlatmak kariyer ve işletmelerde büyük kesinti istiyor; Milyarder 24 yaşta kabul edildi.
+- Varis çok hızlı: 1. ömür ~4.000 miras puanı (×40 gelir) bırakıyor; 2. nesil Multimilyoner'e dakikalar içinde ulaşıyor. Faz 2.1'de miras formülü ve 2. nesil içeriğiyle birlikte ele alınacak.
 
 ## 6. Simülasyondan öğrenilenler
 

@@ -13,7 +13,7 @@ Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor]
 
 **Kararlar (2026-10-08):**
 
-- Görsel roman yaklaşımı: durağan pozlar, ifade portreleri, konuşma balonları; önsöz çizgi roman kareleriyle (§8).
+- Görsel roman yaklaşımı: durağan pozlar, ifade portreleri, konuşma balonları; önsöz çizgi roman kareleriyle (§8). Karakter ve mekân görselleri sıfırdan üretilir.
 - Önsöz: kahraman işten kovulur, annesiyle lojmandan çıkarılır; anne teyzenin yanına gider, kahraman sokakta kalır (§4). Anne sokakta değildir.
 - Annenin evi kendi merdiveniyle ilerler; zirvesi konak ("seni saraylarda yaşatacağım", §5).
 - Ana sahne dış mekân; kirli bir ara sokakta başlar, şişe ve kutular sahnede dokunarak toplanır (§4).
@@ -104,7 +104,7 @@ Kirli bir ara sokak, yağmur sesi. Kahraman eski bir çadırın önünde üşüy
 
 Mekanik karşılık: dokunma sahnenin içindedir. Ara sokakta rastgele yerlerde şişe ve kutular belirir; dokununca nesne çuvala uçar, "+$1" ve şıngırtı sesi gelir, birkaç saniye sonra yenisi çıkar. Ara sıra Şans ağzında bir şişe getirir. Karakter zıplatılmaz; hareket eden nesnelerdir. Sınıf yükseldikçe dokunulan şey değişir (şişe → tezgâh müşterisi → ... ileride).
 
-### 7 sınıf, 7 hikaye anı
+### 8 sınıf, 8 hikaye anı
 
 | # | Sınıf | Hikaye anı (tören) | Sahnede değişen | Mekanik |
 | --- | --- | --- | --- | --- |
@@ -113,8 +113,9 @@ Mekanik karşılık: dokunma sahnenin içindedir. Ara sokakta rastgele yerlerde 
 | 2 | İşçi Sınıfı ($100K) | Sokaktan çıkış: ilk kiralık daire. Rıza Amca'yla vedalaşma. | İlk kapalı ev | — |
 | 3 | Milyoner ($1M) | **Eski aile evini geri al** (annenin evi, §5): "Eski evimizi geri aldım anne." Annenin ağlayan-mutlu mesajı. İlk oturumun zirvesi. | Annenin evinin fotoğrafı sahnede çerçevede | — |
 | 4 | Multimilyoner ($100M) | Eşle tanışma ve düğün | Düğün fotoğrafı | — |
-| 5 | Milyarder ($1B) | Bülent Bey'in şirketini satın alma | Dergi haberi: "Bulaşıkçıdan patrona" | — |
-| 6 | Dünyanın En Zengini ($1T) | Dergi kapağı, özel jet; annenin mesajı: "Baban seninle gurur duyardı." | Dergi kapağı çerçevede | — |
+| 5 | Milyarder ($1B, ~24 yaş) | Bülent Bey'in şirketini satın alma | Dergi haberi: "Garsondan patrona" | — |
+| 6 | Multimilyarder ($100B, ~39 yaş) | Annene deniz kenarında villa; Rıza Amca'nın atölyesi bir marka olur | Villanın fotoğrafı | — |
+| 7 | Dünyanın En Zengini ($1T, ~46 yaş) | Dergi kapağı, özel jet; annenin mesajı: "Baban seninle gurur duyardı." | Dergi kapağı çerçevede | — |
 
 Tören yapısı (1.10): eski sahne çıkar → yeni sahne gelir → hikaye kartı (portre + 1–3 cümle) → "Önce / Şimdi" kartı → konfeti, ses, haptik.
 
@@ -148,7 +149,7 @@ Oyuncunun duygusu: *"Ben de anneme en güzel evi alacağım, onu saraylarda yaş
 | 2 | Memlekette kiralık küçük daire | İşçi Sınıfı | "Kendi kapım var oğlum." |
 | 3 | Eski aile evi (geri alınır) | Milyoner | "Eski evimizi geri aldım anne." (Milyoner töreni) |
 | 4 | Bahçeli ev | Multimilyoner | Annenin bahçesi |
-| 5 | Deniz kenarında villa | Milyarder | |
+| 5 | Deniz kenarında villa | Multimilyarder | |
 | 6 | Konak | En Zengin | Söz tutulur: "Seni saraylarda yaşatacağım." |
 
 - Fiyatlar kahramanın ev fiyat eğrisinden bağımsızdır ve simülatörle belirlenir (GPT Astra'nın bulduğu çelişki: ilk satın alınabilir kendi evi ~$16,4M, Milyoner eşiği $1M).
@@ -178,7 +179,7 @@ Kartların bir kısmı bu kadrodan gelir; böylece "tanıdık yüzler geri döne
 
 Stil: sanat stili denemesiyle seçilir: mevcut Pixar benzeri yarı 3D (`ch-8-1.png`) ya da kalın konturlu düz çizgi film. Hepsi şeffaf arka planlı; tabela ve görsellere metin gömülmez (TR/EN).
 
-Mevcut 20 kıyafet seti yerine ilk üretim küçük tutulur: 20 kıyafetin hepsinde poz aynı ve 13–20 arası telefonda neredeyse ayırt edilmiyor.
+**Karakter ve mekân görselleri sıfırdan üretilir (karar 2026-10-08):** mevcut görseller yeni hikâyeye uymuyor (20 kıyafetin hepsinde poz aynı, 13–20 arası telefonda ayırt edilmiyor; ev arka planları aynı kompozisyon). İlk üretim küçük tutulur.
 
 **Faz 1 (dikey dilim):**
 
@@ -203,7 +204,7 @@ Mevcut 20 kıyafet seti yerine ilk üretim küçük tutulur: 20 kıyafetin hepsi
 ## 9. Metin ihtiyacı (TR + EN)
 
 - Önsöz: 5–6 kare balonu
-- 7 tören hikaye kartı (1–3 cümle)
+- 8 tören hikaye kartı (1–3 cümle)
 - Rehber: ~8 Rıza Amca balonu
 - Anne mesajları: ~10 (+ annenin evi merdiveni: 6 an)
 - Hayal mikro hikayeleri: 8
