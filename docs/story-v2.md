@@ -187,6 +187,7 @@ Kartların bir kısmı bu kadrodan gelir; böylece "tanıdık yüzler geri döne
 - Karakterler ve nesneler düz açık gri zeminde üretilir, sonra arka planı silinir. Arka planlar 9:16, 2K; komuta *"a frame from a 3D CG animated feature film, NO ink outlines, NO cel shading, NO flat 2D cartoon"* eklenir (yoksa stil 2D'ye kayıyor).
 - Hayvanlar için *"real four-legged dog, quadruped, NOT anthropomorphic"* şart (ilk Şans denemesi iki ayak üstünde çıktı).
 - Sahne ve önsöz kareleri için üç referans verilir: kahraman kılavuzu + bir kahraman pozu + yarı 3D bir arka plan (`art/pilot/02-poses/alley.png`). Tek referansla stil 2D'ye kayıyor (ilk restoran karesi).
+- Eller ve nesneler: komuta *"exactly two arms and two hands"* eklenir; bir elde nesne, öbüründe başka nesne gibi karışık pozlardan kaçınılır. Her görselin elleri tam çözünürlükte kontrol edilir (restoran karesinde önce havada tepsi, sonra üç el çıktı; düzenleme modeli fazla eli silemedi, sade pozla sıfırdan üretmek işe yaradı).
 - Kadro kılavuzları: `art/pilot/03-cast/` (anne, Rıza Amca, Bülent Bey); yeni üretimlerde ilgili kılavuz da referans verilir.
 - Görsellere yazı, tabela, logo gömülmez (TR/EN).
 - Oyunda: karakter görselleri stüdyo ışığında; gece sahnelerinde sahnenin ışığına uydurmak için hafif soğuk renk tonu ve sıcak kenar ışığı uygulanır (deneme: `art/pilot/scene-mock-alley.png`).
