@@ -87,7 +87,7 @@ export function CareerScreen() {
           </button>
           {secondsToAfford !== null && (
             <p className="text-[11px] font-semibold text-slate-500 text-center -mt-1">
-              {t('career.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}
+              {t('common.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}
             </p>
           )}
         </div>

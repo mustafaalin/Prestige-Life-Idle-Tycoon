@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { WEALTH_CLASSES } from '../core/config/classes';
 import { incomePerSecond, tapValue } from '../core/formulas';
-import { nextCareer } from '../core/state';
+import { canBuyAnyLifestyle, nextCareer } from '../core/state';
 import { useT } from '../i18n/useT';
 import { useGameV2 } from '../runtime/useGameV2';
 import { BusinessesScreen } from './businesses/BusinessesScreen';
 import { CareerScreen } from './career/CareerScreen';
+import { ShopScreen } from './shop/ShopScreen';
 import { TabBar, type TabId } from './TabBar';
 
 // Temporary home layout so v2 is playable while it is built: a HUD, the tab screens and the
-// offline claim. Replaced piece by piece by the scene (1.6), HUD (1.7), shop (1.5) and offline modal (1.13).
+// offline claim. Replaced piece by piece by the scene (1.6), HUD (1.7) and offline modal (1.13).
 
 export function HomeShell() {
   const { game, state, actions } = useGameV2();
@@ -61,12 +62,13 @@ export function HomeShell() {
       <main className="flex-1 overflow-y-auto px-4 pb-4">
         {tab === 'businesses' && <BusinessesScreen />}
         {tab === 'career' && <CareerScreen />}
+        {tab === 'shop' && <ShopScreen />}
       </main>
 
       <TabBar
         active={tab}
         onChange={setTab}
-        attention={{ career: promotion !== null && game.cash >= promotion.cost }}
+        attention={{ career: promotion !== null && game.cash >= promotion.cost, shop: canBuyAnyLifestyle(game) }}
       />
 
       {state.offline && (

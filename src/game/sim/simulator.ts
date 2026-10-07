@@ -3,7 +3,6 @@
 
 import { BUSINESSES } from '../core/config/businesses';
 import { WEALTH_CLASSES } from '../core/config/classes';
-import { LIFESTYLE_ITEMS } from '../core/config/lifestyle';
 import {
   businessBaseIncomePerSecond,
   careerBonus,
@@ -25,11 +24,13 @@ import {
   createInitialState,
   earn,
   hireManager,
+  LIFESTYLE_KINDS,
   nextCareer,
+  nextLifestyle,
   promote,
   retire,
 } from '../core/state';
-import type { GameStateV2, LifestyleKind } from '../core/types';
+import type { GameStateV2 } from '../core/types';
 
 export interface Session {
   /** Hour of day the session starts (0–24). */
@@ -81,8 +82,6 @@ interface Candidate {
 /** How much the bot values income that keeps flowing while the app is closed. */
 const IDLE_VALUE_WEIGHT = 0.5;
 
-const LIFESTYLE_KINDS: LifestyleKind[] = ['house', 'vehicle', 'outfit', 'toy'];
-
 function candidates(state: GameStateV2): Candidate[] {
   const list: Candidate[] = [];
 
@@ -120,7 +119,7 @@ function candidates(state: GameStateV2): Candidate[] {
   }
 
   for (const kind of LIFESTYLE_KINDS) {
-    const next = LIFESTYLE_ITEMS.find((item) => item.kind === kind && !state.lifestyleOwned.includes(item.id));
+    const next = nextLifestyle(state, kind);
     if (next) {
       list.push({ label: next.name, kind: 'lifestyle', cost: next.cost, apply: (s) => buyLifestyle(s, next.id) });
     }

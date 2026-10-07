@@ -16,7 +16,7 @@ interface TabDef {
 const TABS: TabDef[] = [
   { id: 'businesses', label: 'tabs.businesses', icon: Store },
   { id: 'career', label: 'tabs.career', icon: Briefcase },
-  { id: 'shop', label: 'tabs.shop', icon: ShoppingBag, soon: true },
+  { id: 'shop', label: 'tabs.shop', icon: ShoppingBag },
 ];
 
 interface TabBarProps {

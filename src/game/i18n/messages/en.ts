@@ -5,6 +5,7 @@ export const en = {
   common: {
     collect: 'Collect',
     close: 'Close',
+    affordIn: 'Affordable in ~{duration}',
   },
   hud: {
     perSecond: '{amount}/s',
@@ -40,9 +41,22 @@ export const en = {
     bonusShort: '+{percent}%',
     promote: 'Get promoted',
     firstJob: 'Get the job',
-    affordIn: 'Affordable in ~{duration}',
     top: 'You reached the top of your career',
     ladder: 'Career ladder',
+  },
+  shop: {
+    house: 'Homes',
+    vehicle: 'Vehicles',
+    outfit: 'Outfits',
+    toy: 'Luxury',
+    statusTotal: 'Status bonus: +{percent}% to all income',
+    next: 'Next dream',
+    bonus: '+{percent}% to all income',
+    buy: 'Buy',
+    allOwned: 'You own them all',
+    upcoming: 'Coming up',
+    more: '+{count} more',
+    collection: 'Your collection',
   },
   tabs: {
     businesses: 'Businesses',

@@ -1,6 +1,6 @@
 # Prestige Life v2 — Yeniden Yapım Planı
 
-Son güncelleme: 2026-10-07 · Dal: `v2-rebuild` · Tasarım: [game-design-v2.md](./game-design-v2.md)
+Son güncelleme: 2026-10-07 · Dal: `v2-rebuild` · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikaye: [story-v2.md](./story-v2.md)
 
 ## Amaç
 
@@ -74,21 +74,26 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 - [x] **1.4 Kariyer ekranı:** Mevcut iş, sonraki terfi kartı (fiyat, maaş, bonus).
   - `ui/career/CareerScreen.tsx`: mevcut iş (maaş, toplam bonus), öne çıkan terfi kartı (gelirdeki toplam artış, maaş, bonus, "~2dk sonra alabilirsin"), 12 basamaklık kariyer merdiveni.
   - `ui/TabBar.tsx`: alt sekmeler (İşletmeler / Kariyer / Alışveriş-yakında). Terfi alınabilirken Kariyer sekmesinde kırmızı nokta.
-- [ ] **1.5 Alışveriş ekranı:** Ev, araç, kıyafet. Satın alınca sahne anında değişir.
+- [x] **1.5 Alışveriş ekranı:** Ev, araç, kıyafet. Satın alınca sahne anında değişir.
+  - `ui/shop/ShopScreen.tsx`: Evler / Araçlar / Kıyafetler / Lüks. Eşyalar sırayla alınır: her kategoride tek "Sıradaki hayal" kartı (bonus, fiyat, "~X sonra alabilirsin"), 3 kilitli önizleme, koleksiyon ızgarası. Alınabilir kategori ve Alışveriş sekmesinde kırmızı nokta.
+  - `ui/shop/ScenePreview.tsx`: geçici mini sahne (en iyi ev + kıyafet + araç); alımda anında değişir. 1.6'da gerçek sahneyle değişecek.
+  - Çekirdek: `nextLifestyle`, `bestOwnedLifestyle`, `canBuyAnyLifestyle`, `LIFESTYLE_KINDS` (simülatör de bunları kullanıyor; sim sonucu değişmedi).
 
 ### 1B. His ve sahne (2. hafta)
 
 - [ ] **1.6 Sahne sistemi:** Tek zemin çizgisi (ev başına `groundY`), gerçek ölçekli araçlar (gerçek boy metadata), temas gölgesi, tam opak arka plan + üst/alt gradyan. Görsel normalizasyon scripti (şeffaf kenar kırpma, hizalama).
-- [ ] **1.7 HUD:** Saniyede birkaç kez akan para sayacı, gelir/sn, sınıf ilerleme çubuğu ("Millionaire'a %62").
-- [ ] **1.8 Hayaller panosu:** Ekranda her zaman sıradaki 3 hayal (en ucuz alınmamış ev/araç/kıyafet), ilerleme yüzdesiyle.
+- [ ] **1.7 HUD:** Saniyede birkaç kez akan para sayacı, gelir/sn, sınıf ilerleme çubuğu ("Millionaire'a %62"). Sokak sınıflarında dokunma düğmesi "Şişe topla" (hikaye §4).
+- [ ] **1.8 Hayaller panosu:** Ekranda her zaman sıradaki 3 hayal (en ucuz alınmamış ev/araç/kıyafet), ilerleme yüzdesiyle. Hikaye hayalleri de girer ("Sıcak bir çorba", "Annene ev"; hikaye §5); fiyatları simülatöre eklenir.
 - [ ] **1.9 Para akışı efekti:** Döngü bitince işletmeden uçan "+$1.2K", dokununca para parçacıkları, sayaç büyüyüp renk değiştirme.
-- [ ] **1.10 Sınıf atlama töreni:** Tam ekran: eski sahne çıkar, yenisi gelir, konfeti, ses, haptik, "Before / Now" kartı.
+- [ ] **1.10 Sınıf atlama töreni:** Tam ekran: eski sahne çıkar, yenisi gelir, konfeti, ses, haptik, "Before / Now" kartı. Her sınıfta hikaye kartı (hikaye §4: ilk sıcak yemek, annene ev, Bülent Bey'in şirketi...).
 - [ ] **1.11 Juice paketi:** Her satın almada efekt ve ses, haptik (`@capacitor/haptics`), basma geri bildirimleri.
+
+- [ ] **1.16 Hikaye görselleri:** [story-v2.md §8](./story-v2.md) listesi. Önce Higgsfield pilotu (tek kıyafet idle/sevinç + Şans), beğenilirse toplu üretim ve şeffaf animasyonlu WebP boru hattı. 1.6–1.13 yer tutucu görsellerle yapılır, bunlar gelince değiştirilir.
 
 ### 1C. İlk izlenim ve ölçüm (3. hafta)
 
-- [ ] **1.12 Onboarding:** İlk 3 dakika parmak işaretiyle yönlendirme (dokun → Flower Stand al → işe gir → yönetici). Metin minimum.
-- [ ] **1.13 Çevrimdışı kazanç modalı v2:** Gelire oranlı, reklamla ×2, sade.
+- [ ] **1.12 Onboarding:** İlk 3 dakika parmak işaretiyle yönlendirme (dokun → Flower Stand al → işe gir → yönetici). Metin minimum. Rehber Rıza Amca (konuşma balonları), Çiçek Tezgâhı yöneticisi o olur; ilk satın almadan sonra kahramana isim verilir (hikaye §3).
+- [ ] **1.13 Çevrimdışı kazanç modalı v2:** Gelire oranlı, reklamla ×2, sade. Şans kapıda uyuyup uyanır.
 - [ ] **1.14 Analitik:** Firebase Analytics sarmalayıcı (web'de no-op). Olaylar: `session_start`, `tutorial_step`, `business_buy`, `manager_hire`, `promotion`, `lifestyle_buy`, `class_up`, `offline_claim`, `ad_watch`, `screen_view`.
 - [ ] **1.15 Oyun testi paketi:** Kapalı test sürümü, 5 soruluk kısa anket, test notları şablonu.
 

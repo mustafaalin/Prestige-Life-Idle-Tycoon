@@ -4,7 +4,7 @@ import { RETIREMENT_CLASS_INDEX } from './config/classes';
 import { STARTING_CASH } from './config/economy';
 import { LIFESTYLE_ITEMS, STARTING_LIFESTYLE_IDS } from './config/lifestyle';
 import { classIndexFor, costForUnits, pendingLegacyPoints } from './formulas';
-import type { BusinessState, GameStateV2 } from './types';
+import type { BusinessState, GameStateV2, LifestyleDef, LifestyleKind } from './types';
 
 // Pure state transitions. Every action returns a new state, or null when it is not allowed.
 
@@ -88,6 +88,30 @@ export function promote(state: GameStateV2): GameStateV2 | null {
   const paid = spend(state, career.cost);
   if (!paid) return null;
   return { ...paid, careerIndex: state.careerIndex + 1 };
+}
+
+export const LIFESTYLE_KINDS: LifestyleKind[] = ['house', 'vehicle', 'outfit', 'toy'];
+
+/** The next item of a kind to dream about: the cheapest one not owned yet. Items are bought in order. */
+export function nextLifestyle(state: GameStateV2, kind: LifestyleKind): LifestyleDef | null {
+  return LIFESTYLE_ITEMS.find((item) => item.kind === kind && !state.lifestyleOwned.includes(item.id)) ?? null;
+}
+
+/** The best owned item of a kind (the one shown in the scene), or null if none. */
+export function bestOwnedLifestyle(state: GameStateV2, kind: LifestyleKind): LifestyleDef | null {
+  let best: LifestyleDef | null = null;
+  for (const item of LIFESTYLE_ITEMS) {
+    if (item.kind === kind && state.lifestyleOwned.includes(item.id)) best = item;
+  }
+  return best;
+}
+
+/** Whether the next item of any kind can be bought right now. */
+export function canBuyAnyLifestyle(state: GameStateV2) {
+  return LIFESTYLE_KINDS.some((kind) => {
+    const next = nextLifestyle(state, kind);
+    return next !== null && state.cash >= next.cost;
+  });
 }
 
 export function buyLifestyle(state: GameStateV2, itemId: string): GameStateV2 | null {

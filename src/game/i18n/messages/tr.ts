@@ -4,6 +4,7 @@ export const tr: Messages = {
   common: {
     collect: 'Topla',
     close: 'Kapat',
+    affordIn: '~{duration} sonra alabilirsin',
   },
   hud: {
     perSecond: '{amount}/sn',
@@ -39,9 +40,22 @@ export const tr: Messages = {
     bonusShort: '+%{percent}',
     promote: 'Terfi al',
     firstJob: 'İşe gir',
-    affordIn: '~{duration} sonra alabilirsin',
     top: 'Kariyerinin zirvesindesin',
     ladder: 'Kariyer basamakları',
+  },
+  shop: {
+    house: 'Evler',
+    vehicle: 'Araçlar',
+    outfit: 'Kıyafetler',
+    toy: 'Lüks',
+    statusTotal: 'Statü bonusu: tüm gelire +%{percent}',
+    next: 'Sıradaki hayal',
+    bonus: 'Tüm gelire +%{percent}',
+    buy: 'Satın al',
+    allOwned: 'Hepsine sahipsin',
+    upcoming: 'Sıradakiler',
+    more: '+{count} tane daha',
+    collection: 'Koleksiyonun',
   },
   tabs: {
     businesses: 'İşletmeler',

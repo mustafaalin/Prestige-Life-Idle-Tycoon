@@ -8,11 +8,12 @@ Oyun v2 olarak yeniden tasarlanıyor; çalışma `v2-rebuild` dalında.
 
 - Plan ve faz durumu: [rebuild-plan.md](./rebuild-plan.md)
 - Tasarım ve ekonomi: [game-design-v2.md](./game-design-v2.md)
+- Hikaye ve karakterler: [story-v2.md](./story-v2.md)
 - Ekonomi çekirdeği: `src/game/core/` (saf TS), simülatör: `src/game/sim/`, `npm run sim`
 - Runtime: `src/game/runtime/` (`GameV2Provider` + `useGameV2`, kayıt anahtarı `prestige_life_v2`)
 - i18n: `src/game/i18n/` — Türkçe + İngilizce, sonra başka diller. v2'de sabit metin yok.
 - Çalıştırma: `npm run dev:v2` (v1 için `npm run dev`)
-- Durum: Faz 0, 1.1 (runtime), 1.2 (AppV2 + geliştirici menüsü + i18n), 1.3 (işletmeler ekranı), 1.4 (kariyer ekranı + alt sekmeler) tamam. Sıradaki: Faz 1.5 alışveriş ekranı.
+- Durum: Faz 0, 1.1 (runtime), 1.2 (AppV2 + geliştirici menüsü + i18n), 1.3 (işletmeler ekranı), 1.4 (kariyer ekranı + alt sekmeler) tamam. 1.5 (alışveriş ekranı) tamam. Hikaye belgesi yazıldı. Sıradaki: Faz 1.6 sahne sistemi (1A dikey dilimin çalışan oyun kısmı bitti). Görsel üretimi (Higgsfield pilotu, 1.16) hikaye onaylandıktan sonra.
 - v1 (aşağıdaki her şey) v2 onu karşılayana kadar dokunulmadan duruyor.
 
 Bu dosya yeni bir oturumda projeye hızlı geri dönmek için güncel durum özetidir.

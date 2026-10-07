@@ -13,6 +13,8 @@ Bu belge v2'nin tek doğruluk kaynağıdır. Sayısal değerler kodda `src/game/
 - Hanedan prestiji: emekli ol, çocuğun miras çarpanıyla sokaktan yeniden başlasın
 - BitLife tadında olay kartları (Faz 2)
 
+Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Şans, Rıza Amca, annesine verilen söz).
+
 ## 2. Üç iç içe döngü
 
 | Döngü | Süre | Oyuncu ne yapar | Sistemler |
