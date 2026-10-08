@@ -6,7 +6,7 @@ Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor]
 
 **Kararlar (2026-10-07):**
 
-- Kahraman: genç bir adam; adını oyuncu verir. Görünüşü pilotla kesinleşir: mevcut 20 kıyafetli set ya da yeni tasarım (§8).
+- Kahraman: genç bir adam; adını oyuncu verir. Görünüşü yarı 3D yeni tasarım (kılavuz `art/pilot/01-hero-sheet/A1-semi3d.png`, §8).
 - Yoldaş: sokak köpeği Şans (İng. Lucky).
 - Ton: sıcak ve umutlu, olay kartlarında hafif mizah.
 - Görseller: özellikler görsel beklemez, yer tutucuyla yapılır.
@@ -18,6 +18,9 @@ Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor]
 - Annenin evi kendi merdiveniyle ilerler; zirvesi konak ("seni saraylarda yaşatacağım", §5).
 - Ana sahne dış mekân; kirli bir ara sokakta başlar, şişe ve kutular sahnede dokunarak toplanır (§4).
 - Hikâye tek kahramanın hayatında tamamlanır; varis ömrün sonunda (97 yaş) devralır, erken değil (§6, [game-design-v2.md §4.9](./game-design-v2.md)).
+- Kovulma nedeni (kullanıcı, 2026-10-08): kahraman annesinin doğum gününde servis sırasında onu arar; Bülent Bey yakalar, kovar ve lojmanı boşaltmalarını ister. Önsöz oyunda (1.18).
+- Şans'a dokunmak para vermez; ara sıra bulduğu cüzdanı getirir, kahraman sahibine geri verir ve teşekkür ödülü alır (§3).
+- Her işletmenin kendi yöneticisi var: kahramanın yolda tanıştığı insanlar (§3).
 
 ---
 
@@ -41,13 +44,14 @@ Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor]
 | Köpek | **Şans** / **Lucky** | Sadık yoldaş, sevimlilik ve paylaşılabilirlik | Sahnede her zaman |
 | Akıl hocası | **Rıza Amca** / **Old Ray** | Sokakta yol gösteren yaşlı adam; ilk yönetici | Rehber (onboarding), Çiçek Tezgâhı yöneticisi, olay kartları |
 | Anne | **Annen** / **Mom** | Duygusal çapa; verilen söz | Önsöz, telefon/mektup balonları, annenin evi merdiveni (§5) |
-| Eski patron | **Bülent Bey** / **Mr. Bryce** | Önsözde kahramanı kovan restoran zinciri sahibi; lojmanın da sahibi | Önsöz, Milyarder töreni, olay kartları |
+| Eski patron | **Bülent Bey** / **Mr. Bryce** | Önsözde kahramanı kovan restoran zinciri sahibi; lojmanın da sahibi | Önsöz, Milyarder töreni, Otel Zinciri yöneticisi, olay kartları |
+| Kuzen | **Kuzen** / **Cousin** | Kripto esprili, kendinden fazla emin kuzen (mizah) | Teknoloji Girişimi yöneticisi, olay kartları (§7) |
 | Eş | Oyuncu verir (varsayılan **Elif** / **Emma**) | Aile kurmak; varisin gerekçesi | Multimilyoner töreni, olay kartları |
 | Çocuk (varis) | Faz 2'de belirlenecek | 2. neslin kahramanı | Emeklilik töreni, 2. nesil |
 
 ### Kahraman
 
-- 20'li yaşların başında, koyu saçlı genç adam (şimdilik mevcut `ch-N` seti; pilot sonucuna göre yeni tasarım olabilir).
+- Genç (17 yaşında başlar), koyu saçlı, gri kapüşonlu ve sırt çantalı; yarı 3D yeni tasarım. Sokak aşamasının 4 pozu oyunda (§8).
 - Geçmiş: babasının küçük mahalle dükkânı yıllar önce battı; borçlar yüzünden aile evini kaybettiler. Baba yok (vefat etmiş; oyunda hiç ayrıntıya girilmez). Kahraman, Bülent Bey'in restoran zincirinde garson; annesiyle restoranın üstündeki personel lojmanında mütevazı ama düzenli bir hayatları var. Önsözde kovulur ve lojmandan çıkarılırlar (§4).
 - Söz: *"Anne, bir gün seni saraylarda yaşatacağım."* Oyunun duygusal omurgası.
 - İsim: ilk satın almadan hemen sonra sorulur (oyun önce eğlendirir, sonra sorar). Varsayılan dolu gelir, tek dokunuşla geçilir. En fazla 16 karakter.
@@ -58,7 +62,24 @@ Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor]
 - Karışık cins, kırpık kulaklı, tüyleri dağınık bir sokak köpeği. İlk sahnede kahramanın çadırına sokulur.
 - Her zaman sahnede, kahramanın yanında. Zenginleştikçe aksesuarı değişir: ip → deri tasma → altın tasma → elmas tasma ve küçük bir yelek.
 - Çevrimdışı dönüşte kapının önünde uyurken uyanır ve sevinir ("Tekrar hoş geldin" ekranı).
-- Mekanik bağ yok (bonus vermez); saf duygu ve paylaşım değeri.
+- Ona dokunmak para vermez: kahraman onu okşar, kalp çıkar. Ama 5–10 dakikada bir ağzında bulduğu bir cüzdanla gelir; oyuncu 12 sn içinde dokunursa kahraman cüzdanı sahibine verir ve teşekkür ödülü alır (karar 2026-10-08, game-design §4.7). Şans parayı vermez, fırsatı getirir; kahraman bulduğu parayı cebine koymaz.
+
+### İşletme yöneticileri (karar 2026-10-08)
+
+Her işletmenin kendi yöneticisi var: kahramanın yolda tanıştığı insanlar ("işini sen yokken yürüten dostların"). Oyunda sadece yuvarlak portre görünür; işe alınınca kısa bir kart ve karakterin cümlesi, yöneticili kartta portreye dokununca iki cümleden biri (`i18n` → `managers.<işletme>`; portreler `public/assets/managers/`, kaynak `art/pilot/06-managers/`).
+
+| İşletme | Yönetici | Not |
+| --- | --- | --- |
+| Çiçek Tezgâhı | Rıza Amca / Old Ray | İlk yönetici, akıl hocası |
+| Kahve Arabası | Selin / Sally | Üniversiteli barista |
+| Fırın | Hüseyin Usta / Baker Hank | Usta fırıncı |
+| Oto Yıkama | Kemal / Kevin | Neşeli genç usta |
+| Mini Market | Ayten Abla / Aunt Annie | Mahallenin bakkalı, anneyi tanır |
+| Güzellik Salonu | Derya / Dana | İddialı kuaför |
+| Lojistik Deposu | Burak / Brad | Düzen takıntılı depo şefi |
+| Fabrika | Nermin Hanım / Nora | Mühendis, "önce güvenlik" |
+| Otel Zinciri | Bülent Bey / Mr. Bryce | Eski patron; Milyarder töreni sonrası (§3 Bülent Bey) |
+| Teknoloji Girişimi | Kuzen / Cousin | Kripto esprili kuzen (§7) |
 
 ### Rıza Amca (Old Ray)
 
@@ -76,7 +97,7 @@ Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor]
 ### Bülent Bey (Mr. Bryce)
 
 - Kahramanın garson olarak çalıştığı restoran zincirinin sahibi; personel lojmanı da onun. Kibirli, bağırgan, komik derecede kendini beğenmiş (mizahın güvenli hedefi); gerçek bir kötü değil.
-- Önsözde kahramanı haksız yere kovar (kahraman, Bülent Bey'in yeğeninin hatasını üstlenmeyi reddeder) ve lojmanı boşaltmalarını ister.
+- Önsözde kahramanı haksız yere kovar: annesinin doğum gününde onu aradığı için ("Müşteriler bekliyor, sen telefonda mısın?!") ve lojmanı boşaltmalarını ister.
 - Milyarder töreninde kahraman onun şirketini satın alır. Kötü son yok: Bülent Bey'e kahraman iş teklif eder ("Bulaşıkhane senin, şaka şaka"). Ton intikam değil, büyüme.
 
 ### Eş
@@ -86,23 +107,26 @@ Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor]
 
 ## 4. Nesil 1 hikaye akışı
 
-### Önsöz (görsel roman, ~30–40 saniye, geçilebilir)
+### Önsöz (görsel roman, ~40 saniye, geçilebilir; oyunda, plan 1.18)
 
-5–6 çizgi roman karesi; konuşan aydınlık, diğeri karartılmış, isim etiketi ve tek cümlelik balon. Her karede "Devam", köşede "Geç". Sonradan albümden tekrar izlenebilir.
+6 tam ekran kare; her karede 1–3 balon, isim etiketi (kahraman mor, anne turuncu, Bülent Bey kırmızı; telefondan konuşan için telefon simgesi). Dokununca sıradaki balon; köşede "Geç". Kareler yavaş kamera itişiyle (hafif yakınlaşma) ve yumuşak geçişle değişir; son kareden sonra siyaha geçip oyun başlar. Geliştirici menüsünden tekrar oynatılır; ileride albümden. Metinler `src/game/i18n/messages/*` → `prologue`. Görseller `public/assets/story/prologue/`, kaynakları `art/pilot/04-prologue/`.
 
-1. **Restoran:** Kahraman garson; tabakları taşırken annesine mesaj atıyor: "Akşam çorba bende."
-2. **Kovulma:** Bülent Bey, yeğeninin kırdığı pahalı şarap şişesini kahramana yıkmak ister. Kahraman üstlenmez. "Kovuldun! Lojmanı da yarın boşaltıyorsun."
-3. **Kapı önü:** Anne ve oğul kapının önünde, iki bavul. Annesi: "Biz neler atlattık oğlum."
-4. **Otogar:** Anne teyzenin yanına, memlekete gidiyor. Kahraman kalıyor. Söz: *"Anne, seni saraylarda yaşatacağım."*
-5. **Gece, ara sokak:** Yağmur, karton ve eski bir çadır. Islak bir köpek sokulur (Şans).
+1. **Restoran:** Kahraman garson, tepsiyle servis yapıyor; önlüğünün cebinde telefon. *"Bugün annemin doğum günü. Servisten sonra pasta alacağım."*
+2. **Telefon:** Mutfak kapısının yanındaki koridorda annesini arıyor: *"İyi ki doğdun anne! Akşam pasta bende."* Anne (telefondan): *"Ah oğlum... Sen bana yetersin."* Arkada, koridorun ucunda Bülent Bey belirmiş.
+3. **Kovulma:** Bülent Bey salonun ortasında bağırıyor, kapıyı gösteriyor: *"Müşteriler bekliyor, sen telefonda mısın?!"* Kahraman: *"Annemin doğum günü, efendim. Bir dakika sür..."* Bülent Bey: *"Kovuldun! Lojmanı da yarın boşaltıyorsun."*
+4. **Kapı önü:** Sabah, lojmanın kapısı; iki eski bavul, birinin üstünde kurdeleli pasta kutusu. Anne: *"Benim yüzümden oldu oğlum..."* Kahraman: *"Hayır anne. Senin hiçbir suçun yok."* Anne: *"Biz neler atlattık. Bunu da atlatırız."*
+5. **Otogar:** Gün batımı, otobüsün yanında sarılıyorlar. Anne: *"Teyzende kalırım. Sen kendine iyi bak, olur mu?"* Kahraman: *"Anne, bir gün seni saraylarda yaşatacağım."*
+6. **Gece, ara sokak:** Yağmur, eski çadır, kahraman kartonun üstünde üşüyor; ıslak bir köpek sokuluyor (Şans). Anlatı: *"O gece yağmur hiç dinmedi."* → *"Ama artık yalnız değildi."*
 
-Ton: hüzünlü ama onurlu; intikam değil söz. Sonra oyun hemen başlar.
+Ton: hüzünlü ama onurlu; haksızlık sıcak bir anın ortasında gelir (doğum günü), annenin suçluluğunu oğul üstlenir. İntikam değil söz. Sonra oyun hemen başlar.
 
 ### Açılış (ilk 30 saniye)
 
-Kirli bir ara sokak, yağmur sesi. Kahraman eski bir çadırın önünde üşüyor. Bir köpek sokulur (Şans). Rıza Amca yanından geçer: "Boş şişeleri topla evlat, depozitosu var." Oyuncunun ilk dokunuşu şişe toplamaktır; her dokunuşta uçan "+$1".
+Kirli bir ara sokak. Kahraman eski bir çadırın önünde üşüyor, yanında Şans. Oyuncunun ilk dokunuşu şişe toplamaktır.
 
-Mekanik karşılık: dokunma sahnenin içindedir. Ara sokakta rastgele yerlerde şişe ve kutular belirir; dokununca nesne çuvala uçar, "+$1" ve şıngırtı sesi gelir, birkaç saniye sonra yenisi çıkar. Ara sıra Şans ağzında bir şişe getirir. Karakter zıplatılmaz; hareket eden nesnelerdir. Sınıf yükseldikçe dokunulan şey değişir (şişe → tezgâh müşterisi → ... ileride).
+**Oyunda (2026-10-08):** Ara sokakta 4 şişe/kutu ile başlanır, 2,5 sn'de bir yenisi belirir. Dokununca nesne kaybolur, altın paralar kavisle üst bardaki bakiyeye uçar, "+$" yazısı ve şıngırtı gelir, telefon hafif titrer; kahraman eğilip toplama pozuna geçer. Ara sıra Şans cüzdanla gelir (§3). Karakter zıplatılmaz; poz değişir, nesneler hareket eder.
+
+**Bekleyenler:** Rıza Amca'nın ilk dakikalardaki rehber balonları ("Boş şişeleri topla evlat, depozitosu var.", 1.12), yağmur sesi, sınıf yükseldikçe dokunulan şeyin değişmesi (şişe → tezgâh müşterisi → ...).
 
 ### 8 sınıf, 8 hikaye anı
 
@@ -198,25 +222,28 @@ Kartların bir kısmı bu kadrodan gelir; böylece "tanıdık yüzler geri döne
 
 | Görsel | Adet | Not |
 | --- | --- | --- |
-| Kahraman: 3 yaşam aşaması (sokak, toparlanma, rahat) × 4 poz | 12 | Aşama başına bir kıyafet; pozlar davranışı anlatır |
+| Kahraman: 3 yaşam aşaması (sokak, toparlanma, rahat) × 4 poz | 12 | **Sokak aşaması tamam** (bekleme, toplama, sevinç, Şans'ı okşama; oyunda). Diğer 2 aşama bekliyor |
 | Kahraman ifade portreleri | 4–5 | Mutlu, üzgün, kararlı, şaşkın, gururlu (her duyguda aynı gülümseme olmasın) |
-| Şans: 3 poz | 3 | Bekleyen, sevinen, uyuyan; + ip ve deri tasma |
-| Rıza Amca portre | 3 ifade | Rehber balonları için |
-| Annen portre | 3 ifade | Endişeli, gülümseyen, ağlayan-mutlu |
-| Bülent Bey portre | 2 ifade | Kızgın, şaşkın |
-| Önsöz kareleri | 5–6 | Restoran, kovulma, kapı önü, otogar, ara sokak (§4) |
-| Kirli ara sokak arka planı | 1 | Mevcut çadır görseli fazla temiz |
-| Şişe, kutu, çuval | 3–4 | Dokunulan nesneler (§4 Açılış) |
+| Şans: 3 poz | 3 | **Oturan ve cüzdanlı tamam.** Sevinen, uyuyan (çevrimdışı dönüş) ve tasmalar bekliyor |
+| Rıza Amca portre | 3 ifade | Kadro sayfasında 4 ifade var; gülümseyen yüz yönetici portresi olarak oyunda |
+| Annen portre | 3 ifade | Kadro sayfasında 4 ifade var; oyunda henüz kullanılmadı |
+| Bülent Bey portre | 2 ifade | Kadro sayfasında 4 ifade var; gülümseyen yüz yönetici portresi olarak oyunda |
+| Önsöz kareleri | 6 | **Tamam** (2026-10-08): restoran, telefon, kovulma, kapı önü, otogar, ara sokakta Şans (§4) |
+| Kirli ara sokak arka planı | 1 | **Tamam** (şişesiz temiz sürüm, `public/assets/scene/alley.webp`) |
+| Şişe, kutu | 3 | **Tamam** (yeşil/kahverengi şişe, kutu). Çuval gerekmedi: paralar bakiyeye uçuyor |
+| Yönetici portreleri | 10 | **Tamam** (§3; `public/assets/managers/`) |
 | Annenin evi fotoğrafları | 6 | Merdiven basamakları (§5); çerçeve içinde küçük |
 | Para fiziksel hali: cüzdan → kasa → banka kasası → altın oda | 4 | Rapor §6.3 |
 
-**Faz 2:** eş portresi ve düğün fotoğrafı, dergi kapakları, kütüphane/vakıf, varis seti, Şans'ın yavrusu, kuzen portresi, olay kartı ikonları.
+**Faz 2:** eş portresi ve düğün fotoğrafı, dergi kapakları, kütüphane/vakıf, varis seti, Şans'ın yavrusu, olay kartı ikonları.
 
-Üretim yolu: Yapay zekâ görsel modeli ve karakter referansıyla durağan pozlar. Önce iki stilde küçük deneme (kahraman 4 poz + 3 ifade, Şans, sokak); kullanıcı telefonda seçer, sonra toplu üretim.
+Üretim yolu: fal.ai ile, yukarıdaki stil kılavuzuna göre. Kaynak dosyalar `art/pilot/` (git'te değil, 184 MB), oyundaki sıkıştırılmış hâlleri `public/assets/`. Harcama ve tur geçmişi: plan 1.16.
 
 ## 9. Metin ihtiyacı (TR + EN)
 
-- Önsöz: 5–6 kare balonu
+- Önsöz: 13 balon (tamam, `prologue`)
+- Yönetici cümleleri: 10 × 3 (tamam, `managers`)
+- Şans'ın cüzdanı, çevrimdışı kartı, yönetici işe alma kartı (tamam)
 - 8 tören hikaye kartı (1–3 cümle)
 - Rehber: ~8 Rıza Amca balonu
 - Anne mesajları: ~10 (+ annenin evi merdiveni: 6 an)
@@ -230,11 +257,12 @@ Metinler `src/game/i18n/` içine, ilgili özellik yazılırken eklenir.
 
 | Plan maddesi | Hikaye eklemesi |
 | --- | --- |
-| 1.6 Sahne | Kirli ara sokak; şişe ve kutular sahnede dokunarak toplanır (§4) |
-| 1.18 Önsöz | Görsel roman: kovulma, lojmandan çıkış, otogar, Şans (§4) |
+| 1.6 Sahne | Kirli ara sokak; şişe/kutu toplama ve Şans'ın cüzdanı (tamam, §4) |
+| 1.7 İşletmeler | Her işletmeye kendi yöneticisi (tamam, §3) |
+| 1.18 Önsöz | Görsel roman: kovulma, lojmandan çıkış, otogar, Şans (tamam, §4) |
 | 1.8 Hayaller panosu | Hikaye hayalleri + statü eşyaları + annenin evi merdiveni (§5) |
 | 1.10 Sınıf töreni | Her sınıfta hikaye kartı (§4) |
 | 1.12 Onboarding | Rehber Rıza Amca; isim sorma ilk satın almadan sonra |
-| 1.13 Çevrimdışı modal | Şans kapıda uyanır |
+| 1.13 Çevrimdışı kartı | Kart hazır; Şans'ın kapıda uyanması bekliyor |
 | 2.1 Hanedan | Vakıf ve "Aile İtibarı" anlatısı (§6) |
 | 2.4 Olay kartları | Kadro kartları (§7) |

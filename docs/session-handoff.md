@@ -2,46 +2,56 @@
 
 Son güncelleme: 2026-10-08 · Dal: `v2-rebuild`
 
-Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve v2 onu Faz 2.11'de kaldıracak.
+Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve v2 onu Faz 2.11'de kaldıracak. Bu belge tarih sırasıyla günlük tutmaz; her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**.
 
-## Belgeler (hepsi bu kadar)
+## Belgeler
 
 | Belge | Soru | Not |
 | --- | --- | --- |
 | [report-v2.md](./report-v2.md) | **Neden?** | Tasarım analizi ve yeniden doğuş raporu. Değişmez referans. |
 | [game-design-v2.md](./game-design-v2.md) | **Ne?** Kurallar ve sayılar | Rapordan sapmalar §9'da. Rapor ile çelişirse bu geçerli. |
-| [story-v2.md](./story-v2.md) | Hikaye, karakterler, ton, görsel listesi | |
+| [story-v2.md](./story-v2.md) | Hikâye, karakterler, ton, görsel listesi ve stil kılavuzu | |
+| [monetization-v2.md](./monetization-v2.md) | Reklam ve IAP | Kararlaştırıldı (2026-10-08); altyapı hazır, yerler ve IAP bekliyor. |
 | [rebuild-plan.md](./rebuild-plan.md) | **Ne zaman?** Fazlar, görevler, durum | Yapılanlar işaretli. |
-| [discussion-notes.md](./discussion-notes.md) | Kararı bekleyen konular | Karar verilince ilgili belgeye taşınır. |
-| [mobile-ad-integration.md](./mobile-ad-integration.md) | Reklam altyapısı | v1'den kalan, v2'de de kullanılacak. |
-| [v1/](./v1/) | v1 arşivi | v2 işinde okunmaz. `v1/game-rules.md` sadece v1 için geçerli. |
+| [discussion-notes.md](./discussion-notes.md) | Kararı bekleyen konular | Sadece açık konular; karar verilince taşınır. |
+| [mobile-ad-integration.md](./mobile-ad-integration.md) | Reklam altyapısı | Üstte v2 bölümü, altında v1. |
+| [v1/](./v1/) | v1 arşivi | v2 işinde okunmaz. |
 
-## Durum
+## Durum (oyunda olanlar)
 
-- Tamam: Faz 0 (ekonomi çekirdeği + simülatör), 1.1 runtime, 1.2 AppV2 + geliştirici menüsü + i18n, 1.3 işletmeler, 1.4 kariyer + alt sekmeler, 1.5 alışveriş, 1.M mobil temel, 1.17 konut modeli (kirala → satın al → kiraya ver). Hikaye belgesi yazıldı. Faz 1A (çalışan oyun) bitti.
-- Oyun mobil öncelikli: önce Google Play, sonra iOS App Store (plan ilke 6). Kayıt telefonda `@capacitor/preferences`'ta.
-- 2026-10-08: GPT Astra bağımsız incelemesi (`gpt-astra-inceleme/`) ve Rich Inc. ekran görüntüleri (`rich inc oyun görselleri/`) değerlendirildi. Kararlar:
-  - Görsel roman yaklaşımı (durağan poz + ifade + balon); Higgsfield video pilotu ilk adım değil.
-  - Önsöz: kovulma + lojmandan çıkış; anne teyzenin yanında, kahraman sokakta; annenin evi kendi merdiveni (konağa kadar). story-v2 §4–5.
-  - Ana sahne dış mekân, kirli ara sokak; şişe/kutu sahnede dokunarak toplanır.
-  - Ömür: yaş sadece oyun açıkken ilerler, 1 dk = 1 ay, 17 → 97; ömür sonunda emeklilik ve devir, erken emeklilik yok (game-design §4.9, kodda).
-  - En Zengin'den sonrası şimdilik bekliyor.
-  - Simülatör olay saati hatası düzeltildi; ekranlar artık sadece otomatik geliri gösteriyor.
-- Kullanıcı oynayınca bakacak: konut taşınma bedeli seçenek B (discussion-notes §3).
-- Tempo: Multimilyarder ($100B) eklendi; yaşlar Milyoner 19, Milyarder 24, Multimilyarder 39, En Zengin 46; sim 8/8.
-- Görseller sıfırdan üretiliyor: fal.ai MCP bağlı (kullanıcının bakiyesi ~$10, ~2 ay geçerli). Stil yarı 3D (A1). Pilot `art/pilot/` (~$3,19 harcandı). Stil kılavuzu story-v2 §8.
-- Sıradaki: 1.T tasarım düğümleri (sınıf aralıkları/tempo, çevrimdışı tavan, aylık gelir) ve 1.16 sanat stili denemesi; ardından 1.6 sahne (sokak + şişe toplama) ve 1.18 önsöz.
+- **Çekirdek ve simülatör:** İşletmeler, yöneticiler, kariyer, statü eşyaları, konut (kirala → satın al → kiraya ver), 8 sınıf, yaş ve ömür (17 → 97, 1 dk = 1 ay), miras. `npm run sim` 8/8 hedef.
+- **Önsöz:** 6 karelik görsel roman (annesini doğum gününde aradığı için kovulma → lojmandan çıkış → otogarda söz → ara sokakta Şans). Yeni oyuncu oyundan önce görür.
+- **Ana ekran:** Tam ekran ara sokak; kahraman 4 pozla, yanında Şans. Şişe/kutu toplama (her biri ~2,5 sn gelir), Şans'ın 5–10 dakikada bir cüzdan getirmesi (sahibine verilir, teşekkür ödülü). Paralar kavisle bakiyeye uçar. Renkli üst bar (aylık gelir, sınıf, yaş, ayarlar), 3D ikonlu alt menü, sekmeler sahnenin üstünde sayfa.
+- **Ekranlar:** İşletmeler (adet, aylık kazanç, Çalıştır, kilometre taşı çubuğu, her işletmeye kendi yöneticisi: portre + işe alma kartı + cümleler), Kariyer, Alışveriş/Evler, Ayarlar (dil, gizlilik seçenekleri). Ortak görünüm `ui/kit.tsx`, yazı tipi Fredoka.
+- **Ödül kartları:** Çevrimdışı kazanç (tavan sınıfla büyür: 10 dk → 2 sa), Şans'ın cüzdanı, yönetici işe alma.
+- **Ses ve haptik:** Toplama, alım, ödül.
+- **Reklam altyapısı:** `runtime/ads.ts` (AdMob 8.2.1, UMP izin formu, iOS ATT, web'de sahte reklam). Reklam yerleri henüz bağlı değil.
+- **Mobil:** Kayıt Preferences'ta, Android geri tuşu, güvenli alanlar; `npm run phone` ile telefonda canlı yenileme.
+
+## Sıradaki (sırayla)
+
+1. **Ekonomi ayarı (kullanıcıyla konuşarak):** Kullanıcı büyümeyi, çevrimdışı ödülü ve ev bonuslarını fazla buluyor. Seçenekler ve hazırlık: [discussion-notes.md §5](./discussion-notes.md). Simülatöre reklamsız / reklam izleyen / ödeyen profilleri eklenir.
+2. **Reklam yerleri:** Çevrimdışı ×2, Şans ×2, 1 saatlik ×2 hızlandırıcı, hayaline yardım ([monetization-v2 §4](./monetization-v2.md)); ödüller 1. adımla netleşir.
+3. **IAP:** Rahat Paket, Şans'ın Altın Tasması, Yeni Başlangıç, Gece Vardiyası Ekibi; RevenueCat; "Satın alımları geri yükle" (Ayarlar'a); v1'in 8 ürünü pasifleştirilir.
+4. **Faz 1'in kalanı:** Sınıf atlama töreni (1.10), onboarding ve Rıza Amca rehber balonları (1.12), hayaller panosu (1.8), sahnede ev/araç ve diğer yaşam aşamaları (1.6), analitik (1.14), oyun testi paketi (1.15). Ayrıntı: [rebuild-plan.md](./rebuild-plan.md).
+
+## Kullanıcının yapacakları
+
+- **Telefonda gerçek test reklamını denemek:** DEV → "Test reklamı izle"; Google'ın "Test Ad" reklamı açılmalı, sonuç "rewarded" olmalı.
+- **AdMob konsolu:** Privacy & messaging → "European regulations" (GDPR) mesajı oluşturup uygulamaya bağlamak (yoksa AB'de izin formu açılmaz); yayından önce `app-ads.txt`.
+- **Firebase projesi** (Analytics + Remote Config + Crashlytics) ve `google-services.json` (plan Faz 0).
+- **Test kullanıcısı listesi** (20–50 kişi; Google Play kapalı testi için en az 12 kişi 14 gün).
 
 ## Çalıştırma
 
-- `npm run dev:v2` (v1 için `npm run dev`); telefonda denemek için `npm run dev:v2 -- --host`
-- `npm run sim` ekonomi simülatörü
-- Uygulama olarak: `npm run cap:sync:v2` ve ardından `npx cap open android`
-- Kod: `src/game/` (çekirdek `core/`, simülatör `sim/`, runtime `runtime/`, i18n `i18n/`, ekranlar `ui/`). Kayıt anahtarı `prestige_life_v2`.
-- i18n: Türkçe + İngilizce; v2'de sabit metin yok.
+- `npm run dev:v2` (v1 için `npm run dev`); tarayıcıda geliştirici menüsü (DEV) açık.
+- Telefonda gerçek uygulama, canlı yenilemeyle: `npm run phone` (Android; kablosuz hata ayıklama ya da USB). Kablosuz port değişince `npm run phone -- PORT`; yerel eklenti değişince `npm run phone -- --install`. Oyun adb tüneliyle gelir, Mac'in IP'si önemli değil. Kullanıcının telefonu Samsung Galaxy S24+ (Android 16), eşlendi. Gradle için `JAVA_HOME` Android Studio'nun Java 21'i (`~/.zshrc`; sistemdeki `java` 8 kaldı).
+- `npm run sim` ekonomi simülatörü; `npm run typecheck`, `npx eslint src/game`.
+- Kod: `src/game/` (çekirdek `core/`, simülatör `sim/`, runtime `runtime/`, i18n `i18n/`, ekranlar `ui/`). Kayıt anahtarı `prestige_life_v2`. Türkçe + İngilizce; sabit metin yok.
+- Görseller fal.ai ile (MCP bağlı, kullanıcının bakiyesi ~$10, ~$4,6 harcandı); stil kılavuzu [story-v2.md §8](./story-v2.md). Kaynak dosyalar `art/` (git'te değil, 184 MB), oyundakiler `public/assets/`.
 
 ## Uygulama kimliği (v1 ve v2 ortak)
 
-- Paket adı: `com.prestigelife.idletycoon` · Uygulama adı: Prestige Life: Idle Tycoon · versionCode: 2
-- AdMob App ID: Android `ca-app-pub-8950990027285549~9898475278`, iOS `ca-app-pub-8950990027285549~3253175874`
-- IAP: 8 ürün Play Console'da tanımlı (`com.prestigelife.*`); liste [v1/session-handoff-v1.md](./v1/session-handoff-v1.md). Faz 2.9'da v2'ye göre güncellenecek.
+- Paket adı: `com.prestigelife.idletycoon` · Uygulama adı: Prestige Life: Idle Tycoon
+- AdMob App ID: Android `ca-app-pub-8950990027285549~9898475278`, iOS `ca-app-pub-8950990027285549~3253175874`; ödüllü birimler `runtime/ads.ts`.
+- IAP: v1'in 8 ürünü Play Console'da (`com.prestigelife.*`, liste [v1/session-handoff-v1.md](./v1/session-handoff-v1.md)); v2'de pasifleştirilip yenileri açılacak.

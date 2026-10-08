@@ -12,17 +12,19 @@ Session startup — read in this order:
 3. `docs/game-design-v2.md` — v2 rules and numbers (source of truth for v2)
 4. `docs/story-v2.md` — story, characters, tone (when touching text, ceremonies, visuals)
 5. `docs/discussion-notes.md` — open decisions; don't act on them as if decided
-6. `docs/report-v2.md` — the design report behind v2 ("why"); frozen. If it conflicts with `game-design-v2.md`, the design doc wins.
+6. `docs/monetization-v2.md` — rewarded ads and IAP decisions (when touching ads, rewards, purchases)
+7. `docs/report-v2.md` — the design report behind v2 ("why"); frozen. If it conflicts with `game-design-v2.md`, the design doc wins.
 
 `docs/v1/` is the v1 archive (`v1/game-rules.md` = v1 rules only). Don't use it for v2 work.
 
-v2 rules of thumb: pure-TS economy in `src/game/core/` (no React); every balance change goes through `npm run sim`; every on-screen string via `src/game/i18n/` in both `en` and `tr`; save key `prestige_life_v2`.
+v2 rules of thumb: pure-TS economy in `src/game/core/` (no React); every balance change goes through `npm run sim`; every on-screen string via `src/game/i18n/` in both `en` and `tr`; save key `prestige_life_v2`. v2 game look (glossy buttons, Fredoka display font, outlined numbers) comes from `src/game/ui/kit.tsx` and the `v2-*` classes in `src/game/mobile.css`; sounds and haptics via `src/game/runtime/feedback.ts`; rewarded ads via `src/game/runtime/ads.ts`. Docs are rewritten to the current state, not appended to (see `docs/session-handoff.md`).
 
 ## Commands
 
 ```bash
 npm run dev          # start dev server (v1)
 npm run dev:v2       # start dev server (v2); add `-- --host` to open on a phone
+npm run phone        # v2 on an Android phone with live reload (scripts/phone.mjs; `-- PORT` for a new wireless debugging port, `-- --install` to reinstall)
 npm run sim          # v2 economy simulator (30-day pacing targets)
 npm run build        # production build (v1)
 npm run build:v2     # production build (v2)
@@ -189,7 +191,11 @@ Badge / chip:      text-[10px] font-black
 
 Always play a sound for meaningful player actions. Cooldown / disabled states → no sound.
 
-### Monetization Status (v1 wiring, reused by v2)
+### Monetization Status
+
+- **v2:** own ad layer `src/game/runtime/ads.ts` (AdMob 8.2.1, UMP consent, iOS ATT, mock ad on web); placements and IAP not wired yet. Decisions: `docs/monetization-v2.md`; setup: `docs/mobile-ad-integration.md` (v2 section).
+
+v1 wiring (RevenueCat keys and ad unit IDs are reused by v2):
 
 - **RevenueCat:** `@revenuecat/purchases-capacitor` installed and configured. Android API key live in `.env.production`. Native purchase flow active on device; web falls back to `purchaseMock` (dev only).
 - **AdMob:** Real ad unit IDs in `src/services/ads/adMobConfig.ts`. `VITE_ADMOB_TESTING=false` in `.env.production`. Rewarded ad provider switches automatically: Capacitor on native, mock on web.
@@ -197,7 +203,7 @@ Always play a sound for meaningful player actions. Cooldown / disabled states �
 
 ### Character Animation Status (v1)
 
-v2 uses a visual-novel approach (decided 2026-10-08): consistent static poses, expression portraits, speech bubbles and comic-panel story scenes; no code-only squash/jump as character animation. Art style test and optional AI video for special moments: `docs/discussion-notes.md` §1.
+v2 uses a visual-novel approach (decided 2026-10-08): consistent static poses, expression portraits, speech bubbles and comic-panel story scenes; no code-only squash/jump as character animation. Art style decided (semi-3D, `docs/story-v2.md` §8); optional AI video for special moments: `docs/discussion-notes.md` §1.
 
 
 - Outfit images follow naming: `ch-N-1.png` (idle static), `ch-N-2.png` (celebrate static).
