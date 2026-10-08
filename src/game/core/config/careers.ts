@@ -7,14 +7,14 @@ import { roundNice } from './businesses';
 export const CAREER_TUNING = {
   firstCost: 10,
   costStep: 9,
-  /** Seconds for the first job's salary to repay its price. */
-  firstPaybackSeconds: 30,
+  /** Seconds for the first job's salary to repay its price (slower than the Flower Stand: jobs are a side income). */
+  firstPaybackSeconds: 90,
   /** Salary payback grows fast so late jobs matter for their income bonus, not their salary. */
   paybackStep: 2.2,
 };
 
 // salaryFactor / costFactor shape the single-life pacing (game-design-v2 §5): mid-career salaries
-// are lower so the jump from Multimillionaire to Billionaire takes a few days, and the top jobs
+// are lower so the jump from Millionaire to Billionaire takes a few days, and the top jobs
 // are cheaper so the hero reaches the top in mid-life.
 const JOBS: { id: string; name: string; image: string; incomeBonus: number; salaryFactor?: number; costFactor?: number }[] = [
   { id: 'flyer-distributor', name: 'Flyer Distributor', image: '/assets/jobs/workers/Flyer-Distributor.png', incomeBonus: 0.05 },

@@ -4,6 +4,7 @@ import { autoIncomePerSecond, careerBonus, globalMultiplier, salaryPerSecond } f
 import { nextCareer, promote } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { Focusable } from '../home/Focusable';
 import { Chip, GameButton, ImageTile, Panel, SectionLabel } from '../kit';
 
 const percent = (fraction: number) => Math.round(fraction * 100);
@@ -88,16 +89,18 @@ export function CareerScreen() {
               </div>
             </div>
 
-            <GameButton
-              onClick={actions.promote}
-              disabled={!canPromote}
-              className="py-3 px-4 flex items-center justify-between"
-            >
-              <span className="v2-display text-[16px] v2-shadow">
-                {current ? t('career.promote') : t('career.firstJob')}
-              </span>
-              <span className="v2-display text-[16px] v2-shadow tabular-nums">{money(next.cost)}</span>
-            </GameButton>
+            <Focusable focusKey="career:promote">
+              <GameButton
+                onClick={actions.promote}
+                disabled={!canPromote}
+                className="w-full py-3 px-4 flex items-center justify-between"
+              >
+                <span className="v2-display text-[16px] v2-shadow">
+                  {current ? t('career.promote') : t('career.firstJob')}
+                </span>
+                <span className="v2-display text-[16px] v2-shadow tabular-nums">{money(next.cost)}</span>
+              </GameButton>
+            </Focusable>
             {secondsToAfford !== null && (
               <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
                 {t('common.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}

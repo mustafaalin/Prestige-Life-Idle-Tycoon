@@ -23,6 +23,8 @@ export function formatAmount(value: number, style: NumberStyle = EN_NUMBER_STYLE
   const abs = Math.abs(value);
   const decimal = (text: string) => (style.decimal === '.' ? text : text.replace('.', style.decimal));
   if (abs < 1000) {
+    // Cents below $1 so a small amount never reads as 0 ($0.04, not $0.0).
+    if (abs > 0 && abs < 1) return `${sign}${decimal(abs.toFixed(2))}`;
     return `${sign}${abs < 10 && abs % 1 !== 0 ? decimal(abs.toFixed(1)) : Math.floor(abs)}`;
   }
   const tier = Math.min(Math.floor(Math.log10(abs) / 3), style.suffixes.length - 1);

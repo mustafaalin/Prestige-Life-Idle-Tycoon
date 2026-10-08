@@ -1,7 +1,7 @@
 import { Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { WEALTH_CLASSES } from '../../core/config/classes';
-import { autoIncomePerSecond, heroAge } from '../../core/formulas';
+import { autoIncomePerSecond, classProgress, heroAge } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { onWalletHit } from './coins';
@@ -18,9 +18,7 @@ export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
 
   const current = WEALTH_CLASSES[game.classIndex];
   const next = WEALTH_CLASSES[game.classIndex + 1];
-  const progress = next
-    ? Math.min(1, (game.generationEarnings - current.threshold) / (next.threshold - current.threshold))
-    : 1;
+  const progress = classProgress(game);
 
   return (
     <header className="px-3 pt-[calc(var(--safe-top)+8px)]">

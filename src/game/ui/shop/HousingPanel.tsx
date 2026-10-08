@@ -5,6 +5,7 @@ import { currentHome, houseIndex, housePrice, isRenting, nextHome, ownsHouse } f
 import type { HouseDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { Focusable } from '../home/Focusable';
 import { Chip, GameButton, Panel, SectionLabel } from '../kit';
 import { Thumb } from './Thumb';
 
@@ -102,20 +103,22 @@ export function HousingPanel() {
                 </p>
               </div>
             </div>
-            {nextOwned ? (
-              <GameButton onClick={() => actions.moveHome(next.id)} className="min-h-11 py-3 px-4">
-                <span className="v2-display text-[16px] v2-shadow">{t('home.moveFree')}</span>
-              </GameButton>
-            ) : (
-              <GameButton
-                onClick={() => actions.rentHome(next.id)}
-                disabled={game.cash < next.moveInCost}
-                className="min-h-11 py-3 px-4 flex items-center justify-between"
-              >
-                <span className="v2-display text-[16px] v2-shadow">{t('home.rentMove')}</span>
-                <span className="v2-display text-[16px] v2-shadow tabular-nums">{money(next.moveInCost)}</span>
-              </GameButton>
-            )}
+            <Focusable focusKey="shop:house:next">
+              {nextOwned ? (
+                <GameButton onClick={() => actions.moveHome(next.id)} className="w-full min-h-11 py-3 px-4">
+                  <span className="v2-display text-[16px] v2-shadow">{t('home.moveFree')}</span>
+                </GameButton>
+              ) : (
+                <GameButton
+                  onClick={() => actions.rentHome(next.id)}
+                  disabled={game.cash < next.moveInCost}
+                  className="w-full min-h-11 py-3 px-4 flex items-center justify-between"
+                >
+                  <span className="v2-display text-[16px] v2-shadow">{t('home.rentMove')}</span>
+                  <span className="v2-display text-[16px] v2-shadow tabular-nums">{money(next.moveInCost)}</span>
+                </GameButton>
+              )}
+            </Focusable>
             {nextPrice !== null && (
               <GameButton
                 tone="soft"

@@ -5,6 +5,7 @@ import { WEALTH_CLASSES } from '../core/config/classes';
 import { HOUSES } from '../core/config/housing';
 import { LIFE_SECONDS } from '../core/config/life';
 import { LIFESTYLE_ITEMS } from '../core/config/lifestyle';
+import { UPGRADES } from '../core/config/upgrades';
 import { classIndexFor } from '../core/formulas';
 import { createInitialState } from '../core/state';
 import type { GameStateV2 } from '../core/types';
@@ -31,6 +32,12 @@ function isRecord(value: unknown): value is Raw {
 
 function finite(value: unknown, fallback: number, min = 0) {
   return typeof value === 'number' && Number.isFinite(value) && value >= min ? value : fallback;
+}
+
+const knownUpgrades = new Set(UPGRADES.map((upgrade) => upgrade.id));
+
+function stringList(value: unknown): string[] {
+  return Array.isArray(value) ? [...new Set(value.filter((item): item is string => typeof item === 'string'))] : [];
 }
 
 /** Rebuilds a game state from whatever was saved: unknown ids are dropped, new config entries get defaults. */
@@ -79,6 +86,11 @@ function normalizeGame(raw: unknown): GameStateV2 {
     classIndex: Math.max(savedClass, classIndexFor(generationEarnings)),
     // Saves from before the life clock start at 17.
     lifeSeconds: Math.min(finite(raw.lifeSeconds, 0), LIFE_SECONDS),
+    // Saves from before upgrades and goals start with none.
+    upgrades: stringList(raw.upgrades).filter((id) => knownUpgrades.has(id)),
+    questsDone: stringList(raw.questsDone),
+    bottles: Math.floor(finite(raw.bottles, 0)),
+    finds: Math.floor(finite(raw.finds, 0)),
   };
 }
 

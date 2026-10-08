@@ -1,4 +1,5 @@
-// Usage: npm run sim [-- --days 30 --timeline --sessions --offline-cap 8]
+// Usage: npm run sim [-- --days 30 --timeline --purchases --sessions --offline-cap 8]
+//   --purchases            add every purchase to the timeline
 //   --offline-cap <hours>  try another offline cap (default: OFFLINE_CAP_HOURS)
 // Bundled with esbuild and run in Node; logic lives in src/game/sim.
 
@@ -7,7 +8,7 @@ import { CAREERS } from '../src/game/core/config/careers';
 import { formatDuration, formatMoney } from '../src/game/core/format';
 import { WEALTH_CLASSES } from '../src/game/core/config/classes';
 import { SECONDS_PER_YEAR, START_AGE } from '../src/game/core/config/life';
-import { checkTargets, timeline } from '../src/game/sim/report';
+import { checkFeel, checkTargets, timeline } from '../src/game/sim/report';
 import { PROFILES, simulate } from '../src/game/sim/simulator';
 
 const args = process.argv.slice(2);
@@ -15,6 +16,7 @@ const daysArg = args.indexOf('--days');
 const days = daysArg >= 0 ? Number(args[daysArg + 1]) : 30;
 const showTimeline = args.includes('--timeline');
 const showSessions = args.includes('--sessions');
+const showPurchases = args.includes('--purchases');
 const numberArg = (flag: string) => {
   const index = args.indexOf(flag);
   return index >= 0 ? Number(args[index + 1]) : undefined;
@@ -44,13 +46,23 @@ for (const profile of PROFILES) {
   const variant = offlineCapHours !== undefined ? `, offline cap ${offlineCapHours}h` : '';
   console.log(`\n=== ${profile.name} player, ${days} days${variant} (${Date.now() - started} ms) ===`);
 
-  if (showTimeline || showSessions) {
-    const kinds = showSessions ? new Set(['session', 'retire', 'class']) : undefined;
+  if (showTimeline || showSessions || showPurchases) {
+    const kinds = showSessions
+      ? new Set(['session', 'retire', 'class'])
+      : showPurchases
+        ? new Set(['class', 'manager', 'career', 'retire', 'business', 'purchase', 'upgrade', 'lifestyle', 'home'])
+        : undefined;
     console.log(timeline(result, 400, kinds).join('\n'));
     console.log('');
   }
 
   for (const check of checkTargets(result)) {
+    if (profile.name === 'engaged' && !check.pass) failures += 1;
+    const mark = profile.name === 'engaged' ? (check.pass ? 'PASS' : 'FAIL') : 'info';
+    console.log(`${mark.padEnd(5)} ${check.label.padEnd(30)} ${check.got.padEnd(36)} target ${check.range}`);
+  }
+
+  for (const check of checkFeel(result)) {
     if (profile.name === 'engaged' && !check.pass) failures += 1;
     const mark = profile.name === 'engaged' ? (check.pass ? 'PASS' : 'FAIL') : 'info';
     console.log(`${mark.padEnd(5)} ${check.label.padEnd(30)} ${check.got.padEnd(36)} target ${check.range}`);
@@ -69,4 +81,4 @@ for (const profile of PROFILES) {
   );
 }
 
-console.log(failures === 0 ? '\nAll engaged-player pacing targets met.' : `\n${failures} engaged-player target(s) missed.`);
+console.log(failures === 0 ? '\nAll engaged-player pacing and feel targets met.' : `\n${failures} engaged-player target(s) missed.`);

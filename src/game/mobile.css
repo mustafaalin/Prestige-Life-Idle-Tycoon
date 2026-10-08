@@ -118,3 +118,17 @@
   50% { transform: translateX(-50%) scale(1.1); }
 }
 .v2-nudge { animation: v2-nudge 1.1s ease-in-out infinite; }
+/* "Go" from a goal: the button it needs glows and a hand taps on it (ui/home/focus.tsx). */
+@keyframes v2-focus-ring {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(252, 211, 77, 0.8); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(252, 211, 77, 0); }
+}
+@keyframes v2-focus-hand {
+  0%, 100% { transform: translateY(0) rotate(-20deg); }
+  50% { transform: translateY(-8px) rotate(-20deg); }
+}
+.v2-focus-ring { animation: v2-focus-ring 1s ease-in-out infinite; }
+.v2-focus-hand { animation: v2-focus-hand 0.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .v2-focus-ring, .v2-focus-hand { animation: none; }
+}

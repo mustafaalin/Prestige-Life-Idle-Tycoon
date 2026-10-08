@@ -4,26 +4,27 @@ import type { BusinessDef } from '../types';
 // Values are generated from a few tuning knobs so the whole curve moves together.
 // Change knobs here, then run `npm run sim` to check pacing (docs/game-design-v2.md §5).
 export const BUSINESS_TUNING = {
-  /** Price of the first Flower Stand. */
-  firstCost: 4,
+  /** Price of the first Flower Stand ($25 with a 4 s cycle: every run pays at least $1). */
+  firstCost: 25,
   /** Each tier's first unit costs this many times the previous tier's. */
   costStep: 15,
   /** Cycle seconds of tier 1; doubles every tier. */
-  firstCycleSeconds: 1,
-  /** Seconds for the first unit of tier 1 to pay for itself. */
-  firstPaybackSeconds: 36,
+  firstCycleSeconds: 4,
+  /** First-unit payback of tier 1 before revenueFactor (the Flower Stand's ×2.7 makes it 100 s). */
+  firstPaybackSeconds: 270,
   /** First-unit payback grows by this factor every tier. */
   paybackStep: 3.3,
   /** Manager price as a multiple of the tier's first unit price. */
-  managerCostMultiple: 250,
+  managerCostMultiple: 12,
 };
 
-// revenueFactor shapes the single-life pacing (game-design-v2 §5): the middle tiers are slower so
-// Billionaire is not reached minutes after Multimillionaire; the late tiers are faster so the hero
-// reaches the top in mid-life instead of old age.
+// revenueFactor shapes the single-life pacing (game-design-v2 §5): the first two tiers are faster so
+// businesses beat bottles and jobs from the first minutes (2026-10-08: a Flower Stand run paid $0.01);
+// the middle tiers are slower so Billionaire is not reached minutes after Millionaire; the late
+// tiers are faster so the hero reaches the top in mid-life instead of old age.
 const TIERS: { id: string; name: string; image: string; costGrowth: number; revenueFactor?: number }[] = [
-  { id: 'flower-stand', name: 'Flower Stand', image: '/assets/businesses/small/flower-shop.png', costGrowth: 1.07 },
-  { id: 'coffee-cart', name: 'Coffee Cart', image: '/assets/businesses/small/coffee-shop.png', costGrowth: 1.15 },
+  { id: 'flower-stand', name: 'Flower Stand', image: '/assets/businesses/small/flower-shop.png', costGrowth: 1.15, revenueFactor: 2.7 },
+  { id: 'coffee-cart', name: 'Coffee Cart', image: '/assets/businesses/small/coffee-shop.png', costGrowth: 1.15, revenueFactor: 1.2 },
   { id: 'bakery', name: 'Bakery', image: '/assets/businesses/small/bakery.png', costGrowth: 1.14 },
   { id: 'car-wash', name: 'Car Wash', image: '/assets/businesses/small/car-wash.png', costGrowth: 1.13 },
   { id: 'mini-market', name: 'Mini Market', image: '/assets/businesses/small/grocery-mini-market.png', costGrowth: 1.12, revenueFactor: 0.7 },

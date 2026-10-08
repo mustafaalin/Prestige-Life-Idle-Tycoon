@@ -17,14 +17,21 @@ import {
   pendingLegacyPoints,
   fetchReward,
   rentPerSecond,
+  steadyIncomePerSecond,
   tapValue,
 } from '../core/formulas';
 import { COLLECT_SPAWN_SECONDS, FETCH_MAX_SECONDS, FETCH_MIN_SECONDS } from '../core/config/scene';
 import { HOUSES } from '../core/config/housing';
 import {
+  activeQuests,
   buyBusinessUnits,
   buyHome,
   buyLifestyle,
+  buyUpgrade,
+  canBuyUpgrade,
+  claimQuest,
+  isQuestComplete,
+  nextUpgrade,
   canRetire,
   createInitialState,
   earn,
@@ -68,6 +75,7 @@ export type SimEventKind =
   | 'career'
   | 'lifestyle'
   | 'home'
+  | 'upgrade'
   | 'class'
   | 'retire'
   | 'session';
@@ -84,6 +92,8 @@ export interface SimEvent {
   activeGeneration: number;
   /** Active income per second right after the event. */
   income: number;
+  /** Share of that income coming from businesses (the rest is salary and rent). */
+  businessShare: number;
 }
 
 export interface SimResult {
@@ -122,6 +132,15 @@ function candidates(state: GameStateV2): Candidate[] {
         kind: owned === 0 ? 'business' : 'purchase',
         cost: costForUnits(def, owned, count),
         apply: (s) => buyBusinessUnits(s, def.id, count),
+      });
+    }
+    const upgrade = nextUpgrade(state, def.id);
+    if (upgrade && canBuyUpgrade(state, upgrade)) {
+      list.push({
+        label: `Upgrade: ${upgrade.id}`,
+        kind: 'upgrade',
+        cost: upgrade.cost,
+        apply: (s) => buyUpgrade(s, upgrade.id),
       });
     }
     if (owned > 0 && !managed) {
@@ -187,7 +206,14 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
   const time: Clock = { clock: 0, activeTotal: 0, activeGeneration: 0 };
 
   const log = (kind: SimEventKind, label: string) => {
-    events.push({ kind, label, generation: state.generation, ...time, income: incomePerSecond(state, 'active') });
+    events.push({
+      kind,
+      label,
+      generation: state.generation,
+      ...time,
+      income: incomePerSecond(state, 'active'),
+      businessShare: businessShare(state),
+    });
   };
 
   const earnTracked = (amount: number) => {
@@ -215,10 +241,30 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       time.activeTotal += step;
       time.activeGeneration += step;
       earnTracked(amount);
+      // Goal counters: collected bottles and returned wallets.
+      state = {
+        ...state,
+        bottles: state.bottles + profile.tapsPerSecond(time.activeGeneration) * step,
+        finds: state.finds + (profile.fetchCatchRate * step) / FETCH_AVERAGE_SECONDS,
+      };
+      claimGoals();
       // The hero ages only while playing; retirement comes at the end of life.
       state = live(state, step);
       maybeRetire();
       left -= step;
+    }
+  };
+
+  /** The bot claims every finished goal right away. */
+  const claimGoals = () => {
+    for (let guard = 0; guard < 20; guard += 1) {
+      const done = activeQuests(state).find((quest) => isQuestComplete(state, quest));
+      if (!done) return;
+      const before = state.classIndex;
+      const next = claimQuest(state, done.id);
+      if (!next) return;
+      state = next;
+      for (let index = before + 1; index <= state.classIndex; index += 1) log('class', WEALTH_CLASSES[index].name);
     }
   };
 
@@ -264,7 +310,9 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       }
       const isFirstPurchase = !events.some((event) => event.kind !== 'class');
       state = next;
+      claimGoals();
       if (isFirstPurchase) log('purchase', `First purchase: ${best.candidate.label}`);
+      else if (best.candidate.kind === 'purchase') log('purchase', best.candidate.label);
       if (best.candidate.kind !== 'purchase') log(best.candidate.kind, best.candidate.label);
       maybeRetire();
     }
@@ -325,6 +373,13 @@ export const CASUAL_PLAYER: PlayerProfile = {
 };
 
 export const PROFILES = [ENGAGED_PLAYER, CASUAL_PLAYER];
+
+/** Share of active income (bottles excluded) that comes from businesses rather than salary and rent. */
+export function businessShare(state: GameStateV2) {
+  const total = incomePerSecond(state, 'active');
+  if (total <= 0) return 0;
+  return 1 - (steadyIncomePerSecond(state) * globalMultiplier(state)) / total;
+}
 
 /** Exposed for reports: total base income of every business line (no multipliers). */
 export function businessBreakdown(state: GameStateV2) {

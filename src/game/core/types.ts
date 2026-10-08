@@ -68,6 +68,39 @@ export interface BusinessState {
   managed: boolean;
 }
 
+/** One-time upgrade of a single business line (AdVenture Capitalist cash upgrade). */
+export interface UpgradeDef {
+  /** `${businessId}:${n}`, n = 1..3. */
+  id: string;
+  businessId: string;
+  cost: number;
+  /** Units of the business needed before it can be bought. */
+  requiredOwned: number;
+  /** Multiplies that business's profit. */
+  multiplier: number;
+}
+
+/** What a goal asks for. Counts are totals in the current life. */
+export type QuestGoal =
+  | { type: 'collect'; count: number }
+  | { type: 'find'; count: number }
+  | { type: 'units'; businessId: string; count: number }
+  | { type: 'manager'; businessId: string }
+  | { type: 'upgrade'; upgradeId: string }
+  | { type: 'career'; index: number }
+  | { type: 'home'; index: number }
+  | { type: 'class'; index: number }
+  /** Vehicles bought (the free starting one doesn't count). */
+  | { type: 'vehicle'; count: number };
+
+export interface QuestDef {
+  id: string;
+  goal: QuestGoal;
+  /** Reward = max(rewardMin, active income × rewardSeconds). */
+  rewardSeconds: number;
+  rewardMin: number;
+}
+
 export interface GameStateV2 {
   version: 2;
   cash: number;
@@ -88,6 +121,14 @@ export interface GameStateV2 {
   classIndex: number;
   /** Seconds played in this life (only while the game is open); drives the hero's age. */
   lifeSeconds: number;
+  /** Business upgrades bought in this life (UpgradeDef ids). */
+  upgrades: string[];
+  /** Goals claimed in this life (QuestDef ids, plus generated milestone goal ids). */
+  questsDone: string[];
+  /** Bottles and cans collected in this life (goal counter). */
+  bottles: number;
+  /** Wallets Şans found and the hero returned in this life (goal counter). */
+  finds: number;
 }
 
 export type IncomeMode = 'active' | 'idle';

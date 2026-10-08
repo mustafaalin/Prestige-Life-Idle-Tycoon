@@ -4,11 +4,23 @@ import { useBackButton } from '../../runtime/backButton';
 import { BusinessesScreen } from '../businesses/BusinessesScreen';
 import { CareerScreen } from '../career/CareerScreen';
 import { ShopScreen } from '../shop/ShopScreen';
+import { QuestStrip, type GoToQuest } from './QuestPanel';
 import { TABS, type TabId } from './tabs';
 
 // A tab opens as a sheet between the top bar and the menu, so money and the menu stay visible.
+// A goal strip under the header keeps the current goal in sight while the player works on it.
 
-export function TabSheet({ tab, onClose }: { tab: TabId; onClose: () => void }) {
+export function TabSheet({
+  tab,
+  onClose,
+  pinnedQuest,
+  onGo,
+}: {
+  tab: TabId;
+  onClose: () => void;
+  pinnedQuest: string | null;
+  onGo: GoToQuest;
+}) {
   const { t } = useT();
   const def = TABS.find((item) => item.id === tab)!;
 
@@ -28,6 +40,7 @@ export function TabSheet({ tab, onClose }: { tab: TabId; onClose: () => void }) 
           <X className="w-5 h-5 text-white" />
         </button>
       </div>
+      <QuestStrip tab={tab} pinnedId={pinnedQuest} onGo={onGo} />
       <div key={tab} className="flex-1 overflow-y-auto px-3 py-3 bg-gradient-to-b from-sky-100 to-indigo-100">
         {tab === 'businesses' && <BusinessesScreen />}
         {tab === 'career' && <CareerScreen />}

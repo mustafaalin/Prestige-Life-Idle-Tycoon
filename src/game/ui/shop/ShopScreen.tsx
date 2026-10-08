@@ -1,5 +1,5 @@
 import { Check, Lock } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
 import { autoIncomePerSecond, statusBonus } from '../../core/formulas';
 import { canMoveUp, nextLifestyle } from '../../core/state';
@@ -7,11 +7,13 @@ import type { GameStateV2, LifestyleKind } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { Focusable } from '../home/Focusable';
+import { useFocus, type ShopTabId } from '../home/focus';
 import { Chip, GameButton, Panel, Segmented, SectionLabel } from '../kit';
 import { HousingPanel } from './HousingPanel';
 import { Thumb } from './Thumb';
 
-type ShopTab = 'house' | LifestyleKind;
+type ShopTab = ShopTabId;
 
 const TABS: { kind: ShopTab; label: MessageKey }[] = [
   { kind: 'house', label: 'shop.house' },
@@ -36,7 +38,14 @@ function tabReady(game: GameStateV2, tab: ShopTab) {
 export function ShopScreen() {
   const { game } = useGameV2();
   const { t } = useT();
-  const [tab, setTab] = useState<ShopTab>('house');
+  const focus = useFocus();
+  const [tab, setTab] = useState<ShopTab>(focus?.target.shopTab ?? 'house');
+
+  // "Go" from a goal switches to the category it needs.
+  const focusTab = focus?.target.shopTab;
+  useEffect(() => {
+    if (focusTab) setTab(focusTab);
+  }, [focusTab, focus?.id]);
 
   return (
     <section className="flex flex-col gap-3">
@@ -91,14 +100,16 @@ function LifestylePanel({ kind }: { kind: LifestyleKind }) {
                 </div>
               </div>
             </div>
-            <GameButton
-              onClick={() => actions.buyLifestyle(next.id)}
-              disabled={!canBuy}
-              className="py-3 px-4 flex items-center justify-between"
-            >
-              <span className="v2-display text-[16px] v2-shadow">{t('shop.buy')}</span>
-              <span className="v2-display text-[16px] v2-shadow tabular-nums">{money(next.cost)}</span>
-            </GameButton>
+            <Focusable focusKey={`shop:${kind}:next`}>
+              <GameButton
+                onClick={() => actions.buyLifestyle(next.id)}
+                disabled={!canBuy}
+                className="w-full py-3 px-4 flex items-center justify-between"
+              >
+                <span className="v2-display text-[16px] v2-shadow">{t('shop.buy')}</span>
+                <span className="v2-display text-[16px] v2-shadow tabular-nums">{money(next.cost)}</span>
+              </GameButton>
+            </Focusable>
             {secondsToAfford !== null && (
               <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
                 {t('common.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}

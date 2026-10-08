@@ -18,10 +18,12 @@ import {
 import { FETCH_BOTTLES } from './config/scene';
 import { HOUSES } from './config/housing';
 import { LIFESTYLE_ITEMS } from './config/lifestyle';
-import type { BusinessDef, GameStateV2, IncomeMode } from './types';
+import { UPGRADES } from './config/upgrades';
+import type { BusinessDef, GameStateV2, IncomeMode, QuestDef } from './types';
 
 const LIFESTYLE_BY_ID = new Map(LIFESTYLE_ITEMS.map((item) => [item.id, item]));
 const HOUSE_BY_ID = new Map(HOUSES.map((house) => [house.id, house]));
+const UPGRADE_BY_ID = new Map(UPGRADES.map((upgrade) => [upgrade.id, upgrade]));
 
 // ── Business costs ────────────────────────────────────────────────────────────
 
@@ -56,6 +58,18 @@ export function milestoneMultiplier(owned: number) {
 
 export function nextMilestone(owned: number): number | null {
   return PROFIT_MILESTONES.find((threshold) => threshold > owned) ?? null;
+}
+
+// ── Upgrades ──────────────────────────────────────────────────────────────────
+
+/** Product of the bought upgrades of one business (1 when none). */
+export function upgradeMultiplier(state: GameStateV2, businessId: string) {
+  let multiplier = 1;
+  for (const id of state.upgrades) {
+    const upgrade = UPGRADE_BY_ID.get(id);
+    if (upgrade?.businessId === businessId) multiplier *= upgrade.multiplier;
+  }
+  return multiplier;
 }
 
 // ── Income ────────────────────────────────────────────────────────────────────
@@ -127,7 +141,10 @@ export function incomePerSecond(state: GameStateV2, mode: IncomeMode) {
   for (const def of BUSINESSES) {
     const business = state.businesses[def.id];
     if (!business || business.owned <= 0) continue;
-    base += businessBaseIncomePerSecond(def, business.owned) * uptime(business.managed, mode);
+    base +=
+      businessBaseIncomePerSecond(def, business.owned) *
+      upgradeMultiplier(state, def.id) *
+      uptime(business.managed, mode);
   }
   return base * globalMultiplier(state);
 }
@@ -136,7 +153,17 @@ export function incomePerSecond(state: GameStateV2, mode: IncomeMode) {
 export function cycleRevenue(state: GameStateV2, def: BusinessDef) {
   const owned = state.businesses[def.id]?.owned ?? 0;
   if (owned <= 0) return 0;
-  return def.baseRevenue * owned * milestoneMultiplier(owned) * globalMultiplier(state);
+  return (
+    def.baseRevenue * owned * milestoneMultiplier(owned) * upgradeMultiplier(state, def.id) * globalMultiplier(state)
+  );
+}
+
+/** What claiming a goal pays: a little early on, then a slice of income. */
+export function questReward(state: GameStateV2, quest: QuestDef) {
+  return Math.max(
+    quest.rewardMin * legacyMultiplier(state.legacyPoints),
+    incomePerSecond(state, 'active') * quest.rewardSeconds,
+  );
 }
 
 /** Hours of away time that count toward offline earnings at the current wealth class. */
@@ -185,6 +212,18 @@ export function isLifeOver(state: GameStateV2) {
 }
 
 // ── Wealth class and legacy ───────────────────────────────────────────────────
+
+/**
+ * Share of the way to the next wealth class (0–1), for progress bars. The square root evens it out:
+ * income keeps growing, so a straight share sat near 0% for minutes and then rushed to the end.
+ */
+export function classProgress(state: GameStateV2) {
+  const current = WEALTH_CLASSES[state.classIndex];
+  const next = WEALTH_CLASSES[state.classIndex + 1];
+  if (!next) return 1;
+  const share = (state.generationEarnings - current.threshold) / (next.threshold - current.threshold);
+  return Math.sqrt(Math.min(1, Math.max(0, share)));
+}
 
 export function classIndexFor(generationEarnings: number) {
   let index = 0;

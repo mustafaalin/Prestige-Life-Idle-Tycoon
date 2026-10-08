@@ -7,7 +7,9 @@ import {
   buyBusinessUnits,
   buyHome,
   buyLifestyle,
+  buyUpgrade,
   claimFind,
+  claimQuest,
   claimOffline,
   createRuntimeState,
   hireManager,
@@ -46,6 +48,9 @@ export interface GameActions {
   startCycle(businessId: string): boolean;
   promote(): boolean;
   buyLifestyle(itemId: string): boolean;
+  buyUpgrade(upgradeId: string): boolean;
+  /** Claims a finished goal; returns what it paid (0 if it could not be claimed). */
+  claimQuest(questId: string): number;
   rentHome(houseId: string): boolean;
   buyHome(houseId: string): boolean;
   moveHome(houseId: string): boolean;
@@ -178,6 +183,11 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       startCycle: (businessId) => act((s) => startCycle(s, businessId)),
       promote: () => act(promote),
       buyLifestyle: (itemId) => act((s) => buyLifestyle(s, itemId)),
+      buyUpgrade: (upgradeId) => act((s) => buyUpgrade(s, upgradeId)),
+      claimQuest: (questId) => {
+        const before = state.game.cash;
+        return act((s) => claimQuest(s, questId)) ? state.game.cash - before : 0;
+      },
       rentHome: (houseId) => act((s) => rentHome(s, houseId)),
       buyHome: (houseId) => act((s) => buyHome(s, houseId)),
       moveHome: (houseId) => act((s) => moveHome(s, houseId)),

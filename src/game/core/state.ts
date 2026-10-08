@@ -4,8 +4,10 @@ import { STARTING_CASH } from './config/economy';
 import { HOUSES, STARTING_HOME_ID } from './config/housing';
 import { LIFE_SECONDS } from './config/life';
 import { LIFESTYLE_ITEMS, STARTING_LIFESTYLE_IDS } from './config/lifestyle';
-import { classIndexFor, costForUnits, isLifeOver, pendingLegacyPoints } from './formulas';
-import type { BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind } from './types';
+import { ACTIVE_QUESTS, GENERATED_QUEST_SECONDS, QUESTS } from './config/quests';
+import { UPGRADES } from './config/upgrades';
+import { classIndexFor, costForUnits, isLifeOver, nextMilestone, pendingLegacyPoints, questReward } from './formulas';
+import type { BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind, QuestDef, QuestGoal, UpgradeDef } from './types';
 
 // Pure state transitions. Every action returns a new state, or null when it is not allowed.
 
@@ -38,6 +40,10 @@ export function createInitialState(
     homesOwned: [],
     classIndex: 0,
     lifeSeconds: 0,
+    upgrades: [],
+    questsDone: [],
+    bottles: 0,
+    finds: 0,
   };
 }
 
@@ -203,6 +209,103 @@ export function buyHome(state: GameStateV2, houseId: string): GameStateV2 | null
 export function moveHome(state: GameStateV2, houseId: string): GameStateV2 | null {
   if (houseId === state.home || !ownsHouse(state, houseId)) return null;
   return { ...state, home: houseId };
+}
+
+// ── Business upgrades (config/upgrades.ts) ───────────────────────────────────
+
+const UPGRADE_BY_ID = new Map(UPGRADES.map((upgrade) => [upgrade.id, upgrade]));
+
+/** The next upgrade of a business not bought yet (they come in order), or null when all are bought. */
+export function nextUpgrade(state: GameStateV2, businessId: string): UpgradeDef | null {
+  return UPGRADES.find((upgrade) => upgrade.businessId === businessId && !state.upgrades.includes(upgrade.id)) ?? null;
+}
+
+export function canBuyUpgrade(state: GameStateV2, upgrade: UpgradeDef) {
+  return (
+    nextUpgrade(state, upgrade.businessId)?.id === upgrade.id &&
+    state.businesses[upgrade.businessId].owned >= upgrade.requiredOwned
+  );
+}
+
+export function buyUpgrade(state: GameStateV2, upgradeId: string): GameStateV2 | null {
+  const upgrade = UPGRADE_BY_ID.get(upgradeId);
+  if (!upgrade || !canBuyUpgrade(state, upgrade)) return null;
+  const paid = spend(state, upgrade.cost);
+  if (!paid) return null;
+  return { ...paid, upgrades: [...paid.upgrades, upgradeId] };
+}
+
+// ── Goals (config/quests.ts) ─────────────────────────────────────────────────
+
+/** How far a goal is: current and target counts (done when current >= target). */
+export function questProgress(state: GameStateV2, goal: QuestGoal): { current: number; target: number } {
+  switch (goal.type) {
+    case 'collect':
+      return { current: state.bottles, target: goal.count };
+    case 'find':
+      return { current: state.finds, target: goal.count };
+    case 'units':
+      return { current: state.businesses[goal.businessId]?.owned ?? 0, target: goal.count };
+    case 'manager':
+      return { current: state.businesses[goal.businessId]?.managed ? 1 : 0, target: 1 };
+    case 'upgrade':
+      return { current: state.upgrades.includes(goal.upgradeId) ? 1 : 0, target: 1 };
+    case 'career':
+      return { current: state.careerIndex + 1, target: goal.index + 1 };
+    case 'home':
+      return { current: houseIndex(state.home), target: goal.index };
+    case 'class':
+      return { current: state.classIndex, target: goal.index };
+    case 'vehicle':
+      return {
+        // Bought vehicles only: the free starting wheelbarrow doesn't count.
+        current: state.lifestyleOwned.filter(
+          (id) => LIFESTYLE_BY_ID.get(id)?.kind === 'vehicle' && !STARTING_LIFESTYLE_IDS.includes(id),
+        ).length,
+        target: goal.count,
+      };
+  }
+}
+
+export function isQuestComplete(state: GameStateV2, quest: QuestDef) {
+  const { current, target } = questProgress(state, quest.goal);
+  return current >= target;
+}
+
+/**
+ * Goals on screen: the next written ones, then generated "take a business to its next milestone"
+ * goals so there is always something to aim for.
+ */
+export function activeQuests(state: GameStateV2): QuestDef[] {
+  const list = QUESTS.filter((quest) => !state.questsDone.includes(quest.id)).slice(0, ACTIVE_QUESTS);
+  if (list.length >= ACTIVE_QUESTS) return list;
+  const generated: { quest: QuestDef; cost: number }[] = [];
+  for (const def of BUSINESSES) {
+    const { owned } = state.businesses[def.id];
+    const target = owned > 0 ? nextMilestone(owned) : null;
+    if (target === null) continue;
+    const id = `units:${def.id}:${target}`;
+    if (state.questsDone.includes(id) || list.some((quest) => quest.id === id)) continue;
+    generated.push({
+      quest: {
+        id,
+        goal: { type: 'units', businessId: def.id, count: target },
+        rewardSeconds: GENERATED_QUEST_SECONDS,
+        rewardMin: 0,
+      },
+      cost: costForUnits(def, owned, target - owned),
+    });
+  }
+  generated.sort((a, b) => a.cost - b.cost);
+  return [...list, ...generated.map((entry) => entry.quest)].slice(0, ACTIVE_QUESTS);
+}
+
+/** Claims a finished goal on screen and pays its reward (counts as earned money). */
+export function claimQuest(state: GameStateV2, questId: string): GameStateV2 | null {
+  const quest = activeQuests(state).find((candidate) => candidate.id === questId);
+  if (!quest || !isQuestComplete(state, quest)) return null;
+  const paid = earn(state, questReward(state, quest));
+  return { ...paid, questsDone: [...paid.questsDone, questId] };
 }
 
 /** Retirement comes only at the end of life (no early hand-over; game-design-v2 §4.9). */

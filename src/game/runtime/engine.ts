@@ -11,6 +11,8 @@ import {
   buyBusinessUnits as coreBuyBusinessUnits,
   buyHome as coreBuyHome,
   buyLifestyle as coreBuyLifestyle,
+  buyUpgrade as coreBuyUpgrade,
+  claimQuest as coreClaimQuest,
   createInitialState,
   earn,
   hireManager as coreHireManager,
@@ -148,12 +150,22 @@ function withGame(state: RuntimeState, game: GameStateV2 | null): RuntimeState |
 
 /** A tap on the scene: one collected bottle or can. */
 export function tap(state: RuntimeState): RuntimeState {
-  return { ...state, game: earn(state.game, tapValue(state.game)) };
+  const game = earn(state.game, tapValue(state.game));
+  return { ...state, game: { ...game, bottles: game.bottles + 1 } };
 }
 
 /** The player caught what Şans brought (the scene decides when he brings something). */
 export function claimFind(state: RuntimeState): RuntimeState {
-  return { ...state, game: earn(state.game, fetchReward(state.game)) };
+  const game = earn(state.game, fetchReward(state.game));
+  return { ...state, game: { ...game, finds: game.finds + 1 } };
+}
+
+export function buyUpgrade(state: RuntimeState, upgradeId: string) {
+  return withGame(state, coreBuyUpgrade(state.game, upgradeId));
+}
+
+export function claimQuest(state: RuntimeState, questId: string) {
+  return withGame(state, coreClaimQuest(state.game, questId));
 }
 
 export function buyBusinessUnits(state: RuntimeState, businessId: string, count: number) {

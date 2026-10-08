@@ -9,6 +9,9 @@ import { Scene } from '../scene/Scene';
 import { BottomNav } from './BottomNav';
 import { CoinLayer } from './CoinLayer';
 import { burstCoins } from './coins';
+import { clearFocus, showFocus } from './focus';
+import { QuestPanel, type GoToQuest } from './QuestPanel';
+import { questTarget } from './questText';
 import { RewardCard } from './RewardCard';
 import { SettingsSheet } from './SettingsSheet';
 import type { TabId } from './tabs';
@@ -23,7 +26,22 @@ export function HomeScreen() {
   const { t, money, duration } = useT();
   const [tab, setTab] = useState<TabId | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // The goal the player last tapped "Go" on; the strip in the open tab keeps showing it.
+  const [pinnedQuest, setPinnedQuest] = useState<string | null>(null);
   const promotion = nextCareer(game);
+
+  const goToQuest: GoToQuest = (quest) => {
+    const target = questTarget(quest);
+    if (!target) return;
+    setPinnedQuest(quest.id);
+    setTab(target.tab);
+    showFocus(target);
+  };
+
+  const selectTab = (next: TabId | null) => {
+    clearFocus();
+    setTab(next);
+  };
 
   useEffect(() => preloadSfx(), []);
   // Ads start once the player is in the game, so the consent form never covers the prologue.
@@ -39,11 +57,17 @@ export function HomeScreen() {
         <div className="pointer-events-auto">
           <TopBar onOpenSettings={() => setSettingsOpen(true)} />
         </div>
-        <main className="relative flex-1">{tab && <TabSheet tab={tab} onClose={() => setTab(null)} />}</main>
+        <main className="relative flex-1">
+          {tab ? (
+            <TabSheet tab={tab} onClose={() => selectTab(null)} pinnedQuest={pinnedQuest} onGo={goToQuest} />
+          ) : (
+            <QuestPanel onGo={goToQuest} />
+          )}
+        </main>
         <div className="pointer-events-auto">
           <BottomNav
             open={tab}
-            onSelect={setTab}
+            onSelect={selectTab}
             attention={{ career: promotion !== null && game.cash >= promotion.cost, shop: canBuyAnythingInShop(game) }}
           />
         </div>
