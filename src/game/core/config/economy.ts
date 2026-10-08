@@ -8,13 +8,24 @@ export const PROFIT_MILESTONE_FACTOR = 2;
 /** Share of a business's full output an active player gets by tapping it without a manager. */
 export const ACTIVE_UNMANAGED_EFFICIENCY = 0.6;
 
-/** Money per tap = TAP_BASE + TAP_INCOME_SECONDS × active income per second. */
-export const TAP_BASE = 1;
-export const TAP_INCOME_SECONDS = 0.05;
+/**
+ * Money per collected bottle = TAP_BASE + TAP_INCOME_SECONDS × active income per second. A bottle is
+ * worth several seconds of income so collecting is worth the effort (2026-10-08); bottles are capped
+ * by how fast they appear (config/scene.ts), so tapping can't replace the economy.
+ */
+export const TAP_BASE = 2;
+export const TAP_INCOME_SECONDS = 2.5;
 
-/** Offline: share of idle income earned while away, and how many hours it can pile up. */
+/** Offline: share of idle income earned while away. */
 export const OFFLINE_RATE = 0.5;
-export const OFFLINE_CAP_HOURS = 2;
+/**
+ * How many hours of away time count, by wealth class (Street → Richest). Starts short so a first
+ * return after a few minutes of play doesn't skip a whole class, and grows as you climb (like
+ * Egg, Inc.'s silos). Decision 2026-10-08, game-design §4.6.
+ */
+export const OFFLINE_CAP_HOURS_BY_CLASS = [1 / 6, 0.25, 0.5, 1, 2, 2, 2, 2];
+/** The longest cap (the late game). */
+export const OFFLINE_CAP_HOURS = Math.max(...OFFLINE_CAP_HOURS_BY_CLASS);
 
 /** Legacy points = floor(LEGACY_SCALE × (totalEarnings / LEGACY_BASE) ^ LEGACY_EXPONENT). */
 export const LEGACY_SCALE = 10;

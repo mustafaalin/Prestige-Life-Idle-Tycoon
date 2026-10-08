@@ -4,6 +4,8 @@ import { LOCALES, type Locale } from '../i18n/locales';
 import { useT } from '../i18n/useT';
 import { useBackButton } from '../runtime/backButton';
 import { useGameV2 } from '../runtime/useGameV2';
+import { showRewardedAd } from '../runtime/ads';
+import { requestFind } from './scene/sceneEvents';
 
 // Playtest tools. Shown in `npm run dev` and in builds with VITE_DEV_MENU=true.
 
@@ -35,12 +37,13 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-export function DevMenu() {
+export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) {
   const { actions } = useGameV2();
   const { t, money, duration, locale, setLocale } = useT();
   const [open, setOpen] = useState(false);
   const [speed, setSpeed] = useState(actions.dev.getSpeed);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [adResult, setAdResult] = useState<string | null>(null);
 
   const changeSpeed = (value: number) => {
     actions.dev.setSpeed(value);
@@ -59,7 +62,7 @@ export function DevMenu() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed right-3 bottom-[calc(var(--safe-bottom)+84px)] z-[200] rounded-full bg-slate-900/80 text-white px-3 py-1.5 text-[10px] font-black transition-all active:scale-90"
+        className="fixed left-1/2 -translate-x-1/2 top-[calc(var(--safe-top)+1px)] z-[200] rounded-full bg-slate-900/80 text-white px-3 py-1.5 text-[10px] font-black transition-all active:scale-90"
       >
         {t('dev.open')}
         {speed !== 1 && ` ×${speed}`}
@@ -130,6 +133,39 @@ export function DevMenu() {
             </Chip>
           ))}
         </Row>
+
+        <button
+          type="button"
+          onClick={async () => {
+            setAdResult(null);
+            setAdResult(await showRewardedAd('dev_test'));
+          }}
+          className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+        >
+          {adResult ? t('dev.adResult', { result: adResult }) : t('dev.testAd')}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            close();
+            requestFind();
+          }}
+          className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+        >
+          {t('dev.find')}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            close();
+            onReplayPrologue();
+          }}
+          className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+        >
+          {t('dev.prologue')}
+        </button>
 
         <button
           type="button"

@@ -1,3 +1,4 @@
+import { SECONDS_PER_MONTH } from '../core/config/life';
 import { formatAmount, formatDuration, formatMoney } from '../core/format';
 import { LOCALES, type Locale } from './locales';
 import { en, type Messages } from './messages/en';
@@ -30,6 +31,8 @@ export interface Translator {
   /** Localized name of a business, job, wealth class or lifestyle item. */
   name(kind: ContentKind, def: { id: string; name: string }): string;
   money(value: number): string;
+  /** An income given per second, shown per game month (1 min = 1 month): "$216/mo". */
+  perMonth(perSecond: number): string;
   amount(value: number): string;
   duration(seconds: number): string;
 }
@@ -39,24 +42,25 @@ export function createTranslator(locale: Locale): Translator {
   const def = LOCALES[locale];
   const plurals = new Intl.PluralRules(locale);
 
+  const t: Translator['t'] = (key, params) => {
+    const leaf = lookup(def.messages, key) ?? lookup(en, key) ?? key;
+    const template =
+      typeof leaf === 'string' ? leaf : leaf[plurals.select(Number(params?.count ?? 0)) === 'one' ? 'one' : 'other'];
+    if (!params) return template;
+    return template.replace(/\{(\w+)\}/g, (match, name: string) => (name in params ? String(params[name]) : match));
+  };
+
+  // Plain functions (no `this`): components destructure them from useT().
   return {
     locale,
-
-    t(key, params) {
-      const leaf = lookup(def.messages, key) ?? lookup(en, key) ?? key;
-      const template =
-        typeof leaf === 'string'
-          ? leaf
-          : leaf[plurals.select(Number(params?.count ?? 0)) === 'one' ? 'one' : 'other'];
-      if (!params) return template;
-      return template.replace(/\{(\w+)\}/g, (match, name: string) => (name in params ? String(params[name]) : match));
-    },
+    t,
 
     name(kind, item) {
       return def.content?.[kind][item.id] ?? item.name;
     },
 
     money: (value) => formatMoney(value, def.numbers),
+    perMonth: (perSecond) => t('hud.perMonth', { amount: formatMoney(perSecond * SECONDS_PER_MONTH, def.numbers) }),
     amount: (value) => formatAmount(value, def.numbers),
     duration: (seconds) => formatDuration(seconds, def.numbers),
   };

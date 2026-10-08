@@ -1,11 +1,13 @@
 import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import { SECONDS_PER_YEAR } from '../core/config/life';
+import { fetchReward } from '../core/formulas';
 import { earn, live } from '../core/state';
 import {
   buyBusinessUnits,
   buyHome,
   buyLifestyle,
+  claimFind,
   claimOffline,
   createRuntimeState,
   hireManager,
@@ -37,6 +39,8 @@ export type GameEvent =
 
 export interface GameActions {
   tap(): void;
+  /** Pays for what Şans found; returns the amount for the flying number. */
+  claimFind(): number;
   buyBusiness(businessId: string, count: number): boolean;
   hireManager(businessId: string): boolean;
   startCycle(businessId: string): boolean;
@@ -163,6 +167,11 @@ export function createGameStore(saveText: string | null, clock: () => number = D
     actions: {
       tap: () => {
         act(tap);
+      },
+      claimFind: () => {
+        const amount = fetchReward(state.game);
+        act(claimFind);
+        return amount;
       },
       buyBusiness: (businessId, count) => act((s) => buyBusinessUnits(s, businessId, count)),
       hireManager: (businessId) => act((s) => hireManager(s, businessId)),

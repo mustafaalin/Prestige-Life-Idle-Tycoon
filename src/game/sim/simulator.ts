@@ -15,9 +15,11 @@ import {
   nextMilestone,
   offlineEarnings,
   pendingLegacyPoints,
+  fetchReward,
   rentPerSecond,
   tapValue,
 } from '../core/formulas';
+import { COLLECT_SPAWN_SECONDS, FETCH_MAX_SECONDS, FETCH_MIN_SECONDS } from '../core/config/scene';
 import { HOUSES } from '../core/config/housing';
 import {
   buyBusinessUnits,
@@ -52,7 +54,12 @@ export interface PlayerProfile {
   sessionsForDay: (day: number) => Session[];
   /** Taps per second while playing, given active seconds spent in the current generation. */
   tapsPerSecond: (generationActiveSeconds: number) => number;
+  /** Share of Şans's finds the player catches in time. */
+  fetchCatchRate: number;
 }
+
+/** On average Şans brings a find this often while the game is open. */
+const FETCH_AVERAGE_SECONDS = (FETCH_MIN_SECONDS + FETCH_MAX_SECONDS) / 2;
 
 export type SimEventKind =
   | 'purchase'
@@ -191,7 +198,10 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     }
   };
 
-  const activeRate = () => incomePerSecond(state, 'active') + profile.tapsPerSecond(time.activeGeneration) * tapValue(state);
+  const activeRate = () =>
+    incomePerSecond(state, 'active') +
+    profile.tapsPerSecond(time.activeGeneration) * tapValue(state) +
+    (profile.fetchCatchRate * fetchReward(state)) / FETCH_AVERAGE_SECONDS;
 
   const playFor = (seconds: number) => {
     // Income is piecewise constant between purchases, but taps change with generation time,
@@ -279,7 +289,11 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
 
 // ── Player profiles ──────────────────────────────────────────────────────────
 
-const earlyTapping = (generationActiveSeconds: number) => (generationActiveSeconds < 180 ? 3 : 0.3);
+/** Collecting bottles is capped by how fast they appear in the alley. */
+const MAX_COLLECT_RATE = 1 / COLLECT_SPAWN_SECONDS;
+/** Collects everything in the first 3 minutes, then a bottle now and then (~1 per 7 s). */
+const earlyTapping = (generationActiveSeconds: number) =>
+  generationActiveSeconds < 180 ? MAX_COLLECT_RATE : Math.min(0.15, MAX_COLLECT_RATE);
 
 /** Plays like a top-10% idle player: ~5–6 sessions a day, ~7 minutes each. */
 export const ENGAGED_PLAYER: PlayerProfile = {
@@ -293,6 +307,7 @@ export const ENGAGED_PLAYER: PlayerProfile = {
         ]
       : [8, 12, 15, 18, 21, 23].map((startHour) => ({ startHour, minutes: 7 })),
   tapsPerSecond: earlyTapping,
+  fetchCatchRate: 0.8,
 };
 
 /** Checks in three times a day for a few minutes. */
@@ -306,6 +321,7 @@ export const CASUAL_PLAYER: PlayerProfile = {
         ]
       : [9, 13, 21].map((startHour) => ({ startHour, minutes: 5 })),
   tapsPerSecond: earlyTapping,
+  fetchCatchRate: 0.5,
 };
 
 export const PROFILES = [ENGAGED_PLAYER, CASUAL_PLAYER];

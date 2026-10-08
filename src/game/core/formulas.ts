@@ -8,13 +8,14 @@ import {
   LEGACY_BONUS_PER_POINT,
   LEGACY_EXPONENT,
   LEGACY_SCALE,
-  OFFLINE_CAP_HOURS,
+  OFFLINE_CAP_HOURS_BY_CLASS,
   OFFLINE_RATE,
   PROFIT_MILESTONES,
   PROFIT_MILESTONE_FACTOR,
   TAP_BASE,
   TAP_INCOME_SECONDS,
 } from './config/economy';
+import { FETCH_BOTTLES } from './config/scene';
 import { HOUSES } from './config/housing';
 import { LIFESTYLE_ITEMS } from './config/lifestyle';
 import type { BusinessDef, GameStateV2, IncomeMode } from './types';
@@ -138,8 +139,13 @@ export function cycleRevenue(state: GameStateV2, def: BusinessDef) {
   return def.baseRevenue * owned * milestoneMultiplier(owned) * globalMultiplier(state);
 }
 
-/** Money earned while the app was closed: idle income at OFFLINE_RATE, up to OFFLINE_CAP_HOURS. */
-export function offlineEarnings(state: GameStateV2, awaySeconds: number, capHours = OFFLINE_CAP_HOURS) {
+/** Hours of away time that count toward offline earnings at the current wealth class. */
+export function offlineCapHours(state: GameStateV2) {
+  return OFFLINE_CAP_HOURS_BY_CLASS[Math.min(state.classIndex, OFFLINE_CAP_HOURS_BY_CLASS.length - 1)];
+}
+
+/** Money earned while the app was closed: idle income at OFFLINE_RATE, up to the class's cap. */
+export function offlineEarnings(state: GameStateV2, awaySeconds: number, capHours = offlineCapHours(state)) {
   const seconds = Math.min(Math.max(0, awaySeconds), capHours * 3600);
   return incomePerSecond(state, 'idle') * seconds * OFFLINE_RATE;
 }
@@ -154,6 +160,11 @@ export function autoIncomePerSecond(state: GameStateV2) {
 
 export function tapValue(state: GameStateV2) {
   return TAP_BASE * legacyMultiplier(state.legacyPoints) + incomePerSecond(state, 'active') * TAP_INCOME_SECONDS;
+}
+
+/** What Şans's find pays when the player catches it (config/scene.ts). */
+export function fetchReward(state: GameStateV2) {
+  return FETCH_BOTTLES * tapValue(state);
 }
 
 // ── Life clock ────────────────────────────────────────────────────────────────

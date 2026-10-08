@@ -46,19 +46,18 @@ export function CycleBar(props: CycleBarProps) {
   }, [fast]);
 
   return (
-    <div className="relative h-6 rounded-full bg-slate-100 overflow-hidden">
+    <div className="relative h-6 rounded-full bg-indigo-100 border border-indigo-200/60 overflow-hidden">
       <div
         ref={fillRef}
-        className={`absolute inset-0 origin-left rounded-full bg-gradient-to-r from-emerald-500 to-green-500 ${
+        className={`absolute inset-0 origin-left rounded-full bg-gradient-to-r from-emerald-400 to-green-500 ${
           fast ? 'animate-pulse' : ''
         }`}
         style={{ transform: `scaleX(${fast ? 1 : props.progress})` }}
       />
+      <div className="absolute inset-x-1 top-0.5 h-2 rounded-full bg-white/30" />
       <div className="relative h-full flex items-center justify-between px-3">
-        <span className="text-[11px] font-black text-slate-900 tabular-nums drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]">
-          {props.label}
-        </span>
-        {props.detail && <span className="text-[10px] font-black text-slate-600 tabular-nums">{props.detail}</span>}
+        <span className="v2-display text-[12px] text-white v2-outline-thin tabular-nums">{props.label}</span>
+        {props.detail && <span className="v2-display text-[11px] text-indigo-900/70 tabular-nums">{props.detail}</span>}
       </div>
     </div>
   );

@@ -1,5 +1,12 @@
 import { BUSINESSES } from '../core/config/businesses';
-import { cycleRevenue, globalMultiplier, offlineEarnings, steadyIncomePerSecond, tapValue } from '../core/formulas';
+import {
+  cycleRevenue,
+  fetchReward,
+  globalMultiplier,
+  offlineEarnings,
+  steadyIncomePerSecond,
+  tapValue,
+} from '../core/formulas';
 import {
   buyBusinessUnits as coreBuyBusinessUnits,
   buyHome as coreBuyHome,
@@ -139,8 +146,14 @@ function withGame(state: RuntimeState, game: GameStateV2 | null): RuntimeState |
   return game ? { ...state, game } : null;
 }
 
+/** A tap on the scene: one collected bottle or can. */
 export function tap(state: RuntimeState): RuntimeState {
   return { ...state, game: earn(state.game, tapValue(state.game)) };
+}
+
+/** The player caught what Şans brought (the scene decides when he brings something). */
+export function claimFind(state: RuntimeState): RuntimeState {
+  return { ...state, game: earn(state.game, fetchReward(state.game)) };
 }
 
 export function buyBusinessUnits(state: RuntimeState, businessId: string, count: number) {
