@@ -14,6 +14,7 @@
     "cap:sync": "npm run build && npx cap sync",
     "cap:sync:v2": "npm run build:v2 && npx cap sync",
     "phone": "node scripts/phone.mjs",
+    "backup": "sh scripts/backup-drive.sh",
     "cap:add:android": "npx cap add android",
     "cap:add:ios": "npx cap add ios",
     "cap:open:android": "npx cap open android",
