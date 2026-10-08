@@ -65,7 +65,7 @@ Konuşmadan önce hazırlanacaklar:
 
 Kullanıcı: "Şu an hep eski kirli arka sokak ve üşüyor pozunda duran kahraman. Ve aynı kıyafet. Hikâye ile birlikte burayı da eş zamanlı değiştirelim." Sonra: ev ve araç seçimi ana ekrandaki ortamı değiştirmeli.
 
-**Katman önerisi (Claude):** her katmanı tek bir şey belirler. Arka plan = oturulan ev (dış mekân); araç = seçili araç, evin önünde park hâlinde; kıyafet = o anki kıyafet; poz/duruş = sınıf; hikâye anları = sınıf töreni. Annenin evi ayrı (kendi merdiveni, story §5).
+**Katman önerisi (Claude):** her katmanı tek bir şey belirler. Arka plan = oturulan ev (dış mekân); araç = seçili araç, evin önünde park hâlinde; kıyafet = o anki kıyafet; poz/duruş = sınıf; hikâye anları = sınıf töreni. Annenin evi ayrı (Faz 1'de törenle gelen iki basamak, story §4).
 
 **Kullanıcının yönü (2026-10-08), ayrıntı konuşulacak:**
 

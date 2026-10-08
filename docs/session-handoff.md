@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-08 · Dal: `v2-rebuild`
+Son güncelleme: 2026-10-09 · Dal: `v2-rebuild`
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve v2 onu Faz 2.11'de kaldıracak. Bu belge tarih sırasıyla günlük tutmaz; her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**.
 
@@ -28,17 +28,16 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 - **Reklam altyapısı:** `runtime/ads.ts` (AdMob 8.2.1, UMP izin formu, iOS ATT, web'de sahte reklam). Reklam yerleri henüz bağlı değil.
 - **Mobil:** Kayıt Preferences'ta, Android geri tuşu, güvenli alanlar; `npm run phone` ile telefonda canlı yenileme.
 
-## Son oturumda kararlaşanlar (2026-10-08 akşam)
+## Son oturumda kararlaşanlar (2026-10-09)
 
-- **Hikâye omurgası** ([story-v2.md](./story-v2.md) başı ve §4): ana zincir sadece sınıf törenlerine bağlı (her oyuncu sınıfları aynı sırayla geçer, "denk getirme" gerekmez). İşçi Sınıfı'nda annenin "babanın defteri" mesajı; Orta Sınıf'ta (30. dk) eski aile evi kendiliğinden geri alınır, çatı katında defter, içinden baba (Mehmet) + küçük kahraman + genç Rıza'nın fotoğrafı; Rıza babanın dostuymuş ama kahramanı tanımıyormuş. Anne mesajları sınıfa bağlı (günde en fazla 1, birikmez); 3 yönetici anı (Rıza, Selin, Hüseyin Usta = babanın eski çırağı). Annenin evi: eski ev ve konak törenle gelir, ara basamaklar isteğe bağlı. Faz 2: eş = Nevin Hanım'ın torunu (cüzdan zinciri), varis 17 yaşında torun, ölüm gösterilmez, 4. perde oynanabilir vakıf projesi.
-- **Sınıf merdiveni** ([game-design-v2.md §4.1](./game-design-v2.md), kodda): Multimilyoner kalktı; Sokak · Gündelikçi $1K · İşçi $100K · **Orta Sınıf $1M** (30. dk) · **Milyoner $10M** (dönüş oturumu) · Milyarder $1B · Multimilyarder $100B · En Zengin $1T. Sim hedefleri tutuyor.
-- **Görseller** (fal.ai, $0,60): Orta Sınıf anı için çatı katı ve eski fotoğraf (`art/pilot/07-story/`), Gündelikçi için minibüs arka planı (`art/pilot/05-scene/home-1-van-v1.png`). Oyuna bağlı değiller.
+- **Hikâye sadeleşti** ([story-v2.md §0](./story-v2.md)): türde hikâye az (Idle Guy'da yok, Rich Inc.'te tek açılış sahnesi); hikâye farkımız ama okunduğu ölçülmedi. Faz 1'de sadece kesin tetikler: önsöz, 7 tören kartı (1–3 cümle, taslaklar story §4), ~10 anne mesajı. Tek merak sorusu babanın defteri (İşçi'de açılır, Orta Sınıf'ta fotoğraf ve Rıza'nın açıklamasıyla kapanır). Annenin evi iki basamak, ikisi törenle (eski ev, konak). Bülent Bey'in töreni intikam değil: personeli korursun. Mektup/atölye, yönetici anları, annenin evi ara basamakları, hikaye hayalleri, eş zinciri story §7'de fikir havuzu; testte tören atlama oranı ölçülecek (`story_view`, plan 1.14).
+- Önceki oturumdan (2026-10-08): sınıf merdiveni (Orta Sınıf $1M, Milyoner $10M, Multimilyoner kalktı), hedefler, işletme yükseltmeleri; commit `75cf976`.
 
 ## Sıradaki (sırayla)
 
 1. **Ana ekran sahnesi, evler ve kıyafetler (sıradaki konuşma, [discussion-notes.md §7](./discussion-notes.md)):** Katmanlar tek sahibe bağlı: arka plan = oturulan ev, araç evin önünde, kıyafet, poz = sınıf, hikâye = tören. Kullanıcının yönü: ev 25 → 10–12, her sınıfa 1–2 ev, sınıf atlayınca herkes aynı evde (Claude: tören oyuncuyu sınıfın ilk evine taşır, ikinci ev isteğe bağlı alım); kıyafet 20 → 4–5 (Claude: kıyafeti tören versin, mecbur alım değil). Taslak ev tablosu notlarda. Açık: apartmanlarda dış/iç mekân, şişe toplamanın sınıfla neye dönüşeceği, "yemek" gibi ara anlar. Ekonomiyi etkiler → `npm run sim`.
 2. **Telefonda deneme:** İşletme ayarı (Çalıştır turda en az $1), hedeflerin "Git" düğmesi, yeni Orta Sınıf / Milyoner temposu.
-3. **Sınıf töreni + hikâye anları (1.10):** Hikâye omurgası, anne mesajları, yönetici anları; önsözün balon bileşeniyle. Sahne/kıyafet değişimi aynı tetiğe bağlanır.
+3. **Sınıf töreni (1.10):** 7 tören kartı ve anne mesajları (story §4), önsözün balon bileşeniyle. Sahne/kıyafet değişimi aynı tetiğe bağlanır.
 4. **Ekonomi ayarının kalanı:** çevrimdışı ödül ve ev bonusları ([discussion-notes.md §5](./discussion-notes.md)); reklamsız / reklam izleyen / ödeyen profilleri.
 5. **Reklam yerleri:** Çevrimdışı ×2, Şans ×2, 1 saatlik ×2 hızlandırıcı, hayaline yardım ([monetization-v2 §4](./monetization-v2.md)).
 6. **IAP:** Rahat Paket, Şans'ın Altın Tasması, Yeni Başlangıç, Gece Vardiyası Ekibi; RevenueCat; "Satın alımları geri yükle"; v1'in 8 ürünü pasifleştirilir.
