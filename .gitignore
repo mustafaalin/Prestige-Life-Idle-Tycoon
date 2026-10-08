@@ -23,3 +23,10 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# Local-only material, backed up to Google Drive instead of git (2026-10-08):
+# source art from fal.ai (the game uses the compressed copies in public/assets/),
+# the GPT Astra review and competitor screenshots.
+art/
+gpt-astra-inceleme/
+rich inc oyun görselleri/
