@@ -12,7 +12,7 @@ Ana ekran sınıfı izler: her sınıf töreni kahramanı yeni bir yere, yeni bi
 | --- | --- | --- | --- | --- | --- |
 | 0 Sokakta Yaşayan | 17 | Ara sokak (**var**) | 1 kapüşonlu (**var**) | Şişe, kutu (**var**) | İp (**var**) |
 | 1 Gündelikçi | 17 | Eski minibüs (**var**, `art/pilot/05-scene/home-1-van-v1.png`) | 1 kapüşonlu | Şişe, kutu | İp |
-| 2 İşçi Sınıfı | 18 | Kiralık daire önü | 2 iş kıyafeti | Bozuk para | İp |
+| 2 İşçi Sınıfı | 18 | Kiralık daire önü (**var**) | 2 iş kıyafeti (**var**) | Bozuk para (**var**) | İp |
 | 3 Orta Sınıf | 19 | Modern site avlusu | 3 şık günlük | Bozuk para | Deri |
 | 4 Milyoner | 20 | Bahçeli müstakil ev | 3 şık günlük | Kâğıt para destesi | Deri |
 | 5 Milyarder (ve sonrası, şimdilik) | 22–24 | Villa | 4 takım elbise | Para destesi, altın | Altın |
@@ -128,8 +128,8 @@ Referanslar: sahnenin yeri (ilgili arka plan ya da önsöz karesi) + kahraman k�
 | A | 3 kıyafet kılavuzu, 12 poz, 4 arka plan, 2 toplanacak sayfası, 2 karakter kılavuzu, 3 hikâye karesi (H1–H3) | 26 |
 | B | 4 Şans tasması, 3 hikâye karesi (H4–H6) | 7 |
 
-Önerilen sıra: kıyafet 2 kılavuzu → 2'nin 4 pozu → İşçi arka planı → bozuk paralar. Bu ilk set oyunda denenince stil oturur, sonra kalanlar.
+İlk set (kıyafet 2 kılavuzu ve 4 pozu, İşçi arka planı, bozuk paralar) 2026-10-09'da GPT ile üretildi ve oyuna bağlandı (`stages.ts` aşama 2). GPT'nin aracı ~1,57 MP veriyor: arka plan 941×1672 (1080 genişliğe büyütüldü, telefonda kabul edilebilir), pozlar 1000 px yüksekliğe yetiyor. Sıradaki: kıyafet 3 kılavuzu ve pozları, Orta Sınıf arka planı, Nevin ve Defne kılavuzları.
 
 ## 6. Oyuna bağlama (Claude)
 
-Görsel `art/pilot/...` altına konunca: arka planı silinir (karakterler ve nesneler), webp'ye çevrilir (`public/assets/scene/`, `public/assets/story/`), `stages.ts`'te o aşamanın satırı doldurulur, konum ve boy telefonda ayarlanır. Bir aşamanın görseli eksikken o aşama bir öncekinin görsellerini kullanır, oyun bozulmaz. Portreler karakter kılavuzlarından kesilir (`public/assets/story/portraits/`).
+Görsel `art/pilot/...` altına konunca: arka planı silinir (`scripts/cutout.sh`; kol ile gövde arasındaki kapalı gri boşluklar ayrıca silinir, ilk sette bu adım elle yapıldı) (karakterler ve nesneler), webp'ye çevrilir (`public/assets/scene/`, `public/assets/story/`), `stages.ts`'te o aşamanın satırı doldurulur, konum ve boy telefonda ayarlanır. Bir aşamanın görseli eksikken o aşama bir öncekinin görsellerini kullanır, oyun bozulmaz. Portreler karakter kılavuzlarından kesilir (`public/assets/story/portraits/`).

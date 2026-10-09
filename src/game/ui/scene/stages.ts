@@ -70,8 +70,21 @@ const STAGE_ART: Partial<SceneStage>[] = [
   STREET,
   // 1 Day Laborer: the old van becomes home (same alley camera, morning light). Still the hoodie.
   { background: `${DIR}/van.webp` },
-  // 2 Working Class: outside the first rented flat; work clothes; coins. Art pending.
-  {},
+  // 2 Working Class: outside the first rented flat; work clothes; coins. Şans keeps the rope collar.
+  {
+    background: `${DIR}/flat.webp`,
+    poses: {
+      idle: { src: `${DIR}/hero-work-idle.webp`, height: 0.42, aspect: 0.371, x: 0.4 },
+      collect: { src: `${DIR}/hero-work-collect.webp`, height: 0.22, aspect: 0.611, x: 0.4 },
+      joy: { src: `${DIR}/hero-work-joy.webp`, height: 0.425, aspect: 0.353, x: 0.4 },
+      pet: { src: `${DIR}/hero-work-pet-sans.webp`, height: 0.22, aspect: 0.839, x: 0.47, flip: true },
+    },
+    items: [
+      { src: `${DIR}/coin-one.webp`, width: 0.08 },
+      { src: `${DIR}/coin-pile.webp`, width: 0.12 },
+      { src: `${DIR}/coin-bill.webp`, width: 0.13 },
+    ],
+  },
   // 3 Middle Class: a modern apartment complex; smart casual; Şans gets a leather collar. Art pending.
   {},
   // 4 Millionaire: a detached house with a garden; smart casual; banknotes. Art pending.

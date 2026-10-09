@@ -25,7 +25,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 - **Ana ekran:** Tam ekran ara sokak; kahraman 4 pozla, yanında Şans. Şişe/kutu toplama (her biri ~2,5 sn gelir), Şans'ın 5–10 dakikada bir cüzdan getirmesi (sahibine verilir, teşekkür ödülü). Paralar kavisle bakiyeye uçar. Renkli üst bar (aylık gelir, sınıf, yaş, ayarlar), 3D ikonlu alt menü, sekmeler sahnenin üstünde sayfa.
 - **Ekranlar:** İşletmeler (adet, aylık kazanç, Çalıştır, kilometre taşı çubuğu, 3 yükseltme, her işletmeye kendi yöneticisi: portre + işe alma kartı + cümleler), Kariyer, Alışveriş/Evler, Ayarlar (dil, gizlilik seçenekleri). Ana ekranda Hedefler kartı (3 hedef, ödül; her hedefte resim, nerede yapıldığı ve "Git": sekmeyi açıp düğmeyi parlatır; sekme içinde hedef şeridi). Ortak görünüm `ui/kit.tsx`, yazı tipi Fredoka.
 - **Sınıf törenleri (1.10):** 7 tören, görsel roman (16 ifade portresi, çatı katı ve fotoğraf kareleri), "Önce / Şimdi" kartı; tören sırasında saat durur. İşçi töreninde Nevin Hanım ve torunu Defne (cüzdan zinciri; portreleri henüz yok, isim etiketiyle konuşuyorlar). Annenin 11 mesajı dönüş oturumlarında (20 saatte bir). Metinler story §4.
-- **Sahne aşamaları (1.6):** ana ekran sınıfı izler (`ui/scene/stages.ts`); tören bitince yeni yer ve kıyafet. Oyunda sokak ve minibüs (Gündelikçi); diğer aşamaların görselleri [art-brief-v2.md](./art-brief-v2.md)'de, gelene kadar önceki aşama görünür.
+- **Sahne aşamaları (1.6):** ana ekran sınıfı izler (`ui/scene/stages.ts`); tören bitince yeni yer ve kıyafet. Oyunda sokak, minibüs (Gündelikçi) ve kiralık daire önü (İşçi: iş kıyafeti, 4 poz, bozuk paralar; GPT ile, 2026-10-09); diğer aşamaların görselleri [art-brief-v2.md](./art-brief-v2.md)'de, gelene kadar önceki aşama görünür.
 - **Bildirimler (1.19):** annenin mesajı ve kasa dolunca Şans; günde en fazla bir, 10:00–21:00; izin ilk törenden sonra; Ayarlar'da aç/kapa. Telefonda henüz denenmedi.
 - **Ödül kartları:** Çevrimdışı kazanç (tavan sınıfla büyür: 10 dk → 2 sa), Şans'ın cüzdanı, yönetici işe alma.
 - **Ses ve haptik:** Toplama, alım, ödül.
@@ -47,14 +47,15 @@ Yeniden ayarlandı, kullanıcı telefonda deneyecek; açık sorular [discussion-
 
 ## Sıradaki (sırayla)
 
-1. **Görseller gelince oyuna bağlamak:** [art-brief-v2.md](./art-brief-v2.md) §6 (arka plan silme, webp, `stages.ts` satırı, Nevin/Defne portreleri `FACES`'e, hikâye kareleri `ceremonyScript.ts`'e).
+1. **Görseller gelince oyuna bağlamak:** ilk set (İşçi aşaması) bağlandı; kalanlar [art-brief-v2.md](./art-brief-v2.md) §5–6 (Orta Sınıf ve sonrası, Nevin/Defne portreleri `FACES`'e, hikâye kareleri `ceremonyScript.ts`'e).
 2. **Telefonda deneme:** törenler (DEV → "Töreni oynat" 1–7; sahne tören bitince değişmeli), annenin mesajı, bildirim ve "Deneme bildirimi (5 sn)", Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.prestigelife.idletycoon`). Yeni yerel eklentiler olduğu için `npm run phone -- --install`.
 3. **İmzalı v2 AAB → kapalı test kanalı:** sürüm kodu artırılır, DEV menüsü sürümde kapalı. Kapalı testin 14 günü ~2026-10-20'de doluyor; testçiler listede kalmalı.
 4. **Faz 1'in kalanı:** onboarding ve Rıza Amca rehber balonları (1.12), oyun testi paketi (1.15), tören hediyesi, ekonomi ayarının kalanı (discussion-notes §5), reklam yerleri ve IAP ([monetization-v2](./monetization-v2.md)), hayaller panosu (1.8). Ayrıntı: [rebuild-plan.md](./rebuild-plan.md).
 
 ## Kullanıcının yapacakları
 
-- **Görselleri GPT ile üretmek** ([art-brief-v2.md](./art-brief-v2.md); önerilen ilk set: kıyafet 2 kılavuzu + 4 pozu, İşçi arka planı, bozuk paralar).
+- **Görselleri GPT ile üretmeye devam** ([art-brief-v2.md](./art-brief-v2.md); ilk set oyunda; sıradaki: kıyafet 3 + Orta Sınıf arka planı, Nevin ve Defne kılavuzları).
+- **Telefonda İşçi sahnesini denemek:** DEV → "Töreni oynat" 2; tören bitince daire önü, iş kıyafeti ve bozuk paralar gelmeli. Boy/konum kötü görünürse söyle.
 - **Telefonda törenleri, sahne geçişini ve bildirimi denemek** (yukarıda 2).
 - **Telefonda gerçek test reklamını denemek:** DEV → "Test reklamı izle"; Google'ın "Test Ad" reklamı açılmalı, sonuç "rewarded" olmalı.
 - **AdMob konsolu:** Privacy & messaging → "European regulations" (GDPR) mesajı oluşturup uygulamaya bağlamak (yoksa AB'de izin formu açılmaz); yayından önce `app-ads.txt`.
