@@ -6,6 +6,7 @@ import { initAds } from '../../runtime/ads';
 import { haptic, playSfx, preloadSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { Scene } from '../scene/Scene';
+import { StoryDirector } from '../story/StoryDirector';
 import { BottomNav } from './BottomNav';
 import { CoinLayer } from './CoinLayer';
 import { burstCoins } from './coins';
@@ -19,7 +20,8 @@ import { TabSheet } from './TabSheet';
 import { TopBar } from './TopBar';
 
 // Home: the scene fills the screen; the top bar and menu float over it, tabs open as sheets.
-// The offline claim and the end-of-life sheet stay on top of everything.
+// The offline claim and the end-of-life sheet stay on top of everything; story moments (ceremonies,
+// Mom's messages) come above them.
 
 export function HomeScreen() {
   const { game, state, actions } = useGameV2();
@@ -112,6 +114,8 @@ export function HomeScreen() {
       )}
 
       {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
+
+      <StoryDirector />
 
       <CoinLayer />
     </div>

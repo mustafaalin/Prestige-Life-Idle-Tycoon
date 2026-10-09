@@ -23,6 +23,7 @@ import {
   live,
 } from '../core/state';
 import type { GameStateV2 } from '../core/types';
+import { createStoryProgress, type StoryProgress } from './story';
 
 // Runtime layer on top of the economy core: real-time production cycles, taps and offline time.
 // Pure functions — time comes in as an argument, so the store and any test can drive it.
@@ -47,6 +48,8 @@ export interface RuntimeState {
   offline: PendingOffline | null;
   /** Wall-clock ms up to which time has been simulated. */
   lastActiveAt: number;
+  /** Ceremonies seen and Mom's messages (story-v2.md §4). */
+  story: StoryProgress;
 }
 
 export interface Payout {
@@ -68,7 +71,7 @@ export function emptyCycles(): Record<string, CycleState> {
 }
 
 export function createRuntimeState(now: number, game: GameStateV2 = createInitialState()): RuntimeState {
-  return { game, cycles: emptyCycles(), offline: null, lastActiveAt: now };
+  return { game, cycles: emptyCycles(), offline: null, lastActiveAt: now, story: createStoryProgress() };
 }
 
 /** Runs production cycles for `seconds`. Offline time skips managed lines; their income comes from offlineEarnings. */

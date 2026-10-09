@@ -1,17 +1,32 @@
-import { ShieldCheck, X } from 'lucide-react';
+import { Bell, ShieldCheck, X } from 'lucide-react';
+import { useState } from 'react';
 import { LOCALES, type Locale } from '../../i18n/locales';
 import { useT } from '../../i18n/useT';
 import { showPrivacyOptions } from '../../runtime/ads';
+import {
+  notificationsEnabled,
+  notificationsSupported,
+  requestNotificationPermission,
+  setNotificationsEnabled,
+} from '../../runtime/notifications';
 import { useBackButton } from '../../runtime/backButton';
 import { useAdsState } from '../../runtime/useAds';
 import { GameButton, Segmented, SectionLabel } from '../kit';
 
-// Settings: language, and the privacy options the consent rules require players to be able to
+// Settings: language, reminders (Mom and Lucky, phones only), and the privacy options the consent rules require players to be able to
 // reopen (EEA/UK/Switzerland). Restore purchases joins here with IAP (docs/monetization-v2.md).
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { t, locale, setLocale } = useT();
   const { privacyOptionsRequired } = useAdsState();
+  const [notify, setNotify] = useState(notificationsEnabled);
+
+  const toggleNotify = () => {
+    const next = !notify;
+    setNotify(next);
+    setNotificationsEnabled(next);
+    if (next) void requestNotificationPermission();
+  };
 
   useBackButton(true, 60, onClose);
 
@@ -43,6 +58,27 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
             value={locale}
             onChange={setLocale}
           />
+
+          {notificationsSupported && (
+            <GameButton
+              tone="soft"
+              onClick={toggleNotify}
+              className="mt-1 py-2.5 px-4 flex items-center gap-3 text-left"
+            >
+              <Bell className="w-6 h-6 shrink-0" />
+              <span className="flex-1 flex flex-col">
+                <span className="v2-display text-[15px]">{t('settings.notifications')}</span>
+                <span className="text-[11px] font-bold text-indigo-900/60">{t('settings.notificationsBody')}</span>
+              </span>
+              <span
+                className={`relative w-11 h-6 rounded-full shrink-0 transition-all ${notify ? 'bg-emerald-500' : 'bg-slate-300'}`}
+              >
+                <span
+                  className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${notify ? 'left-[22px]' : 'left-0.5'}`}
+                />
+              </span>
+            </GameButton>
+          )}
 
           {privacyOptionsRequired && (
             <GameButton

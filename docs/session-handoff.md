@@ -23,6 +23,8 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 - **Önsöz:** 6 karelik görsel roman (annesini doğum gününde aradığı için kovulma → lojmandan çıkış → otogarda söz → ara sokakta Şans). Yeni oyuncu oyundan önce görür.
 - **Ana ekran:** Tam ekran ara sokak; kahraman 4 pozla, yanında Şans. Şişe/kutu toplama (her biri ~2,5 sn gelir), Şans'ın 5–10 dakikada bir cüzdan getirmesi (sahibine verilir, teşekkür ödülü). Paralar kavisle bakiyeye uçar. Renkli üst bar (aylık gelir, sınıf, yaş, ayarlar), 3D ikonlu alt menü, sekmeler sahnenin üstünde sayfa.
 - **Ekranlar:** İşletmeler (adet, aylık kazanç, Çalıştır, kilometre taşı çubuğu, 3 yükseltme, her işletmeye kendi yöneticisi: portre + işe alma kartı + cümleler), Kariyer, Alışveriş/Evler, Ayarlar (dil, gizlilik seçenekleri). Ana ekranda Hedefler kartı (3 hedef, ödül; her hedefte resim, nerede yapıldığı ve "Git": sekmeyi açıp düğmeyi parlatır; sekme içinde hedef şeridi). Ortak görünüm `ui/kit.tsx`, yazı tipi Fredoka.
+- **Sınıf törenleri (1.10):** 7 tören, görsel roman (16 ifade portresi, çatı katı ve fotoğraf kareleri), "Önce / Şimdi" kartı; tören sırasında saat durur. Annenin 10 mesajı dönüş oturumlarında (20 saatte bir). Metinler story §4.
+- **Bildirimler (1.19):** annenin mesajı ve kasa dolunca Şans; günde en fazla bir, 10:00–21:00; izin ilk törenden sonra; Ayarlar'da aç/kapa. Telefonda henüz denenmedi.
 - **Ödül kartları:** Çevrimdışı kazanç (tavan sınıfla büyür: 10 dk → 2 sa), Şans'ın cüzdanı, yönetici işe alma.
 - **Ses ve haptik:** Toplama, alım, ödül.
 - **Reklam altyapısı:** `runtime/ads.ts` (AdMob 8.2.1, UMP izin formu, iOS ATT, web'de sahte reklam). Reklam yerleri henüz bağlı değil.
@@ -30,21 +32,22 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 
 ## Son oturumda kararlaşanlar (2026-10-09)
 
-- **Hikâye sadeleşti** ([story-v2.md §0](./story-v2.md)): türde hikâye az (Idle Guy'da yok, Rich Inc.'te tek açılış sahnesi); hikâye farkımız ama okunduğu ölçülmedi. Faz 1'de sadece kesin tetikler: önsöz, 7 tören kartı (1–3 cümle, taslaklar story §4), ~10 anne mesajı. Tek merak sorusu babanın defteri (İşçi'de açılır, Orta Sınıf'ta fotoğraf ve Rıza'nın açıklamasıyla kapanır). Annenin evi iki basamak, ikisi törenle (eski ev, konak). Bülent Bey'in töreni intikam değil: personeli korursun. Mektup/atölye, yönetici anları, annenin evi ara basamakları, hikaye hayalleri, eş zinciri story §7'de fikir havuzu; testte tören atlama oranı ölçülecek (`story_view`, plan 1.14).
-- Önceki oturumdan (2026-10-08): sınıf merdiveni (Orta Sınıf $1M, Milyoner $10M, Multimilyoner kalktı), hedefler, işletme yükseltmeleri; commit `75cf976`.
+- **Hikâye Faz 1'de küçük kalıyor** ([story-v2.md §0](./story-v2.md)): önsöz, 7 tören, 10 anne mesajı; diğer fikirler story §7'de, testte tören atlama oranı ölçülecek (`story_view`).
+- **Kanca zinciri:** her tören ya da anne mesajı sonrakinin sorusunu eker. Defter sorusu oturum sınırını geçer: Orta Sınıf'ta (ilk oturumun sonu) fotoğrafta Rıza görülür, *"Babamı tanıyor muydu?"*; Rıza Milyoner'de (dönüş oturumu) cevaplar. Önsözde yarım kalanlar geri döner (telefon → Bülent Bey'e "annenizi arayabilirsiniz", pasta → En Zengin'de pasta, "sen bana yetersin" → "sen bana hep yettin"). Kullanıcı metinleri Claude'a bıraktı.
+- **Bildirimler Faz 1'de** (kullanıcı: "mutlaka olmalı").
 
 ## Sıradaki (sırayla)
 
-1. **Ana ekran sahnesi, evler ve kıyafetler (sıradaki konuşma, [discussion-notes.md §7](./discussion-notes.md)):** Katmanlar tek sahibe bağlı: arka plan = oturulan ev, araç evin önünde, kıyafet, poz = sınıf, hikâye = tören. Kullanıcının yönü: ev 25 → 10–12, her sınıfa 1–2 ev, sınıf atlayınca herkes aynı evde (Claude: tören oyuncuyu sınıfın ilk evine taşır, ikinci ev isteğe bağlı alım); kıyafet 20 → 4–5 (Claude: kıyafeti tören versin, mecbur alım değil). Taslak ev tablosu notlarda. Açık: apartmanlarda dış/iç mekân, şişe toplamanın sınıfla neye dönüşeceği, "yemek" gibi ara anlar. Ekonomiyi etkiler → `npm run sim`.
-2. **Telefonda deneme:** İşletme ayarı (Çalıştır turda en az $1), hedeflerin "Git" düğmesi, yeni Orta Sınıf / Milyoner temposu.
-3. **Sınıf töreni (1.10):** 7 tören kartı ve anne mesajları (story §4), önsözün balon bileşeniyle. Sahne/kıyafet değişimi aynı tetiğe bağlanır.
-4. **Ekonomi ayarının kalanı:** çevrimdışı ödül ve ev bonusları ([discussion-notes.md §5](./discussion-notes.md)); reklamsız / reklam izleyen / ödeyen profilleri.
-5. **Reklam yerleri:** Çevrimdışı ×2, Şans ×2, 1 saatlik ×2 hızlandırıcı, hayaline yardım ([monetization-v2 §4](./monetization-v2.md)).
-6. **IAP:** Rahat Paket, Şans'ın Altın Tasması, Yeni Başlangıç, Gece Vardiyası Ekibi; RevenueCat; "Satın alımları geri yükle"; v1'in 8 ürünü pasifleştirilir.
-7. **Faz 1'in kalanı:** onboarding ve Rıza Amca rehber balonları (1.12), hayaller panosu (1.8), analitik (1.14), oyun testi paketi (1.15). Ayrıntı: [rebuild-plan.md](./rebuild-plan.md).
+1. **Telefonda deneme:** törenler (DEV → "Töreni oynat" 1–7), annenin mesajı, bildirim izni kartı ve "Deneme bildirimi (5 sn)" (simge, metin, dokununca açılış). Yeni yerel eklenti olduğu için `npm run phone -- --install`. Ayrıca bekleyenler: işletme ayarı, hedeflerin "Git" düğmesi, Orta Sınıf / Milyoner temposu.
+2. **Ana ekran sahnesi, evler ve kıyafetler ([discussion-notes.md §7](./discussion-notes.md)):** katmanlar tek sahibe bağlı (arka plan = ev, araç evin önünde, kıyafet, poz = sınıf); ev 25 → 10–12, kıyafet 20 → 4–5, kıyafeti tören versin (öneri). Karar çıkınca sahne değişimi törenin aynı tetiğine bağlanır. Ekonomiyi etkiler → `npm run sim`.
+3. **Ekonomi ayarının kalanı:** çevrimdışı ödül ve ev bonusları ([discussion-notes.md §5](./discussion-notes.md)); reklamsız / reklam izleyen / ödeyen profilleri.
+4. **Reklam yerleri:** Çevrimdışı ×2, Şans ×2, 1 saatlik ×2 hızlandırıcı, hayaline yardım, tören hediyesi ×2 ([monetization-v2 §4](./monetization-v2.md)).
+5. **IAP:** Rahat Paket, Şans'ın Altın Tasması, Yeni Başlangıç, Gece Vardiyası Ekibi; RevenueCat; "Satın alımları geri yükle"; v1'in 8 ürünü pasifleştirilir.
+6. **Faz 1'in kalanı:** onboarding ve Rıza Amca rehber balonları (1.12), hayaller panosu (1.8), analitik (1.14; `runtime/analytics.ts` hazır bekliyor), oyun testi paketi (1.15), En Zengin görseli (konak + pasta). Ayrıntı: [rebuild-plan.md](./rebuild-plan.md).
 
 ## Kullanıcının yapacakları
 
+- **Telefonda törenleri ve bildirimi denemek** (yukarıda 1).
 - **Telefonda gerçek test reklamını denemek:** DEV → "Test reklamı izle"; Google'ın "Test Ad" reklamı açılmalı, sonuç "rewarded" olmalı.
 - **AdMob konsolu:** Privacy & messaging → "European regulations" (GDPR) mesajı oluşturup uygulamaya bağlamak (yoksa AB'de izin formu açılmaz); yayından önce `app-ads.txt`.
 - **Firebase projesi** (Analytics + Remote Config + Crashlytics) ve `google-services.json` (plan Faz 0).

@@ -132,3 +132,10 @@
 @media (prefers-reduced-motion: reduce) {
   .v2-focus-ring, .v2-focus-hand { animation: none; }
 }
+
+/* Class-up ceremony confetti (ui/story/Ceremony.tsx): falls with a sideways drift and a spin. */
+@keyframes v2-confetti {
+  0% { transform: translate3d(0, -20px, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--drift, 0px), 105dvh, 0) rotate(720deg); opacity: 0.7; }
+}
+.v2-confetti { animation: v2-confetti 3s cubic-bezier(0.25, 0.6, 0.45, 1) both; }

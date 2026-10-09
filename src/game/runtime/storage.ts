@@ -10,6 +10,7 @@ import { classIndexFor } from '../core/formulas';
 import { createInitialState } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
+import { createStoryProgress, MOM_MESSAGES, type StoryProgress } from './story';
 
 // Local save for v2. Separate key from v1 so both games can live side by side until v1 is removed.
 // On phones the save lives in Preferences (SharedPreferences / UserDefaults): the OS may clear a
@@ -112,6 +113,19 @@ function normalizeOffline(raw: unknown): PendingOffline | null {
   return amount > 0 ? { amount, awaySeconds: finite(raw.awaySeconds, 0) } : null;
 }
 
+const knownMomMessages = new Set(MOM_MESSAGES.map((message) => message.id));
+
+/** Saves from before the ceremonies count every class reached as seen, so nobody gets a flood of them. */
+function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
+  if (!isRecord(raw)) return createStoryProgress(game.classIndex);
+  return {
+    ceremonySeen: Math.min(Math.floor(finite(raw.ceremonySeen, game.classIndex)), game.classIndex),
+    momSeen: stringList(raw.momSeen).filter((id) => knownMomMessages.has(id)),
+    momShownAt: finite(raw.momShownAt, 0),
+    notificationsAsked: raw.notificationsAsked === true,
+  };
+}
+
 const native = Capacitor.isNativePlatform();
 
 function savedAtOf(text: string | null) {
@@ -152,12 +166,14 @@ export function parseRuntime(text: string | null, now: number): RuntimeState {
     const file: unknown = JSON.parse(text);
     if (!isRecord(file) || file.schema !== SAVE_SCHEMA || !isRecord(file.runtime)) return createRuntimeState(now);
     const runtime = file.runtime;
+    const game = normalizeGame(runtime.game);
     return {
-      game: normalizeGame(runtime.game),
+      game,
       cycles: normalizeCycles(runtime.cycles),
       offline: normalizeOffline(runtime.offline),
       // A clock set forward and back again must not count as time away.
       lastActiveAt: Math.min(finite(runtime.lastActiveAt, now), now),
+      story: normalizeStory(runtime.story, game),
     };
   } catch {
     return createRuntimeState(now);

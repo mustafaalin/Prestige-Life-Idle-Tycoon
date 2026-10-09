@@ -37,7 +37,11 @@ export type GameEvent =
   /** One or more production cycles finished this tick (drives "+$1.2K" flying numbers). */
   | { type: 'payout'; payouts: Payout[] }
   /** A new wealth class was reached (drives the class-up ceremony). */
-  | { type: 'classUp'; classIndex: number };
+  | { type: 'classUp'; classIndex: number }
+  /** The game caught up after the app was closed or in the background (also once at start). */
+  | { type: 'returned'; awaySeconds: number }
+  /** The app is going to the background (reminders are scheduled here). */
+  | { type: 'background' };
 
 export interface GameActions {
   tap(): void;
@@ -57,6 +61,13 @@ export interface GameActions {
   claimOffline(multiplier?: number): boolean;
   /** End of life: hand the family over to the heir. */
   retire(): boolean;
+  story: {
+    /** Stops the clock (income and age) while a ceremony plays (story-v2.md §4). */
+    setPaused(paused: boolean): void;
+    ceremonySeen(classIndex: number): void;
+    momShown(messageId: string): void;
+    notificationsAsked(): void;
+  };
   dev: {
     getSpeed(): number;
     setSpeed(speed: number): void;
@@ -82,6 +93,7 @@ export interface GameStore {
 export function createGameStore(saveText: string | null, clock: () => number = Date.now): GameStore {
   let state = parseRuntime(saveText, clock());
   let speed = 1;
+  let paused = false;
   let lastSavedAt = clock();
   const listeners = new Set<() => void>();
   const eventListeners = new Set<(event: GameEvent) => void>();
@@ -106,13 +118,20 @@ export function createGameStore(saveText: string | null, clock: () => number = D
   };
 
   const runTick = () => {
+    if (paused) {
+      // Time stands still: the clock moves on without earning or ageing.
+      state = { ...state, lastActiveAt: clock() };
+      return;
+    }
     const result = tick(state, clock(), speed);
     if (result.state !== state) commit(result.state, result.payouts, false);
   };
 
   const runResume = () => {
+    const awaySeconds = Math.max(0, (clock() - state.lastActiveAt) / 1000);
     const result = resume(state, clock());
     commit(result.state, result.payouts, true);
+    eventListeners.forEach((listener) => listener({ type: 'returned', awaySeconds }));
   };
 
   /** Player actions save right away so a purchase is never lost to a crash. */
@@ -123,9 +142,14 @@ export function createGameStore(saveText: string | null, clock: () => number = D
     return true;
   };
 
+  const updateStory = (change: (story: RuntimeState['story']) => RuntimeState['story']) => {
+    act((s) => ({ ...s, story: change(s.story) }));
+  };
+
   const goBackground = () => {
     runTick();
     persist();
+    eventListeners.forEach((listener) => listener({ type: 'background' }));
   };
 
   const onVisibilityChange = () => {
@@ -193,6 +217,21 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       moveHome: (houseId) => act((s) => moveHome(s, houseId)),
       claimOffline: (multiplier) => act((s) => claimOffline(s, multiplier)),
       retire: () => act(retire),
+      story: {
+        setPaused: (value) => {
+          if (paused && !value) state = { ...state, lastActiveAt: clock() };
+          paused = value;
+        },
+        ceremonySeen: (classIndex) =>
+          updateStory((story) => ({ ...story, ceremonySeen: Math.max(story.ceremonySeen, classIndex) })),
+        momShown: (messageId) =>
+          updateStory((story) => ({
+            ...story,
+            momSeen: story.momSeen.includes(messageId) ? story.momSeen : [...story.momSeen, messageId],
+            momShownAt: clock(),
+          })),
+        notificationsAsked: () => updateStory((story) => ({ ...story, notificationsAsked: true })),
+      },
       dev: {
         getSpeed: () => speed,
         setSpeed: (value) => {

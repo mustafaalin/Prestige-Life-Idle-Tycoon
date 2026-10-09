@@ -16,6 +16,11 @@ const config: CapacitorConfig = {
       splashImmersive: true,
       showSpinner: false,
     },
+    // v2 reminders (src/game/runtime/notifications.ts): white heart, tinted violet.
+    LocalNotifications: {
+      smallIcon: 'ic_stat_notify',
+      iconColor: '#7C3AED',
+    },
   },
 };
 

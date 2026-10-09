@@ -5,7 +5,9 @@ import { useT } from '../i18n/useT';
 import { useBackButton } from '../runtime/backButton';
 import { useGameV2 } from '../runtime/useGameV2';
 import { showRewardedAd } from '../runtime/ads';
+import { scheduleTestReminder } from '../runtime/notifications';
 import { requestFind } from './scene/sceneEvents';
+import { requestCeremony, requestMomMessage } from './story/storyEvents';
 
 // Playtest tools. Shown in `npm run dev` and in builds with VITE_DEV_MENU=true.
 
@@ -13,6 +15,7 @@ const SPEEDS = [1, 10, 100];
 const CASH_AMOUNTS = [1e3, 1e6, 1e9, 1e12];
 const AWAY_SECONDS = [5 * 60, 60 * 60, 3 * 60 * 60];
 const AGE_YEARS = [10, 40];
+const CEREMONY_CLASSES = [1, 2, 3, 4, 5, 6, 7];
 
 function Chip({ active, onClick, children }: { active?: boolean; onClick: () => void; children: ReactNode }) {
   return (
@@ -155,6 +158,35 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
         >
           {t('dev.find')}
         </button>
+
+        <Row label={t('dev.ceremony')}>
+          {CEREMONY_CLASSES.map((classIndex) => (
+            <Chip
+              key={classIndex}
+              onClick={() => {
+                close();
+                requestCeremony(classIndex);
+              }}
+            >
+              {classIndex}
+            </Chip>
+          ))}
+          <Chip
+            onClick={() => {
+              close();
+              requestMomMessage();
+            }}
+          >
+            {t('dev.mom')}
+          </Chip>
+          <Chip
+            onClick={() =>
+              void scheduleTestReminder({ title: t('mom.from'), body: t('mom.stair') }, t('notify.channel'))
+            }
+          >
+            {t('dev.notifyTest')}
+          </Chip>
+        </Row>
 
         <button
           type="button"

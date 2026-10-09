@@ -17,7 +17,7 @@ Session startup — read in this order:
 
 `docs/v1/` is the v1 archive (`v1/game-rules.md` = v1 rules only). Don't use it for v2 work.
 
-v2 rules of thumb: pure-TS economy in `src/game/core/` (no React); every balance change goes through `npm run sim`; every on-screen string via `src/game/i18n/` in both `en` and `tr`; save key `prestige_life_v2`. v2 game look (glossy buttons, Fredoka display font, outlined numbers) comes from `src/game/ui/kit.tsx` and the `v2-*` classes in `src/game/mobile.css`; sounds and haptics via `src/game/runtime/feedback.ts`; rewarded ads via `src/game/runtime/ads.ts`. Docs are rewritten to the current state, not appended to (see `docs/session-handoff.md`).
+v2 rules of thumb: pure-TS economy in `src/game/core/` (no React); every balance change goes through `npm run sim`; every on-screen string via `src/game/i18n/` in both `en` and `tr`; save key `prestige_life_v2`. v2 game look (glossy buttons, Fredoka display font, outlined numbers) comes from `src/game/ui/kit.tsx` and the `v2-*` classes in `src/game/mobile.css`; sounds and haptics via `src/game/runtime/feedback.ts`; rewarded ads via `src/game/runtime/ads.ts`; ceremonies and Mom's messages via `src/game/ui/story/` + `src/game/runtime/story.ts`; phone reminders via `src/game/runtime/notifications.ts`. Docs are rewritten to the current state, not appended to (see `docs/session-handoff.md`).
 
 ## Commands
 
