@@ -61,34 +61,12 @@ Konuşmadan önce hazırlanacaklar:
 - Önerilen ek profiller: ilk 2 dakikada çıkan, yöneticiyi geciktiren, günde iki kez dönen, 24 saat ara veren (+ §5'teki reklam/ödeme profilleri).
 - Gerçek doğrulama oyun testi ve analitikle (plan 1.14–1.15).
 
-## 7. Ana ekranın hikâyeyle birlikte değişmesi (kullanıcı, 2026-10-08; sıradaki konu)
+## 7. Evler, kıyafetler ve sahne: kalan sorular
 
-Kullanıcı: "Şu an hep eski kirli arka sokak ve üşüyor pozunda duran kahraman. Ve aynı kıyafet. Hikâye ile birlikte burayı da eş zamanlı değiştirelim." Sonra: ev ve araç seçimi ana ekrandaki ortamı değiştirmeli.
+**Kararlaşan (2026-10-09):** ana ekran sınıfı izler. Her tören kahramanı o sınıfın yerine ve kıyafetine taşır (6 aşama: sokak, minibüs, kiralık daire, site, müstakil ev, villa; 4 kıyafet). Kod `src/game/ui/scene/stages.ts`, görsel listesi [art-brief-v2.md](./art-brief-v2.md). Görselleri önce GPT üretecek (kullanıcı projeyi gören bir GPT ile deneyecek), beğenilmezse fal.ai.
 
-**Katman önerisi (Claude):** her katmanı tek bir şey belirler. Arka plan = oturulan ev (dış mekân); araç = seçili araç, evin önünde park hâlinde; kıyafet = o anki kıyafet; poz/duruş = sınıf; hikâye anları = sınıf töreni. Annenin evi ayrı (Faz 1'de törenle gelen iki basamak, story §4).
+**Açık (kapalı testten sonra):**
 
-**Kullanıcının yönü (2026-10-08), ayrıntı konuşulacak:**
-
-- **Kıyafet 4–5 tane** (20 değil). Hikâye görsellerinde (ör. Orta Sınıf'taki çatı katı) kahraman o anki kıyafetiyle görünmeli; bu yüzden törendeki kıyafet belli olmalı. Kullanıcının fikri: oyuncu o kıyafeti almaya mecbur bırakılabilir.
-  - Claude'un görüşü: mecbur bırakmak yerine **kıyafeti sınıf töreni versin** ("Önce / Şimdi" kartında yeni kıyafet). Sonuç aynı (törende kıyafet kesin) ama sınıf harcamaya bağlanmaz (sınıf kazanılan toplamdan gelir, game-design §4.1) ve oyuncu "kıyafet alamadım, ilerleyemiyorum" diye takılmaz. Öneri eşleme: 1 sokak kapüşonlusu (Sokak, Gündelikçi) · 2 temiz iş kıyafeti (İşçi) · 3 şık günlük (Orta Sınıf, Milyoner) · 4 takım elbise (Milyarder, Multimilyarder) · 5 en şık (En Zengin). Kıyafetlerin gelir bonusu ev/araca ya da aksesuara (saat, Şans'ın tasması) kayar; ekonomi `npm run sim` ile.
-  - Sonuç: çatı katı görseli (`art/pilot/07-story/milyoner-attic-v1.png`) kapüşonluyla üretildi; 3. kıyafet tasarlanınca o kıyafetle yeniden üretilir.
-- **Ev sayısı 10–12** (25 değil), çok sık taşınma olmasın; her sınıfın belli evleri olsun ki sınıf atlayınca herkes aynı evde olsun ve hikâye güçlü anlatılsın.
-  - Claude'un görüşü: katılıyorum. Bugün bot ilk 30 dakikada 9 kez taşınıyor (`npm run sim -- --purchases`). Öneri: her sınıfa 1–2 ev. **Tören oyuncuyu o sınıfın ilk evine taşır** (herkes aynı yerde; story §4'teki "İşçi: ilk kiralık daire" yeniden geçerli olur). Sınıf içinde ikinci, daha iyi ev isteğe bağlı alım olarak kalır (seçim ve para harcama yeri korunur); satın alma / kiraya verme orta sınıflardan itibaren. Ev bonusu ve taşınma bedeli değişeceği için ekonomi yeniden simüle edilir.
-- **Arka plan denemesi:** Gündelikçi için ilk yer "eski minibüs": aynı ara sokak sabah ışığında, minibüs ev olmuş, yanında ocak ve tencere ("ilk sıcak yemek" anıyla örtüşür). `art/pilot/05-scene/home-1-van-v1.png` (ara sokakla aynı kamera ve zemin; alt yarı karakterler için boş). $0,15. Çöp torbaları kaldı, istenirse düzeltilir.
-
-**Ev taslağı (Claude, 2026-10-08, konuşulacak; sınıflar Orta Sınıf değişikliğiyle güncel):**
-
-| Sınıf | Ev(ler) |
-| --- | --- |
-| Sokak | Ara sokak (çadır) |
-| Gündelikçi | Eski minibüs (deneme görseli var) |
-| İşçi Sınıfı | Eski kiralık daire → yeni kiralık daire |
-| Orta Sınıf | Modern daire (site) |
-| Milyoner | İlk müstakil ev → bahçeli ev |
-| Milyarder | Villa → cam ev |
-| Multimilyarder | Çatı katı (penthouse) → sahil malikânesi |
-| En Zengin | Kır malikânesi → şato |
-
-Bugünkü kod: 25 ev (`config/housing.ts`), 9'u sadece kiralık, yaşanan ev +%5 × (n−1) bonus, taşınma bedeli $200 × 2,75ⁿ; bot ilk 30 dakikada 9 kez taşınıyor (`npm run sim -- --purchases`). Değişiklik ekonomiyi etkiler (ev bonusu, taşınma bedeli, kira), simülatörle yapılır. 20 kıyafet (`config/lifestyle.ts`) 4–5'e inerken gelir bonusları da yeniden dağıtılır.
-
-Konuşulacaklar: sınıf → ev eşlemesi (yukarıdaki taslak), apartman evlerinde dış mekân mı (bina girişi/avlu) iç mekân mı (iç mekânda araç görünmez), sınıf yükseldikçe dokunulan şeyin ne olacağı (şişe → ?), ara anlar ("yemek").
+- **Mağaza evleri ve kıyafetleri sahneyle nasıl bağlanacak?** Bugün 25 ev ve 20 kıyafet mağazada duruyor, ama sahneyi değiştirmiyor. Kullanıcının yönü: ev 10–12 olsun, kıyafet 4–5 olsun, oturulan ev arka planı belirlesin, araç evin önünde dursun. Claude'un önerisi: sınıf içinde ikinci, daha iyi ev isteğe bağlı alım olarak kalsın; kıyafet gelir bonusu ev, araç ya da aksesuara kaysın. Bot ilk 30 dakikada 9 kez taşınıyor (`npm run sim -- --purchases`). Ekonomiyi etkiler, `npm run sim` ile yapılır.
+- **Apartman evlerinde dış mekân mı iç mekân mı?** Şimdilik dış mekân (bina girişi ve avlu), çünkü iç mekânda araç görünmez.
+- **Ara anlar** ("ilk sıcak yemek" gibi): art-brief H6 isteğe bağlı.

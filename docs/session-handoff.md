@@ -14,6 +14,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 | [monetization-v2.md](./monetization-v2.md) | Reklam ve IAP | Kararlaştırıldı (2026-10-08); altyapı hazır, yerler ve IAP bekliyor. |
 | [rebuild-plan.md](./rebuild-plan.md) | **Ne zaman?** Fazlar, görevler, durum | Yapılanlar işaretli. |
 | [discussion-notes.md](./discussion-notes.md) | Kararı bekleyen konular | Sadece açık konular; karar verilince taşınır. |
+| [art-brief-v2.md](./art-brief-v2.md) | Üretilecek görseller | Liste, boyutlar, referanslar, komutlar; GPT'ye ya da fal.ai'ye verilir. |
 | [mobile-ad-integration.md](./mobile-ad-integration.md) | Reklam altyapısı | Üstte v2 bölümü, altında v1. |
 | [v1/](./v1/) | v1 arşivi | v2 işinde okunmaz. |
 
@@ -23,7 +24,8 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 - **Önsöz:** 6 karelik görsel roman (annesini doğum gününde aradığı için kovulma → lojmandan çıkış → otogarda söz → ara sokakta Şans). Yeni oyuncu oyundan önce görür.
 - **Ana ekran:** Tam ekran ara sokak; kahraman 4 pozla, yanında Şans. Şişe/kutu toplama (her biri ~2,5 sn gelir), Şans'ın 5–10 dakikada bir cüzdan getirmesi (sahibine verilir, teşekkür ödülü). Paralar kavisle bakiyeye uçar. Renkli üst bar (aylık gelir, sınıf, yaş, ayarlar), 3D ikonlu alt menü, sekmeler sahnenin üstünde sayfa.
 - **Ekranlar:** İşletmeler (adet, aylık kazanç, Çalıştır, kilometre taşı çubuğu, 3 yükseltme, her işletmeye kendi yöneticisi: portre + işe alma kartı + cümleler), Kariyer, Alışveriş/Evler, Ayarlar (dil, gizlilik seçenekleri). Ana ekranda Hedefler kartı (3 hedef, ödül; her hedefte resim, nerede yapıldığı ve "Git": sekmeyi açıp düğmeyi parlatır; sekme içinde hedef şeridi). Ortak görünüm `ui/kit.tsx`, yazı tipi Fredoka.
-- **Sınıf törenleri (1.10):** 7 tören, görsel roman (16 ifade portresi, çatı katı ve fotoğraf kareleri), "Önce / Şimdi" kartı; tören sırasında saat durur. Annenin 10 mesajı dönüş oturumlarında (20 saatte bir). Metinler story §4.
+- **Sınıf törenleri (1.10):** 7 tören, görsel roman (16 ifade portresi, çatı katı ve fotoğraf kareleri), "Önce / Şimdi" kartı; tören sırasında saat durur. İşçi töreninde Nevin Hanım ve torunu Defne (cüzdan zinciri; portreleri henüz yok, isim etiketiyle konuşuyorlar). Annenin 11 mesajı dönüş oturumlarında (20 saatte bir). Metinler story §4.
+- **Sahne aşamaları (1.6):** ana ekran sınıfı izler (`ui/scene/stages.ts`); tören bitince yeni yer ve kıyafet. Oyunda sokak ve minibüs (Gündelikçi); diğer aşamaların görselleri [art-brief-v2.md](./art-brief-v2.md)'de, gelene kadar önceki aşama görünür.
 - **Bildirimler (1.19):** annenin mesajı ve kasa dolunca Şans; günde en fazla bir, 10:00–21:00; izin ilk törenden sonra; Ayarlar'da aç/kapa. Telefonda henüz denenmedi.
 - **Ödül kartları:** Çevrimdışı kazanç (tavan sınıfla büyür: 10 dk → 2 sa), Şans'ın cüzdanı, yönetici işe alma.
 - **Ses ve haptik:** Toplama, alım, ödül.
@@ -33,25 +35,25 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 
 ## Son oturumda kararlaşanlar (2026-10-09)
 
-- **Hikâye Faz 1'de küçük kalıyor** ([story-v2.md §0](./story-v2.md)): önsöz, 7 tören, 10 anne mesajı; diğer fikirler story §7'de, testte tören atlama oranı ölçülecek (`story_view`).
-- **Kanca zinciri:** her tören ya da anne mesajı sonrakinin sorusunu eker. Defter sorusu oturum sınırını geçer: Orta Sınıf'ta (ilk oturumun sonu) fotoğrafta Rıza görülür, *"Babamı tanıyor muydu?"*; Rıza Milyoner'de (dönüş oturumu) cevaplar. Önsözde yarım kalanlar geri döner (telefon → Bülent Bey'e "annenizi arayabilirsiniz", pasta → En Zengin'de pasta, "sen bana yetersin" → "sen bana hep yettin"). Kullanıcı metinleri Claude'a bıraktı.
-- **Bildirimler Faz 1'de** (kullanıcı: "mutlaka olmalı").
+- **AAB'den önce:** hikâyenin ilerlemesi ve ana ekranın değişmesi; sonra imzalı v2 sürümü kapalı test kanalına.
+- **Sahne sınıfı izler** (mağaza ev/kıyafet ekonomisi kapalı testten sonra, discussion-notes §7).
+- **Cüzdan zinciri Faz 1'e alındı:** Nevin Hanım ve Defne İşçi töreninde; devamı (buluşma, düğün, varis) Faz 2.
+- **Görseller önce GPT ile:** kullanıcı projeyi gören bir GPT'ye [art-brief-v2.md](./art-brief-v2.md)'yi verecek; beğenilmezse fal.ai.
+- **Analitik bağlandı:** Firebase projesi `prestige-life-idle-tycoon`.
 
 ## Sıradaki (sırayla)
 
-1. **Telefonda deneme:** törenler (DEV → "Töreni oynat" 1–7), annenin mesajı, bildirim izni kartı ve "Deneme bildirimi (5 sn)" (simge, metin, dokununca açılış). Yeni yerel eklenti olduğu için `npm run phone -- --install`. Ayrıca bekleyenler: işletme ayarı, hedeflerin "Git" düğmesi, Orta Sınıf / Milyoner temposu.
-2. **Ana ekran sahnesi, evler ve kıyafetler ([discussion-notes.md §7](./discussion-notes.md)):** katmanlar tek sahibe bağlı (arka plan = ev, araç evin önünde, kıyafet, poz = sınıf); ev 25 → 10–12, kıyafet 20 → 4–5, kıyafeti tören versin (öneri). Karar çıkınca sahne değişimi törenin aynı tetiğine bağlanır. Ekonomiyi etkiler → `npm run sim`.
-3. **Ekonomi ayarının kalanı:** çevrimdışı ödül ve ev bonusları ([discussion-notes.md §5](./discussion-notes.md)); reklamsız / reklam izleyen / ödeyen profilleri.
-4. **Reklam yerleri:** Çevrimdışı ×2, Şans ×2, 1 saatlik ×2 hızlandırıcı, hayaline yardım, tören hediyesi ×2 ([monetization-v2 §4](./monetization-v2.md)).
-5. **IAP:** Rahat Paket, Şans'ın Altın Tasması, Yeni Başlangıç, Gece Vardiyası Ekibi; RevenueCat; "Satın alımları geri yükle"; v1'in 8 ürünü pasifleştirilir.
-6. **Faz 1'in kalanı:** onboarding ve Rıza Amca rehber balonları (1.12), hayaller panosu (1.8), analitiğin Firebase'e bağlanması (1.14), oyun testi paketi (1.15), En Zengin görseli (konak + pasta). Ayrıntı: [rebuild-plan.md](./rebuild-plan.md).
+1. **Görseller gelince oyuna bağlamak:** [art-brief-v2.md](./art-brief-v2.md) §6 (arka plan silme, webp, `stages.ts` satırı, Nevin/Defne portreleri `FACES`'e, hikâye kareleri `ceremonyScript.ts`'e).
+2. **Telefonda deneme:** törenler (DEV → "Töreni oynat" 1–7; sahne tören bitince değişmeli), annenin mesajı, bildirim ve "Deneme bildirimi (5 sn)", Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.prestigelife.idletycoon`). Yeni yerel eklentiler olduğu için `npm run phone -- --install`.
+3. **İmzalı v2 AAB → kapalı test kanalı:** sürüm kodu artırılır, DEV menüsü sürümde kapalı. Kapalı testin 14 günü ~2026-10-20'de doluyor; testçiler listede kalmalı.
+4. **Faz 1'in kalanı:** onboarding ve Rıza Amca rehber balonları (1.12), oyun testi paketi (1.15), tören hediyesi, ekonomi ayarının kalanı (discussion-notes §5), reklam yerleri ve IAP ([monetization-v2](./monetization-v2.md)), hayaller panosu (1.8). Ayrıntı: [rebuild-plan.md](./rebuild-plan.md).
 
 ## Kullanıcının yapacakları
 
-- **Telefonda törenleri ve bildirimi denemek** (yukarıda 1).
+- **Görselleri GPT ile üretmek** ([art-brief-v2.md](./art-brief-v2.md); önerilen ilk set: kıyafet 2 kılavuzu + 4 pozu, İşçi arka planı, bozuk paralar).
+- **Telefonda törenleri, sahne geçişini ve bildirimi denemek** (yukarıda 2).
 - **Telefonda gerçek test reklamını denemek:** DEV → "Test reklamı izle"; Google'ın "Test Ad" reklamı açılmalı, sonuç "rewarded" olmalı.
 - **AdMob konsolu:** Privacy & messaging → "European regulations" (GDPR) mesajı oluşturup uygulamaya bağlamak (yoksa AB'de izin formu açılmaz); yayından önce `app-ads.txt`.
-- **Firebase projesi:** console.firebase.google.com → proje aç (Google Analytics açık) → Android uygulaması ekle, paket adı `com.prestigelife.idletycoon` → `google-services.json` dosyasını `android/app/` içine koy (gizli değil, git'e girer). Sonra telefonda `npm run phone -- --install` ve DebugView ile doğrulama. Remote Config ve Crashlytics sonra.
 - **Google Play kapalı testi (v1 yapısıyla, 2026-10-06 civarı 12 kişi tamamlandı):** 14 günlük süre işliyor, ~2026-10-20'de dolar. Testçiler listeden çıkmamalı, kapalı test kanalı kapatılmamalı. Süre dolunca Play Console'dan yayın erişimi başvurusu (test hakkında sorular sorar).
 - **Test kullanıcısı listesi** (Faz 1 oyun testi için 20–50 kişi; dahili test kanalı).
 

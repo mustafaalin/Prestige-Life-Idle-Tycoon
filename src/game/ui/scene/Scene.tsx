@@ -11,53 +11,26 @@ import { fetchReward, tapValue } from '../../core/formulas';
 import type { GameStateV2 } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
+import { sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { burstCoins } from '../home/coins';
 import { RewardCard } from '../home/RewardCard';
 import { useCoverFit } from './coverFit';
 import { onFindRequest } from './sceneEvents';
+import { sceneStage, stageImages, type Pose } from './stages';
 
-// The home scene (plan 1.6, discussion-notes §9): the hero and Şans in the alley, always on screen.
+// The home scene (plan 1.6, discussion-notes §9): the hero and Şans, always on screen. Where they are
+// and what the hero wears follow the class (stages.ts); the alley is the first stage.
 // Bottles and cans appear on the ground; tapping one collects it (one tap's money). Now and then
 // Şans brings a wallet he found; catching it in time pays a bonus. The hero's pose follows what
 // happens: collecting, petting Şans, a purchase. Positions are fractions of the 9:16 background.
 
-const DIR = '/assets/scene';
-
-type Pose = 'idle' | 'collect' | 'joy' | 'pet';
-
-interface PoseArt {
-  src: string;
-  /** Height as a share of the background's height. */
-  height: number;
-  /** Width / height of the image file. */
-  aspect: number;
-  /** Center x of the image. */
-  x: number;
-  /** Mirrored, so Şans ends up on the hero's right like in the scene. */
-  flip?: boolean;
-}
-
 const FEET_Y = 0.735;
 
-const POSES: Record<Pose, PoseArt> = {
-  idle: { src: `${DIR}/hero-street-idle.webp`, height: 0.4, aspect: 0.34, x: 0.4 },
-  collect: { src: `${DIR}/hero-street-collect.webp`, height: 0.27, aspect: 0.681, x: 0.4 },
-  joy: { src: `${DIR}/hero-street-joy.webp`, height: 0.41, aspect: 0.528, x: 0.4 },
-  pet: { src: `${DIR}/hero-street-pet-sans.webp`, height: 0.31, aspect: 0.816, x: 0.48, flip: true },
-};
-const POSE_LIST = Object.keys(POSES) as Pose[];
 /** A stronger moment is not cut short by a weaker one. */
 const POSE_RANK: Record<Pose, number> = { idle: 0, collect: 1, pet: 2, joy: 3 };
+const POSE_LIST = Object.keys(POSE_RANK) as Pose[];
 
-const SANS = { src: `${DIR}/sans-sit.webp`, x: 0.66, y: 0.748, height: 0.15, aspect: 0.645 };
-const FIND = { src: `${DIR}/sans-wallet.webp`, x: 0.72, y: 0.752, height: 0.15, aspect: 0.929 };
-
-const ITEM_ART = [
-  { src: `${DIR}/bottle-green.webp`, width: 0.14 },
-  { src: `${DIR}/bottle-brown.webp`, width: 0.14 },
-  { src: `${DIR}/can-red.webp`, width: 0.1 },
-];
 /** Ground spots where items show up; x stays inside what tall phones show, y above the menu. */
 const SPOTS: [number, number][] = [
   [0.18, 0.7],
@@ -104,7 +77,7 @@ function newItem(id: number, taken: Item[]): Item {
   return {
     id,
     spot: free[Math.floor(Math.random() * free.length)],
-    art: Math.floor(Math.random() * ITEM_ART.length),
+    art: Math.floor(Math.random() * 6),
     rotate: random(-25, 25),
     flip: Math.random() < 0.5,
   };
@@ -118,7 +91,15 @@ function startingItems(): Item[] {
 }
 
 export function Scene() {
-  const { game, actions } = useGameV2();
+  const { game, state, actions } = useGameV2();
+  const shownClass = sceneClass(game, state.story);
+  const stage = sceneStage(shownClass);
+  const itemArt = (item: Item) => stage.items[item.art % stage.items.length];
+
+  // The next place loads while its ceremony plays, so it is there the moment the ceremony ends.
+  useEffect(() => {
+    if (game.classIndex > shownClass) for (const src of stageImages(sceneStage(game.classIndex))) new Image().src = src;
+  }, [game.classIndex, shownClass]);
   const { t, money } = useT();
   const rootRef = useRef<HTMLDivElement>(null);
   const fit = useCoverFit(rootRef);
@@ -210,7 +191,7 @@ export function Scene() {
     event.stopPropagation();
     haptic('light');
     flashPose('pet', 1700);
-    float({ x: fit.x(SANS.x), y: fit.y(SANS.y - SANS.height) });
+    float({ x: fit.x(stage.sans.x), y: fit.y(stage.sans.y - stage.sans.height) });
   };
 
   const [finding, setFinding] = useState(false);
@@ -259,7 +240,7 @@ export function Scene() {
 
   return (
     <div ref={rootRef} className="absolute inset-0 overflow-hidden bg-[#0d1530]">
-      <img src={`${DIR}/alley.webp`} alt="" draggable={false} className="absolute inset-0 w-full h-full object-cover" />
+      <img src={stage.background} alt="" draggable={false} className="absolute inset-0 w-full h-full object-cover" />
 
       {ready && (
         <>
@@ -275,7 +256,7 @@ export function Scene() {
           />
 
           {POSE_LIST.map((key) => {
-            const art = POSES[key];
+            const art = stage.poses[key];
             const height = fit.h(art.height);
             const width = height * art.aspect;
             return (
@@ -305,14 +286,14 @@ export function Scene() {
               aria-label={t('scene.sans')}
               className="absolute transition-transform active:scale-95"
               style={{
-                left: fit.x(SANS.x) - (fit.h(SANS.height) * SANS.aspect) / 2,
-                top: fit.y(SANS.y) - fit.h(SANS.height),
-                width: fit.h(SANS.height) * SANS.aspect,
-                height: fit.h(SANS.height),
+                left: fit.x(stage.sans.x) - (fit.h(stage.sans.height) * stage.sans.aspect) / 2,
+                top: fit.y(stage.sans.y) - fit.h(stage.sans.height),
+                width: fit.h(stage.sans.height) * stage.sans.aspect,
+                height: fit.h(stage.sans.height),
               }}
             >
               <img
-                src={SANS.src}
+                src={stage.sans.src}
                 alt=""
                 draggable={false}
                 className="w-full h-full"
@@ -328,15 +309,15 @@ export function Scene() {
               aria-label={t('scene.findHint')}
               className="absolute v2-run-in transition-transform active:scale-95"
               style={{
-                left: fit.x(FIND.x) - (fit.h(FIND.height) * FIND.aspect) / 2,
-                top: fit.y(FIND.y) - fit.h(FIND.height),
-                width: fit.h(FIND.height) * FIND.aspect,
-                height: fit.h(FIND.height),
+                left: fit.x(stage.find.x) - (fit.h(stage.find.height) * stage.find.aspect) / 2,
+                top: fit.y(stage.find.y) - fit.h(stage.find.height),
+                width: fit.h(stage.find.height) * stage.find.aspect,
+                height: fit.h(stage.find.height),
               }}
             >
               <span className="v2-pulse-ring absolute left-1/2 top-1/2 w-full aspect-square rounded-full border-4 border-amber-300" />
               <img
-                src={FIND.src}
+                src={stage.find.src}
                 alt=""
                 draggable={false}
                 className="relative w-full h-full"
@@ -350,7 +331,8 @@ export function Scene() {
 
           {items.map((item) => {
             const [sx, sy] = SPOTS[item.spot];
-            const width = pictureWidth * ITEM_ART[item.art].width;
+            const art = itemArt(item);
+            const width = pictureWidth * art.width;
             return (
               <button
                 key={item.id}
@@ -361,7 +343,7 @@ export function Scene() {
               >
                 <span className="v2-pop-in block">
                   <img
-                    src={ITEM_ART[item.art].src}
+                    src={art.src}
                     alt=""
                     draggable={false}
                     className="v2-bob block"
@@ -390,7 +372,7 @@ export function Scene() {
 
       {findOffer !== null && (
         <RewardCard
-          image={FIND.src}
+          image={stage.find.src}
           title={t('scene.findTitle')}
           body={t('scene.findBody')}
           amount={`+${money(findOffer)}`}

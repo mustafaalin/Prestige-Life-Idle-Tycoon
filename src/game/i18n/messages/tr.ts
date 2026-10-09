@@ -250,6 +250,8 @@ export const tr: Messages = {
       riza: 'Rıza Amca',
       bryce: 'Bülent Bey',
       staff: 'Personel',
+      nevin: 'Nevin Hanım',
+      defne: 'Defne',
     },
     c1: {
       hero: 'Merak etme anne, iyiyim. Bugün sıcak çorba içtim.',
@@ -257,9 +259,11 @@ export const tr: Messages = {
       riza: 'Sen birine çok benziyorsun evlat... Neyse, boş ver.',
     },
     c2: {
+      nevin: 'Cüzdanımı Şans getirmiş, değil mi? İçinde rahmetli eşimin fotoğrafı vardı.',
+      defne: 'Babaannem seni bir haftadır arıyor. Sana kurabiye yaptı, hâlâ sıcak.',
+      hero0: 'Ben bir şey yapmadım. Bulan Şans\'tı.',
       hero: 'Anne, artık bir dairem var. Kapısı bile kilitleniyor!',
-      mom: 'Ev deyince eski evimiz geldi aklıma.',
-      mom2: 'Babanın defteri hâlâ çatı katında. Keşke yanımıza alsaydık.',
+      mom: 'Ev deyince eski evimiz geldi aklıma. Babanın defteri hâlâ çatı katında.',
     },
     c3: {
       hero: 'Anne... Eski evimizi geri aldım.',
@@ -298,6 +302,7 @@ export const tr: Messages = {
     aunt: 'Teyzen börek yaptı, sana da ayırdık. Kendine iyi bak, olur mu?',
     curtains: 'Daireni çok merak ettim. Perdeleri ben dikiyorum!',
     stair: 'Eski evde ilk gecem. Üçüncü basamak hâlâ gıcırdıyor.',
+    defne: 'Kurabiye getiren kızı anlatırken sesin bir tuhaftı. Adı neydi... Defne mi?',
     bryce: 'Sandalyeler seni bekliyor. Bu arada Bülent Bey\'in restoranları satılıkmış, duydun mu?',
     clipping: 'Komşular seni gazetede görmüş. Kupürü buzdolabına astım!',
     job: 'Bülent Bey\'e iş vermişsin. Sen gerçekten babanın oğlusun.',

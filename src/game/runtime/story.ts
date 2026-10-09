@@ -23,14 +23,16 @@ export interface MomMessageDef {
 
 /**
  * Mom's messages, in the order they arrive (text in i18n `mom.<id>`). Three of them plant the next
- * ceremony (Bryce's sale, the workshop, the big windows). A class's messages that were not shown
- * before the player moved on are skipped, so Mom never talks about a step that is long past.
+ * ceremony (Bryce's sale, the workshop, the big windows); one keeps Defne in the story. A class's
+ * messages that were not shown before the player moved on are skipped, so Mom never talks about a
+ * step that is long past.
  */
 export const MOM_MESSAGES: MomMessageDef[] = [
   { id: 'aunt', classIndex: 1 },
   { id: 'curtains', classIndex: 2 },
   { id: 'stair', classIndex: 3 },
   { id: 'bryce', classIndex: 4 },
+  { id: 'defne', classIndex: 4 },
   { id: 'clipping', classIndex: 4 },
   { id: 'job', classIndex: 5 },
   { id: 'workshop', classIndex: 5 },
@@ -51,6 +53,11 @@ export function createStoryProgress(classIndex = 0): StoryProgress {
 /** The story so far is the first generation's; the heir's story is Faz 2 (story §6). */
 function storyRuns(game: GameStateV2) {
   return game.generation === 1;
+}
+
+/** The class the home scene shows: a new place is revealed by its ceremony, so it waits for it. */
+export function sceneClass(game: GameStateV2, story: StoryProgress): number {
+  return storyRuns(game) ? Math.min(game.classIndex, story.ceremonySeen) : game.classIndex;
 }
 
 /** The next class whose ceremony is waiting, or null. Several class-ups play one after another. */

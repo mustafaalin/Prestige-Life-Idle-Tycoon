@@ -251,6 +251,8 @@ export const en = {
       riza: 'Old Ray',
       bryce: 'Mr. Bryce',
       staff: 'Staff',
+      nevin: 'Mrs. Nora',
+      defne: 'Daphne',
     },
     c1: {
       hero: "Don't worry, Mom, I'm okay. I had hot soup today.",
@@ -258,9 +260,11 @@ export const en = {
       riza: 'You remind me of someone, kid... Never mind.',
     },
     c2: {
+      nevin: "Lucky brought my wallet back, didn't he? My late husband's photo was in it.",
+      defne: "Grandma's been looking for you all week. She baked you cookies. Still warm.",
+      hero0: "I didn't do anything. Lucky found it.",
       hero: "Mom, I've got a flat now. The door even locks!",
-      mom: 'All this talk of homes... I keep thinking of our old house.',
-      mom2: "Your father's notebook is still up in the attic. I wish we'd taken it.",
+      mom: "All this talk of homes... Your father's notebook is still up in the old attic.",
     },
     c3: {
       hero: 'Mom... I bought back our old house.',
@@ -299,6 +303,7 @@ export const en = {
     aunt: 'Your aunt baked pastries and saved you some. Look after yourself, okay?',
     curtains: "I can't wait to see your flat. I'm sewing the curtains!",
     stair: 'First night back in the old house. The third stair still creaks.',
+    defne: 'You sounded funny telling me about the girl with the cookies. What was her name... Daphne?',
     bryce: "The chairs are waiting for you. Oh, and I heard Mr. Bryce's restaurants are up for sale.",
     clipping: 'The neighbours saw you in the paper. I stuck the clipping on the fridge!',
     job: "You gave Mr. Bryce a job. You really are your father's son.",

@@ -21,6 +21,8 @@ const TAG_STYLE: Record<CastId, string> = {
   riza: 'from-emerald-500 to-teal-500',
   bryce: 'from-rose-500 to-rose-600',
   staff: 'from-slate-500 to-slate-600',
+  nevin: 'from-sky-500 to-cyan-500',
+  defne: 'from-pink-500 to-rose-400',
 };
 
 const CONFETTI_COLORS = ['#fbbf24', '#f472b6', '#34d399', '#60a5fa', '#a78bfa', '#fb7185'];

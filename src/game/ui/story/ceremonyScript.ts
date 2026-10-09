@@ -4,7 +4,7 @@ import type { MessageKey } from '../../i18n/translate';
 // beats in visual-novel style (portrait + bubble), then the before/now card. Each ceremony answers
 // what the one before planted, and some plant the next. Index = wealth class (WEALTH_CLASSES).
 
-export type CastId = 'hero' | 'mom' | 'riza' | 'bryce' | 'staff';
+export type CastId = 'hero' | 'mom' | 'riza' | 'bryce' | 'staff' | 'nevin' | 'defne';
 
 export const FACES = {
   hero: ['worried', 'soft', 'determined', 'happy'],
@@ -41,13 +41,20 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
       ],
     },
   ],
-  // Working Class: a door that locks. Mom remembers the old house and the notebook in its attic.
+  // Working Class: the owner of a wallet Şans found comes to say thanks, with her granddaughter
+  // (the hero's future wife, Faz 2). Then a door that locks, and Mom remembers the notebook.
   2: [
+    {
+      lines: [
+        { speaker: 'nevin', text: 'ceremony.c2.nevin' },
+        { speaker: 'defne', text: 'ceremony.c2.defne' },
+        { speaker: 'hero', face: 'soft', text: 'ceremony.c2.hero0' },
+      ],
+    },
     {
       lines: [
         { speaker: 'hero', face: 'happy', text: 'ceremony.c2.hero' },
         { speaker: 'mom', face: 'smile', phone: true, text: 'ceremony.c2.mom' },
-        { speaker: 'mom', face: 'worried', phone: true, text: 'ceremony.c2.mom2' },
       ],
     },
   ],
@@ -116,7 +123,8 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
 /** Every story picture, so a ceremony can load them before it starts. */
 export const CEREMONY_IMAGES = [ATTIC.src, OLD_PHOTO.src];
 
+/** Cast without portraits yet (staff; Nevin and Defne until their art lands) speak with a name tag only. */
 export function portraitOf(speaker: CastId, face: string | undefined): string | null {
-  if (speaker === 'staff' || !face) return null;
+  if (!(speaker in FACES) || !face) return null;
   return `/assets/story/portraits/${speaker === 'bryce' ? 'bulent' : speaker}-${face}.webp`;
 }
