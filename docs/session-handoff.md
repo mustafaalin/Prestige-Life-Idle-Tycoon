@@ -49,7 +49,8 @@ Yeniden ayarlandı, kullanıcı telefonda deneyecek; açık sorular [discussion-
 
 1. **Görseller gelince oyuna bağlamak:** ilk set (İşçi aşaması) bağlandı; kalanlar [art-brief-v2.md](./art-brief-v2.md) §5–6 (Orta Sınıf ve sonrası, Nevin/Defne portreleri `FACES`'e, hikâye kareleri `ceremonyScript.ts`'e).
 2. **Telefonda deneme:** törenler (DEV → "Töreni oynat" 1–7; sahne tören bitince değişmeli), annenin mesajı, bildirim ve "Deneme bildirimi (5 sn)", Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.prestigelife.idletycoon`). Yeni yerel eklentiler olduğu için `npm run phone -- --install`.
-3. **İmzalı v2 AAB → kapalı test kanalı:** sürüm kodu artırılır, DEV menüsü sürümde kapalı. Kapalı testin 14 günü ~2026-10-20'de doluyor; testçiler listede kalmalı.
+3. **İmzalı v2 AAB → kapalı test kanalı:** ilk v2 AAB alındı (2026-10-09, sürüm kodu 24, `versionName` 2.0, İşçi sahnesi dahil; `~/Downloads/prestige-life-v2-24.aab`). Yükleme kullanıcıda. Kapalı testin 14 günü ~2026-10-20'de doluyor; testçiler listede kalmalı.
+   Sürüm derleme: sürüm kodunu artır (`android/app/build.gradle`), sonra `VITE_DEV_MENU=false VITE_ADMOB_TESTING=false npm run build:v2 && npx cap sync android`, ardından `android/`'da `./gradlew bundleRelease` (JAVA_HOME Android Studio'nun Java'sı). Ortam değişkenleri şart: `.env.v2` DEV menüsünü, `.env.local` test reklamını açık tutuyor.
 4. **Faz 1'in kalanı:** onboarding ve Rıza Amca rehber balonları (1.12), oyun testi paketi (1.15), tören hediyesi, ekonomi ayarının kalanı (discussion-notes §5), reklam yerleri ve IAP ([monetization-v2](./monetization-v2.md)), hayaller panosu (1.8). Ayrıntı: [rebuild-plan.md](./rebuild-plan.md).
 
 ## Kullanıcının yapacakları
