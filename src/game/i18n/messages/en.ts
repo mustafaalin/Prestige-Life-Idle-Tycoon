@@ -321,6 +321,17 @@ export const en = {
     luckyBody: "Lucky's waiting at the door. Your earnings are full!",
     channel: 'Mom and Lucky',
   },
+  guide: {
+    bottles: "Pick up those empty bottles, kid. There's a deposit on them. A little beats nothing.",
+    job: 'The print shop on the corner needs someone for flyers. Tell them Old Ray sent you.',
+    stand: 'Put a bit of your wages aside. That flower stand on the corner is for sale.',
+    name: "Congratulations! I never even asked your name, kid. We'll paint it on the stand.",
+    nameLabel: 'Your name',
+    nameOk: "That's me",
+    defaultName: 'Alex',
+    run: "Good name, {name}! But a stand doesn't sell itself. Set out the flowers.",
+    manager: 'Going to stand behind that stall all day, kid? You need a helping hand.',
+  },
   settings: {
     title: 'Settings',
     open: 'Settings',

@@ -10,7 +10,7 @@ import { classIndexFor } from '../core/formulas';
 import { createInitialState } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
-import { createStoryProgress, MOM_MESSAGES, type StoryProgress } from './story';
+import { createStoryProgress, HERO_NAME_MAX, MOM_MESSAGES, type StoryProgress } from './story';
 
 // Local save for v2. Separate key from v1 so both games can live side by side until v1 is removed.
 // On phones the save lives in Preferences (SharedPreferences / UserDefaults): the OS may clear a
@@ -123,6 +123,9 @@ function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
     momSeen: stringList(raw.momSeen).filter((id) => knownMomMessages.has(id)),
     momShownAt: finite(raw.momShownAt, 0),
     notificationsAsked: raw.notificationsAsked === true,
+    heroName: typeof raw.heroName === 'string' ? raw.heroName.trim().slice(0, HERO_NAME_MAX) : '',
+    guideSeen: stringList(raw.guideSeen),
+    guideDone: stringList(raw.guideDone),
   };
 }
 

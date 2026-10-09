@@ -75,28 +75,30 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
   return (
     <Panel className="p-3 flex flex-col gap-2.5">
       <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => actions.startCycle(def.id)}
-          disabled={!canStart}
-          aria-label={canStart ? t('business.run') : name('business', def)}
-          className="relative shrink-0 transition-all active:scale-95 disabled:active:scale-100"
-        >
-          <ImageTile className="w-[76px] h-[76px]">
-            <img
-              src={def.image}
-              alt=""
-              draggable={false}
-              className={`w-[66px] h-[66px] object-contain ${owned === 0 ? 'grayscale opacity-60' : ''}`}
-            />
-          </ImageTile>
-          {canStart && (
-            <span className="v2-nudge absolute left-1/2 -bottom-2.5 flex items-center gap-1 whitespace-nowrap rounded-full border-2 border-white bg-gradient-to-b from-amber-300 to-orange-500 v2-glossy pl-1.5 pr-2.5 py-0.5 v2-display text-[12px] text-white v2-shadow">
-              <Play className="w-3 h-3 fill-white" />
-              {t('business.run')}
-            </span>
-          )}
-        </button>
+        <Focusable focusKey={`business:${def.id}:run`} className="shrink-0">
+          <button
+            type="button"
+            onClick={() => actions.startCycle(def.id)}
+            disabled={!canStart}
+            aria-label={canStart ? t('business.run') : name('business', def)}
+            className="relative shrink-0 transition-all active:scale-95 disabled:active:scale-100"
+          >
+            <ImageTile className="w-[76px] h-[76px]">
+              <img
+                src={def.image}
+                alt=""
+                draggable={false}
+                className={`w-[66px] h-[66px] object-contain ${owned === 0 ? 'grayscale opacity-60' : ''}`}
+              />
+            </ImageTile>
+            {canStart && (
+              <span className="v2-nudge absolute left-1/2 -bottom-2.5 flex items-center gap-1 whitespace-nowrap rounded-full border-2 border-white bg-gradient-to-b from-amber-300 to-orange-500 v2-glossy pl-1.5 pr-2.5 py-0.5 v2-display text-[12px] text-white v2-shadow">
+                <Play className="w-3 h-3 fill-white" />
+                {t('business.run')}
+              </span>
+            )}
+          </button>
+        </Focusable>
 
         <div className="flex-1 min-w-0 flex flex-col gap-1.5">
           <div className="flex items-center justify-between gap-2">

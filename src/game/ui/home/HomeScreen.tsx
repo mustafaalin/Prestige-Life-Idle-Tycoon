@@ -7,6 +7,7 @@ import { trackScreen } from '../../runtime/analytics';
 import { haptic, playSfx, preloadSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { Scene } from '../scene/Scene';
+import { Guide } from '../guide/Guide';
 import { StoryDirector } from '../story/StoryDirector';
 import { BottomNav } from './BottomNav';
 import { CoinLayer } from './CoinLayer';
@@ -67,6 +68,7 @@ export function HomeScreen() {
           ) : (
             <QuestPanel onGo={goToQuest} />
           )}
+          <Guide tabOpen={tab !== null} />
         </main>
         <div className="pointer-events-auto">
           <BottomNav

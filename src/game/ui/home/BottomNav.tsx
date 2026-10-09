@@ -1,5 +1,7 @@
 import { useT } from '../../i18n/useT';
 import { playSfx } from '../../runtime/feedback';
+import { useGuideTarget } from '../guide/guideSteps';
+import { PointingHand } from './Focusable';
 import { TABS, type TabId } from './tabs';
 
 // Bottom menu over the scene: glossy buttons that open the tab sheets. Tapping the open one closes it.
@@ -13,6 +15,8 @@ interface BottomNavProps {
 
 export function BottomNav({ open, onSelect, attention }: BottomNavProps) {
   const { t } = useT();
+  // Old Ray's guide points at the tab its next step is in.
+  const guideTab = useGuideTarget()?.tab;
 
   return (
     <nav className="px-3 pt-1 pb-[calc(var(--safe-bottom)+8px)]">
@@ -44,6 +48,12 @@ export function BottomNav({ open, onSelect, attention }: BottomNavProps) {
                 <span className="absolute -top-2.5 -right-1.5 w-6 h-6 rounded-full bg-gradient-to-b from-rose-400 to-rose-600 border-2 border-white flex items-center justify-center v2-display text-[13px] text-white shadow">
                   !
                 </span>
+              )}
+              {guideTab === id && !selected && (
+                <>
+                  <span className="v2-focus-ring pointer-events-none absolute -inset-1 rounded-[22px] border-4 border-amber-300" />
+                  <PointingHand className="-bottom-3 right-0" />
+                </>
               )}
             </button>
           );

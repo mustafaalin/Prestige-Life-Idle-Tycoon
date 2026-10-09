@@ -22,7 +22,8 @@ export type AnalyticsEvent =
   | 'ad_watch'
   | 'story_view'
   | 'notification_prompt'
-  | 'notification_open';
+  | 'notification_open'
+  | 'tutorial_step';
 
 type Params = Record<string, string | number | boolean>;
 

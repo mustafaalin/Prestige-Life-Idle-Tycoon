@@ -13,7 +13,9 @@ import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { useGuideTarget } from '../guide/guideSteps';
 import { burstCoins } from '../home/coins';
+import { PointingHand } from '../home/Focusable';
 import { RewardCard } from '../home/RewardCard';
 import { useCoverFit } from './coverFit';
 import { onFindRequest } from './sceneEvents';
@@ -95,6 +97,8 @@ export function Scene() {
   const shownClass = sceneClass(game, state.story);
   const stage = sceneStage(shownClass);
   const itemArt = (item: Item) => stage.items[item.art % stage.items.length];
+  // Old Ray's first step: the hand rests on a bottle until a few are collected.
+  const pointAtItem = useGuideTarget()?.key === 'scene:item';
 
   // The next place loads while its ceremony plays, so it is there the moment the ceremony ends.
   useEffect(() => {
@@ -235,6 +239,13 @@ export function Scene() {
     burstCoins({ ...from, count: 12 });
   };
 
+  // A bottle near the middle (on screen also on wide phones) and not down by the menu, where the hand
+  // below it would sit on the buttons.
+  const guideScore = (item: Item) => Math.abs(SPOTS[item.spot][0] - 0.45) + (SPOTS[item.spot][1] > 0.8 ? 1 : 0);
+  const guidedItem = pointAtItem
+    ? items.reduce<Item | null>((best, item) => (!best || guideScore(item) < guideScore(best) ? item : best), null)?.id
+    : undefined;
+
   const ready = fit.width > 0;
   const sansVisible = !finding && pose !== 'pet';
 
@@ -354,6 +365,7 @@ export function Scene() {
                     }}
                   />
                 </span>
+                {pointAtItem && item.id === guidedItem && <PointingHand className="-bottom-4 -right-3" />}
               </button>
             );
           })}

@@ -26,6 +26,7 @@ import {
 } from './engine';
 import { setPlayerProperties, track } from './analytics';
 import { clearSave, parseRuntime, saveRuntime } from './storage';
+import { HERO_NAME_MAX } from './story';
 
 // Owns the live game: 250 ms tick, autosave, foreground/background handling (web visibility events
 // plus native app pause/resume, which fire more reliably when the phone suspends the app).
@@ -68,6 +69,10 @@ export interface GameActions {
     ceremonySeen(classIndex: number): void;
     momShown(messageId: string): void;
     notificationsAsked(): void;
+    setHeroName(name: string): void;
+    /** Old Ray's guide (plan 1.12): a step's line was shown / a step was done. */
+    guideSeen(stepId: string): void;
+    guideDone(stepId: string): void;
   };
   dev: {
     getSpeed(): number;
@@ -271,6 +276,16 @@ export function createGameStore(saveText: string | null, clock: () => number = D
             momShownAt: clock(),
           })),
         notificationsAsked: () => updateStory((story) => ({ ...story, notificationsAsked: true })),
+        setHeroName: (name) =>
+          updateStory((story) => ({ ...story, heroName: name.trim().slice(0, HERO_NAME_MAX) })),
+        guideSeen: (stepId) =>
+          updateStory((story) =>
+            story.guideSeen.includes(stepId) ? story : { ...story, guideSeen: [...story.guideSeen, stepId] },
+          ),
+        guideDone: (stepId) =>
+          updateStory((story) =>
+            story.guideDone.includes(stepId) ? story : { ...story, guideDone: [...story.guideDone, stepId] },
+          ),
       },
       dev: {
         getSpeed: () => speed,

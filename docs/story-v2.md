@@ -111,7 +111,9 @@ Her işletmenin kendi yöneticisi var: kahramanın yolda tanıştığı insanlar
 
 Kirli bir ara sokak; kahraman çadırın önünde üşüyor, yanında Şans. 4 şişe/kutu ile başlanır, 2,5 sn'de bir yenisi belirir; dokununca paralar kavisle bakiyeye uçar, kahraman toplama pozuna geçer. Ara sıra Şans cüzdanla gelir.
 
-**Bekleyenler:** Rıza Amca'nın rehber balonları (1.12), yağmur sesi.
+**Rehber (1.12, oyunda):** Rıza Amca ilk dakikalarda 6 kısa cümle söyler (şişeler, matbaa, tezgâh, isim, çiçekleri dizmek, yardımcı); ilk tezgâhtan sonra kahramanın adını sorar, yönetici olunca rehberlik biter (`guide` metinleri).
+
+**Bekleyenler:** yağmur sesi.
 
 ### 8 sınıf töreni (Faz 1)
 
@@ -239,7 +241,7 @@ Kaynak dosyalar `art/pilot/` (git'te değil), oyundaki sıkıştırılmış hâl
 | Tören kartları | 7 tören, 26 balon | **Tamam** (`ceremony`) |
 | Anne mesajları | 11 | **Tamam** (`mom`) |
 | Bildirimler | 2 + izin kartı | **Tamam** (`notify`) |
-| Rıza Amca rehber balonları | ~8 | Plan 1.12 |
+| Rıza Amca rehber balonları | 6 + isim sorusu | **Tamam** (`guide`) |
 
 Metinler `src/game/i18n/` içine, ilgili özellik yazılırken eklenir.
 

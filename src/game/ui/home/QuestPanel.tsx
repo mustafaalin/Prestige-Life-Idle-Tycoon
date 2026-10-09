@@ -6,7 +6,9 @@ import type { GameStateV2, QuestDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { useGuideTarget } from '../guide/guideSteps';
 import { burstCoins } from './coins';
+import { PointingHand } from './Focusable';
 import { questTarget, questText, questVisual, questWhere } from './questText';
 import type { TabId } from './tabs';
 
@@ -91,6 +93,7 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
   const visual = questVisual(quest);
   const canGo = questTarget(quest) !== null;
   const where = questWhere(quest, translator);
+  const guided = useGuideTarget()?.key === `quest:${quest.id}:claim`;
 
   const claim = (event: MouseEvent) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -146,9 +149,10 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
         <button
           type="button"
           onClick={claim}
-          className="shrink-0 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95"
+          className="relative shrink-0 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95"
         >
           {t('quests.claim')}
+          {guided && <PointingHand className="-bottom-6 -right-1" />}
         </button>
       ) : (
         canGo && (

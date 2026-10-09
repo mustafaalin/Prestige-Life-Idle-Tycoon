@@ -320,6 +320,17 @@ export const tr: Messages = {
     luckyBody: 'Şans kapıda seni bekliyor. Kasan doldu!',
     channel: 'Annen ve Şans',
   },
+  guide: {
+    bottles: 'Boş şişeleri topla evlat, depozitosu var. Az da olsa hiç yoktan iyidir.',
+    job: 'Köşedeki matbaa el ilanı dağıtacak birini arıyor. Rıza gönderdi de.',
+    stand: 'Maaştan biraz kenara koy. Köşedeki çiçek tezgâhı satılık.',
+    name: 'Hayırlı olsun! Adını bile sormadım evlat. Tezgâha yazdıralım.',
+    nameLabel: 'Adın',
+    nameOk: 'Bu benim',
+    defaultName: 'Can',
+    run: 'Güzel isim, {name}! Ama tezgâh kendi kendine satmaz. Çiçekleri diz bakalım.',
+    manager: 'Bütün gün tezgâh başında mı duracaksın evlat? Sana bir yardımcı lazım.',
+  },
   settings: {
     title: 'Ayarlar',
     open: 'Ayarlar',

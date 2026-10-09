@@ -13,6 +13,11 @@ export interface StoryProgress {
   momShownAt: number;
   /** The notification permission was asked once (after the first ceremony). */
   notificationsAsked: boolean;
+  /** The hero's name, asked after the first business (story §3); '' = not asked yet. */
+  heroName: string;
+  /** Old Ray's guide (plan 1.12): steps whose line was shown, and steps finished by an action. */
+  guideSeen: string[];
+  guideDone: string[];
 }
 
 export interface MomMessageDef {
@@ -47,11 +52,22 @@ export const MOM_MIN_GAP_MS = 20 * 60 * 60 * 1000;
 export const MOM_MIN_AWAY_SECONDS = 60 * 60;
 
 export function createStoryProgress(classIndex = 0): StoryProgress {
-  return { ceremonySeen: classIndex, momSeen: [], momShownAt: 0, notificationsAsked: false };
+  return {
+    ceremonySeen: classIndex,
+    momSeen: [],
+    momShownAt: 0,
+    notificationsAsked: false,
+    heroName: '',
+    guideSeen: [],
+    guideDone: [],
+  };
 }
 
+/** The longest name the hero can be given. */
+export const HERO_NAME_MAX = 16;
+
 /** The story so far is the first generation's; the heir's story is Faz 2 (story §6). */
-function storyRuns(game: GameStateV2) {
+export function storyRuns(game: GameStateV2) {
   return game.generation === 1;
 }
 
