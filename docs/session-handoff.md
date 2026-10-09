@@ -56,6 +56,8 @@ Yeniden ayarlandı, kullanıcı telefonda deneyecek; açık sorular [discussion-
 
 ## Kullanıcının yapacakları
 
+- **Play mağaza ekran görüntüleri (2026-10-09):** 4 görsel × TR/EN, 1080×1920 JPG, `~/Downloads/play-store-v2/` ve `art/store-v2/` (yeniden üretme betikleri de orada: `capture.mjs` sürüm derlemesinden ekranları çeker, `compose.mjs` başlıkla çerçeveler). Play Console → Ana mağaza girişi → Telefon ekran görüntüleri; TR görseller Türkçe girişe, EN İngilizce girişe.
+
 - **Görselleri GPT ile üretmeye devam** ([art-brief-v2.md](./art-brief-v2.md); ilk set oyunda; sıradaki: kıyafet 3 + Orta Sınıf arka planı, Nevin ve Defne kılavuzları).
 - **Telefonda İşçi sahnesini denemek:** DEV → "Töreni oynat" 2; tören bitince daire önü, iş kıyafeti ve bozuk paralar gelmeli. Boy/konum kötü görünürse söyle.
 - **Telefonda törenleri, sahne geçişini ve bildirimi denemek** (yukarıda 2).
