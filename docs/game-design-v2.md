@@ -10,7 +10,7 @@ Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-
 
 - AdVenture Capitalist tarzı üstel idle ekonomi (sayılar her zaman akar, büyük basamaklar "vay" anıdır)
 - 7 basamaklı, törenli sınıf merdiveni (her basamakta sahne, ev, araç, kıyafet değişir)
-- Bir ömür: kahraman 17 yaşında başlar, yaş sadece oyun açıkken ilerler (1 dk = 1 ay). 97 yaşında emekli olur ve varis miras çarpanıyla devralır; erken emeklilik yok (§4.9)
+- Bir ömür: kahraman 17 yaşında başlar, yaş sadece oyun açıkken ilerler (1 dk ≈ 3 hafta; 2026-10-09). 97 yaşında emekli olur ve varis miras çarpanıyla devralır; erken emeklilik yok (§4.9)
 - BitLife tadında olay kartları (Faz 2)
 
 Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Şans, Rıza Amca, annesine verilen söz).

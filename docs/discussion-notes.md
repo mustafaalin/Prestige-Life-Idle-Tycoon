@@ -42,17 +42,17 @@ Kararlaştırılanlar (2026-10-08, story §6): varis 17 yaşında bir torun, öl
 3. **2. nesil kıyafet ve poz seti.** Öneri: aynı yaşam aşaması sayısında yeni set; babadan kalan bir yadigâr (saat veya Şans'ın tasması) hep görünsün.
 4. **Varis çok hızlı:** 1. ömür ~3.000 miras puanı (×31 gelir) bırakıyor; 2. nesil dakikalar içinde Milyoner ve üstü. Miras formülüyle birlikte ele alınacak.
 
-## 5. Ekonomi ayarı (kullanıcının gözlemleri, 2026-10-08; acil değil, sıradaki büyük konu)
+## 5. Ekonomi (2026-10-09 yeniden ayarlandı; geniş konuşma bekliyor)
 
-Kullanıcı telefonda oynayınca: **"Ekonomi çok hızlı büyüyor. Çevrimdışı ödül miktarı çok fazla geldi. Kiralık evlerin bonusları fazla geldi."** Erken tempo 2026-10-08'de yavaşlatıldı, hedefler ve işletme yükseltmeleri eklendi; aynı gün yavaşlatma kazançtan fiyatlara taşındı (Çalıştır turda $0,01 veriyordu; işletme artık ana gelir, game-design §4.2, §5). Aşağıdakiler hâlâ açık. Reklam ödülleriyle (çevrimdışı ×2, 1 saatlik ×2 hızlandırıcı, 15 dk gelir) ve kalıcı ×2 IAP'ıyla birlikte ayarlanmalı ([monetization-v2.md §4–5](./monetization-v2.md)).
+**Yapılan (kullanıcıyla, 2026-10-09):** başta ana gelir iş, işletmeler sonra ağırlığı alır. Çiçek Tezgâhı $250; işletme fiyat adımı 3× → 20× (büyüyerek; son işletme $26B); tur süreleri 1–5 sn, sonra 7–15 sn; adet zammı %20 → %10; yönetici ilk adetin 12 katı; yükseltme fiyatı o adede ulaşma maliyetinin 2× / 6× / 20×'i; kilometre taşları 25, 50, 75 (bir ömürde ~70 adet alınıyor); geç kariyer maaşları sert kısıldı; ev kirası yavaşladı (1M$'lık ev 12 saatte döner); yaşlanma 1 dk ≈ 3 hafta (ömür ~21 saatlik oyun). Simülatör (en iyi oynayan bot): Gündelikçi 8 dk, İşçi 32 dk, Orta Sınıf 47 dk (2. oturum), Milyoner 1 sa (3. oturum), Milyarder 3. gün, Multimilyarder 8. gün, En Zengin 17. gün (59 yaş), ömür sonu 31. gün. Kod: `config/businesses.ts`, `upgrades.ts`, `careers.ts`, `housing.ts`, `life.ts`, `economy.ts`.
 
-Konuşmadan önce hazırlanacaklar:
+**Açık sorular (testten sonra konuşulacak):**
 
-- **Gerçek oynanış ile bot farkı:** Yeni tempo telefonda denenmeli; hâlâ hızlı mı, şimdi yavaş mı?
-- **Çevrimdışı:** Tavan artık sınıfla büyüyor (10 dk → 2 sa) ama 3 dk oynayıp dönen oyuncu cebindeki paranın onlarca katını buluyordu (~$27K; yeni işletme ayarıyla yeniden ölçülecek). Seçenekler: oranı düşürmek (%50 → %25), tavanı oynama süresine bağlamak, ilk dönüşü ayrıca sınırlamak. Geç oyunda uyuyan oyuncu için 4–8 saat sorusu (GPT Astra: 2 saat cimri) hâlâ açık; simülasyonda 4/8 saat geç hedefleri bozuyordu.
-- **Ev bonusları:** Yaşanan ev +%5 × (n−1) (9. ev +%40, 25. ev +%120) ve araç/kıyafet bonusları. Kiralık evin bonusu satın alınanla aynı. Seçenek: kiralık evde bonus yarı, satın alınca tam; ya da bonus adımı küçülür.
-- **Taşınma bedeli:** Seçenek B ile başladı (bugünkü fiyat eğrisi = taşınma bedeli, satın alma = ×25). Alternatif A: bedel = fiyatın %4'ü, fiyatlar eski eğride.
-- **Simülatöre yeni profiller:** reklam izleyen (günde birkaç hızlandırıcı, her dönüşte ×2), ödeyen (kalıcı ×2), reklamsız rahat oyuncu. Hedef: reklam izleyen %20–30 hızlı, reklamsız oyuncu hedeflerin içinde.
+- **Son işletmeler yine az alınıyor.** Bot Otel ve Teknoloji Girişimi'ni (bazen Fabrika'yı) almıyor: eski işletmeler kilometre taşı ve yükseltmeyle çok katlandığı için yeni işletme sıfırdan başlayınca zayıf kalıyor. Fiyat ayarıyla çözülmüyor (geniş tarama yapıldı). Çözüm fikri: her yeni işletme ya da her kilometre taşı tüm gelire kalıcı bir bonus versin (AdVenture Capitalist'teki "hepsinden 25 adet = ×2" gibi).
+- **Orta Sınıf artık ilk oturumda değil** (botta 47 dk, 2. oturum). Defter sorusu yine oturum sınırını geçiyor (Orta 2., Milyoner 3. oturum). Ama Faz 1 kapısındaki "ilk oturumda Orta Sınıf ≥ %60" ölçütü yeniden yazılmalı.
+- **İlk yönetici 19. dakikada**; o zamana kadar 1 sn'lik Çiçek Tezgâhı için sürekli "Çalıştır"a basılıyor. Telefonda yorucuysa ilk tur 2 sn ya da ilk yönetici ucuz.
+- **Kariyer/işletme dengesi:** ilk 4 dk gelir tamamen maaş, Gündelikçi'de %73 işletme, ömür boyunca ortanca %97 işletme. "Başta kariyer" daha uzun sürsün mü?
+- Çevrimdışı ödül ve ev bonusları (önceki not), reklamsız / reklam izleyen / ödeyen profilleri.
 
 ## 6. Simülatörün sınırları (GPT Astra incelemesi, doğrulandı)
 

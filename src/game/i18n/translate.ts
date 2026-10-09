@@ -31,7 +31,7 @@ export interface Translator {
   /** Localized name of a business, job, wealth class or lifestyle item. */
   name(kind: ContentKind, def: { id: string; name: string }): string;
   money(value: number): string;
-  /** An income given per second, shown per game month (1 min = 1 month): "$216/mo". */
+  /** An income given per second, shown per game month (SECONDS_PER_MONTH): "$216/mo". */
   perMonth(perSecond: number): string;
   amount(value: number): string;
   duration(seconds: number): string;

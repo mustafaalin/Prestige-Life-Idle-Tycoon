@@ -9,18 +9,22 @@ export const UPGRADE_TUNING = {
   /** Units needed for upgrade 1, 2, 3. */
   requiredOwned: [5, 15, 35],
   /**
-   * Price as a multiple of the business's first unit price. The first is cheap (about a minute of
-   * income when it unlocks, so the first upgrade comes early); the later ones hold the mid-game pace.
+   * Price as a multiple of what reaching that unit count cost (2026-10-09). Tied to the business's
+   * own size, so there are no jumps and late businesses' upgrades stay in reach (the old 6× / 3000× /
+   * 120000× of the first unit's price put them beyond the whole game).
    */
-  costMultiple: [6, 3000, 120000],
+  reachCostMultiple: [2, 6, 20],
   multiplier: 2,
 };
+
+/** Price of units 1..n of a business (geometric series, like formulas.costForUnits from zero). */
+const reachCost = (baseCost: number, growth: number, units: number) => (baseCost * (growth ** units - 1)) / (growth - 1);
 
 export const UPGRADES: UpgradeDef[] = BUSINESSES.flatMap((def) =>
   UPGRADE_TUNING.requiredOwned.map((requiredOwned, index) => ({
     id: `${def.id}:${index + 1}`,
     businessId: def.id,
-    cost: roundNice(def.baseCost * UPGRADE_TUNING.costMultiple[index]),
+    cost: roundNice(reachCost(def.baseCost, def.costGrowth, requiredOwned) * UPGRADE_TUNING.reachCostMultiple[index]),
     requiredOwned,
     multiplier: UPGRADE_TUNING.multiplier,
   })),

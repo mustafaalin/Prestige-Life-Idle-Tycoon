@@ -1,4 +1,4 @@
-// Usage: npm run sim [-- --days 30 --timeline --purchases --sessions --offline-cap 8]
+// Usage: npm run sim [-- --days 45 --timeline --purchases --sessions --offline-cap 8]
 //   --purchases            add every purchase to the timeline
 //   --offline-cap <hours>  try another offline cap (default: OFFLINE_CAP_HOURS)
 // Bundled with esbuild and run in Node; logic lives in src/game/sim.
@@ -13,7 +13,7 @@ import { PROFILES, simulate } from '../src/game/sim/simulator';
 
 const args = process.argv.slice(2);
 const daysArg = args.indexOf('--days');
-const days = daysArg >= 0 ? Number(args[daysArg + 1]) : 30;
+const days = daysArg >= 0 ? Number(args[daysArg + 1]) : 45;
 const showTimeline = args.includes('--timeline');
 const showSessions = args.includes('--sessions');
 const showPurchases = args.includes('--purchases');

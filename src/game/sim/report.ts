@@ -22,19 +22,21 @@ const firstClass = (name: string, generation?: number) => (events: SimEvent[]) =
 const DAY = 86400;
 
 export const PACING_TARGETS: PacingTarget[] = [
+  // A job comes first, the Flower Stand ($250) is bought from savings (2026-10-09).
   { label: 'First purchase', find: (e) => e.find((x) => x.kind === 'purchase'), measure: 'active', min: 0, max: 60 },
-  { label: 'First business', find: (e) => e.find((x) => x.kind === 'business'), measure: 'active', min: 0, max: 120 },
-  { label: 'First manager', find: (e) => e.find((x) => x.kind === 'manager'), measure: 'active', min: 120, max: 360 },
-  { label: 'Day Laborer (gen 1)', find: firstClass('Day Laborer', 1), measure: 'active', min: 3 * 60, max: 5 * 60 },
-  { label: 'Working Class (gen 1)', find: firstClass('Working Class', 1), measure: 'active', min: 15 * 60, max: 20 * 60 },
+  { label: 'First business', find: (e) => e.find((x) => x.kind === 'business'), measure: 'active', min: 2 * 60, max: 6 * 60 },
+  { label: 'First manager', find: (e) => e.find((x) => x.kind === 'manager'), measure: 'active', min: 8 * 60, max: 25 * 60 },
+  { label: 'Day Laborer (gen 1)', find: firstClass('Day Laborer', 1), measure: 'active', min: 5 * 60, max: 10 * 60 },
+  { label: 'Working Class (gen 1)', find: firstClass('Working Class', 1), measure: 'active', min: 18 * 60, max: 35 * 60 },
   { label: 'Middle Class (gen 1)', find: firstClass('Middle Class', 1), measure: 'active', min: 25 * 60, max: 50 * 60 },
-  // Millionaire (10M) should land on the first return session, not in the first one.
+  // Millionaire (10M) should land on a return session, after Middle Class's session.
   { label: 'Millionaire (gen 1)', find: firstClass('Millionaire', 1), measure: 'active', min: 35 * 60, max: 75 * 60 },
-  { label: 'First Billionaire', find: firstClass('Billionaire'), measure: 'clock', min: 2 * DAY, max: 5 * DAY },
-  { label: 'First Multibillionaire', find: firstClass('Multibillionaire'), measure: 'clock', min: 5 * DAY, max: 10 * DAY },
-  { label: 'First Richest Person Alive', find: firstClass('Richest Person Alive'), measure: 'clock', min: 6 * DAY, max: 16 * DAY },
-  // Single life (§4.9): the first hand-over to the heir comes when the hero's life ends.
-  { label: 'First life ends (age 97)', find: (e) => e.find((x) => x.kind === 'retire'), measure: 'clock', min: 14 * DAY, max: 35 * DAY },
+  // Classes spread over more days since 2026-10-09 (slower ageing, life.ts).
+  { label: 'First Billionaire', find: firstClass('Billionaire'), measure: 'clock', min: 2 * DAY, max: 6 * DAY },
+  { label: 'First Multibillionaire', find: firstClass('Multibillionaire'), measure: 'clock', min: 7 * DAY, max: 13 * DAY },
+  { label: 'First Richest Person Alive', find: firstClass('Richest Person Alive'), measure: 'clock', min: 13 * DAY, max: 20 * DAY },
+  // Single life (§4.9): the first hand-over to the heir comes when the hero's life ends (~21 h played).
+  { label: 'First life ends (age 97)', find: (e) => e.find((x) => x.kind === 'retire'), measure: 'clock', min: 25 * DAY, max: 45 * DAY },
 ];
 
 export function formatClock(seconds: number) {

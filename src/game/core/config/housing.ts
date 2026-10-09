@@ -31,7 +31,7 @@ export const HOME_BONUS_PER_TIER = 0.05;
  * hours = RENT_PAYBACK_HOURS_AT_1M × (price / $1M) ^ RENT_PAYBACK_EXPONENT. Tuned with `npm run sim`
  * so rent is a side income (median ~8% of income, up to ~25% late in a generation), never the main one.
  */
-export const RENT_PAYBACK_HOURS_AT_1M = 1;
+export const RENT_PAYBACK_HOURS_AT_1M = 12;
 export const RENT_PAYBACK_EXPONENT = 0.44;
 
 export function rentPaybackSeconds(buyCost: number) {

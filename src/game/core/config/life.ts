@@ -5,8 +5,12 @@
 export const START_AGE = 17;
 /** Age at which the hero retires and hands the family over to the heir. */
 export const RETIREMENT_AGE = 97;
-/** Seconds of play per in-game month: 1 minute = 1 month, so 12 minutes = 1 year. */
-export const SECONDS_PER_MONTH = 60;
+/**
+ * Seconds of play per in-game month: 1 minute ≈ 3 weeks, so 16 minutes = 1 year (2026-10-09; was
+ * 1 minute = 1 month). Slower ageing lets the classes spread over more days while the hero is still
+ * in his fifties at the last ceremony.
+ */
+export const SECONDS_PER_MONTH = 80;
 export const SECONDS_PER_YEAR = SECONDS_PER_MONTH * 12;
-/** Seconds of play in a whole life (80 years ≈ 16 hours). */
+/** Seconds of play in a whole life (80 years ≈ 21 hours). */
 export const LIFE_SECONDS = (RETIREMENT_AGE - START_AGE) * SECONDS_PER_YEAR;

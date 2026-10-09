@@ -2,7 +2,7 @@
 // in docs/game-design-v2.md §5.
 
 /** Owned-unit counts where a business's profit doubles. */
-export const PROFIT_MILESTONES = [10, 25, 50, 100, 200, 300];
+export const PROFIT_MILESTONES = [25, 50, 75];
 export const PROFIT_MILESTONE_FACTOR = 2;
 
 /** Share of a business's full output an active player gets by tapping it without a manager. */

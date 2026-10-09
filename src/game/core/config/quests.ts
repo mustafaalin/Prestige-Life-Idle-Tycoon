@@ -12,10 +12,11 @@ const quest = (id: string, goal: QuestDef['goal'], rewardMin: number, rewardSeco
 });
 
 export const QUESTS: QuestDef[] = [
+  // A job comes first; the Flower Stand is bought from the savings (2026-10-09).
   quest('collect-5', { type: 'collect', count: 5 }, 3),
-  quest('flower-1', { type: 'units', businessId: 'flower-stand', count: 1 }, 5),
-  quest('flower-5', { type: 'units', businessId: 'flower-stand', count: 5 }, 10),
-  quest('job-1', { type: 'career', index: 0 }, 10),
+  quest('job-1', { type: 'career', index: 0 }, 5),
+  quest('flower-1', { type: 'units', businessId: 'flower-stand', count: 1 }, 20),
+  quest('flower-5', { type: 'units', businessId: 'flower-stand', count: 5 }, 40),
   quest('flower-up-1', { type: 'upgrade', upgradeId: 'flower-stand:1' }, 20),
   quest('collect-30', { type: 'collect', count: 30 }, 30),
   quest('flower-10', { type: 'units', businessId: 'flower-stand', count: 10 }, 40),
