@@ -5,6 +5,7 @@ import '@fontsource/fredoka/700.css';
 import './mobile.css';
 import { I18nProvider } from './i18n/I18nProvider';
 import { installBackButton } from './runtime/backButton';
+import { installNotificationTracking } from './runtime/notifications';
 import { GameV2Provider } from './runtime/GameV2Provider';
 import { readSave } from './runtime/storage';
 import { DevMenu } from './ui/DevMenu';
@@ -36,6 +37,8 @@ export default function AppV2() {
   }, []);
 
   useEffect(() => installBackButton(), []);
+  // Installed at launch: a tap on a reminder is what opened the app.
+  useEffect(() => installNotificationTracking(), []);
 
   const loaded = saveText !== undefined;
   useEffect(() => {

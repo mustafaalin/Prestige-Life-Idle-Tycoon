@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { track } from './analytics';
 
 // Local notifications (docs/discussion-notes.md §8 → Faz 1, 2026-10-09): Mom's next message and
 // Lucky waiting when the offline earnings are full. No server: they are scheduled when the app goes
@@ -45,6 +46,17 @@ export function setNotificationsEnabled(enabled: boolean) {
 }
 
 export const notificationsSupported = native;
+
+const KIND_BY_ID: Record<number, string> = { [LUCKY_ID]: 'lucky', [MOM_ID]: 'mom', [DEV_TEST_ID]: 'dev_test' };
+
+/** Counts taps on our reminders (they open the app; nothing else to do). Returns the stop function. */
+export function installNotificationTracking(): () => void {
+  if (!native) return () => {};
+  const handle = LocalNotifications.addListener('localNotificationActionPerformed', ({ notification }) => {
+    track('notification_open', { kind: KIND_BY_ID[notification.id] ?? 'other' });
+  });
+  return () => void handle.then((h) => h.remove()).catch(() => {});
+}
 
 let channelReady: Promise<void> | null = null;
 

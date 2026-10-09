@@ -27,6 +27,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 - **Bildirimler (1.19):** annenin mesajı ve kasa dolunca Şans; günde en fazla bir, 10:00–21:00; izin ilk törenden sonra; Ayarlar'da aç/kapa. Telefonda henüz denenmedi.
 - **Ödül kartları:** Çevrimdışı kazanç (tavan sınıfla büyür: 10 dk → 2 sa), Şans'ın cüzdanı, yönetici işe alma.
 - **Ses ve haptik:** Toplama, alım, ödül.
+- **Analitik (1.14):** `runtime/analytics.ts`, Firebase Analytics; oyuncu eylemleri `store.ts`'te, sınıf atlama, törenler, reklam, bildirime dokunma, sekmeler. Firebase projesi `prestige-life-idle-tycoon`, `android/app/google-services.json` yerinde; telefonda DebugView ile doğrulanmadı.
 - **Reklam altyapısı:** `runtime/ads.ts` (AdMob 8.2.1, UMP izin formu, iOS ATT, web'de sahte reklam). Reklam yerleri henüz bağlı değil.
 - **Mobil:** Kayıt Preferences'ta, Android geri tuşu, güvenli alanlar; `npm run phone` ile telefonda canlı yenileme.
 
@@ -43,15 +44,16 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 3. **Ekonomi ayarının kalanı:** çevrimdışı ödül ve ev bonusları ([discussion-notes.md §5](./discussion-notes.md)); reklamsız / reklam izleyen / ödeyen profilleri.
 4. **Reklam yerleri:** Çevrimdışı ×2, Şans ×2, 1 saatlik ×2 hızlandırıcı, hayaline yardım, tören hediyesi ×2 ([monetization-v2 §4](./monetization-v2.md)).
 5. **IAP:** Rahat Paket, Şans'ın Altın Tasması, Yeni Başlangıç, Gece Vardiyası Ekibi; RevenueCat; "Satın alımları geri yükle"; v1'in 8 ürünü pasifleştirilir.
-6. **Faz 1'in kalanı:** onboarding ve Rıza Amca rehber balonları (1.12), hayaller panosu (1.8), analitik (1.14; `runtime/analytics.ts` hazır bekliyor), oyun testi paketi (1.15), En Zengin görseli (konak + pasta). Ayrıntı: [rebuild-plan.md](./rebuild-plan.md).
+6. **Faz 1'in kalanı:** onboarding ve Rıza Amca rehber balonları (1.12), hayaller panosu (1.8), analitiğin Firebase'e bağlanması (1.14), oyun testi paketi (1.15), En Zengin görseli (konak + pasta). Ayrıntı: [rebuild-plan.md](./rebuild-plan.md).
 
 ## Kullanıcının yapacakları
 
 - **Telefonda törenleri ve bildirimi denemek** (yukarıda 1).
 - **Telefonda gerçek test reklamını denemek:** DEV → "Test reklamı izle"; Google'ın "Test Ad" reklamı açılmalı, sonuç "rewarded" olmalı.
 - **AdMob konsolu:** Privacy & messaging → "European regulations" (GDPR) mesajı oluşturup uygulamaya bağlamak (yoksa AB'de izin formu açılmaz); yayından önce `app-ads.txt`.
-- **Firebase projesi** (Analytics + Remote Config + Crashlytics) ve `google-services.json` (plan Faz 0).
-- **Test kullanıcısı listesi** (20–50 kişi; Google Play kapalı testi için en az 12 kişi 14 gün).
+- **Firebase projesi:** console.firebase.google.com → proje aç (Google Analytics açık) → Android uygulaması ekle, paket adı `com.prestigelife.idletycoon` → `google-services.json` dosyasını `android/app/` içine koy (gizli değil, git'e girer). Sonra telefonda `npm run phone -- --install` ve DebugView ile doğrulama. Remote Config ve Crashlytics sonra.
+- **Google Play kapalı testi (v1 yapısıyla, 2026-10-06 civarı 12 kişi tamamlandı):** 14 günlük süre işliyor, ~2026-10-20'de dolar. Testçiler listeden çıkmamalı, kapalı test kanalı kapatılmamalı. Süre dolunca Play Console'dan yayın erişimi başvurusu (test hakkında sorular sorar).
+- **Test kullanıcısı listesi** (Faz 1 oyun testi için 20–50 kişi; dahili test kanalı).
 
 ## Çalıştırma
 

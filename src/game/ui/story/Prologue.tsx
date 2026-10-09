@@ -1,6 +1,7 @@
 import { ChevronRight, Phone } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useT } from '../../i18n/useT';
+import { track } from '../../runtime/analytics';
 import { useCoverFit } from '../scene/coverFit';
 import { PROLOGUE, type Speaker } from './prologueScript';
 
@@ -45,6 +46,11 @@ export function Prologue({ onDone }: { onDone: () => void }) {
   const panel = PROLOGUE[panelIndex];
   const line = panel.lines[lineIndex];
 
+  const end = (skipped: boolean) => {
+    track('story_view', { kind: 'prologue', skipped, panel: panelIndex });
+    setEnding(true);
+  };
+
   const advance = () => {
     const now = Date.now();
     if (ending || now - lastStep.current < TAP_GUARD_MS) return;
@@ -55,7 +61,7 @@ export function Prologue({ onDone }: { onDone: () => void }) {
       setPanelIndex(panelIndex + 1);
       setLineIndex(0);
     } else {
-      setEnding(true);
+      end(false);
     }
   };
 
@@ -100,7 +106,7 @@ export function Prologue({ onDone }: { onDone: () => void }) {
             type="button"
             onClick={(event) => {
               event.stopPropagation();
-              setEnding(true);
+              if (!ending) end(true);
             }}
             className="rounded-full bg-black/35 px-4 py-1.5 text-[11px] font-black text-white transition-all active:scale-90"
           >

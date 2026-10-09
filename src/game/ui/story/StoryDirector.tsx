@@ -93,7 +93,7 @@ export function StoryDirector() {
   }
 
   const finishCeremony = (classIndex: number, skipped: boolean) => {
-    track('story_view', { kind: 'ceremony', classIndex, skipped, replay: replay !== null });
+    track('story_view', { kind: 'ceremony', class_index: classIndex, skipped, replay: replay !== null });
     if (replay !== null) {
       setReplay(null);
       return;

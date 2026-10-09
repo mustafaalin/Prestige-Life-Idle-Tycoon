@@ -3,6 +3,7 @@ import { heroAge, isLifeOver, offlineCapHours, pendingLegacyPoints } from '../..
 import { canBuyAnythingInShop, nextCareer } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { initAds } from '../../runtime/ads';
+import { trackScreen } from '../../runtime/analytics';
 import { haptic, playSfx, preloadSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { Scene } from '../scene/Scene';
@@ -46,6 +47,7 @@ export function HomeScreen() {
   };
 
   useEffect(() => preloadSfx(), []);
+  useEffect(() => trackScreen(tab ?? 'home'), [tab]);
   // Ads start once the player is in the game, so the consent form never covers the prologue.
   useEffect(() => void initAds(), []);
 

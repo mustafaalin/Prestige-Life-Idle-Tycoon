@@ -24,6 +24,7 @@ import {
   type Payout,
   type RuntimeState,
 } from './engine';
+import { setPlayerProperties, track } from './analytics';
 import { clearSave, parseRuntime, saveRuntime } from './storage';
 
 // Owns the live game: 250 ms tick, autosave, foreground/background handling (web visibility events
@@ -113,7 +114,13 @@ export function createGameStore(saveText: string | null, clock: () => number = D
     if (payouts.length > 0) events.push({ type: 'payout', payouts });
     for (let index = previousClass + 1; index <= next.game.classIndex; index += 1) {
       events.push({ type: 'classUp', classIndex: index });
+      track('class_up', {
+        class_index: index,
+        generation: next.game.generation,
+        life_minutes: Math.round(next.game.lifeSeconds / 60),
+      });
     }
+    if (next.game.classIndex !== previousClass) setPlayerProperties(next.game);
     events.forEach((event) => eventListeners.forEach((listener) => listener(event)));
   };
 
@@ -140,6 +147,17 @@ export function createGameStore(saveText: string | null, clock: () => number = D
     if (!next) return false;
     commit(next, [], true);
     return true;
+  };
+
+  /** A player action that is also an analytics event (sent only if the action went through). */
+  const actTracked = (
+    transition: (current: RuntimeState) => RuntimeState | null,
+    event: Parameters<typeof track>[0],
+    params: () => Parameters<typeof track>[1],
+  ) => {
+    const done = act(transition);
+    if (done) track(event, params());
+    return done;
   };
 
   const updateStory = (change: (story: RuntimeState['story']) => RuntimeState['story']) => {
@@ -171,6 +189,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
     },
 
     start() {
+      setPlayerProperties(state.game);
       runResume();
       const interval = window.setInterval(() => {
         // Background tabs and suspended apps are caught up by resume() on return, never by ticks.
@@ -199,24 +218,45 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       },
       claimFind: () => {
         const amount = fetchReward(state.game);
-        act(claimFind);
+        actTracked(claimFind, 'find_claim', () => ({ finds: state.game.finds }));
         return amount;
       },
-      buyBusiness: (businessId, count) => act((s) => buyBusinessUnits(s, businessId, count)),
-      hireManager: (businessId) => act((s) => hireManager(s, businessId)),
+      buyBusiness: (businessId, count) =>
+        actTracked((s) => buyBusinessUnits(s, businessId, count), 'business_buy', () => ({
+          business_id: businessId,
+          count,
+          owned: state.game.businesses[businessId]?.owned ?? 0,
+        })),
+      hireManager: (businessId) =>
+        actTracked((s) => hireManager(s, businessId), 'manager_hire', () => ({ business_id: businessId })),
       startCycle: (businessId) => act((s) => startCycle(s, businessId)),
-      promote: () => act(promote),
-      buyLifestyle: (itemId) => act((s) => buyLifestyle(s, itemId)),
-      buyUpgrade: (upgradeId) => act((s) => buyUpgrade(s, upgradeId)),
+      promote: () => actTracked(promote, 'promotion', () => ({ career_index: state.game.careerIndex })),
+      buyLifestyle: (itemId) => actTracked((s) => buyLifestyle(s, itemId), 'lifestyle_buy', () => ({ item_id: itemId })),
+      buyUpgrade: (upgradeId) => actTracked((s) => buyUpgrade(s, upgradeId), 'upgrade_buy', () => ({ upgrade_id: upgradeId })),
       claimQuest: (questId) => {
         const before = state.game.cash;
-        return act((s) => claimQuest(s, questId)) ? state.game.cash - before : 0;
+        return actTracked((s) => claimQuest(s, questId), 'quest_claim', () => ({ quest_id: questId }))
+          ? state.game.cash - before
+          : 0;
       },
-      rentHome: (houseId) => act((s) => rentHome(s, houseId)),
-      buyHome: (houseId) => act((s) => buyHome(s, houseId)),
-      moveHome: (houseId) => act((s) => moveHome(s, houseId)),
-      claimOffline: (multiplier) => act((s) => claimOffline(s, multiplier)),
-      retire: () => act(retire),
+      rentHome: (houseId) =>
+        actTracked((s) => rentHome(s, houseId), 'home_change', () => ({ action: 'rent', house_id: houseId })),
+      buyHome: (houseId) =>
+        actTracked((s) => buyHome(s, houseId), 'home_change', () => ({ action: 'buy', house_id: houseId })),
+      moveHome: (houseId) =>
+        actTracked((s) => moveHome(s, houseId), 'home_change', () => ({ action: 'move', house_id: houseId })),
+      claimOffline: (multiplier) => {
+        const awaySeconds = state.offline?.awaySeconds ?? 0;
+        return actTracked((s) => claimOffline(s, multiplier), 'offline_claim', () => ({
+          away_minutes: Math.round(awaySeconds / 60),
+          multiplier: multiplier ?? 1,
+        }));
+      },
+      retire: () => {
+        // The life that just ended, not the heir's.
+        const { generation, classIndex } = state.game;
+        return actTracked(retire, 'retire', () => ({ generation, class_index: classIndex }));
+      },
       story: {
         setPaused: (value) => {
           if (paused && !value) state = { ...state, lastActiveAt: clock() };
