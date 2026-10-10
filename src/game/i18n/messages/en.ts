@@ -18,6 +18,9 @@ export const en = {
     findHint: 'Lucky found something!',
     findTitle: 'Lucky found a wallet!',
     findBody: 'You returned it to its owner. As a thank-you:',
+    newHome: 'New home: {home}',
+    newVehicle: 'New ride: {vehicle}',
+    newOutfit: 'New outfit: {outfit}',
   },
   business: {
     title: 'Businesses',
@@ -257,6 +260,7 @@ export const en = {
     c1: {
       hero: "Don't worry, Mom, I'm okay. I had hot soup today.",
       mom: "You sound good, sweetheart. That's all I needed to hear.",
+      van: "My old van's just sitting there. Beats a tent. Keys are yours.",
       riza: 'You remind me of someone, kid... Never mind.',
     },
     c2: {

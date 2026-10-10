@@ -1,9 +1,9 @@
 import { BUSINESSES } from './config/businesses';
 import { CAREERS } from './config/careers';
 import { STARTING_CASH } from './config/economy';
-import { HOUSES, STARTING_HOME_ID } from './config/housing';
+import { CLASS_HOME_FLOOR, HOUSES, STARTING_HOME_ID } from './config/housing';
 import { LIFE_SECONDS } from './config/life';
-import { LIFESTYLE_ITEMS, STARTING_LIFESTYLE_IDS } from './config/lifestyle';
+import { CLASS_OUTFIT_FLOOR, LIFESTYLE_ITEMS, OUTFITS, STARTING_LIFESTYLE_IDS } from './config/lifestyle';
 import { ACTIVE_QUESTS, GENERATED_QUEST_SECONDS, QUESTS } from './config/quests';
 import { UPGRADES } from './config/upgrades';
 import { classIndexFor, costForUnits, isLifeOver, nextMilestone, pendingLegacyPoints, questReward } from './formulas';
@@ -57,13 +57,31 @@ export function live(state: GameStateV2, seconds: number): GameStateV2 {
 export function earn(state: GameStateV2, amount: number): GameStateV2 {
   if (amount <= 0) return state;
   const generationEarnings = state.generationEarnings + amount;
-  return {
+  const classIndex = Math.max(state.classIndex, classIndexFor(generationEarnings));
+  const next = {
     ...state,
     cash: state.cash + amount,
     generationEarnings,
     totalEarnings: state.totalEarnings + amount,
-    classIndex: Math.max(state.classIndex, classIndexFor(generationEarnings)),
+    classIndex,
   };
+  return classIndex === state.classIndex ? next : applyClassFloors(next);
+}
+
+/**
+ * A class-up gives what its story stands in: a hero still below the class's home moves there,
+ * rented and free (CLASS_HOME_FLOOR), and gets the class's outfit and the ones before it
+ * (CLASS_OUTFIT_FLOOR). Whoever bought ahead keeps what they have.
+ */
+export function applyClassFloors(state: GameStateV2): GameStateV2 {
+  const homeFloor = CLASS_HOME_FLOOR[Math.min(state.classIndex, CLASS_HOME_FLOOR.length - 1)];
+  const home = houseIndex(state.home) >= homeFloor ? state.home : HOUSES[homeFloor].id;
+  const outfitFloor = CLASS_OUTFIT_FLOOR[Math.min(state.classIndex, CLASS_OUTFIT_FLOOR.length - 1)];
+  const missing = OUTFITS.slice(0, outfitFloor + 1)
+    .map((outfit) => outfit.id)
+    .filter((id) => !state.lifestyleOwned.includes(id));
+  if (home === state.home && missing.length === 0) return state;
+  return { ...state, home, lifestyleOwned: [...state.lifestyleOwned, ...missing] };
 }
 
 function spend(state: GameStateV2, cost: number): GameStateV2 | null {

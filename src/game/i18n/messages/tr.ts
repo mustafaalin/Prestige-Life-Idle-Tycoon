@@ -17,6 +17,9 @@ export const tr: Messages = {
     findHint: 'Şans bir şey buldu!',
     findTitle: 'Şans bir cüzdan buldu!',
     findBody: 'Cüzdanı sahibine geri verdin. Teşekkür olarak:',
+    newHome: 'Yeni evin: {home}',
+    newVehicle: 'Yeni aracın: {vehicle}',
+    newOutfit: 'Yeni kıyafetin: {outfit}',
   },
   business: {
     title: 'İşletmeler',
@@ -256,6 +259,7 @@ export const tr: Messages = {
     c1: {
       hero: 'Merak etme anne, iyiyim. Bugün sıcak çorba içtim.',
       mom: 'Sesin güzel geliyor oğlum. Bunu duymak yetti.',
+      van: 'Eski minibüsüm boşta duruyor. Çadırdan iyidir, anahtar senin.',
       riza: 'Sen birine çok benziyorsun evlat... Neyse, boş ver.',
     },
     c2: {

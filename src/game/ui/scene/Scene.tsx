@@ -1,4 +1,4 @@
-import { Heart } from 'lucide-react';
+import { Car, Heart, Home, Shirt } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import {
   COLLECT_MAX_ON_SCREEN,
@@ -7,11 +7,14 @@ import {
   FETCH_MIN_SECONDS,
   FETCH_WINDOW_SECONDS,
 } from '../../core/config/scene';
+import { HOUSES } from '../../core/config/housing';
+import { OUTFITS, VEHICLES } from '../../core/config/lifestyle';
 import { fetchReward, tapValue } from '../../core/formulas';
+import { bestOwnedLifestyle, houseIndex } from '../../core/state';
 import type { GameStateV2 } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
-import { sceneClass } from '../../runtime/story';
+import { pendingCeremony, sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { useGuideTarget } from '../guide/guideSteps';
 import { burstCoins } from '../home/coins';
@@ -19,15 +22,18 @@ import { PointingHand } from '../home/Focusable';
 import { RewardCard } from '../home/RewardCard';
 import { useCoverFit } from './coverFit';
 import { onFindRequest } from './sceneEvents';
-import { sceneStage, stageImages, type Pose } from './stages';
+import { classLook, heroLook, homeArt, lookImages, parkedVehicle, type Pose } from './stages';
 
-// The home scene (plan 1.6, discussion-notes §9): the hero and Şans, always on screen. Where they are
-// and what the hero wears follow the class (stages.ts); the alley is the first stage.
+// The home scene (plan 1.6, discussion-notes §7): the hero and Şans, always on screen, in front of
+// the home you live in, with your best vehicle parked beside them, the hero in the best outfit you own
+// (stages.ts). Moving house cross-fades the place; a new vehicle drives in; a new outfit is put on.
 // Bottles and cans appear on the ground; tapping one collects it (one tap's money). Now and then
 // Şans brings a wallet he found; catching it in time pays a bonus. The hero's pose follows what
 // happens: collecting, petting Şans, a purchase. Positions are fractions of the 9:16 background.
 
 const FEET_Y = 0.735;
+
+type NewsKind = 'home' | 'vehicle' | 'outfit';
 
 /** A stronger moment is not cut short by a weaker one. */
 const POSE_RANK: Record<Pose, number> = { idle: 0, collect: 1, pet: 2, joy: 3 };
@@ -69,7 +75,14 @@ interface Floater {
 function progressMark(game: GameStateV2) {
   let owned = 0;
   for (const business of Object.values(game.businesses)) owned += business.owned + (business.managed ? 1 : 0);
-  return owned + game.careerIndex + game.classIndex + game.lifestyleOwned.length + game.homesOwned.length;
+  return (
+    owned +
+    game.careerIndex +
+    game.classIndex +
+    game.lifestyleOwned.length +
+    game.homesOwned.length +
+    houseIndex(game.home)
+  );
 }
 
 const random = (min: number, max: number) => min + Math.random() * (max - min);
@@ -95,16 +108,24 @@ function startingItems(): Item[] {
 export function Scene() {
   const { game, state, actions } = useGameV2();
   const shownClass = sceneClass(game, state.story);
-  const stage = sceneStage(shownClass);
+  const stage = classLook(shownClass);
+  const wornOutfit = OUTFITS.findIndex((outfit) => outfit.id === bestOwnedLifestyle(game, 'outfit')?.id);
   const itemArt = (item: Item) => stage.items[item.art % stage.items.length];
+  // A ceremony that moves the hero (housing.ts CLASS_HOME_FLOOR) reveals the new home when it ends.
+  const ceremonyWaiting = pendingCeremony(game, state.story) !== null;
   // Old Ray's first step: the hand rests on a bottle until a few are collected.
   const pointAtItem = useGuideTarget()?.key === 'scene:item';
 
-  // The next place loads while its ceremony plays, so it is there the moment the ceremony ends.
+  // The next look and place load while the ceremony plays, so they are there the moment it ends.
   useEffect(() => {
-    if (game.classIndex > shownClass) for (const src of stageImages(sceneStage(game.classIndex))) new Image().src = src;
-  }, [game.classIndex, shownClass]);
-  const { t, money } = useT();
+    if (game.classIndex > shownClass) {
+      for (const src of lookImages(classLook(game.classIndex), heroLook(wornOutfit))) new Image().src = src;
+    }
+  }, [game.classIndex, shownClass, wornOutfit]);
+  useEffect(() => {
+    new Image().src = homeArt(game.home).background;
+  }, [game.home]);
+  const { t, money, name } = useT();
   const rootRef = useRef<HTMLDivElement>(null);
   const fit = useCoverFit(rootRef);
   const pictureWidth = fit.h(9 / 16);
@@ -149,6 +170,54 @@ export function Scene() {
     }
     lastMark.current = mark;
   }, [mark, flashPose]);
+
+  // ── Home and vehicle ──
+  const [shownHome, setShownHome] = useState(game.home);
+  const home = homeArt(shownHome);
+  const [fadingBackground, setFadingBackground] = useState<string | null>(null);
+  const [news, setNews] = useState<{ id: number; kind: NewsKind; text: string } | null>(null);
+  const announce = useCallback(
+    (kind: NewsKind, text: string) => {
+      const id = nextId.current++;
+      setNews({ id, kind, text });
+      later(() => setNews((current) => (current?.id === id ? null : current)), 2800);
+    },
+    [later],
+  );
+
+  useEffect(() => {
+    if (ceremonyWaiting || game.home === shownHome) return;
+    setFadingBackground(homeArt(shownHome).background);
+    later(() => setFadingBackground(null), 800);
+    setShownHome(game.home);
+    const house = HOUSES.find((item) => item.id === game.home);
+    if (house) announce('home', t('scene.newHome', { home: name('lifestyle', house) }));
+  }, [ceremonyWaiting, game.home, shownHome, later, announce, t, name]);
+
+  // An outfit a ceremony gives is put on when the ceremony ends, like the new home.
+  const [shownOutfit, setShownOutfit] = useState(wornOutfit);
+  const hero = heroLook(shownOutfit);
+  useEffect(() => {
+    if (ceremonyWaiting || wornOutfit === shownOutfit) return;
+    setShownOutfit(wornOutfit);
+    const outfit = OUTFITS[wornOutfit];
+    // No label while the outfit's art is pending and the hero looks the same.
+    if (outfit && heroLook(wornOutfit) !== heroLook(shownOutfit)) {
+      announce('outfit', t('scene.newOutfit', { outfit: name('lifestyle', outfit) }));
+    }
+  }, [ceremonyWaiting, wornOutfit, shownOutfit, announce, t, name]);
+
+  const vehicle = parkedVehicle(game.lifestyleOwned);
+  const lastVehicle = useRef(vehicle?.id);
+  const [arrivedVehicle, setArrivedVehicle] = useState<string | null>(null);
+  useEffect(() => {
+    if (vehicle?.id === lastVehicle.current) return;
+    lastVehicle.current = vehicle?.id;
+    const def = VEHICLES.find((item) => item.id === vehicle?.id);
+    if (!def) return;
+    setArrivedVehicle(def.id);
+    announce('vehicle', t('scene.newVehicle', { vehicle: name('lifestyle', def) }));
+  }, [vehicle?.id, announce, t, name]);
 
   // ── Floating numbers and hearts ──
   const [floaters, setFloaters] = useState<Floater[]>([]);
@@ -251,10 +320,35 @@ export function Scene() {
 
   return (
     <div ref={rootRef} className="absolute inset-0 overflow-hidden bg-[#0d1530]">
-      <img src={stage.background} alt="" draggable={false} className="absolute inset-0 w-full h-full object-cover" />
+      <img src={home.background} alt="" draggable={false} className="absolute inset-0 w-full h-full object-cover" />
+      {fadingBackground && (
+        <img
+          key={fadingBackground}
+          src={fadingBackground}
+          alt=""
+          draggable={false}
+          className="v2-fade-out absolute inset-0 w-full h-full object-cover pointer-events-none"
+        />
+      )}
 
       {ready && (
         <>
+          {vehicle && (
+            <img
+              key={vehicle.id}
+              src={vehicle.src}
+              alt=""
+              draggable={false}
+              className={`absolute pointer-events-none ${arrivedVehicle === vehicle.id ? 'v2-run-in' : ''}`}
+              style={{
+                left: fit.x(home.parking.x) - (pictureWidth * home.parking.carWidth * vehicle.size) / 2,
+                bottom: fit.height - fit.y(home.parking.y),
+                width: pictureWidth * home.parking.carWidth * vehicle.size,
+                filter: SPRITE_FILTER,
+              }}
+            />
+          )}
+
           {/* Soft ground shadows keep the cut-out characters standing on the cobbles. */}
           <span
             className="absolute rounded-[50%] bg-black/40 blur-[6px]"
@@ -267,7 +361,7 @@ export function Scene() {
           />
 
           {POSE_LIST.map((key) => {
-            const art = stage.poses[key];
+            const art = hero[key];
             const height = fit.h(art.height);
             const width = height * art.aspect;
             return (
@@ -380,6 +474,25 @@ export function Scene() {
             </span>
           ))}
         </>
+      )}
+
+      {news && (
+        <div
+          key={news.id}
+          className="v2-pop-in absolute inset-x-0 flex justify-center pointer-events-none"
+          style={{ top: fit.y(0.27) }}
+        >
+          <span className="flex items-center gap-1.5 rounded-full bg-gradient-to-b from-amber-300 to-orange-500 border-2 border-white v2-glossy px-3.5 py-1.5 v2-display text-[15px] text-white v2-shadow">
+            {news.kind === 'home' ? (
+              <Home className="w-4 h-4" />
+            ) : news.kind === 'outfit' ? (
+              <Shirt className="w-4 h-4" />
+            ) : (
+              <Car className="w-4 h-4" />
+            )}
+            {news.text}
+          </span>
+        </div>
       )}
 
       {findOffer !== null && (

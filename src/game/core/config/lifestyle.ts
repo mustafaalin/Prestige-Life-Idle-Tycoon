@@ -17,11 +17,30 @@ const TOYS: { name: string; vehicleImage: number; cost: number }[] = [
   { name: 'Private Jet', vehicleImage: 20, cost: 1e12 },
 ];
 
-const OUTFIT_NAMES = [
-  'Bare Basics', 'Street Casual', 'Daily Grind', 'Summer Ease', 'Clean Start', 'Urban Comfort', 'Street Edge',
-  'Smart Casual', 'Easy Boss', 'Laid Back Chic', 'Low Key Sharp', 'Off Duty', 'Rising Pro', 'The Coat',
-  'All White', 'Sharp Suit', 'Power Move', 'Black Tie', 'Icon', 'Elite',
+// The hero's four story outfits (decided 2026-10-11; there were 20 that never showed on screen).
+// The one you wear is the best you own; a class-up gives its outfit for free (CLASS_OUTFIT_FLOOR),
+// buying ahead wears it early. Art: docs/art-brief-v2.md §4.1, scene poses in ui/scene/stages.ts.
+const OUTFIT_SPECS: { id: string; name: string; image: string; cost: number }[] = [
+  { id: 'outfit-hoodie', name: 'Hoodie', image: '/assets/scene/hero-street-idle.webp', cost: 0 },
+  { id: 'outfit-work', name: 'Work Clothes', image: '/assets/scene/hero-work-idle.webp', cost: 6_000 },
+  // v1 pictures stand in until the new art comes.
+  { id: 'outfit-smart', name: 'Smart Casual', image: '/assets/outfits/ch-8-1.png', cost: 200_000 },
+  { id: 'outfit-suit', name: 'Suit', image: '/assets/outfits/ch-16-1.png', cost: 1.5e7 },
 ];
+
+/** Status bonus of each outfit after the free hoodie. */
+const OUTFIT_STATUS_BONUS = 0.12;
+
+/** The outfit each wealth class wears at least (index into OUTFITS: hoodie, work clothes, smart casual, suit). */
+export const CLASS_OUTFIT_FLOOR = [0, 0, 1, 2, 2, 3, 3, 3];
+
+/**
+ * Saves from before 2026-10-11 had 20 outfits (`outfit-1`…`outfit-20`, bought in order); the best one
+ * maps to the new outfit closest in price, never lower: from #7 work clothes, #11 smart casual, #15 suit.
+ */
+export function legacyOutfitIndex(oldNumber: number) {
+  return oldNumber >= 15 ? 3 : oldNumber >= 11 ? 2 : oldNumber >= 7 ? 1 : 0;
+}
 
 function geometric(
   kind: LifestyleKind,
@@ -31,7 +50,7 @@ function geometric(
   growth: number,
   statusBonus: number
 ): LifestyleDef[] {
-  // Index 0 is the free starting item (wheelbarrow, bare basics).
+  // Index 0 is the free starting item (the wheelbarrow).
   return names.map((name, index) => ({
     id: `${kind}-${index + 1}`,
     kind,
@@ -43,7 +62,14 @@ function geometric(
 }
 
 export const VEHICLES = geometric('vehicle', VEHICLE_NAMES, (n) => `/assets/vehicles/vehicle-${n}.png`, 20, 3.3, 0.03);
-export const OUTFITS = geometric('outfit', OUTFIT_NAMES, (n) => `/assets/outfits/ch-${n}-1.png`, 30, 3, 0.02);
+export const OUTFITS: LifestyleDef[] = OUTFIT_SPECS.map((outfit, index) => ({
+  id: outfit.id,
+  kind: 'outfit',
+  name: outfit.name,
+  image: outfit.image,
+  cost: outfit.cost,
+  statusBonus: index === 0 ? 0 : OUTFIT_STATUS_BONUS,
+}));
 export const LUXURY_TOYS: LifestyleDef[] = TOYS.map((toy, index) => ({
   id: `toy-${index + 1}`,
   kind: 'toy',
@@ -56,4 +82,4 @@ export const LUXURY_TOYS: LifestyleDef[] = TOYS.map((toy, index) => ({
 export const LIFESTYLE_ITEMS: LifestyleDef[] = [...VEHICLES, ...OUTFITS, ...LUXURY_TOYS];
 
 /** Items every new life starts with. */
-export const STARTING_LIFESTYLE_IDS = ['vehicle-1', 'outfit-1'];
+export const STARTING_LIFESTYLE_IDS = ['vehicle-1', 'outfit-hoodie'];

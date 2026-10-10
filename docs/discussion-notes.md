@@ -65,8 +65,12 @@ Kararlaştırılanlar (2026-10-08, story §6): varis 17 yaşında bir torun, öl
 
 **Kararlaşan (2026-10-09):** ana ekran sınıfı izler. Her tören kahramanı o sınıfın yerine ve kıyafetine taşır (6 aşama: sokak, minibüs, kiralık daire, site, müstakil ev, villa; 4 kıyafet). Kod `src/game/ui/scene/stages.ts`, görsel listesi [art-brief-v2.md](./art-brief-v2.md). Görselleri önce GPT üretecek (kullanıcı projeyi gören bir GPT ile deneyecek), beğenilmezse fal.ai.
 
-**Açık (kapalı testten sonra):**
+**Kararlaşan (2026-10-10):** arka plan oturulan ev, en iyi araç önünde park eder; ev sayısı 12; sınıf töreni hikâyenin evine taşır (game-design §4.8). Kıyafet, Şans'ın tasması ve toplanacaklar sınıfı izlemeye devam eder.
 
-- **Mağaza evleri ve kıyafetleri sahneyle nasıl bağlanacak?** Bugün 25 ev ve 20 kıyafet mağazada duruyor, ama sahneyi değiştirmiyor. Kullanıcının yönü: ev 10–12 olsun, kıyafet 4–5 olsun, oturulan ev arka planı belirlesin, araç evin önünde dursun. Claude'un önerisi: sınıf içinde ikinci, daha iyi ev isteğe bağlı alım olarak kalsın; kıyafet gelir bonusu ev, araç ya da aksesuara kaysın. Bot ilk 30 dakikada 9 kez taşınıyor (`npm run sim -- --purchases`). Ekonomiyi etkiler, `npm run sim` ile yapılır.
+**Kararlaşan (2026-10-11):** mağazada hikâyenin 4 kıyafeti; kahraman sahip olduğu en iyisini giyer, sınıf töreni sınıfın kıyafetini bedava verir (evlerle aynı model, game-design §4.4). Araç 16 → 10 ([art-prompts-v2.md](./art-prompts-v2.md) §2; kod görseller gelince).
+
+**Açık:**
+
+- **Lüks oyuncaklar (tekne, yat, helikopter, jet)** sahnede yok (plan 2.6).
 - **Apartman evlerinde dış mekân mı iç mekân mı?** Şimdilik dış mekân (bina girişi ve avlu), çünkü iç mekânda araç görünmez.
 - **Ara anlar** ("ilk sıcak yemek" gibi): art-brief H6 isteğe bağlı.

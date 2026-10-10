@@ -2,12 +2,12 @@ import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { CAREERS } from '../core/config/careers';
 import { WEALTH_CLASSES } from '../core/config/classes';
-import { HOUSES } from '../core/config/housing';
+import { HOUSES, LEGACY_HOUSE_TO_HOME } from '../core/config/housing';
 import { LIFE_SECONDS } from '../core/config/life';
-import { LIFESTYLE_ITEMS } from '../core/config/lifestyle';
+import { legacyOutfitIndex, LIFESTYLE_ITEMS, OUTFITS } from '../core/config/lifestyle';
 import { UPGRADES } from '../core/config/upgrades';
 import { classIndexFor } from '../core/formulas';
-import { createInitialState } from '../core/state';
+import { applyClassFloors, createInitialState } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
 import { createStoryProgress, HERO_NAME_MAX, MOM_MESSAGES, type StoryProgress } from './story';
@@ -58,21 +58,27 @@ function normalizeGame(raw: unknown): GameStateV2 {
     ? raw.lifestyleOwned.filter((id): id is string => typeof id === 'string')
     : [];
   const savedItems = savedIds.filter((id) => knownItems.has(id));
+  // Saves from before the four story outfits: the best old outfit becomes the closest new one.
+  const oldOutfit = Math.max(0, ...savedIds.map((id) => Number(/^outfit-(\d+)$/.exec(id)?.[1] ?? 0)));
+  const legacyOutfits = OUTFITS.slice(0, legacyOutfitIndex(oldOutfit) + 1).map((outfit) => outfit.id);
 
   const houseIds = HOUSES.map((house) => house.id);
   const buyable = new Set(HOUSES.filter((house) => house.buyCost !== null).map((house) => house.id));
+  // Saves from before the 12 homes name one of the 25 old houses (housing.ts).
+  const homeId = (id: unknown) => (typeof id === 'string' ? (LEGACY_HOUSE_TO_HOME[id] ?? id) : undefined);
   const homesOwned = Array.isArray(raw.homesOwned)
-    ? [...new Set(raw.homesOwned.filter((id): id is string => typeof id === 'string' && buyable.has(id)))]
+    ? [...new Set(raw.homesOwned.map(homeId).filter((id): id is string => id !== undefined && buyable.has(id)))]
     : [];
   // Saves from before the housing model kept houses in lifestyleOwned: move into the best one, rented.
-  const legacyHome = houseIds.filter((id) => savedIds.includes(id)).pop();
-  const home =
-    typeof raw.home === 'string' && houseIds.includes(raw.home) ? raw.home : (legacyHome ?? base.home);
+  const legacyHome = houseIds.filter((id) => savedIds.map(homeId).includes(id)).pop();
+  const savedHome = homeId(raw.home);
+  const home = savedHome !== undefined && houseIds.includes(savedHome) ? savedHome : (legacyHome ?? base.home);
 
   const generationEarnings = finite(raw.generationEarnings, 0);
   const savedClass = Math.min(Math.floor(finite(raw.classIndex, 0)), WEALTH_CLASSES.length - 1);
 
-  return {
+  // A class reached before the class homes and outfits existed still gets them.
+  return applyClassFloors({
     version: 2,
     cash: finite(raw.cash, base.cash),
     generationEarnings,
@@ -81,7 +87,7 @@ function normalizeGame(raw: unknown): GameStateV2 {
     legacyPoints: Math.floor(finite(raw.legacyPoints, 0)),
     businesses,
     careerIndex: Math.min(Math.floor(finite(raw.careerIndex, -1, -1)), CAREERS.length - 1),
-    lifestyleOwned: [...new Set([...base.lifestyleOwned, ...savedItems])],
+    lifestyleOwned: [...new Set([...base.lifestyleOwned, ...legacyOutfits, ...savedItems])],
     home,
     homesOwned,
     classIndex: Math.max(savedClass, classIndexFor(generationEarnings)),
@@ -92,7 +98,7 @@ function normalizeGame(raw: unknown): GameStateV2 {
     questsDone: stringList(raw.questsDone),
     bottles: Math.floor(finite(raw.bottles, 0)),
     finds: Math.floor(finite(raw.finds, 0)),
-  };
+  });
 }
 
 function normalizeCycles(raw: unknown): Record<string, CycleState> {

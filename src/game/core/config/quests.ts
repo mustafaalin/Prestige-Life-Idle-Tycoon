@@ -23,7 +23,8 @@ export const QUESTS: QuestDef[] = [
   quest('find-1', { type: 'find', count: 1 }, 50),
   quest('flower-manager', { type: 'manager', businessId: 'flower-stand' }, 100),
   quest('coffee-1', { type: 'units', businessId: 'coffee-cart', count: 1 }, 100),
-  quest('home-1', { type: 'home', index: 1 }, 150),
+  // Old Ray's van comes with the Day Laborer ceremony; the room is the first move you pay for.
+  quest('home-room', { type: 'home', index: 2 }, 150),
   // The id keeps its old name (it counted the free wheelbarrow) so saves that claimed it stay claimed.
   quest('vehicle-2', { type: 'vehicle', count: 1 }, 150),
   quest('job-2', { type: 'career', index: 1 }, 200),
@@ -36,7 +37,7 @@ export const QUESTS: QuestDef[] = [
   quest('flower-25', { type: 'units', businessId: 'flower-stand', count: 25 }, 2000),
   quest('job-4', { type: 'career', index: 3 }, 3000),
   quest('bakery-manager', { type: 'manager', businessId: 'bakery' }, 5000),
-  quest('home-4', { type: 'home', index: 4 }, 5000),
+  quest('home-flat-2', { type: 'home', index: 4 }, 5000),
   quest('carwash-1', { type: 'units', businessId: 'car-wash', count: 1 }, 8000),
   quest('class-3', { type: 'class', index: 3 }, 20000),
 ];

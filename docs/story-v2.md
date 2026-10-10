@@ -117,7 +117,7 @@ Kirli bir ara sokak; kahraman çadırın önünde üşüyor, yanında Şans. 4 �
 
 ### 8 sınıf töreni (Faz 1)
 
-Tören yapısı (plan 1.10, oyunda): "Yeni sınıf" başlığı (konfeti, ses, haptik) → hikâye anları (görsel roman: yuvarlak ifade portresi + balon; kahraman sağda, diğerleri solda; görselsiz anlar oyuncunun kendi sahnesinin üstünde karartılmış oynar) → "Önce / Şimdi" kartı (kahramanın endişeli → mutlu yüzü, çevrimdışı tavanının artışı, sıradaki sınıf). "Geç" doğrudan son karta atlar. Tören sırasında saat durur (gelir ve yaş). Tören bitince ana ekran o sınıfın yerine ve kıyafetine geçer (`ui/scene/stages.ts`). Her oyuncu sınıfları aynı sırayla geçtiği için hiçbir şey denk getirilmez.
+Tören yapısı (plan 1.10, oyunda): "Yeni sınıf" başlığı (konfeti, ses, haptik) → hikâye anları (görsel roman: yuvarlak ifade portresi + balon; kahraman sağda, diğerleri solda; görselsiz anlar oyuncunun kendi sahnesinin üstünde karartılmış oynar) → "Önce / Şimdi" kartı (kahramanın endişeli → mutlu yüzü, çevrimdışı tavanının artışı, sıradaki sınıf). "Geç" doğrudan son karta atlar. Tören sırasında saat durur (gelir ve yaş). Tören bitince kahraman o sınıfın kıyafetine geçer ve hikâyenin evinden gerideyse oraya taşınır; mağazadan önden giden kendi kıyafetinde ve evinde kalır (game-design §4.4, §4.8). Arka plan oturulan evdir, mağazadan taşınınca da değişir (`ui/scene/stages.ts`). Her oyuncu sınıfları aynı sırayla geçtiği için hiçbir şey denk getirilmez.
 
 **Kanca zinciri (2026-10-09):** Her tören ya da anne mesajı bir sonraki törenin sorusunu eker; cevap bir sonraki törende gelir. Hepsi kesin tetiklerde, yeni görsel yok. Dayanak: Asbury Pines (en iyi yazılmış idle oyun sayılıyor) hikâyeyi ilerleme anlarına bağlı kısa metinlerle verir ve açıklamaları bilerek geciktirir ([AV Club](https://www.avclub.com/game-theory-asbury-pines-best-written-idle-game)). Kanca, yapay gerilim değil beklenti kurar; her tören uçurumla bitmez.
 
@@ -130,7 +130,7 @@ Metinler oyunda: `src/game/i18n/messages/*` → `ceremony.c1…c7`; senaryo (kon
 | # | Sınıf | Tören (konuşan: metin) | Ektiği / kapattığı | Görsel |
 | --- | --- | --- | --- | --- |
 | 0 | Sokakta Yaşayan | Tören yok; önsöz ve açılış | Söz (saray) | |
-| 1 | Gündelikçi ($1K, ~4,5 dk) | Kahraman: *"Merak etme anne, iyiyim. Bugün sıcak çorba içtim."* · Anne (telefon): *"Sesin güzel geliyor oğlum. Bunu duymak yetti."* · Rıza: *"Sen birine çok benziyorsun evlat... Neyse, boş ver."* | Rıza kimi hatırlıyor? | Portreler |
+| 1 | Gündelikçi ($1K, ~4,5 dk) | Kahraman: *"Merak etme anne, iyiyim. Bugün sıcak çorba içtim."* · Anne (telefon): *"Sesin güzel geliyor oğlum. Bunu duymak yetti."* · Rıza: *"Eski minibüsüm boşta duruyor. Çadırdan iyidir, anahtar senin."* · Rıza: *"Sen birine çok benziyorsun evlat... Neyse, boş ver."* | Rıza kimi hatırlıyor? Tören bitince minibüse taşınır | Portreler |
 | 2 | İşçi Sınıfı ($100K, ~15 dk) | Nevin Hanım: *"Cüzdanımı Şans getirmiş, değil mi? İçinde rahmetli eşimin fotoğrafı vardı."* · Defne: *"Babaannem seni bir haftadır arıyor. Sana kurabiye yaptı, hâlâ sıcak."* · Kahraman: *"Ben bir şey yapmadım. Bulan Şans'tı."* · Kahraman: *"Anne, artık bir dairem var. Kapısı bile kilitleniyor!"* · Anne: *"Ev deyince eski evimiz geldi aklıma. Babanın defteri hâlâ çatı katında."* | Defne (tanışma), defter | Daire kapısı (H1, bekliyor) |
 | 3 | Orta Sınıf ($1M, ~30 dk, ilk oturumun sonu) | Kahraman: *"Anne... Eski evimizi geri aldım."* · Anne (ağlayan-mutlu): *"Erik ağacı... duruyor mu hâlâ?"* · Anlatım (çatı katı): *"Defter, çatı katında onu bekliyordu."* · *"Sayfaların arasından bir fotoğraf düştü."* · Kahraman (fotoğraf): *"Bu... Rıza Amca mı? Babamı tanıyor muydu?"* | Soru açık kalır | Çatı katı, eski fotoğraf |
 | 4 | Milyoner ($10M, dönüş oturumu) | Kahraman: *"Anne... Milyoner oldum."* · Anne: *"Bahçeye iki sandalye koydum. Gel de otur artık."* · Rıza (fotoğraf): *"Bu fotoğraf... Mehmet'in dükkânı bu."* · *"Sen Mehmet'in oğlusun. Nasıl görmedim?"* | Soru kapanır | Eski fotoğraf |
@@ -225,7 +225,8 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 | Tören portreleri: kahraman, anne, Rıza, Bülent Bey (4'er ifade) | 16 | **Tamam** (`public/assets/story/portraits/`, kadro sayfalarından kesildi) |
 | Orta Sınıf: çatı katı ve eski fotoğraf | 2 | **Oyunda** (`public/assets/story/ceremony/`; kaynak `art/pilot/07-story/`). Kahraman kapüşonlu; 3. kıyafet tasarlanınca çatı katı yeniden üretilir |
 | En Zengin: konak, anne ve kahraman, elinde pasta (pencerede saksı) | 1 | Bekliyor (~$0,15); şimdilik portrelerle oynuyor |
-| Sahne aşamaları: arka plan, kıyafet pozları, toplanacaklar, Şans tasmaları | 6 aşama | Sınıfa göre (karar 2026-10-09). Minibüs oyunda; kalanların listesi ve komutları: [art-brief-v2.md](./art-brief-v2.md) |
+| Ev arka planları (12) ve araçlar (16) | 28 | Arka plan oturulan ev, araç önünde (karar 2026-10-10). Sokak, minibüs, kiralık daire oyunda; kalanlar v1 görselleriyle yer tutuyor. Liste ve komutlar: [art-brief-v2.md](./art-brief-v2.md) |
+| Sınıf görünümü: kıyafet pozları, toplanacaklar, Şans tasmaları | 6 sınıf | Sınıfa göre (karar 2026-10-09); kıyafet 2 oyunda |
 | Nevin Hanım ve Defne kılavuzları + portreler | 2 | Bekliyor ([art-brief-v2.md](./art-brief-v2.md) 4.4) |
 | Yeni hikâye kareleri (daire kapısı, Rıza bahçede; isteğe bağlı çorba, restoran) | 2–4 | Bekliyor ([art-brief-v2.md](./art-brief-v2.md) 4.5) |
 

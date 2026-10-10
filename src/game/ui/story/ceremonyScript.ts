@@ -31,12 +31,14 @@ const ATTIC = { src: `${IMAGES}/attic.webp`, fit: 'cover' } as const;
 const OLD_PHOTO = { src: `${IMAGES}/old-photo.webp`, fit: 'contain' } as const;
 
 export const CEREMONIES: Record<number, CeremonyShot[]> = {
-  // Day Laborer: the first warm meal; Old Ray sees someone in the hero's face.
+  // Day Laborer: the first warm meal; Old Ray hands over his old van (the hero's next home,
+  // housing.ts CLASS_HOME_FLOOR) and sees someone in the hero's face.
   1: [
     {
       lines: [
         { speaker: 'hero', face: 'soft', text: 'ceremony.c1.hero' },
         { speaker: 'mom', face: 'teary', phone: true, text: 'ceremony.c1.mom' },
+        { speaker: 'riza', face: 'warm', text: 'ceremony.c1.van' },
         { speaker: 'riza', face: 'concerned', text: 'ceremony.c1.riza' },
       ],
     },

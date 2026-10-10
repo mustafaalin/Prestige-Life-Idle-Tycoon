@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-09 · Dal: `v2-rebuild`
+Son güncelleme: 2026-10-10 · Dal: `v2-rebuild`
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve v2 onu Faz 2.11'de kaldıracak. Bu belge tarih sırasıyla günlük tutmaz; her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**.
 
@@ -25,7 +25,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 - **Ana ekran:** Tam ekran ara sokak; kahraman 4 pozla, yanında Şans. Şişe/kutu toplama (her biri ~2,5 sn gelir), Şans'ın 5–10 dakikada bir cüzdan getirmesi (sahibine verilir, teşekkür ödülü). Paralar kavisle bakiyeye uçar. Renkli üst bar (aylık gelir, sınıf, yaş, ayarlar), 3D ikonlu alt menü, sekmeler sahnenin üstünde sayfa.
 - **Ekranlar:** İşletmeler (adet, aylık kazanç, Çalıştır, kilometre taşı çubuğu, 3 yükseltme, her işletmeye kendi yöneticisi: portre + işe alma kartı + cümleler), Kariyer, Alışveriş/Evler, Ayarlar (dil, gizlilik seçenekleri). Ana ekranda Hedefler kartı (3 hedef, ödül; her hedefte resim, nerede yapıldığı ve "Git": sekmeyi açıp düğmeyi parlatır; sekme içinde hedef şeridi). Ortak görünüm `ui/kit.tsx`, yazı tipi Fredoka.
 - **Sınıf törenleri (1.10):** 7 tören, görsel roman (16 ifade portresi, çatı katı ve fotoğraf kareleri), "Önce / Şimdi" kartı; tören sırasında saat durur. İşçi töreninde Nevin Hanım ve torunu Defne (cüzdan zinciri; portreleri henüz yok, isim etiketiyle konuşuyorlar). Annenin 11 mesajı dönüş oturumlarında (20 saatte bir). Metinler story §4.
-- **Sahne aşamaları (1.6):** ana ekran sınıfı izler (`ui/scene/stages.ts`); tören bitince yeni yer ve kıyafet. Oyunda sokak, minibüs (Gündelikçi) ve kiralık daire önü (İşçi: iş kıyafeti, 4 poz, bozuk paralar; GPT ile, 2026-10-09); diğer aşamaların görselleri [art-brief-v2.md](./art-brief-v2.md)'de, gelene kadar önceki aşama görünür.
+- **Sahne (1.6, 2026-10-10):** arka plan oturulan ev, en iyi araç önünde park eder; taşınınca arka plan yumuşak geçer ve "Yeni evin" etiketi çıkar, yeni araç kayarak gelir. Ev 25 → 12 (eski kayıtlar taşınır); sınıf töreni hikâyenin evine taşır (Gündelikçi'de Rıza Amca minibüsünü verir). Kıyafet (2026-10-11): mağazada hikâyenin 4 kıyafeti, kahraman en iyisini giyer, tören sınıfınkini bedava verir; toplanacaklar ve Şans'ın tasması sınıfı izler (`ui/scene/stages.ts`). Yeni stilde olanlar: sokak, minibüs, eski kiralık daire, iş kıyafeti; kalan 9 ev ve 16 araç v1 görselleriyle yer tutuyor ([art-brief-v2.md](./art-brief-v2.md) §4.2, §4.6).
 - **Bildirimler (1.19):** annenin mesajı ve kasa dolunca Şans; günde en fazla bir, 10:00–21:00; izin ilk törenden sonra; Ayarlar'da aç/kapa. Telefonda henüz denenmedi.
 - **Ödül kartları:** Çevrimdışı kazanç (tavan sınıfla büyür: 10 dk → 2 sa), Şans'ın cüzdanı, yönetici işe alma.
 - **Rehber (1.12, 2026-10-09):** Rıza Amca ilk dakikalarda kısa balonlarla ve işaret eden elle yönlendirir (şişe → ödül → iş → Çiçek Tezgâhı → isim → Çalıştır → yönetici); ilk tezgâhtan sonra kahramanın adını sorar (`ui/guide/`). Sürüm 25'te yok, sonraki AAB'de.
@@ -34,10 +34,15 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 - **Reklam altyapısı:** `runtime/ads.ts` (AdMob 8.2.1, UMP izin formu, iOS ATT, web'de sahte reklam). Reklam yerleri henüz bağlı değil.
 - **Mobil:** Kayıt Preferences'ta, Android geri tuşu, güvenli alanlar; `npm run phone` ile telefonda canlı yenileme.
 
-## Son oturumda kararlaşanlar (2026-10-09)
+## Son oturumda kararlaşanlar (2026-10-10)
+
+- **Mağaza sahnede görünür:** arka plan oturulan ev, araç evin önünde; ev sayısı 12; tören taban evi verir (game-design §4.8). Ev bonusu kademe başına %8, sim tüm hedefleri tutuyor.
+- **Yeni ev ve araç görsellerini kullanıcı GPT ile üretecek** ([art-brief-v2.md](./art-brief-v2.md) §4.2, §4.6).
+- **Dil seçimi Preferences'ta** (telefonda silinmez).
+
+## Önceki oturumda kararlaşanlar (2026-10-09)
 
 - **AAB'den önce:** hikâyenin ilerlemesi ve ana ekranın değişmesi; sonra imzalı v2 sürümü kapalı test kanalına.
-- **Sahne sınıfı izler** (mağaza ev/kıyafet ekonomisi kapalı testten sonra, discussion-notes §7).
 - **Cüzdan zinciri Faz 1'e alındı:** Nevin Hanım ve Defne İşçi töreninde; devamı (buluşma, düğün, varis) Faz 2.
 - **Görseller önce GPT ile:** kullanıcı projeyi gören bir GPT'ye [art-brief-v2.md](./art-brief-v2.md)'yi verecek; beğenilmezse fal.ai.
 - **Analitik bağlandı:** Firebase projesi `prestige-life-idle-tycoon`.
@@ -48,7 +53,7 @@ Yeniden ayarlandı, kullanıcı telefonda deneyecek; açık sorular [discussion-
 
 ## Sıradaki (sırayla)
 
-1. **Görseller gelince oyuna bağlamak:** ilk set (İşçi aşaması) bağlandı; kalanlar [art-brief-v2.md](./art-brief-v2.md) §5–6 (Orta Sınıf ve sonrası, Nevin/Defne portreleri `FACES`'e, hikâye kareleri `ceremonyScript.ts`'e).
+1. **Görseller gelince oyuna bağlamak:** ilk set (İşçi aşaması) bağlandı; sıradaki hatchback (araç çapası), bisiklet, ev 3 ve 5 (ilk oturumda görülenler), sonra kıyafet 3, ev 6–7, kalan araçlar, Nevin/Defne portreleri (`FACES`), hikâye kareleri (`ceremonyScript.ts`). Liste [art-brief-v2.md](./art-brief-v2.md). Araç park yeri telefonda ayarlanacak (`stages.ts` `PARKING`).
 2. **Telefonda deneme:** törenler (DEV → "Töreni oynat" 1–7; sahne tören bitince değişmeli), annenin mesajı, bildirim ve "Deneme bildirimi (5 sn)", Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.prestigelife.idletycoon`). Yeni yerel eklentiler olduğu için `npm run phone -- --install`.
 3. **İmzalı v2 AAB → kapalı test kanalı:** ilk v2 AAB alındı (2026-10-09, sürüm kodu 25, `versionName` 2.0, İşçi sahnesi dahil; `~/Downloads/prestige-life-v2-25.aab`. 24 Play'e yüklenmişti; Play'in RevenueCat SDK uyarısı yüzünden eklenti 13.7.3'e güncellendi). Yükleme kullanıcıda. Kapalı testin 14 günü ~2026-10-20'de doluyor; testçiler listede kalmalı.
    Sürüm derleme: sürüm kodunu artır (`android/app/build.gradle`), sonra `VITE_DEV_MENU=false VITE_ADMOB_TESTING=false npm run build:v2 && npx cap sync android`, ardından `android/`'da `./gradlew bundleRelease` (JAVA_HOME Android Studio'nun Java'sı). Ortam değişkenleri şart: `.env.v2` DEV menüsünü, `.env.local` test reklamını açık tutuyor.
@@ -59,7 +64,7 @@ Yeniden ayarlandı, kullanıcı telefonda deneyecek; açık sorular [discussion-
 - **Play mağaza ekran görüntüleri (2026-10-09):** 4 görsel × TR/EN, 1080×1920 JPG, `~/Downloads/play-store-v2/` ve `art/store-v2/` (yeniden üretme betikleri de orada: `capture.mjs` sürüm derlemesinden ekranları çeker, `compose.mjs` başlıkla çerçeveler). Play Console → Ana mağaza girişi → Telefon ekran görüntüleri; TR görseller Türkçe girişe, EN İngilizce girişe.
 - **Play ikonu ve özellik grafiği (2026-10-09):** `icon-512.png` (fal.ai nano-banana-pro, yarı sokak / yarı takım elbise + Şans; 1024'lük kaynağı `art/store-v2/icon-1024.png`) ve `feature-tr.jpg` / `feature-en.jpg` (1024×500, `feature.mjs`). Uygulamanın telefondaki ikonu (`android/.../mipmap-*`) hâlâ v1'inki; istenirse bu ikondan üretilir.
 
-- **Görselleri GPT ile üretmeye devam** ([art-brief-v2.md](./art-brief-v2.md); ilk set oyunda; sıradaki: kıyafet 3 + Orta Sınıf arka planı, Nevin ve Defne kılavuzları).
+- **Görselleri GPT ile üretmeye devam** ([art-brief-v2.md](./art-brief-v2.md); ilk set oyunda; sıradaki: hatchback ve bisiklet ([art-prompts-v2.md](./art-prompts-v2.md), hazır komutlar), ev 3 Kiralık Oda ve ev 5 Yenice Kiralık Daire (§4.2), sonra kıyafet 3, Nevin ve Defne kılavuzları).
 - **Telefonda İşçi sahnesini denemek:** DEV → "Töreni oynat" 2; tören bitince daire önü, iş kıyafeti ve bozuk paralar gelmeli. Boy/konum kötü görünürse söyle.
 - **Telefonda törenleri, sahne geçişini ve bildirimi denemek** (yukarıda 2).
 - **Telefonda gerçek test reklamını denemek:** DEV → "Test reklamı izle"; Google'ın "Test Ad" reklamı açılmalı, sonuç "rewarded" olmalı.

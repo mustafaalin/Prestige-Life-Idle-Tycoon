@@ -109,12 +109,14 @@ Araç, kıyafet ve lüks oyuncaklar **gider değildir**; her biri tüm gelire ka
 
 | Tür | Adet | İlk fiyat → büyüme | Bonus (her biri) | Görsel |
 | --- | --- | --- | --- | --- |
-| Ev | 25 (1. bedava) | Taşınma bedeli $200 → ×2.75 | Yaşanan evin kademesi: +%5 × (n−1) | `houses/backgrounds/house-N.webp` (kirala / satın al / kiraya ver: §4.8) |
+| Ev | 12 (1. bedava) | Taşınma bedeli $1,2K → $20B (liste §4.8) | Yaşanan evin kademesi: +%8 × (n−1) | Sahnenin arka planı (kirala / satın al / kiraya ver: §4.8) |
 | Kara aracı | 16 (1. bedava) | $20 → ×3.3 | +3% | `vehicles/vehicle-N.png` |
-| Kıyafet | 20 (1. bedava) | $30 → ×3 | +2% | `outfits/ch-N-1.png` |
+| Kıyafet | 4 (kapüşonlu bedava; iş kıyafeti, şık günlük, takım elbise) | $6K, $200K, $15M | +12% | Sahnede kahramanın pozları (`ui/scene/stages.ts`) |
 | Lüks oyuncak | 4 (tekne, yat, helikopter, jet) | $5B, $50B, $200B, $1T | +10% | `vehicles/vehicle-17..20.png` |
 
-En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%243 (×3,4).
+En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%241 (×3,4).
+
+**Kıyafetler (karar 2026-10-11, kullanıcı):** 20 kıyafet sahnede görünmüyordu (v2 kahramanına 20 kıyafet çizmek pahalı); yerine hikâyenin 4 kıyafeti geldi, evlerle aynı model. Kahraman sahip olduğu en iyi kıyafeti giyer. Sınıf töreni o sınıfın kıyafetini bedava verir (`CLASS_OUTFIT_FLOOR`: Sokak ve Gündelikçi kapüşonlu, İşçi iş kıyafeti, Orta Sınıf ve Milyoner şık günlük, Milyarder ve üstü takım elbise); önden satın alan hemen giyer. Yeni kıyafet tören bitince ya da alınınca "Yeni kıyafetin" etiketiyle gelir. Eski kayıtlar: 20 kıyafetin en iyisi fiyatça en yakın yenisine (7. → iş kıyafeti, 11. → şık günlük, 15. → takım elbise). Simülatörde tempo değişmedi.
 
 ### 4.5 Hanedan / miras (`config/economy.ts`)
 
@@ -146,7 +148,7 @@ Egg, Inc.'in 3 görevi gibi: ana ekranın sol üstünde "Hedefler" kartı, aynı
 
 ### 4.8 Konut modeli: kirala → satın al → kiraya ver (`config/housing.ts`, Faz 1.17)
 
-Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; sahnede o ev görünür. Erken oyunda ev almak zor olduğu için önce kiralayarak ilerler, sonra satın alır, taşındığı kendi evleri kira getirir.
+Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranın arka planı o evdir, en iyi aracı önünde park eder** (karar 2026-10-10). Erken oyunda ev almak zor olduğu için önce kiralayarak ilerler, sonra satın alır, taşındığı kendi evleri kira getirir.
 
 | Eylem | Bedel | Ne olur |
 | --- | --- | --- |
@@ -156,9 +158,10 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; sahnede o ev 
 | **Taşın** | Ücretsiz | Sahip olduğun herhangi bir eve taşınabilirsin. Kiradaysan kiran biter. |
 
 - **Düzenli kira gideri yok** (karar 2026-10-07). Net gelir hiçbir zaman eksiye düşmez. Kiracı olduğun "Kiracısın" etiketi ve taşınma bedeliyle hissettirilir.
-- **Taşınma bedeli:** Evin değerine bağlı sabit bir tutardır; karta yazılır, oyuncunun gelirine göre değişmez. 2. ev $200, sonraki her ev ×2,75 (eski satın alma eğrisi; erken tempo bu yüzden değişmedi). Satın alma fiyatı bedelin 25 katı, yani bedel fiyatın %4'ü. Böylece oyuncu, alabildiği evden yaklaşık 3 kademe üstünü kiralayabilir. 10. ev: kiralamak $654K, satın almak ~$16,4M (karar 2026-10-07, seçenek B; oyun testinden sonra tekrar bakılacak).
-- **Sadece kiralık evler:** 1–9 arası (çadırdan kiralık dairelere). Satın alma 10. evden ("İlk Kendi Müstakil Evin") itibaren açılır; ilk kendi ev bir dönüm noktasıdır.
-- **Ev bonusu:** Yaşadığın evin kademesine bağlı: n. ev tüm gelire +%5 × (n−1) verir (9. ev +%40, 25. ev +%120). Kiralık da olsa sahip olunan da olsa aynı. Sahip olunan evler bonus biriktirmez; onların ödülü kira geliridir.
+- **12 ev (karar 2026-10-10; önce 25'ti, çoğu birbirine benziyordu):** her ev sahnede ayrı bir yer, her taşınma görünür bir değişim. Taşınma bedelleri: Çadır 0 · Eski Minibüs $1,2K · Kiralık Oda $2,5K · Eski Kiralık Daire $9K · Yenice Kiralık Daire $40K · Sitede Daire $240K · İlk Kendi Evin $650K · Bahçeli Banliyö Evi $2,5M · Villa $20M · Göl Kenarında Cam Ev $200M · Sahil Malikânesi $2B · Büyük Malikâne $20B (`config/housing.ts`). Satın alma fiyatı bedelin 25 katı, yani bedel fiyatın %4'ü.
+- **Sadece kiralık evler:** 1–6 (çadırdan sitedeki daireye). Satın alma 7. evden ("İlk Kendi Evin") itibaren açılır; ilk kendi ev bir dönüm noktasıdır.
+- **Sınıfın evi (karar 2026-10-10):** Her sınıf töreni, o sınıfın hikâyedeki evinden geride kalan kahramanı oraya taşır (kiracı, bedava): Gündelikçi → Rıza Amca'nın minibüsü, İşçi → eski kiralık daire, Orta Sınıf → sitede daire, Milyoner → ilk kendi evin (kiralık), Milyarder → villa, Multimilyarder → göl evi, En Zengin → sahil malikânesi (`CLASS_HOME_FLOOR`). Böylece tören metinleri ("Artık bir dairem var") hep doğru; mağazadan önden giden kendi evinde kalır. Sahne yeni evi tören bitince gösterir.
+- **Ev bonusu:** Yaşadığın evin kademesine bağlı: n. ev tüm gelire +%8 × (n−1) verir (6. ev +%40, 12. ev +%88). Kiralık da olsa sahip olunan da olsa aynı. Sahip olunan evler bonus biriktirmez; onların ödülü kira geliridir.
 - **Kira geliri:** Taban kira/sn = fiyat / geri dönüş süresi. Geri dönüş, işletmelerdeki gibi fiyatla büyür: saat = 1 × (fiyat / $1M)^0,44 (10. ev ~3,4 sa, 15. ev ~32 sa). Tüm gelir çarpanları kiraya da uygulanır. Simülasyonda kira gelirin medyan ~%8'i, nesil sonunda en fazla ~%25'i: işletmelerle yarışmıyor ama görünür.
 - **Nesil:** Emeklilikte evler sıfırlanır; varis çadırdan başlar (2. nesil açılışı Faz 2.1'de tartışılacak: [discussion-notes.md](./discussion-notes.md) §4).
 - Hikaye bağı: sokak (çadır) → Gündelikçi kiralık oda → İşçi Sınıfı ilk kiralık daire → ilk kendi evin → Orta Sınıf: annene eski aile evi ([story-v2.md](./story-v2.md) §4).
