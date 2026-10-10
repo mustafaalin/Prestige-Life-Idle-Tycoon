@@ -1,3 +1,5 @@
+import { Capacitor } from '@capacitor/core';
+import { Preferences } from '@capacitor/preferences';
 import { EN_NUMBER_STYLE, type NumberStyle } from '../core/format';
 import { trContent } from './content/tr';
 import { en, type Messages } from './messages/en';
@@ -39,14 +41,15 @@ function isLocale(value: unknown): value is Locale {
   return typeof value === 'string' && value in LOCALES;
 }
 
-/** Saved choice first, then the device language, then English. */
-export function initialLocale(): Locale {
+function readLocal(): string | null {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (isLocale(saved)) return saved;
+    return localStorage.getItem(STORAGE_KEY);
   } catch {
-    // Storage blocked: fall through to the device language.
+    return null;
   }
+}
+
+function deviceLocale(): Locale {
   const languages = typeof navigator === 'undefined' ? [] : navigator.languages ?? [navigator.language];
   for (const language of languages) {
     const code = language?.slice(0, 2).toLowerCase();
@@ -55,10 +58,30 @@ export function initialLocale(): Locale {
   return DEFAULT_LOCALE;
 }
 
+/**
+ * Saved choice first, then the device language, then English. On phones the choice lives in
+ * Preferences like the save (the OS may clear a WebView's localStorage); a choice made before that
+ * only exists in localStorage and is copied over. Never throws.
+ */
+export async function loadLocale(): Promise<Locale> {
+  const local = readLocal();
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const stored = (await Preferences.get({ key: STORAGE_KEY })).value;
+      if (isLocale(stored)) return stored;
+      if (isLocale(local)) await Preferences.set({ key: STORAGE_KEY, value: local });
+    } catch {
+      // Native storage unavailable: fall back to the local copy.
+    }
+  }
+  return isLocale(local) ? local : deviceLocale();
+}
+
 export function saveLocale(locale: Locale) {
   try {
     localStorage.setItem(STORAGE_KEY, locale);
   } catch {
-    // Not saved; the device language is used next launch.
+    // The native copy below is the one that counts on phones.
   }
+  if (Capacitor.isNativePlatform()) Preferences.set({ key: STORAGE_KEY, value: locale }).catch(() => {});
 }

@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { I18nContext } from './context';
-import { initialLocale, saveLocale, type Locale } from './locales';
+import { saveLocale, type Locale } from './locales';
 import { createTranslator } from './translate';
 
-export function I18nProvider({ children }: { children: ReactNode }) {
+/** `initialLocale` comes from loadLocale(), which is async on phones, so it is read before mounting. */
+export function I18nProvider({ initialLocale, children }: { initialLocale: Locale; children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
   useEffect(() => {
