@@ -852,7 +852,7 @@ const STATIC_QUESTS_RAW: QuestDefinition[] = [
   },
   {
     id: 'quest-100-idle-guy-elite',
-    title: 'Become Idle Guy Elite',
+    title: 'Become Prestige Life Elite',
     description: 'Own 20 real estate properties and reach elite status.',
     reward_money: 2000000,
     reward_gems: 50,

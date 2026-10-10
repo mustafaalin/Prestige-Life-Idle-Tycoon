@@ -46,7 +46,7 @@ export function Auth({ onSignIn, onSignUp, onSignInAnonymously }: AuthProps) {
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 rounded-full mb-4">
             <LogIn className="w-12 h-12 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800">Idle Guy: Life Sim</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Prestige Life</h1>
           <p className="text-gray-600 mt-2 text-center">Start your journey from rags to riches!</p>
         </div>
 

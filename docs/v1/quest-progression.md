@@ -243,7 +243,7 @@ Aktif kod artık `10 chapter x 10 görev = 100 görev` yapısını içerir.
 90. Çok yüksek rental income eşiğine ulaş
    - ödül: `$725000`
 
-## Chapter 10: Idle Guy Elite
+## Chapter 10: Prestige Life Elite
 
 91. On ikinci işe geç
    - ödül: `$800000`
@@ -263,7 +263,7 @@ Aktif kod artık `10 chapter x 10 görev = 100 görev` yapısını içerir.
    - ödül: `$1600000`
 99. Toplam prestijini `500` yap
    - ödül: `30 gem`
-100. Idle Guy Elite statüsüne ulaş
+100. Prestige Life Elite statüsüne ulaş
    - final milestone görevi
    - ödül: `$2000000 + 50 gem`
 
