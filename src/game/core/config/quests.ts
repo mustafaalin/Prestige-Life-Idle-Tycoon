@@ -25,7 +25,7 @@ export const QUESTS: QuestDef[] = [
   quest('coffee-1', { type: 'units', businessId: 'coffee-cart', count: 1 }, 100),
   // Old Ray's van comes with the Day Laborer ceremony; the room is the first move you pay for.
   quest('home-room', { type: 'home', index: 2 }, 150),
-  // The id keeps its old name (it counted the free wheelbarrow) so saves that claimed it stay claimed.
+  // The id keeps its old name (it counted the old free wheelbarrow) so saves that claimed it stay claimed.
   quest('vehicle-2', { type: 'vehicle', count: 1 }, 150),
   quest('job-2', { type: 'career', index: 1 }, 200),
   quest('coffee-10', { type: 'units', businessId: 'coffee-cart', count: 10 }, 300),

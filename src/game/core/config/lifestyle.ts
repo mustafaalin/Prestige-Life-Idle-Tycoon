@@ -1,14 +1,37 @@
-import type { LifestyleDef, LifestyleKind } from '../types';
+import type { LifestyleDef } from '../types';
 
 // Status items: vehicles, outfits and luxury toys (homes live in housing.ts). They are never an expense;
 // each one adds a permanent (per generation) income bonus, so shopping makes you stronger.
-// Prices are geometric so every next dream sits a few minutes to a few hours of income away.
+// Each next dream sits a few minutes to a few hours of income away.
 
-const VEHICLE_NAMES = [
-  'Wheelbarrow', 'City Bike', 'Electric Scooter', 'Moped', 'Used Microcar', 'Old Hatchback', 'Old Sedan',
-  'Modern Hatchback', 'Sedan', 'Compact SUV', 'Electric Sedan', 'Luxury Sedan', 'Sport Coupe', 'Supercar',
-  'Armored Luxury SUV', 'Premium Convertible',
+// Ten vehicles, each step its own silhouette and color so it reads on a small screen (decided
+// 2026-10-11; there were 16, starting with a free wheelbarrow). A new life starts without one.
+// Art and prompts: docs/art-prompts-v2.md §2.
+const V2 = '/assets/vehicles/v2';
+// v1 pictures stand in until the new art comes.
+const V1 = '/assets/vehicles';
+const VEHICLE_SPECS: { id: string; name: string; image: string; cost: number }[] = [
+  { id: 'vehicle-bike', name: 'City Bike', image: `${V2}/vehicle-1.webp`, cost: 20 },
+  { id: 'vehicle-scooter', name: 'Retro Scooter', image: `${V2}/vehicle-2.webp`, cost: 150 },
+  { id: 'vehicle-old-sedan', name: 'Old Family Sedan', image: `${V2}/vehicle-3.webp`, cost: 1_500 },
+  { id: 'vehicle-hatchback', name: 'Modern Hatchback', image: `${V2}/vehicle-4.webp`, cost: 12_000 },
+  { id: 'vehicle-suv', name: 'Family SUV', image: `${V2}/vehicle-5.webp`, cost: 90_000 },
+  { id: 'vehicle-executive', name: 'Executive Sedan', image: `${V1}/vehicle-12.png`, cost: 700_000 },
+  { id: 'vehicle-coupe', name: 'Sports Coupe', image: `${V1}/vehicle-13.png`, cost: 4e6 },
+  { id: 'vehicle-offroader', name: 'Luxury Off-Roader', image: `${V1}/vehicle-15.png`, cost: 2.5e7 },
+  { id: 'vehicle-supercar', name: 'Supercar', image: `${V1}/vehicle-14.png`, cost: 1.5e8 },
+  { id: 'vehicle-grand', name: 'Grand Luxury Car', image: `${V1}/vehicle-16.png`, cost: 1e9 },
 ];
+
+const VEHICLE_STATUS_BONUS = 0.045;
+
+/**
+ * Saves from before 2026-10-11 had 16 vehicles (`vehicle-1`…`vehicle-16`, bought in order, the first
+ * free at +3% each after it). The best one maps to as many new vehicles as keep the bonus, never lower.
+ */
+export function legacyVehicleCount(oldNumber: number) {
+  return oldNumber <= 1 ? 0 : Math.min(VEHICLE_SPECS.length, Math.ceil(((oldNumber - 1) * 2) / 3));
+}
 
 const TOYS: { name: string; vehicleImage: number; cost: number }[] = [
   { name: 'Speedboat', vehicleImage: 17, cost: 5e9 },
@@ -42,26 +65,11 @@ export function legacyOutfitIndex(oldNumber: number) {
   return oldNumber >= 15 ? 3 : oldNumber >= 11 ? 2 : oldNumber >= 7 ? 1 : 0;
 }
 
-function geometric(
-  kind: LifestyleKind,
-  names: string[],
-  image: (index: number) => string,
-  firstCost: number,
-  growth: number,
-  statusBonus: number
-): LifestyleDef[] {
-  // Index 0 is the free starting item (the wheelbarrow).
-  return names.map((name, index) => ({
-    id: `${kind}-${index + 1}`,
-    kind,
-    name,
-    image: image(index + 1),
-    cost: index === 0 ? 0 : Math.round(firstCost * growth ** (index - 1)),
-    statusBonus: index === 0 ? 0 : statusBonus,
-  }));
-}
-
-export const VEHICLES = geometric('vehicle', VEHICLE_NAMES, (n) => `/assets/vehicles/vehicle-${n}.png`, 20, 3.3, 0.03);
+export const VEHICLES: LifestyleDef[] = VEHICLE_SPECS.map((vehicle) => ({
+  ...vehicle,
+  kind: 'vehicle',
+  statusBonus: VEHICLE_STATUS_BONUS,
+}));
 export const OUTFITS: LifestyleDef[] = OUTFIT_SPECS.map((outfit, index) => ({
   id: outfit.id,
   kind: 'outfit',
@@ -82,4 +90,4 @@ export const LUXURY_TOYS: LifestyleDef[] = TOYS.map((toy, index) => ({
 export const LIFESTYLE_ITEMS: LifestyleDef[] = [...VEHICLES, ...OUTFITS, ...LUXURY_TOYS];
 
 /** Items every new life starts with. */
-export const STARTING_LIFESTYLE_IDS = ['vehicle-1', 'outfit-hoodie'];
+export const STARTING_LIFESTYLE_IDS = ['outfit-hoodie'];

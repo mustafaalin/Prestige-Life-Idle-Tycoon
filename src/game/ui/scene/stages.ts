@@ -146,7 +146,7 @@ export interface ParkingSpot {
 }
 
 /** Left of the hero, a step behind, so the car never covers the hero or Şans. */
-const DEFAULT_PARKING: ParkingSpot = { x: 0.17, y: 0.7, carWidth: 0.46 };
+const DEFAULT_PARKING: ParkingSpot = { x: 0.29, y: 0.7, carWidth: 0.36 };
 
 /** Homes whose picture needs the car somewhere else (tuned on the phone when the new art comes). */
 const PARKING: Record<string, ParkingSpot> = {};
@@ -163,12 +163,9 @@ export function homeArt(houseId: string): HomeArt {
 
 /** Size next to a car (1); the art files are cropped to the vehicle, so this sets the scale. */
 const VEHICLE_SIZE: Record<string, number> = {
-  'vehicle-1': 0.42, // wheelbarrow
-  'vehicle-2': 0.5, // city bike
-  'vehicle-3': 0.42, // e-scooter
-  'vehicle-4': 0.5, // moped
-  'vehicle-5': 0.78, // microcar
-  'vehicle-15': 1.06, // armored SUV
+  'vehicle-bike': 0.55,
+  'vehicle-scooter': 0.55,
+  'vehicle-offroader': 1.06,
 };
 
 export interface VehicleArt {

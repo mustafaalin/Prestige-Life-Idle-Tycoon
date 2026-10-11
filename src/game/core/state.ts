@@ -276,10 +276,7 @@ export function questProgress(state: GameStateV2, goal: QuestGoal): { current: n
       return { current: state.classIndex, target: goal.index };
     case 'vehicle':
       return {
-        // Bought vehicles only: the free starting wheelbarrow doesn't count.
-        current: state.lifestyleOwned.filter(
-          (id) => LIFESTYLE_BY_ID.get(id)?.kind === 'vehicle' && !STARTING_LIFESTYLE_IDS.includes(id),
-        ).length,
+        current: state.lifestyleOwned.filter((id) => LIFESTYLE_BY_ID.get(id)?.kind === 'vehicle').length,
         target: goal.count,
       };
   }

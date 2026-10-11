@@ -67,7 +67,7 @@ Kararlaştırılanlar (2026-10-08, story §6): varis 17 yaşında bir torun, öl
 
 **Kararlaşan (2026-10-10):** arka plan oturulan ev, en iyi araç önünde park eder; ev sayısı 12; sınıf töreni hikâyenin evine taşır (game-design §4.8). Kıyafet, Şans'ın tasması ve toplanacaklar sınıfı izlemeye devam eder.
 
-**Kararlaşan (2026-10-11):** mağazada hikâyenin 4 kıyafeti; kahraman sahip olduğu en iyisini giyer, sınıf töreni sınıfın kıyafetini bedava verir (evlerle aynı model, game-design §4.4). Araç 16 → 10 ([art-prompts-v2.md](./art-prompts-v2.md) §2; kod görseller gelince).
+**Kararlaşan (2026-10-11):** mağazada hikâyenin 4 kıyafeti; kahraman sahip olduğu en iyisini giyer, sınıf töreni sınıfın kıyafetini bedava verir (evlerle aynı model, game-design §4.4). Araç 16 → 10, yeni hayat araçsız başlar ([art-prompts-v2.md](./art-prompts-v2.md) §2; game-design §4.4).
 
 **Açık:**
 

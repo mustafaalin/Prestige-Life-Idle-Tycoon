@@ -110,13 +110,15 @@ Araç, kıyafet ve lüks oyuncaklar **gider değildir**; her biri tüm gelire ka
 | Tür | Adet | İlk fiyat → büyüme | Bonus (her biri) | Görsel |
 | --- | --- | --- | --- | --- |
 | Ev | 12 (1. bedava) | Taşınma bedeli $1,2K → $20B (liste §4.8) | Yaşanan evin kademesi: +%8 × (n−1) | Sahnenin arka planı (kirala / satın al / kiraya ver: §4.8) |
-| Kara aracı | 16 (1. bedava) | $20 → ×3.3 | +3% | `vehicles/vehicle-N.png` |
+| Kara aracı | 10 (yeni hayat araçsız başlar) | $20, $150, $1,5K, $12K, $90K, $700K, $4M, $25M, $150M, $1B | +4,5% | `vehicles/v2/vehicle-N.webp` (6–10 şimdilik v1) |
 | Kıyafet | 4 (kapüşonlu bedava; iş kıyafeti, şık günlük, takım elbise) | $6K, $200K, $15M | +12% | Sahnede kahramanın pozları (`ui/scene/stages.ts`) |
 | Lüks oyuncak | 4 (tekne, yat, helikopter, jet) | $5B, $50B, $200B, $1T | +10% | `vehicles/vehicle-17..20.png` |
 
 En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%241 (×3,4).
 
 **Kıyafetler (karar 2026-10-11, kullanıcı):** 20 kıyafet sahnede görünmüyordu (v2 kahramanına 20 kıyafet çizmek pahalı); yerine hikâyenin 4 kıyafeti geldi, evlerle aynı model. Kahraman sahip olduğu en iyi kıyafeti giyer. Sınıf töreni o sınıfın kıyafetini bedava verir (`CLASS_OUTFIT_FLOOR`: Sokak ve Gündelikçi kapüşonlu, İşçi iş kıyafeti, Orta Sınıf ve Milyoner şık günlük, Milyarder ve üstü takım elbise); önden satın alan hemen giyer. Yeni kıyafet tören bitince ya da alınınca "Yeni kıyafetin" etiketiyle gelir. Eski kayıtlar: 20 kıyafetin en iyisi fiyatça en yakın yenisine (7. → iş kıyafeti, 11. → şık günlük, 15. → takım elbise). Simülatörde tempo değişmedi.
+
+**Araçlar (karar 2026-10-11, kullanıcı):** 16 yerine 10 araç (bisiklet, retro skuter, emektar sedan, hatchback, SUV, makam sedanı, spor coupe, lüks arazi aracı, süper otomobil, grand lüks); el arabası çıktı, yeni hayat araçsız başlar. Toplam bonus aynı kaldı (15 × %3 → 10 × %4,5). İlk oturumda 10–15 dakikada bir araç (simülatör: bisiklet 4. dk, SUV 47. dk). Eski kayıtlar: en iyi eski aracın bonusunu karşılayan sayıda yeni araç, asla daha az.
 
 ### 4.5 Hanedan / miras (`config/economy.ts`)
 

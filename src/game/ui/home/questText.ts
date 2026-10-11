@@ -14,8 +14,8 @@ import type { FocusTarget } from './focus';
 
 const BUSINESS_BY_ID = new Map(BUSINESSES.map((def) => [def.id, def]));
 const UPGRADE_BY_ID = new Map(UPGRADES.map((upgrade) => [upgrade.id, upgrade]));
-/** The first vehicle you can buy (index 0 is the free wheelbarrow). */
-const FIRST_VEHICLE = LIFESTYLE_ITEMS.filter((item) => item.kind === 'vehicle')[1];
+/** The first vehicle you can buy (the bike). */
+const FIRST_VEHICLE = LIFESTYLE_ITEMS.filter((item) => item.kind === 'vehicle')[0];
 
 export const upgradeNameKey = (upgradeId: string) => `upgrades.${upgradeId.replace(':', '.')}` as MessageKey;
 

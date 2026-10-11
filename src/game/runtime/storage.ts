@@ -4,7 +4,7 @@ import { CAREERS } from '../core/config/careers';
 import { WEALTH_CLASSES } from '../core/config/classes';
 import { HOUSES, LEGACY_HOUSE_TO_HOME } from '../core/config/housing';
 import { LIFE_SECONDS } from '../core/config/life';
-import { legacyOutfitIndex, LIFESTYLE_ITEMS, OUTFITS } from '../core/config/lifestyle';
+import { legacyOutfitIndex, legacyVehicleCount, LIFESTYLE_ITEMS, OUTFITS, VEHICLES } from '../core/config/lifestyle';
 import { UPGRADES } from '../core/config/upgrades';
 import { classIndexFor } from '../core/formulas';
 import { applyClassFloors, createInitialState } from '../core/state';
@@ -61,6 +61,9 @@ function normalizeGame(raw: unknown): GameStateV2 {
   // Saves from before the four story outfits: the best old outfit becomes the closest new one.
   const oldOutfit = Math.max(0, ...savedIds.map((id) => Number(/^outfit-(\d+)$/.exec(id)?.[1] ?? 0)));
   const legacyOutfits = OUTFITS.slice(0, legacyOutfitIndex(oldOutfit) + 1).map((outfit) => outfit.id);
+  // Saves from before the ten vehicles: the best old vehicle becomes as many new ones as keep its bonus.
+  const oldVehicle = Math.max(0, ...savedIds.map((id) => Number(/^vehicle-(\d+)$/.exec(id)?.[1] ?? 0)));
+  const legacyVehicles = VEHICLES.slice(0, legacyVehicleCount(oldVehicle)).map((vehicle) => vehicle.id);
 
   const houseIds = HOUSES.map((house) => house.id);
   const buyable = new Set(HOUSES.filter((house) => house.buyCost !== null).map((house) => house.id));
@@ -87,7 +90,7 @@ function normalizeGame(raw: unknown): GameStateV2 {
     legacyPoints: Math.floor(finite(raw.legacyPoints, 0)),
     businesses,
     careerIndex: Math.min(Math.floor(finite(raw.careerIndex, -1, -1)), CAREERS.length - 1),
-    lifestyleOwned: [...new Set([...base.lifestyleOwned, ...legacyOutfits, ...savedItems])],
+    lifestyleOwned: [...new Set([...base.lifestyleOwned, ...legacyOutfits, ...legacyVehicles, ...savedItems])],
     home,
     homesOwned,
     classIndex: Math.max(savedClass, classIndexFor(generationEarnings)),
