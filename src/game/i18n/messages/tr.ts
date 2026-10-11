@@ -170,6 +170,7 @@ export const tr: Messages = {
     upcoming: 'Sıradakiler',
     more: '+{count} tane daha',
     collection: 'Koleksiyonun',
+    needsHome: 'Önce taşın: {home}',
   },
   home: {
     current: 'Evin',
@@ -185,6 +186,7 @@ export const tr: Messages = {
     buyMove: 'Satın al ve taşın',
     moveFree: 'Taşın · ücretsiz',
     noRent: 'Aylık kira yok: sadece taşınırken bir kez ödersin.',
+    needsVehicle: 'Önce al: {vehicle}',
     top: 'Var olan en iyi evde yaşıyorsun',
     properties: 'Mülklerin',
     livingHere: 'Burada yaşıyorsun',
@@ -362,5 +364,8 @@ export const tr: Messages = {
     ceremony: 'Töreni oynat',
     mom: 'Annenin sıradaki mesajı',
     notifyTest: 'Deneme bildirimi (5 sn)',
+    sceneLab: 'Sahne laboratuvarı',
+    labNoVehicle: 'Araçsız',
+    labHint: 'Kırmızı: barların ve dar telefonların kapattığı yer. Mavi: araba, iki teker ve ayak çizgisi. ×0,67 gibi etiket: görsel şeride sığmadığı için küçültüldü.',
   },
 };

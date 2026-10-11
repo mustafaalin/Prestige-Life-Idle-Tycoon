@@ -6,6 +6,7 @@ import { useBackButton } from '../runtime/backButton';
 import { useGameV2 } from '../runtime/useGameV2';
 import { showRewardedAd } from '../runtime/ads';
 import { scheduleTestReminder } from '../runtime/notifications';
+import { SceneLab } from './scene/SceneLab';
 import { requestFind } from './scene/sceneEvents';
 import { requestCeremony, requestMomMessage } from './story/storyEvents';
 
@@ -47,6 +48,7 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
   const [speed, setSpeed] = useState(actions.dev.getSpeed);
   const [confirmReset, setConfirmReset] = useState(false);
   const [adResult, setAdResult] = useState<string | null>(null);
+  const [lab, setLab] = useState(false);
 
   const changeSpeed = (value: number) => {
     actions.dev.setSpeed(value);
@@ -59,6 +61,8 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
   };
 
   useBackButton(open, 200, close);
+
+  if (lab) return <SceneLab onClose={() => setLab(false)} />;
 
   if (!open) {
     return (
@@ -187,6 +191,17 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
             {t('dev.notifyTest')}
           </Chip>
         </Row>
+
+        <button
+          type="button"
+          onClick={() => {
+            close();
+            setLab(true);
+          }}
+          className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+        >
+          {t('dev.sceneLab')}
+        </button>
 
         <button
           type="button"

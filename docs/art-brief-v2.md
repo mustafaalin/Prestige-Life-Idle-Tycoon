@@ -9,7 +9,7 @@ Bu belge, oyunun görsellerini üretecek kişiye ya da modele (GPT dahil) verili
 Ana ekran iki şeyi gösterir (karar 2026-10-10):
 
 - **Yer = oyuncunun oturduğu ev.** Mağazada 12 ev var; her biri sahnede ayrı bir arka plan. Taşınınca arka plan değişir. Sınıf töreni kahramanı hikâyenin evine taşır (Gündelikçi → minibüs, İşçi → eski kiralık daire...).
-- **En iyi araç evin önünde park eder.** Mağazada 10 araç var, yeni hayat araçsız başlar; yenisi alınınca sahneye kayarak gelir.
+- **Evin izin verdiği en iyi araç önünde park eder.** Mağazada 12 araç var (ev–araç zinciri, game-design §4.4), yeni hayat araçsız başlar; yenisi alınınca sahneye kayarak gelir.
 - **Kahraman sahip olduğu en iyi kıyafeti giyer** (mağazada 4 kıyafet; sınıf töreni sınıfınkini bedava verir). **Yerdeki toplanacaklar ve Şans'ın tasması sınıfı izler** (tablo aşağıda).
 
 | Sınıf | Kahramanın yaşı | Kıyafet | Yerdeki toplanacaklar | Şans'ın tasması | Hikâyenin evi |
@@ -38,8 +38,8 @@ Yaşlar `npm run sim` sonucundan alındı.
 
 | Tür | Boyut | Zemin | Not |
 | --- | --- | --- | --- |
-| Arka plan | 9:16 dikey, en az 1536×2752 | Dolu | Ara sokakla **aynı kamera yüksekliği ve zemin çizgisi**. Alt orta boş kalır: karakterler x %35–70'te durur, ayaklar yüksekliğin %73'ünde; toplanacaklar yüksekliğin %69–85'i arasındaki zemine düşer. **Sağ taraf araç için boş, düz zemin:** araç gerçek boyunda, kahramanın bir adım gerisinde, önü sağa bakarak park eder (tavanı omuz hizasında; arka kısmı kahramanın arkasında): x %25–90, y %35–66 arası (tekerlekler %65'te). Evin kapısı ya da odak noktası kahramanın arkasında, sol-ortada olsun ki araç onu kapatmasın. Üst %15'e ve alt %10'a önemli bir şey konmaz (üst bar ve alt menü kapatır). Arka planda araç olmaz (minibüs hariç: o evin kendisi). |
-| Araç | Tek araç, gövde en az 1200 px genişlikte | Düz açık gri (#d9d9d9) | Arabalar **önden dörtte üç**: düz önden ~25–30° dönük, önü hafif sola, ön yüz tam görünür, hafif yukarıdan (çapa `art/pilot/09-vehicles/vehicle-4.png`); bisiklet ve skuter yandan dörtte üç. Araç kadraja tam sığar; yakın taraftaki tekerlekler kesilmez (karşı taraftakiler doğal olarak gizlenebilir). İnsan, plaka, logo, marka yok. |
+| Arka plan | 9:16 dikey, en az 1536×2752 | Dolu | Kamera ayakta duran yetişkinin göz hizasında, **ufuk yukarıdan %37'de** (her evde aynı). **Derin zemin:** duvarın, basamağın ya da çitin zemine değdiği çizgi en çok %55'te; altı boydan boya boş, düz, kuru zemin. Orada sırayla durur: araba (tekerlekler %62, x %13–89, kahramanın ~2,5 m arkası), bisiklet ve skuter (%70, sağda), kahraman (%73,5, x %40) ve Şans (x %66), toplanacaklar (%70–87). **Evi tanıtan şey %15–37 bandında** (göz hizasının üstü; onu hiçbir şey kapatmaz). Ev zenginleştikçe uzaklaşır: oda ve dairelerde yalnızca giriş, müstakil evden sonra evin tamamı görünür. Üst %15'e ve alt %10'a önemli bir şey konmaz (üst bar ve alt menü kapatır); yatay güvenli alan x %12–88. Arka planda araç olmaz (minibüs hariç: o evin kendisi). |
+| Araç | Tek araç, gövde en az 1200 px genişlikte | Düz açık gri (#d9d9d9) | **Önden dörtte üç, önü sağa** (sahne aynalamaz), ön yüz tam görünür; kamera 1,6 m göz hizasında, uzun objektif (çapa `art/pilot/09-vehicles/vehicle-4.png`). Sahnede gerçek boyunda durur; araba şeridi 2,75 m olduğu için **kesilmiş görselin genişliği en çok 2,75 m ÷ aracın yüksekliği kadar olabilir** (araç başına sınır: [art-prompts-v2.md §2](./art-prompts-v2.md)); daha yandan çizilen araba küçültülür. Uzun arabalar biraz daha önden çizilir. Anten ve tavan yükü yok (boyu şişirir). Araç kadraja tam sığar; yakın taraftaki tekerlekler kesilmez. İnsan, plaka, logo, marka yok. |
 | Kahraman pozu | Tek karakter, ayakta boy en az 1500 px | Düz açık gri (#d9d9d9) | Arka planı sonra silinir. Ayaklar görünür, kesilmez. Kamera göz hizasında, hafif yandan (mevcut sokak pozları gibi). |
 | Toplanacaklar | Tek sayfada 3 nesne, aralarında boşluk | Düz açık gri | Her biri tek başına okunabilir, yukarıdan hafif açıyla. |
 | Şans | Tek köpek | Düz açık gri | Mevcut `sans-sit-cut.png` ve `sans-wallet-cut.png` ile aynı poz ve ölçek, sadece tasma değişir. |
@@ -81,17 +81,16 @@ Poz komutu:
 
 ### 4.2 Ev arka planları (A)
 
-12 ev; her biri sahnede ayrı bir yer. Sokak, minibüs ve eski kiralık daire hazır. Kalan 9 ev şimdilik v1'in eski görselleriyle (2D'ye yakın, araç yeri yok) duruyor; yenileri gelince değiştirilir. Sıra önemli: oyuncu bunları sırayla görür, her biri bir öncekinden belirgin biçimde daha iyi olmalı.
+12 ev; her biri sahnede ayrı bir yer. Sokak hazır ve kalıyor (önünde yalnızca bisiklet ve skuter durur). **Minibüs ve eski kiralık daire derin zeminle yeniden üretilecek** (şimdikilerde araba evi kapatıyor ya da basamaklara giriyor). Kalan 9 ev şimdilik v1'in eski görselleriyle duruyor. Sıra önemli: oyuncu bunları sırayla görür, her biri bir öncekinden belirgin biçimde daha iyi olmalı. Her ev kendi iki aracına göre düşünülür (ev–araç zinciri, game-design §4.4); gelen görsele sahne laboratuvarında bakılır ve o eve özel yerleşim `stages.ts` `HOME_ART`'a yazılır.
 
-Hepsinde birinci referans `art/pilot/05-scene/alley-clean.png` (kamera ve zemin için). Komutun başı:
-> Keep EXACTLY the same camera height, ground line and perspective as the first reference; keep the lower-center foreground clear and empty (characters will stand there) and keep the lower-left ground flat and empty (a car will be parked there). Morning or late-afternoon warm light. {yer tarifi}. A frame from a 3D CG animated feature film, NO ink outlines, NO cel shading, NO flat 2D cartoon. NO people, NO animals, NO vehicles. {stil paragrafı}
+Kurallar §3 "Arka plan" satırında; hazır komutlar [art-prompts-v2.md §1](./art-prompts-v2.md).
 
 | # | Ev | Dosya | Yer tarifi | Durum |
 | --- | --- | --- | --- | --- |
 | 1 | Sokak Çadırı | | Ara sokak | **Var** |
-| 2 | Eski Minibüs | | Ara sokakta Rıza Amca'nın eski minibüsü | **Var** |
+| 2 | Eski Minibüs | `art/pilot/05-scene/home-2-van.png` | Ara sokakta Rıza Amca'nın eski minibüsü; aynı yer, minibüs solda ve geride, önü açık. | Oyunda (araba minibüsü kapatıyor); yeniden üretilecek |
 | 3 | Kiralık Oda | `art/pilot/05-scene/home-3-room.png` | Eski bir binanın arka avlusu, yarım bodrum katta tek pencereli küçük bir odanın kapısı; çamaşır ipi, saksıda fesleğen, birkaç basamak. Mütevazı ama temiz, ilk "kendi kapısı". | Bekliyor |
-| 4 | Eski Kiralık Daire | | Eski ama bakımlı apartman girişi | **Var** |
+| 4 | Eski Kiralık Daire | `art/pilot/05-scene/home-4-old-flat.png` | Eski ama bakımlı apartman girişi; mevcut görselin aynı yeri, kamera birkaç adım geride. | Oyunda (sığ zemin); yeniden üretilecek |
 | 5 | Yenice Kiralık Daire | `art/pilot/05-scene/home-5-newer-flat.png` | Yeni boyanmış 4–5 katlı bir apartmanın önü: cam giriş kapısı, balkonlarda çiçekler, kaldırımda genç bir ağaç ve bank. | Bekliyor |
 | 6 | Sitede Daire | `art/pilot/05-scene/home-6-complex.png` | Modern bir sitenin avlusu: düzgün taş zemin, genç ağaçlar, bank, arkada balkonlu yeni bloklar, güvenlik kulübesi uzakta. | Bekliyor |
 | 7 | İlk Kendi Evin | `art/pilot/05-scene/home-7-first-house.png` | Küçük, tek katlı müstakil bir ev: beyaz çit, minik ön bahçe, verandada bir sandalye, kapının önünde paspas. Gurur verici ama sade. | Bekliyor |
@@ -140,13 +139,13 @@ Referanslar: sahnenin yeri (ilgili arka plan ya da önsöz karesi) + kahraman k�
 
 ### 4.6 Araçlar (A)
 
-10 araç (karar 2026-10-11; önce 16'ydı, el arabası çıktı), evin önünde park eder (kahramanın arkasında, önü sağa bakarak; Şans önünde oturur). Görseller önü sola bakarak üretilir, sahne aynalar; arabalar önden dörtte üç (§3 Araç). Liste, sıra ve hazır komutlar: [art-prompts-v2.md §2](./art-prompts-v2.md). Önce hatchback (4) üretilir; diğerleri onu açı ve stil referansı olarak kullanır. İlk 5'i oyunda (2026-10-11, `public/assets/vehicles/v2/`); 6–10 v1 görselleriyle yer tutuyor. Kesim: arka plan silinir, aracın alt %30'undaki gri (gölge ve tekerlekler arasından görünen zemin) yarı saydam siyaha çevrilir (sahnede zemine basar); bisiklet ve skuterde tekerlek içindeki kapalı gri de silinir.
+12 araç (karar 2026-10-11; önce 16'ydı; motosiklet ve pikap ev–araç zinciri için eklendi), evin önünde park eder; her evin önünde yalnızca kendi iki aracı görülür (tablo: art-prompts §2): araba kahramanın ~2,5 m arkasında, burnu sağda; bisiklet ve skuter kahramanın yanında, sağda. Hepsi önden dörtte üç, önü sağa (§3 Araç). Liste, sıra, araç başına oran sınırı ve hazır komutlar: [art-prompts-v2.md §2](./art-prompts-v2.md). Çapa hatchback (4). İlk 4'ü yeni açıyla oyunda (2026-10-11, `public/assets/vehicles/v2/`); SUV (5) eski yan açıyla duruyor ve yeniden üretilecek; motosiklet, pikap ve 6–10 v1 görselleriyle yer tutuyor. Sahnedeki boy aracın gerçek yüksekliğinden hesaplanır (`stages.ts` `VEHICLE_SHAPE`), görselin genişliğinden değil. Kesim: arka plan silinir, aracın alt %30'undaki gri (gölge ve tekerlekler arasından görünen zemin) yarı saydam siyaha çevrilir (sahnede zemine basar); bisiklet ve skuterde tekerlek içindeki kapalı gri de silinir.
 
 ## 5. Toplam
 
 | Öncelik | Görseller | Adet |
 | --- | --- | --- |
-| A | 3 kıyafet kılavuzu, 12 poz, 9 ev arka planı, 10 araç, 2 toplanacak sayfası, 2 karakter kılavuzu, 3 hikâye karesi (H1–H3) | 41 |
+| A | 3 kıyafet kılavuzu, 12 poz, 11 ev arka planı (minibüs ve eski daire yeniden), 12 araç, 2 toplanacak sayfası, 2 karakter kılavuzu, 3 hikâye karesi (H1–H3) | 45 |
 | B | 4 Şans tasması, 3 hikâye karesi (H4–H6) | 7 |
 
 İlk set (kıyafet 2 kılavuzu ve 4 pozu, İşçi arka planı, bozuk paralar) 2026-10-09'da GPT ile üretildi ve oyuna bağlandı (`stages.ts` aşama 2). GPT'nin aracı ~1,57 MP veriyor: arka plan 941×1672 (1080 genişliğe büyütüldü, telefonda kabul edilebilir), pozlar 1000 px yüksekliğe yetiyor. Sıradaki: hatchback (araç çapası) ve bisiklet, ev 3 (Kiralık Oda) ve 5 (Yenice Kiralık Daire) — ilk oturumda görülenler; sonra kıyafet 3, ev 6–7, Nevin ve Defne kılavuzları.

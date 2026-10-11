@@ -110,7 +110,7 @@ Araç, kıyafet ve lüks oyuncaklar **gider değildir**; her biri tüm gelire ka
 | Tür | Adet | İlk fiyat → büyüme | Bonus (her biri) | Görsel |
 | --- | --- | --- | --- | --- |
 | Ev | 12 (1. bedava) | Taşınma bedeli $1,2K → $20B (liste §4.8) | Yaşanan evin kademesi: +%8 × (n−1) | Sahnenin arka planı (kirala / satın al / kiraya ver: §4.8) |
-| Kara aracı | 10 (yeni hayat araçsız başlar) | $20, $150, $1,5K, $12K, $90K, $700K, $4M, $25M, $150M, $1B | +4,5% | `vehicles/v2/vehicle-N.webp` (6–10 şimdilik v1) |
+| Kara aracı | 12 (yeni hayat araçsız başlar) | $20, $150, $1,5K, $5K, $12K, $90K, $300K, $700K, $4M, $25M, $150M, $1B | +3,75% | `vehicles/v2/vehicle-N.webp` (motosiklet, pikap ve son 5'i şimdilik v1) |
 | Kıyafet | 4 (kapüşonlu bedava; iş kıyafeti, şık günlük, takım elbise) | $6K, $200K, $15M | +12% | Sahnede kahramanın pozları (`ui/scene/stages.ts`) |
 | Lüks oyuncak | 4 (tekne, yat, helikopter, jet) | $5B, $50B, $200B, $1T | +10% | `vehicles/vehicle-17..20.png` |
 
@@ -118,7 +118,30 @@ En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%241 (×3,4
 
 **Kıyafetler (karar 2026-10-11, kullanıcı):** 20 kıyafet sahnede görünmüyordu (v2 kahramanına 20 kıyafet çizmek pahalı); yerine hikâyenin 4 kıyafeti geldi, evlerle aynı model. Kahraman sahip olduğu en iyi kıyafeti giyer. Sınıf töreni o sınıfın kıyafetini bedava verir (`CLASS_OUTFIT_FLOOR`: Sokak ve Gündelikçi kapüşonlu, İşçi iş kıyafeti, Orta Sınıf ve Milyoner şık günlük, Milyarder ve üstü takım elbise); önden satın alan hemen giyer. Yeni kıyafet tören bitince ya da alınınca "Yeni kıyafetin" etiketiyle gelir. Eski kayıtlar: 20 kıyafetin en iyisi fiyatça en yakın yenisine (7. → iş kıyafeti, 11. → şık günlük, 15. → takım elbise). Simülatörde tempo değişmedi.
 
-**Araçlar (karar 2026-10-11, kullanıcı):** 16 yerine 10 araç (bisiklet, retro skuter, emektar sedan, hatchback, SUV, makam sedanı, spor coupe, lüks arazi aracı, süper otomobil, grand lüks); el arabası çıktı, yeni hayat araçsız başlar. Toplam bonus aynı kaldı (15 × %3 → 10 × %4,5). İlk oturumda 10–15 dakikada bir araç (simülatör: bisiklet 4. dk, SUV 47. dk). Eski kayıtlar: en iyi eski aracın bonusunu karşılayan sayıda yeni araç, asla daha az.
+**Araçlar (karar 2026-10-11, kullanıcı):** 12 araç (bisiklet, retro skuter, emektar sedan, motosiklet, hatchback, SUV, pikap, makam sedanı, spor coupe, lüks arazi aracı, süper otomobil, grand lüks); el arabası çıktı, yeni hayat araçsız başlar. Toplam bonus aynı kaldı (15 × %3 → 12 × %3,75). Eski kayıtlar: en iyi eski aracın bonusunu karşılayan sayıda yeni araç, asla daha az.
+
+**Ev–araç zinciri (karar 2026-10-11, kullanıcı):** evler ve araçlar birlikte tırmanır. Her araç bir evde açılır (o evde ya da üstünde yaşamadan alınamaz) ve bir evin açtığı son araç alınmadan bir sonraki eve geçilemez. Böylece her evin önünde iki araç görülür: gelirken getirilen ve orada alınan; çadırın önünde süper araba olmaz, araç almadan arka arkaya ev de değiştirilmez. Çadır iki araç açar, son ev hariç her ev bir tane (11 geçiş → 12 araç; motosiklet ve pikap bu yüzden eklendi).
+
+| Ev (taşınma bedeli) | Gelirken önünde | Bu evde açılan | Sonraki eve geçiş şartı |
+| --- | --- | --- | --- |
+| 1 Çadır (0) | yok | Bisiklet $20, skuter $150 | Skuter |
+| 2 Minibüs ($1,2K) | Skuter | Emektar sedan $1,5K | Emektar sedan |
+| 3 Kiralık Oda ($2,5K) | Emektar sedan | Motosiklet $5K | Motosiklet |
+| 4 Eski Daire ($9K) | Motosiklet | Hatchback $12K | Hatchback |
+| 5 Yenice Daire ($40K) | Hatchback | SUV $90K | SUV |
+| 6 Sitede Daire ($240K) | SUV | Pikap $300K | Pikap |
+| 7 İlk Kendi Evin ($650K) | Pikap | Makam sedanı $700K | Makam sedanı |
+| 8 Banliyö Evi ($2,5M) | Makam sedanı | Spor coupe $4M | Spor coupe |
+| 9 Villa ($20M) | Spor coupe | Arazi aracı $25M | Arazi aracı |
+| 10 Göl Evi ($200M) | Arazi aracı | Süper araba $150M | Süper araba |
+| 11 Sahil Malikânesi ($2B) | Süper araba | Grand lüks $1B | Grand lüks |
+| 12 Büyük Malikâne ($20B) | Grand lüks | yok | son ev |
+
+- **Tören istisnadır:** sınıf töreninin bedava taşıması (§4.8 "Sınıfın evi") şarta bakmaz; kahraman yeni eve bir iki araç geriden gelebilir. Eksik araçlar sırayla alınır; oyuncunun kendi parasıyla yapacağı bir sonraki taşınmada şart yine geçerlidir.
+- **Sahne:** evin önünde, o evin izin verdiği en iyi sahip olunan araç durur (eski bir eve geri taşınınca büyük araç görünmez; araç ve bonusu oyuncuda kalır).
+- **Mağaza:** kilitli araçta "Önce taşın: {ev}", kilitli evde "Önce al: {araç}" düğmesi diğer sekmeye götürür.
+- **Simülatör (2026-10-11):** tempo hedeflerinin hepsi tutuyor; kilometre taşları en çok birkaç dakika oynadı (bot zaten neredeyse bu sırayla alıyordu). İlk oturum: bisiklet 3. dk, skuter 13., sedan 27., motosiklet 32., hatchback 40., SUV 49., pikap 54. dk.
+- Kod: `config/lifestyle.ts` (`home`), `core/state.ts` (`lifestyleNeedsHome`, `moveUpNeedsVehicle`, `parkedVehicle`).
 
 ### 4.5 Hanedan / miras (`config/economy.ts`)
 
@@ -150,11 +173,11 @@ Egg, Inc.'in 3 görevi gibi: ana ekranın sol üstünde "Hedefler" kartı, aynı
 
 ### 4.8 Konut modeli: kirala → satın al → kiraya ver (`config/housing.ts`, Faz 1.17)
 
-Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranın arka planı o evdir, en iyi aracı önünde park eder** (karar 2026-10-10). Erken oyunda ev almak zor olduğu için önce kiralayarak ilerler, sonra satın alır, taşındığı kendi evleri kira getirir.
+Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranın arka planı o evdir, o evin izin verdiği en iyi aracı önünde park eder** (karar 2026-10-10; ev–araç zinciri §4.4). Erken oyunda ev almak zor olduğu için önce kiralayarak ilerler, sonra satın alır, taşındığı kendi evleri kira getirir.
 
 | Eylem | Bedel | Ne olur |
 | --- | --- | --- |
-| **Kirala ve taşın** | Tek seferlik taşınma bedeli (depozito + ilk kira). Sadece bir üst kademedeki ev. | O eve taşınırsın. Eski kiran biter (aynı anda tek kiralık ev). |
+| **Kirala ve taşın** | Tek seferlik taşınma bedeli (depozito + ilk kira). Sadece bir üst kademedeki ev; yaşanan evin son aracı alınmış olmalı (§4.4). | O eve taşınırsın. Eski kiran biter (aynı anda tek kiralık ev). |
 | **Satın al** | Fiyat = taşınma bedeli × 25. İçinde kiracı olduğun evi alırken ödediğin taşınma bedeli düşülür. | Bir üst kademedeki evi alırsan taşınırsın. Yaşadığın evden daha alttaki bir evi alırsan kiraya verilir. |
 | **Kiraya ver** | Kendiliğinden | Sahip olunan ama içinde yaşanmayan her ev kira getirir; çevrimdışı da işler (yönetici kuralıyla: %50, 2 saat tavan). |
 | **Taşın** | Ücretsiz | Sahip olduğun herhangi bir eve taşınabilirsin. Kiradaysan kiran biter. |

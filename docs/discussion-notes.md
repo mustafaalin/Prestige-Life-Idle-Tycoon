@@ -2,7 +2,7 @@
 
 Kararı henüz verilmemiş konular ve Claude'un önerileri. **Karar verilince ilgili belgeye (plan, hikâye, tasarım, monetizasyon) taşınır ve buradan silinir**; burada sadece açık konular durur.
 
-Son güncelleme: 2026-10-08 (temizlendi: görsel yaklaşım, konut modeli, ömür modeli, tempo, aylık gelir, ana ekran ve monetizasyon kararları ilgili belgelere taşındı)
+Son güncelleme: 2026-10-11 (§8 eklendi: genel gözden geçirme; önceki temizlik 2026-10-08: görsel yaklaşım, konut modeli, ömür modeli, tempo, aylık gelir, ana ekran ve monetizasyon kararları ilgili belgelere taşındı)
 
 ## 1. Görsel: açık kalanlar
 
@@ -74,3 +74,49 @@ Kararlaştırılanlar (2026-10-08, story §6): varis 17 yaşında bir torun, öl
 - **Lüks oyuncaklar (tekne, yat, helikopter, jet)** sahnede yok (plan 2.6).
 - **Apartman evlerinde dış mekân mı iç mekân mı?** Şimdilik dış mekân (bina girişi ve avlu), çünkü iç mekânda araç görünmez.
 - **Ara anlar** ("ilk sıcak yemek" gibi): art-brief H6 isteğe bağlı.
+
+## 8. Genel gözden geçirme: ilerleme hissi ve tutarsızlıklar (2026-10-11, konuşulacak)
+
+Claude'un hikâye, tasarım belgesi, plan ve simülatör zaman çizelgesi üzerinden gözlemi. **Hiçbiri kararlaştırılmadı**; kullanıcı yeni oturumda birlikte konuşmak istedi. Ana sonuç: fakirlikten zenginliğe geçiş ilk ~2 saate sıkışmış, kalan ~19 saat neredeyse boş.
+
+**Zaman çizelgesi** (`npm run sim -- --purchases --timeline`, en iyi oynayan bot, ev–araç zincirinden sonra; gerçek oyuncu farklı olabilir):
+
+| Oynama süresi | Gün | Ne oluyor |
+| --- | --- | --- |
+| 0–8 dk | 1 | Çadır; 4. dk'da bisiklet |
+| 8 dk | 1 | Gündelikçi töreni, minibüs |
+| 27 dk | 1 | Kiralık oda, emektar sedan |
+| 32 dk | 1 (2. oturum) | İşçi töreni, eski daire |
+| 46 dk | 1 (3. oturum) | Orta Sınıf töreni, site |
+| 54 dk | 2 | Milyoner töreni, ilk ev |
+| 1 sa 40 dk | 3 | Milyarder töreni, villa |
+| 2–3,5 sa | 3–6 | Göl evi, süper araba, grand lüks, sahil malikânesi |
+| 5 sa | 8 | Multimilyarder töreni |
+| 8,5 sa | 13 | Büyük malikâne |
+| 11 sa | 17 | En Zengin töreni |
+| 11–21 sa | 17–31 | Hiçbir şey; ömür 97 yaşında biter |
+
+**Hissi en çok zayıflatanlar:**
+
+1. **İlk oturumda tek tören.** 30 dakikalık ilk oturumda yalnızca Gündelikçi (8. dk); oturum minibüste ya da kiralık odada bitiyor. İşçi 32. dk (2. oturum). [story-v2.md](./story-v2.md) hâlâ "İşçi 15 dk, Orta Sınıf 30 dk, ilk oturumun sonu" diyor (§5'teki 2026-10-09 ayarından önce).
+2. **Erken evler çok kısa, son evler çok uzun.** Kiralık oda 5 dk, eski daire 8, site 8 dk; büyük malikâne 12 saatten fazla.
+3. **3,5. saatten sonra ekranda neredeyse hiçbir şey değişmiyor.** Araçlar ve kıyafetler bitiyor; sonraki 17 saatte iki tören, iki ev, annenin birkaç mesajı.
+4. **Zenginlik ekranda eski dairede duruyor** (görsel bekleyenler): kıyafet 3 ve 4, Şans'ın deri ve altın tasması, banknotlar, 9 ev.
+
+**Tutarsızlıklar:**
+
+- **Yaş ile hikâye:** Milyarder 23, Multimilyarder 35, En Zengin 58 yaş. Önsözden son törene 41 yıl: anne pastayı aldığında ~90, Rıza Amca atölyede ~80. Portreler yaşlanmıyor; kahraman 58 yaşında 23'lük görünüyor (§3 ile birlikte ele alınır).
+- **"İlk Kendi Evin" kiralık:** Milyoner töreni kahramanı ev 7'ye kiracı olarak taşıyor; mağazada adı "İlk Kendi Evin", üstünde "Kiracısın".
+- **Defne yarım kalıyor:** 32. dk'da tanışma, Milyoner'de annenin bir mesajı, sonra oyunun sonuna kadar yok (devamı Faz 2).
+- **Eskimiş belgeler:** [game-design-v2.md](./game-design-v2.md) §4.2, §4.3 ve §5 tabloları 2026-10-08'den (Çiçek Tezgâhı $25; oyunda $250; güncel değerler `npm run sim -- --config`). [story-v2.md](./story-v2.md): "8 tören" (7 var), "16 araç" (12 var), "elmas tasma" (kodda yok), tören süreleri; game-design §4.8 "Gündelikçi → kiralık oda" (oyunda minibüs). §7'deki "araç 16 → 10" artık 12 ve ev–araç zinciri.
+
+**Eksikler (çoğu planda):** hayaller panosu (1.8; zincirden sonra daha değerli, sıradaki adım hep belli), lüks oyuncaklar sahnede (2.6), yağmur ve ortam sesi, Şans'ın dönüşte kapıda uyuması, Nevin Hanım ve Defne portreleri, konak ve pasta karesi, En Zengin'den sonrası (§3).
+
+**Claude'un önerdiği sıra (karar kullanıcıda):**
+
+1. Görseller: evlerden sonra kıyafet 3 ve 4 ile tasmalar (hissi en çok artıranlar).
+2. **Yaş temposu:** En Zengin'e kadar yıllar daha yavaş (zirve ~40 yaş), zirveden sonra hızlı. Hem annenin ve Rıza Amca'nın yaşını makul yapar hem sondaki boş ~10 saati kısaltır. Simülatörle denenmeli.
+3. **İlk oturum:** İşçi törenini ilk oturuma (~25. dk) çekmek; ekonomi ayarı, simülatörle.
+4. **Ev 7'nin adı:** "Bahçeli Küçük Ev" gibi bir ad; "ilk kendi evin" duygusu ilk satın almaya kalsın (bedava sahiplik kira gelirini bozar).
+5. Hayaller panosu: ana ekranda zincirin sıradaki adımı.
+6. Belgeleri güncel duruma getirmek (karar gerektirmez).

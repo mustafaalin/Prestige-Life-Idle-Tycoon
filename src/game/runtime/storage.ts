@@ -61,7 +61,7 @@ function normalizeGame(raw: unknown): GameStateV2 {
   // Saves from before the four story outfits: the best old outfit becomes the closest new one.
   const oldOutfit = Math.max(0, ...savedIds.map((id) => Number(/^outfit-(\d+)$/.exec(id)?.[1] ?? 0)));
   const legacyOutfits = OUTFITS.slice(0, legacyOutfitIndex(oldOutfit) + 1).map((outfit) => outfit.id);
-  // Saves from before the ten vehicles: the best old vehicle becomes as many new ones as keep its bonus.
+  // Saves from before the story vehicles (16 old ones): the best old vehicle becomes as many new ones as keep its bonus.
   const oldVehicle = Math.max(0, ...savedIds.map((id) => Number(/^vehicle-(\d+)$/.exec(id)?.[1] ?? 0)));
   const legacyVehicles = VEHICLES.slice(0, legacyVehicleCount(oldVehicle)).map((vehicle) => vehicle.id);
 

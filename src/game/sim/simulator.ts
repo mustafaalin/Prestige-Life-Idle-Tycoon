@@ -23,29 +23,31 @@ import {
 import { COLLECT_SPAWN_SECONDS, FETCH_MAX_SECONDS, FETCH_MIN_SECONDS } from '../core/config/scene';
 import { HOUSES } from '../core/config/housing';
 import {
+  LIFESTYLE_KINDS,
   activeQuests,
   buyBusinessUnits,
   buyHome,
   buyLifestyle,
   buyUpgrade,
   canBuyUpgrade,
-  claimQuest,
-  isQuestComplete,
-  nextUpgrade,
   canRetire,
+  claimQuest,
   createInitialState,
   earn,
   hireManager,
   housePrice,
-  LIFESTYLE_KINDS,
+  isQuestComplete,
+  lifestyleNeedsHome,
+  live,
+  moveUpNeedsVehicle,
   nextCareer,
   nextHome,
   nextLifestyle,
+  nextUpgrade,
   ownsHouse,
   promote,
   rentHome,
   retire,
-  live,
 } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 
@@ -160,14 +162,14 @@ function candidates(state: GameStateV2): Candidate[] {
 
   for (const kind of LIFESTYLE_KINDS) {
     const next = nextLifestyle(state, kind);
-    if (next) {
+    if (next && !lifestyleNeedsHome(state, next)) {
       list.push({ label: next.name, kind: 'lifestyle', cost: next.cost, apply: (s) => buyLifestyle(s, next.id) });
     }
   }
 
   // Homes: rent the next one; buy any house allowed (the next one moves you in, lower ones pay rent).
   const next = nextHome(state);
-  if (next && !ownsHouse(state, next.id)) {
+  if (next && !ownsHouse(state, next.id) && !moveUpNeedsVehicle(state)) {
     list.push({ label: `Rent: ${next.name}`, kind: 'home', cost: next.moveInCost, apply: (s) => rentHome(s, next.id) });
   }
   for (const house of HOUSES) {

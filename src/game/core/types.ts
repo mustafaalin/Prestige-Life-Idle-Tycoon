@@ -47,6 +47,8 @@ export interface LifestyleDef {
   cost: number;
   /** Additive status bonus to all income (0.05 = +5%). */
   statusBonus: number;
+  /** Vehicles: index of the home you must live in (or above) to buy it and to see it parked out front. */
+  home?: number;
 }
 
 export interface HouseDef {

@@ -171,6 +171,7 @@ export const en = {
     upcoming: 'Coming up',
     more: '+{count} more',
     collection: 'Your collection',
+    needsHome: 'Move first: {home}',
   },
   home: {
     current: 'Your home',
@@ -186,6 +187,7 @@ export const en = {
     buyMove: 'Buy & move in',
     moveFree: 'Move in · free',
     noRent: 'No monthly rent: you pay once when you move in.',
+    needsVehicle: 'Buy first: {vehicle}',
     top: 'You live in the best home there is',
     properties: 'Your properties',
     livingHere: 'You live here',
@@ -363,6 +365,9 @@ export const en = {
     ceremony: 'Play a ceremony',
     mom: "Mom's next message",
     notifyTest: 'Test notification (5 s)',
+    sceneLab: 'Scene lab',
+    labNoVehicle: 'No vehicle',
+    labHint: 'Red: hidden by the bars and on narrow phones. Blue: car, two-wheeler and feet lines. A label like ×0.67: the art is too wide for its lane and was shrunk.',
   },
 };
 

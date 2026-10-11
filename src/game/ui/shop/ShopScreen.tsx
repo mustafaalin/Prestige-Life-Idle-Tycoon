@@ -2,7 +2,7 @@ import { Check, Lock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
 import { autoIncomePerSecond, statusBonus } from '../../core/formulas';
-import { canMoveUp, nextLifestyle } from '../../core/state';
+import { canBuyNextLifestyle, canMoveUp, lifestyleNeedsHome, nextLifestyle } from '../../core/state';
 import type { GameStateV2, LifestyleKind } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
@@ -30,8 +30,7 @@ const percent = (fraction: number) => Math.round(fraction * 100);
 /** Whether a tab has something the player can do right now (red dot). */
 function tabReady(game: GameStateV2, tab: ShopTab) {
   if (tab === 'house') return canMoveUp(game);
-  const next = nextLifestyle(game, tab);
-  return next !== null && game.cash >= next.cost;
+  return canBuyNextLifestyle(game, tab);
 }
 
 /** Homes, vehicles, outfits and luxury toys. Status items are bought in order: one clear next dream per category. */
@@ -63,12 +62,16 @@ export function ShopScreen() {
         dot={(kind) => tabReady(game, kind)}
       />
 
-      {tab === 'house' ? <HousingPanel /> : <LifestylePanel kind={tab} />}
+      {tab === 'house' ? (
+        <HousingPanel onGoVehicles={() => setTab('vehicle')} />
+      ) : (
+        <LifestylePanel kind={tab} onGoHomes={() => setTab('house')} />
+      )}
     </section>
   );
 }
 
-function LifestylePanel({ kind }: { kind: LifestyleKind }) {
+function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: () => void }) {
   const { game, actions } = useGameV2();
   const { t, name, money, duration } = useT();
 
@@ -80,8 +83,11 @@ function LifestylePanel({ kind }: { kind: LifestyleKind }) {
   const hiddenCount = Math.max(0, items.length - (nextIndex + 1 + UPCOMING_COUNT));
 
   const income = autoIncomePerSecond(game);
-  const canBuy = next !== null && game.cash >= next.cost;
-  const secondsToAfford = next && !canBuy && income > 0 ? (next.cost - game.cash) / income : null;
+  // A vehicle opens in its home (core/state.ts lifestyleNeedsHome).
+  const neededHome = next ? lifestyleNeedsHome(game, next) : null;
+  const canBuy = next !== null && !neededHome && game.cash >= next.cost;
+  const secondsToAfford =
+    next && !neededHome && !canBuy && income > 0 ? (next.cost - game.cash) / income : null;
 
   return (
     <div className="flex flex-col gap-3">
@@ -114,6 +120,18 @@ function LifestylePanel({ kind }: { kind: LifestyleKind }) {
               <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
                 {t('common.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}
               </p>
+            )}
+            {neededHome && (
+              <GameButton
+                tone="soft"
+                onClick={onGoHomes}
+                className="min-h-11 -mt-1 py-2 px-4 flex items-center justify-center gap-1.5"
+              >
+                <Lock className="w-4 h-4 shrink-0" />
+                <span className="v2-display text-[13px]">
+                  {t('shop.needsHome', { home: name('lifestyle', neededHome) })}
+                </span>
+              </GameButton>
             )}
           </div>
         </Panel>

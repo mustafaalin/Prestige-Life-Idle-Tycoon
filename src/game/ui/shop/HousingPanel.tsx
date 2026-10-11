@@ -1,7 +1,15 @@
 import { Home, KeyRound, Lock } from 'lucide-react';
 import { HOUSES } from '../../core/config/housing';
 import { autoIncomePerSecond, globalMultiplier } from '../../core/formulas';
-import { currentHome, houseIndex, housePrice, isRenting, nextHome, ownsHouse } from '../../core/state';
+import {
+  currentHome,
+  houseIndex,
+  housePrice,
+  isRenting,
+  moveUpNeedsVehicle,
+  nextHome,
+  ownsHouse,
+} from '../../core/state';
 import type { HouseDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
@@ -10,13 +18,14 @@ import { Chip, GameButton, Panel, SectionLabel } from '../kit';
 import { Thumb } from './Thumb';
 
 // Homes tab: rent → buy → rent out (docs/game-design-v2.md §4.8). You live in one house; the next
-// one up is the dream; houses you own and left pay rent.
+// one up is the dream; houses you own and left pay rent. Moving up needs the last vehicle of the home
+// you live in (core/state.ts moveUpNeedsVehicle).
 
 const UPCOMING_COUNT = 3;
 
 const percent = (fraction: number) => Math.round(fraction * 100);
 
-export function HousingPanel() {
+export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
   const { game, actions } = useGameV2();
   const { t, name, money, duration, perMonth } = useT();
 
@@ -42,7 +51,8 @@ export function HousingPanel() {
 
   const nextOwned = next !== null && ownsHouse(game, next.id);
   const nextPrice = next ? housePrice(game, next) : null;
-  const rentHint = next && !nextOwned ? affordIn(next.moveInCost) : null;
+  const neededVehicle = next && !nextOwned ? moveUpNeedsVehicle(game) : null;
+  const rentHint = next && !nextOwned && !neededVehicle ? affordIn(next.moveInCost) : null;
 
   return (
     <div className="flex flex-col gap-3">
@@ -111,7 +121,7 @@ export function HousingPanel() {
               ) : (
                 <GameButton
                   onClick={() => actions.rentHome(next.id)}
-                  disabled={game.cash < next.moveInCost}
+                  disabled={game.cash < next.moveInCost || neededVehicle !== null}
                   className="w-full min-h-11 py-3 px-4 flex items-center justify-between"
                 >
                   <span className="v2-display text-[16px] v2-shadow">{t('home.rentMove')}</span>
@@ -130,7 +140,20 @@ export function HousingPanel() {
                 <span className="v2-display text-[14px] tabular-nums">{money(nextPrice)}</span>
               </GameButton>
             )}
-            <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">{rentHint ?? t('home.noRent')}</p>
+            {neededVehicle ? (
+              <GameButton
+                tone="soft"
+                onClick={onGoVehicles}
+                className="min-h-11 -mt-1 py-2 px-4 flex items-center justify-center gap-1.5"
+              >
+                <Lock className="w-4 h-4 shrink-0" />
+                <span className="v2-display text-[13px]">
+                  {t('home.needsVehicle', { vehicle: name('lifestyle', neededVehicle) })}
+                </span>
+              </GameButton>
+            ) : (
+              <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">{rentHint ?? t('home.noRent')}</p>
+            )}
           </div>
         </Panel>
       ) : (

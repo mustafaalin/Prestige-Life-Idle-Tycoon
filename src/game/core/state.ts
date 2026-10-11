@@ -3,7 +3,7 @@ import { CAREERS } from './config/careers';
 import { STARTING_CASH } from './config/economy';
 import { CLASS_HOME_FLOOR, HOUSES, STARTING_HOME_ID } from './config/housing';
 import { LIFE_SECONDS } from './config/life';
-import { CLASS_OUTFIT_FLOOR, LIFESTYLE_ITEMS, OUTFITS, STARTING_LIFESTYLE_IDS } from './config/lifestyle';
+import { CLASS_OUTFIT_FLOOR, LIFESTYLE_ITEMS, OUTFITS, STARTING_LIFESTYLE_IDS, VEHICLES } from './config/lifestyle';
 import { ACTIVE_QUESTS, GENERATED_QUEST_SECONDS, QUESTS } from './config/quests';
 import { UPGRADES } from './config/upgrades';
 import { classIndexFor, costForUnits, isLifeOver, nextMilestone, pendingLegacyPoints, questReward } from './formulas';
@@ -141,12 +141,42 @@ export function bestOwnedLifestyle(state: GameStateV2, kind: LifestyleKind): Lif
   return best;
 }
 
+// Homes and vehicles climb together (config/lifestyle.ts): a vehicle opens in its home, and the last
+// vehicle a home opens is needed to move on. A class ceremony's free move (applyClassFloors) is the
+// one way to get ahead of the vehicles; they are caught up in order afterwards.
+
+/** The home a status item waits for, or null when where you live is enough. */
+export function lifestyleNeedsHome(state: GameStateV2, item: LifestyleDef): HouseDef | null {
+  return item.home !== undefined && item.home > houseIndex(state.home) ? HOUSES[item.home] : null;
+}
+
+/** The vehicle still missing before you can move up from where you live, or null. */
+export function moveUpNeedsVehicle(state: GameStateV2): LifestyleDef | null {
+  const home = houseIndex(state.home);
+  let last: LifestyleDef | null = null;
+  for (const vehicle of VEHICLES) if (vehicle.home === home) last = vehicle;
+  return last && !state.lifestyleOwned.includes(last.id) ? last : null;
+}
+
+/** The best owned vehicle the home you live in has room for (the one parked out front), or null. */
+export function parkedVehicle(state: GameStateV2): LifestyleDef | null {
+  const home = houseIndex(state.home);
+  let best: LifestyleDef | null = null;
+  for (const vehicle of VEHICLES) {
+    if ((vehicle.home ?? 0) <= home && state.lifestyleOwned.includes(vehicle.id)) best = vehicle;
+  }
+  return best;
+}
+
+/** Whether the next item of a kind can be bought right now. */
+export function canBuyNextLifestyle(state: GameStateV2, kind: LifestyleKind) {
+  const next = nextLifestyle(state, kind);
+  return next !== null && state.cash >= next.cost && !lifestyleNeedsHome(state, next);
+}
+
 /** Whether the next status item of any kind can be bought right now. */
 export function canBuyAnyLifestyle(state: GameStateV2) {
-  return LIFESTYLE_KINDS.some((kind) => {
-    const next = nextLifestyle(state, kind);
-    return next !== null && state.cash >= next.cost;
-  });
+  return LIFESTYLE_KINDS.some((kind) => canBuyNextLifestyle(state, kind));
 }
 
 /** Whether the shop has something to do right now: a status item or moving up to the next home. */
@@ -156,7 +186,7 @@ export function canBuyAnythingInShop(state: GameStateV2) {
 
 export function buyLifestyle(state: GameStateV2, itemId: string): GameStateV2 | null {
   const item = LIFESTYLE_BY_ID.get(itemId);
-  if (!item || state.lifestyleOwned.includes(itemId)) return null;
+  if (!item || state.lifestyleOwned.includes(itemId) || lifestyleNeedsHome(state, item)) return null;
   const paid = spend(state, item.cost);
   if (!paid) return null;
   return { ...paid, lifestyleOwned: [...paid.lifestyleOwned, itemId] };
@@ -187,25 +217,28 @@ export function isRenting(state: GameStateV2) {
 }
 
 /**
- * Price to buy a house right now, or null if it cannot be bought: rent-only, already owned, or
- * above the next home. Buying the house you rent counts the move-in fee you paid.
+ * Price to buy a house right now, or null if it cannot be bought: rent-only, already owned, above
+ * the next home, or the next home while a vehicle is still missing. Buying the house you rent counts
+ * the move-in fee you paid.
  */
 export function housePrice(state: GameStateV2, house: HouseDef): number | null {
   if (house.buyCost === null || ownsHouse(state, house.id)) return null;
-  if (houseIndex(house.id) > houseIndex(state.home) + 1) return null;
+  const stepsUp = houseIndex(house.id) - houseIndex(state.home);
+  if (stepsUp > 1 || (stepsUp === 1 && moveUpNeedsVehicle(state))) return null;
   return house.id === state.home ? house.buyCost - house.moveInCost : house.buyCost;
 }
 
 /** Whether the next home can be reached right now (rent it, or move in for free if owned). */
 export function canMoveUp(state: GameStateV2) {
   const next = nextHome(state);
-  return next !== null && (ownsHouse(state, next.id) || state.cash >= next.moveInCost);
+  if (!next) return false;
+  return ownsHouse(state, next.id) || (state.cash >= next.moveInCost && !moveUpNeedsVehicle(state));
 }
 
 /** Rent the next home and move in. Only one rented home at a time: the old lease simply ends. */
 export function rentHome(state: GameStateV2, houseId: string): GameStateV2 | null {
   const next = nextHome(state);
-  if (!next || next.id !== houseId || ownsHouse(state, houseId)) return null;
+  if (!next || next.id !== houseId || ownsHouse(state, houseId) || moveUpNeedsVehicle(state)) return null;
   const paid = spend(state, next.moveInCost);
   if (!paid) return null;
   return { ...paid, home: houseId };

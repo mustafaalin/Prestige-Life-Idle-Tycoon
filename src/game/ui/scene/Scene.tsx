@@ -10,7 +10,7 @@ import {
 import { HOUSES } from '../../core/config/housing';
 import { OUTFITS, VEHICLES } from '../../core/config/lifestyle';
 import { fetchReward, tapValue } from '../../core/formulas';
-import { bestOwnedLifestyle, houseIndex } from '../../core/state';
+import { bestOwnedLifestyle, houseIndex, parkedVehicle } from '../../core/state';
 import type { GameStateV2 } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
@@ -22,16 +22,25 @@ import { PointingHand } from '../home/Focusable';
 import { RewardCard } from '../home/RewardCard';
 import { useCoverFit } from './coverFit';
 import { onFindRequest } from './sceneEvents';
-import { classLook, heroLook, homeArt, lookImages, parkedVehicle, type Pose } from './stages';
+import { poseBox, spriteBox, spriteFilter, vehicleStyle } from './place';
+import {
+  classLook,
+  FEET_Y,
+  heroLook,
+  homeArt,
+  lookImages,
+  vehicleArt,
+  vehicleBox,
+  type Pose,
+} from './stages';
 
 // The home scene (plan 1.6, discussion-notes §7): the hero and Şans, always on screen, in front of
 // the home you live in, with your best vehicle parked beside them, the hero in the best outfit you own
 // (stages.ts). Moving house cross-fades the place; a new vehicle drives in; a new outfit is put on.
 // Bottles and cans appear on the ground; tapping one collects it (one tap's money). Now and then
 // Şans brings a wallet he found; catching it in time pays a bonus. The hero's pose follows what
-// happens: collecting, petting Şans, a purchase. Positions are fractions of the 9:16 background.
-
-const FEET_Y = 0.735;
+// happens: collecting, petting Şans, a purchase. Positions are fractions of the 9:16 background;
+// where things stand and how big they are comes from the stage in stages.ts.
 
 type NewsKind = 'home' | 'vehicle' | 'outfit';
 
@@ -39,7 +48,8 @@ type NewsKind = 'home' | 'vehicle' | 'outfit';
 const POSE_RANK: Record<Pose, number> = { idle: 0, collect: 1, pet: 2, joy: 3 };
 const POSE_LIST = Object.keys(POSE_RANK) as Pose[];
 
-/** Ground spots where items show up; x stays inside what tall phones show, y above the menu. */
+/** Ground spots where items show up; x stays inside what tall phones show, y above the menu and in
+ * front of where the vehicle stands. */
 const SPOTS: [number, number][] = [
   [0.18, 0.7],
   [0.24, 0.79],
@@ -50,10 +60,8 @@ const SPOTS: [number, number][] = [
   [0.68, 0.84],
   [0.79, 0.77],
   [0.8, 0.85],
-  [0.8, 0.69],
 ];
 
-const SPRITE_FILTER = 'brightness(0.9) saturate(0.95) drop-shadow(0 8px 10px rgba(0,0,0,0.35))';
 const ITEM_FILTER = 'drop-shadow(0 0 6px rgba(255,230,150,0.85)) brightness(1.05)';
 
 interface Item {
@@ -174,7 +182,8 @@ export function Scene() {
   // ── Home and vehicle ──
   const [shownHome, setShownHome] = useState(game.home);
   const home = homeArt(shownHome);
-  const [fadingBackground, setFadingBackground] = useState<string | null>(null);
+  const light = spriteFilter(home.light);
+  const [fadingBackground, setFadingBackground] = useState<{ src: string; mirror: boolean } | null>(null);
   const [news, setNews] = useState<{ id: number; kind: NewsKind; text: string } | null>(null);
   const announce = useCallback(
     (kind: NewsKind, text: string) => {
@@ -187,7 +196,8 @@ export function Scene() {
 
   useEffect(() => {
     if (ceremonyWaiting || game.home === shownHome) return;
-    setFadingBackground(homeArt(shownHome).background);
+    const old = homeArt(shownHome);
+    setFadingBackground({ src: old.background, mirror: old.mirror });
     later(() => setFadingBackground(null), 800);
     setShownHome(game.home);
     const house = HOUSES.find((item) => item.id === game.home);
@@ -207,8 +217,9 @@ export function Scene() {
     }
   }, [ceremonyWaiting, wornOutfit, shownOutfit, announce, t, name]);
 
-  const vehicle = parkedVehicle(game.lifestyleOwned);
-  const vehicleWidth = vehicle ? pictureWidth * home.parking.carWidth * vehicle.size : 0;
+  // The home shown decides which vehicle has room out front, so both change together after a ceremony.
+  const parked = parkedVehicle({ ...game, home: shownHome });
+  const vehicle = parked ? vehicleArt(parked.id) : null;
   const lastVehicle = useRef(vehicle?.id);
   const [arrivedVehicle, setArrivedVehicle] = useState<string | null>(null);
   useEffect(() => {
@@ -265,7 +276,7 @@ export function Scene() {
     event.stopPropagation();
     haptic('light');
     flashPose('pet', 1700);
-    float({ x: fit.x(stage.sans.x), y: fit.y(stage.sans.y - stage.sans.height) });
+    float({ x: fit.x(stage.sans.x + home.castX), y: fit.y(stage.sans.y - stage.sans.height) });
   };
 
   const [finding, setFinding] = useState(false);
@@ -321,14 +332,21 @@ export function Scene() {
 
   return (
     <div ref={rootRef} className="absolute inset-0 overflow-hidden bg-[#0d1530]">
-      <img src={home.background} alt="" draggable={false} className="absolute inset-0 w-full h-full object-cover" />
+      <img
+        src={home.background}
+        alt=""
+        draggable={false}
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ transform: home.mirror ? 'scaleX(-1)' : undefined }}
+      />
       {fadingBackground && (
         <img
-          key={fadingBackground}
-          src={fadingBackground}
+          key={fadingBackground.src}
+          src={fadingBackground.src}
           alt=""
           draggable={false}
           className="v2-fade-out absolute inset-0 w-full h-full object-cover pointer-events-none"
+          style={{ transform: fadingBackground.mirror ? 'scaleX(-1)' : undefined }}
         />
       )}
 
@@ -341,13 +359,7 @@ export function Scene() {
               alt=""
               draggable={false}
               className={`absolute pointer-events-none ${arrivedVehicle === vehicle.id ? 'v2-drive-in' : ''}`}
-              style={{
-                left: fit.x(home.parking.x) - vehicleWidth / 2,
-                bottom: fit.height - fit.y(home.parking.y),
-                width: vehicleWidth,
-                transform: 'scaleX(-1)',
-                filter: SPRITE_FILTER,
-              }}
+              style={{ ...vehicleStyle(fit, vehicleBox(vehicle, home.layout)), filter: light }}
             />
           )}
 
@@ -355,7 +367,7 @@ export function Scene() {
           <span
             className="absolute rounded-[50%] bg-black/40 blur-[6px]"
             style={{
-              left: fit.x(0.4) - pictureWidth * 0.11,
+              left: fit.x(0.4 + home.castX) - pictureWidth * 0.11,
               top: fit.y(FEET_Y) - 8,
               width: pictureWidth * 0.22,
               height: 16,
@@ -364,8 +376,6 @@ export function Scene() {
 
           {POSE_LIST.map((key) => {
             const art = hero[key];
-            const height = fit.h(art.height);
-            const width = height * art.aspect;
             return (
               <img
                 key={key}
@@ -374,13 +384,10 @@ export function Scene() {
                 draggable={false}
                 className="absolute pointer-events-none transition-opacity duration-150"
                 style={{
-                  left: fit.x(art.x) - width / 2,
-                  top: fit.y(FEET_Y) - height,
-                  width,
-                  height,
+                  ...poseBox(fit, art, home.castX),
                   opacity: pose === key ? 1 : 0,
                   transform: art.flip ? 'scaleX(-1)' : undefined,
-                  filter: SPRITE_FILTER,
+                  filter: light,
                 }}
               />
             );
@@ -392,19 +399,14 @@ export function Scene() {
               onClick={petSans}
               aria-label={t('scene.sans')}
               className="absolute transition-transform active:scale-95"
-              style={{
-                left: fit.x(stage.sans.x) - (fit.h(stage.sans.height) * stage.sans.aspect) / 2,
-                top: fit.y(stage.sans.y) - fit.h(stage.sans.height),
-                width: fit.h(stage.sans.height) * stage.sans.aspect,
-                height: fit.h(stage.sans.height),
-              }}
+              style={spriteBox(fit, stage.sans, home.castX)}
             >
               <img
                 src={stage.sans.src}
                 alt=""
                 draggable={false}
                 className="w-full h-full"
-                style={{ filter: SPRITE_FILTER }}
+                style={{ filter: light }}
               />
             </button>
           )}
@@ -415,12 +417,7 @@ export function Scene() {
               onClick={openFind}
               aria-label={t('scene.findHint')}
               className="absolute v2-run-in transition-transform active:scale-95"
-              style={{
-                left: fit.x(stage.find.x) - (fit.h(stage.find.height) * stage.find.aspect) / 2,
-                top: fit.y(stage.find.y) - fit.h(stage.find.height),
-                width: fit.h(stage.find.height) * stage.find.aspect,
-                height: fit.h(stage.find.height),
-              }}
+              style={spriteBox(fit, stage.find, home.castX)}
             >
               <span className="v2-pulse-ring absolute left-1/2 top-1/2 w-full aspect-square rounded-full border-4 border-amber-300" />
               <img
@@ -428,7 +425,7 @@ export function Scene() {
                 alt=""
                 draggable={false}
                 className="relative w-full h-full"
-                style={{ filter: SPRITE_FILTER }}
+                style={{ filter: light }}
               />
               <span className="absolute right-0 -top-9 whitespace-nowrap rounded-full bg-gradient-to-b from-amber-300 to-orange-500 border-2 border-white v2-glossy px-3 py-1 v2-display text-[13px] text-white v2-shadow">
                 {t('scene.findHint')}
