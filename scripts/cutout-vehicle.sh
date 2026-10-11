@@ -12,9 +12,10 @@ magick $IN -alpha set -fuzz 7% -fill none \
   -draw "color 0,0 floodfill" -draw "color $((W-1)),0 floodfill" \
   -draw "color 0,$((H-1)) floodfill" -draw "color $((W-1)),$((H-1)) floodfill" \
   $EXTRA $TMP/a.png
-# The shadow band: the bottom 150 px of what is left.
-BOTTOM=$(magick $TMP/a.png -alpha extract -threshold 50% -format '%@' info: | awk -F'[x+]' '{print $2+$4}')
-SHADOW="(j>=$((BOTTOM-150)) && saturation<0.12 && lightness>0.3)"
+# The shadow band: the bottom 30% of what is left, high enough to catch the grey ground seen between
+# the wheels, under the body.
+BAND=$(magick $TMP/a.png -alpha extract -threshold 50% -format '%@' info: | awk -F'[x+]' '{print int($4+$2*0.7)}')
+SHADOW="(j>=$BAND && saturation<0.12 && lightness>0.3)"
 magick $TMP/a.png -channel A -fx "$SHADOW ? min(1,max(0,(0.84-lightness)*2.4))*a : a" \
   -channel RGB -fx "$SHADOW ? 0 : u" +channel \
   -channel A -morphology Erode Disk:1 -blur 0x0.7 +channel -trim +repage \

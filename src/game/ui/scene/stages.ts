@@ -145,8 +145,9 @@ export interface ParkingSpot {
   carWidth: number;
 }
 
-/** Left of the hero, a step behind, so the car never covers the hero or Şans. */
-const DEFAULT_PARKING: ParkingSpot = { x: 0.29, y: 0.7, carWidth: 0.36 };
+/** Left of the hero, a step behind him, at a real car's size next to a person (roof about at his
+ * shoulders); its rear goes behind the hero, so the front stays inside what tall phones show. */
+const DEFAULT_PARKING: ParkingSpot = { x: 0.26, y: 0.65, carWidth: 0.65 };
 
 /** Homes whose picture needs the car somewhere else (tuned on the phone when the new art comes). */
 const PARKING: Record<string, ParkingSpot> = {};
@@ -163,8 +164,8 @@ export function homeArt(houseId: string): HomeArt {
 
 /** Size next to a car (1); the art files are cropped to the vehicle, so this sets the scale. */
 const VEHICLE_SIZE: Record<string, number> = {
-  'vehicle-bike': 0.55,
-  'vehicle-scooter': 0.55,
+  'vehicle-bike': 0.72,
+  'vehicle-scooter': 0.72,
   'vehicle-offroader': 1.06,
 };
 

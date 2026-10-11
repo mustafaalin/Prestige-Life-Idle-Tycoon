@@ -38,7 +38,7 @@ Yaşlar `npm run sim` sonucundan alındı.
 
 | Tür | Boyut | Zemin | Not |
 | --- | --- | --- | --- |
-| Arka plan | 9:16 dikey, en az 1536×2752 | Dolu | Ara sokakla **aynı kamera yüksekliği ve zemin çizgisi**. Alt orta boş kalır: karakterler x %35–70'te durur, ayaklar yüksekliğin %73'ünde; toplanacaklar yüksekliğin %69–85'i arasındaki zemine düşer. **Sol alt köşe araç için boş, düz zemin:** x %0–40, y %55–72 arasında araç park eder (tekerlekler %70'te). Üst %15'e ve alt %10'a önemli bir şey konmaz (üst bar ve alt menü kapatır). Arka planda araç olmaz (minibüs hariç: o evin kendisi). |
+| Arka plan | 9:16 dikey, en az 1536×2752 | Dolu | Ara sokakla **aynı kamera yüksekliği ve zemin çizgisi**. Alt orta boş kalır: karakterler x %35–70'te durur, ayaklar yüksekliğin %73'ünde; toplanacaklar yüksekliğin %69–85'i arasındaki zemine düşer. **Sol taraf araç için boş, düz zemin:** araç gerçek boyunda, kahramanın bir adım gerisinde park eder (tavanı omuz hizasında): x %0–55, y %35–66 arası (tekerlekler %65'te). Üst %15'e ve alt %10'a önemli bir şey konmaz (üst bar ve alt menü kapatır). Arka planda araç olmaz (minibüs hariç: o evin kendisi). |
 | Araç | Tek araç, gövde en az 1200 px genişlikte | Düz açık gri (#d9d9d9) | Arabalar **önden dörtte üç**: düz önden ~25–30° dönük, önü hafif sola, ön yüz tam görünür, hafif yukarıdan (çapa `art/pilot/09-vehicles/vehicle-4.png`); bisiklet ve skuter yandan dörtte üç. Araç kadraja tam sığar; yakın taraftaki tekerlekler kesilmez (karşı taraftakiler doğal olarak gizlenebilir). İnsan, plaka, logo, marka yok. |
 | Kahraman pozu | Tek karakter, ayakta boy en az 1500 px | Düz açık gri (#d9d9d9) | Arka planı sonra silinir. Ayaklar görünür, kesilmez. Kamera göz hizasında, hafif yandan (mevcut sokak pozları gibi). |
 | Toplanacaklar | Tek sayfada 3 nesne, aralarında boşluk | Düz açık gri | Her biri tek başına okunabilir, yukarıdan hafif açıyla. |
@@ -140,7 +140,7 @@ Referanslar: sahnenin yeri (ilgili arka plan ya da önsöz karesi) + kahraman k�
 
 ### 4.6 Araçlar (A)
 
-10 araç (karar 2026-10-11; önce 16'ydı, el arabası çıktı), evin önünde park eder (sol alt, kahramanın arkasında). Araç kahramanın solunda durur, arka kısmı onun arkasında kalabilir; arabalar önden dörtte üç (§3 Araç). Liste, sıra ve hazır komutlar: [art-prompts-v2.md §2](./art-prompts-v2.md). Önce hatchback (4) üretilir; diğerleri onu açı ve stil referansı olarak kullanır. İlk 5'i oyunda (2026-10-11, `public/assets/vehicles/v2/`); 6–10 v1 görselleriyle yer tutuyor. Kesim: arka plan silinir, alttaki gri gölge yarı saydam siyaha çevrilir (sahnede zemine basar); bisiklet ve skuterde tekerlek içindeki kapalı gri de silinir.
+10 araç (karar 2026-10-11; önce 16'ydı, el arabası çıktı), evin önünde park eder (sol alt, kahramanın arkasında). Araç kahramanın solunda durur, arka kısmı onun arkasında kalabilir; arabalar önden dörtte üç (§3 Araç). Liste, sıra ve hazır komutlar: [art-prompts-v2.md §2](./art-prompts-v2.md). Önce hatchback (4) üretilir; diğerleri onu açı ve stil referansı olarak kullanır. İlk 5'i oyunda (2026-10-11, `public/assets/vehicles/v2/`); 6–10 v1 görselleriyle yer tutuyor. Kesim: arka plan silinir, aracın alt %30'undaki gri (gölge ve tekerlekler arasından görünen zemin) yarı saydam siyaha çevrilir (sahnede zemine basar); bisiklet ve skuterde tekerlek içindeki kapalı gri de silinir.
 
 ## 5. Toplam
 

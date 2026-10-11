@@ -208,6 +208,10 @@ export function Scene() {
   }, [ceremonyWaiting, wornOutfit, shownOutfit, announce, t, name]);
 
   const vehicle = parkedVehicle(game.lifestyleOwned);
+  const vehicleWidth = vehicle ? pictureWidth * home.parking.carWidth * vehicle.size : 0;
+  // Narrow phones cut the picture's sides: a car may lose a bit of its front, a bike or scooter stays whole.
+  const parkedLeft = fit.x(home.parking.x) - vehicleWidth / 2;
+  const vehicleLeft = vehicle && vehicle.size < 1 ? Math.max(parkedLeft, 8) : parkedLeft;
   const lastVehicle = useRef(vehicle?.id);
   const [arrivedVehicle, setArrivedVehicle] = useState<string | null>(null);
   useEffect(() => {
@@ -341,9 +345,9 @@ export function Scene() {
               draggable={false}
               className={`absolute pointer-events-none ${arrivedVehicle === vehicle.id ? 'v2-run-in' : ''}`}
               style={{
-                left: fit.x(home.parking.x) - (pictureWidth * home.parking.carWidth * vehicle.size) / 2,
+                left: vehicleLeft,
                 bottom: fit.height - fit.y(home.parking.y),
-                width: pictureWidth * home.parking.carWidth * vehicle.size,
+                width: vehicleWidth,
                 filter: SPRITE_FILTER,
               }}
             />
