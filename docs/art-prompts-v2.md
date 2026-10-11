@@ -2,7 +2,7 @@
 
 Son güncelleme: 2026-10-11 · Kurallar ve boyutlar: [art-brief-v2.md §2, §3, §4.2, §4.6](./art-brief-v2.md)
 
-Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üretilen görsel tablodaki dosya adıyla `art/pilot/...` altına konur, denemeler `-v1`, `-v2`. Öncelik sırası: araç 4 (diğer araçların çapası), araç 1–3, ev 3, ev 5, sonra geri kalanlar sırayla.
+Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üretilen görsel tablodaki dosya adıyla `art/pilot/...` altına konur, denemeler `-v1`, `-v2`. Öncelik sırası: araç 3 ve 5 yeni açıyla, ev 3, ev 5, araç 6–10, sonra geri kalanlar sırayla.
 
 ## 1. Evler (9 arka plan)
 
@@ -59,28 +59,31 @@ Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üreti
 
 Karar 2026-10-11: 16 araç yerine 10; el arabası, elektrikli scooter ve ara sedanlar çıktı. Her basamak sahnede bir bakışta tanınan **farklı bir siluet ve renk** (küçük telefonda iki sedan birbirinden ayırt edilmiyor). Gerçek modelleri çağrıştırır ama marka, logo ve birebir kopya yok. Tekne, yat, helikopter ve jet ayrı "lüks oyuncak"lar olarak kalıyor (görselleri var). İleride araya yeni araçlar eklenebilir (adaylar §2.2).
 
-**Sıra:** önce **4 (hatchback)** üretilir ve onaylanır; bu görsel geri kalan araçların açı, ışık ve stil çapası olur (komutta `vehicle-4.png` referansı). Böylece 10 araç aynı kameradan çekilmiş gibi durur. Sonra 1, 2, 3 (ilk oturumda görülenler), sonra sırayla.
+**Açı (karar 2026-10-11, sahnede denendi):** arabalar **önden dörtte üç**: düz önden bakıştan ~25–30° dönük, önü hafif sola, ön yüz (farlar, ızgara) tam görünür, sol yanın yalnızca bir kısmı. Araç kahramanın solunda park eder, arka kısmı kahramanın arkasında kalabilir. Yandan görünüşte araç çok geniş kalıyor, telefonun kırptığı sol kenardan taşıyor ve önü kesiliyordu. Bisiklet ve skuter yandan dörtte üç kalır (zaten dar; önden bakınca tanınmıyorlar).
 
-**Kontrol et:** önü sola mı bakıyor, araç kadrajda tam mı (hiçbir yeri, özellikle yakın taraftaki tekerlekler kesilmemiş mi), mürekkep çizgisi yok mu, plaka, logo, yazı ya da insan var mı?
+**Çapa:** `art/pilot/09-vehicles/vehicle-4.png` (kırmızı hatchback, yeni açı). Diğer arabalar onu açı, ışık ve stil referansı alır; böylece hepsi aynı kameradan çekilmiş gibi durur.
+
+**Durum (2026-10-11):** 1, 2, 4 oyunda (son açıyla). 3 ve 5 eski yan açıyla oyunda; yeni açıyla yeniden üretilecek. 6–10 bekliyor.
+
+**Kontrol et:** ön yüz izleyiciye dönük ve önü hafif sola mı, araç kadrajda tam mı (hiçbir yeri kesilmemiş mi), mürekkep çizgisi yok mu, plaka, logo, yazı ya da insan var mı?
+
+**Oyuna bağlama (Claude):** `scripts/cutout-vehicle.sh IN OUT.webp` (bisiklet ve skuterde `--spokes`) → `public/assets/vehicles/v2/vehicle-N.webp`.
 
 ### 2.1 Komutlar
 
-**Araç 4 · çapa** → `art/pilot/09-vehicles/vehicle-4.png`
+**Arabalar (3, 5–10):** yalnızca `{ARAÇ}` değişir.
 
-> A cherry-red modern compact hatchback, clean and new, friendly rounded shape, parked, three-quarter front view with the front facing LEFT, seen slightly from above, the whole vehicle inside the frame with nothing cropped; the wheels on the near side fully visible (the far-side wheels may be hidden or only partly visible, as in a normal three-quarter view; do not distort the body to show them). References from the project: `public/assets/vehicles/vehicle-6.png` — use it ONLY for the camera angle, framing and which way the car faces (ignore its ink-outline 2D style); `art/pilot/05-scene/home-2-flat.png` — match its art style, lighting and materials. A single prop on a plain flat light grey background (#d9d9d9), soft contact shadow under the wheels only. A 3D CG animated-film prop, NO ink outlines, NO cel shading, NO flat 2D cartoon. No people, no license plate, no brand logos, no badges, no text. Landscape 3:2.
+> {ARAÇ}, parked, front three-quarter view: turned about 25–30 degrees from straight-on, front facing slightly LEFT, seen slightly from above; the whole front (headlights, grille, bumper) fully visible and only part of the left side; the whole vehicle inside the frame with nothing cropped. References from the project: `art/pilot/09-vehicles/vehicle-4.png` — match EXACTLY its camera angle, framing, lighting, materials and art style (it is the same set of game props); `art/pilot/05-scene/home-2-flat.png` — overall art style. A single prop on a plain flat light grey background (#d9d9d9), soft contact shadow under the wheels only. A 3D CG animated-film prop, NO ink outlines, NO cel shading, NO flat 2D cartoon. No people, no license plate, no brand logos, no badges, no text. Landscape 3:2.
 > Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
 
-**Diğer 9 araç** için aynı komut; yalnızca `{ARAÇ}` değişir:
-
-> {ARAÇ}, parked, three-quarter front view with the front facing LEFT, seen slightly from above, the whole vehicle inside the frame with nothing cropped; the wheels on the near side fully visible (the far-side wheels may be hidden or only partly visible, as in a normal three-quarter view; do not distort the body to show them). References from the project: `art/pilot/09-vehicles/vehicle-4.png` — match EXACTLY its camera angle, lighting, materials and art style (it is the same set of game props); `art/pilot/05-scene/home-2-flat.png` — overall art style. A single prop on a plain flat light grey background (#d9d9d9), soft contact shadow under the wheels only. A 3D CG animated-film prop, NO ink outlines, NO cel shading, NO flat 2D cartoon. No people, no license plate, no brand logos, no badges, no text. Landscape 3:2.
-> Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
+Bisiklet ve skuter hazır (yandan dörtte üç); yeniden üretilecek olursa önceki açı korunur: *three-quarter front view with the front facing LEFT, seen slightly from above*.
 
 | # | Ad (TR / EN) | Dosya (`art/pilot/09-vehicles/`) | {ARAÇ} | Neden bu basamakta |
 | --- | --- | --- | --- | --- |
 | 1 | Bisiklet / City Bike | `vehicle-1.png` | A blue city bicycle with a woven wicker basket on the front, slightly worn but well cared for, standing on its kickstand | İlk alınan şey; sokaktan kurtuluşun ilk adımı. |
 | 2 | Retro Skuter / Retro Scooter | `vehicle-2.png` | A mint-green retro motor scooter with a round headlight, a small chrome luggage rack and a cream seat, standing on its stand | İlk motorlu taşıt; türün klasiği (iş yerine gidip gelen genç). |
 | 3 | Emektar Sedan / Old Family Sedan | `vehicle-3.png` | A boxy 1980s cream-beige family sedan, old but lovingly kept, square headlights, chrome bumpers, a small dent on the rear door | İlk otomobil, ikinci el. Türkiye'deki oyuncuya tanıdık "babamın eski arabası" hissi (Şahin/Murat havası, marka yok). |
-| 4 | Hatchback / Modern Hatchback | `vehicle-4.png` | (çapa komutu, yukarıda) | İlk sıfır araba. |
+| 4 | Hatchback / Modern Hatchback | `vehicle-4.png` | (hazır, çapa) | İlk sıfır araba. |
 | 5 | SUV / Family SUV | `vehicle-5.png` | A forest-green modern mid-size SUV, tall and sturdy, roof rails, big wheels | Orta sınıf; "artık ailem için yer var". |
 | 6 | Makam Sedanı / Executive Sedan | `vehicle-6.png` | A long glossy black executive luxury sedan with chrome details, tinted windows and an elegant low roofline | Patron arabası; Milyoner eşiği. |
 | 7 | Spor Coupe / Sports Coupe | `vehicle-7.png` | A silver two-door sports coupe with a smooth rounded fastback, round headlights and wide rear wheels | İlk "keyif için" araba. |
