@@ -59,7 +59,7 @@ Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üreti
 
 Karar 2026-10-11: 16 araç yerine 10; el arabası, elektrikli scooter ve ara sedanlar çıktı. Her basamak sahnede bir bakışta tanınan **farklı bir siluet ve renk** (küçük telefonda iki sedan birbirinden ayırt edilmiyor). Gerçek modelleri çağrıştırır ama marka, logo ve birebir kopya yok. Tekne, yat, helikopter ve jet ayrı "lüks oyuncak"lar olarak kalıyor (görselleri var). İleride araya yeni araçlar eklenebilir (adaylar §2.2).
 
-**Açı (karar 2026-10-11, sahnede denendi):** arabalar **önden dörtte üç**: düz önden bakıştan ~25–30° dönük, önü hafif sola, ön yüz (farlar, ızgara) tam görünür, sol yanın yalnızca bir kısmı. Araç kahramanın solunda park eder, arka kısmı kahramanın arkasında kalabilir. Yandan görünüşte araç çok geniş kalıyor, telefonun kırptığı sol kenardan taşıyor ve önü kesiliyordu. Bisiklet ve skuter yandan dörtte üç kalır (zaten dar; önden bakınca tanınmıyorlar).
+**Açı (karar 2026-10-11, sahnede denendi):** arabalar **önden dörtte üç**: düz önden bakıştan ~25–30° dönük, önü hafif sola, ön yüz (farlar, ızgara) tam görünür, sol yanın yalnızca bir kısmı. Görsel önü sola bakarak üretilir; sahne aynalar, araç önü sağa bakarak durur, arka kısmı kahramanın arkasında kalır (2026-10-11). Yandan görünüşte araç çok geniş kalıyor, telefonun kırptığı sol kenardan taşıyor ve önü kesiliyordu. Bisiklet ve skuter yandan dörtte üç kalır (zaten dar; önden bakınca tanınmıyorlar).
 
 **Çapa:** `art/pilot/09-vehicles/vehicle-4.png` (kırmızı hatchback, yeni açı). Diğer arabalar onu açı, ışık ve stil referansı alır; böylece hepsi aynı kameradan çekilmiş gibi durur.
 

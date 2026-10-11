@@ -145,9 +145,10 @@ export interface ParkingSpot {
   carWidth: number;
 }
 
-/** Left of the hero, a step behind him, at a real car's size next to a person (roof about at his
- * shoulders); its rear goes behind the hero, so the front stays inside what tall phones show. */
-const DEFAULT_PARKING: ParkingSpot = { x: 0.26, y: 0.65, carWidth: 0.65 };
+/** A step behind the hero at a real car's size (roof about at his shoulders), facing right: the rear
+ * goes behind him, the front fills the open ground on the right and Şans sits in front of it. The art
+ * faces left and the scene mirrors it. */
+const DEFAULT_PARKING: ParkingSpot = { x: 0.56, y: 0.65, carWidth: 0.65 };
 
 /** Homes whose picture needs the car somewhere else (tuned on the phone when the new art comes). */
 const PARKING: Record<string, ParkingSpot> = {};
