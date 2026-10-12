@@ -2,7 +2,7 @@
 
 Kararı henüz verilmemiş konular ve Claude'un önerileri. **Karar verilince ilgili belgeye (plan, hikâye, tasarım, monetizasyon) taşınır ve buradan silinir**; burada sadece açık konular durur.
 
-Son güncelleme: 2026-10-11 (§8 eklendi: genel gözden geçirme; önceki temizlik 2026-10-08: görsel yaklaşım, konut modeli, ömür modeli, tempo, aylık gelir, ana ekran ve monetizasyon kararları ilgili belgelere taşındı)
+Son güncelleme: 2026-10-11 (hayat anları, ömür 80 yaş ve kızın cinsiyeti kararlaştı, story-v2 §4c'ye taşındı; §8 eklendi: genel gözden geçirme; önceki temizlik 2026-10-08: görsel yaklaşım, konut modeli, ömür modeli, tempo, aylık gelir, ana ekran ve monetizasyon kararları ilgili belgelere taşındı)
 
 ## 1. Görsel: açık kalanlar
 
@@ -29,18 +29,20 @@ React ile kodla video üretme çerçevesi; yeni görüntü üretmez, var olanlar
 Ana kurallar kararlaştırıldı ([game-design-v2.md §4.9](./game-design-v2.md)). Kalanlar:
 
 - **Hikâye anlarında yaş dursun mu?** Öneri: tam ekran törende durur (1.10). Önsöz zaten oyun başlamadan oynar.
-- **Ömür sonu uyarısı:** "65 yaşındasın, 32 yılın kaldı" gibi bir hatırlatma; zirveye ulaşmamış oyuncunun "sonu göremedim" hissi. Üst bar artık sadece yaşı gösteriyor ("kalan yıl" 2026-10-08'de kalktı).
-- **En Zengin'den sonrası:** İçerik yok (kullanıcı: "ileride bakarız").
+- **Kahraman yaşlanmıyor (2026-10-11, kullanıcı: şimdilik kalsın):** 31'inde baba, 63'ünde dede olan kahraman 17'lik görünüyor. Seçenekler: 3 görünüm (genç, yetişkin, kır saçlı; portreler ve sahne pozları katlanır) ya da yalnızca portreler yaşlanır. Kıyafet 3 ve 4 henüz üretilmedi; onları yetişkin ve olgun hâliyle tasarlamak en ucuz yol, ama hızlı oyuncuda kıyafet yaştan önce gelir.
+- **Anne ve Şans, En Zengin'den sonra:** anne 58'de ~86 yaşında, Şans 40 yıldır yanında. Ölüm gösterilmiyor. Öneri: annenin mesajları En Zengin'den sonra biter, kanal Defne ve kızına geçer; Şans'ın yerini yavrusu alır.
+- **Ömür sonu uyarısı:** "65 yaşındasın, 15 yılın kaldı" gibi bir hatırlatma; zirveye ulaşmamış oyuncunun "sonu göremedim" hissi. Üst bar artık sadece yaşı gösteriyor ("kalan yıl" 2026-10-08'de kalktı).
+- **En Zengin'den sonrası (58 → 80):** hayat anları dolduracak (torun, devir; [story-v2.md §4c](./story-v2.md), testten sonra); başka içerik yok.
 - **Gönüllü erken emeklilik:** Yok (kullanıcı: erken devir olmasın).
 
 ## 4. Faz 2.1 hanedan soruları ([story-v2.md §6](./story-v2.md))
 
-Kararlaştırılanlar (2026-10-08, story §6): varis 17 yaşında bir torun, ölüm gösterilmez, 4. perde oynanabilir bir vakıf projesi, eş Nevin Hanım'ın torunu.
+Kararlaştırılanlar (story §6, §4c): varis 17 yaşında bir torun (kahramanın kızının çocuğu), devir 80 yaşında, ölüm gösterilmez, 4. perde oynanabilir bir vakıf projesi, eş Nevin Hanım'ın torunu Defne.
 
 1. **Torunun cinsiyeti.** Öneri: oyuncu seçsin (tek seçim). Bütçe kısıtlıysa sabit, seçim sonra.
-2. **2. neslin açılış sahnesi.** Öneri: küçük yurt odası veya kiralık oda, sokak değil. "Para yok ama ad var" Aile İtibarı ile örtüşür.
+2. **2. neslin başlangıcı.** Yön kararı (2026-10-11): torun sıfırdan değil, biraz alttan başlar. Açık: nereden ve neyle. Öneri: küçük yurt odası veya kiralık oda ve dedesinin ilk tezgâhı; servet vakfa gittiği için "para yok ama ad var" Aile İtibarı ile örtüşür.
 3. **2. nesil kıyafet ve poz seti.** Öneri: aynı yaşam aşaması sayısında yeni set; babadan kalan bir yadigâr (saat veya Şans'ın tasması) hep görünsün.
-4. **Varis çok hızlı:** 1. ömür ~3.000 miras puanı (×31 gelir) bırakıyor; 2. nesil dakikalar içinde Milyoner ve üstü. Miras formülüyle birlikte ele alınacak.
+4. **Varis çok hızlı:** 1. ömür ~1.400 miras puanı (×15 gelir; ömür 80 yaşla) bırakıyor; 2. nesil dakikalar içinde Milyoner ve üstü. Miras formülüyle birlikte ele alınacak.
 
 ## 5. Ekonomi (2026-10-09 yeniden ayarlandı; geniş konuşma bekliyor)
 
@@ -94,7 +96,7 @@ Claude'un hikâye, tasarım belgesi, plan ve simülatör zaman çizelgesi üzeri
 | 5 sa | 8 | Multimilyarder töreni |
 | 8,5 sa | 13 | Büyük malikâne |
 | 11 sa | 17 | En Zengin töreni |
-| 11–21 sa | 17–31 | Hiçbir şey; ömür 97 yaşında biter |
+| 11–17 sa | 17–25 | Hiçbir şey; ömür 80 yaşında biter (2026-10-11; hayat anları testten sonra doldurur) |
 
 **Hissi en çok zayıflatanlar:**
 
@@ -107,7 +109,7 @@ Claude'un hikâye, tasarım belgesi, plan ve simülatör zaman çizelgesi üzeri
 
 - **Yaş ile hikâye:** Milyarder 23, Multimilyarder 35, En Zengin 58 yaş. Önsözden son törene 41 yıl: anne pastayı aldığında ~90, Rıza Amca atölyede ~80. Portreler yaşlanmıyor; kahraman 58 yaşında 23'lük görünüyor (§3 ile birlikte ele alınır).
 - **"İlk Kendi Evin" kiralık:** Milyoner töreni kahramanı ev 7'ye kiracı olarak taşıyor; mağazada adı "İlk Kendi Evin", üstünde "Kiracısın".
-- **Defne yarım kalıyor:** 32. dk'da tanışma, Milyoner'de annenin bir mesajı, sonra oyunun sonuna kadar yok (devamı Faz 2).
+- **Defne yarım kalıyor:** karar verildi (2026-10-11): ilk buluşma, düğün ve kızının doğumu yaşa bağlı hayat anları olarak Faz 1'e girdi ([story-v2.md §4c](./story-v2.md), plan 1.20), görselleriyle oyunda. Kalan: anlar bitince ana ekranda iz kalmıyor (Defne ve kızından mesajlar, aile albümü: story §7).
 - **Eskimiş belgeler:** [game-design-v2.md](./game-design-v2.md) §4.2, §4.3 ve §5 tabloları 2026-10-08'den (Çiçek Tezgâhı $25; oyunda $250; güncel değerler `npm run sim -- --config`). [story-v2.md](./story-v2.md): "8 tören" (7 var), "16 araç" (12 var), "elmas tasma" (kodda yok), tören süreleri; game-design §4.8 "Gündelikçi → kiralık oda" (oyunda minibüs). §7'deki "araç 16 → 10" artık 12 ve ev–araç zinciri.
 
 **Eksikler (çoğu planda):** hayaller panosu (1.8; zincirden sonra daha değerli, sıradaki adım hep belli), lüks oyuncaklar sahnede (2.6), yağmur ve ortam sesi, Şans'ın dönüşte kapıda uyuması, Nevin Hanım ve Defne portreleri, konak ve pasta karesi, En Zengin'den sonrası (§3).

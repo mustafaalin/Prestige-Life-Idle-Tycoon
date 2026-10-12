@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { offlineCapHours, offlineEarnings } from '../../core/formulas';
+import { isLifeOver, offlineCapHours, offlineEarnings } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
 import { track } from '../../runtime/analytics';
 import {
@@ -9,25 +9,35 @@ import {
   scheduleReminders,
 } from '../../runtime/notifications';
 import {
+  daughterNeedsName,
+  LIFE_MOMENT_GAP_MS,
   MOM_MESSAGES,
   MOM_MIN_GAP_MS,
   momMessageOnReturn,
   nextMomMessage,
   pendingCeremony,
+  pendingLifeMoment,
+  type LifeMomentId,
 } from '../../runtime/story';
 import { useGameV2, useGameV2Events } from '../../runtime/useGameV2';
-import { Ceremony } from './Ceremony';
+import { Ceremony, LifeMoment } from './Ceremony';
+import { portraitOf } from './ceremonyScript';
 import { MomMessage, NotifyPrompt } from './MomMessage';
+import { NameSheet } from './NameSheet';
 import { onStoryRequest } from './storyEvents';
 
-// Decides which story moment is on screen (story-v2.md §4): a waiting class-up ceremony first, then
-// (after the offline card) Mom's message on a return session, and once, after the first ceremony,
-// the reminder opt-in. Also schedules the reminders when the app goes to the background.
+// Decides which story moment is on screen (story-v2.md §4): a waiting class-up ceremony first, then a
+// life moment whose age has come (§4c), then (after the offline card) Mom's message on a return
+// session, and once, after the first ceremony, the reminder opt-in. Also schedules the reminders when
+// the app goes to the background.
 
-export function StoryDirector() {
+export function StoryDirector({ tabOpen }: { tabOpen: boolean }) {
   const { game, state, actions } = useGameV2();
   const { t } = useT();
   const [replay, setReplay] = useState<number | null>(null);
+  const [replayLife, setReplayLife] = useState<LifeMomentId | null>(null);
+  // A story beat just ended: the next life moment waits, so two never play back to back.
+  const [quiet, setQuiet] = useState(false);
   // `dev`: shown from the dev menu, so it does not count as Mom's real message.
   const [mom, setMom] = useState<{ id: string; dev: boolean } | null>(null);
   const [askNotify, setAskNotify] = useState(false);
@@ -36,12 +46,23 @@ export function StoryDirector() {
   const [devMomIndex, setDevMomIndex] = useState(0);
 
   const ceremony = replay ?? pendingCeremony(game, state.story);
+  // A life moment never cuts into a shop sheet, a card or the end of life: it waits for the home scene.
+  const lifeCanPlay =
+    ceremony === null && !quiet && !tabOpen && !state.offline && !mom && !askNotify && !isLifeOver(game);
+  const life = replayLife ?? (lifeCanPlay ? (pendingLifeMoment(game, state.story)?.id ?? null) : null);
+  const playing = ceremony !== null || life !== null;
 
   useEffect(() => {
-    if (ceremony === null) return;
+    if (!playing) return;
     actions.story.setPaused(true);
     return () => actions.story.setPaused(false);
-  }, [ceremony, actions]);
+  }, [playing, actions]);
+
+  useEffect(() => {
+    if (!quiet) return;
+    const timer = window.setTimeout(() => setQuiet(false), LIFE_MOMENT_GAP_MS);
+    return () => window.clearTimeout(timer);
+  }, [quiet]);
 
   useGameV2Events((event) => {
     if (event.type === 'returned') {
@@ -55,8 +76,8 @@ export function StoryDirector() {
   useEffect(() => {
     if (!returned) return;
     setReturned(null);
-    // A ceremony that waited for this return is enough story for one opening.
-    if (pendingCeremony(game, state.story) !== null) return;
+    // A ceremony or a life moment that waited for this return is enough story for one opening.
+    if (pendingCeremony(game, state.story) !== null || pendingLifeMoment(game, state.story) !== null) return;
     const message = momMessageOnReturn(game, state.story, returned.awaySeconds, Date.now());
     if (message) setMom({ id: message.id, dev: false });
   }, [returned, game, state.story]);
@@ -66,6 +87,8 @@ export function StoryDirector() {
       onStoryRequest((request) => {
         if (request.type === 'ceremony') {
           setReplay(request.classIndex);
+        } else if (request.type === 'life') {
+          setReplayLife(request.id);
         } else {
           setMom({ id: MOM_MESSAGES[devMomIndex % MOM_MESSAGES.length].id, dev: true });
           setDevMomIndex(devMomIndex + 1);
@@ -99,11 +122,45 @@ export function StoryDirector() {
       return;
     }
     actions.story.ceremonySeen(classIndex);
+    setQuiet(true);
     if (notificationsSupported && !state.story.notificationsAsked) setAskNotify(true);
+  };
+
+  const finishLife = (id: LifeMomentId, skipped: boolean) => {
+    track('story_view', { kind: 'life', id, skipped, replay: replayLife !== null });
+    if (replayLife !== null) {
+      setReplayLife(null);
+      return;
+    }
+    actions.story.lifeSeen(id);
+    setQuiet(true);
   };
 
   if (ceremony !== null) {
     return <Ceremony key={ceremony} classIndex={ceremony} onDone={(skipped) => finishCeremony(ceremony, skipped)} />;
+  }
+
+  if (life !== null) {
+    return <LifeMoment key={life} id={life} onDone={(skipped) => finishLife(life, skipped)} />;
+  }
+
+  // Right after the birth; also on the next opening if the app closed before she was named.
+  if (daughterNeedsName(state.story) && !state.offline) {
+    return (
+      <NameSheet
+        speaker={t('ceremony.cast.defne')}
+        portrait={portraitOf('defne', 'smile')}
+        tone="pink"
+        question={t('moments.nameAsk')}
+        label={t('moments.nameLabel')}
+        defaultName={t('moments.defaultName')}
+        confirm={t('moments.nameOk')}
+        onDone={(name) => {
+          actions.story.setDaughterName(name);
+          track('daughter_named', { is_default: name === t('moments.defaultName') });
+        }}
+      />
+    );
   }
 
   if (askNotify) {

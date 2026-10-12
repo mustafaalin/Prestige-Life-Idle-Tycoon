@@ -1,4 +1,4 @@
-# Hazır görsel komutları v2: Evler ve araçlar
+# Hazır görsel komutları v2: Evler, araçlar ve karakterler
 
 Son güncelleme: 2026-10-11 · Kurallar ve boyutlar: [art-brief-v2.md §2, §3, §4.2, §4.6](./art-brief-v2.md)
 
@@ -12,10 +12,9 @@ Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üreti
 
 **Hangi ev yeniden, hangisi kalıyor (2026-10-11):**
 
-- **Ev 1 Çadır: kalıyor.** Önünde yalnızca bisiklet ve skuter durur, araba gelmez; derin zemin gerekmiyor. Sahnede artık aynalanmıyor: çadır sağda açıkta, kahraman biraz sağda, Şans çadırın önünde, iki teker solda kahramanın arkasında (`HOME_ART` `home-1`).
-- **Ev 2 Minibüs: yeniden.** Emektar sedan şimdiki görselde minibüsü tamamen kapatıyor.
-- **Ev 4 Eski Daire: yeniden.** Hatchback basamakların içine giriyor.
-- Ev 3 ve 5–12: ilk kez üretilecek.
+- **Ev 1 Çadır: kalıyor.** Önünde yalnızca bisiklet ve skuter durur, araba gelmez; derin zemin gerekmiyor. Sahnede artık aynalanmıyor: çadır sağda açıkta, kahraman biraz sağda, Şans çadırın önünde, iki teker solda ve önü sola (ön yüzü açıkta, arkası kahramanın arkasında; 2026-10-12) (`HOME_ART` `home-1`).
+- **Ev 2–5: oyunda (2026-10-12).** Minibüs ve eski daire derin zeminle yeniden üretildi, kiralık oda ve yenice daire ilk kez; `public/assets/scene/home-2…5.webp`. Kapılar ortaya yakın çıktığı için kahraman bu dört evde %7 sağda durur (`HOME_ART` `castX`).
+- **Ev 6–12: oyunda (2026-10-12)**, `public/assets/scene/home-6…12.webp`. Ev 7 yeniden üretilmeli: ev %28–53 bandında kaldı, araba çatı dışında her şeyi kapatıyor (ev daha büyük ve yukarıda olmalı, çatı ~%18'e, kapı sol üçte birde). Ev 10 sınırda.
 
 **Evin yeri:** yakın evlerde (3–6) giriş kapısı görselin sol üçte birinde; uzak evlerde (7–12) ev ortanın biraz solunda. Araba sağda durur, burnu x %89'da.
 
@@ -111,11 +110,11 @@ Tören kahramanı bedava taşıdığında bir iki basamak küçük araç da gör
 
 **Çapa:** `art/pilot/09-vehicles/vehicle-4.png` (kırmızı hatchback, önü sağa). Diğer arabalar onu açı, ışık ve stil referansı alır.
 
-**Durum (2026-10-11):** 1–4 yeni açıyla oyunda (emektar sedan kırmızı modelle değişti). 5 eski yan açıyla oyunda (aynalanıyor, küçültülüyor); yeniden üretilecek. Motosiklet, pikap ve 6–10 bekliyor (v1 görselleri yer tutuyor).
+**Durum (2026-10-12):** 12 aracın hepsi yeni açıyla oyunda (`public/assets/vehicles/v2/`: `vehicle-1…10.webp`, `vehicle-motorcycle.webp`, `vehicle-pickup.webp`). Pikap ve arazi aracı şeride göre biraz geniş, sahnede ×0,96 küçülüyor. Aşağıdaki komutlar yeniden üretim gerekirse diye duruyor.
 
 **Kontrol et:** önü sağa mı, ön yüz tam görünüyor mu, genişlik / yükseklik başlıktaki sınırın altında mı, araç kadrajda tam mı, anten ya da tavan yükü yok mu, mürekkep çizgisi, plaka, logo, yazı ya da insan var mı? Sınırı aşan araba aynı komutla, "more head-on" eklenerek yeniden üretilir.
 
-**Oyuna bağlama (Claude):** `scripts/cutout-vehicle.sh IN OUT.webp` (bisiklet ve skuterde `--spokes`) → `public/assets/vehicles/v2/vehicle-N.webp`. Sonra `stages.ts` `VEHICLE_SHAPE`'e görselin en/boy oranı yazılır, `facesLeft` kaldırılır ve DEV → Sahne laboratuvarı'ndan bakılır.
+**Oyuna bağlama (Claude):** `scripts/cutout-vehicle.sh IN OUT.webp` (bisiklet ve skuterde `--spokes`) → `public/assets/vehicles/v2/vehicle-N.webp`. Sonra `stages.ts` `VEHICLE_SHAPE`'e görselin en/boy oranı ve gerçek yüksekliği yazılır ve DEV → Sahne laboratuvarı'ndan bakılır.
 
 ### 2.1 Komutlar
 
@@ -191,3 +190,26 @@ Açıldığı ev: Sahil Malikânesi · gerçek boy 1,55 m · oran en çok 1,77 �
 ### 2.2 İleride eklenebilecekler
 
 Zincir 12 ev için tam 12 araç ister; yeni araç ancak yeni bir evle birlikte eklenir. Adaylar: elektrikli sedan, klasik üstü açık, hiper otomobil. Lüks oyuncaklar (tekne, yat, helikopter, jet) zaten ayrı.
+
+## 3. Karakterler: Nevin Hanım ve Defne (2 kılavuz sayfası)
+
+**Üretildi (2026-10-11, fal.ai `nano-banana-pro/edit`, 2K, 3:2) ve oyunda.** Komutlar yeniden üretim gerekirse diye duruyor. İkisi de İşçi Sınıfı töreninde görünür; Defne sonra kahramanın eşi olur (ilk buluşma, düğün, kızının doğumu: [story-v2.md §4c](./story-v2.md)). Hayat anlarının üç karesi de fal.ai ile üretildi (`art/pilot/10-life/`): referans olarak kahraman, Defne, Şans, anne ve Rıza sayfaları + ara sokak arka planı verildi; yüzler görselin %22–55 bandında, alt %22 boş (balon orayı kapatır).
+
+**Sayfa düzeni:** annenin sayfasıyla aynı (`art/pilot/03-cast/mom-sheet.png`): solda üç tam boy (ön, üç çeyrek, yan), sağda 2 × 2 dört yakın portre (baş ve omuz), her portre aynı boyda, aralarında boşluk. Yatay 3:2, 2K. Claude portreleri sayfadan keser (`public/assets/story/portraits/defne-<ifade>.webp`, `nevin-<ifade>.webp`) ve `ceremonyScript.ts` `FACES`'e ekler.
+
+**Kontrol et:** dört portrede yüz aynı kişi mi (saç, göz rengi, kıyafet), baş ve omuz portrenin içinde kesilmeden duruyor mu, tam iki kol ve iki el var mı, arka plan düz açık gri mi, yazı ya da etiket var mı? Kahramanın sayfasıyla yan yana bakınca boy ve stil eşleşmeli.
+
+### Defne / Daphne → `art/pilot/03-cast/defne-sheet.png`
+
+İfadeler (sırayla: sol üst, sağ üst, sol alt, sağ alt): gülümseyen (`smile`), utangaç (`shy`), şaşkın (`surprised`), gülen (`laugh`).
+
+> Create a character sheet for a mobile game. References from the project: (1) `art/pilot/01-hero-sheet/A1-semi3d.png` — the game's hero: match his art style, rendering, head-to-body proportions and level of detail exactly; she must look like she belongs in the same film and stands next to him, a little shorter than he is; (2) `art/pilot/03-cast/mom-sheet.png` — use the SAME sheet layout: three full-body views on the left (front, three-quarter, side), four close-up expression portraits (head and shoulders) in a 2 × 2 grid on the right. Character: Daphne, a young woman in her early twenties, warm and kind, a natural everyday beauty, not glamorous and not exaggerated. Dark chestnut-brown hair to her shoulders with a soft side part, tucked behind one ear; warm brown eyes; light freckles across the nose. She wears a simple mustard-yellow knit sweater, straight blue jeans and white sneakers, with a small canvas tote bag on one shoulder. Full-body views: standing relaxed, facing the camera, arms at her sides, exactly two arms and two hands, a gentle smile. The four portraits show the same face, hair and sweater with four expressions: top left a warm closed-mouth smile; top right shy, eyes glancing down and to the side, a small smile, a light blush; bottom left surprised, eyebrows raised, mouth slightly open; bottom right laughing openly with eyes almost closed. All four portraits are the same size, framed from the chest up, head fully inside the frame, looking toward the viewer. Horizontal 3:2 image, plain flat light grey background, no floor shadow beyond a soft contact shadow.
+> Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
+
+### Nevin Hanım / Mrs. Nora → `art/pilot/03-cast/nevin-sheet.png`
+
+İfadeler (sırayla): gülümseyen (`smile`), duygulanmış (`moved`), şaşkın (`surprised`), kahkaha (`laugh`). Defne'nin sayfası onaylandıysa üçüncü referans olarak eklenir: babaanne ile torun birbirine benzemeli.
+
+> Create a character sheet for a mobile game. References from the project: (1) `art/pilot/01-hero-sheet/A1-semi3d.png` — the game's hero: match his art style, rendering and level of detail exactly; (2) `art/pilot/03-cast/mom-sheet.png` — use the SAME sheet layout: three full-body views on the left (front, three-quarter, side), four close-up expression portraits (head and shoulders) in a 2 × 2 grid on the right; (3) `art/pilot/03-cast/defne-sheet.png` — her granddaughter: give the grandmother the same warm brown eyes and a family resemblance in the shape of the face and the smile. Character: Mrs. Nora, a petite woman in her mid-seventies, warm, sharp and a little playful; clearly older and smaller than the hero's mother in reference (2), so the two are never confused. Silver-white hair in a neat low bun, round thin-rimmed glasses, soft laugh lines. She wears a lilac hand-knitted cardigan over a cream blouse with a small brooch, a long dark-plum skirt and flat comfortable shoes, and carries an old-fashioned leather handbag on her forearm. Full-body views: standing upright, facing the camera, both hands resting on the handbag in front of her, exactly two arms and two hands, a kind smile. The four portraits show the same face, hair, glasses and cardigan with four expressions: top left a warm kind smile; top right deeply moved, eyes shining with tears, a trembling smile, one hand near her chest; bottom left surprised, eyebrows up above the glasses, mouth a small "o"; bottom right a hearty laugh, eyes crinkled shut. All four portraits are the same size, framed from the chest up, head fully inside the frame, looking toward the viewer. Horizontal 3:2 image, plain flat light grey background, no floor shadow beyond a soft contact shadow.
+> Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
+

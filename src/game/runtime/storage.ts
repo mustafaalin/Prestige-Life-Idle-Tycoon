@@ -10,7 +10,7 @@ import { classIndexFor } from '../core/formulas';
 import { applyClassFloors, createInitialState } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
-import { createStoryProgress, HERO_NAME_MAX, MOM_MESSAGES, type StoryProgress } from './story';
+import { createStoryProgress, HERO_NAME_MAX, LIFE_MOMENTS, MOM_MESSAGES, type StoryProgress } from './story';
 
 // Local save for v2. Separate key from v1 so both games can live side by side until v1 is removed.
 // On phones the save lives in Preferences (SharedPreferences / UserDefaults): the OS may clear a
@@ -123,6 +123,7 @@ function normalizeOffline(raw: unknown): PendingOffline | null {
 }
 
 const knownMomMessages = new Set(MOM_MESSAGES.map((message) => message.id));
+const knownLifeMoments = new Set<string>(LIFE_MOMENTS.map((moment) => moment.id));
 
 /** Saves from before the ceremonies count every class reached as seen, so nobody gets a flood of them. */
 function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
@@ -133,6 +134,8 @@ function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
     momShownAt: finite(raw.momShownAt, 0),
     notificationsAsked: raw.notificationsAsked === true,
     heroName: typeof raw.heroName === 'string' ? raw.heroName.trim().slice(0, HERO_NAME_MAX) : '',
+    lifeSeen: stringList(raw.lifeSeen).filter((id) => knownLifeMoments.has(id)),
+    daughterName: typeof raw.daughterName === 'string' ? raw.daughterName.trim().slice(0, HERO_NAME_MAX) : '',
     guideSeen: stringList(raw.guideSeen),
     guideDone: stringList(raw.guideDone),
   };

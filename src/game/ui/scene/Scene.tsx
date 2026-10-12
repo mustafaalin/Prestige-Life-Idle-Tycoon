@@ -183,7 +183,7 @@ export function Scene() {
   const [shownHome, setShownHome] = useState(game.home);
   const home = homeArt(shownHome);
   const light = spriteFilter(home.light);
-  const [fadingBackground, setFadingBackground] = useState<{ src: string; mirror: boolean } | null>(null);
+  const [fadingBackground, setFadingBackground] = useState<string | null>(null);
   const [news, setNews] = useState<{ id: number; kind: NewsKind; text: string } | null>(null);
   const announce = useCallback(
     (kind: NewsKind, text: string) => {
@@ -196,8 +196,7 @@ export function Scene() {
 
   useEffect(() => {
     if (ceremonyWaiting || game.home === shownHome) return;
-    const old = homeArt(shownHome);
-    setFadingBackground({ src: old.background, mirror: old.mirror });
+    setFadingBackground(homeArt(shownHome).background);
     later(() => setFadingBackground(null), 800);
     setShownHome(game.home);
     const house = HOUSES.find((item) => item.id === game.home);
@@ -220,6 +219,7 @@ export function Scene() {
   // The home shown decides which vehicle has room out front, so both change together after a ceremony.
   const parked = parkedVehicle({ ...game, home: shownHome });
   const vehicle = parked ? vehicleArt(parked.id) : null;
+  const parking = vehicle ? vehicleBox(vehicle, home.layout) : null;
   const lastVehicle = useRef(vehicle?.id);
   const [arrivedVehicle, setArrivedVehicle] = useState<string | null>(null);
   useEffect(() => {
@@ -337,29 +337,27 @@ export function Scene() {
         alt=""
         draggable={false}
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ transform: home.mirror ? 'scaleX(-1)' : undefined }}
       />
       {fadingBackground && (
         <img
-          key={fadingBackground.src}
-          src={fadingBackground.src}
+          key={fadingBackground}
+          src={fadingBackground}
           alt=""
           draggable={false}
           className="v2-fade-out absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{ transform: fadingBackground.mirror ? 'scaleX(-1)' : undefined }}
         />
       )}
 
       {ready && (
         <>
-          {vehicle && (
+          {vehicle && parking && (
             <img
               key={vehicle.id}
               src={vehicle.src}
               alt=""
               draggable={false}
-              className={`absolute pointer-events-none ${arrivedVehicle === vehicle.id ? 'v2-drive-in' : ''}`}
-              style={{ ...vehicleStyle(fit, vehicleBox(vehicle, home.layout)), filter: light }}
+              className={`absolute pointer-events-none ${arrivedVehicle === vehicle.id ? (parking.facesLeft ? 'v2-drive-in-left' : 'v2-drive-in') : ''}`}
+              style={{ ...vehicleStyle(fit, parking), filter: light }}
             />
           )}
 

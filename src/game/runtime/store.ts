@@ -70,6 +70,9 @@ export interface GameActions {
     momShown(messageId: string): void;
     notificationsAsked(): void;
     setHeroName(name: string): void;
+    /** A life moment was shown (story §4c). */
+    lifeSeen(momentId: string): void;
+    setDaughterName(name: string): void;
     /** Old Ray's guide (plan 1.12): a step's line was shown / a step was done. */
     guideSeen(stepId: string): void;
     guideDone(stepId: string): void;
@@ -278,6 +281,12 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         notificationsAsked: () => updateStory((story) => ({ ...story, notificationsAsked: true })),
         setHeroName: (name) =>
           updateStory((story) => ({ ...story, heroName: name.trim().slice(0, HERO_NAME_MAX) })),
+        lifeSeen: (momentId) =>
+          updateStory((story) =>
+            story.lifeSeen.includes(momentId) ? story : { ...story, lifeSeen: [...story.lifeSeen, momentId] },
+          ),
+        setDaughterName: (name) =>
+          updateStory((story) => ({ ...story, daughterName: name.trim().slice(0, HERO_NAME_MAX) })),
         guideSeen: (stepId) =>
           updateStory((story) =>
             story.guideSeen.includes(stepId) ? story : { ...story, guideSeen: [...story.guideSeen, stepId] },

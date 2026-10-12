@@ -1,4 +1,5 @@
 import { BUSINESSES } from '../core/config/businesses';
+import { RETIREMENT_AGE } from '../core/config/life';
 import { formatDuration, formatMoney } from '../core/format';
 import type { SimEvent, SimResult } from './simulator';
 
@@ -35,8 +36,8 @@ export const PACING_TARGETS: PacingTarget[] = [
   { label: 'First Billionaire', find: firstClass('Billionaire'), measure: 'clock', min: 2 * DAY, max: 6 * DAY },
   { label: 'First Multibillionaire', find: firstClass('Multibillionaire'), measure: 'clock', min: 7 * DAY, max: 13 * DAY },
   { label: 'First Richest Person Alive', find: firstClass('Richest Person Alive'), measure: 'clock', min: 13 * DAY, max: 20 * DAY },
-  // Single life (§4.9): the first hand-over to the heir comes when the hero's life ends (~21 h played).
-  { label: 'First life ends (age 97)', find: (e) => e.find((x) => x.kind === 'retire'), measure: 'clock', min: 25 * DAY, max: 45 * DAY },
+  // Single life (§4.9): the first hand-over to the heir comes when the hero's life ends (~17 h played).
+  { label: `First life ends (age ${RETIREMENT_AGE})`, find: (e) => e.find((x) => x.kind === 'retire'), measure: 'clock', min: 20 * DAY, max: 36 * DAY },
 ];
 
 export function formatClock(seconds: number) {

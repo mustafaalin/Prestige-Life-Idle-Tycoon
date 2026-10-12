@@ -11,6 +11,8 @@ export const FACES = {
   mom: ['worried', 'teary', 'smile', 'tears'],
   riza: ['warm', 'concerned', 'serious', 'laugh'],
   bryce: ['angry', 'smug', 'sly', 'shocked'],
+  nevin: ['smile', 'moved', 'surprised', 'laugh'],
+  defne: ['smile', 'shy', 'surprised', 'laugh'],
 } as const;
 
 type Face<C extends CastId> = C extends keyof typeof FACES ? (typeof FACES)[C][number] : never;
@@ -44,12 +46,12 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
     },
   ],
   // Working Class: the owner of a wallet Şans found comes to say thanks, with her granddaughter
-  // (the hero's future wife, Faz 2). Then a door that locks, and Mom remembers the notebook.
+  // (the hero's future wife, story §4c). Then a door that locks, and Mom remembers the notebook.
   2: [
     {
       lines: [
-        { speaker: 'nevin', text: 'ceremony.c2.nevin' },
-        { speaker: 'defne', text: 'ceremony.c2.defne' },
+        { speaker: 'nevin', face: 'moved', text: 'ceremony.c2.nevin' },
+        { speaker: 'defne', face: 'smile', text: 'ceremony.c2.defne' },
         { speaker: 'hero', face: 'soft', text: 'ceremony.c2.hero0' },
       ],
     },
@@ -122,10 +124,7 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
   ],
 };
 
-/** Every story picture, so a ceremony can load them before it starts. */
-export const CEREMONY_IMAGES = [ATTIC.src, OLD_PHOTO.src];
-
-/** Cast without portraits yet (staff; Nevin and Defne until their art lands) speak with a name tag only. */
+/** Cast without portraits (staff) speak with a name tag only. */
 export function portraitOf(speaker: CastId, face: string | undefined): string | null {
   if (!(speaker in FACES) || !face) return null;
   return `/assets/story/portraits/${speaker === 'bryce' ? 'bulent' : speaker}-${face}.webp`;

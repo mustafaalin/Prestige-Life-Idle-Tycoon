@@ -119,7 +119,7 @@ export function HomeScreen() {
 
       {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
 
-      <StoryDirector />
+      <StoryDirector tabOpen={tab !== null} />
 
       <CoinLayer />
     </div>

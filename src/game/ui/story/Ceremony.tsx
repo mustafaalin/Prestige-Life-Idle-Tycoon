@@ -1,16 +1,27 @@
 import { ArrowRight, ChevronRight, Phone } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { OFFLINE_CAP_HOURS_BY_CLASS } from '../../core/config/economy';
+import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
+import { LIFE_MOMENTS, type LifeMomentId } from '../../runtime/story';
 import { GameButton } from '../kit';
-import { CEREMONIES, CEREMONY_IMAGES, portraitOf, type CastId, type CeremonyLine } from './ceremonyScript';
+import {
+  CEREMONIES,
+  portraitOf,
+  type CastId,
+  type CeremonyLine,
+  type CeremonyShot,
+} from './ceremonyScript';
+import { LIFE_SCRIPT } from './lifeScript';
 
 // Class-up ceremony (plan 1.10): "new class" title with confetti → story beats (portrait + bubble,
 // visual-novel style; hero on the right, everyone else on the left) → before/now card. Tap to go
 // on; Skip jumps to the before/now card. The store stops the clock while it plays.
+// A life moment (story §4c) plays the same way under its own title ("25 · First date") and has no
+// closing card: its last line, or Skip, ends it.
 
 const TAP_GUARD_MS = 350;
 const FADE_MS = 500;
@@ -65,27 +76,63 @@ function Confetti() {
 }
 
 export function Ceremony({ classIndex, onDone }: { classIndex: number; onDone: (skipped: boolean) => void }) {
-  const { t, name, money, duration } = useT();
-  const shots = CEREMONIES[classIndex] ?? [];
+  const { t, name } = useT();
+  return (
+    <StoryPlayer
+      shots={CEREMONIES[classIndex] ?? []}
+      pill={t('ceremony.newClass')}
+      heading={name('wealthClass', WEALTH_CLASSES[classIndex])}
+      summary={(close) => <ClassSummary classIndex={classIndex} onClose={close} />}
+      onDone={onDone}
+    />
+  );
+}
+
+export function LifeMoment({ id, onDone }: { id: LifeMomentId; onDone: (skipped: boolean) => void }) {
+  const { t } = useT();
+  const age = LIFE_MOMENTS.find((moment) => moment.id === id)?.age ?? 0;
+  return (
+    <StoryPlayer
+      shots={LIFE_SCRIPT[id]}
+      pill={t('hud.ageShort', { age })}
+      heading={t(`moments.${id}.title` as MessageKey)}
+      onDone={onDone}
+    />
+  );
+}
+
+interface StoryPlayerProps {
+  shots: CeremonyShot[];
+  /** The small label above the title, and the title itself. */
+  pill: string;
+  heading: string;
+  /** The closing card; without one the last line (or Skip) ends the moment. */
+  summary?: (close: () => void) => ReactNode;
+  onDone: (skipped: boolean) => void;
+}
+
+function StoryPlayer({ shots, pill, heading, summary, onDone }: StoryPlayerProps) {
+  const { t } = useT();
   const [phase, setPhase] = useState<Phase>('title');
   const [shotIndex, setShotIndex] = useState(0);
   const [lineIndex, setLineIndex] = useState(0);
   const [skipped, setSkipped] = useState(false);
   const lastStep = useRef(Date.now());
 
-  const reached = WEALTH_CLASSES[classIndex];
-  const before = WEALTH_CLASSES[classIndex - 1];
-  const next = WEALTH_CLASSES[classIndex + 1];
-  const capBefore = OFFLINE_CAP_HOURS_BY_CLASS[Math.min(classIndex - 1, OFFLINE_CAP_HOURS_BY_CLASS.length - 1)];
-  const capNow = OFFLINE_CAP_HOURS_BY_CLASS[Math.min(classIndex, OFFLINE_CAP_HOURS_BY_CLASS.length - 1)];
+  useEffect(() => {
+    for (const shot of shots) if (shot.image) new Image().src = shot.image.src;
+  }, [shots]);
 
   useEffect(() => {
-    for (const src of CEREMONY_IMAGES) new Image().src = src;
     playSfx('levelUp');
     haptic('medium');
   }, []);
 
   const toSummary = (bySkip: boolean) => {
+    if (!summary) {
+      onDone(bySkip);
+      return;
+    }
     if (bySkip) setSkipped(true);
     setPhase('summary');
     playSfx('purchase');
@@ -160,13 +207,13 @@ export function Ceremony({ classIndex, onDone }: { classIndex: number; onDone: (
             <Confetti />
             <div className="absolute inset-x-0 top-[30%] flex flex-col items-center px-6 text-center">
               <span className="v2-pop-in rounded-full bg-white/90 px-4 py-1 text-[11px] font-black uppercase tracking-widest text-orange-600 shadow">
-                {t('ceremony.newClass')}
+                {pill}
               </span>
               <h1
                 className="v2-pop-in v2-display v2-outline text-[44px] leading-[1.05] text-white mt-3"
                 style={{ animationDelay: '150ms' }}
               >
-                {name('wealthClass', reached)}
+                {heading}
               </h1>
             </div>
             <p className="absolute inset-x-0 bottom-[calc(var(--safe-bottom)+40px)] text-center text-sm font-black text-white/90 v2-shadow v2-bob">
@@ -200,57 +247,71 @@ export function Ceremony({ classIndex, onDone }: { classIndex: number; onDone: (
           </div>
         )}
 
-        {phase === 'summary' && (
+        {phase === 'summary' && summary && (
           <div className="absolute inset-0 bg-black/35 flex items-center justify-center px-6">
             <Confetti />
-            <div className="v2-pop-in relative w-full max-w-[340px] rounded-[28px] bg-white shadow-2xl overflow-hidden text-center">
-              <div className="bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-3">
-                <h2 className="v2-display v2-outline-thin text-2xl text-white">{name('wealthClass', reached)}</h2>
-              </div>
-              <div className="px-5 pt-4 pb-5">
-                <div className="flex items-stretch gap-2">
-                  <div className="flex-1 rounded-2xl bg-slate-100 px-2 py-2.5">
-                    <img src={portraitOf('hero', 'worried') ?? ''} alt="" className="mx-auto mb-1 w-14 h-14 rounded-full object-cover border-2 border-white grayscale-[40%]" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('ceremony.before')}</p>
-                    <p className="text-sm font-black text-slate-500 mt-0.5">{before ? name('wealthClass', before) : ''}</p>
-                  </div>
-                  <ArrowRight className="w-5 h-5 self-center text-slate-300 shrink-0" />
-                  <div className="flex-1 rounded-2xl bg-amber-100 px-2 py-2.5">
-                    <img src={portraitOf('hero', 'happy') ?? ''} alt="" className="mx-auto mb-1 w-14 h-14 rounded-full object-cover border-2 border-white shadow" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">{t('ceremony.now')}</p>
-                    <p className="text-sm font-black text-slate-900 mt-0.5">{name('wealthClass', reached)}</p>
-                  </div>
-                </div>
-
-                {capNow !== capBefore && (
-                  <div className="mt-3 flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2">
-                    <span className="text-[11px] font-black text-slate-500">{t('ceremony.offlineCap')}</span>
-                    <span className="text-sm font-black text-slate-900">
-                      {duration(capBefore * 3600)} → <span className="text-emerald-500">{duration(capNow * 3600)}</span>
-                    </span>
-                  </div>
-                )}
-
-                <p className="text-[11px] font-semibold text-slate-500 mt-3">
-                  {next
-                    ? t('ceremony.nextGoal', { name: name('wealthClass', next), amount: money(next.threshold) })
-                    : t('ceremony.top')}
-                </p>
-
-                <GameButton
-                  tone="buy"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onDone(skipped);
-                  }}
-                  className="w-full mt-4 py-3 v2-display text-lg v2-shadow"
-                >
-                  {t('ceremony.done')}
-                </GameButton>
-              </div>
-            </div>
+            {summary(() => onDone(skipped))}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/** The before/now card that closes a class ceremony. */
+function ClassSummary({ classIndex, onClose }: { classIndex: number; onClose: () => void }) {
+  const { t, name, money, duration } = useT();
+  const reached = WEALTH_CLASSES[classIndex];
+  const before = WEALTH_CLASSES[classIndex - 1];
+  const next = WEALTH_CLASSES[classIndex + 1];
+  const capBefore = OFFLINE_CAP_HOURS_BY_CLASS[Math.min(classIndex - 1, OFFLINE_CAP_HOURS_BY_CLASS.length - 1)];
+  const capNow = OFFLINE_CAP_HOURS_BY_CLASS[Math.min(classIndex, OFFLINE_CAP_HOURS_BY_CLASS.length - 1)];
+
+  return (
+    <div className="v2-pop-in relative w-full max-w-[340px] rounded-[28px] bg-white shadow-2xl overflow-hidden text-center">
+      <div className="bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-3">
+        <h2 className="v2-display v2-outline-thin text-2xl text-white">{name('wealthClass', reached)}</h2>
+      </div>
+      <div className="px-5 pt-4 pb-5">
+        <div className="flex items-stretch gap-2">
+          <div className="flex-1 rounded-2xl bg-slate-100 px-2 py-2.5">
+            <img src={portraitOf('hero', 'worried') ?? ''} alt="" className="mx-auto mb-1 w-14 h-14 rounded-full object-cover border-2 border-white grayscale-[40%]" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('ceremony.before')}</p>
+            <p className="text-sm font-black text-slate-500 mt-0.5">{before ? name('wealthClass', before) : ''}</p>
+          </div>
+          <ArrowRight className="w-5 h-5 self-center text-slate-300 shrink-0" />
+          <div className="flex-1 rounded-2xl bg-amber-100 px-2 py-2.5">
+            <img src={portraitOf('hero', 'happy') ?? ''} alt="" className="mx-auto mb-1 w-14 h-14 rounded-full object-cover border-2 border-white shadow" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">{t('ceremony.now')}</p>
+            <p className="text-sm font-black text-slate-900 mt-0.5">{name('wealthClass', reached)}</p>
+          </div>
+        </div>
+
+        {capNow !== capBefore && (
+          <div className="mt-3 flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2">
+            <span className="text-[11px] font-black text-slate-500">{t('ceremony.offlineCap')}</span>
+            <span className="text-sm font-black text-slate-900">
+              {duration(capBefore * 3600)} → <span className="text-emerald-500">{duration(capNow * 3600)}</span>
+            </span>
+          </div>
+        )}
+
+        <p className="text-[11px] font-semibold text-slate-500 mt-3">
+          {next
+            ? t('ceremony.nextGoal', { name: name('wealthClass', next), amount: money(next.threshold) })
+            : t('ceremony.top')}
+        </p>
+
+        <GameButton
+          tone="buy"
+          onClick={(event) => {
+            event.stopPropagation();
+            onClose();
+          }}
+          className="w-full mt-4 py-3 v2-display text-lg v2-shadow"
+        >
+          {t('ceremony.done')}
+        </GameButton>
       </div>
     </div>
   );

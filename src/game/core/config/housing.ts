@@ -14,22 +14,20 @@ interface HomeSpec {
 }
 
 const SCENE = '/assets/scene';
-// v1 backgrounds stand in until the new art comes (art-brief §4.2).
-const V1 = '/assets/houses/backgrounds';
 
 const HOMES: HomeSpec[] = [
   { name: 'Street Tent', image: `${SCENE}/alley.webp`, moveInCost: 0 },
-  { name: 'Old Van', image: `${SCENE}/van.webp`, moveInCost: 1_200 },
-  { name: 'Rented Room', image: `${V1}/house-6.webp`, moveInCost: 2_500 },
-  { name: 'Old Rental Flat', image: `${SCENE}/flat.webp`, moveInCost: 9_000 },
-  { name: 'Newer Rental Flat', image: `${V1}/house-7.webp`, moveInCost: 40_000 },
-  { name: 'Flat in a Gated Complex', image: `${V1}/house-9.webp`, moveInCost: 240_000 },
-  { name: 'First Home of Your Own', image: `${V1}/house-10.webp`, moveInCost: 650_000 },
-  { name: 'Suburban House with a Garden', image: `${V1}/house-11.webp`, moveInCost: 2.5e6 },
-  { name: 'Villa', image: `${V1}/house-12.webp`, moveInCost: 2e7 },
-  { name: 'Lakeside Glass House', image: `${V1}/house-13.webp`, moveInCost: 2e8 },
-  { name: 'Beachfront Estate', image: `${V1}/house-19.webp`, moveInCost: 2e9 },
-  { name: 'Grand Mansion', image: `${V1}/house-24.webp`, moveInCost: 2e10 },
+  { name: 'Old Van', image: `${SCENE}/home-2.webp`, moveInCost: 1_200 },
+  { name: 'Rented Room', image: `${SCENE}/home-3.webp`, moveInCost: 2_500 },
+  { name: 'Old Rental Flat', image: `${SCENE}/home-4.webp`, moveInCost: 9_000 },
+  { name: 'Newer Rental Flat', image: `${SCENE}/home-5.webp`, moveInCost: 40_000 },
+  { name: 'Flat in a Gated Complex', image: `${SCENE}/home-6.webp`, moveInCost: 240_000 },
+  { name: 'First Home of Your Own', image: `${SCENE}/home-7.webp`, moveInCost: 650_000 },
+  { name: 'Suburban House with a Garden', image: `${SCENE}/home-8.webp`, moveInCost: 2.5e6 },
+  { name: 'Villa', image: `${SCENE}/home-9.webp`, moveInCost: 2e7 },
+  { name: 'Lakeside Glass House', image: `${SCENE}/home-10.webp`, moveInCost: 2e8 },
+  { name: 'Beachfront Estate', image: `${SCENE}/home-11.webp`, moveInCost: 2e9 },
+  { name: 'Grand Mansion', image: `${SCENE}/home-12.webp`, moveInCost: 2e10 },
 ];
 
 /** Houses 1..RENT_ONLY_COUNT (street to the flat in the complex) can only be rented. */

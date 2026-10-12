@@ -1,6 +1,6 @@
 # Prestige Life v2 — Hikaye ve Karakterler
 
-Son güncelleme: 2026-10-09 · İlgili: [game-design-v2.md](./game-design-v2.md), [rebuild-plan.md](./rebuild-plan.md)
+Son güncelleme: 2026-10-11 (hayat anları §4c, ömür 80 yaş) · İlgili: [game-design-v2.md](./game-design-v2.md), [rebuild-plan.md](./rebuild-plan.md)
 
 Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor](./report-v2.md) §6 (fakirlikten zenginliğe hissi) ve §7'dir (hanedan, olay kartları).
 
@@ -8,7 +8,7 @@ Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor]
 
 Türde hikâye azdır: Idle Guy'da olay örgüsü yok, Rich Inc.'te tek bir açılış sahnesi var, AdVenture Capitalist ve Idle Miner'da hiç yok. Hikâyeyi ürünün kendisi yapan oyunlar (Homescapes, Merge Mansion) idle değil ve sürekli içerik yazan ekipleri var. Hikâye bizim farkımız ([rapor](./report-v2.md) §2), ama oyuncunun okuyup okumadığı henüz ölçülmedi.
 
-Bu yüzden Faz 1'de hikâye **sadece kesin gelen tetiklere** bağlı ve küçük: önsöz, 8 sınıf töreni (her biri 1–3 cümle), annenin kısa mesajları. Toplam ~40 balon, 1–2 yeni görsel. Tek merak sorusu var (babanın defteri, ilk oturumun sonunda açık kalır), bir de Defne'yle tanışma (İşçi töreni; devamı Faz 2); her tören ya da anne mesajı bir sonrakinin kancasını eker (§4). Geri kalan fikirler §7'de bekler ve oyun testinden sonra açılır.
+Bu yüzden Faz 1'de hikâye **sadece kesin gelen tetiklere** bağlı ve küçük: önsöz, 8 sınıf töreni (her biri 1–3 cümle), annenin kısa mesajları. Toplam ~40 balon, 1–2 yeni görsel. Tek merak sorusu var (babanın defteri, ilk oturumun sonunda açık kalır), bir de Defne'yle tanışma (İşçi töreni) ve yaşa bağlı üç hayat anı (ilk buluşma, düğün, kızının doğumu; §4c); her tören ya da anne mesajı bir sonrakinin kancasını eker (§4). Geri kalan fikirler §7'de bekler ve oyun testinden sonra açılır.
 
 **Testte ölçülecek** (plan 1.14–1.15): törenlerin ne kadarı "Geç"le atlanıyor; Orta Sınıf'a ulaşan oyuncu ertesi gün dönüyor mu. Okunuyorsa §7'den eklenir; okunmuyorsa hikâye sahne değişimine bırakılır (ev, kıyafet, Şans'ın tasması).
 
@@ -16,7 +16,7 @@ Bu yüzden Faz 1'de hikâye **sadece kesin gelen tetiklere** bağlı ve küçük
 
 ## 1. Tek cümle
 
-**Her şeyini kaybetmiş genç bir adam, sokakta bulduğu köpeği ve annesine verdiği sözle sıfırdan dünyanın en zengini olur; sonra servetini değil, hikayesini çocuğuna bırakır.**
+**Her şeyini kaybetmiş genç bir adam, sokakta bulduğu köpeği ve annesine verdiği sözle sıfırdan dünyanın en zengini olur; bu arada bir aile kurar; sonra servetini değil, hikayesini torununa bırakır.**
 
 ## 2. Ton kuralları
 
@@ -40,9 +40,10 @@ Bu yüzden Faz 1'de hikâye **sadece kesin gelen tetiklere** bağlı ve küçük
 | Eski patron | **Bülent Bey** / **Mr. Bryce** | Önsöz, Milyarder töreni, Otel Zinciri yöneticisi |
 | Kuzen | **Kuzen** / **Cousin** | Teknoloji Girişimi yöneticisi (kripto esprili) |
 | Cüzdanın sahibi | **Nevin Hanım** / **Mrs. Nora** | İşçi Sınıfı töreninde teşekküre gelir |
-| Torunu | **Defne** / **Daphne** | Aynı törende tanışma; Faz 2'de eş |
+| Torunu | **Defne** / **Daphne** | Aynı törende tanışma; sonra eş (hayat anları, §4c) |
+| Kızı | Oyuncu verir (varsayılan **Elif** / **Ella**) | 31 yaşında doğar (§4c) |
 
-Düğün ve varis Faz 2'de (§7).
+Varis torun, Faz 2.1'de (§6).
 
 ### Kahraman
 
@@ -152,7 +153,7 @@ Sadece oyuncunun o anki sınıfının mesajları gelir, sırayla; geçilen sın�
 | İşçi | *"Daireni çok merak ettim. Perdeleri ben dikiyorum!"* |
 | Orta Sınıf | *"Eski evde ilk gecem. Üçüncü basamak hâlâ gıcırdıyor."* |
 | Milyoner | ★ *"Sandalyeler seni bekliyor. Bu arada Bülent Bey'in restoranları satılıkmış, duydun mu?"* |
-| Milyoner | *"Kurabiye getiren kızı anlatırken sesin bir tuhaftı. Adı neydi... Defne mi?"* |
+| İşçi töreninden ilk buluşmaya kadar (köprü, §4c) | *"Kurabiye getiren kızı anlatırken sesin bir tuhaftı. Adı neydi... Defne mi?"* |
 | Milyoner | *"Komşular seni gazetede görmüş. Kupürü buzdolabına astım!"* |
 | Milyarder | *"Bülent Bey'e iş vermişsin. Sen gerçekten babanın oğlusun."* |
 | Milyarder | ★ *"Rıza Amca uğradı. Babanla açamadıkları atölyeyi anlattı, gözleri doldu."* |
@@ -166,13 +167,56 @@ Sadece oyuncunun o anki sınıfının mesajları gelir, sırayla; geçilen sın�
 
 Annenin sıradaki mesajı ve kasa dolunca Şans (*"Şans kapıda seni bekliyor. Kasan doldu!"*). Uygulama arka plana geçerken kurulur, açılınca iptal edilir. Günde en fazla bir (ikisi aynı güne düşerse annenin mesajı kalır), sadece 10:00–21:00 arası. İzin ilk törenden sonra önce oyun içi kartla sorulur ("Annenden haber gelsin mi?"), "Evet" denirse sistem izni açılır. Ayarlarda aç/kapa. Kod: `runtime/notifications.ts`; Android simgesi beyaz kalp (`ic_stat_notify`); tam zamanlı alarm izni kaldırıldı (Play beyanı gerekmesin). Dayanak: [discussion-notes geçmişi; OneSignal Beach Bum vakası](https://onesignal.com/case-studies/beach-bum-games-case-study).
 
+### 4c. Hayat anları (karar 2026-10-11)
+
+Hikâyenin ikinci saati yaştır. Sınıf törenleri paraya bağlı olduğu için ilk ~2 saate sıkışıyor; yaş ise ömür boyunca eşit hızla ilerler (16 dk = 1 yıl) ve her oyuncu aynı yaşlardan kesin geçer. Kahramanın hayatı (Defne, düğün, kızı, torunu) bu yaşlara bağlanır; hiçbir şey denk getirilmez.
+
+**Kurallar:**
+
+- Bir hayat anı = tören bileşeniyle oynayan tek tam ekran kare + 2–3 balon; "Geç" var, saat durur (gelir ve yaş).
+- Tetik: yaş + ön koşul töreni görülmüş olması (tabloda); anlar sırayla, biri görülmeden sonraki gelmez. Ön koşul eksikse an bekler. Aynı anda sınıf töreni varsa önce tören oynar; bir tören ya da hayat anından sonra sıradaki hayat anı en az 2 dakika bekler.
+- Yalnızca ana sahnede oynar: sekme, çevrimdışı kartı ya da annenin mesajı açıkken araya girmez. Hayat anının beklediği oturum açılışında annenin mesajı gelmez (bir açılışta tek hikâye anı).
+- Kapanış kartı yok: son balon ya da "Geç" anı bitirir. Başlık "28 yaş · Düğün".
+- Aradaki yıllar görselleştirilmez.
+- Kahramanın kızı vardır (cinsiyet sabit, karar 2026-10-11); adını oyuncu verir (doğum anından sonra sorulur; varsayılan **Elif** / **Ella**, en fazla 16 karakter, tek dokunuşla geçilir).
+- Kahramanın görünümü şimdilik yaşlanmaz (karar 2026-10-11: sonra bakılacak; [discussion-notes.md §3](./discussion-notes.md)).
+
+| Yaş | Oyun süresi (engaged bot) | An | Ön koşul | Faz |
+| --- | --- | --- | --- | --- |
+| 18–19 | 32 dk | Defne'yle tanışma (İşçi töreni, oyunda) | | 1 |
+| 25 | ~2 sa 10 dk (4. gün) | İlk buluşma: çay bahçesi | İşçi töreni | 1 |
+| 28 | ~3 sa (5. gün) | Düğün: eski evin bahçesi, erik ağacının altı | Orta Sınıf töreni | 1 |
+| 31 | ~3 sa 45 dk (6. gün) | Kızı doğar; adını oyuncu verir | Düğün | 1 |
+| 38 | ~5 sa 35 dk (9. gün) | Okulun ilk günü | Doğum | Testten sonra |
+| 44 | ~7 sa 10 dk (11. gün) | Kızı ilk parasını Çiçek Tezgâhı'nda kazanır | Doğum | Testten sonra |
+| 49 | ~8,5 sa (13. gün) | Mezuniyet | Doğum | Testten sonra |
+| 58 | 11 sa (17. gün) | En Zengin töreni (sınıf töreni, oyunda) | | 1 |
+| 63 | ~12 sa 15 dk (19. gün) | Torunu doğar | Doğum | Testten sonra |
+| 70 | ~14 sa (22. gün) | Dede ve torun | Torun | Testten sonra |
+| 80 | 16 sa 48 dk (25. gün) | Torun 17 yaşında: *"Dede, bana ilk işini öğretir misin?"* → devir (§6) | Torun | Faz 2.1 |
+
+**Faz 1 metinleri (3 an, 11 balon + isim sorusu; oyunda, `moments.*`; senaryo `ui/story/lifeScript.ts`):**
+
+| An | Türkçe | English |
+| --- | --- | --- |
+| İlk buluşma (25) | Anlatım: *"Kurabiyeler o günden sonra hiç kesilmedi."* · Defne: *"Babaannem yine kurabiye yolladı. Bu sefer kendim getirdim."* · Kahraman: *"Çay benden. O kurabiyelerin borcu hâlâ duruyor."* · Defne: *"Şans da gelsin. O olmasa tanışmazdık."* | Narration: *"After that day, the cookies never stopped coming."* · Daphne: *"Grandma sent cookies again. This time I brought them myself."* · Hero: *"Tea's on me. I still owe you for those cookies."* · Daphne: *"Bring Lucky. We'd never have met without him."* |
+| Düğün (28) | Anlatım: *"Erik ağacı o bahar erken açtı."* · Rıza: *"Yüzükler kimde?.. Şans'ta. Tabii ki Şans'ta."* · Anne (ağlayan-mutlu): *"Bahçeye iki sandalye koymuştum. Bugün yetmedi."* | Narration: *"The plum tree bloomed early that spring."* · Ray: *"Who has the rings?.. Lucky. Of course it's Lucky."* · Mom: *"I'd put two chairs in the garden. Today they weren't enough."* |
+| Doğum (31) | Kahraman: *"Anne... Bir kızımız oldu."* · Anne: *"Babaanne oldum demek. Erik reçeli artık onun."* · Kahraman (bebeğe): *"Hoş geldin. Sen bize yetersin."* → Defne: *"Adını sen koy."* | Hero: *"Mom... We have a daughter."* · Mom: *"So I'm a grandmother. The plum jam is hers now."* · Hero (to the baby): *"Welcome. You're all we need."* → Daphne: *"You name her."* |
+
+Geri dönüşler: kurabiye (İşçi töreni), iki sandalye ve erik reçeli (annenin mesajları), *"Sen bana yetersin"* (önsöz) artık kahramanın ağzından.
+
+**Köprü (2026-10-11):** tanışma (18–19 yaş) ile ilk buluşma (25) arasını iki şey bağlar. Annenin Defne mesajı sınıfa bağlı değil: İşçi töreninden ilk buluşmaya kadar, sınıfın kendi mesajlarından önce gelir (hızlı oyuncu kaçıramaz). Mesaj hiç gelmediyse ilk buluşmanın açılış cümlesi aradaki yılları tek başına taşır.
+
+**Görseller (2026-10-11, fal.ai, 3 kare $0,45):** çay bahçesi, erik ağacının altında düğün, hastane odasında bebek; `public/assets/story/life/`, kaynak `art/pilot/10-life/`. Karelerde kahraman gömlekli ve takım elbiseli, yüzü aynı (yaşlanmıyor).
+
 ## 5. Hayaller panosu (plan 1.8)
 
 Faz 1'de pano sadece statü eşyalarını gösterir (sıradaki ev, araç, kıyafet; gelir bonusu verir). Hikaye hayalleri (küçük mikro hikâyeli tek seferlik alımlar) §7'de bekler.
 
 ## 6. Hanedan (Faz 2, ilke kararları)
 
-- Varis ömrün sonunda (97 yaş) devralır, erken değil ([game-design-v2.md §4.9](./game-design-v2.md)). Varis 17 yaşında bir torun; sıfırdan başlar, dede ona Rıza'nın kendisine öğrettiği gibi ilk işini öğretir.
+- Varis ömrün sonunda (80 yaş; 2026-10-11'de 97'den indi) devralır, erken değil ([game-design-v2.md §4.9](./game-design-v2.md)). Varis, kahramanın kızının çocuğu: kahraman 63 yaşındayken doğar, devirde 17 yaşındadır (§4c). Dede ona Rıza'nın kendisine öğrettiği gibi ilk işini öğretir.
+- Torun kahraman kadar sıfırdan değil, biraz alttan başlar (yön kararı 2026-10-11; nereden ve neyle başladığı açık: [discussion-notes.md §4](./discussion-notes.md)).
 - Emeklilik = servetini vakfa bağışlamak; çocuğuna para değil adını bırakır. Miras puanı arayüzde **"Aile İtibarı"** (Family Legacy): her puan +%1 gelir.
 - Ölüm hiç gösterilmez; anne, Rıza ve Şans'ın varlığı fotoğraflar ve bıraktıkları eserlerle sürer.
 - Açık sorular: [discussion-notes.md §4](./discussion-notes.md).
@@ -186,8 +230,10 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 - **Yönetici anları:** kilometre taşına bağlı tek anlar. Taslaklar: Selin'in mezuniyeti (*"Diplomamı aldım! Ama arabayı bırakmıyorum."*); Hüseyin Usta'nın babanın çırağı çıkması (*"Ustam Mehmet'ti..."*, fırının duvarına babanın fotoğrafı).
 - **Annenin evi ara basamakları:** memlekette kiralık daire (İşçi), bahçeli ev (Milyoner), deniz kenarında villa (Multimilyarder); hayaller panosunda isteğe bağlı alım, fiyatlar simülatörle.
 - **Hikaye hayalleri:** sıcak bir çorba, Şans'a tasma, annene telefon kontörü, Rıza Amca'ya yeni mont, mahalleye kütüphane. Fiyatı o sınıfın birkaç dakikalık geliri.
-- **Eş ve cüzdan zinciri, devamı:** tanışma Faz 1'de (İşçi töreni, anne mesajı Milyoner'de). Sonrası: buluşmalar, düğün, varis (Faz 2, hanedan).
-- **4. perde (54 → 97 yaş):** oynanabilir vakıf projesi (kütüphane, burs, genç bir girişimciyi yetiştirmek).
+- **Hayat anlarının kalanı (§4c):** okulun ilk günü, ilk para, mezuniyet, torunun doğumu, dede ve torun. Her biri bir kare + 2–3 balon; kızının 3 yaş hâli ve torun için kılavuz gerekir.
+- **Aile albümü:** görülen hayat anlarının kareleri tek sayfada; sıradaki an kilitli siluet ("38 yaş: ?"). Yeni görsel gerektirmez.
+- **Defne ve kızından mesajlar:** annenin mesaj kanalıyla; En Zengin'den sonra kanal onlara geçer.
+- **4. perde (58 → 80 yaş):** oynanabilir vakıf projesi (kütüphane, burs, genç bir girişimciyi yetiştirmek).
 - **Olay kartlarında tanıdık yüzler (Faz 2.4):** Rıza (*"Eski atölyeyi yeniden açmak istiyorum, ortak olur musun?"*), annen (*"Komşunun oğlu iş arıyor."*), Bülent Bey (*"Restoranımı sana satayım, ama bir şartım var..."*), kuzen (*"Bu kripto kesin uçacak!"*).
 - **Şans'ın yavruları** (öneri Milyarder dolayları), dergi kapakları ("Garsondan patrona").
 
@@ -227,8 +273,9 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 | En Zengin: konak, anne ve kahraman, elinde pasta (pencerede saksı) | 1 | Bekliyor (~$0,15); şimdilik portrelerle oynuyor |
 | Ev arka planları (12) ve araçlar (16) | 28 | Arka plan oturulan ev, araç önünde (karar 2026-10-10). Sokak, minibüs, kiralık daire oyunda; kalanlar v1 görselleriyle yer tutuyor. Liste ve komutlar: [art-brief-v2.md](./art-brief-v2.md) |
 | Sınıf görünümü: kıyafet pozları, toplanacaklar, Şans tasmaları | 6 sınıf | Sınıfa göre (karar 2026-10-09); kıyafet 2 oyunda |
-| Nevin Hanım ve Defne kılavuzları + portreler | 2 | Bekliyor ([art-brief-v2.md](./art-brief-v2.md) 4.4) |
+| Nevin Hanım ve Defne kılavuzları + portreler (4'er ifade) | 2 sayfa, 8 portre | **Oyunda** (2026-10-11, fal.ai $0,30; `art/pilot/03-cast/`, komutlar [art-prompts-v2.md §3](./art-prompts-v2.md)) |
 | Yeni hikâye kareleri (daire kapısı, Rıza bahçede; isteğe bağlı çorba, restoran) | 2–4 | Bekliyor ([art-brief-v2.md](./art-brief-v2.md) 4.5) |
+| Hayat anları: çay bahçesi, bahçe düğünü, bebek | 3 | **Oyunda** (`public/assets/story/life/`) |
 
 Kaynak dosyalar `art/pilot/` (git'te değil), oyundaki sıkıştırılmış hâlleri `public/assets/`. Harcama: plan 1.16.
 
@@ -243,6 +290,7 @@ Kaynak dosyalar `art/pilot/` (git'te değil), oyundaki sıkıştırılmış hâl
 | Anne mesajları | 11 | **Tamam** (`mom`) |
 | Bildirimler | 2 + izin kartı | **Tamam** (`notify`) |
 | Rıza Amca rehber balonları | 6 + isim sorusu | **Tamam** (`guide`) |
+| Hayat anları | 3 an, 11 balon + isim sorusu | **Tamam** (`moments`) |
 
 Metinler `src/game/i18n/` içine, ilgili özellik yazılırken eklenir.
 
@@ -259,4 +307,5 @@ Metinler `src/game/i18n/` içine, ilgili özellik yazılırken eklenir.
 | 1.13 Çevrimdışı kartı | Kart hazır; Şans'ın kapıda uyanması bekliyor |
 | 1.14–1.15 Analitik, test | Tören atlama oranı, Orta Sınıf'a ulaşanın ertesi gün dönüşü (§0) |
 | 1.18 Önsöz | Tamam |
+| 1.20 Hayat anları | Yaşa bağlı 3 an, kızın adı (§4c) |
 | Faz 2 | Hanedan (§6), olay kartları ve fikir havuzu (§7) |

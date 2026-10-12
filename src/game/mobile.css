@@ -79,12 +79,18 @@
   to { transform: none; }
 }
 .v2-run-in { animation: v2-run-in 900ms cubic-bezier(0.2, 0.8, 0.3, 1) both; }
-/* A new vehicle drives in from the left, facing right (the art faces left and is mirrored). */
+/* A new vehicle drives in from the left, facing right. `translate` leaves the inline transform alone (older art is mirrored there). */
 @keyframes v2-drive-in {
-  from { transform: translateX(-80vw) scaleX(-1); }
-  to { transform: scaleX(-1); }
+  from { translate: -80vw 0; }
+  to { translate: 0 0; }
 }
 .v2-drive-in { animation: v2-drive-in 1100ms cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+/* Where it parks facing left, it comes from the right. */
+@keyframes v2-drive-in-left {
+  from { translate: 80vw 0; }
+  to { translate: 0 0; }
+}
+.v2-drive-in-left { animation: v2-drive-in-left 1100ms cubic-bezier(0.2, 0.8, 0.3, 1) both; }
 @keyframes v2-fade-out {
   from { opacity: 1; }
   to { opacity: 0; }

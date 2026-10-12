@@ -85,7 +85,7 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 
 **Mevcut 8 ürün (v1):** 4 para + 4 elmas paketi (`com.prestigelife.*`). v2'de elmas yok. Önerim: bu ürünleri Play Console'da pasifleştirmek, yeni ürünleri yeni kimliklerle açmak. Daha önce satın alanların hakları (tüketilir ürünlerdi) açısından sorun çıkmıyor.
 
-**Kalıcı ×2'nin dengesi:** Ödeyen oyuncu sınıflara yaklaşık yarı sürede ulaşır. Bu kabul edilebilir, çünkü ödeyen hız alır. Ama ömür (17 → 97) değişmediği için zirveye çok erken varırsa geç oyun boş kalır; simülatörde "ödeyen oyuncu" profiliyle kontrol edilir.
+**Kalıcı ×2'nin dengesi:** Ödeyen oyuncu sınıflara yaklaşık yarı sürede ulaşır. Bu kabul edilebilir, çünkü ödeyen hız alır. Ama ömür (17 → 80) değişmediği için zirveye çok erken varırsa geç oyun boş kalır; simülatörde "ödeyen oyuncu" profiliyle kontrol edilir.
 
 ## 6. Oyunda nerede görünecek?
 

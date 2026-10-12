@@ -33,7 +33,6 @@ function Stage({ houseId, vehicleId }: { houseId: string; vehicleId: string | nu
         alt=""
         draggable={false}
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ transform: home.mirror ? 'scaleX(-1)' : undefined }}
       />
       {fit.width > 0 && (
         <>

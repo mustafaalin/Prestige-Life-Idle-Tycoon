@@ -145,7 +145,8 @@ export const FEET_Y = 0.735;
 const HORIZON_Y = 0.37;
 /** One metre at the feet line, as a share of the picture's height (the hero is 1.78 m). */
 const METRE = 0.225;
-/** A vehicle's rear never passes this to the left, the edge of what narrow phones show. */
+/** A vehicle's rear never passes this to the left (or, parked facing left, its mirror image to the
+ * right), the edge of what narrow phones show. */
 const LANE_START_X = 0.13;
 
 /** Size of something standing on ground line `y`, next to the same thing at the feet line. */
@@ -157,6 +158,8 @@ function depthScale(y: number) {
 export interface Lane {
   x: number;
   y: number;
+  /** Parked the other way round: the nose at `x` points left and the rest runs right behind the hero. */
+  facesLeft?: boolean;
 }
 
 export type LaneKind = 'car' | 'near';
@@ -170,16 +173,11 @@ const DEFAULT_LAYOUT: HomeLayout = {
   near: { x: 0.89, y: 0.7 },
 };
 
-/** The first backgrounds have little ground in front of the wall, so the car stays closer. */
-const SHALLOW_LAYOUT: HomeLayout = { ...DEFAULT_LAYOUT, car: { x: 0.89, y: 0.66 } };
-
 /** Shade that makes the cut-out sprites sit in a place's light (a CSS filter). */
 const DEFAULT_LIGHT = 'brightness(0.9) saturate(0.95)';
 
 export interface HomeArt {
   background: string;
-  /** Shown mirrored: the first backgrounds were painted with the home on the right, where the car parks. */
-  mirror: boolean;
   layout: HomeLayout;
   light: string;
   /** The hero and Şans stand this far right of their usual place (a share of the picture's width). */
@@ -189,23 +187,26 @@ export interface HomeArt {
 /** What a home's picture needs different from the defaults (tuned on the phone; DEV → scene lab). */
 const HOME_ART: Record<string, Partial<Omit<HomeArt, 'background'>>> = {
   // Street tent: a dark, cold alley. The tent is on the right, so Şans sits in front of it and the
-  // bike or scooter (no car is ever parked here) stands on the left, behind the hero.
+  // bike or scooter (no car is ever parked here) stands on the left, turned left: its rear is behind
+  // the hero and its face in the open.
   'home-1': {
-    layout: { ...SHALLOW_LAYOUT, near: { x: 0.46, y: 0.7 } },
+    layout: { ...DEFAULT_LAYOUT, near: { x: 0.14, y: 0.7, facesLeft: true } },
     light: 'brightness(0.8) saturate(0.85)',
     castX: 0.06,
   },
-  // Old van.
-  'home-2': { mirror: true, layout: SHALLOW_LAYOUT },
-  // Old rental flat: warm evening light.
-  'home-4': { mirror: true, layout: SHALLOW_LAYOUT, light: 'brightness(0.95) saturate(1) sepia(0.12)' },
+  // Old van: the van is far back on the left, so the hero steps right to leave it in view.
+  'home-2': { castX: 0.07 },
+  // Rented room and the flats: the door is left of the middle, the hero stands clear of it.
+  'home-3': { castX: 0.07 },
+  // Warm evening light.
+  'home-4': { castX: 0.07, light: 'brightness(0.95) saturate(1) sepia(0.12)' },
+  'home-5': { castX: 0.07 },
 };
 
 export function homeArt(houseId: string): HomeArt {
   const house = HOUSES.find((item) => item.id === houseId) ?? HOUSES[0];
   return {
     background: house.image,
-    mirror: false,
     layout: DEFAULT_LAYOUT,
     light: DEFAULT_LIGHT,
     castX: 0,
@@ -222,8 +223,6 @@ interface VehicleShape {
   /** Width / height of the image file (cropped to the vehicle). */
   aspect: number;
   lane?: LaneKind;
-  /** Older art was drawn facing left and is mirrored on the scene. */
-  facesLeft?: boolean;
 }
 
 /** Art wider than the lane (about 2.75 m: width = metres × aspect) is shrunk; art-brief §3 has the
@@ -232,18 +231,18 @@ const VEHICLE_SHAPE: Record<string, VehicleShape> = {
   'vehicle-bike': { metres: 1.1, aspect: 0.678, lane: 'near' },
   'vehicle-scooter': { metres: 1.28, aspect: 0.829, lane: 'near' },
   'vehicle-old-sedan': { metres: 1.4, aspect: 1.376 },
-  // Art pending: a v1 scooter stands in.
-  'vehicle-motorcycle': { metres: 1.15, aspect: 1.003, lane: 'near', facesLeft: true },
+  // 1.1 m to the tank, the mirrors stand above it.
+  'vehicle-motorcycle': { metres: 1.3, aspect: 0.896, lane: 'near' },
   // 1.5 m body plus the antenna.
   'vehicle-hatchback': { metres: 1.69, aspect: 1.322 },
-  'vehicle-suv': { metres: 1.7, aspect: 1.86, facesLeft: true },
-  // Art pending: a v1 car stands in.
-  'vehicle-pickup': { metres: 1.85, aspect: 1.711, facesLeft: true },
-  'vehicle-executive': { metres: 1.46, aspect: 2.18, facesLeft: true },
-  'vehicle-coupe': { metres: 1.3, aspect: 2.129, facesLeft: true },
-  'vehicle-offroader': { metres: 1.9, aspect: 2.009, facesLeft: true },
-  'vehicle-supercar': { metres: 1.15, aspect: 2.145, facesLeft: true },
-  'vehicle-grand': { metres: 1.55, aspect: 2.249, facesLeft: true },
+  // Roof rails included.
+  'vehicle-suv': { metres: 1.7, aspect: 1.442 },
+  'vehicle-pickup': { metres: 1.8, aspect: 1.599 },
+  'vehicle-executive': { metres: 1.46, aspect: 1.67 },
+  'vehicle-coupe': { metres: 1.3, aspect: 1.642 },
+  'vehicle-offroader': { metres: 1.85, aspect: 1.565 },
+  'vehicle-supercar': { metres: 1.15, aspect: 2.045 },
+  'vehicle-grand': { metres: 1.55, aspect: 1.758 },
 };
 const DEFAULT_SHAPE: VehicleShape = { metres: 1.45, aspect: 2 };
 
@@ -253,25 +252,25 @@ export interface VehicleArt {
   metres: number;
   aspect: number;
   lane: LaneKind;
-  mirror: boolean;
 }
 
 export function vehicleArt(id: string): VehicleArt | null {
   const vehicle = VEHICLES.find((item) => item.id === id);
   if (!vehicle) return null;
   const shape = VEHICLE_SHAPE[id] ?? DEFAULT_SHAPE;
-  return { id, src: vehicle.image, metres: shape.metres, aspect: shape.aspect, lane: shape.lane ?? 'car', mirror: shape.facesLeft ?? false };
+  return { id, src: vehicle.image, metres: shape.metres, aspect: shape.aspect, lane: shape.lane ?? 'car' };
 }
 
 export interface VehicleBox {
-  /** Left edge (the rear) and ground line, as shares of the picture. */
+  /** Left edge and ground line, as shares of the picture. */
   x: number;
   y: number;
   /** Width as a share of the picture's width. */
   width: number;
   /** 1 = real size; below 1 the art is too wide for its lane and was shrunk by this much. */
   fit: number;
-  mirror: boolean;
+  /** The art faces right; here it is shown mirrored, nose to the left (the lane's `facesLeft`). */
+  facesLeft: boolean;
 }
 
 /** Where a vehicle stands in front of a home, at real size unless its art is too wide for the lane. */
@@ -279,6 +278,8 @@ export function vehicleBox(vehicle: VehicleArt, layout: HomeLayout): VehicleBox 
   const lane = layout[vehicle.lane];
   const height = vehicle.metres * METRE * depthScale(lane.y);
   const width = height * vehicle.aspect * (16 / 9);
-  const fit = Math.min(1, (lane.x - LANE_START_X) / width);
-  return { x: lane.x - width * fit, y: lane.y, width: width * fit, fit, mirror: vehicle.mirror };
+  const facesLeft = lane.facesLeft ?? false;
+  const room = facesLeft ? 1 - LANE_START_X - lane.x : lane.x - LANE_START_X;
+  const fit = Math.min(1, room / width);
+  return { x: facesLeft ? lane.x : lane.x - width * fit, y: lane.y, width: width * fit, fit, facesLeft };
 }

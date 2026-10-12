@@ -1,17 +1,15 @@
 import { ChevronRight } from 'lucide-react';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect, useRef } from 'react';
 import { BUSINESSES } from '../../core/config/businesses';
 import { isLifeOver } from '../../core/formulas';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
 import { track } from '../../runtime/analytics';
-import { useBackButton } from '../../runtime/backButton';
-import { haptic, playSfx } from '../../runtime/feedback';
-import { HERO_NAME_MAX, pendingCeremony } from '../../runtime/story';
+import { playSfx } from '../../runtime/feedback';
+import { pendingCeremony } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { GameButton } from '../kit';
 import { portraitOf } from '../story/ceremonyScript';
+import { NameSheet } from '../story/NameSheet';
 import { guideStep, setGuideTarget, TALKS_EARLY, type GuideStepId } from './guideSteps';
 
 // Old Ray's guide on the home screen (plan 1.12; steps in guideSteps.ts): his line in a small bubble (under
@@ -66,7 +64,21 @@ export function Guide({ tabOpen }: { tabOpen: boolean }) {
     (step.ready || TALKS_EARLY.includes(step.id));
 
   if (hidden || !step) return null;
-  if (step.id === 'name') return <NameSheet onDone={(name) => actions.story.setHeroName(name)} />;
+  // Asked right after the first business (story §3).
+  if (step.id === 'name') {
+    return (
+      <NameSheet
+        speaker={t('ceremony.cast.riza')}
+        portrait={portraitOf('riza', 'laugh')}
+        tone="emerald"
+        question={t('guide.name')}
+        label={t('guide.nameLabel')}
+        defaultName={t('guide.defaultName')}
+        confirm={t('guide.nameOk')}
+        onDone={(name) => actions.story.setHeroName(name)}
+      />
+    );
+  }
   if (!speaking) return null;
   return (
     <GuideLine
@@ -118,63 +130,5 @@ function GuideLine({ face, text, atTop, onRead }: { face: string; text: string; 
         </p>
       </div>
     </button>
-  );
-}
-
-/** Asked right after the first business (story §3): the default name is filled in, one tap to keep it. */
-function NameSheet({ onDone }: { onDone: (name: string) => void }) {
-  const { t } = useT();
-  const defaultName = t('guide.defaultName');
-  const [name, setName] = useState(defaultName);
-
-  const finish = () => {
-    playSfx('levelUp');
-    haptic('medium');
-    onDone(name.trim() || defaultName);
-  };
-
-  useBackButton(true, 80, finish);
-
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    finish();
-  };
-
-  return createPortal(
-    <div className="fixed inset-0 z-[80] bg-black/35 flex items-end">
-      <form
-        onSubmit={submit}
-        className="v2-sheet-in w-full rounded-t-[28px] bg-white shadow-2xl px-5 pt-5 pb-[calc(var(--safe-bottom)+20px)]"
-      >
-        <div className="flex items-start gap-3">
-          <img
-            src={portraitOf('riza', 'laugh') ?? ''}
-            alt=""
-            draggable={false}
-            className="shrink-0 w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg bg-slate-200"
-          />
-          <div className="flex-1 rounded-[18px] rounded-tl-md bg-emerald-50 border-2 border-emerald-100 px-3 py-2">
-            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">{t('ceremony.cast.riza')}</p>
-            <p className="text-[15px] font-bold leading-snug text-slate-800">{t('guide.name')}</p>
-          </div>
-        </div>
-        <label className="block mt-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('guide.nameLabel')}</span>
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value.slice(0, HERO_NAME_MAX))}
-            onFocus={(event) => event.target.select()}
-            maxLength={HERO_NAME_MAX}
-            autoComplete="off"
-            enterKeyHint="done"
-            className="mt-1 w-full rounded-2xl border-2 border-indigo-100 bg-indigo-50/60 px-4 py-3 v2-display text-xl text-indigo-950 outline-none focus:border-violet-400"
-          />
-        </label>
-        <GameButton tone="buy" type="submit" className="w-full mt-4 py-3 v2-display text-lg v2-shadow">
-          {t('guide.nameOk')}
-        </GameButton>
-      </form>
-    </div>,
-    document.body,
   );
 }

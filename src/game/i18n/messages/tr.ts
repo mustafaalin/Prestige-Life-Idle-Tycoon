@@ -209,7 +209,7 @@ export const tr: Messages = {
   },
   life: {
     title: 'Bir ömür tamamlandı',
-    body: '{age} yaşında emekli oluyorsun. Çocuğun {total} aile itibarı puanıyla yeni bir hayata başlıyor (bu hayattan +{gained}). Her puan tüm gelire +%1.',
+    body: '{age} yaşında emekli oluyorsun. Torunun {total} aile itibarı puanıyla yeni bir hayata başlıyor (bu hayattan +{gained}). Her puan tüm gelire +%1.',
     retire: 'Emekli ol ve devret',
   },
   prologue: {
@@ -302,6 +302,32 @@ export const tr: Messages = {
       mom: 'Ah oğlum... Sen bana hep yettin.',
     },
   },
+  moments: {
+    date: {
+      title: 'İlk buluşma',
+      cookies: 'Kurabiyeler o günden sonra hiç kesilmedi.',
+      defne: 'Babaannem yine kurabiye yolladı. Bu sefer kendim getirdim.',
+      hero: 'Çay benden. O kurabiyelerin borcu hâlâ duruyor.',
+      defne2: 'Şans da gelsin. O olmasa tanışmazdık.',
+    },
+    wedding: {
+      title: 'Düğün',
+      tree: 'Erik ağacı o bahar erken açtı.',
+      riza: 'Yüzükler kimde?',
+      riza2: '...Şans\'ta. Tabii ki Şans\'ta.',
+      mom: 'Bahçeye iki sandalye koymuştum. Bugün yetmedi.',
+    },
+    birth: {
+      title: 'Kızın doğdu',
+      hero: 'Anne... Bir kızımız oldu.',
+      mom: 'Babaanne oldum demek. Erik reçeli artık onun.',
+      hero2: 'Hoş geldin. Sen bize yetersin.',
+    },
+    nameAsk: 'Adını sen koy.',
+    nameLabel: 'Kızının adı',
+    nameOk: 'Adı bu olsun',
+    defaultName: 'Elif',
+  },
   mom: {
     from: 'Annen',
     reply: 'Kalp gönder',
@@ -362,6 +388,7 @@ export const tr: Messages = {
     testAd: 'Test reklamı izle',
     adResult: 'Reklam sonucu: {result}',
     ceremony: 'Töreni oynat',
+    life: 'Hayat anını oynat',
     mom: 'Annenin sıradaki mesajı',
     notifyTest: 'Deneme bildirimi (5 sn)',
     sceneLab: 'Sahne laboratuvarı',

@@ -122,7 +122,7 @@ Not: annenin evleri (eski aile evi, konak) ayrı; mağazada yok, törenlerde hik
 | `art/pilot/03-cast/nevin-sheet.png` | Nevin Hanım: 70'lerinde, ufak tefek, gümüş saç topuz, gözlük, hırka, sıcak ve biraz şakacı. İfadeler: gülümseyen, duygulanmış (gözleri dolu), şaşkın, kahkaha. |
 | `art/pilot/03-cast/defne-sheet.png` | Defne: 18 yaşında, güler yüzlü, doğal güzellikte; koyu kumral, omuz hizasında saç, sade kazak ve kot. Abartılı değil, kahramanla aynı stil ve boy oranında. İfadeler: gülümseyen, utangaç, şaşkın, gülen. |
 
-Komut: *"Character sheet: front full-body view plus four close-up expression portraits (head and shoulders) of {tarif}. Same style and proportions as the hero reference sheet. Plain light grey background."* Referans: `A1-semi3d.png` + `mom-sheet.png` (aynı sayfa düzeni için).
+Hazır komutlar: [art-prompts-v2.md §3](./art-prompts-v2.md). Özet: *"Character sheet: front full-body view plus four close-up expression portraits (head and shoulders) of {tarif}. Same style and proportions as the hero reference sheet. Plain light grey background."* Referans: `A1-semi3d.png` + `mom-sheet.png` (aynı sayfa düzeni için).
 
 ### 4.5 Hikâye kareleri
 

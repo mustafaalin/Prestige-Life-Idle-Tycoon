@@ -21,6 +21,7 @@ export type AnalyticsEvent =
   | 'retire'
   | 'ad_watch'
   | 'story_view'
+  | 'daughter_named'
   | 'notification_prompt'
   | 'notification_open'
   | 'tutorial_step';

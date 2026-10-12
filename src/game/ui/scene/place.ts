@@ -16,13 +16,13 @@ export function spriteBox(fit: CoverFit, art: SpriteArt, shift = 0) {
   return { left: fit.x(art.x + shift) - width / 2, top: fit.y(art.y) - height, width, height };
 }
 
-/** The vehicle faces right: its rear sits at the box's left edge. */
+/** The art faces right, its rear at the box's left edge; a lane that faces left shows it mirrored. */
 export function vehicleStyle(fit: CoverFit, box: VehicleBox) {
   return {
     left: fit.x(box.x),
     bottom: fit.height - fit.y(box.y),
     width: fit.h(9 / 16) * box.width,
-    transform: box.mirror ? 'scaleX(-1)' : undefined,
+    transform: box.facesLeft ? 'scaleX(-1)' : undefined,
   };
 }
 

@@ -210,7 +210,7 @@ export const en = {
   },
   life: {
     title: 'A life well lived',
-    body: 'You retire at {age}. Your heir starts a new life with {total} family legacy points (+{gained} from this life). Each point gives +1% to all income.',
+    body: 'You retire at {age}. Your grandchild starts a new life with {total} family legacy points (+{gained} from this life). Each point gives +1% to all income.',
     retire: 'Retire and hand over',
   },
   prologue: {
@@ -303,6 +303,32 @@ export const en = {
       mom: 'Oh, sweetheart... You were always all I needed.',
     },
   },
+  moments: {
+    date: {
+      title: 'First date',
+      cookies: 'After that day, the cookies never stopped coming.',
+      defne: 'Grandma sent cookies again. This time I brought them myself.',
+      hero: "Tea's on me. I still owe you for those cookies.",
+      defne2: "Bring Lucky. We'd never have met without him.",
+    },
+    wedding: {
+      title: 'The wedding',
+      tree: 'The plum tree bloomed early that spring.',
+      riza: 'Who has the rings?',
+      riza2: "...Lucky. Of course it's Lucky.",
+      mom: "I'd put two chairs in the garden. Today they weren't enough.",
+    },
+    birth: {
+      title: 'Your daughter is born',
+      hero: 'Mom... We have a daughter.',
+      mom: "So I'm a grandmother. The plum jam is hers now.",
+      hero2: "Welcome. You're all we need.",
+    },
+    nameAsk: 'You name her.',
+    nameLabel: "Your daughter's name",
+    nameOk: "That's her name",
+    defaultName: 'Ella',
+  },
   mom: {
     from: 'Mom',
     reply: 'Send a heart',
@@ -363,6 +389,7 @@ export const en = {
     testAd: 'Watch a test ad',
     adResult: 'Ad result: {result}',
     ceremony: 'Play a ceremony',
+    life: 'Play a life moment',
     mom: "Mom's next message",
     notifyTest: 'Test notification (5 s)',
     sceneLab: 'Scene lab',

@@ -6,9 +6,10 @@ import { useBackButton } from '../runtime/backButton';
 import { useGameV2 } from '../runtime/useGameV2';
 import { showRewardedAd } from '../runtime/ads';
 import { scheduleTestReminder } from '../runtime/notifications';
+import { LIFE_MOMENTS } from '../runtime/story';
 import { SceneLab } from './scene/SceneLab';
 import { requestFind } from './scene/sceneEvents';
-import { requestCeremony, requestMomMessage } from './story/storyEvents';
+import { requestCeremony, requestLifeMoment, requestMomMessage } from './story/storyEvents';
 
 // Playtest tools. Shown in `npm run dev` and in builds with VITE_DEV_MENU=true.
 
@@ -190,6 +191,20 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
           >
             {t('dev.notifyTest')}
           </Chip>
+        </Row>
+
+        <Row label={t('dev.life')}>
+          {LIFE_MOMENTS.map((moment) => (
+            <Chip
+              key={moment.id}
+              onClick={() => {
+                close();
+                requestLifeMoment(moment.id);
+              }}
+            >
+              {moment.age}
+            </Chip>
+          ))}
         </Row>
 
         <button
