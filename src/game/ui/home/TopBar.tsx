@@ -68,7 +68,7 @@ export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
                 type="button"
                 onClick={onOpenSettings}
                 aria-label={t('settings.open')}
-                className="w-7 h-7 rounded-full bg-black/25 flex items-center justify-center transition-all active:scale-90"
+                className="relative v2-hit w-7 h-7 rounded-full bg-black/25 flex items-center justify-center transition-all active:scale-90"
               >
                 <Settings className="w-4 h-4 text-sky-100" />
               </button>

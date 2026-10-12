@@ -35,7 +35,7 @@ export function TabSheet({
           type="button"
           onClick={onClose}
           aria-label={t('common.close')}
-          className="p-1.5 rounded-full bg-white/20 transition-all active:scale-90"
+          className="relative v2-hit p-1.5 rounded-full bg-white/20 transition-all active:scale-90"
         >
           <X className="w-5 h-5 text-white" />
         </button>

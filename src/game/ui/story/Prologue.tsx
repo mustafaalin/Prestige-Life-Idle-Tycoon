@@ -108,7 +108,7 @@ export function Prologue({ onDone }: { onDone: () => void }) {
               event.stopPropagation();
               if (!ending) end(true);
             }}
-            className="rounded-full bg-black/35 px-4 py-1.5 text-[11px] font-black text-white transition-all active:scale-90"
+            className="relative v2-hit rounded-full bg-black/35 px-4 py-1.5 text-[11px] font-black text-white transition-all active:scale-90"
           >
             {t('prologue.skip')}
           </button>

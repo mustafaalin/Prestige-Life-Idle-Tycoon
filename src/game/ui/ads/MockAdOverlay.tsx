@@ -31,7 +31,7 @@ function MockAd({ placement }: { placement: string }) {
       <button
         type="button"
         onClick={() => finishMockAd('dismissed')}
-        className="absolute right-4 top-[calc(var(--safe-top)+12px)] flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-black text-white transition-all active:scale-90"
+        className="v2-hit absolute right-4 top-[calc(var(--safe-top)+12px)] flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-black text-white transition-all active:scale-90"
       >
         <X className="w-4 h-4" />
         {t('ads.mockClose')}

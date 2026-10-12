@@ -43,7 +43,7 @@ export function QuestPanel({ onGo }: { onGo: GoToQuest }) {
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-0.5 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-black text-indigo-600 transition-all active:scale-95"
+            className="relative v2-hit flex items-center gap-0.5 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-black text-indigo-600 transition-all active:scale-95"
           >
             {expanded ? t('quests.less') : t('quests.all')}
             {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -149,7 +149,7 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
         <button
           type="button"
           onClick={claim}
-          className="relative shrink-0 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95"
+          className="relative v2-hit shrink-0 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95"
         >
           {t('quests.claim')}
           {guided && <PointingHand className="-bottom-6 -right-1" />}
@@ -162,7 +162,7 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
               haptic('light');
               onGo(quest);
             }}
-            className="shrink-0 flex items-center rounded-full border-2 border-white bg-gradient-to-b from-violet-400 to-indigo-600 v2-glossy pl-2.5 pr-1.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95"
+            className="relative v2-hit shrink-0 flex items-center rounded-full border-2 border-white bg-gradient-to-b from-violet-400 to-indigo-600 v2-glossy pl-2.5 pr-1.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95"
           >
             {t('quests.go')}
             <ChevronRight className="w-3.5 h-3.5" />

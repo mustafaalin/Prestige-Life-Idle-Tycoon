@@ -124,7 +124,7 @@ export function Segmented<T extends string | number>({
             key={String(option.value)}
             type="button"
             onClick={() => onChange(option.value)}
-            className={`relative flex-1 min-h-9 rounded-xl px-2.5 py-1.5 v2-display text-[13px] transition-all active:scale-95 ${
+            className={`relative v2-hit flex-1 min-h-9 rounded-xl px-2.5 py-1.5 v2-display text-[13px] transition-all active:scale-95 ${
               selected
                 ? 'bg-gradient-to-b from-amber-300 to-orange-500 text-white v2-shadow v2-glossy'
                 : 'text-indigo-900/60'

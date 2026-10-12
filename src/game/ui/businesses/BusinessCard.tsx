@@ -105,7 +105,7 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
           <div className="flex items-center justify-between gap-2">
             <p className="v2-display text-[17px] leading-tight text-indigo-950 truncate">{name('business', def)}</p>
             {managed && (
-              <button type="button" onClick={talk} aria-label={managerName} className="transition-all active:scale-95">
+              <button type="button" onClick={talk} aria-label={managerName} className="relative v2-hit transition-all active:scale-95">
                 <Chip>
                   <img
                     src={portrait}
@@ -182,7 +182,7 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
                 }
               }}
               disabled={game.cash < upgrade.cost}
-              className="w-full py-2 px-3 flex items-center gap-2"
+              className="w-full min-h-11 py-2 px-3 flex items-center gap-2"
             >
               <ArrowBigUpDash className="w-5 h-5 shrink-0" />
               <span className="flex-1 min-w-0 text-left v2-display text-[13px] v2-shadow truncate">
@@ -222,7 +222,7 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
           <GameButton
             onClick={() => actions.buyBusiness(def.id, count)}
             disabled={!canBuy}
-            className="w-full h-full py-2 px-3 flex items-center justify-between gap-2"
+            className="w-full h-full min-h-11 py-2 px-3 flex items-center justify-between gap-2"
           >
             <span className="v2-display text-[14px] v2-shadow">{t('business.buy', { count })}</span>
             <span className="v2-display text-[14px] v2-shadow tabular-nums">{money(cost)}</span>

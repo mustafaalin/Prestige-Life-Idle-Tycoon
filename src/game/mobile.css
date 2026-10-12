@@ -36,6 +36,19 @@
   paint-order: stroke fill;
   -webkit-text-stroke: 3px rgba(17, 24, 64, 0.85);
 }
+/* A touch target of at least 44×44 CSS px around a control that looks smaller (the icon does not
+   grow). The control must be positioned (`relative`, `absolute`...). */
+.v2-hit::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: 100%;
+  min-width: 44px;
+  min-height: 44px;
+  transform: translate(-50%, -50%);
+}
 .v2-glossy {
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, 0.5),
