@@ -22,15 +22,27 @@ export type CeremonyLine =
   /** Narration: no speaker, centered caption. */
   | { speaker?: undefined; text: MessageKey };
 
+export interface StoryImage {
+  src: string;
+  /**
+   * `panel`: a 9:16 story frame, shown at full width from the top so a tall phone crops nothing; what
+   * is left below it sits under the speech bubble and is filled with a blurred copy. `contain`: a
+   * small picture (the old photo) shown whole on a blurred copy of itself.
+   */
+  fit: 'panel' | 'contain';
+  /** A slow push-in towards a point of the picture (percent from its top left). None by default. */
+  zoom?: { to: number; x: number; y: number };
+}
+
 export interface CeremonyShot {
   /** A story picture behind the lines; without one the ceremony's warm backdrop shows. */
-  image?: { src: string; fit: 'cover' | 'contain' };
+  image?: StoryImage;
   lines: CeremonyLine[];
 }
 
 const IMAGES = '/assets/story/ceremony';
-const panel = (name: string) => ({ src: `${IMAGES}/${name}.webp`, fit: 'cover' }) as const;
-const OLD_PHOTO = { src: `${IMAGES}/old-photo.webp`, fit: 'contain' } as const;
+const panel = (name: string, zoom?: StoryImage['zoom']): StoryImage => ({ src: `${IMAGES}/${name}.webp`, fit: 'panel', zoom });
+const OLD_PHOTO: StoryImage = { src: `${IMAGES}/old-photo.webp`, fit: 'contain' };
 
 export const CEREMONIES: Record<number, CeremonyShot[]> = {
   // Day Laborer: the first warm meal; Old Ray hands over his old van (the hero's next home,
@@ -73,7 +85,7 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
         { speaker: 'mom', face: 'tears', phone: true, text: 'ceremony.c3.mom' },
       ],
     },
-    { image: panel('attic'), lines: [{ text: 'ceremony.c3.attic' }, { text: 'ceremony.c3.attic2' }] },
+    { image: panel('attic', { to: 1.02, x: 50, y: 39 }), lines: [{ text: 'ceremony.c3.attic' }, { text: 'ceremony.c3.attic2' }] },
     { image: OLD_PHOTO, lines: [{ speaker: 'hero', face: 'worried', text: 'ceremony.c3.photo' }] },
   ],
   // Millionaire (the return session): two chairs in the garden; Old Ray recognises the photo.
@@ -122,7 +134,7 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
   // Richest Person Alive: the promise from the bus station, and the birthday cake from the prologue.
   7: [
     {
-      image: panel('mansion-cake'),
+      image: panel('mansion-cake', { to: 1.02, x: 51, y: 35 }),
       lines: [
         { speaker: 'hero', face: 'soft', text: 'ceremony.c7.hero' },
         { speaker: 'hero', face: 'happy', text: 'ceremony.c7.hero2' },

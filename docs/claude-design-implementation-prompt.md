@@ -1,29 +1,82 @@
-# Claude Code uygulama promptu — v2 görsel arayüz iyileştirmesi
+# Claude Code uygulama promptu — v2 görsel arayüz iyileştirmesi (revize)
 
-Prestige Life Idle Tycoon projesinde yalnızca aktif v2 arayüzünü geliştir. Önce AGENTS.md varsa ve docs/session-handoff.md, art-brief-v2.md, story-v2.md, game-design-v2.md belgelerini oku. GPT görselleri üretiyor; sen arayüz, varlık entegrasyonu ve doğrulamayı üstlen. Mevcut kayıt uyumluluğunu, ekonomi formüllerini, fiyatları, reklam ödüllerini ve hikâye tetiklerini değiştirme.
+Önce AGENTS.md varsa, CLAUDE.md Design System ve güncel v2 belgelerini oku. GPT tasarım/görsel üretimini, Claude uygulamayı üstlenir. Mevcut çalışma ağacını koru. Ekonomi, kayıt uyumluluğu, fiyatlar, ödüller ve hikâye tetikleri bu kapsamda değişmez.
 
-## 1. Ortak arayüz sistemi
-src/game/ui/kit.tsx ve src/game/mobile.css üzerinden ortak renk, tipografi, boşluk, köşe ve gölge değerleri oluştur. Ana çerçeve koyu lacivert (#202D46), kart sıcak kırık beyaz (#FFF8EC), ana metin koyu lacivert; yeşil satın alma/gelir, altın önemli başarı, turuncu reklam, mor yönetici için kullanılabilir. Bunlar başlangıç değerleri; metin kontrastını doğrula. Altını tüm kart başlıklarında ve tüm çubuklarda kullanma. Parlak iç gölgeleri, kalın beyaz kenarları ve küçük metinlerin konturlarını azalt. Büyük ödül başlıklarında sınırlı kontur olabilir. Ana ekran, işletmeler, kariyer, alışveriş, ödül ve olay kartları aynı sistemi kullansın. Tasarımı sinematik sıcak 3D sahnelerle uyumlu tut.
+Altı tören karesi ve on işletme görseli zaten bağlıdır. Kahve coffee-cart-v2, bahçe c4-riza-garden-v2 kaynağıdır. Milyarder anlatım açılışı, Otel+Bülent hediyesi, tüm sahip olunan işletmeleri gösteren liste ve yeni gelir ayarlarını koru. Aşağıdaki adımları ayrı teslim et; her adımda bütün ekran/dil/durum matrisini tekrar test etme.
 
-## 2. Okunabilirlik ve dokunma
-Yardımcı metinlerde mümkünse 12–13 CSS px altına inme. Koleksiyonun 9 px etiketlerini iyileştir; gerekirse sütun sayısı ve kart düzenini değiştir. Tüm etkileşimli kontrollerin dokunma alanını en az 44×44 CSS px yap; ikon büyümek zorunda değil. TopBar ayarlar, TabSheet kapatma, hedef genişletme, yönetici konuşma ve segment kontrollerini incele. TR/EN uzun metinlerde taşma ve anlamı gizleyen truncate kullanımını kontrol et. Normal metinde 4.5:1 kontrast hedefle. Aktif/kilitli/satın alınabilir durumları yalnız renkle ayırma.
+## a — Hikâye kadrajları + dokunma alanları
 
-## 3. İşletme kartları
-Yeni işletme ile çalışan işletmeyi ayrı sunumlarla göster. Açılacak işletmede daha büyük okunabilir görsel (yaklaşık 96–112 px, dar ekrana göre esnek), işletme adı, gelir ve tek ana satın alma eylemi olsun. Çalışan işletmede ana sıra isim, üretim/gelir, satın alma; yönetici ve yükseltme ikincil sırada olsun. Üretim ve kilometre taşı çubuklarını farklı etiket ve renklerle ayır. Satın alma, çalıştırma, yönetici ve yükseltme davranışları korunmalı; önemli eylemleri yeni bir menü içine saklama. Detaylı çizimleri yeniden üretme; mevcut görselin boş kenarları ve küçük ölçekte okunurluğunu kontrol et.
+CeremonyShot.image ve LIFE_SCRIPT için kare bazında odak/zoom/güvenli yerleşim destekle. Ortak %8 yakınlaşmayı kaldır; eski fotoğrafın contain davranışını koru.
 
-## 4. Hikâye kadrajları
-Ceremony.tsx içindeki object-cover ve ortak %8 zoom yerine kare başına odak noktası/zoom ayarı destekle; tüm kareler için aynı zorunlu yakınlaşmayı uygulama. 9:16, 19.5:9 ve 20:9 ekranlarda yüzler, kurabiye/pasta, aile fotoğrafı, Rıza anı balonu, personel ve Şans kesilmesin. Alt konuşma katmanı önemli nesneleri kapatmasın; safe-area ve uzun TR/EN balonlarını kontrol et. Rıza kaynağında art/pilot/07-story/c4-riza-garden-v2.png kullanılmalı. Diğer kareler: c2-nevin-door.png, c3-attic-v2.png, c7-mansion-cake.png, c5-restaurant.png, c1-soup.png. Mevcut entegrasyon doğruysa yeniden yapma.
+Başlangıç önerileri: x,y kaynak resimde sol üstten yüzde; bunlar doğrudan CSS object-position değildir. CSS object-position kırpılacak alanı dağıtır; dikey kırpma yoksa y etkisizdir. Görünür kaynak dikdörtgeni ve transform-origin birlikte hesaplanmalı. Değerler telefonda doğrulanmış final ayar değildir.
 
-## 5. Başarı ve emeklilik sunumu
-Sınıf kapanış kartına mevcut varlıklardan gerçek eski/yeni ev, kıyafet veya araç dönüşümünü ve açılan içeriği ekle. Aynı yüzün üzgün/mutlu hâli tek dönüşüm göstergesi olmasın. Ödül ve törenin mevcut sonuçlarını değiştirme.
-Emeklilik panelini mevcut verilerden hayat özeti, görülen hayat anları, mevcut aile adı, işletmeler ve kazanılan miras puanı ile zenginleştir. Emeklilik eylemi ve mevcut nesil/kayıt mantığı korunmalı. Olmayan soy ağacı verisi veya yeni ekonomi mekaniği uydurma.
+| Kare | Odak x,y | Zoom | İlk deneme / korunacaklar |
+|---|---|---|---|
+| soup | 52,41 | 1.00→1.00 | güvenli contain; yüzler, kaseler, tencere, sağdaki Şans |
+| nevin-door | 50,36 | 1.00→1.00 | güvenli contain; Nevin, Defne, kahraman, kurabiye, Şans |
+| attic | 50,39 | 1.00→1.02 | cover güvenliyse; yüz, defter, düşen fotoğraf, Şans |
+| riza-garden | 42,29 | 1.00→1.00 | güvenli contain; anı balonunun tamamı, yüzler, fotoğrafın arka yüzü |
+| restaurant | 49,34 | 1.00→1.00 | güvenli contain; iki personel, Bülent, kahraman |
+| mansion-cake | 51,35 | 1.00→1.02 | cover güvenliyse; yüzler, kutu, pencere çiçekleri |
+| date | 50,55 | 1.00→1.00 | güvenli contain; yüzler, çay/kurabiye, aşağıdaki Şans |
+| wedding | 50,55 | 1.00→1.00 | güvenli contain; dört yüz, çift, Şans'ın yüzük paketi |
+| birth | 50,52 | 1.00→1.00 | güvenli contain; iki yüz, bebek ve onu tutan eller |
 
-## 6. Aile albümü
-Yalnız görülmüş hayat anlarını gösteren yeniden açılabilir hafif bir albüm tasarla. Mevcut date/wedding/birth ve tören görsellerini kullan. Yeniden izleme ödül, yaş, gelir, lifeSeen veya tören tetiklerini tekrar çalıştırmasın; gerekiyorsa ayrı salt-okunur oynatıcı modu kullan. Yeni mesaj sistemi veya ana sahneye yeni aile karakterleri bu işin kapsamı değil.
+Güvenli contain: diyalog ve portre tarafından kapatılmayan üst sahne alanına asıl resmi oranını koruyarak sığdır; boşluklar bulanık düşük kontrastlı arka plan uzantısıyla doldurulabilir. Alt %30 yanında balondan yukarı taşan 112 px portreyi de hesaba kat. En uzun satırın balon yüksekliği + safe-area + portre taşmasından güvenli alanı türet; aynı kare boyunca sabit tut. Resmi esnetme. Cover içerik keserse önce zoom kapat, ardından güvenli contain. Sığdırma yüzleri aşırı küçültürse GPT kadraj revizyonu listesine koy. Odak değiştirmenin tek başına düğündeki aşağıda kalan Şans'ı kurtaramayacağını kabul et. Reduced-motion'da zoom kapalı.
 
-## 7. Şans uyku pozu ve yeni ikonlar
-GPT kaynak üretimine başlıyor: art/pilot/05-scene/sans-sleep-rope.png. Dosya gerçekten varsa şeffaflığını koru, sahne formatına dönüştür. Çevrimdışı ödül gösterilirken mevcut Şans yerine uyuyan pozu göster; ödül kapandığında mevcut oturan poza kısa geçiş yap. Gerçek uyanma animasyonu yoksa varmış gibi üretme. Uyku görseli sadece ip tasmalıysa deri/altın dönemlerinde ipli görseli gösterme; varyantlar gelene kadar mevcut pozu koru. Hero pet ve wallet/finding akışlarında çift Şans oluşmasın.
-Kariyerin 12 görseli ve menü dışındaki para, cüzdan, statü/miras, yönetici, reklam, hedef, yükseltme, ev/araç/kıyafet/lüks ikonları daha sonra gelecek. Mevcut aktif ikon referanslarını envanterle; yeni dosya gelmeden kırık yol oluşturma veya tüm public/assets/icons dosyalarını topluca değiştirme. Eski gem/sağlık/mutluluk/paket varlıkları aktif v2'de kullanılmıyorsa bu tasarım kapsamına ekleme. Yeni varlıkların adları ve eşlemeleri merkezi olsun. Basit kapatma/ok/kilit/onay gibi kontroller tutarlı vektör ikonlar olarak kalabilir.
+TopBar ayarlar, TabSheet kapatma, hedef genişletme, yönetici konuşma ve segmentlerin dokunma kutusu en az 44×44 CSS px. İkon büyümek zorunda değil; hedefler çakışmasın, kaydırmayı engellemesin. Fontları topluca değiştirme.
 
-## Doğrulama ve teslim
-Önce mevcut çalışma ağacını incele; başkasının değişikliklerini ezme. 360×800, 390×844 ve 412×915 CSS px boyutlarında TR/EN temel ekranları ve uzun metinleri kontrol et; Android safe-area davranışını koru. Erken oyun, otomatik işletme, geç oyun, çevrimdışı ödül ve emeklilik durumlarını incele. Görsel QA için önce/sonra ekran görüntülerini sakla. npm run typecheck ve npm run build:v2 çalıştır; değişen etkileşimler için anlamlı kontrol yap. Yapılanlar, varlık bekleyenler ve telefonda doğrulanamayanları açıkça raporla. Dokümanları nihai uygulamaya göre güncelle. Deploy, Play yükleme veya kullanıcıya mesaj gönderme yapma.
+Kabul: dokuz kare 9:16, 19.5:9, 20:9 oranlarında (ör. 360×640/780/800), en uzun TR/EN diyalog ve portre taraflarıyla kontrol edilmiş. Ana yüz/nesneler zoom başlangıç/sonunda kesilmiyor ve balon altında kalmıyor. Dokunma kutuları ölçülmüş. Önce/sonra görüntüleri; typecheck/build:v2 geçer. Telefonda görülmediyse açıkça yaz.
+
+## b — Sınıf kapanış kartı
+
+340 px dış / yaklaşık 300 px iç genişlikte tek ana dönüşüm: gerçekten değişen ev > gerçekten değişen kıyafet > gerçekten değişen araç. İki yaklaşık 135 px kutu, ortada 20 px ok; ev görseli yaklaşık 120×72 px. Hepsini aynı kartta yığma. Başlık, ana dönüşüm, kazanım satırı, sonraki hedef, devam sırası.
+Otel+Bülent hediyesini işletme küçük resmi + yönetici portresi + kısa metinle koru; diğer değişim yoksa ana kazanım olabilir.
+Oyuncu evi/kıyafeti önceden aldıysa sınıf tabanını yeni hediye gibi gösterme. Gerçek önce/sonra mevcut geçişten alınabiliyorsa kullan; eski durum bilinmiyorsa karşılaştırma yerine ulaşılan sınıf/mevcut kazanımı göster. Sırf görsel için kayıt göçü yok.
+
+Kabul: erken ev değişimi, kıyafet değişimi, Milyarder hediyesi ve önceden satın alınmış eşya durumları TR/EN 340 px'de doğru; uzun adlar taşmıyor. Çevrimdışı limit, sonraki hedef ve devam davranışı korunmuş; typecheck/build:v2 geçer.
+
+## c — Aile albümü + emeklilik (iki bağımsız alt teslim)
+
+c1: yalnız görülmüş hayat/tören kareleri; mevcut kayıt ve görsellerle albüm. Salt-okunur tekrar oynatma. Ödül, seen, isim sorusu, tören tetikleri ve gelir/yaş saatinin çalışma durumuna yan etki yok; mevcut oynatıcının saat durdurmasını özellikle kontrol et.
+c2: mevcut hayat anları, aile adı varsa, işletme özeti ve miras puanı ile emeklilik paneli. Yeni soy ağacı/ekonomi icat etme; emeklilik düğmesi erişilebilir ve tek kez çalışır.
+
+Kabul c1: boş/kısmi/tamam albüm, TR/EN; tekrar izleme öncesi/sonrası ilgili kayıt, ödül ve saat davranışı aynı.
+Kabul c2: kısa/uzun ad, az/çok işletme, 360 px görünüm; emeklilik mantığı korunmuş.
+Her alt teslim typecheck/build:v2 ve ilgili akış kontrolü.
+
+## d — Tek ekranlık görsel sistem denemesi
+
+Mor–indigo ve beyaz kart varsayılandır; CLAUDE.md paletini topluca değiştirme.
+İşletmeler ekranında aynı durum/kaydırma konumuyla:
+A: mevcut palet, azaltılmış parlak iç gölge, sakin kenarlar, küçük metinde kontursuz tipografi.
+B: aynı düzen/ikonlarla alternatif #202D46 lacivert çerçeve ve #FFF8EC kırık beyaz kart; lokal izole önizleme.
+Önce A. B kullanıcı seçimi olmadan üretim varsayılanı olmaz veya diğer ekranlara yayılmaz. A'nın mevcut paletle iyileştirilmesi ek onay gerektirmez.
+
+Kabul: 360 px TR A/B karşılaştırması, EN uzun ad ve metin kontrastı kontrolü. İsim/gelir/ana eylem ilk bakışta ayırt edilir; reklam ana eylemden baskın değildir. Kontrast ve kullanıcı tercihi değerlendirilir; ölçülmemiş başarı oranı iddia edilmez. B geri alınabilir; typecheck/build:v2 geçer.
+
+## e — İşletme kartları + seçici yazı boyutu
+
+Önce yeni ikonları mevcut kartlarda telefonda veya ölçülü mobil önizlemede gör. Kanıtlanan soruna göre düzenle; zorunlu toplu yeniden tasarım yok.
+360 px ekranda yaklaşık 300 px kart iç genişliği:
+- Açılacak: 88–96 px ikon, 12 px boşluk, kalan alanda iki satıra izinli ad ve gelir; altında tam genişlik min.44 px satın alma + fiyat; şart/bekleme ve reklam ikincil.
+- Çalışan: 72–80 px ikon/çalıştır, yanında isim/otomatik, adet ve gelir; ardından üretim/tur süresi, satın alma/fiyat, daha ince farklı etiketli kilometre taşı, yönetici/yükseltme. Önemli eylemleri menüye saklama. Uzun metinlerde ikincil satır dikey olabilir.
+- Hediye otel owned>0 olduğu için çalışan/otomatik karttır. Mevcut tier sırası korunur, sıradaki alınacak işletmenin altında olabilir. Kilitli görünmez. Kayıtta hediye kökeni yoksa kalıcı hediye rozeti uydurma.
+
+Global 12–13 px şartı kaldırıldı. Öncelik: sıkışmış fiyat, satın alma şartı, gelir açıklaması, süre, kilit gerekçesi; gerekirse 12–13 px. Kısa 10 px büyük harfli bölüm etiketi/rozet kontrastla kalabilir; dekoratif/tekrar eden 11 px alt metin otomatik büyümez. Koleksiyonun 9 px adlarını 11–12 px ve gerekirse üç sütunla dene. 62 kullanım topluca değiştirilmez.
+
+Kabul: açılacak, manuel, otomatik ve sıra dışı hediye otel 360 px TR/EN'de kontrol; önemli ad/fiyat/şartlar taşmıyor. ×1/×10/max, çalıştır, yönetici, yükseltme ve tüm sahiplik görünümü korunmuş. Üretim/kilometre taşı farklı okunur. typecheck/build:v2 geçer.
+
+## f — Uyku pozu ve yeni varlıklar (gelen gruba göre bağımsız)
+
+Manifest: docs/design-art-production-plan.md. Olmayan dosyayı aktif eşlemeye ekleme.
+sans-sleep-rope.png hazır ve alpha içerir. Yatay/alçak uyku sprite'ını oturan köpeğin kutusuna zorlayıp devleştirme; zemin çapası ve fiziksel uzunluğa göre yerleştir. Offline kartta kullan, kapanışta mevcut sit poza kısa geçiş. Deri/altın uyku varyantları gelene kadar o aşamalarda mevcut poza devam. Pet/finding/uyku çift köpek üretmesin.
+flyer-distributor.png ve dishwasher.png hazır. Broşür çiçekçinindir; eski turuncu sembollü kaynak silindi, oyundaki Flyer-Distributor.png değiştirildi. Kariyer görselleri özgün ayrı kompozisyonlarla, referanssız üretilir.
+Yeni portrelerde sahnenin gerçek kıyafetini seç; flashback ve hayat anlarını otomatik en iyi kıyafetle ezme. Portre seti yoksa mevcut sete geri dön.
+Para, cüzdan, menü ve ortak raster ikonları gelen gruba göre merkezi eşlemeyle bağla. Ok/kapat/kilit/onay vektörleri korunur. Kullanılmayan v1 gem/sağlık/mutluluk/paketleri kapsam dışı.
+
+Kabul: alpha, küçük ölçekte okunurluk, doğru anlam; kırık dosya yolu yok. Uyku normal dönüş ve pet/finding ile tek köpek, doğru tasma/ölçek. Portre sahne kıyafeti doğru. Her grup typecheck/build:v2 ve etkilenen ekran kontrolü.
+
+## Teslim
+
+Her adımda dosyalar, önce/sonra görüntüleri, kabul sonuçları ve telefonda doğrulanmayanları yaz. Lint'te mevcut/yeni hataları ayır. Görsel-only adım için simülatör şart değil. Son bütünleştirmede 360×800, 390×844, 412×915 TR/EN ana akış smoke kontrolü; tam matrisi her aşamada tekrarlama. Dokümanları gerçekleşen uygulamaya göre güncelle. Deploy/Play yükleme yok.

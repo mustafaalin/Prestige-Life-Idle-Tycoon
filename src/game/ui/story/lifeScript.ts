@@ -1,11 +1,11 @@
 import type { LifeMomentId } from '../../runtime/story';
-import type { CeremonyShot } from './ceremonyScript';
+import type { CeremonyShot, StoryImage } from './ceremonyScript';
 
 // Life moments (story-v2.md §4c): the hero's life told by age, each a single beat of a few lines.
 // Each has its own picture (art/pilot/10-life/).
 
 const IMAGES = '/assets/story/life';
-const picture = (name: string) => ({ src: `${IMAGES}/${name}.webp`, fit: 'cover' }) as const;
+const picture = (name: string): StoryImage => ({ src: `${IMAGES}/${name}.webp`, fit: 'panel' });
 
 export const LIFE_SCRIPT: Record<LifeMomentId, CeremonyShot[]> = {
   // The cookies from the Working Class ceremony come back, and so does Şans, who started it all.

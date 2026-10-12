@@ -189,17 +189,37 @@ function StoryPlayer({ shots, pill, heading, summary, onDone }: StoryPlayerProps
                 transitionDuration: `${FADE_MS}ms`,
               }}
             >
-              {item.image.fit === 'contain' && (
-                <img src={item.image.src} alt="" draggable={false} className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-60" />
+              <img src={item.image.src} alt="" draggable={false} className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-60" />
+              {item.image.fit === 'panel' ? (
+                <>
+                  {/* Full width from the top: nothing is cropped on a tall phone. The frame's lower
+                      edge fades into the blurred copy, under the speech bubble. */}
+                  <img
+                    src={item.image.src}
+                    alt=""
+                    draggable={false}
+                    className={`absolute inset-x-0 top-0 w-full h-auto ${
+                      item.image.zoom && phase === 'story' && index <= shotIndex ? 'v2-panel-zoom' : ''
+                    }`}
+                    style={{
+                      maskImage: 'linear-gradient(to bottom, black 86%, transparent)',
+                      WebkitMaskImage: 'linear-gradient(to bottom, black 86%, transparent)',
+                      transformOrigin: item.image.zoom ? `${item.image.zoom.x}% ${item.image.zoom.y}%` : undefined,
+                      ['--panel-zoom' as string]: item.image.zoom?.to,
+                    }}
+                  />
+                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/50 to-transparent" />
+                </>
+              ) : (
+                <img
+                  src={item.image.src}
+                  alt=""
+                  draggable={false}
+                  className={`absolute inset-0 w-full h-full object-contain -translate-y-[12%] ${
+                    phase === 'story' && index <= shotIndex ? 'v2-panel-zoom' : ''
+                  }`}
+                />
               )}
-              <img
-                src={item.image.src}
-                alt=""
-                draggable={false}
-                className={`absolute inset-0 w-full h-full ${
-                  item.image.fit === 'cover' ? 'object-cover' : 'object-contain -translate-y-[12%]'
-                } ${phase === 'story' && index <= shotIndex ? 'v2-panel-zoom' : ''}`}
-              />
             </div>
           ) : null,
         )}

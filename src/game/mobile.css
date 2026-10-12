@@ -10,7 +10,7 @@
 /* Story panels (prologue, ceremonies): slow camera push on the panel, lines rise in. */
 @keyframes v2-panel-zoom {
   from { transform: scale(1); }
-  to { transform: scale(1.08); }
+  to { transform: scale(var(--panel-zoom, 1.08)); }
 }
 @keyframes v2-line-in {
   from { opacity: 0; transform: translateY(6px); }

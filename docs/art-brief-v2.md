@@ -125,7 +125,7 @@ Hazır komutlar: [art-prompts-v2.md §3](./art-prompts-v2.md). Özet: *"Characte
 
 ### 4.5 Hikâye kareleri
 
-Altısı da oyunda (2026-10-13, GPT; `public/assets/story/ceremony/`, 1080 px genişlik). Her kare, töreninde aşağıdaki cümlelerin arkasında durur (`ceremonyScript.ts`).
+Altısı da oyunda (2026-10-13, GPT; `public/assets/story/ceremony/`, 1080 px genişlik). Kareler tam genişlikte, üstten hizalı gösterilir (kırpma yok); alt üçte birin boş bırakılması bu yüzden şart. Her kare, töreninde aşağıdaki cümlelerin arkasında durur (`ceremonyScript.ts`).
 
 | # | Tören | Kaynak → oyundaki dosya | Sahne | Arkasında durduğu cümleler |
 | --- | --- | --- | --- | --- |
