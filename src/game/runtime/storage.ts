@@ -138,6 +138,7 @@ function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
     daughterName: typeof raw.daughterName === 'string' ? raw.daughterName.trim().slice(0, HERO_NAME_MAX) : '',
     guideSeen: stringList(raw.guideSeen),
     guideDone: stringList(raw.guideDone),
+    eventAnsweredAt: finite(raw.eventAnsweredAt, 0),
   };
 }
 

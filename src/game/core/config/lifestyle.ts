@@ -11,12 +11,13 @@ import type { LifestyleDef } from '../types';
 // Homes and vehicles climb together (game-design §4.4, decided 2026-10-11): `home` is the home a
 // vehicle opens in (index into HOUSES), and the last vehicle of a home is needed to move on to the
 // next one. So each home has the car you came with and the one you buy there parked out front, never
-// a supercar by the tent. The tent opens two, every other home but the last opens one.
+// a supercar by the tent. Only the bike stands by the tent and no car by the van (2026-10-12): the
+// rented room opens two (the old sedan, then the motorcycle), every other home but the last opens one.
 const V2 = '/assets/vehicles/v2';
 const VEHICLE_SPECS: { id: string; name: string; image: string; cost: number; home: number }[] = [
   { id: 'vehicle-bike', name: 'City Bike', image: `${V2}/vehicle-1.webp`, cost: 20, home: 0 },
-  { id: 'vehicle-scooter', name: 'Retro Scooter', image: `${V2}/vehicle-2.webp`, cost: 150, home: 0 },
-  { id: 'vehicle-old-sedan', name: 'Old Family Sedan', image: `${V2}/vehicle-3.webp`, cost: 1_500, home: 1 },
+  { id: 'vehicle-scooter', name: 'Retro Scooter', image: `${V2}/vehicle-2.webp`, cost: 150, home: 1 },
+  { id: 'vehicle-old-sedan', name: 'Old Family Sedan', image: `${V2}/vehicle-3.webp`, cost: 1_500, home: 2 },
   { id: 'vehicle-motorcycle', name: 'Motorcycle', image: `${V2}/vehicle-motorcycle.webp`, cost: 5_000, home: 2 },
   { id: 'vehicle-hatchback', name: 'Modern Hatchback', image: `${V2}/vehicle-4.webp`, cost: 12_000, home: 3 },
   { id: 'vehicle-suv', name: 'Family SUV', image: `${V2}/vehicle-5.webp`, cost: 90_000, home: 4 },

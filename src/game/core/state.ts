@@ -5,6 +5,7 @@ import { CLASS_HOME_FLOOR, FIRST_OWNED_HOME, HOUSES, STARTING_HOME_ID } from './
 import { LIFE_SECONDS } from './config/life';
 import { CLASS_OUTFIT_FLOOR, LIFESTYLE_ITEMS, OUTFITS, STARTING_LIFESTYLE_IDS, VEHICLES } from './config/lifestyle';
 import { ACTIVE_QUESTS, GENERATED_QUEST_SECONDS, QUESTS } from './config/quests';
+import { COLLECT_END_CLASS } from './config/scene';
 import { UPGRADES } from './config/upgrades';
 import { classIndexFor, costForUnits, isLifeOver, nextMilestone, pendingLegacyPoints, questReward } from './formulas';
 import type { BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind, QuestDef, QuestGoal, UpgradeDef } from './types';
@@ -158,12 +159,16 @@ export function lifestyleNeedsHome(state: GameStateV2, item: LifestyleDef): Hous
   return item.home !== undefined && item.home > houseIndex(state.home) ? HOUSES[item.home] : null;
 }
 
-/** The vehicle still missing before you can move up from where you live, or null. */
+/**
+ * The next vehicle to buy before you can move up from where you live, or null: every vehicle opened
+ * here or in a home below must be owned. A ceremony moves the hero without his vehicles catching
+ * up, so there can be several; this is the first of them.
+ */
 export function moveUpNeedsVehicle(state: GameStateV2): LifestyleDef | null {
   const home = houseIndex(state.home);
-  let last: LifestyleDef | null = null;
-  for (const vehicle of VEHICLES) if (vehicle.home === home) last = vehicle;
-  return last && !state.lifestyleOwned.includes(last.id) ? last : null;
+  return (
+    VEHICLES.find((vehicle) => (vehicle.home ?? 0) <= home && !state.lifestyleOwned.includes(vehicle.id)) ?? null
+  );
 }
 
 /** The best owned vehicle the home you live in has room for (the one parked out front), or null. */
@@ -303,7 +308,9 @@ export function buyUpgrade(state: GameStateV2, upgradeId: string): GameStateV2 |
 export function questProgress(state: GameStateV2, goal: QuestGoal): { current: number; target: number } {
   switch (goal.type) {
     case 'collect':
-      return { current: state.bottles, target: goal.count };
+      // Once nothing lies on the ground (Middle Class on) the goal counts as done, or it would hold its
+      // place for the rest of the life.
+      return { current: state.classIndex >= COLLECT_END_CLASS ? goal.count : state.bottles, target: goal.count };
     case 'find':
       return { current: state.finds, target: goal.count };
     case 'units':

@@ -1,8 +1,8 @@
 # Prestige Life v2 — Oyun Tasarım Belgesi
 
-Son güncelleme: 2026-10-11 (ömür 80 yaş, hayat anları) · Durum: Faz 1A bitti; sahne, toplama, Şans'ın bulduğu, aylık gelir, işletme yükseltmeleri ve hedefler eklendi; erken tempo yeniden dengelendi, işletme ana gelir (2026-10-08). Reklam/IAP kuralları: [monetization-v2.md](./monetization-v2.md)
+Son güncelleme: 2026-10-12 · Durum: Faz 1 sürüyor; kurallar ve sayılar oyundaki hâliyle. Reklam/IAP kuralları: [monetization-v2.md](./monetization-v2.md)
 
-Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-v2.md); rapordan sapmalar §9'da. Sayısal değerler kodda `src/game/core/config/` altında durur; buradaki tablolar `npm run sim -- --config` çıktısından alınmıştır. Değer değiştirince önce simülatörü çalıştır, sonra bu belgeyi güncelle.
+Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-v2.md); rapordan sapmalar §9'da. Sayısal değerler kodda `src/game/core/config/` altında durur; buradaki tablolar `npm run sim -- --config` ve `npm run sim` çıktısından alınmıştır (2026-10-12). Değer değiştirince önce simülatörü çalıştır, sonra bu belgeyi güncelle.
 
 ## 1. Vaat
 
@@ -11,7 +11,7 @@ Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-
 - AdVenture Capitalist tarzı üstel idle ekonomi (sayılar her zaman akar, büyük basamaklar "vay" anıdır)
 - 7 basamaklı, törenli sınıf merdiveni (her basamakta sahne, ev, araç, kıyafet değişir)
 - Bir ömür: kahraman 17 yaşında başlar, yaş sadece oyun açıkken ilerler (1 dk ≈ 3 hafta; 2026-10-09). 80 yaşında emekli olur ve torunu miras çarpanıyla devralır; erken emeklilik yok (§4.9)
-- BitLife tadında olay kartları (Faz 2)
+- Tanıdıklardan gelen olay kartları: bir fırsat, iki cevap (§4.7; ilk 10 kart oyunda, büyük set Faz 2)
 
 Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Şans, Rıza Amca, annesine verilen söz).
 
@@ -20,7 +20,7 @@ Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Ş
 | Döngü | Süre | Oyuncu ne yapar | Sistemler |
 | --- | --- | --- | --- |
 | Anlık | saniyeler | Para akar; şişe toplar, işletme alır, yönetici atar | İşletmeler, yöneticiler, kilometre taşı çarpanları, sahnede toplama, Şans'ın bulduğu |
-| Hayat | günler | Terfi alır, hayallerini satın alır, sınıf atlar | Kariyer, statü eşyaları, sınıf töreni, çevrimdışı kazanç, (olay kartları — Faz 2) |
+| Hayat | günler | Terfi alır, hayallerini satın alır, sınıf atlar | Kariyer, statü eşyaları, sınıf töreni, çevrimdışı kazanç, olay kartları |
 | Ömür ve hanedan | haftalar | Bir ömür boyunca sınıf atlar; ömür sonunda emekli olur, varis mirasla başlar | Yaş, miras puanı, (yadigarlar, nesil içeriği — Faz 2) |
 
 ## 3. Kaynaklar
@@ -41,16 +41,16 @@ Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Ş
 | --- | --- | --- | --- |
 | 0 | Living on the Street | 0 | 17 |
 | 1 | Day Laborer | 1K | 17 |
-| 2 | Working Class | 100K | 18 |
+| 2 | Working Class | 100K | 19 |
 | 3 | Middle Class (Orta Sınıf) | 1M | 19 |
 | 4 | Millionaire (Milyoner) | 10M | 20 |
-| 5 | Billionaire | 1B | 24 |
-| 6 | Multibillionaire (Multimilyarder) | 100B | 41 |
-| 7 | Richest Person Alive | 1T | 54 |
+| 5 | Billionaire | 1B | 23 |
+| 6 | Multibillionaire (Multimilyarder) | 100B | 36 |
+| 7 | Richest Person Alive | 1T | 59 |
 
-Multibillionaire 2026-10-08'de eklendi: Milyarder → En Zengin arasındaki 25 yıllık boşluğa bir hikâye anı koymak için.
+Multimilyarder, Milyarder ile En Zengin arasındaki uzun boşluğa bir hikâye anı koymak için var.
 
-**Orta Sınıf (karar 2026-10-08, kullanıcı):** Multimilyoner kalktı, İşçi ile Milyoner arasına Orta Sınıf ($1M) girdi; Milyoner $1M'dan $10M'a çıktı. Neden: İşçi'den (kas gücüyle maaşlı iş) Milyoner'e geçiş çok büyük bir sıçrama gibi duruyordu; Milyoner artık gerçekten milyonlar demek. Gerçek dünya: milyoner net servet ≥ $1M (dünyada ~57,5 milyon kişi, çoğunun en büyük varlığı evi; UBS 2026), milyarder ≥ $1B (Forbes 2026: 3.428 kişi), $100B üstü ~15–20 kişi, dünyanın en zengini ~$0,84–0,9T. Oyunda eşik "nesil kazancı"dır, eldeki para değil. Orta Sınıf ilk oturumun zirvesini (30. dk) tutar; Milyoner dönüş oturumunun açılışında gelir ("geri gel" nedeni). Çevrimdışı tavan sınıf sırasına bağlı kaldı (Orta Sınıf 1 sa, Milyoner ve üstü 2 sa).
+**Orta Sınıf (karar 2026-10-08, kullanıcı):** İşçi ile Milyoner arasında $1M'da durur; Milyoner $10M. Neden: İşçi'den (kas gücüyle maaşlı iş) Milyoner'e geçiş çok büyük bir sıçramaydı; Milyoner artık gerçekten milyonlar demek. Gerçek dünya: milyoner net servet ≥ $1M (dünyada ~57,5 milyon kişi, çoğunun en büyük varlığı evi; UBS 2026), milyarder ≥ $1B (Forbes 2026: 3.428 kişi), $100B üstü ~15–20 kişi, dünyanın en zengini ~$0,84–0,9T. Oyunda eşik "nesil kazancı"dır, eldeki para değil.
 
 Sınıf, harcanan paradan bağımsızdır (kazanılan toplam). Oyuncu alışveriş yaptığı için asla sınıf kaybetmez.
 
@@ -59,49 +59,48 @@ Sınıf, harcanan paradan bağımsızdır (kazanılan toplam). Oyuncu alışveri
 AdVenture Capitalist modeli: her işletme adet adet alınır, her birim bir üretim döngüsünde gelir getirir.
 
 - Birim fiyatı: `baseCost × costGrowth^sahipOlunan`
-- Gelir/sn: `baseRevenue × adet × kilometreTaşıÇarpanı / cycleSeconds × globalÇarpan`
-- Kilometre taşları: 10, 25, 50, 100, 200, 300 adette kâr ×2
-- Yöneticisiz işletme sadece oyuncu açıkken ve "Çalıştır"a dokununca tek döngü çalışır, çevrimdışı üretmez (simülatör bunu %60 verimle yaklaşık modeller)
-- Yönetici: tek seferlik, işletmeyi otomatik ve çevrimdışı çalıştırır. Her işletmenin kendi yönetici karakteri var (story-v2 §3)
-- Ekranda gelir aylık gösterilir: $/ay = $/sn × 60 (1 dk = 1 oyun ayı). Para yine saniye saniye artar; işletme kartındaki çubuk tur başına geliri gösterir
+- Gelir/sn: `baseRevenue × adet × kilometreTaşıÇarpanı × yükseltmeÇarpanı / cycleSeconds × globalÇarpan`
+- Kilometre taşları: 25, 50, 75 adette kâr ×2 (bir ömürde işletme başına ~70 adet alınıyor)
+- Yöneticisiz işletme sadece oyun açıkken ve "Çalıştır"a dokununca tek döngü çalışır, çevrimdışı üretmez (simülatör bunu %60 verimle yaklaşık modeller)
+- Yönetici: tek seferlik (ilk birimin 12 katı), işletmeyi otomatik ve çevrimdışı çalıştırır. Her işletmenin kendi yönetici karakteri var (story-v2 §3)
+- Ekranda gelir aylık gösterilir: $/ay = $/sn × 60. Para yine saniye saniye artar; işletme kartındaki çubuk tur başına geliri gösterir
+- Üst bar ve "~X sonra alabilirsin" tahminleri yalnızca otomatik geliri (yönetici, maaş, kira) kullanır; dokunarak çalıştırılan işletmeler sayılmaz
 
-Değerler 6 düğmeden üretilir (`BUSINESS_TUNING`): ilk fiyat $25, kademe fiyat adımı ×15, ilk döngü 4 sn (her kademede ×2), ilk geri dönüş 270 sn, geri dönüş adımı ×3,3, yönetici = ilk birim × 12. Kademe başına gelir çarpanı (`revenueFactor`): Çiçek Tezgâhı ×2,7 (kendini 100 sn'de öder) ve Kahve Arabası ×1,2 (erken oyunda işletme, şişe ve maaştan iyi yatırım olsun), Mini Market ×0,7, Beauty Salon ×0,6 (orta oyun yavaş), Logistics ×2, Factory / Hotel / Tech ×2,5 (geç oyun hızlı).
-
-**İşletme ana gelirdir (karar 2026-10-08):** Erken tempo önce tüm işletme gelirini 7,5'e bölerek yavaşlatılmıştı; Çiçek Tezgâhı turda $0,01 veriyor, iş ondan 15 kat iyi yatırım oluyordu (kullanıcı: "Çalıştır'a basınca sıfır gelir oluyor"). Şimdi her tur en az $1 öder, tempo kazançtan değil fiyatlardan gelir: birim pahalanması (Çiçek Tezgâhı ×1,15), 2. ve 3. yükseltmenin fiyatı ve daha düşük maaşlar (§4.3). AdVenture Capitalist'te de limonata standı kendini 2 sn'de öder; yavaşlık birim fiyatlarından gelir. Simülatör bunu "his" kontrolleriyle bekler (§5).
+**Ayar (2026-10-09, kullanıcıyla):** başta ana gelir iş, sonra ağırlık işletmelere geçer. Çiçek Tezgâhı $250 (birikimle alınır); her kademenin ilk birimi bir öncekinin 3–20 katı (adım büyüyerek), böylece yeni işletmeler ilk güne yığılmaz, günlere yayılır. Turlar kısa ve okunur (1–15 sn). Kademenin geliri `paybackMinutes` ile ayarlanır (ilk birimin kendini ödeme süresi). Her tur en az $1 öder; yavaşlık kazançtan değil fiyatlardan gelir (§6.6), simülatör bunu "his" kontrolleriyle bekler (§5).
 
 | İşletme | İlk birim | Büyüme | Döngü | Tur başına | İlk birim geri dönüşü | Yönetici |
 | --- | --- | --- | --- | --- | --- | --- |
-| Flower Stand | $25 | ×1.15 | 4 sn | $1 | 1 dk 40 sn | $300 |
-| Coffee Cart | $375 | ×1.15 | 8 sn | $4 | 12 dk 23 sn | $4.5K |
-| Bakery | $5.63K | ×1.14 | 16 sn | $30 | 49 dk | $67.6K |
-| Car Wash | $84.4K | ×1.13 | 32 sn | $278 | 2 sa 41 dk | $1.01M |
-| Mini Market | $1.27M | ×1.12 | 64 sn | $1.78K | 12 sa 41 dk | $15.2M |
-| Beauty Salon | $19.0M | ×1.11 | 128 sn | $13.8K | 2 g | $228M |
-| Logistics Warehouse | $285M | ×1.10 | 256 sn | $418K | 2 g | $3.42B |
-| Factory | $4.27B | ×1.09 | 512 sn | $4.75M | 5 g 7 sa | $51.2B |
-| Hotel Chain | $64.1B | ×1.09 | 1024 sn | $43.2M | 17 g 14 sa | $769B |
-| Tech Startup | $961B | ×1.09 | 2048 sn | $393M | 58 g | $11.5T |
+| Flower Stand | $250 | ×1.20 | 1 sn | $1 | 4 dk | $3K |
+| Coffee Cart | $750 | ×1.20 | 2 sn | $4.2 | 6 dk | $9K |
+| Bakery | $3K | ×1.18 | 3 sn | $10 | 15 dk | $36K |
+| Car Wash | $15K | ×1.17 | 4 sn | $33 | 30 dk | $180K |
+| Mini Market | $90K | ×1.16 | 5 sn | $83 | 1 sa 30 dk | $1.08M |
+| Beauty Salon | $720K | ×1.15 | 7 sn | $560 | 2 sa 30 dk | $8.64M |
+| Logistics Warehouse | $7.2M | ×1.14 | 9 sn | $1.44K | 12 sa 30 dk | $86.4M |
+| Factory | $86.4M | ×1.13 | 11 sn | $3.52K | 3 g 3 sa | $1.04B |
+| Hotel Chain | $1.3B | ×1.12 | 13 sn | $8.8K | 22 g 5 sa | $15.6B |
+| Tech Startup | $25.9B | ×1.12 | 15 sn | $21.6K | 208 g | $311B |
 
-**Yükseltmeler (`config/upgrades.ts`, karar 2026-10-08):** Her işletmeye sırayla alınan 3 tek seferlik yükseltme, her biri o işletmenin kârı ×2 (toplam ×8). 5 / 15 / 35 adette açılır; fiyat ilk birimin ×6 / ×3.000 / ×120.000'i (Çiçek Tezgâhı: Tente $150, Renkli saksılar $75K, Çiçek kamyoneti $3M). İlki ucuz, açıldığı anda yaklaşık bir dakikalık gelir; sonrakiler orta oyunun temposunu tutar. Adet, yükseltme ve yönetici arasında gerçek bir seçim yaratır (AdVenture Capitalist'in nakit yükseltmeleri). Adları i18n `upgrades`.
+**Yükseltmeler (`config/upgrades.ts`):** Her işletmeye sırayla alınan 3 tek seferlik yükseltme, her biri o işletmenin kârı ×2 (toplam ×8). 5 / 15 / 35 adette açılır; fiyat o adede ulaşmanın maliyetinin 2 / 6 / 20 katı (Çiçek Tezgâhı: Tente $3,72K, Renkli saksılar $108K, Çiçek kamyoneti $14,7M). Fiyat işletmenin kendi büyüklüğüne bağlı olduğu için geç işletmelerin yükseltmeleri de erişilebilir kalır. Adet, yükseltme ve yönetici arasında gerçek bir seçim yaratır. Adları i18n `upgrades`.
 
 ### 4.3 Kariyer (`config/careers.ts`)
 
-Tek iş, para ile terfi. Maaş online ve offline otomatik gelir. Her terfi o nesil boyunca tüm gelire kalıcı bonus ekler. Rol: yan gelir; erken oyunda maaş, geç oyunda gelir bonusu. İlk işin maaşı kendini 90 sn'de öder (önce 30 sn; işletmeden iyi yatırımdı, 2026-10-08). Tek ömür temposu için (`salaryFactor` / `costFactor`, 2026-10-08): orta kariyer maaşları düşük (Sales ×0,5 → Software Engineer ×0,25), üst işler ucuz (Team Leader ×0,8, Director ×0,6, CEO ×0,5 fiyat; CEO maaşı ×1,5).
+Tek iş, para ile terfi. Maaş online ve offline otomatik gelir. Her terfi o nesil boyunca tüm gelire kalıcı bonus ekler. Rol: ilk dakikalarda ana gelir (ilk işin maaşı kendini ~90 sn'de öder), sonra yan gelir; geç terfiler maaş için değil bonus için alınır. Maaşın geri dönüş süresi her terfide ×2,2 uzar; orta ve geç kariyer maaşları ayrıca kısılmıştır (`salaryFactor`: Sales ×0,4 → Software Engineer ve üstü ×0,06–0,08), üst işler ucuzdur (`costFactor`: Team Leader ×0,8, Director ×0,6, CEO ×0,5).
 
 | Meslek | Fiyat | Maaş/sn | Gelir bonusu |
 | --- | --- | --- | --- |
-| Flyer Distributor | $10 | $0.1 | +5% |
-| Dishwasher | $90 | $0.5 | +5% |
+| Flyer Distributor | $10 | $0.11 | +5% |
+| Dishwasher | $90 | $0.46 | +5% |
 | Cashier | $810 | $1.9 | +5% |
 | Waiter | $7.29K | $7.6 | +5% |
 | Delivery Driver | $65.6K | $31 | +10% |
-| Sales Representative | $590K | $63 | +10% |
-| IT Support | $5.31M | $182 | +10% |
-| Web Developer | $47.8M | $532 | +10% |
-| Software Engineer | $430M | $2.18K | +15% |
-| Team Leader | $3.10B | $17.8K | +15% |
-| Director | $20.9B | $146K | +20% |
-| CEO | $157B | $896K | +25% |
+| Sales Representative | $590K | $50 | +10% |
+| IT Support | $5.31M | $104 | +10% |
+| Web Developer | $47.8M | $213 | +10% |
+| Software Engineer | $430M | $522 | +15% |
+| Team Leader | $3.10B | $2.14K | +15% |
+| Director | $20.9B | $8.76K | +20% |
+| CEO | $157B | $47.8K | +25% |
 
 ### 4.4 Statü eşyaları (`config/lifestyle.ts`)
 
@@ -110,23 +109,23 @@ Araç, kıyafet ve lüks oyuncaklar **gider değildir**; her biri tüm gelire ka
 | Tür | Adet | İlk fiyat → büyüme | Bonus (her biri) | Görsel |
 | --- | --- | --- | --- | --- |
 | Ev | 12 (1. bedava) | Taşınma bedeli $1,2K → $20B (liste §4.8) | Yaşanan evin kademesi: +%8 × (n−1) | Sahnenin arka planı (kirala / satın al / kiraya ver: §4.8) |
-| Kara aracı | 12 (yeni hayat araçsız başlar) | $20, $150, $1,5K, $5K, $12K, $90K, $300K, $700K, $4M, $25M, $150M, $1B | +3,75% | `vehicles/v2/vehicle-N.webp` (motosiklet, pikap ve son 5'i şimdilik v1) |
+| Kara aracı | 12 (yeni hayat araçsız başlar) | $20, $150, $1,5K, $5K, $12K, $90K, $300K, $700K, $4M, $25M, $150M, $1B | +3,75% | `vehicles/v2/` (12'si de yeni stilde) |
 | Kıyafet | 4 (kapüşonlu bedava; iş kıyafeti, şık günlük, takım elbise) | $6K, $200K, $15M | +12% | Sahnede kahramanın pozları (`ui/scene/stages.ts`) |
 | Lüks oyuncak | 4 (tekne, yat, helikopter, jet) | $5B, $50B, $200B, $1T | +10% | `vehicles/vehicle-17..20.png` |
 
-En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%241 (×3,4).
+En iyi evde (kendi evin) yaşanıp tüm eşyalar alındığında statü toplamı +%217 (×3,2): ev %96, araçlar %45, kıyafetler %36, oyuncaklar %40.
 
 **Kıyafetler (karar 2026-10-11, kullanıcı):** 20 kıyafet sahnede görünmüyordu (v2 kahramanına 20 kıyafet çizmek pahalı); yerine hikâyenin 4 kıyafeti geldi, evlerle aynı model. Kahraman sahip olduğu en iyi kıyafeti giyer. Sınıf töreni o sınıfın kıyafetini bedava verir (`CLASS_OUTFIT_FLOOR`: Sokak ve Gündelikçi kapüşonlu, İşçi iş kıyafeti, Orta Sınıf ve Milyoner şık günlük, Milyarder ve üstü takım elbise); önden satın alan hemen giyer. Yeni kıyafet tören bitince ya da alınınca "Yeni kıyafetin" etiketiyle gelir. Eski kayıtlar: 20 kıyafetin en iyisi fiyatça en yakın yenisine (7. → iş kıyafeti, 11. → şık günlük, 15. → takım elbise). Simülatörde tempo değişmedi.
 
 **Araçlar (karar 2026-10-11, kullanıcı):** 12 araç (bisiklet, retro skuter, emektar sedan, motosiklet, hatchback, SUV, pikap, makam sedanı, spor coupe, lüks arazi aracı, süper otomobil, grand lüks); el arabası çıktı, yeni hayat araçsız başlar. Toplam bonus aynı kaldı (15 × %3 → 12 × %3,75). Eski kayıtlar: en iyi eski aracın bonusunu karşılayan sayıda yeni araç, asla daha az.
 
-**Ev–araç zinciri (karar 2026-10-11, kullanıcı):** evler ve araçlar birlikte tırmanır. Her araç bir evde açılır (o evde ya da üstünde yaşamadan alınamaz) ve bir evin açtığı son araç alınmadan bir sonraki eve geçilemez. Böylece her evin önünde iki araç görülür: gelirken getirilen ve orada alınan; çadırın önünde süper araba olmaz, araç almadan arka arkaya ev de değiştirilmez. Çadır iki araç açar, son ev hariç her ev bir tane (11 geçiş → 12 araç; motosiklet ve pikap bu yüzden eklendi).
+**Ev–araç zinciri (karar 2026-10-11, kullanıcı):** evler ve araçlar birlikte tırmanır. Her araç bir evde açılır (o evde ya da üstünde yaşamadan alınamaz) ve bir evin açtığı son araç alınmadan bir sonraki eve geçilemez. Böylece her evin önünde iki araç görülür: gelirken getirilen ve orada alınan; çadırın önünde süper araba olmaz, araç almadan arka arkaya ev de değiştirilmez. Kiralık oda iki araç açar, son ev hariç diğer her ev bir tane (11 geçiş → 12 araç; motosiklet ve pikap bu yüzden eklendi). Çadırın önünde yalnızca bisiklet durur, minibüsün önüne araba gelmez (karar 2026-10-12, kullanıcı: minibüste yaşayanın sedanı gerçekçi durmuyordu).
 
 | Ev (taşınma bedeli) | Gelirken önünde | Bu evde açılan | Sonraki eve geçiş şartı |
 | --- | --- | --- | --- |
-| 1 Çadır (0) | yok | Bisiklet $20, skuter $150 | Skuter |
-| 2 Minibüs ($1,2K) | Skuter | Emektar sedan $1,5K | Emektar sedan |
-| 3 Kiralık Oda ($2,5K) | Emektar sedan | Motosiklet $5K | Motosiklet |
+| 1 Çadır (0) | yok | Bisiklet $20 | Bisiklet |
+| 2 Minibüs ($1,2K) | Bisiklet | Skuter $150 | Skuter |
+| 3 Kiralık Oda ($2,5K) | Skuter | Emektar sedan $1,5K, motosiklet $5K | Motosiklet |
 | 4 Eski Daire ($9K) | Motosiklet | Hatchback $12K | Hatchback |
 | 5 Yenice Daire ($40K) | Hatchback | SUV $90K | SUV |
 | 6 Sitede Daire ($240K) | SUV | Pikap $300K | Pikap |
@@ -137,10 +136,10 @@ En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%241 (×3,4
 | 11 Sahil Malikânesi ($2B) | Süper araba | Grand lüks $1B | Grand lüks |
 | 12 Büyük Malikâne ($20B) | Grand lüks | yok | son ev |
 
-- **Tören istisnadır:** sınıf töreninin bedava taşıması (§4.8 "Sınıfın evi") şarta bakmaz; kahraman yeni eve bir iki araç geriden gelebilir. Eksik araçlar sırayla alınır; oyuncunun kendi parasıyla yapacağı bir sonraki taşınmada şart yine geçerlidir.
-- **Sahne:** evin önünde, o evin izin verdiği en iyi sahip olunan araç durur (eski bir eve geri taşınınca büyük araç görünmez; araç ve bonusu oyuncuda kalır).
+- **Tören istisnadır (karar 2026-10-12, kullanıcı):** sınıf töreni yalnızca evi değiştirir (§4.8 "Sınıfın evi"), araç vermez; kahraman yeni eve hangi araca sahipse onunla gelir, bir iki araç geride olabilir. Sonraki eve geçmek için o eve kadar açılan bütün araçlar alınmış olmalı; kilitli evdeki "Önce al" düğmesi sıradaki eksik aracı gösterir (`moveUpNeedsVehicle`).
+- **Sahne:** evin önünde, o evin izin verdiği en iyi sahip olunan araç durur.
 - **Mağaza:** kilitli araçta "Önce taşın: {ev}", kilitli evde "Önce al: {araç}" düğmesi diğer sekmeye götürür.
-- **Simülatör (2026-10-11):** tempo hedeflerinin hepsi tutuyor; kilometre taşları en çok birkaç dakika oynadı (bot zaten neredeyse bu sırayla alıyordu). İlk oturum: bisiklet 3. dk, skuter 13., sedan 27., motosiklet 32., hatchback 40., SUV 49., pikap 54. dk.
+- **Simülatör (bot, 2026-10-12):** bisiklet 4. dk, skuter 14., emektar sedan 28., motosiklet 33., hatchback 40., SUV 50., pikap 54. dk, makam sedanı 1 sa 1 dk.
 - Kod: `config/lifestyle.ts` (`home`), `core/state.ts` (`lifestyleNeedsHome`, `moveUpNeedsVehicle`, `parkedVehicle`).
 
 ### 4.5 Hanedan / miras (`config/economy.ts`)
@@ -154,22 +153,32 @@ En iyi evde yaşanıp tüm eşyalar alındığında statü toplamı +%241 (×3,4
 ### 4.6 Çevrimdışı kazanç
 
 - Sadece yöneticili işletmeler, maaş ve kira çevrimdışı üretir
-- Oran %50. **Tavan sınıfla büyür (karar 2026-10-08):** Sokakta 10 dk, Gündelikçi 15 dk, İşçi 30 dk, Orta Sınıf 1 sa, Milyoner ve üstü 2 sa (`OFFLINE_CAP_HOURS_BY_CLASS`). Neden: sabit 2 saatte 3 dk oynayıp 1 sa uzak kalan oyuncu $285 nakde karşı $106K buluyordu; şimdi ~$27K. Örnek: Egg, Inc. siloları (çevrimdışı süre bir ilerleme sistemi). Karşılama kartında tavan yazar. 4–8 saat tavan tartışması sürüyor (discussion-notes §5).
-- Reklamla ×2; "Gece Vardiyası Ekibi" IAP'ı oranı %100'e çıkarır ve tavanı +2 saat uzatır ([monetization-v2.md](./monetization-v2.md)). Kullanıcı erken oyunda çevrimdışı ödülü hâlâ fazla buluyor; ekonomi ayarında tekrar ele alınacak (discussion-notes §5)
+- Oran %50. **Tavan sınıfla büyür (karar 2026-10-08):** Sokakta 10 dk, Gündelikçi 15 dk, İşçi 30 dk, Orta Sınıf 1 sa, Milyoner ve üstü 2 sa (`OFFLINE_CAP_HOURS_BY_CLASS`). Neden: sabit 2 saatte 3 dk oynayıp 1 sa uzak kalan oyuncu elindeki paranın yüzlerce katını buluyordu. Örnek: Egg, Inc. siloları (çevrimdışı süre bir ilerleme sistemi). Karşılama kartında tavan yazar.
+- Reklamla ×2; "Gece Vardiyası Ekibi" IAP'ı oranı %100'e çıkarır ve tavanı +2 saat uzatır ([monetization-v2.md](./monetization-v2.md); ikisi de henüz bağlı değil). Kullanıcı erken oyunda çevrimdışı ödülü hâlâ fazla buluyor; ekonomi ayarında tekrar ele alınacak (discussion-notes §5)
 
-### 4.7 Tıklama: sahnede toplama (karar 2026-10-08)
+### 4.7 Sahnede kazanç: toplama, Şans'ın bulduğu, olay kartları
 
-Şişe başına `2 × mirasÇarpanı + aktifGelir/sn × 2,5` (karar 2026-10-08): bir şişe ~2,5 saniyelik gelir eder, yoksa toplamaya değmez (kullanıcı: $31/sn gelirde $2,6'lık şişe anlamsız).
+Ayrı bir "dokun" düğmesi yok; elle kazanç ana sahnede üç şeyden gelir (`config/scene.ts`, `config/events.ts`).
 
-Ayrı bir "dokun" düğmesi yok: ara sokakta şişe ve kutular belirir (`config/scene.ts`). Ekranda en fazla 4 nesne, sahne dolu başlar, 2,5 sn'de bir yenisi; durmadan toplayan oyuncu gelirini ~2 katına çıkarır. Simülatör: ilk 3 dk her şişe (0,4/sn), sonra ara sıra (0,15/sn ≈ +%40). Hedefler tutuyor.
+**Toplama (karar 2026-10-08):** yerde şişe ve kutular (Sokak, Gündelikçi), sonra bozuk para (İşçi) belirir. Ekranda en fazla 4 nesne, sahne dolu başlar, 2,5 sn'de bir yenisi. Nesne başına `2 × mirasÇarpanı + aktifGelir/sn × 2,5`: bir şişe ~2,5 saniyelik gelir eder, yoksa toplamaya değmez; durmadan toplayan oyuncu gelirini ~2 katına çıkarır. Simülatör: ilk 3 dk her şişe (0,4/sn), sonra ara sıra (0,15/sn ≈ +%40).
+
+**Toplama Orta Sınıf'ta biter (karar 2026-10-12, kullanıcı):** Orta Sınıf töreni bitince yer boşalır ve kahraman bir daha yere eğilmez (`COLLECT_END_CLASS`, `canCollect`); milyarderin yerden para toplaması hikâyeye uymuyordu. Yerini olay kartları alır; Şans'ın bulduğu aynen sürer.
 
 **Şans'ın bulduğu (karar 2026-10-08):** Oyun açıkken 5–10 dakikada bir Şans ağzında bir cüzdanla gelir, 12 sn bekler. Dokununca ödül kartı açılır: cüzdan sahibine verilir, teşekkür ödülü 15 şişe değerinde (`FETCH_BOTTLES`, ~37 sn gelir). "Topla" ile alınır, paralar bakiyeye uçar. Şans'a dokunmak para vermez (okşama pozu, kalp). Simülatörde yakalama oranı bağlı oyuncuda %80, gündelik oyuncuda %50.
 
-### 4.10 Hedefler (`config/quests.ts`, karar 2026-10-08)
+**Olay kartları (karar 2026-10-12, kullanıcı):** Orta Sınıf töreninden sonra kahramanın tanıdığı biri arar; kart tek bir fırsat sorar, iki cevabı vardır:
 
-Egg, Inc.'in 3 görevi gibi: ana ekranın sol üstünde "Hedefler" kartı, aynı anda 3 hedef (biten öne çıkar, "Ödülü al"). İlk saat için 25 yazılı hedef (5 şişe topla → Çiçek Tezgâhı aç → işe gir → Tente → ... → Orta Sınıf ol); bitince işletmelerin sıradaki kilometre taşından üretilen hedefler gelir. Ödül `max(küçük sabit, aktif gelir × 15 sn)`, üretilenlerde 20 sn. Ödüller bilinçli küçük: 45 sn'lik ödülde bot "al → hedef biter → ödülle yine al" zincirine girip ilk saati 2 dakikada bitirdi. Sayaçlar: toplanan şişe ve sahibine verilen cüzdan (`bottles`, `finds`). Hedefler aynı zamanda ilk dakikaların rehberi (plan 1.12).
+| Cevap | Ödül (aktif gelirin saniyesi) |
+| --- | --- |
+| Sağlamcı | 45 sn, kesin |
+| Cesur | %50 ihtimalle 100 sn, olmazsa 10 sn (ihtimal ve iki tutar düğmede yazar) |
 
-**Hedef kartı (2026-10-08, kullanıcı: "bazı görevlerin ne olduğu ve nereden yapılacağı anlaşılmıyor"):** Her hedefte resim (işletme, yönetici portresi, iş, ev, araç, şişe, Şans), nerede yapıldığı ("İşletmeler", "Alışveriş › Evler"; sokaktakilerde ipucu: "Sokaktaki şişe ve kutulara dokun", "Şans bir şey getirince ona dokun") ve "Git" düğmesi var. "Git" ilgili sekmeyi (ve Alışveriş'in alt sekmesini) açar, gereken düğmeye kaydırır, düğme 5 sn parlar ve üstünde el işareti durur (`ui/home/focus.ts`, `Focusable.tsx`). Sekme açıkken üstte ince bir hedef şeridi kalır: biten hedef, "Git" denen hedef ya da o sekmede yapılabilecek hedef; ödül oradan da alınır. Araç hedefi sadece satın alınan araçları sayar (başlangıç el arabası sayılmaz; önce "1/2" görünüyordu).
+- **Denge:** cesurun ortalaması 55 sn, sağlamcıdan yalnızca biraz fazla (ortalama 67,5 iken hep cesuru seçen %50 fazla kazanıyordu, seçim kalmıyordu). Dallanma, kalıcı sonuç ve ceza yok.
+- **Zamanlama:** oturumun ilk çağrısı 60–90 sn sonra, cevaplanan her karttan sonra sıradaki 4–6 dk sonra. Çağrı ana sahnede cevaplanana kadar bekler (aynı anda tek kart; sekme açıkken görünmez; tören, çevrimdışı kartı ve ömür sonu önce gelir). Aynı kişi üst üste aramaz.
+- **Ödeme ve kayıt:** ödül cevap verildiği anda bakiyeye geçer, üst bar onu "Topla"ya kadar göstermez; cevaplanmış kart "Topla"ya kadar ekranda kalır. Cevabın saati kayda yazılır (`story.eventAnsweredAt`) ve hızlı ilk çağrı son cevaptan beri 4–6 dk geçmeden gelmez: oyunu kapatıp açmak ne daha sık kart getirir ne kötü sonucu yeniden denetir (reklamlı "ikinci şans" için de gerekli; [monetization-v2.md](./monetization-v2.md) #7).
+- **Kimler arar (10 kart):** Rıza Amca, Nevin Hanım ve Kuzen her oyuncuya; altı kart yöneticilerindir ve yalnızca o yönetici işe alındıysa gelir (Selin, Hüseyin Usta, Kemal, Ayten Abla, Derya, Burak); Bülent Bey'in kartı Milyarder töreninden sonra. İlk hayatta sınıf, töreni görülünce sayılır. Metinler `events.cards.*` (story-v2 §4d), kim hangi yüzle arar `ui/events/eventScript.ts`.
+- **Simülatör:** 5 dakikada bir kart, cevapların yarısı sağlamcı (ortalama 50 sn gelir), bağlı oyuncu kartların %90'ını, gündelik oyuncu %70'ini cevaplar (aktif gelire ~%15); oturumun hızlı ilk çağrısı sayılmaz.
+- **Sonra:** sınıfa göre değişen büyük set (plan 2.4).
 
 ### 4.8 Konut modeli: kirala → satın al → kiraya ver (`config/housing.ts`, Faz 1.17)
 
@@ -177,9 +186,9 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranı
 
 | Eylem | Bedel | Ne olur |
 | --- | --- | --- |
-| **Kirala ve taşın** | Tek seferlik taşınma bedeli (depozito + ilk kira). Sadece bir üst kademedeki ev; yaşanan evin son aracı alınmış olmalı (§4.4). | O eve taşınırsın. Eski kiran biter (aynı anda tek kiralık ev). |
+| **Kirala ve taşın** | Tek seferlik taşınma bedeli (depozito + ilk kira). Sadece bir üst kademedeki ev; o eve kadar açılan bütün araçlar alınmış olmalı (§4.4). | O eve taşınırsın. Eski kiran biter (aynı anda tek kiralık ev). |
 | **Satın al** | Fiyat = taşınma bedeli × 25. İçinde kiracı olduğun evi alırken ödediğin taşınma bedeli düşülür. | Bir üst kademedeki evi alırsan taşınırsın. Yaşadığın evden daha alttaki bir evi alırsan kiraya verilir. |
-| **Kiraya ver** | Kendiliğinden | Sahip olunan ama içinde yaşanmayan her ev kira getirir; çevrimdışı da işler (yönetici kuralıyla: %50, 2 saat tavan). |
+| **Kiraya ver** | Kendiliğinden | Sahip olunan ama içinde yaşanmayan her ev kira getirir; çevrimdışı da işler (yönetici kuralıyla: %50, tavan §4.6). |
 | **Geri taşınma** | Yok (karar 2026-10-12) | Yalnızca yukarı taşınılır: her evin önünde kendi araçları durur (§4.4), çıktığın kendi evin kirada kalır. |
 
 - **Düzenli kira gideri yok** (karar 2026-10-07). Net gelir hiçbir zaman eksiye düşmez. Kiracı olduğun "Kiracısın" etiketi ve taşınma bedeliyle hissettirilir.
@@ -187,9 +196,9 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranı
 - **Sadece kiralık evler:** 1–6 (çadırdan sitedeki daireye). Satın alma 7. evden ("İlk Kendi Evin") itibaren açılır; ilk kendi ev bir dönüm noktasıdır.
 - **Sınıfın evi (karar 2026-10-10):** Her sınıf töreni, o sınıfın hikâyedeki evinden geride kalan kahramanı oraya taşır (kiracı, bedava): Gündelikçi → Rıza Amca'nın minibüsü, İşçi → eski kiralık daire, Orta Sınıf → sitede daire, Milyoner → ilk kendi evin (**hediye, sahipli**; karar 2026-10-12, `FIRST_OWNED_HOME`: tören öncesinde ev sahibi olmak mümkün değil, en ucuz ev $16,25M ve Milyoner eşiği $10M. Törenden önce ev 8'e kiraya çıkmak da mümkün değil: pikap + ev 7 kirası + makam sedanı + ev 8'in $9M'lik taşınma bedeli $10,65M eder, bu yüzden bedel $2,5M'den $9M'ye çıktı; hediye hep oturulan ev olur, kiracı evinin sahibi olur), Milyarder → villa, Multimilyarder → göl evi, En Zengin → sahil malikânesi (`CLASS_HOME_FLOOR`). Böylece tören metinleri ("Artık bir dairem var") hep doğru; mağazadan önden giden kendi evinde kalır. Sahne yeni evi tören bitince gösterir.
 - **Ev bonusu:** Yaşadığın evin kademesine bağlı: n. ev tüm gelire +%8 × (n−1) verir (6. ev +%40, 12. ev +%88). Bonuslar üst üste eklenmez: yalnızca oturduğun ev sayılır. **Kendi evinde oturuyorsan +%8 ek** (`OWNER_HOME_BONUS`, karar 2026-10-12): kendi evin, bir üst kademedeki kiralık evle aynı bonusu verir, daha fazlasını değil; böylece yukarı taşınmak da yeni evi satın almak da hep kazandırır (1,5 kat denendi: oyuncu eski evinde kalıyor, Multimilyarder hedefi bozuluyordu). Çıktığın kendi evlerin bonus vermez; onların ödülü kira geliridir.
-- **Kira geliri:** Taban kira/sn = fiyat / geri dönüş süresi. Geri dönüş, işletmelerdeki gibi fiyatla büyür: saat = 4 × (fiyat / $1M)^0,44 (ev 7 ~14 sa, ev 12 ~1.290 sa; 2026-10-12'de 12'den 4'e indi: 12'de kira gelirin ortanca %1'iydi ve bot oturduğu evi hiç almıyordu). Tüm gelir çarpanları kiraya da uygulanır. Simülasyonda kira gelirin ortanca ~%7'si, en fazla ~%19'u; bot oturumların ~%40'ında kendi evinde oturuyor: işletmelerle yarışmıyor ama görünür.
+- **Kira geliri:** Taban kira/sn = fiyat / geri dönüş süresi. Geri dönüş, işletmelerdeki gibi fiyatla büyür: saat = 4 × (fiyat / $1M)^0,44 (ev 7 ~14 sa, ev 12 ~1.290 sa; 2026-10-12'de 12'den 4'e indi: 12'de kira gelirin ortanca %1'iydi ve bot oturduğu evi hiç almıyordu). Tüm gelir çarpanları kiraya da uygulanır. Simülasyonda kira gelirin ortanca ~%7'si: işletmelerle yarışmıyor ama görünür.
 - **Nesil:** Emeklilikte evler sıfırlanır; varis çadırdan başlar (2. nesil açılışı Faz 2.1'de tartışılacak: [discussion-notes.md](./discussion-notes.md) §4).
-- Hikaye bağı: sokak (çadır) → Gündelikçi kiralık oda → İşçi Sınıfı ilk kiralık daire → ilk kendi evin → Orta Sınıf: annene eski aile evi ([story-v2.md](./story-v2.md) §4).
+- Hikâye bağı: çadır → Rıza Amca'nın minibüsü (Gündelikçi) → eski kiralık daire (İşçi) → sitede daire (Orta Sınıf; aynı törende annene eski aile evi) → ilk kendi evin (Milyoner) ([story-v2.md](./story-v2.md) §4).
 
 ### 4.9 Yaş ve ömür (`config/life.ts`, karar 2026-10-08; ömür 80 yaş 2026-10-11)
 
@@ -204,48 +213,52 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranı
 
 - Tam ekran hikâye anlarında (tören, hayat anı) yaş durur.
 - **Hayat anları (karar 2026-10-11):** yaş, hikâyenin ikinci saatidir. Belirli yaşlarda kahramanın hayatından tek karelik anlar oynar (buluşma, düğün, çocuğun doğumu...); sınıf törenleri paraya, hayat anları yaşa bağlıdır. Liste ve kurallar [story-v2.md §4c](./story-v2.md).
-- En Zengin'den sonraki yılları (58 → 80) hayat anları doldurur (torunun doğumu, devir; testten sonra). Engaged bot En Zengin'e 58, casual 48 yaşında ulaşıyor; ömür sonu engaged botta 25. gün (16 sa 48 dk oyun).
+- En Zengin'den sonraki yılları (59 → 80) hayat anları doldurur (torunun doğumu, devir; testten sonra). Engaged bot En Zengin'e 59, casual 48 yaşında ulaşıyor; ömür sonu engaged botta 25. gün (16 sa 48 dk oyun).
+
+### 4.10 Hedefler (`config/quests.ts`)
+
+Egg, Inc.'in 3 görevi gibi: ana ekranın sol üstünde "Hedefler" kartı, aynı anda 3 hedef (biten öne çıkar, "Ödülü al"). İlk saat için 25 yazılı hedef (5 şişe topla → Çiçek Tezgâhı aç → işe gir → Tente → ... → Orta Sınıf ol); bitince işletmelerin sıradaki kilometre taşından üretilen hedefler gelir. Ödül `max(küçük sabit, aktif gelir × 15 sn)`, üretilenlerde 20 sn. Ödüller bilinçli küçük: 45 sn'lik ödülde bot "al → hedef biter → ödülle yine al" zincirine girip ilk saati 2 dakikada bitirdi. Sayaçlar: toplanan şişe ve sahibine verilen cüzdan (`bottles`, `finds`). Toplama bitince (Orta Sınıf) şişe hedefi tamamlanmış sayılır, yoksa yerini ömür boyu tutardı. Hedefler aynı zamanda ilk dakikaların rehberi (plan 1.12).
+
+**Hedef kartı (2026-10-08, kullanıcı: "bazı görevlerin ne olduğu ve nereden yapılacağı anlaşılmıyor"):** Her hedefte resim (işletme, yönetici portresi, iş, ev, araç, şişe, Şans), nerede yapıldığı ("İşletmeler", "Alışveriş › Evler"; sokaktakilerde ipucu: "Sokaktaki şişe ve kutulara dokun", "Şans bir şey getirince ona dokun") ve "Git" düğmesi var. "Git" ilgili sekmeyi (ve Alışveriş'in alt sekmesini) açar, gereken düğmeye kaydırır, düğme 5 sn parlar ve üstünde el işareti durur (`ui/home/focus.ts`, `Focusable.tsx`). Sekme açıkken üstte ince bir hedef şeridi kalır: biten hedef, "Git" denen hedef ya da o sekmede yapılabilecek hedef; ödül oradan da alınır.
 
 ## 5. Tempo hedefleri ve simülasyon sonuçları
 
-`npm run sim` iki oyuncu profilini 30 gün oynatır:
+`npm run sim` iki oyuncu profilini 45 gün oynatır:
 
-- **Engaged:** 1. gün 30 + 10 + 7 dk, sonraki günler 6 × 7 dk. GameAnalytics'teki ilk %10 idle oyuncuya yakın.
-- **Casual:** 1. gün 20 + 5 dk, sonraki günler 3 × 5 dk.
+- **Engaged:** 1. gün 30 + 10 + 7 dk, sonraki günler 6 × 7 dk. GameAnalytics'teki ilk %10 idle oyuncuya yakın. Hedefler bu profile göre kontrol edilir.
+- **Casual:** 1. gün 20 + 5 dk, sonraki günler 3 × 5 dk. Yalnızca bilgi için.
 
-Bot her an en kısa sürede kendini ödeyen alımı yapar, yani optimal oynar. Gerçek oyuncuların ~1,3–1,8 kat yavaş olduğu tahmin, ölçülmüş değil. Bot yöneticisiz işletmeleri %60 verimle çalıştırıyor sayar; gerçek oyunda sadece başlatılan döngü ödenir (sınırlar: discussion-notes §6). Şişe toplama ve Şans'ın bulduğu simülatörde modelli (§4.7).
+Bot her an en kısa sürede kendini ödeyen alımı yapar, yani optimal oynar. Gerçek oyuncuların ~1,3–1,8 kat yavaş olduğu tahmin, ölçülmüş değil. Bot yöneticisiz işletmeleri %60 verimle çalıştırıyor sayar; gerçek oyunda sadece başlatılan döngü ödenir (sınırlar: discussion-notes §6). Toplama, Şans'ın bulduğu ve olay kartları simülatörde modelli (§4.7).
 
-Olay saatleri 2026-10-08'de düzeltildi: çevrimdışı kazançla gelen olaylar artık dönüş oturumuna yazılıyor. Casual oyuncu Orta Sınıf'ı ilk oturumda değil, 22:00 dönüşünde görüyor.
+Güncel sonuç (2026-10-12; hedefler `src/game/sim/report.ts`):
 
-Güncel sonuç (2026-10-08, işletme ana gelir + yükseltmeler + hedefler + Orta Sınıf):
-
-| Kilometre taşı | Hedef (bot) | Engaged bot | Casual bot |
+| Kilometre taşı | Hedef (engaged bot) | Engaged bot | Casual bot |
 | --- | --- | --- | --- |
 | İlk satın alma | ≤ 1 dk oyun | 12 sn | 12 sn |
-| İlk işletme | ≤ 2 dk oyun | 35 sn | 35 sn |
-| İlk yönetici | 2–6 dk oyun | 4 dk 27 sn | 4 dk 33 sn |
-| Gündelikçi | 3–5 dk oyun | 4 dk 27 sn | 4 dk 33 sn |
-| İşçi Sınıfı | 15–20 dk oyun | 15 dk 30 sn | 14 dk 49 sn |
-| Orta Sınıf (1. nesil) | 25–50 dk oyun | 30 dk, ilk oturumun sonunda (19 yaş) | 23 dk, 22:00 dönüşünde (18 yaş) |
-| Milyoner (1. nesil) | 35 dk – 1 sa 15 dk oyun (dönüş oturumu) | 40 dk, 1. gün 23:00 dönüşünde (20 yaş) | 30 dk, 2. gün 13:00 (19 yaş) |
-| İlk milyarder | 3–6. gün | 3. gün (24 yaş) | 5. gün (22 yaş) |
-| İlk multimilyarder | 6–11. gün | 7. gün (41 yaş) | 14. gün (34 yaş) |
-| İlk "en zengin" | 7–17. gün | 11. gün (54 yaş) | 22. gün (44 yaş) |
-| İlk ömür sonu (80 yaş) | 21–36. gün | 25. gün (16 sa 48 dk oyun; 2026-10-11) | 45 günde gelmiyor |
+| İlk işletme | 2–6 dk oyun | 3 dk 48 sn | 4 dk 18 sn |
+| İlk yönetici | 8–25 dk oyun | 18 dk 52 sn | 19 dk 40 sn |
+| Gündelikçi | 5–10 dk oyun | 7 dk 55 sn (17 yaş) | 8 dk 28 sn |
+| İşçi Sınıfı | 18–35 dk oyun | 32 dk, 1. gün 2. oturum (19 yaş) | 30 dk, 2. gün |
+| Orta Sınıf | 25–50 dk oyun | 47 dk, 1. gün 3. oturum (19 yaş) | 35 dk, 2. gün |
+| Milyoner | 35 dk – 1 sa 15 dk oyun | 54 dk, 2. gün (20 yaş) | 45 dk, 3. gün |
+| İlk milyarder | 3–7. gün | 3. gün, 1 sa 43 dk (23 yaş) | 5. gün |
+| İlk multimilyarder | 8–14. gün | 8. gün, 5 sa 6 dk (36 yaş) | 15. gün |
+| İlk "en zengin" | 14–21. gün | 17. gün, 11 sa 21 dk (59 yaş) | 34. gün (48 yaş) |
+| İlk ömür sonu (80 yaş) | 21–37. gün | 25. gün (16 sa 48 dk oyun) | 45 günde gelmiyor |
 
-**His kontrolleri (2026-10-08, `checkFeel`):** Tempo hedefleri tutarken işletmeler yan gelire düşebiliyordu (önceki ayarda Gündelikçi anında işletme payı %3'tü). Simülatör artık şunları da bekler: her işletmenin ilk biriminin turu ≥ $1; işletmelerin gelirdeki payı (şişeler hariç) Gündelikçi anında, ilk oturumun sonunda ve 1. nesil oturumlarının ortancasında ≥ %50. Şu an: tur en az $1, pay %93 / %95 / %74. `npm run sim -- --purchases` her alımı zaman çizelgesinde gösterir.
+**His kontrolleri (`checkFeel`):** Tempo hedefleri tutarken işletmeler yan gelire düşebiliyor (eski bir ayarda Gündelikçi anında işletme payı %3'tü). Simülatör şunları da bekler: her işletmenin ilk biriminin turu ≥ $1; işletmelerin gelirdeki payı (toplama hariç) Gündelikçi anında, ilk oturumun sonunda ve 1. nesil oturumlarının ortancasında ≥ %50. Şu an: tur en az $1, pay %73 / %83 / %95. `npm run sim -- --purchases --timeline` her alımı zaman çizelgesinde gösterir.
 
-Engaged oyuncunun ilk dakikaları: şişe → broşür işi (12 sn) → Çiçek Tezgâhı (35 sn) → 10 tezgâh ve Tente (4 dk) → yönetici (4,5 dk) → Kahve Arabası (11 dk). İlk oturum Orta Sınıf'a sınırda ulaşır (30. dk); casual oyuncu dönüşünde görür. Sınıf çubuğu karekök ölçeğinde çizilir (`classProgress`): düz oranla dakikalarca %0'da durup sonra fırlıyordu.
+Engaged botun ilk günü: şişeler → el ilanı işi (12 sn) → Çiçek Tezgâhı ve bisiklet (4. dk) → Gündelikçi (8. dk) → skuter (14. dk) → Rıza Amca yönetici (19. dk) → kiralık oda ve emektar sedan (27–28. dk); ilk oturum burada biter. İşçi 2. oturumda, Orta Sınıf 3. oturumda gelir. Sınıf çubuğu karekök ölçeğinde çizilir (`classProgress`): düz oranla dakikalarca %0'da durup sonra fırlıyordu.
 
-- Milyoner → Milyarder (20 → 24 yaş): orta oyunda gelir çevrimdışı ağırlıklı. Daha fazla yavaşlatmak kariyer ve işletmelerde büyük kesinti istiyor; Milyarder 24 yaşta kabul edildi.
-- Varis çok hızlı: 1. ömür ~3.000 miras puanı (×31 gelir) bırakıyor; 2. nesil Milyoner ve üstüne dakikalar içinde ulaşıyor. Faz 2.1'de miras formülü ve 2. nesil içeriğiyle birlikte ele alınacak.
+- Varis çok hızlı: 1. ömür ~1.400 miras puanı (×15 gelir) bırakıyor; 2. nesil Milyoner ve üstüne dakikalar içinde ulaşıyor. Faz 2.1'de miras formülü ve 2. nesil içeriğiyle birlikte ele alınacak.
+- İlerleme hissiyle ilgili açık gözlemler (ilk oturumda tek tören, 4. saatten sonra az değişim): [discussion-notes.md §8](./discussion-notes.md).
 
 ## 6. Simülasyondan öğrenilenler
 
 1. **Kariyer maaşı kartopu yapıyordu.** Terfi başına maaş ×6 büyüyünce CEO maaşı tüm işletmeleri geçti. Çözüm: maaşın geri dönüş süresi her terfide ×2,2 uzar; geç terfiler maaş için değil bonus için alınır.
 2. **Çarpanlar geri dönüş süresini böler.** Toplam ×30'luk bir çarpan, 1 saatlik geri dönüşü 2 dakikaya indirir. Üst kademelerin taban geri dönüşü bu yüzden çok uzun (günler); oyuncu bunu çarpanlarla kısaltır.
 3. **Çevrimdışı toplu para gelir patlaması yapar.** 4 saatlik tavanla tek bir arada gelir 50 katına çıkıyordu; tavan 2 saate indi. Erken oyunda 2 saat bile fazlaydı (3 dk oynayıp 1 sa uzak kalan $106K buluyordu); tavan artık sınıfla büyüyor (10 dk → 2 sa, §4.6).
-4. **Statü eşyaları ucuz ve güçlüydü.** 30 dakikada +%185 gelir veriyordu. Bonuslar küçültüldü (+%5 / +%3 / +%2 / +%10).
+4. **Statü eşyaları ucuz ve güçlüydü.** 30 dakikada +%185 gelir veriyordu; bonuslar küçültüldü (güncel değerler §4.4).
 5. **Karekök mirası kontrolden çıkıyordu.** Küpköke geçildi, puan başı bonus %2'den %1'e indi.
 6. **Tempo hedefleri hissi garanti etmez.** Yavaşlatma tüm işletme gelirini bölünce sınıflar yine zamanında geldi ama Çiçek Tezgâhı turda $0,01 verdi ve oyunu maaş taşıdı. Yavaşlatma kazançtan değil fiyatlardan yapılır; his kontrolleri (§5) bunu bekler.
 7. **6. nesilden sonra "en zengin" birkaç dakikada geliyor.** Mevcut içerik ~2–3 haftalık. Uzun vadeli tutma için Faz 2'de her nesle yeni içerik gerekli (§7).
@@ -253,18 +266,17 @@ Engaged oyuncunun ilk dakikaları: şişe → broşür işi (12 sn) → Çiçek 
 ## 7. Faz 2'ye bırakılan tasarım kararları
 
 - **Nesil içeriği:** Her yeni nesil yeni bir şey açmalı. Seçenekler: yeni şehir ve yeni işletme kademeleri (40 işletme görselinin 30'u hâlâ kullanılmıyor), yadigarlar (miras puanıyla alınan kalıcı yetenekler), yeni sınıflar ("Old Money Dynasty" vb.).
-- **Olay kartları:** Günde 3–5 kart, sınıfa göre değişen 60+ kart.
+- **Olay kartları:** büyük set, sınıfa göre değişen 60+ kart (ilk 10 kart oyunda, §4.7).
 - **Yatırımlar:** Kiradaki evler (§4.8) ve tek bir "Yatırım Hesabı": güvenli / orta / riskli vadeler (risk anları). Ayrı emlak listesi ve borsa yok.
-- **Görevler:** "Sıradaki 3 hedef" görev zinciri yön gösterir; ödülü gelire oranlı para veya hızlandırıcı. Lansmanda premium para birimi (gem) yok ([monetization-v2.md](./monetization-v2.md)).
 - **Lüks oyuncakların sahnede gösterimi:** Jet gökyüzünden geçer, yat sadece sahil evlerinde görünür.
 - **Günlük döngü:** Gelire oranlı günlük ödül ve günlük görevler.
 
 ## 8. Açık sorular
 
-- Ekranda gelir: üst bar ve "~X sonra alabilirsin" tahminleri sadece otomatik geliri (yönetici, maaş, kira) kullanır; dokunarak çalıştırılan işletmeler sayılmaz (2026-10-08).
 - Yöneticisiz işletmeye dokunma mekaniği: AdCap modeli ("Çalıştır" → tek döngü). "Dokundukça hızlanır" alternatifi oyun testinden sonra yeniden değerlendirilecek.
-- Yaş ve ömür: kurallar §4.9'da; kalan ayrıntılar (törende yaşın durması, ömür sonu uyarısı) discussion-notes §3.
-- Ekonomi hızı, çevrimdışı ödül ve ev bonusları: kullanıcı gerçek oynanışta fazla buluyor (discussion-notes §5).
+- Yaş ve ömür: kurallar §4.9'da; kalan ayrıntılar (ömür sonu uyarısı, yaşlanan görünüm) discussion-notes §3.
+- Ekonomi hızı ve çevrimdışı ödül: kullanıcı gerçek oynanışta fazla buluyor (discussion-notes §5).
+- İlerleme hissi ve yaş temposu: discussion-notes §8.
 
 ## 9. Rapordan sapmalar
 
@@ -274,11 +286,11 @@ Engaged oyuncunun ilk dakikaları: şişe → broşür işi (12 sn) → Çiçek 
 | --- | --- | --- | --- |
 | Miras formülü | Karekök: √(kazanç / sabit) | Küpkök, puan başı +%1 (§4.5) | Simülasyonda karekök kartopu yaptı (§6.5) |
 | Sınıf eşiği | Net servet | Nesil kazancı, harcayınca düşmez (§4.1) | Alışveriş yapan oyuncu sınıf kaybetmesin |
-| İlk "en zengin" | 2–3 hafta (2–4 nesil) | 7–16. gün (§5) | Simülasyon temposu; uzun vade için Faz 2'de nesil içeriği |
+| İlk "en zengin" | 2–3 hafta (2–4 nesil) | Tek ömürde, 14–21. gün (§5) | Simülasyon temposu; uzun vade için Faz 2'de nesil içeriği |
 | Konut | Tek ev kavramı | Kirala → satın al → kiraya ver; ev bonusu yaşanan evin kademesinden (§4.8) | Erken oyunda ev almak zor; kiralamak ilerleme hissi, satın almak kira geliri verir (karar 2026-10-07) |
 | Hanedan zamanlaması | Emeklilik → varis sık ve erken | Hikâye tek kahramanın hayatında biter; varis ömür sonunda (80 yaş) devralır (karar 2026-10-08, §4.9) | Hikâyenin sonu (Milyarder, En Zengin) erken emeklilikte hiç görülmüyordu |
 | Sağlık / mutluluk | Tek "Yaşam Kalitesi" göstergesi, gelire çarpan | Tamamen kaldırılır | Statü eşyaları "hayatın iyileşiyor" hissini zaten veriyor; ayrı gösterge angarya riski (karar 2026-10-07) |
-| Dokunarak kazanma | "Dokun" düğmesi, ilk 30 sn şişe toplama | Ayrı düğme yok; şişe/kutu sahnede, her biri ~2,5 sn gelir; Şans ara sıra cüzdan getirir (§4.7) | Toplamaya değmesi için (kullanıcı); sahnede canlılık |
+| Dokunarak kazanma | "Dokun" düğmesi, ilk 30 sn şişe toplama | Ayrı düğme yok; şişe/kutu sahnede, her biri ~2,5 sn gelir, Orta Sınıf'ta biter ve yerini olay kartları alır; Şans ara sıra cüzdan getirir (§4.7) | Toplamaya değmesi için (kullanıcı); sahnede canlılık |
 | Monetizasyon | "Altın Kaşık" paketi, gem | Rahat Paket (reklamsız), Şans'ın Altın Tasması (kalıcı ×2), lansmanda gem yok ([monetization-v2.md](./monetization-v2.md)) | "Altın Kaşık" sıfırdan yükselen kahramanın tonuyla çelişiyor; sadelik (karar 2026-10-08) |
 | Görseller ve karakter animasyonu | Mevcut ~290 görsel ve animasyon boru hattı korunur | Görsel roman: tutarlı durağan pozlar, ifade portreleri, konuşma balonları; kahraman seti küçük ve yeniden üretilir; diğer görseller seçerek kullanılır | Mevcut 20 kıyafette poz aynı, üst kıyafetler ayırt edilmiyor; kodla zıplatma yapay duruyor (karar 2026-10-08, [story-v2.md §8](./story-v2.md)) |
 

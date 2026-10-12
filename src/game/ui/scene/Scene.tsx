@@ -1,6 +1,7 @@
 import { Car, Heart, Home, Shirt } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import {
+  COLLECT_END_CLASS,
   COLLECT_MAX_ON_SCREEN,
   COLLECT_SPAWN_SECONDS,
   FETCH_MAX_SECONDS,
@@ -119,6 +120,8 @@ export function Scene() {
   const stage = classLook(shownClass);
   const wornOutfit = OUTFITS.findIndex((outfit) => outfit.id === bestOwnedLifestyle(game, 'outfit')?.id);
   const itemArt = (item: Item) => stage.items[item.art % stage.items.length];
+  // From Middle Class on the ground is empty; it empties when the ceremony ends, with the rest of the look.
+  const collecting = shownClass < COLLECT_END_CLASS;
   // A ceremony that moves the hero (housing.ts CLASS_HOME_FLOOR) reveals the new home when it ends.
   const ceremonyWaiting = pendingCeremony(game, state.story) !== null;
   // Old Ray's first step: the hand rests on a bottle until a few are collected.
@@ -205,7 +208,7 @@ export function Scene() {
 
   // An outfit a ceremony gives is put on when the ceremony ends, like the new home.
   const [shownOutfit, setShownOutfit] = useState(wornOutfit);
-  const hero = heroLook(shownOutfit);
+  const hero = heroLook(shownOutfit, shownHome);
   useEffect(() => {
     if (ceremonyWaiting || wornOutfit === shownOutfit) return;
     setShownOutfit(wornOutfit);
@@ -431,7 +434,7 @@ export function Scene() {
             </button>
           )}
 
-          {items.map((item) => {
+          {collecting && items.map((item) => {
             const [sx, sy] = SPOTS[item.spot];
             const art = itemArt(item);
             const width = pictureWidth * art.width;

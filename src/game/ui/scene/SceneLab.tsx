@@ -23,7 +23,7 @@ function Stage({ houseId, vehicleId }: { houseId: string; vehicleId: string | nu
   const vehicle = vehicleId ? vehicleArt(vehicleId) : null;
   const box = vehicle ? vehicleBox(vehicle, home.layout) : null;
   const light = spriteFilter(home.light);
-  const hero = heroLook(0).idle;
+  const hero = heroLook(0, houseId).idle;
   const sans = classLook(0).sans;
 
   return (

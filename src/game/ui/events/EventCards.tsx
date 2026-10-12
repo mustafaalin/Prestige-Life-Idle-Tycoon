@@ -1,0 +1,264 @@
+import { Phone } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import {
+  EVENT_BOLD_CHANCE,
+  EVENT_CARDS,
+  EVENT_FIRST_MAX_SECONDS,
+  EVENT_FIRST_MIN_SECONDS,
+  EVENT_MAX_SECONDS,
+  EVENT_MIN_SECONDS,
+  type EventOutcome,
+} from '../../core/config/events';
+import { eventCardsFor, eventReward, isLifeOver } from '../../core/formulas';
+import { useT } from '../../i18n/useT';
+import { useBackButton } from '../../runtime/backButton';
+import { haptic, playSfx } from '../../runtime/feedback';
+import { pendingCeremony, sceneClass } from '../../runtime/story';
+import { useGameV2 } from '../../runtime/useGameV2';
+import { burstCoins, holdBalance } from '../home/coins';
+import { GameButton } from '../kit';
+import { eventKey, eventSpeaker, onEventCardRequest } from './eventScript';
+
+// Event cards (game-design §4.7): from Middle Class on, someone the hero knows calls every few
+// minutes. The call waits on the home scene until it is answered; the card asks one thing and has a
+// safe and a bold answer. The timers live here and start over with each session, like Şans's finds;
+// only the time of the last answer is saved, so reopening the game does not bring a call sooner.
+
+const random = (min: number, max: number) => min + Math.random() * (max - min);
+
+interface EventCardsProps {
+  /** A tab is open: the call keeps waiting but is not shown over the sheet. */
+  tabOpen: boolean;
+  /** A card is on screen (story moments wait for it). */
+  onOpenChange: (open: boolean) => void;
+}
+
+export function EventCards({ tabOpen, onOpenChange }: EventCardsProps) {
+  const { game, state } = useGameV2();
+  const { t } = useT();
+  const cards = eventCardsFor(game, sceneClass(game, state.story));
+  const enabled = cards.length > 0 && !isLifeOver(game);
+
+  /** The card whose caller is waiting. */
+  const [calling, setCalling] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  /** The open card is answered and paid: it stays up until collected, whatever else is waiting. */
+  const [answered, setAnswered] = useState(false);
+  /** Answered cards this session: the first call comes quickly, and each answer starts the next wait. */
+  const [round, setRound] = useState(0);
+  const lastCard = useRef<string | null>(null);
+  // Read by the timer when it fires, so the choice is made from the cards open at that moment.
+  const cardIds = useRef<string[]>([]);
+  const answeredAt = useRef(0);
+  useEffect(() => {
+    cardIds.current = cards.map((card) => card.id);
+    answeredAt.current = state.story.eventAnsweredAt;
+  });
+
+  const ring = () => {
+    // Never the same caller twice in a row (unless only one can call).
+    const others = cardIds.current.filter((id) => id !== lastCard.current);
+    const pool = others.length > 0 ? others : cardIds.current;
+    if (pool.length === 0) return;
+    const id = pool[Math.floor(Math.random() * pool.length)];
+    lastCard.current = id;
+    setCalling(id);
+  };
+
+  useEffect(() => {
+    if (!enabled || calling) return;
+    const wait = random(EVENT_MIN_SECONDS, EVENT_MAX_SECONDS);
+    // A session's first call comes quickly, but never sooner than the wait since the last answer.
+    const sinceAnswer = Math.max(0, (Date.now() - answeredAt.current) / 1000);
+    const seconds =
+      round === 0 ? Math.max(random(EVENT_FIRST_MIN_SECONDS, EVENT_FIRST_MAX_SECONDS), wait - sinceAnswer) : wait;
+    const timer = window.setTimeout(ring, seconds * 1000);
+    return () => window.clearTimeout(timer);
+  }, [enabled, calling, round]);
+
+  // The dev menu rings any card, also before Middle Class.
+  useEffect(
+    () =>
+      onEventCardRequest(() => {
+        if (cardIds.current.length === 0) cardIds.current = EVENT_CARDS.map((card) => card.id);
+        ring();
+      }),
+    [],
+  );
+
+  useEffect(() => onOpenChange(open), [open, onOpenChange]);
+
+  // A ceremony, the offline card or the end of life come first; the caller waits behind them.
+  const quiet = pendingCeremony(game, state.story) !== null || state.offline !== null || isLifeOver(game);
+  if (!calling || (quiet && !answered)) return null;
+
+  if (open) {
+    return (
+      <EventCard
+        cardId={calling}
+        onLater={() => setOpen(false)}
+        onAnswered={() => setAnswered(true)}
+        onDone={() => {
+          setOpen(false);
+          setAnswered(false);
+          setCalling(null);
+          setRound((value) => value + 1);
+        }}
+      />
+    );
+  }
+
+  if (tabOpen) return null;
+  const caller = eventSpeaker(calling, 'ask');
+  return (
+    <div className="absolute inset-x-0 bottom-3 flex justify-center">
+      <button
+        type="button"
+        onClick={() => {
+          playSfx('click');
+          haptic('light');
+          setOpen(true);
+        }}
+        className="pointer-events-auto v2-pop-in transition-transform active:scale-95"
+      >
+        <span className="v2-bob flex items-center gap-2 rounded-full bg-gradient-to-b from-violet-400 to-indigo-600 border-2 border-white v2-glossy pl-1 pr-3.5 py-1 shadow-xl">
+          <span className="relative">
+            <span className="v2-pulse-ring absolute left-1/2 top-1/2 w-full aspect-square rounded-full border-4 border-violet-300" />
+            <img
+              src={caller.portrait}
+              alt=""
+              draggable={false}
+              className="relative w-11 h-11 rounded-full object-cover border-2 border-white"
+            />
+          </span>
+          <span className="v2-display text-[15px] text-white v2-shadow whitespace-nowrap">
+            {t('events.calling', { name: t(caller.name) })}
+          </span>
+          <Phone className="w-4 h-4 text-white" />
+        </span>
+      </button>
+    </div>
+  );
+}
+
+interface EventCardProps {
+  cardId: string;
+  onLater: () => void;
+  onAnswered: () => void;
+  onDone: () => void;
+}
+
+function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
+  const { game, actions } = useGameV2();
+  const { t, money } = useT();
+  const [outcome, setOutcome] = useState<EventOutcome | null>(null);
+  // Paid the moment the card is answered; the top bar shows it once "Collect" is tapped.
+  const [amount, setAmount] = useState(0);
+  useEffect(() => () => holdBalance(0), []);
+  const amountRef = useRef<HTMLParagraphElement>(null);
+  const speaker = eventSpeaker(cardId, outcome ?? 'ask');
+
+  const answer = (bold: boolean) => {
+    const result: EventOutcome = !bold ? 'safe' : Math.random() < EVENT_BOLD_CHANCE ? 'win' : 'lose';
+    playSfx(result === 'lose' ? 'click' : 'levelUp');
+    haptic(result === 'lose' ? 'light' : 'medium');
+    const paid = actions.answerEvent(cardId, result);
+    holdBalance(paid);
+    setAmount(paid);
+    onAnswered();
+    setOutcome(result);
+  };
+
+  const collect = () => {
+    if (!outcome) return;
+    holdBalance(0);
+    playSfx('coin');
+    haptic('medium');
+    const rect = amountRef.current?.getBoundingClientRect();
+    if (rect) {
+      burstCoins({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+        count: outcome === 'lose' ? 3 : 12,
+      });
+    }
+    onDone();
+  };
+
+  // Android back: let the call wait, or collect once it is answered.
+  useBackButton(true, 70, outcome ? collect : onLater);
+
+  const titles: Record<EventOutcome, string> = {
+    safe: t('events.safeTitle'),
+    win: t('events.winTitle'),
+    lose: t('events.loseTitle'),
+  };
+
+  // Portaled to <body>, like the reward card, so it covers the bars as well.
+  return createPortal(
+    <div className="fixed inset-0 z-[70] bg-black/35 flex items-center justify-center px-6">
+      <div className="v2-pop-in w-full max-w-[340px] rounded-[28px] bg-white shadow-2xl overflow-hidden">
+        <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-violet-500 to-indigo-500">
+          <img
+            key={speaker.portrait}
+            src={speaker.portrait}
+            alt=""
+            draggable={false}
+            className="v2-pop-in w-16 h-16 rounded-full object-cover border-[3px] border-white shadow"
+          />
+          <p className="flex-1 v2-display v2-outline-thin text-xl text-white">{t(speaker.name)}</p>
+          <Phone className="w-5 h-5 text-white/90" />
+        </div>
+
+        <div className="px-4 pt-4 pb-5">
+          {/* The safe answer needs no comment from the caller: the question stays up. */}
+          <div className="rounded-[20px] rounded-tl-md bg-slate-50 border-2 border-violet-100 px-4 py-3">
+            <p key={outcome ?? 'ask'} className="v2-line-in text-[16px] font-bold leading-snug text-slate-800">
+              {t(eventKey(cardId, outcome === 'win' || outcome === 'lose' ? outcome : 'ask'))}
+            </p>
+          </div>
+
+          {outcome === null ? (
+            <div className="mt-4 flex flex-col gap-2.5">
+              <GameButton tone="buy" onClick={() => answer(false)} className="w-full px-3 py-2.5 text-center">
+                <span className="block v2-display text-[16px] v2-shadow">{t(eventKey(cardId, 'safe'))}</span>
+                <span className="block text-[11px] font-black text-white/90 tabular-nums">
+                  {t('events.sure', {
+                    amount: money(eventReward(game, 'safe')),
+                  })}
+                </span>
+              </GameButton>
+              <GameButton tone="gold" onClick={() => answer(true)} className="w-full px-3 py-2.5 text-center">
+                <span className="block v2-display text-[16px] v2-shadow">{t(eventKey(cardId, 'bold'))}</span>
+                <span className="block text-[11px] font-black text-white/90 tabular-nums">
+                  {t('events.chance', {
+                    chance: Math.round(EVENT_BOLD_CHANCE * 100),
+                    win: money(eventReward(game, 'win')),
+                    lose: money(eventReward(game, 'lose')),
+                  })}
+                </span>
+              </GameButton>
+            </div>
+          ) : (
+            <div className="mt-3 text-center">
+              <h2 className="v2-display text-xl text-slate-900">{titles[outcome]}</h2>
+              <p
+                ref={amountRef}
+                className={`v2-display v2-outline text-[40px] leading-tight tabular-nums my-1 ${
+                  outcome === 'lose' ? 'text-slate-300' : 'text-emerald-400'
+                }`}
+              >
+                +{money(amount)}
+              </p>
+              <GameButton tone="buy" onClick={collect} className="w-full mt-2 py-3 v2-display text-lg v2-shadow">
+                {t('common.collect')}
+              </GameButton>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}

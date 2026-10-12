@@ -1,4 +1,4 @@
-# Prestige Life v2 — Reklam ve Uygulama İçi Satın Alma (IAP) Önerisi
+# Prestige Life v2 — Reklam ve Uygulama İçi Satın Alma (IAP)
 
 Tarih: 2026-10-08 · Durum: **kararlaştırıldı (2026-10-08); reklam altyapısı hazır, reklam yerleri ve IAP bekliyor** · İlgili: [report-v2.md](./report-v2.md) §Monetizasyon, [rebuild-plan.md](./rebuild-plan.md) 2.9, [discussion-notes.md](./discussion-notes.md) §5 (ekonomi ayarı)
 
@@ -62,7 +62,7 @@ Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahip
 | 4 | **Hayaline yardım** | Sıradaki hayal, terfi ya da işletme için az para kalmışken o kartta | **15 dakikalık gelir** (AdCap/Rich Inc.'teki "+para" düğmesinin gelire oranlı hâli) | Günde 5; sadece eksik tutar 15 dakikalık gelirden azken çıkar | Yeni |
 | 5 | **Sınıf töreni hediyesi ×2** | Sınıf atlayınca (1.10 töreni) gelen hediyede | Hediye ×2 | Sınıf başına 1 | 1.10 ile |
 | 6 | **Günlük hediye / çark** | Günlük ödülde ek çevirme | Ek ödül | Günde 1–2 | Faz 2.7 |
-| 7 | **Olay kartında ikinci şans** | Kötü sonuçlu kartta "tekrar dene" | Yeniden seçim | Kart başına 1 | Faz 2.4 |
+| 7 | **Olay kartında ikinci şans** | Kötü sonuçlu kartta "tekrar dene" | Yeniden seçim | Kart başına 1 | Kartlar oyunda (game-design §4.7); ikinci şans reklam yerleriyle |
 
 **Günlük toplam:** pratikte en fazla ~15–20 reklam. Sektör verisi 15–20 reklam yerinden sonra artışın durduğunu gösteriyor; asıl sınırlayıcı ödülün değeri.
 
@@ -110,18 +110,11 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 2. **Reklam altyapısını v2'ye taşı:** ✅ 2026-10-08: `src/game/runtime/ads.ts` (AdMob 8.2.1, UMP + ATT, web'de sahte reklam, Ayarlar'da gizlilik seçenekleri). Ayrıntı: [mobile-ad-integration.md](./mobile-ad-integration.md). AdMob konsolunda GDPR mesajı kullanıcı tarafından oluşturulacak.
 3. **Reklam yerleri 1–4:** çevrimdışı ×2, Şans ×2, hızlandırıcı, hayaline yardım.
 4. **IAP:** RevenueCat'te yeni ürünler; Rahat Paket, Altın Tasma, Başlangıç, Gece Vardiyası; geri yükleme; v1 ürünlerini pasifleştir.
-5. **Analitik:** reklam teklif ve izleme, satın alma, sınıf atlama, oturum olayları. Analitik ilk oyuncu testinden önce gelmeli (GPT Astra).
+5. **Analitik:** ✅ kod tamam (plan 1.14; `ad_watch`, sınıf atlama, oturum). Reklam teklifi ve satın alma olayları reklam yerleri ve IAP ile birlikte.
 6. **Sonra:** sınıf töreni ×2 (1.10), günlük hediye (2.7), olay kartı ikinci şans (2.4); zorla reklam ve fiyat A/B testleri (Faz 3).
 
 ## 9. Kararlar (kullanıcı, 2026-10-08)
 
 Altı sorunun hepsi önerildiği gibi onaylandı: lansmanda zorla reklam yok (sonra A/B testi); reklam yerleri 1–4'ün hepsi; hızlandırıcı 1 saat ×2, en fazla 4 saat, günde 6; IAP listesi ve fiyatları (Rahat Paket $7,99, Şans'ın Altın Tasması $4,99, Yeni Başlangıç $1,99, Gece Vardiyası Ekibi $3,99) ve adları; lansmanda premium para birimi yok; v1'in 8 ürünü pasifleştirilip yenileri açılır.
 
-Aşağıdaki sorular kayıt için duruyor.
-
-1. **Zorla reklam:** Lansmanda hiç olmasın, sonra test edelim önerisi uygun mu?
-2. **Reklam yerleri:** 1–4'ün hepsi olsun mu? Özellikle "Hayaline yardım" (ihtiyaç anında para) v1'deki "asıl para reklamdan" hissini geri getirebilir; 15 dakikalık gelirle sınırlı tutuyorum.
-3. **Hızlandırıcı süresi:** 1 saatlik ×2, en fazla 4 saat, günde 6 uygun mu? AdCap'te 4 saat, Idle Miner'da 1 saat.
-4. **IAP listesi ve fiyatlar:** Rahat Paket $7,99, Altın Tasma $4,99, Başlangıç $1,99, Gece Vardiyası $3,99 uygun mu? İsimler tona uyuyor mu?
-5. **Premium para birimi:** Lansmanda elmas olmasın (daha sade, ürünler doğrudan satılır) önerisi uygun mu?
-6. **Eski 8 ürün:** Pasifleştirip yenilerini açalım mı?
+Karar verilirken tartılan risk: "Hayaline yardım" (ihtiyaç anında para) v1'deki "asıl para reklamdan" hissini geri getirebilir; bu yüzden 15 dakikalık gelirle sınırlı.

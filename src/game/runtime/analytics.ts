@@ -17,6 +17,7 @@ export type AnalyticsEvent =
   | 'home_change'
   | 'quest_claim'
   | 'find_claim'
+  | 'event_card'
   | 'offline_claim'
   | 'retire'
   | 'ad_watch'

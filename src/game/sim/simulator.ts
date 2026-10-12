@@ -15,11 +15,15 @@ import {
   nextMilestone,
   offlineEarnings,
   pendingLegacyPoints,
+  canCollect,
+  eventAverageReward,
+  eventCardsFor,
   fetchReward,
   rentPerSecond,
   steadyIncomePerSecond,
   tapValue,
 } from '../core/formulas';
+import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
 import { COLLECT_SPAWN_SECONDS, FETCH_MAX_SECONDS, FETCH_MIN_SECONDS } from '../core/config/scene';
 import { HOUSES } from '../core/config/housing';
 import {
@@ -65,10 +69,14 @@ export interface PlayerProfile {
   tapsPerSecond: (generationActiveSeconds: number) => number;
   /** Share of Şans's finds the player catches in time. */
   fetchCatchRate: number;
+  /** Share of the event cards the player answers (a call waits, but a session may end first). */
+  eventAnswerRate: number;
 }
 
 /** On average Şans brings a find this often while the game is open. */
 const FETCH_AVERAGE_SECONDS = (FETCH_MIN_SECONDS + FETCH_MAX_SECONDS) / 2;
+/** Event cards come about this often from Middle Class on (the quick first call of a session is not counted). */
+const EVENT_AVERAGE_SECONDS = (EVENT_MIN_SECONDS + EVENT_MAX_SECONDS) / 2;
 
 export type SimEventKind =
   | 'purchase'
@@ -226,10 +234,14 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     }
   };
 
+  /** Bottles a second: none once the ground is empty (Middle Class on). */
+  const tapRate = () => (canCollect(state) ? profile.tapsPerSecond(time.activeGeneration) : 0);
+
   const activeRate = () =>
     incomePerSecond(state, 'active') +
-    profile.tapsPerSecond(time.activeGeneration) * tapValue(state) +
-    (profile.fetchCatchRate * fetchReward(state)) / FETCH_AVERAGE_SECONDS;
+    tapRate() * tapValue(state) +
+    (profile.fetchCatchRate * fetchReward(state)) / FETCH_AVERAGE_SECONDS +
+    (eventCardsFor(state).length > 0 ? (profile.eventAnswerRate * eventAverageReward(state)) / EVENT_AVERAGE_SECONDS : 0);
 
   const playFor = (seconds: number) => {
     // Income is piecewise constant between purchases, but taps change with generation time,
@@ -246,7 +258,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       // Goal counters: collected bottles and returned wallets.
       state = {
         ...state,
-        bottles: state.bottles + profile.tapsPerSecond(time.activeGeneration) * step,
+        bottles: state.bottles + tapRate() * step,
         finds: state.finds + (profile.fetchCatchRate * step) / FETCH_AVERAGE_SECONDS,
       };
       claimGoals();
@@ -358,6 +370,7 @@ export const ENGAGED_PLAYER: PlayerProfile = {
       : [8, 12, 15, 18, 21, 23].map((startHour) => ({ startHour, minutes: 7 })),
   tapsPerSecond: earlyTapping,
   fetchCatchRate: 0.8,
+  eventAnswerRate: 0.9,
 };
 
 /** Checks in three times a day for a few minutes. */
@@ -372,6 +385,7 @@ export const CASUAL_PLAYER: PlayerProfile = {
       : [9, 13, 21].map((startHour) => ({ startHour, minutes: 5 })),
   tapsPerSecond: earlyTapping,
   fetchCatchRate: 0.5,
+  eventAnswerRate: 0.7,
 };
 
 export const PROFILES = [ENGAGED_PLAYER, CASUAL_PLAYER];

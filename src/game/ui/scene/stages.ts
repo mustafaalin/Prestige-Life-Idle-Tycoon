@@ -44,7 +44,7 @@ export interface ItemArt {
 export type HeroLook = Record<Pose, PoseArt>;
 
 export interface ClassLook {
-  /** What lies on the ground to collect (bottles in the alley, money later). */
+  /** What lies on the ground to collect (bottles in the alley, then coins; nothing from Middle Class on). */
   items: ItemArt[];
   /** Şans sitting, and Şans with a found wallet (his collar changes with the class). */
   sans: SpriteArt;
@@ -55,9 +55,9 @@ const DIR = '/assets/scene';
 
 /** Index = outfit (OUTFITS order). Empty = art pending, the outfit before stands in. */
 const HERO_ART: (HeroLook | null)[] = [
-  // Hoodie.
+  // Hoodie: standing up, a hand on the backpack strap, hopeful (in the tent he is cold instead, below).
   {
-    idle: { src: `${DIR}/hero-street-idle.webp`, height: 0.4, aspect: 0.34, x: 0.4 },
+    idle: { src: `${DIR}/hero-street-hopeful.webp`, height: 0.41, aspect: 0.319, x: 0.4 },
     collect: { src: `${DIR}/hero-street-collect.webp`, height: 0.27, aspect: 0.681, x: 0.4 },
     joy: { src: `${DIR}/hero-street-joy.webp`, height: 0.41, aspect: 0.528, x: 0.4 },
     pet: { src: `${DIR}/hero-street-pet-sans.webp`, height: 0.31, aspect: 0.816, x: 0.48, flip: true },
@@ -65,9 +65,9 @@ const HERO_ART: (HeroLook | null)[] = [
   // Work clothes.
   {
     idle: { src: `${DIR}/hero-work-idle.webp`, height: 0.42, aspect: 0.371, x: 0.4 },
-    collect: { src: `${DIR}/hero-work-collect.webp`, height: 0.22, aspect: 0.611, x: 0.4 },
+    collect: { src: `${DIR}/hero-work-collect.webp`, height: 0.25, aspect: 0.611, x: 0.4 },
     joy: { src: `${DIR}/hero-work-joy.webp`, height: 0.425, aspect: 0.353, x: 0.4 },
-    pet: { src: `${DIR}/hero-work-pet-sans.webp`, height: 0.22, aspect: 0.839, x: 0.47, flip: true },
+    pet: { src: `${DIR}/hero-work-pet-sans.webp`, height: 0.25, aspect: 0.839, x: 0.47, flip: true },
   },
   // Smart casual: art pending.
   null,
@@ -80,8 +80,16 @@ const HERO_LOOKS: HeroLook[] = HERO_ART.reduce<HeroLook[]>((looks, art, index) =
   return looks;
 }, []);
 
-export function heroLook(outfitIndex: number): HeroLook {
-  return HERO_LOOKS[Math.min(Math.max(outfitIndex, 0), HERO_LOOKS.length - 1)];
+/** The hoodie in the tent: hunched and cold. The pose tells his mood, so it lifts the day he moves out. */
+const TENT_LOOK: HeroLook = {
+  ...HERO_LOOKS[0],
+  idle: { src: `${DIR}/hero-street-idle.webp`, height: 0.4, aspect: 0.34, x: 0.4 },
+};
+
+/** The hero in an outfit; `houseId` is where he lives (left out: any home but the tent). */
+export function heroLook(outfitIndex: number, houseId?: string): HeroLook {
+  const look = HERO_LOOKS[Math.min(Math.max(outfitIndex, 0), HERO_LOOKS.length - 1)];
+  return look === HERO_LOOKS[0] && houseId === HOUSES[0].id ? TENT_LOOK : look;
 }
 
 const STREET: ClassLook = {
@@ -108,9 +116,9 @@ const LOOK_ART: Partial<ClassLook>[] = [
       { src: `${DIR}/coin-bill.webp`, width: 0.13 },
     ],
   },
-  // 3 Middle Class: Şans gets a leather collar. Art pending.
+  // 3 Middle Class: nothing to collect from here on (COLLECT_END_CLASS). Şans gets a leather collar, art pending.
   {},
-  // 4 Millionaire: banknotes. Art pending.
+  // 4 Millionaire.
   {},
   // 5 Billionaire (and up for now): Şans' gold collar. Art pending.
   {},
@@ -187,7 +195,7 @@ export interface HomeArt {
 /** What a home's picture needs different from the defaults (tuned on the phone; DEV → scene lab). */
 const HOME_ART: Record<string, Partial<Omit<HomeArt, 'background'>>> = {
   // Street tent: a dark, cold alley. The tent is on the right, so Şans sits in front of it and the
-  // bike or scooter (no car is ever parked here) stands on the left, turned left: its rear is behind
+  // bike (the only vehicle ever parked here) stands on the left, turned left: its rear is behind
   // the hero and its face in the open.
   'home-1': {
     layout: { ...DEFAULT_LAYOUT, near: { x: 0.14, y: 0.7, facesLeft: true } },

@@ -1,13 +1,15 @@
 import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
+import type { EventOutcome } from '../core/config/events';
 import { SECONDS_PER_YEAR } from '../core/config/life';
-import { fetchReward } from '../core/formulas';
+import { eventReward, fetchReward } from '../core/formulas';
 import { earn, live } from '../core/state';
 import {
   buyBusinessUnits,
   buyHome,
   buyLifestyle,
   buyUpgrade,
+  answerEvent,
   claimFind,
   claimQuest,
   claimOffline,
@@ -49,6 +51,8 @@ export interface GameActions {
   tap(): void;
   /** Pays for what Şans found; returns the amount for the flying number. */
   claimFind(): number;
+  /** Pays an event card the moment it is answered (the card rolled the bold answer); returns the amount. */
+  answerEvent(cardId: string, outcome: EventOutcome): number;
   buyBusiness(businessId: string, count: number): boolean;
   hireManager(businessId: string): boolean;
   startCycle(businessId: string): boolean;
@@ -227,6 +231,11 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       claimFind: () => {
         const amount = fetchReward(state.game);
         actTracked(claimFind, 'find_claim', () => ({ finds: state.game.finds }));
+        return amount;
+      },
+      answerEvent: (cardId, outcome) => {
+        const amount = eventReward(state.game, outcome);
+        actTracked((s) => answerEvent(s, outcome, clock()), 'event_card', () => ({ card_id: cardId, outcome }));
         return amount;
       },
       buyBusiness: (businessId, count) =>

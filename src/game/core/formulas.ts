@@ -15,7 +15,15 @@ import {
   TAP_BASE,
   TAP_INCOME_SECONDS,
 } from './config/economy';
-import { FETCH_BOTTLES } from './config/scene';
+import {
+  EVENT_BOLD_CHANCE,
+  EVENT_CARDS,
+  EVENT_REWARD_SECONDS,
+  EVENT_START_CLASS,
+  type EventCardDef,
+  type EventOutcome,
+} from './config/events';
+import { COLLECT_END_CLASS, FETCH_BOTTLES } from './config/scene';
 import { HOUSES, OWNER_HOME_BONUS } from './config/housing';
 import { LIFESTYLE_ITEMS } from './config/lifestyle';
 import { UPGRADES } from './config/upgrades';
@@ -191,9 +199,40 @@ export function tapValue(state: GameStateV2) {
   return TAP_BASE * legacyMultiplier(state.legacyPoints) + incomePerSecond(state, 'active') * TAP_INCOME_SECONDS;
 }
 
+/** Whether there is still something on the ground to collect (config/scene.ts). */
+export function canCollect(state: GameStateV2) {
+  return state.classIndex < COLLECT_END_CLASS;
+}
+
 /** What Şans's find pays when the player catches it (config/scene.ts). */
 export function fetchReward(state: GameStateV2) {
   return FETCH_BOTTLES * tapValue(state);
+}
+
+// ── Event cards (config/events.ts) ───────────────────────────────────────────
+
+/**
+ * The cards that can come now. `classIndex` is the class the player has seen: in the first life a
+ * class counts once its ceremony has played, so nobody calls before the story introduced them.
+ */
+export function eventCardsFor(state: GameStateV2, classIndex = state.classIndex): EventCardDef[] {
+  if (classIndex < EVENT_START_CLASS) return [];
+  return EVENT_CARDS.filter(
+    (card) =>
+      classIndex >= (card.fromClass ?? 0) &&
+      (card.businessId === undefined || state.businesses[card.businessId]?.managed === true),
+  );
+}
+
+export function eventReward(state: GameStateV2, outcome: EventOutcome) {
+  return incomePerSecond(state, 'active') * EVENT_REWARD_SECONDS[outcome];
+}
+
+/** What a card pays on average when half the answers are safe and half bold (the simulator's player). */
+export function eventAverageReward(state: GameStateV2) {
+  const bold =
+    EVENT_BOLD_CHANCE * EVENT_REWARD_SECONDS.win + (1 - EVENT_BOLD_CHANCE) * EVENT_REWARD_SECONDS.lose;
+  return (incomePerSecond(state, 'active') * (EVENT_REWARD_SECONDS.safe + bold)) / 2;
 }
 
 // ── Life clock ────────────────────────────────────────────────────────────────

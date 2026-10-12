@@ -1,6 +1,8 @@
 import { BUSINESSES } from '../core/config/businesses';
+import type { EventOutcome } from '../core/config/events';
 import {
   cycleRevenue,
+  eventReward,
   fetchReward,
   globalMultiplier,
   offlineEarnings,
@@ -155,6 +157,18 @@ function withGame(state: RuntimeState, game: GameStateV2 | null): RuntimeState |
 export function tap(state: RuntimeState): RuntimeState {
   const game = earn(state.game, tapValue(state.game));
   return { ...state, game: { ...game, bottles: game.bottles + 1 } };
+}
+
+/**
+ * An event card was answered (config/events.ts; the card rolled the bold answer). It pays at once and
+ * the time is kept, so closing the game on a bad result neither loses the reward nor rolls again.
+ */
+export function answerEvent(state: RuntimeState, outcome: EventOutcome, now: number): RuntimeState {
+  return {
+    ...state,
+    game: earn(state.game, eventReward(state.game, outcome)),
+    story: { ...state.story, eventAnsweredAt: now },
+  };
 }
 
 /** The player caught what Şans brought (the scene decides when he brings something). */

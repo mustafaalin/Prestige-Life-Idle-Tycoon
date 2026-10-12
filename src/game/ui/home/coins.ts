@@ -33,3 +33,22 @@ export function onWalletHit(listener: () => void) {
     hitListeners.delete(listener);
   };
 }
+
+// A reward that is already paid but not collected yet (an answered event card): the balance in the
+// top bar shows without it until the player taps "Collect".
+let held = 0;
+const heldListeners = new Set<() => void>();
+
+export function holdBalance(amount: number) {
+  held = amount;
+  heldListeners.forEach((listener) => listener());
+}
+
+export const heldBalance = () => held;
+
+export function onHeldBalance(listener: () => void) {
+  heldListeners.add(listener);
+  return () => {
+    heldListeners.delete(listener);
+  };
+}

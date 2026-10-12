@@ -23,6 +23,8 @@ export interface StoryProgress {
   /** Old Ray's guide (plan 1.12): steps whose line was shown, and steps finished by an action. */
   guideSeen: string[];
   guideDone: string[];
+  /** When the last event card was answered (ms; 0 = never): reopening the game does not bring the next call sooner. */
+  eventAnsweredAt: number;
 }
 
 export interface MomMessageDef {
@@ -72,6 +74,7 @@ export function createStoryProgress(classIndex = 0): StoryProgress {
     daughterName: '',
     guideSeen: [],
     guideDone: [],
+    eventAnsweredAt: 0,
   };
 }
 

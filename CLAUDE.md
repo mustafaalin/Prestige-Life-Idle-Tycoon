@@ -17,7 +17,7 @@ Session startup â€” read in this order:
 
 `docs/v1/` is the v1 archive (`v1/game-rules.md` = v1 rules only). Don't use it for v2 work.
 
-v2 rules of thumb: pure-TS economy in `src/game/core/` (no React); every balance change goes through `npm run sim`; every on-screen string via `src/game/i18n/` in both `en` and `tr`; save key `prestige_life_v2`. v2 game look (glossy buttons, Fredoka display font, outlined numbers) comes from `src/game/ui/kit.tsx` and the `v2-*` classes in `src/game/mobile.css`; sounds and haptics via `src/game/runtime/feedback.ts`; rewarded ads via `src/game/runtime/ads.ts`; ceremonies and Mom's messages via `src/game/ui/story/` + `src/game/runtime/story.ts`; phone reminders via `src/game/runtime/notifications.ts`; analytics events via `track()` in `src/game/runtime/analytics.ts` (Firebase; player actions are tracked in `runtime/store.ts`). Docs are rewritten to the current state, not appended to (see `docs/session-handoff.md`).
+v2 rules of thumb: pure-TS economy in `src/game/core/` (no React); every balance change goes through `npm run sim`; every on-screen string via `src/game/i18n/` in both `en` and `tr`; save key `prestige_life_v2`. v2 game look (glossy buttons, Fredoka display font, outlined numbers) comes from `src/game/ui/kit.tsx` and the `v2-*` classes in `src/game/mobile.css`; sounds and haptics via `src/game/runtime/feedback.ts`; rewarded ads via `src/game/runtime/ads.ts`; ceremonies and Mom's messages via `src/game/ui/story/` + `src/game/runtime/story.ts`; event cards via `src/game/core/config/events.ts` + `src/game/ui/events/`; phone reminders via `src/game/runtime/notifications.ts`; analytics events via `track()` in `src/game/runtime/analytics.ts` (Firebase; player actions are tracked in `runtime/store.ts`). Docs are rewritten to the current state, not appended to (see `docs/session-handoff.md`).
 
 ## Commands
 
@@ -194,7 +194,7 @@ Always play a sound for meaningful player actions. Cooldown / disabled states â†
 
 ### Monetization Status
 
-- **v2:** own ad layer `src/game/runtime/ads.ts` (AdMob 8.2.1, UMP consent, iOS ATT, mock ad on web); placements and IAP not wired yet. Decisions: `docs/monetization-v2.md`; setup: `docs/mobile-ad-integration.md` (v2 section).
+- **v2:** own ad layer `src/game/runtime/ads.ts` (AdMob 8.2.1, UMP consent, iOS ATT, mock ad on web); placements and IAP not wired yet. Decisions: `docs/monetization-v2.md`; setup: `docs/mobile-ad-integration.md`.
 
 v1 wiring (RevenueCat keys and ad unit IDs are reused by v2):
 

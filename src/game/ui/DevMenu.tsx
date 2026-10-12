@@ -7,6 +7,7 @@ import { useGameV2 } from '../runtime/useGameV2';
 import { showRewardedAd } from '../runtime/ads';
 import { scheduleTestReminder } from '../runtime/notifications';
 import { LIFE_MOMENTS } from '../runtime/story';
+import { requestEventCard } from './events/eventScript';
 import { SceneLab } from './scene/SceneLab';
 import { requestFind } from './scene/sceneEvents';
 import { requestCeremony, requestLifeMoment, requestMomMessage } from './story/storyEvents';
@@ -162,6 +163,17 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
           className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
         >
           {t('dev.find')}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            close();
+            requestEventCard();
+          }}
+          className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+        >
+          {t('dev.event')}
         </button>
 
         <Row label={t('dev.ceremony')}>

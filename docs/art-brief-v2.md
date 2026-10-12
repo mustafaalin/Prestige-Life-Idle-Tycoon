@@ -1,6 +1,6 @@
 # Görsel Brifi v2: Sahne aşamaları ve hikâye kareleri
 
-Son güncelleme: 2026-10-10 · İlgili: [story-v2.md §4, §8](./story-v2.md), [discussion-notes.md §7](./discussion-notes.md), kod `src/game/ui/scene/stages.ts`, `src/game/ui/story/ceremonyScript.ts`
+Son güncelleme: 2026-10-12 · İlgili: [story-v2.md §4, §8](./story-v2.md), [discussion-notes.md §7](./discussion-notes.md), kod `src/game/ui/scene/stages.ts`, `src/game/ui/story/ceremonyScript.ts`
 
 Bu belge, oyunun görsellerini üretecek kişiye ya da modele (GPT dahil) verilir. Neyin, hangi boyutta, hangi referansla ve hangi komutla üretileceğini anlatır. Üretilen dosyalar `art/pilot/` altına konur. Oyuna sıkıştırıp bağlamayı Claude yapar (webp, kesim, konum ayarı). Evler ve araçlar için doğrudan yapıştırılacak İngilizce komutlar: [art-prompts-v2.md](./art-prompts-v2.md).
 
@@ -17,9 +17,9 @@ Ana ekran iki şeyi gösterir (karar 2026-10-10):
 | 0 Sokakta Yaşayan | 17 | 1 kapüşonlu (**var**) | Şişe, kutu (**var**) | İp (**var**) | 1 Çadır |
 | 1 Gündelikçi | 17 | 1 kapüşonlu | Şişe, kutu | İp | 2 Eski Minibüs |
 | 2 İşçi Sınıfı | 18 | 2 iş kıyafeti (**var**) | Bozuk para (**var**) | İp | 4 Eski Kiralık Daire |
-| 3 Orta Sınıf | 19 | 3 şık günlük | Bozuk para | Deri | 6 Sitede Daire |
-| 4 Milyoner | 20 | 3 şık günlük | Kâğıt para destesi | Deri | 7 İlk Kendi Evin |
-| 5 Milyarder (ve sonrası, şimdilik) | 22–24 | 4 takım elbise | Para destesi, altın | Altın | 9 Villa |
+| 3 Orta Sınıf | 19 | 3 şık günlük | Yok (toplama biter) | Deri | 6 Sitede Daire |
+| 4 Milyoner | 20 | 3 şık günlük | Yok | Deri | 7 İlk Kendi Evin |
+| 5 Milyarder (ve sonrası, şimdilik) | 22–24 | 4 takım elbise | Yok | Altın | 9 Villa |
 
 Yaşlar `npm run sim` sonucundan alındı.
 
@@ -46,15 +46,15 @@ Yaşlar `npm run sim` sonucundan alındı.
 | Karakter kılavuzu | Yatay sayfa (mevcut `mom-sheet.png` gibi) | Düz açık gri | Önden tam boy + 4 ifade portresi (yakın plan, omuzdan yukarı). Portreler oyunda yuvarlak kesilir. |
 | Hikâye karesi | 9:16 dikey, en az 1536×2752 | Dolu | Alt %35'e konuşma balonu biner; yüzler ve önemli nesneler üst %65'te. |
 
-**Dosya adları ve yerler** aşağıdaki tablolarda. Kaynak `art/pilot/...` altına PNG olarak konur. Aynı görselin denemeleri `-v1`, `-v2` diye adlandırılır, seçilen sürüm söylenir.
+**Dosya adları ve yerler** aşağıdaki tablolarda. Kaynak `art/pilot/...` altına PNG olarak konur. Aynı görselin denemeleri `-v1`, `-v2` diye adlandırılır; seçilen sürüm tablodaki adı alır, seçilmeyen denemeler silinir (kaynaklar Drive yedeğinde kalır).
 
 ## 4. Liste
 
-**Öncelik:** A, AAB'den (kapalı teste çıkacak sürüm) önce gerekenler. B, olsa iyi olur.
+**Öncelik:** A, AAB'den (kapalı teste çıkacak sürüm) önce gerekenler. B, olsa iyi olur. **Durum (2026-10-12):** evler, araçlar, iş kıyafeti, bozuk paralar, Nevin Hanım ve Defne oyunda; bekleyenler §5'te.
 
 ### 4.1 Kahraman kıyafetleri (A)
 
-Her kıyafet için önce bir kıyafet kılavuzu üretilir (önden ve yandan tam boy), onaylanınca 4 poz o kılavuzla üretilir. Böylece kıyafet pozlar arasında değişmez.
+Her kıyafet için önce bir kıyafet kılavuzu üretilir (önden ve yandan tam boy), onaylanınca pozlar o kılavuzla üretilir. Kıyafet 2 oyunda; 3 ve 4 bekliyor. Böylece kıyafet pozlar arasında değişmez.
 
 | Kıyafet | Kılavuz dosyası | Tasarım |
 | --- | --- | --- |
@@ -65,40 +65,40 @@ Her kıyafet için önce bir kıyafet kılavuzu üretilir (önden ve yandan tam 
 Kılavuz komutu (kıyafet tasarımını değiştirerek):
 > Character turnaround sheet of the SAME young man from the reference sheet (same face, hair, skin tone and proportions), now age {18/19/23}, wearing {kıyafet tasarımı, İngilizce}. Front view and side view, full body, neutral standing pose, arms relaxed at the sides, exactly two arms and two hands. Plain light grey background. {stil paragrafı}
 
-Her kıyafet için 4 poz: dosya `art/pilot/08-outfits/hero-{2|3|4}-{idle|collect|joy|pet}.png`.
+Kıyafet 2 için 4 poz (oyunda), kıyafet 3 ve 4 için 3 poz (toplama Orta Sınıf'ta bittiği için `collect` yok; game-design §4.7): dosya `art/pilot/08-outfits/hero-{2|3|4}-{idle|collect|joy|pet}.png`.
 
 | Poz | Ne yapıyor | Mevcut karşılığı (ölçek ve açı için referans) |
 | --- | --- | --- |
 | `idle` | Dik, rahat ayakta duruyor; kendinden emin, hafif gülümseme. Sokaktaki gibi üşümüyor. | `art/pilot/05-scene/hero-idle-cut.png` |
-| `collect` | Eğilmiş, tek eliyle yerden bir şey alıyor. | `art/pilot/05-scene/hero-collect-cut.png` |
+| `collect` (yalnızca kıyafet 2) | Eğilmiş, tek eliyle yerden bir şey alıyor. | `art/pilot/05-scene/hero-collect-cut.png` |
 | `joy` | Sevinç: tek kol havada yumruk, gülüyor. | `art/pilot/05-scene/hero-joy-cut.png` |
 | `pet` | Çömelmiş, yanında oturan Şans'ı okşuyor (Şans o aşamanın tasmasıyla: kıyafet 2 ip, kıyafet 3 deri, kıyafet 4 altın). | `art/pilot/05-scene/hero-pet-sans-cut.png` |
 
-Poz komutu:
+Hazır komutlar (kıyafet 3 ve 4): [art-prompts-v2.md §4](./art-prompts-v2.md). Bekleme pozu kıyafete göre ayrı bir duruş: şık günlükte rahat, bir eli cepte; takım elbisede kendinden emin, ceketini ilikliyor. Şablon:
 > The SAME young man from the outfit sheet, same outfit, {poz tarifi}. Full body, feet visible, eye-level camera, slight three-quarter view like the pose reference. Exactly two arms and two hands. Plain light grey background. {stil paragrafı}
 >
 > Referanslar: kıyafet kılavuzu + `A1-semi3d.png` + mevcut poz karşılığı.
 
 ### 4.2 Ev arka planları (A)
 
-12 ev; her biri sahnede ayrı bir yer. Sokak hazır ve kalıyor (önünde yalnızca bisiklet ve skuter durur). **Minibüs ve eski kiralık daire derin zeminle yeniden üretilecek** (şimdikilerde araba evi kapatıyor ya da basamaklara giriyor). Kalan 9 ev şimdilik v1'in eski görselleriyle duruyor. Sıra önemli: oyuncu bunları sırayla görür, her biri bir öncekinden belirgin biçimde daha iyi olmalı. Her ev kendi iki aracına göre düşünülür (ev–araç zinciri, game-design §4.4); gelen görsele sahne laboratuvarında bakılır ve o eve özel yerleşim `stages.ts` `HOME_ART`'a yazılır.
+12 ev; her biri sahnede ayrı bir yer. **Hepsi oyunda (2026-10-12)**: çadır eski görseliyle (önünde yalnızca bisiklet durur), ev 2–12 derin zeminli yeni görsellerle. Sıra önemli: oyuncu bunları sırayla görür, her biri bir öncekinden belirgin biçimde daha iyi olmalı. Her ev kendi iki aracına göre düşünülür (ev–araç zinciri, game-design §4.4); gelen görsele sahne laboratuvarında bakılır ve o eve özel yerleşim `stages.ts` `HOME_ART`'a yazılır.
 
 Kurallar §3 "Arka plan" satırında; hazır komutlar [art-prompts-v2.md §1](./art-prompts-v2.md).
 
 | # | Ev | Dosya | Yer tarifi | Durum |
 | --- | --- | --- | --- | --- |
-| 1 | Sokak Çadırı | | Ara sokak | **Var** |
-| 2 | Eski Minibüs | `art/pilot/05-scene/home-2-van.png` | Ara sokakta Rıza Amca'nın eski minibüsü; aynı yer, minibüs solda ve geride, önü açık. | Oyunda (araba minibüsü kapatıyor); yeniden üretilecek |
-| 3 | Kiralık Oda | `art/pilot/05-scene/home-3-room.png` | Eski bir binanın arka avlusu, yarım bodrum katta tek pencereli küçük bir odanın kapısı; çamaşır ipi, saksıda fesleğen, birkaç basamak. Mütevazı ama temiz, ilk "kendi kapısı". | Bekliyor |
-| 4 | Eski Kiralık Daire | `art/pilot/05-scene/home-4-old-flat.png` | Eski ama bakımlı apartman girişi; mevcut görselin aynı yeri, kamera birkaç adım geride. | Oyunda (sığ zemin); yeniden üretilecek |
-| 5 | Yenice Kiralık Daire | `art/pilot/05-scene/home-5-newer-flat.png` | Yeni boyanmış 4–5 katlı bir apartmanın önü: cam giriş kapısı, balkonlarda çiçekler, kaldırımda genç bir ağaç ve bank. | Bekliyor |
-| 6 | Sitede Daire | `art/pilot/05-scene/home-6-complex.png` | Modern bir sitenin avlusu: düzgün taş zemin, genç ağaçlar, bank, arkada balkonlu yeni bloklar, güvenlik kulübesi uzakta. | Bekliyor |
-| 7 | İlk Kendi Evin | `art/pilot/05-scene/home-7-first-house.png` | Küçük, tek katlı müstakil bir ev: beyaz çit, minik ön bahçe, verandada bir sandalye, kapının önünde paspas. Gurur verici ama sade. | Bekliyor |
-| 8 | Bahçeli Banliyö Evi | `art/pilot/05-scene/home-8-suburban.png` | İki katlı, geniş bahçeli banliyö evi: çim, taş yol, çiçek tarhları, bahçede salıncak, garaj kapısı. | Bekliyor |
-| 9 | Villa | `art/pilot/05-scene/home-9-villa.png` | Modern bir villanın girişi: geniş taş avlu, havuzun bir köşesi, zeytin ağaçları, büyük camlar. Gösterişli ama sıcak. | Bekliyor |
-| 10 | Göl Kenarında Cam Ev | `art/pilot/05-scene/home-10-lake.png` | Göl kıyısında camdan ve ahşaptan modern bir ev, arkada çam ormanı ve sakin göl, iskele. | Bekliyor |
-| 11 | Sahil Malikânesi | `art/pilot/05-scene/home-11-beach.png` | Denize bakan beyaz bir malikâne: palmiyeler, geniş merdivenler, arkada turkuaz deniz. | Bekliyor |
-| 12 | Büyük Malikâne | `art/pilot/05-scene/home-12-mansion.png` | Klasik, çok büyük bir malikâne: çeşme, simetrik bahçe, uzun giriş yolu, akşam ışığında yanan pencereler. Oyunun en büyük evi. | Bekliyor |
+| 1 | Sokak Çadırı | | Ara sokak | Oyunda |
+| 2 | Eski Minibüs | `art/pilot/05-scene/home-2-van.png` | Ara sokakta Rıza Amca'nın eski minibüsü; aynı yer, minibüs solda ve geride, önü açık. | Oyunda |
+| 3 | Kiralık Oda | `art/pilot/05-scene/home-3-room.png` | Eski bir binanın arka avlusu, yarım bodrum katta tek pencereli küçük bir odanın kapısı; çamaşır ipi, saksıda fesleğen, birkaç basamak. Mütevazı ama temiz, ilk "kendi kapısı". | Oyunda |
+| 4 | Eski Kiralık Daire | `art/pilot/05-scene/home-4-old-flat.png` | Eski ama bakımlı apartman girişi; mevcut görselin aynı yeri, kamera birkaç adım geride. | Oyunda |
+| 5 | Yenice Kiralık Daire | `art/pilot/05-scene/home-5-newer-flat.png` | Yeni boyanmış 4–5 katlı bir apartmanın önü: cam giriş kapısı, balkonlarda çiçekler, kaldırımda genç bir ağaç ve bank. | Oyunda |
+| 6 | Sitede Daire | `art/pilot/05-scene/home-6-complex.png` | Modern bir sitenin avlusu: düzgün taş zemin, genç ağaçlar, bank, arkada balkonlu yeni bloklar, güvenlik kulübesi uzakta. | Oyunda |
+| 7 | İlk Kendi Evin | `art/pilot/05-scene/home-7-first-house.png` | Küçük, tek katlı müstakil bir ev, sürüş yolundan bir metre yukarıda: alçak taş duvar ve üstünde beyaz çit, birkaç basamak, minik ön bahçe, verandada bir sandalye. Gurur verici ama sade. | Oyunda (3. deneme) |
+| 8 | Bahçeli Banliyö Evi | `art/pilot/05-scene/home-8-suburban.png` | İki katlı, geniş bahçeli banliyö evi: çim, taş yol, çiçek tarhları, bahçede salıncak, garaj kapısı. | Oyunda |
+| 9 | Villa | `art/pilot/05-scene/home-9-villa.png` | Modern bir villanın girişi: geniş taş avlu, havuzun bir köşesi, zeytin ağaçları, büyük camlar. Gösterişli ama sıcak. | Oyunda |
+| 10 | Göl Kenarında Cam Ev | `art/pilot/05-scene/home-10-lake.png` | Göl kıyısında camdan ve ahşaptan modern bir ev, arkada çam ormanı ve sakin göl, iskele. | Oyunda (sınırda: arazi aracı sol kanadı kapatıyor) |
+| 11 | Sahil Malikânesi | `art/pilot/05-scene/home-11-beach.png` | Denize bakan beyaz bir malikâne: palmiyeler, geniş merdivenler, arkada turkuaz deniz. | Oyunda |
+| 12 | Büyük Malikâne | `art/pilot/05-scene/home-12-mansion.png` | Klasik, çok büyük bir malikâne: çeşme, simetrik bahçe, uzun giriş yolu, akşam ışığında yanan pencereler. Oyunun en büyük evi. | Oyunda |
 
 Not: annenin evleri (eski aile evi, konak) ayrı; mağazada yok, törenlerde hikâye karesi olarak görünür (§4.5).
 
@@ -106,16 +106,15 @@ Not: annenin evleri (eski aile evi, konak) ayrı; mağazada yok, törenlerde hik
 
 | Dosya | İçerik |
 | --- | --- |
-| `art/pilot/05-scene/items-coins.png` (A) | Üç nesne: tek parlak bozuk para, küçük bozuk para yığını, birkaç madeni para ve buruşuk tek banknot. |
-| `art/pilot/05-scene/items-cash.png` (A) | Üç nesne: bantlı kâğıt para destesi, altın para, küçük altın külçe. |
+| `art/pilot/05-scene/items-coins.png` (A, oyunda) | Üç nesne: tek parlak bozuk para, küçük bozuk para yığını, birkaç madeni para ve buruşuk tek banknot. |
 | `art/pilot/05-scene/sans-sit-leather.png` + `sans-wallet-leather.png` (B) | Şans oturuyor / ağzında cüzdanla; kahverengi deri tasma. |
 | `art/pilot/05-scene/sans-sit-gold.png` + `sans-wallet-gold.png` (B) | Aynısı, altın tasma. |
 
 Şans için referans: `sans-sheet.png` + mevcut `sans-sit-cut.png` / `sans-wallet-cut.png`. Komut: *"The SAME dog as the reference, same pose, same scale; only change the collar to {a brown leather collar / a gold collar}. Real four-legged dog, quadruped, NOT anthropomorphic."*
 
-### 4.4 Yeni karakterler: Nevin Hanım ve Defne (A)
+### 4.4 Yeni karakterler: Nevin Hanım ve Defne (A, oyunda)
 
-İşçi Sınıfı töreninde cüzdanını Şans'ın bulduğu yaşlı kadın ve torunu teşekküre gelir (story §4). Defne, Faz 2'de kahramanın eşi olacak.
+İşçi Sınıfı töreninde cüzdanını Şans'ın bulduğu yaşlı kadın ve torunu teşekküre gelir (story §4). Defne sonra kahramanın eşi olur (hayat anları, story §4c). İkisinin kılavuzu ve portreleri oyunda (2026-10-11).
 
 | Dosya | Tarif |
 | --- | --- |
@@ -139,17 +138,19 @@ Referanslar: sahnenin yeri (ilgili arka plan ya da önsöz karesi) + kahraman k�
 
 ### 4.6 Araçlar (A)
 
-12 araç (karar 2026-10-11; önce 16'ydı; motosiklet ve pikap ev–araç zinciri için eklendi), evin önünde park eder; her evin önünde yalnızca kendi iki aracı görülür (tablo: art-prompts §2): araba kahramanın ~2,5 m arkasında, burnu sağda; bisiklet ve skuter kahramanın yanında, sağda. Hepsi önden dörtte üç, önü sağa (§3 Araç). Liste, sıra, araç başına oran sınırı ve hazır komutlar: [art-prompts-v2.md §2](./art-prompts-v2.md). Çapa hatchback (4). İlk 4'ü yeni açıyla oyunda (2026-10-11, `public/assets/vehicles/v2/`); SUV (5) eski yan açıyla duruyor ve yeniden üretilecek; motosiklet, pikap ve 6–10 v1 görselleriyle yer tutuyor. Sahnedeki boy aracın gerçek yüksekliğinden hesaplanır (`stages.ts` `VEHICLE_SHAPE`), görselin genişliğinden değil. Kesim: arka plan silinir, aracın alt %30'undaki gri (gölge ve tekerlekler arasından görünen zemin) yarı saydam siyaha çevrilir (sahnede zemine basar); bisiklet ve skuterde tekerlek içindeki kapalı gri de silinir.
+12 araç (karar 2026-10-11; önce 16'ydı; motosiklet ve pikap ev–araç zinciri için eklendi), evin önünde park eder; her evin önünde yalnızca kendi iki aracı görülür (tablo: art-prompts §2): araba kahramanın ~2,5 m arkasında, burnu sağda; bisiklet ve skuter kahramanın yanında, sağda. Hepsi önden dörtte üç, önü sağa (§3 Araç). Liste, sıra, araç başına oran sınırı ve hazır komutlar: [art-prompts-v2.md §2](./art-prompts-v2.md). Çapa hatchback (4). 12'si de yeni açıyla oyunda (2026-10-12, `public/assets/vehicles/v2/`). Sahnedeki boy aracın gerçek yüksekliğinden hesaplanır (`stages.ts` `VEHICLE_SHAPE`), görselin genişliğinden değil. Kesim: arka plan silinir, aracın alt %30'undaki gri (gölge ve tekerlekler arasından görünen zemin) yarı saydam siyaha çevrilir (sahnede zemine basar); bisiklet ve skuterde tekerlek içindeki kapalı gri de silinir.
 
-## 5. Toplam
+## 5. Bekleyenler
 
 | Öncelik | Görseller | Adet |
 | --- | --- | --- |
-| A | 3 kıyafet kılavuzu, 12 poz, 11 ev arka planı (minibüs ve eski daire yeniden), 12 araç, 2 toplanacak sayfası, 2 karakter kılavuzu, 3 hikâye karesi (H1–H3) | 45 |
-| B | 4 Şans tasması, 3 hikâye karesi (H4–H6) | 7 |
+| A | Kıyafet 3 ve 4: 2 kılavuz + 6 poz (§4.1; komutlar [art-prompts-v2.md §4](./art-prompts-v2.md)) | 8 |
+| A | Hikâye kareleri H1–H3 (§4.5; H2 ve H3 kıyafet 3'ten sonra) | 3 |
+| B | Şans'ın deri ve altın tasması (§4.3) | 4 |
+| B | Hikâye kareleri H4–H6 (§4.5) | 3 |
 
-İlk set (kıyafet 2 kılavuzu ve 4 pozu, İşçi arka planı, bozuk paralar) 2026-10-09'da GPT ile üretildi ve oyuna bağlandı (`stages.ts` aşama 2). GPT'nin aracı ~1,57 MP veriyor: arka plan 941×1672 (1080 genişliğe büyütüldü, telefonda kabul edilebilir), pozlar 1000 px yüksekliğe yetiyor. Sıradaki: hatchback (araç çapası) ve bisiklet, ev 3 (Kiralık Oda) ve 5 (Yenice Kiralık Daire) — ilk oturumda görülenler; sonra kıyafet 3, ev 6–7, Nevin ve Defne kılavuzları.
+GPT'nin aracı ~1,57 MP veriyor: arka plan 941×1672 (1080 genişliğe büyütülüyor, telefonda kabul edilebilir), pozlar 1000 px yüksekliğe yetiyor.
 
 ## 6. Oyuna bağlama (Claude)
 
-Görsel `art/pilot/...` altına konunca: arka planı silinir (`scripts/cutout.sh`; kol ile gövde arasındaki kapalı gri boşluklar ayrıca silinir, ilk sette bu adım elle yapıldı) (karakterler ve nesneler), webp'ye çevrilir (`public/assets/scene/`, `public/assets/story/`), `stages.ts`'te o sınıfın satırı doldurulur (ev arka planı ise `config/housing.ts`'te evin `image`'ı, gerekirse `stages.ts` `PARKING`'de park yeri; araç `public/assets/vehicles/`), konum ve boy telefonda ayarlanır. Bir aşamanın görseli eksikken o aşama bir öncekinin görsellerini kullanır, oyun bozulmaz. Portreler karakter kılavuzlarından kesilir (`public/assets/story/portraits/`).
+Görsel `art/pilot/...` altına konunca: arka planı silinir (`scripts/cutout.sh`; kol ile gövde arasındaki kapalı gri boşluklar ayrıca silinir, ilk sette bu adım elle yapıldı) (karakterler ve nesneler), webp'ye çevrilir (`public/assets/scene/`, `public/assets/story/`), `stages.ts`'te o sınıfın satırı doldurulur (ev arka planı ise `config/housing.ts`'te evin `image`'ı, gerekirse `stages.ts` `HOME_ART`'ta yerleşim; araç `scripts/cutout-vehicle.sh` ile `public/assets/vehicles/v2/` ve `VEHICLE_SHAPE`), konum ve boy telefonda ayarlanır. Bir aşamanın görseli eksikken o aşama bir öncekinin görsellerini kullanır, oyun bozulmaz. Portreler karakter kılavuzlarından kesilir (`public/assets/story/portraits/`).

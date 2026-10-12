@@ -1,10 +1,10 @@
 import { Settings } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { autoIncomePerSecond, classProgress, heroAge } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { onWalletHit } from './coins';
+import { heldBalance, onHeldBalance, onWalletHit } from './coins';
 
 // Top bar over the scene: money (the target collected bottles fly to), auto income, wealth class,
 // age and progress to the next class.
@@ -15,6 +15,8 @@ export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
   // Each arriving coin bumps the wallet (the key restarts the animation).
   const [bump, setBump] = useState(0);
   useEffect(() => onWalletHit(() => setBump((count) => count + 1)), []);
+  // An answered event card's reward joins the balance when it is collected.
+  const held = useSyncExternalStore(onHeldBalance, heldBalance);
 
   const current = WEALTH_CLASSES[game.classIndex];
   const next = WEALTH_CLASSES[game.classIndex + 1];
@@ -35,7 +37,7 @@ export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
             />
             <div className="min-w-0">
               <p className="v2-display v2-outline text-[26px] leading-none text-white tabular-nums truncate">
-                {money(game.cash)}
+                {money(Math.max(0, game.cash - held))}
               </p>
               <p className="v2-display text-[12px] leading-tight text-emerald-300 v2-shadow tabular-nums truncate">
                 +{perMonth(autoIncomePerSecond(game))}

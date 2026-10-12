@@ -6,6 +6,7 @@ import { initAds } from '../../runtime/ads';
 import { trackScreen } from '../../runtime/analytics';
 import { haptic, playSfx, preloadSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
 import { Guide } from '../guide/Guide';
 import { StoryDirector } from '../story/StoryDirector';
@@ -32,6 +33,8 @@ export function HomeScreen() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   // The goal the player last tapped "Go" on; the strip in the open tab keeps showing it.
   const [pinnedQuest, setPinnedQuest] = useState<string | null>(null);
+  // An event card is on screen: story moments wait for the home scene, as they do for a tab.
+  const [eventOpen, setEventOpen] = useState(false);
   const promotion = nextCareer(game);
 
   const goToQuest: GoToQuest = (quest) => {
@@ -69,6 +72,7 @@ export function HomeScreen() {
             <QuestPanel onGo={goToQuest} />
           )}
           <Guide tabOpen={tab !== null} />
+          <EventCards tabOpen={tab !== null} onOpenChange={setEventOpen} />
         </main>
         <div className="pointer-events-auto">
           <BottomNav
@@ -119,7 +123,7 @@ export function HomeScreen() {
 
       {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
 
-      <StoryDirector tabOpen={tab !== null} />
+      <StoryDirector tabOpen={tab !== null || eventOpen} />
 
       <CoinLayer />
     </div>

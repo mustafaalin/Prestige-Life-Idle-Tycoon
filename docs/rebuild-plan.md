@@ -1,6 +1,6 @@
 # Prestige Life v2 — Yeniden Yapım Planı
 
-Son güncelleme: 2026-10-09 · Dal: `v2-rebuild` · Rapor (neden): [report-v2.md](./report-v2.md) · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikaye: [story-v2.md](./story-v2.md) · Açık kararlar: [discussion-notes.md](./discussion-notes.md)
+Son güncelleme: 2026-10-12 · Dal: `v2-rebuild` · Rapor (neden): [report-v2.md](./report-v2.md) · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikaye: [story-v2.md](./story-v2.md) · Açık kararlar: [discussion-notes.md](./discussion-notes.md)
 
 ## Amaç
 
@@ -21,27 +21,33 @@ Oyunu oynaması keyifli ve oyuncuyu her gün geri getiren bir idle hayat simüla
 ```
 src/game/
   core/            Saf TypeScript ekonomi çekirdeği (React yok, depolama yok)
-    config/        Denge verisi: işletmeler, kariyer, sınıflar, statü eşyaları, evler, sabitler
+    config/        Denge verisi: işletmeler, yükseltmeler, kariyer, sınıflar, statü eşyaları, evler, ömür, hedefler, sahne, olay kartları
     formulas.ts    Fiyat, gelir, çarpan, miras formülleri
-    state.ts       Saf durum geçişleri (satın al, terfi, emekli ol...)
+    state.ts       Saf durum geçişleri (satın al, terfi, taşın, emekli ol...)
     format.ts      $1.23M biçimlendirme, süre biçimlendirme
-  sim/             Dengeleme botu ve tempo hedefleri
+  sim/             Dengeleme botu, tempo ve his hedefleri
   runtime/         Tick döngüsü, kayıt, çevrimdışı hesap, React hook'u
     engine.ts      Saf zaman motoru: döngü çubukları, ödemeler, çevrimdışı (zaman parametre olarak gelir)
     storage.ts     `prestige_life_v2` kaydı (telefonda Preferences, web'de localStorage), bozuk/eski kayıtları normalleştirme
+    store.ts       Canlı oyun: 250 ms tick, otomatik kayıt, ön/arka plan, olaylar (payout, classUp), analitik
+    story.ts       Hikâye ilerlemesi: görülen törenler, hayat anları, annenin mesajları, rehber adımları
     backButton.ts  Android geri tuşu: açık katmanlar (sekme, sayfa, modal) z-index sırasıyla kapanır
-    store.ts       Canlı oyun: 250 ms tick, otomatik kayıt, ön/arka plan, olaylar (payout, classUp)
-    GameV2Provider.tsx + useGameV2.ts   React bağlantısı (useSyncExternalStore)
     feedback.ts    Ses (v1 sfx dosyaları) ve haptik
     ads.ts         Ödüllü reklam (AdMob + UMP izin + iOS ATT; web'de sahte reklam)
+    notifications.ts  Yerel bildirimler (annenin mesajı, kasa doldu)
+    analytics.ts   Firebase Analytics olayları (`track`)
+    GameV2Provider.tsx + useGameV2.ts   React bağlantısı (useSyncExternalStore)
   i18n/            Diller: messages/<dil>.ts (arayüz), content/<dil>.ts (içerik adları), sayı biçimi
   ui/
-    home/          Ana ekran: HomeScreen, TopBar, BottomNav, TabSheet, RewardCard, CoinLayer, SettingsSheet
-    scene/         Ara sokak sahnesi (pozlar, Şans, şişe toplama), coverFit (9:16 görsel yerleşimi)
-    story/         Önsöz (görsel roman)
+    home/          Ana ekran: HomeScreen, TopBar, BottomNav, TabSheet, QuestPanel, RewardCard, CoinLayer, SettingsSheet
+    scene/         Ev sahnesi: arka plan, kahraman, Şans, araç, toplama (Scene, stages, SceneLab), coverFit
+    story/         Önsöz, sınıf törenleri, hayat anları, annenin mesajları (StoryDirector)
+    events/        Olay kartları (çağrı ve kart)
+    guide/         Rıza Amca rehberi
     businesses/ career/ shop/   Sekme ekranları; managers.ts (yönetici portre ve cümleleri)
     ads/           Sahte reklam ekranı (web/dev)
     kit.tsx        Ortak oyun görünümü bileşenleri (parlak düğme, kart, çubuk...)
+    DevMenu.tsx    Geliştirici menüsü
   AppV2.tsx        v2 kökü (VITE_GAME_V2=true)
 scripts/sim-economy.ts   `npm run sim` giriş noktası
 scripts/phone.mjs        `npm run phone`: Android telefonda canlı yenilemeyle oynatma
@@ -55,10 +61,10 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 
 - [x] `v2-rebuild` dalı
 - [x] Ekonomi çekirdeği: işletmeler, yöneticiler, kariyer, statü eşyaları, sınıflar, miras (`src/game/core/`)
-- [x] Dengeleme simülatörü: optimal bot, 2 oyuncu profili, 30 gün, 8 tempo hedefi (`npm run sim`)
-- [x] Ekonomi ayarı: 8/8 hedef tutuyor (sonuçlar: tasarım belgesi §5)
+- [x] Dengeleme simülatörü: optimal bot, 2 oyuncu profili, tempo ve his hedefleri (`npm run sim`; güncel hedefler ve sonuçlar tasarım belgesi §5)
+- [x] Ekonomi ayarı: hedeflerin hepsi tutuyor
 - [x] Tasarım belgesi v2
-- [ ] **Senin işin:** Firebase projesi aç (Analytics + Remote Config + Crashlytics), `google-services.json` dosyasını hazırla. Faz 1'de analitiği bağlamak için gerekli.
+- [~] **Senin işin:** Firebase projesi (`prestige-life-idle-tycoon`) açıldı, Analytics bağlı ve `google-services.json` yerinde (1.14). Remote Config (2.10) ve Crashlytics bekliyor.
 - [ ] **Senin işin:** Test kullanıcısı listesi toplamaya başla (hedef 20–50 kişi; Google Play için en az 12'si 14 gün kesintisiz kalmalı).
 
 ---
@@ -88,7 +94,7 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
   - Alt menü 2026-10-08'de `ui/home/BottomNav.tsx` oldu; terfi alınabilirken Kariyer düğmesinde "!".
 - [x] **1.5 Alışveriş ekranı:** Ev, araç, kıyafet. Satın alınca sahne anında değişir.
   - `ui/shop/ShopScreen.tsx`: Evler / Araçlar / Kıyafetler / Lüks. Eşyalar sırayla alınır: her kategoride tek "Sıradaki hayal" kartı (bonus, fiyat, "~X sonra alabilirsin"), 3 kilitli önizleme, koleksiyon ızgarası. Alınabilir kategori ve Alışveriş sekmesinde kırmızı nokta.
-  - Geçici mini sahne (`ScenePreview`) 2026-10-08'de kaldırıldı (eski v1 karakterini gösteriyordu); sahnede ev/araç gösterimi 1.6'da bekliyor.
+  - Alınan ev, araç ve kıyafet ana sahnede görünür (1.6).
   - Çekirdek: `nextLifestyle`, `bestOwnedLifestyle`, `canBuyAnyLifestyle`, `LIFESTYLE_KINDS` (simülatör de bunları kullanıyor; sim sonucu değişmedi).
 
 ### 1B. His ve sahne (2. hafta)
@@ -105,42 +111,44 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
   - Tamam (2026-10-08): `ui/scene/Scene.tsx`: tam ekran ara sokak, kahramanın 4 pozu (bekleme, toplama, sevinç, Şans'ı okşama; yumuşak geçiş), Şans (dokununca okşama + kalp), şişe/kutu toplama ([game-design §4.7](./game-design-v2.md)), Şans'ın cüzdan getirmesi. Görsel yerleşimi `ui/scene/coverFit.ts` (önsözle ortak).
   - Tamam (2026-10-09): sahne sınıfı izler (`ui/scene/stages.ts`): her sınıfın arka planı, kıyafet pozları, toplanacakları, Şans'ın tasması; tören bitince yeni aşamaya geçer, sonraki aşama tören sırasında yüklenir. Görseli olmayan aşama bir öncekini kullanır. Oyunda: sokak, minibüs (Gündelikçi).
   - Tamam (2026-10-10): **arka plan oturulan ev, en iyi araç önünde park eder** (`stages.ts` `homeArt`, `parkedVehicle`). Ev 25 → 12 (`config/housing.ts`, eski kayıtlar `LEGACY_HOUSE_TO_HOME` ile taşınır); sınıf töreni hikâyenin evine taşır (`CLASS_HOME_FLOOR`; Gündelikçi töreninde Rıza Amca minibüsünü verir). Taşınınca arka plan yumuşak geçer, kahraman sevinir, "Yeni evin: …" etiketi; yeni araç sahneye kayarak gelir ("Yeni aracın: …"). Tören sürerken sahne eski evde kalır. Ev bonusu kademe başına %8; sim 11/11 tempo + 4/4 his.
-  - Kalan (12 araç ve 12 ev oyunda, 2026-10-12; [art-brief-v2.md](./art-brief-v2.md) §4.2, §4.6): 3 kıyafet × 4 poz, toplanacaklar, Şans tasmaları, yağmur/ortam sesi. Kıyafetler (2026-10-11): mağazada 4 hikâye kıyafeti, kahraman en iyisini giyer (game-design §4.4). Araç 16 → 12 (2026-10-11, ilk 5 görsel oyunda) ve ev–araç zinciri (araç evinde açılır, evin son aracı olmadan sonraki eve geçilmez; game-design §4.4). Sahne yerleşimi (2026-10-11): sahnede metre ölçeği var, araç boyu gerçek yüksekliğinden hesaplanır; arabalar kahramanın ~2,5 m arkasında gerçek boyda, burundan hizalı (şerit 2,75 m), bisiklet ve skuter kahramanın yanında; araç görselleri önü sağa (ilk 4'ü oyunda); ilk üç arka plan aynalı ve sığ zeminli; ev başına park yeri ve ışık tonu; DEV → Sahne laboratuvarı. Kalan: SUV ve araç 6–10, derin zeminli ev arka planları (eski daire yeniden), ev başına yerleşim, gölgenin sahnede çizilmesi, telefonda son ayar (plan ve sayılar: [session-handoff.md](./session-handoff.md) "Sahne yerleşimi planı"). Yeni araç soldan sürerek gelir.
+  - Tamam (2026-10-11/12): mağazada hikâyenin 4 kıyafeti, kahraman en iyisini giyer; 12 araç ve ev–araç zinciri (game-design §4.4); sahnede metre ölçeği, arabalar kahramanın ~2,5 m arkasında gerçek boyda ve burundan hizalı, bisiklet ve skuter yanında; 12 ev ve 12 aracın hepsi yeni stilde oyunda; ev başına yerleşim ve ışık (`HOME_ART`); DEV → Sahne laboratuvarı.
+  - Kalan: kıyafet 3 ve 4 (kılavuz + 3'er poz), Şans'ın deri ve altın tasması, ev başına telefonda son ayar, araç gölgesinin sahnede çizilmesi, yağmur/ortam sesi (plan ve sayılar: [session-handoff.md](./session-handoff.md) "Sahne yerleşimi planı"; görseller [art-brief-v2.md](./art-brief-v2.md)).
 - [~] **1.7 HUD ve ekranlar:**
   - Tamam (2026-10-08): renkli üst bar (`TopBar`: para, aylık otomatik gelir, sınıf rozeti, yaş, sınıf çubuğu, ayarlar dişlisi); 3D ikonlu alt menü (`BottomNav`); sekmeler sahnenin üstünde sayfa (`TabSheet`); sekme ekranları yeni görünümde (`ui/kit.tsx`). İşletme kartı netleştirildi: "7 adet", aylık kazanç / "yöneticiyle +$X/ay", "▶ Çalıştır", kilometre taşı çubuğu, yöneticinin ne yaptığı. Her işletmeye kendi yöneticisi (portre, işe alma kartı, portreye dokununca konuşma; [story-v2 §3](./story-v2.md)). Ayarlar sayfası (dil, gizlilik seçenekleri).
   - Kalan: ilerleme çubuğunun ucunda somut ödül (Rich Inc. dersi), paranın fiziksel hali (cüzdan → kasa → banka kasası → altın oda; rapor §6.3).
 - [ ] **1.8 Hayaller panosu:** Ekranda her zaman sıradaki 3 hayal (en ucuz alınmamış ev/araç/kıyafet), ilerleme yüzdesiyle. Faz 1'de sadece statü eşyaları; hikaye hayalleri ve annenin evi ara basamakları testten sonra ([story-v2.md §5, §7](./story-v2.md), karar 2026-10-09).
 - [~] **1.9 Para akışı efekti:** Tamam: şişe toplayınca ve ödül alınca paralar kavisle bakiyeye uçar, bakiye zıplar (`CoinLayer`). Kalan: işletme döngüsü bitince işletmeden uçan "+$1.2K", sayacın büyüyüp renk değiştirmesi.
-- [~] **1.10 Sınıf atlama töreni (2026-10-09):** Tamam: `ui/story/Ceremony.tsx` + `ceremonyScript.ts` + `StoryDirector.tsx`. "Yeni sınıf" başlığı (konfeti, ses, haptik) → görsel roman anları (16 ifade portresi, çatı katı ve eski fotoğraf kareleri; görselsiz anlar oyuncunun sahnesinin üstünde) → "Önce / Şimdi" kartı (kahramanın yüzü, çevrimdışı tavanı, sıradaki sınıf). 7 tören, 26 balon, TR/EN; İşçi töreninde Nevin Hanım ve torunu Defne (cüzdan zinciri, tanışma) ([story-v2.md §4](./story-v2.md)); defter sorusu oturum sınırını geçer (Orta Sınıf'ta açılır, Milyoner'de kapanır). Tören sırasında saat durur (store `story.setPaused`). Görülen törenler kayıtta (`runtime.story`); eski kayıtlar ulaştıkları sınıfları görmüş sayılır. Sadece 1. nesil (varisin hikâyesi Faz 2). Anne mesajları da tamam (11 mesaj, dönüş oturumunda, 20 saatte bir, `runtime/story.ts`). DEV: tören 1–7, annenin mesajları. Kalan: yeni hikâye kareleri ve Nevin/Defne portreleri ([art-brief-v2.md](./art-brief-v2.md) 4.4–4.5), hediye + "reklamla ×2" ([monetization-v2 §4](./monetization-v2.md)), En Zengin görseli (konak + pasta, ~$0,15).
+- [~] **1.10 Sınıf atlama töreni (2026-10-09):** Tamam: `ui/story/Ceremony.tsx` + `ceremonyScript.ts` + `StoryDirector.tsx`. "Yeni sınıf" başlığı (konfeti, ses, haptik) → görsel roman anları (24 ifade portresi, çatı katı ve eski fotoğraf kareleri; görselsiz anlar oyuncunun sahnesinin üstünde) → "Önce / Şimdi" kartı (kahramanın yüzü, çevrimdışı tavanı, sıradaki sınıf). 7 tören, 26 balon, TR/EN; İşçi töreninde Nevin Hanım ve torunu Defne (cüzdan zinciri, tanışma) ([story-v2.md §4](./story-v2.md)); defter sorusu oturum sınırını geçer (Orta Sınıf'ta açılır, Milyoner'de kapanır). Tören sırasında saat durur (store `story.setPaused`). Görülen törenler kayıtta (`runtime.story`); eski kayıtlar ulaştıkları sınıfları görmüş sayılır. Sadece 1. nesil (varisin hikâyesi Faz 2). Anne mesajları da tamam (11 mesaj, dönüş oturumunda, 20 saatte bir, `runtime/story.ts`). DEV: tören 1–7, annenin mesajları. Kalan: yeni hikâye kareleri ([art-brief-v2.md](./art-brief-v2.md) 4.5), hediye + "reklamla ×2" ([monetization-v2 §4](./monetization-v2.md)), En Zengin görseli (konak + pasta, ~$0,15).
 - [~] **1.11 Juice paketi:** Tamam: `runtime/feedback.ts` ses (v1 sfx dosyaları) ve haptik (`@capacitor/haptics`): toplama, alım, ödül, yönetici. Kalan: basma geri bildirimlerinin ekranlara yayılması, müzik, ses ayarı.
 
-- [~] **1.16 Hikaye görselleri (görsel roman):** Liste ve stil kılavuzu: [story-v2.md §8](./story-v2.md). Stil yarı 3D (2026-10-08). fal.ai ile üretildi, toplam ~$5,2 (kullanıcının bakiyesi ~$10, kalan ~$4,8).
+- [~] **1.16 Hikaye görselleri (görsel roman):** Liste ve stil kılavuzu: [story-v2.md §8](./story-v2.md). Stil yarı 3D (2026-10-08). Karakterler, portreler ve hikâye kareleri fal.ai ile (toplam ~$5,95; kullanıcının bakiyesi ~$10, kalan ~$4,05), evler, araçlar ve iş kıyafeti GPT ile üretildi.
   - Tamam: kahraman kılavuzu ve sokak aşamasının 4 pozu, Şans (kılavuz, oturan, cüzdanlı), anne / Rıza Amca / Bülent Bey kılavuzları, önsözün 6 karesi, şişesiz ara sokak, şişe/kutu, 10 yönetici portresi. 2026-10-08 akşam: Orta Sınıf anı için çatı katı ve eski fotoğraf (`art/pilot/07-story/`, $0,45), Gündelikçi minibüs arka planı (deneme, $0,15). Kaynaklar `art/pilot/` (git'te değil), oyundakiler `public/assets/`.
-  - Kalan: kıyafet setleri (4–5 kıyafet × 4 poz; çatı katı görseli 3. kıyafetle yeniden üretilecek), yeni ev arka planları (10–12), ifade portreleri, Şans'ın sevinen/uyuyan pozu ve tasmaları, annenin evi fotoğrafları, paranın fiziksel hali, yeni mekânlar.
+  - Tamam (2026-10-09 → 10-12): iş kıyafeti (4 poz) ve umutlu bekleme pozu, bozuk paralar, 12 ev arka planı, 12 araç, Nevin Hanım ve Defne kılavuzları ve portreleri, hayat anlarının 3 karesi.
+  - Kalan: kıyafet 3 ve 4 (çatı katı görseli 3. kıyafetle yeniden üretilecek), Şans'ın uyuyan pozu ve tasmaları, yeni hikâye kareleri (daire kapısı, Rıza bahçede, konak ve pasta), paranın fiziksel hali.
   - Kural: kodla zıplatma karakter animasyonu sayılmaz; gerçek animasyon sadece 2–3 büyük an için ve isteğe bağlı ([discussion-notes.md](./discussion-notes.md) §1). Özellikler görsel beklemez, yer tutucuyla yapılır.
 - [x] **1.17 Konut modeli:** Kirala → satın al → kiraya ver ([game-design-v2.md §4.8](./game-design-v2.md)). Kiraya verme Faz 2.5'ten buraya çekildi (karar 2026-10-07): o olmadan ev satın almanın bir getirisi yoktu.
-  - Çekirdek: `config/housing.ts` (evler artık statü eşyası değil), durumda `home` + `homesOwned`, `rentHome` / `buyHome` / `moveHome`, `homeBonus` (yaşanan evin kademesi) ve `rentPerSecond` (maaşla birlikte her saniye, çevrimdışı da).
-  - Arayüz: `ui/shop/HousingPanel.tsx`: evin (Kiracısın / Senin etiketi, içinde oturduğun evi satın al), sıradaki ev (kirala ve taşın, satın al ve taşın, sadece kiralık etiketi), sıradakiler, mülklerin (kirada +$X/sn, taşın), satılık önceki evler. Sahne yaşanan evi gösterir.
+  - Çekirdek: `config/housing.ts` (evler artık statü eşyası değil), durumda `home` + `homesOwned`, `rentHome` / `buyHome` / `moveHome`, `homeBonus` (yaşanan evin kademesi, kendi evinde +%8) ve `rentPerSecond` (maaşla birlikte her saniye, çevrimdışı da).
+  - Arayüz: `ui/shop/HousingPanel.tsx`: evin (Kiracısın / Senin etiketi, içinde oturduğun evi satın al), sıradaki ev (kirala ve taşın, satın al ve taşın, sadece kiralık etiketi), sıradakiler, mülklerin (kirada +$X/sn), satılık önceki evler. Yalnızca yukarı taşınılır (2026-10-12). Sahne yaşanan evi gösterir.
   - Eski kayıtlar: `lifestyleOwned` içindeki en iyi ev, kiralık olarak `home` olur.
-  - Simülasyon: 8/8 hedef tutuyor; kira gelirin medyan ~%8'i. İlk ev sahipliği 2. nesilde (oyun ~1 sa 50 dk).
+  - Simülasyon: kira gelirin ortanca ~%7'si. İlk kendi ev Milyoner töreniyle gelir (hediye, sahipli; 2026-10-12).
 
 - [x] **1.18 Önsöz (görsel roman, 2026-10-08):** 6 kare, 13 balon: restoran, annenin doğum günü telefonu, kovulma, lojman kapısı, otogarda söz, ara sokakta Şans ([story-v2.md §4](./story-v2.md)). `ui/story/Prologue.tsx` + `prologueScript.ts`: tam ekran kare, yavaş yakınlaşma, isim etiketli balon, dokun → devam, "Geç", sona siyaha geçiş. Kayıt yoksa (yeni oyuncu) oyundan önce oynar; oyun ve yaş saati önsöz bitince başlar. Geniş ekranda 9:16 sütun. Geliştirici menüsünde "Önsözü tekrar oynat". Balonlar konuşanın başının üstünde, kuyruğu konuşana bakar. Ses yok (yağmur sesi bekliyor). Balon bileşeni törenlerde (1.10) ve rehberde (1.12) yeniden kullanılacak.
 - [x] **1.S Simülatör düzeltmeleri (2026-10-08):** Olay saatleri artık dönüş oturumuna ve adım sonuna yazılıyor (önce çevrimdışı kazançla gelen olaylar bir önceki oturumun saatine yazılıyordu). `--offline-cap <saat>` ve `--life <sn/ay>` (emekliliksiz tek kahraman, yaş ölçümü) seçenekleri. Sonuçlar tasarım belgesi §5.
-- [x] **1.L Yaş ve ömür (2026-10-08):** [game-design-v2.md §4.9](./game-design-v2.md). `config/life.ts` (17 → 97, 1 dk = 1 ay), durumda `lifeSeconds`; yaş sadece tick'te ilerler, çevrimdışında ilerlemez. Emeklilik sadece ömür sonunda (`canRetire` = ömür bitti). Üst barda "24 yaş · 73 yıl kaldı"; ömür sonunda "Bir ömür tamamlandı → Emekli ol ve devret" ekranı (geçici; vakıf töreni 2.1). Geliştirici menüsünde "Kahramanı yaşlandır +10 / +40 yıl". Simülatör tek ömür modelinde; hedef tablosu güncellendi.
-- [x] **1.P Tek ömür temposu (2026-10-08):** Multimilyarder ($100B) sınıfı; orta oyun yavaş, geç oyun hızlı (`revenueFactor`, `salaryFactor`, `costFactor`). Yaşlar 19 / 21 / 24 / 39 / 46; 8/8 hedef ([game-design-v2.md §5](./game-design-v2.md)).
-- [x] **1.G Gelir ve toplama (2026-10-08):** Gelir "/ay" gösterilir; şişe ~2,5 sn gelir eder; çevrimdışı tavan sınıfla büyür (10 dk → 2 sa); Şans'ın cüzdanı ve çevrimdışı kazanç "Topla" kartıyla ([game-design §4.6–4.7](./game-design-v2.md)). Sim 8/8.
+- [x] **1.L Yaş ve ömür (2026-10-08; ömür 80 yaş 2026-10-11):** [game-design-v2.md §4.9](./game-design-v2.md). `config/life.ts` (17 → 80, 80 sn = 1 ay), durumda `lifeSeconds`; yaş sadece tick'te ilerler, çevrimdışında ilerlemez. Emeklilik sadece ömür sonunda (`canRetire` = ömür bitti). Üst barda "24 yaş"; ömür sonunda "Bir ömür tamamlandı → Emekli ol ve devret" ekranı (geçici; vakıf töreni 2.1). Geliştirici menüsünde "Kahramanı yaşlandır +10 / +40 yıl". Simülatör tek ömür modelinde.
+- [x] **1.P Tek ömür temposu (2026-10-08):** Multimilyarder ($100B) sınıfı; orta oyun yavaş, geç oyun hızlı (`paybackMinutes`, `salaryFactor`, `costFactor`). Güncel yaşlar ve hedefler: [game-design-v2.md §5](./game-design-v2.md).
+- [x] **1.G Gelir ve toplama (2026-10-08):** Gelir "/ay" gösterilir; şişe ~2,5 sn gelir eder; çevrimdışı tavan sınıfla büyür (10 dk → 2 sa); Şans'ın cüzdanı ve çevrimdışı kazanç "Topla" kartıyla ([game-design §4.6–4.7](./game-design-v2.md)).
 - [~] **1.T Ekonomi ayarı (kullanıcıyla):**
-  - Tamam (2026-10-08): erken tempo yavaşladı (Gündelikçi 4,5 dk, İşçi 15 dk, Orta Sınıf ilk oturumun sonu, Milyoner dönüş oturumu; [game-design §5](./game-design-v2.md)); yavaşlarken yapılacak şey eklendi: işletme yükseltmeleri (§4.2) ve hedefler (§4.10); sınıf çubuğu karekök ölçeğinde.
-  - Tamam (2026-10-08): işletme ana gelir. Yavaşlatma kazançtan fiyatlara taşındı (Çiçek Tezgâhı $25, tur 4 sn ve en az $1; maaşlar düşük; 2.–3. yükseltme pahalı); simülatörde his kontrolleri (tur ≥ $1, işletme payı ≥ %50) ve `--purchases`.
-  - Kalan: çevrimdışı ödül, ev bonusları, reklam/ödeme profilleri ([discussion-notes.md](./discussion-notes.md) §5).
+  - Tamam (2026-10-08): yavaşlarken yapılacak şey eklendi: işletme yükseltmeleri (§4.2) ve hedefler (§4.10); sınıf çubuğu karekök ölçeğinde; simülatörde his kontrolleri (tur ≥ $1, işletme payı ≥ %50) ve `--purchases`.
+  - Tamam (2026-10-09, kullanıcıyla): yeniden ayar: başta ana gelir iş, sonra işletmeler; Çiçek Tezgâhı $250, kısa turlar (1–15 sn), kilometre taşları 25 / 50 / 75, yükseltme fiyatı ulaşma maliyetine bağlı ([game-design §4.2, §5](./game-design-v2.md)). 2026-10-12: ev bonusu ve kira (§4.8).
+  - Kalan: çevrimdışı ödül, son işletmeler, ilk oturum temposu, reklam/ödeme profilleri ([discussion-notes.md](./discussion-notes.md) §5).
 
 ### 1C. İlk izlenim ve ölçüm (3. hafta)
 
 - [x] **1.12 Onboarding (2026-10-09):** Hedefler kartı (resim, konum, "Git", sekme içinde hedef şeridi; game-design §4.10) + Rıza Amca rehberi (`ui/guide/`): 5 şişe topla → ilk hedefin ödülü → ilk iş (El İlanı Dağıtıcısı) → Çiçek Tezgâhı → kahramanın adı (varsayılan Can / Alex, en fazla 16 harf) → ilk "Çalıştır" → Rıza Amca yönetici. Adımlar oyun durumundan okunur (ileri kayıt görmez; varis görmez). Her adımda Rıza'nın tek cümlesi (duygu; 9 sn sonra ya da dokununca kapanır) ve işaret eden el (eylem): sahnede şişe, hedef kartında "Ödülü al", menüde sekme (halka + el), sekme içinde düğme. El ancak adım yapılabilir olunca çıkar (yeterli para). Balon sahnede Hedefler kartının altında, sekmede menünün üstünde; tören, çevrimdışı kartı ve ömür sonu sırasında gizli. Kayıtta `story.heroName`, `guideSeen`, `guideDone`. Analitik `tutorial_step` (adım geçişleri, sonda `done`). Sonra: kahramanın adı törenlerde ve anne mesajlarında kullanılabilir; yağmur sesi.
 - [~] **1.13 Çevrimdışı kazanç kartı v2:** Tamam: gelire oranlı, tavan bilgili "Topla" kartı, paralar bakiyeye uçar. Kalan: "Reklam izle ×2" düğmesi (2.9), Şans'ın kapıda uyuyup uyanması.
 - [x] **1.19 Bildirimler (2026-10-09, Faz 1 kararı):** `@capacitor/local-notifications`; annenin sıradaki mesajı ve kasa dolunca Şans, günde en fazla bir, 10:00–21:00; arka plana geçerken kurulur, açılınca iptal. İzin ilk törenden sonra oyun içi kartla, sonra sistem diyaloğu. Ayarlarda aç/kapa. Android: beyaz kalp simgesi, `SCHEDULE_EXACT_ALARM` manifestten kaldırıldı. Telefonda denenmedi ([story-v2.md §4b](./story-v2.md)).
-- [~] **1.14 Analitik (2026-10-09):** Kod tamam: `runtime/analytics.ts` (`@capacitor-firebase/analytics` 8.5.2; telefonda Firebase'e gider, web'de gönderilmez, geliştirmede konsola da yazar). Firebase kendisi `first_open`, `session_start`, etkileşim süresini kaydeder (oturum süresi, D1/D7). Bizim olaylar: `class_up` (sınıf, nesil, `life_minutes` = bu hayatta oynanan dakika), `business_buy`, `manager_hire`, `upgrade_buy`, `promotion`, `lifestyle_buy`, `home_change`, `quest_claim`, `find_claim`, `offline_claim`, `retire`, `ad_watch`, `story_view` (önsöz/tören/anne; `skipped`), `notification_prompt`, `notification_open`; ekran = açık sekme; kullanıcı özelliği `class_index`, `generation`. Kalan: Firebase projesi + `android/app/google-services.json` (dosya yokken SDK kapalı kalır, oyun çalışır), telefonda DebugView ile doğrulama; `tutorial_step` rehberle geldi (1.12); AB izni (consent mode) yayından önce; iOS kurulumu iOS'a geçerken.
-- [x] **1.20 Hayat anları (2026-10-11):** yaşa bağlı tek karelik anlar ([story-v2.md §4c](./story-v2.md)): ilk buluşma (25 yaş), düğün (28), kızın doğumu ve adı (31). Tanım ve tetik `runtime/story.ts` (`LIFE_MOMENTS`, `pendingLifeMoment`: yaş + ön koşul töreni, sırayla), senaryo `ui/story/lifeScript.ts`, metinler `moments.*`. Törenle aynı oynatıcı (`Ceremony.tsx` → `StoryPlayer`; hayat anında kapanış kartı yok). Yalnızca ana sahnede oynar (sekme, çevrimdışı kartı, annenin mesajı açıkken bekler), bir tören ya da hayat anından sonra 2 dk bekler. Kızın adı ortak `NameSheet` ile sorulur (Rıza'nın isim sorusu da onu kullanıyor). Kayıtta `story.lifeSeen`, `story.daughterName`; analitik `story_view` (`kind: life`), `daughter_named`; DEV → "Hayat anını oynat" 25 / 28 / 31. Görseller oyunda (fal.ai, 2026-10-11): Defne ve Nevin Hanım portreleri (İşçi töreni de artık portreli), 3 kare. Köprü: annenin Defne mesajı İşçi töreninden ilk buluşmaya kadar öncelikli (`untilMoment`), ilk buluşma "Kurabiyeler o günden sonra hiç kesilmedi" ile açılır. Tarayıcıda DEV menüsünden oynatıldı; gerçek yaş tetiği ve telefon denenmedi. Kalan anlar (okul, ilk para, mezuniyet, torun, devir) oyun testinden sonra.
+- [~] **1.14 Analitik (2026-10-09):** Kod tamam: `runtime/analytics.ts` (`@capacitor-firebase/analytics` 8.5.2; telefonda Firebase'e gider, web'de gönderilmez, geliştirmede konsola da yazar). Firebase kendisi `first_open`, `session_start`, etkileşim süresini kaydeder (oturum süresi, D1/D7). Bizim olaylar: `class_up` (sınıf, nesil, `life_minutes` = bu hayatta oynanan dakika), `business_buy`, `manager_hire`, `upgrade_buy`, `promotion`, `lifestyle_buy`, `home_change`, `quest_claim`, `find_claim`, `event_card`, `offline_claim`, `retire`, `ad_watch`, `story_view` (önsöz/tören/anne; `skipped`), `notification_prompt`, `notification_open`; ekran = açık sekme; kullanıcı özelliği `class_index`, `generation`. Firebase projesi ve `android/app/google-services.json` yerinde. Kalan: telefonda DebugView ile doğrulama; `tutorial_step` rehberle geldi (1.12); AB izni (consent mode) yayından önce; iOS kurulumu iOS'a geçerken.
+- [x] **1.20 Hayat anları (2026-10-11):** yaşa bağlı tek karelik anlar ([story-v2.md §4c](./story-v2.md)): ilk buluşma (25 yaş), düğün (28), kızın doğumu ve adı (31). Tanım ve tetik `runtime/story.ts` (`LIFE_MOMENTS`, `pendingLifeMoment`: yaş + ön koşul töreni, sırayla), senaryo `ui/story/lifeScript.ts`, metinler `moments.*`. Törenle aynı oynatıcı (`Ceremony.tsx` → `StoryPlayer`; hayat anında kapanış kartı yok). Yalnızca ana sahnede oynar (sekme, çevrimdışı kartı, annenin mesajı açıkken bekler), bir tören ya da hayat anından sonra 2 dk bekler. Kızın adı ortak `NameSheet` ile sorulur (Rıza'nın isim sorusu da onu kullanıyor). Kayıtta `story.lifeSeen`, `story.daughterName`; analitik `story_view` (`kind: life`), `daughter_named`; DEV → "Hayat anını oynat" 25 / 28 / 31. Görseller oyunda (fal.ai, 2026-10-11): Defne ve Nevin Hanım portreleri, 3 kare. Köprü: annenin Defne mesajı İşçi töreninden ilk buluşmaya kadar öncelikli (`untilMoment`), ilk buluşma "Kurabiyeler o günden sonra hiç kesilmedi" ile açılır. Tarayıcıda DEV menüsünden oynatıldı; gerçek yaş tetiği ve telefon denenmedi. Kalan anlar (okul, ilk para, mezuniyet, torun, devir) oyun testinden sonra.
 - [ ] **1.15 Oyun testi paketi:** Kapalı test sürümü, 5 soruluk kısa anket, test notları şablonu.
 
 ### Faz 1 kapısı
@@ -148,7 +156,7 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 20–50 kişilik oyun testi:
 
 - İlk oturum medyanı ≥ 15 dakika
-- İlk oturumda Orta Sınıf olanlar ≥ %60
+- İlk oturumda Orta Sınıf olanlar ≥ %60 (yeniden yazılacak: güncel tempoda Orta Sınıf ilk oturumda gelmiyor; [discussion-notes.md](./discussion-notes.md) §5)
 - Ertesi gün geri gelenler ≥ %35
 - "En sevdiğin an" sorusunda sınıf töreni veya para akışı çıkmalı
 
@@ -158,14 +166,16 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 
 **Amaç:** Oyuncunun 1., 7. ve 30. gün geri gelmesi için sebep yaratmak.
 
-- [ ] **2.1 Hanedan ekranı:** Ömür sonu (80 yaş; 2026-10-11'de 97'den indi) emeklilik akışının tam hali: vakıf töreni, ne kazanıldığı, miras puanı, soy ağacı. Geçici ekran 1.L'de var.
+- [ ] **2.1 Hanedan ekranı:** Ömür sonu (80 yaş) emeklilik akışının tam hali: vakıf töreni, ne kazanıldığı, miras puanı, soy ağacı. Geçici ekran 1.L'de var.
 - [ ] **2.2 Yadigarlar:** Miras puanıyla alınan kalıcı yetenekler (çevrimdışı tavanı +1 sa, başlangıç parası, yönetici indirimi...).
 - [ ] **2.3 Nesil içeriği:** Her nesil yeni bir şey açsın (yeni şehir + yeni işletme kademeleri; kullanılmayan 30 işletme görseli). Simülatöre eklenip 30 günlük tempo yeniden ayarlanacak.
-- [ ] **2.4 Olay kartları:** Kart motoru + sınıfa göre değişen 60 kart (risk, duygu, mizah). Günde 3–5 kart.
+- [~] **2.4 Olay kartları:** Kart motoru + sınıfa göre değişen 60 kart (risk, duygu, mizah). Günde 3–5 kart.
+  - Tamam (2026-10-12, öne alındı): yerden toplama Orta Sınıf'ta bitiyor, yerine 10 kartlık ilk set ([game-design-v2.md §4.7](./game-design-v2.md), metinler [story-v2.md §4d](./story-v2.md)). `core/config/events.ts`, `ui/events/` (`EventCards.tsx`: çağrı ve kart; `eventScript.ts`: kim, hangi yüzle), `events.*` metinleri, simülatörde modelli, `event_card` analitik olayı, DEV → "Olay kartı gelsin". Ödül cevap anında ödenir, cevabın saati kayıtta (`story.eventAnsweredAt`). Telefonda denenmedi.
+  - Kalan: büyük set, kötü sonuçta reklamla "ikinci şans".
 - [ ] **2.5 Yatırımlar:** Tek "Yatırım Hesabı" (güvenli / orta / riskli vadeler). Kiradaki evler 1.17'de yapıldı ([game-design-v2.md §4.8](./game-design-v2.md)). Ayrı emlak listesi ve borsa yok.
 - [ ] **2.6 Lüks oyuncaklar sahnede:** Jet gökyüzünden geçer, helikopter süzülür, yat sahil evlerinde görünür; ayrıca Garaj/Marina koleksiyon ekranı.
 - [ ] **2.7 Günlük döngü:** Gelire oranlı günlük ödül serisi, günlük çark (reklamla ek çevirme). "Sıradaki 3 hedef" zinciri 1.T'de yapıldı. Lansmanda gem yok.
-- [ ] **2.8 Bildirimler:** Yerel bildirim: "Kasan doldu", "Emekli olabilirsin", "Günlük ödül hazır".
+- [ ] **2.8 Bildirimlerin kalanı:** annenin mesajı ve "Kasan doldu" 1.19'da yapıldı; kalan "Emekli olabilirsin", "Günlük ödül hazır".
 - [~] **2.9 Monetizasyon v2:** Kararlar: [monetization-v2.md](./monetization-v2.md) (2026-10-08).
   - Tamam: reklam altyapısı (`runtime/ads.ts`: AdMob 8.2.1, UMP izin formu ana ekranda, ATT ilk reklamda, web'de sahte reklam, Ayarlar'da gizlilik seçenekleri, geliştirici menüsünde test reklamı). Ayrıntı: [mobile-ad-integration.md](./mobile-ad-integration.md).
   - Kalan, sırayla: simülatörde reklamsız / reklam izleyen / ödeyen profilleri (1.T ile) → reklam yerleri (çevrimdışı ×2, Şans ×2, 1 saatlik ×2 hızlandırıcı, hayaline yardım) → IAP (Rahat Paket $7,99, Şans'ın Altın Tasması $4,99, Yeni Başlangıç $1,99, Gece Vardiyası Ekibi $3,99; RevenueCat; geri yükleme; v1'in 8 ürünü pasifleştirilir). Zorla reklam lansmanda yok.
