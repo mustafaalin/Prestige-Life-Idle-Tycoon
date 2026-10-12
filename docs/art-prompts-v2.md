@@ -14,7 +14,7 @@ Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üreti
 
 - **Ev 1 Çadır: kalıyor.** Önünde yalnızca bisiklet ve skuter durur, araba gelmez; derin zemin gerekmiyor. Sahnede artık aynalanmıyor: çadır sağda açıkta, kahraman biraz sağda, Şans çadırın önünde, iki teker solda ve önü sola (ön yüzü açıkta, arkası kahramanın arkasında; 2026-10-12) (`HOME_ART` `home-1`).
 - **Ev 2–5: oyunda (2026-10-12).** Minibüs ve eski daire derin zeminle yeniden üretildi, kiralık oda ve yenice daire ilk kez; `public/assets/scene/home-2…5.webp`. Kapılar ortaya yakın çıktığı için kahraman bu dört evde %7 sağda durur (`HOME_ART` `castX`).
-- **Ev 6–12: oyunda (2026-10-12)**, `public/assets/scene/home-6…12.webp`. Ev 7 yeniden üretilmeli: ev %28–53 bandında kaldı, araba çatı dışında her şeyi kapatıyor (ev daha büyük ve yukarıda olmalı, çatı ~%18'e, kapı sol üçte birde). Ev 10 sınırda.
+- **Ev 6–12: oyunda (2026-10-12)**, `public/assets/scene/home-6…12.webp`. Ev 7 ikinci denemede oyunda (`home-7-first-house-layout-v2.png`: ev büyük, çatı ~%18'de, kapı sol üçte birde; ilki %28–53 bandında kalıp arabanın arkasında kayboluyordu). Ev 10 sınırda.
 
 **Evin yeri:** yakın evlerde (3–6) giriş kapısı görselin sol üçte birinde; uzak evlerde (7–12) ev ortanın biraz solunda. Araba sağda durur, burnu x %89'da.
 

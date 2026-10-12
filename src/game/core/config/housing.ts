@@ -4,7 +4,8 @@ import type { HouseDef } from '../types';
 // and the home scene shows it (with your best vehicle parked out front). Twelve homes, each its own
 // place on screen (decided 2026-10-10; there were 25, many of them looking alike).
 // Renting costs a one-time move-in fee and no recurring rent, so net income never goes negative.
-// The house you live in gives a bonus by its tier; owned houses you moved out of pay rent.
+// The house you live in gives a bonus by its tier (a little more if it is yours); owned houses you
+// moved out of pay rent. You only ever move up: each home has its own vehicles parked out front.
 
 interface HomeSpec {
   name: string;
@@ -23,7 +24,7 @@ const HOMES: HomeSpec[] = [
   { name: 'Newer Rental Flat', image: `${SCENE}/home-5.webp`, moveInCost: 40_000 },
   { name: 'Flat in a Gated Complex', image: `${SCENE}/home-6.webp`, moveInCost: 240_000 },
   { name: 'First Home of Your Own', image: `${SCENE}/home-7.webp`, moveInCost: 650_000 },
-  { name: 'Suburban House with a Garden', image: `${SCENE}/home-8.webp`, moveInCost: 2.5e6 },
+  { name: 'Suburban House with a Garden', image: `${SCENE}/home-8.webp`, moveInCost: 9e6 },
   { name: 'Villa', image: `${SCENE}/home-9.webp`, moveInCost: 2e7 },
   { name: 'Lakeside Glass House', image: `${SCENE}/home-10.webp`, moveInCost: 2e8 },
   { name: 'Beachfront Estate', image: `${SCENE}/home-11.webp`, moveInCost: 2e9 },
@@ -40,11 +41,17 @@ export const BUY_PRICE_PER_MOVE_IN = 25;
 export const HOME_BONUS_PER_TIER = 0.08;
 
 /**
+ * Living in a house you own adds this on top: one tier's worth, so your own home is as good as
+ * renting the next one up and never better. Moving up stays worth it, and so does buying.
+ */
+export const OWNER_HOME_BONUS = HOME_BONUS_PER_TIER;
+
+/**
  * Rent payback (buy price / base rent) grows with price like business paybacks do:
  * hours = RENT_PAYBACK_HOURS_AT_1M × (price / $1M) ^ RENT_PAYBACK_EXPONENT. Tuned with `npm run sim`
  * so rent is a side income, never the main one.
  */
-export const RENT_PAYBACK_HOURS_AT_1M = 12;
+export const RENT_PAYBACK_HOURS_AT_1M = 4;
 export const RENT_PAYBACK_EXPONENT = 0.44;
 
 export function rentPaybackSeconds(buyCost: number) {
@@ -74,6 +81,14 @@ export const STARTING_HOME_ID = HOUSES[0].id;
  * further stays where they are.
  */
 export const CLASS_HOME_FLOOR = [0, 1, 3, 5, 6, 8, 9, 10];
+
+/**
+ * The Millionaire ceremony makes "First Home of Your Own" yours for free (decided 2026-10-12). Nobody
+ * can own a house before it: the cheapest costs more than a Millionaire has ever earned. Nobody can
+ * rent past it either: the way to the next home (pickup, this home's fee, its sedan, the $9M move-in
+ * fee) costs more than the $10M that makes a Millionaire. So the gift is always the home you live in.
+ */
+export const FIRST_OWNED_HOME = { classIndex: 4, houseIndex: 6 };
 
 /**
  * Saves from before 2026-10-10 had 25 houses (`house-1`…`house-25`); each maps to the new home

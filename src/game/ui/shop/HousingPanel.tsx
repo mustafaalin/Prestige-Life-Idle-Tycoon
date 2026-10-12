@@ -1,6 +1,6 @@
 import { Home, KeyRound, Lock } from 'lucide-react';
-import { HOUSES } from '../../core/config/housing';
-import { autoIncomePerSecond, globalMultiplier } from '../../core/formulas';
+import { HOUSES, OWNER_HOME_BONUS } from '../../core/config/housing';
+import { autoIncomePerSecond, globalMultiplier, homeBonus, rentPerSecond } from '../../core/formulas';
 import {
   currentHome,
   houseIndex,
@@ -18,8 +18,8 @@ import { Chip, GameButton, Panel, SectionLabel } from '../kit';
 import { Thumb } from './Thumb';
 
 // Homes tab: rent → buy → rent out (docs/game-design-v2.md §4.8). You live in one house; the next
-// one up is the dream; houses you own and left pay rent. Moving up needs the last vehicle of the home
-// you live in (core/state.ts moveUpNeedsVehicle).
+// one up is the dream; houses you own and left pay rent, and there is no moving back into them.
+// Moving up needs the last vehicle of the home you live in (core/state.ts moveUpNeedsVehicle).
 
 const UPCOMING_COUNT = 3;
 
@@ -37,6 +37,8 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
   const income = autoIncomePerSecond(game);
 
   const rent = (house: HouseDef) => perMonth(house.rentPerSecond * multiplier);
+  const ownsHome = ownsHouse(game, home.id);
+  const totalRent = rentPerSecond(game) * multiplier;
   const affordIn = (cost: number) =>
     game.cash < cost && income > 0
       ? t('common.affordIn', { duration: duration(Math.ceil((cost - game.cash) / income)) })
@@ -63,7 +65,7 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
             <SectionLabel>{t('home.current')}</SectionLabel>
             <p className="v2-display text-[17px] leading-tight text-indigo-950 px-1">{name('lifestyle', home)}</p>
             <p className="text-[11px] font-bold text-violet-600 px-1">
-              {t('home.livingBonus', { percent: percent(home.homeBonus) })}
+              {t('home.livingBonus', { percent: percent(homeBonus(game)) })}
             </p>
           </div>
           {renting && (
@@ -72,7 +74,7 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
               {t('home.renting')}
             </Chip>
           )}
-          {ownsHouse(game, home.id) && (
+          {ownsHome && (
             <Chip tone="buy">
               <Home className="w-3 h-3" />
               {t('home.owned')}
@@ -91,6 +93,8 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
               <span className="v2-display text-[14px] tabular-nums">{money(homePrice)}</span>
             </GameButton>
             <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
+              {t('home.ownerBonus', { percent: percent(OWNER_HOME_BONUS) })}
+              {' · '}
               {t('home.depositCounted', { amount: money(home.moveInCost) })}
             </p>
           </>
@@ -109,7 +113,7 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
               <div className="flex-1 min-w-0">
                 <p className="v2-display text-xl leading-tight text-indigo-950">{name('lifestyle', next)}</p>
                 <p className="text-[12px] font-bold text-violet-600">
-                  {t('home.bonusChange', { percent: percent(home.homeBonus), next: percent(next.homeBonus) })}
+                  {t('home.bonusChange', { percent: percent(homeBonus(game)), next: percent(next.homeBonus) })}
                 </p>
               </div>
             </div>
@@ -136,7 +140,9 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
                 disabled={game.cash < nextPrice}
                 className="min-h-11 -mt-1 py-2 px-4 flex items-center justify-between"
               >
-                <span className="v2-display text-[14px]">{t('home.buyMove')}</span>
+                <span className="v2-display text-[14px]">
+                  {t('home.buyMove')} · +{percent(next.homeBonus + OWNER_HOME_BONUS)}%
+                </span>
                 <span className="v2-display text-[14px] tabular-nums">{money(nextPrice)}</span>
               </GameButton>
             )}
@@ -152,7 +158,9 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
                 </span>
               </GameButton>
             ) : (
-              <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">{rentHint ?? t('home.noRent')}</p>
+              <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
+                {rentHint ?? (ownsHome ? t('home.willRentOut', { amount: rent(home) }) : t('home.noRent'))}
+              </p>
             )}
           </div>
         </Panel>
@@ -187,7 +195,14 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
 
       {owned.length > 0 && (
         <>
-          <SectionLabel>{t('home.properties')}</SectionLabel>
+          <div className="flex items-end justify-between">
+            <SectionLabel>{t('home.properties')}</SectionLabel>
+            {totalRent > 0 && (
+              <p className="text-[11px] font-black text-emerald-600 px-1">
+                {t('home.totalRent', { amount: perMonth(totalRent) })}
+              </p>
+            )}
+          </div>
           <ul className="flex flex-col gap-2">
             {[...owned].reverse().map((house) => {
               const livingHere = house.id === game.home;
@@ -201,15 +216,6 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
                         {livingHere ? t('home.livingHere') : t('home.rentedOut', { amount: rent(house) })}
                       </p>
                     </div>
-                    {!livingHere && (
-                      <GameButton
-                        tone="soft"
-                        onClick={() => actions.moveHome(house.id)}
-                        className="shrink-0 min-h-11 px-3 v2-display text-[12px]"
-                      >
-                        {renting ? t('home.moveEndsLease') : t('home.moveHere')}
-                      </GameButton>
-                    )}
                   </Panel>
                 </li>
               );

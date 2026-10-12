@@ -16,7 +16,7 @@ import {
   TAP_INCOME_SECONDS,
 } from './config/economy';
 import { FETCH_BOTTLES } from './config/scene';
-import { HOUSES } from './config/housing';
+import { HOUSES, OWNER_HOME_BONUS } from './config/housing';
 import { LIFESTYLE_ITEMS } from './config/lifestyle';
 import { UPGRADES } from './config/upgrades';
 import type { BusinessDef, GameStateV2, IncomeMode, QuestDef } from './types';
@@ -88,9 +88,11 @@ export function careerBonus(state: GameStateV2) {
   return bonus;
 }
 
-/** Bonus from the house you live in (by its tier), whether rented or owned. */
+/** Bonus from the house you live in: its tier, plus the owner's extra if it is yours. */
 export function homeBonus(state: GameStateV2) {
-  return HOUSE_BY_ID.get(state.home)?.homeBonus ?? 0;
+  const house = HOUSE_BY_ID.get(state.home);
+  if (!house) return 0;
+  return house.homeBonus + (state.homesOwned.includes(house.id) ? OWNER_HOME_BONUS : 0);
 }
 
 /** Status = your home plus every owned vehicle, outfit and luxury toy. */

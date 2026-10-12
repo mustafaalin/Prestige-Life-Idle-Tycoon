@@ -54,7 +54,8 @@ Kararlaştırılanlar (story §6, §4c): varis 17 yaşında bir torun (kahraman�
 - **Orta Sınıf artık ilk oturumda değil** (botta 47 dk, 2. oturum). Defter sorusu yine oturum sınırını geçiyor (Orta 2., Milyoner 3. oturum). Ama Faz 1 kapısındaki "ilk oturumda Orta Sınıf ≥ %60" ölçütü yeniden yazılmalı.
 - **İlk yönetici 19. dakikada**; o zamana kadar 1 sn'lik Çiçek Tezgâhı için sürekli "Çalıştır"a basılıyor. Telefonda yorucuysa ilk tur 2 sn ya da ilk yönetici ucuz.
 - **Kariyer/işletme dengesi:** ilk 4 dk gelir tamamen maaş, Gündelikçi'de %73 işletme, ömür boyunca ortanca %97 işletme. "Başta kariyer" daha uzun sürsün mü?
-- Çevrimdışı ödül ve ev bonusları (önceki not), reklamsız / reklam izleyen / ödeyen profilleri.
+- Çevrimdışı ödül, reklamsız / reklam izleyen / ödeyen profilleri. (Ev bonusları ve kira 2026-10-12'de kararlaştırıldı: game-design §4.8.)
+- **Evler, kalan soru:** evler varise miras kalsın mı (Faz 2.1).
 
 ## 6. Simülatörün sınırları (GPT Astra incelemesi, doğrulandı)
 

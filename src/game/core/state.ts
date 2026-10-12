@@ -1,7 +1,7 @@
 import { BUSINESSES } from './config/businesses';
 import { CAREERS } from './config/careers';
 import { STARTING_CASH } from './config/economy';
-import { CLASS_HOME_FLOOR, HOUSES, STARTING_HOME_ID } from './config/housing';
+import { CLASS_HOME_FLOOR, FIRST_OWNED_HOME, HOUSES, STARTING_HOME_ID } from './config/housing';
 import { LIFE_SECONDS } from './config/life';
 import { CLASS_OUTFIT_FLOOR, LIFESTYLE_ITEMS, OUTFITS, STARTING_LIFESTYLE_IDS, VEHICLES } from './config/lifestyle';
 import { ACTIVE_QUESTS, GENERATED_QUEST_SECONDS, QUESTS } from './config/quests';
@@ -71,7 +71,8 @@ export function earn(state: GameStateV2, amount: number): GameStateV2 {
 /**
  * A class-up gives what its story stands in: a hero still below the class's home moves there,
  * rented and free (CLASS_HOME_FLOOR), and gets the class's outfit and the ones before it
- * (CLASS_OUTFIT_FLOOR). Whoever bought ahead keeps what they have.
+ * (CLASS_OUTFIT_FLOOR). Whoever bought ahead keeps what they have. From Millionaire on, the first
+ * home of your own is yours (FIRST_OWNED_HOME).
  */
 export function applyClassFloors(state: GameStateV2): GameStateV2 {
   const homeFloor = CLASS_HOME_FLOOR[Math.min(state.classIndex, CLASS_HOME_FLOOR.length - 1)];
@@ -80,8 +81,15 @@ export function applyClassFloors(state: GameStateV2): GameStateV2 {
   const missing = OUTFITS.slice(0, outfitFloor + 1)
     .map((outfit) => outfit.id)
     .filter((id) => !state.lifestyleOwned.includes(id));
-  if (home === state.home && missing.length === 0) return state;
-  return { ...state, home, lifestyleOwned: [...state.lifestyleOwned, ...missing] };
+  const gift = HOUSES[FIRST_OWNED_HOME.houseIndex].id;
+  const gifted = state.classIndex >= FIRST_OWNED_HOME.classIndex && !state.homesOwned.includes(gift);
+  if (home === state.home && missing.length === 0 && !gifted) return state;
+  return {
+    ...state,
+    home,
+    homesOwned: gifted ? [...state.homesOwned, gift] : state.homesOwned,
+    lifestyleOwned: [...state.lifestyleOwned, ...missing],
+  };
 }
 
 function spend(state: GameStateV2, cost: number): GameStateV2 | null {
@@ -256,9 +264,12 @@ export function buyHome(state: GameStateV2, houseId: string): GameStateV2 | null
   return { ...paid, homesOwned: [...paid.homesOwned, houseId], home: movesIn ? houseId : paid.home };
 }
 
-/** Move into a house you own, for free. A home you leave keeps paying rent if you own it. */
+/**
+ * Move up into a house you own, for free. There is no moving back down: every home has its own
+ * vehicles out front, and a house you left stays rented out.
+ */
 export function moveHome(state: GameStateV2, houseId: string): GameStateV2 | null {
-  if (houseId === state.home || !ownsHouse(state, houseId)) return null;
+  if (houseIndex(houseId) <= houseIndex(state.home) || !ownsHouse(state, houseId)) return null;
   return { ...state, home: houseId };
 }
 
