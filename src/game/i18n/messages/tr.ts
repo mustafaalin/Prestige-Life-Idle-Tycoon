@@ -127,7 +127,7 @@ export const tr: Messages = {
     'flower-stand': {
       name: 'Rıza Amca',
       hire: 'Tezgâhı ben beklerim evlat, sen büyük düşün.',
-      line1: 'Güller bugün iyi satıyor. Annene de bir demet ayırdım.',
+      line1: 'Güller bugün iyi satıyor. Bir demet ayırdım, annene yollarsın.',
       line2: 'Marangozluğu bıraktım ama çiçek de sabırlı el ister.',
     },
     'coffee-cart': {
@@ -339,6 +339,7 @@ export const tr: Messages = {
     before: 'Önce',
     now: 'Şimdi',
     offlineCap: 'Sen yokken kazanç',
+    managerGift: '{business} artık senin. Başında {manager} var.',
     nextGoal: 'Sıradaki: {name}, {amount} kazanınca',
     top: 'Zirveye ulaştın.',
     done: 'Devam',
@@ -370,7 +371,7 @@ export const tr: Messages = {
       photo: 'Bu... Rıza Amca mı? Babamı tanıyor muydu?',
     },
     c4: {
-      hero: 'Anne... Milyoner oldum. Bir ev aldım, tapusunda benim adım yazıyor.',
+      hero: 'Anne... Milyoner oldum. Bu sefer kendime bir ev aldım.',
       mom: 'Bahçeye iki sandalye koydum. Gel de otur artık.',
       riza: 'Bu fotoğraf... Mehmet\'in dükkânı bu.',
       riza2: 'Sen Mehmet\'in oğlusun. Nasıl görmedim?',
@@ -430,7 +431,7 @@ export const tr: Messages = {
     bryce: 'Sandalyeler seni bekliyor. Bu arada Bülent Bey\'in restoranları satılıkmış, duydun mu?',
     clipping: 'Komşular seni gazetede görmüş. Kupürü buzdolabına astım!',
     job: 'Bülent Bey\'e iş vermişsin. Sen gerçekten babanın oğlusun.',
-    workshop: 'Rıza Amca uğradı. Babanla açamadıkları atölyeyi anlattı, gözleri doldu.',
+    workshop: 'Rıza Amca yıllar sonra kapımı çaldı. Babanla açamadıkları atölyeyi anlattı, gözleri doldu.',
     jam: 'Erik ağacı bu yıl çok verdi. Reçel yaptım, sana bir kavanoz ayırdım.',
     windows: 'Saray maray istemem, biliyorsun. ...Ama pencereleri büyük olsun, çiçeklerim güneş alsın.',
     chair: 'Rıza Amca bana bir sandalye yapmış. Bahçedekilerden çok daha rahat!',

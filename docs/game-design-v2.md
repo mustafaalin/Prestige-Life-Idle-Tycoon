@@ -46,7 +46,7 @@ Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Ş
 | 4 | Millionaire (Milyoner) | 10M | 20 |
 | 5 | Billionaire | 1B | 22 |
 | 6 | Multibillionaire (Multimilyarder) | 100B | 35 |
-| 7 | Richest Person Alive | 1T | 59 |
+| 7 | Richest Person Alive | 1T | 57 |
 
 Multimilyarder, Milyarder ile En Zengin arasındaki uzun boşluğa bir hikâye anı koymak için var.
 
@@ -63,7 +63,8 @@ AdVenture Capitalist modeli: her işletme adet adet alınır, her birim bir üre
 - Kilometre taşları: 25, 50, 75 adette kâr ×2 (bir ömürde işletme başına ~70 adet alınıyor)
 - Yöneticisiz işletme sadece oyun açıkken ve "Çalıştır"a dokununca tek döngü çalışır, çevrimdışı üretmez (simülatör bunu %60 verimle yaklaşık modeller)
 - Yönetici: tek seferlik (ilk birimin 12 katı), işletmeyi otomatik ve çevrimdışı çalıştırır. Her işletmenin kendi yönetici karakteri var (story-v2 §3)
-- **Tören hediyesi (2026-10-13):** Milyarder olunca ilk Otel Zinciri ve yöneticisi Bülent Bey bedava gelir (`CLASS_MANAGER_GIFT`; minibüs ve ilk ev gibi, sınıfa ulaşıldığı anda). Oteli önceden almış olana yalnızca yönetici verilir. Sebep: ilk otel bir Milyarder'in gelirine binde bir kadar ekliyor, bot ilk hayatta hiç almıyordu ve törende işe alınan Bülent Bey ekrana gelmiyordu. Tempoya etkisi: En Zengin 11 sa 16 dk → 11 sa 10 dk; öteki hedefler aynı. İşletme listesi sahip olunan her işletmeyi gösterir, hediye sıradaki alınacak işletmenin altında durur
+- **Tören hediyesi (2026-10-13):** Milyarder olunca ilk Otel Zinciri ve yöneticisi Bülent Bey bedava gelir (`CLASS_MANAGER_GIFT`; minibüs ve ilk ev gibi, sınıfa ulaşıldığı anda). Oteli önceden almış olana yalnızca yönetici verilir. Sebep: ilk otel bir Milyarder'in gelirine binde bir kadar ekliyor, bot ilk hayatta hiç almıyordu ve törende işe alınan Bülent Bey ekrana gelmiyordu. Tempoya etkisi yok denecek kadar az (En Zengin 6 dk erken). İşletme listesi sahip olunan her işletmeyi gösterir, hediye sıradaki alınacak işletmenin altında durur; törenin "Önce / Şimdi" kartında bir satırla duyurulur
+- **Son iki işletme alınmaya değer (2026-10-13, kullanıcı):** ilk adedin kendini ödeme süresi Otel Zinciri'nde 22 gün → 4 gün (`paybackMinutes` 32000 → 6000), Teknoloji Girişimi'nde 208 gün → 3,5 gün (300000 → 5000); fiyatlar aynı. Bot ilk hayatta ikisini de almıyordu. Şimdi bağlı bot otel almaya 6. günde (ömür sonunda 30 adet), girişime 14. günde (17 adet) başlıyor, Kuzen'i 19. günde işe alıyor; Fabrika ve Lojistik de alınmaya devam ediyor (31 ve 53 adet). Daha güçlü değerler denendi: otel 5000'de Multimilyarder hedefin altına düşüyor, girişim 3000–4000'de bot Fabrika'yı bırakıyor
 - Ekranda gelir aylık gösterilir: $/ay = $/sn × 60. Para yine saniye saniye artar; işletme kartındaki çubuk tur başına geliri gösterir
 - Üst bar ve "~X sonra alabilirsin" tahminleri yalnızca otomatik geliri (yönetici, maaş, kira) kullanır; dokunarak çalıştırılan işletmeler sayılmaz
 
@@ -215,7 +216,7 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranı
 
 - Tam ekran hikâye anlarında (tören, hayat anı) yaş durur.
 - **Hayat anları (karar 2026-10-11):** yaş, hikâyenin ikinci saatidir. Belirli yaşlarda kahramanın hayatından tek karelik anlar oynar (buluşma, düğün, çocuğun doğumu...); sınıf törenleri paraya, hayat anları yaşa bağlıdır. Liste ve kurallar [story-v2.md §4c](./story-v2.md).
-- En Zengin'den sonraki yılları (59 → 80) hayat anları doldurur (torunun doğumu, devir; testten sonra). Engaged bot En Zengin'e 59, casual 48 yaşında ulaşıyor; ömür sonu engaged botta 25. gün (16 sa 48 dk oyun).
+- En Zengin'den sonraki yılları (59 → 80) hayat anları doldurur (torunun doğumu, devir; testten sonra). Engaged bot En Zengin'e 57, casual 47 yaşında ulaşıyor; ömür sonu engaged botta 25. gün (16 sa 48 dk oyun).
 
 ### 4.10 Hedefler (`config/quests.ts`)
 
@@ -246,14 +247,14 @@ Güncel sonuç (2026-10-12; hedefler `src/game/sim/report.ts`):
 | Milyoner | 35 dk – 1 sa 15 dk oyun | 54 dk, 2. gün (20 yaş) | 45 dk, 3. gün |
 | İlk milyarder | 3–7. gün | 3. gün, 1 sa 36 dk (22 yaş) | 5. gün |
 | İlk multimilyarder | 8–14. gün | 8. gün 08:00, 4 sa 59 dk (35 yaş; hedefin alt sınırında) | 15. gün |
-| İlk "en zengin" | 14–21. gün | 16. günün son oturumu, 11 sa 10 dk (58 yaş) | 34. gün (48 yaş) |
+| İlk "en zengin" | 14–21. gün | 16. gün 12:00, 10 sa 42 dk (57 yaş) | 32. gün (47 yaş) |
 | İlk ömür sonu (80 yaş) | 21–37. gün | 25. gün (16 sa 48 dk oyun) | 45 günde gelmiyor |
 
 **His kontrolleri (`checkFeel`):** Tempo hedefleri tutarken işletmeler yan gelire düşebiliyor (eski bir ayarda Gündelikçi anında işletme payı %3'tü). Simülatör şunları da bekler: her işletmenin ilk biriminin turu ≥ $1; işletmelerin gelirdeki payı (toplama hariç) Gündelikçi anında, ilk oturumun sonunda ve 1. nesil oturumlarının ortancasında ≥ %50. Şu an: tur en az $1, pay %73 / %83 / %95. `npm run sim -- --purchases --timeline` her alımı zaman çizelgesinde gösterir.
 
 Engaged botun ilk günü: şişeler → el ilanı işi (12 sn) → Çiçek Tezgâhı ve bisiklet (4. dk) → Gündelikçi (8. dk) → skuter (14. dk) → Rıza Amca yönetici (19. dk) → kiralık oda ve emektar sedan (27–28. dk); ilk oturum burada biter. İşçi 2. oturumda, Orta Sınıf 3. oturumda gelir. Sınıf çubuğu karekök ölçeğinde çizilir (`classProgress`): düz oranla dakikalarca %0'da durup sonra fırlıyordu.
 
-- Varis çok hızlı: 1. ömür ~1.400 miras puanı (×15 gelir) bırakıyor; 2. nesil Milyoner ve üstüne dakikalar içinde ulaşıyor. Faz 2.1'de miras formülü ve 2. nesil içeriğiyle birlikte ele alınacak.
+- Varis çok hızlı: 1. ömür ~1.800 miras puanı (×19 gelir; son işletmeler güçlenince 1.400'den çıktı) bırakıyor; 2. nesil Milyoner ve üstüne dakikalar içinde ulaşıyor. Faz 2.1'de miras formülü ve 2. nesil içeriğiyle birlikte ele alınacak.
 - İlerleme hissiyle ilgili açık gözlemler (ilk oturumda tek tören, 4. saatten sonra az değişim): [discussion-notes.md §8](./discussion-notes.md).
 
 ## 6. Simülasyondan öğrenilenler

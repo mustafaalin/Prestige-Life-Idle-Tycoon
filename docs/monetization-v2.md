@@ -82,8 +82,8 @@ Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahip
 | | Reklamsız | Reklam izleyen | Fark |
 | --- | --- | --- | --- |
 | Milyarder | 1 sa 36 dk (3. gün) | 1 sa 15 dk (2. gün) | −%22 |
-| Multimilyarder | 4 sa 59 dk (8. gün) | 3 sa 35 dk (6. gün) | −%28 |
-| En Zengin | 11 sa 16 dk (16. gün) | 7 sa 31 dk (11. gün) | −%33 |
+| Multimilyarder | 4 sa 59 dk (8. gün) | 3 sa 28 dk (5. gün) | −%30 |
+| En Zengin | 10 sa 42 dk (16. gün) | 7 sa 12 dk (11. gün) | −%33 |
 
 **Çevrimdışı reklamı +%30, ×2 değil (karar 2026-10-13, kullanıcı):** bir ömürde kazanılan paranın %87'si çevrimdışı kartlardan geliyor (game-design §4.6), bu yüzden kartı ikiye katlamak oyunu yarıya indiriyordu (En Zengin 5 sa 34 dk, −%51; çevrimdışı ×2 tek başına 6 sa 30 dk). Hızlandırıcı ×2 ve Şans ×2 onaylandığı gibi kaldı; payları küçük (günde 3 hızlandırıcı tek başına −%14, günde 2 yardım −%6). Reklamsız oyuncunun hedefleri değişmiyor.
 

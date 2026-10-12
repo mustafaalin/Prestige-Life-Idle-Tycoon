@@ -24,6 +24,9 @@ export const CLASS_MANAGER_GIFT = { classIndex: 5, businessId: 'hotel' };
 //
 // paybackMinutes (how long the first unit takes to repay its price, before any bonus) sets each
 // tier's income and so the single-life pacing (game-design-v2 §5). Tuned with `npm run sim`.
+// The last two were 32000 and 300000 until 2026-10-13: a first hotel added a thousandth to a
+// Billionaire's income and the bot never bought either in a first life. At 6000 and 5000 hotels sell
+// from day 6 and the startup from day 14, with every pacing target where it was.
 const TIERS: {
   id: string;
   name: string;
@@ -41,8 +44,8 @@ const TIERS: {
   { id: 'beauty-salon', name: 'Beauty Salon', image: '/assets/businesses/v2/beauty-salon.webp', costStep: 8, cycleSeconds: 7, costGrowth: 1.15, paybackMinutes: 150 },
   { id: 'logistics-warehouse', name: 'Logistics Warehouse', image: '/assets/businesses/v2/logistics-warehouse.webp', costStep: 10, cycleSeconds: 9, costGrowth: 1.14, paybackMinutes: 750 },
   { id: 'factory', name: 'Factory', image: '/assets/businesses/v2/factory.webp', costStep: 12, cycleSeconds: 11, costGrowth: 1.13, paybackMinutes: 4500 },
-  { id: 'hotel', name: 'Hotel Chain', image: '/assets/businesses/v2/hotel.webp', costStep: 15, cycleSeconds: 13, costGrowth: 1.12, paybackMinutes: 32000 },
-  { id: 'tech-startup', name: 'Tech Startup', image: '/assets/businesses/v2/tech-startup.webp', costStep: 20, cycleSeconds: 15, costGrowth: 1.12, paybackMinutes: 300000 },
+  { id: 'hotel', name: 'Hotel Chain', image: '/assets/businesses/v2/hotel.webp', costStep: 15, cycleSeconds: 13, costGrowth: 1.12, paybackMinutes: 6000 },
+  { id: 'tech-startup', name: 'Tech Startup', image: '/assets/businesses/v2/tech-startup.webp', costStep: 20, cycleSeconds: 15, costGrowth: 1.12, paybackMinutes: 5000 },
 ];
 
 /** Rounds to 3 significant digits so generated prices read like designed ones. */

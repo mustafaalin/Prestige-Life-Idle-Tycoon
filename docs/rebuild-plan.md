@@ -143,7 +143,8 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 - [~] **1.T Ekonomi ayarı (kullanıcıyla):**
   - Tamam (2026-10-08): yavaşlarken yapılacak şey eklendi: işletme yükseltmeleri (§4.2) ve hedefler (§4.10); sınıf çubuğu karekök ölçeğinde; simülatörde his kontrolleri (tur ≥ $1, işletme payı ≥ %50) ve `--purchases`.
   - Tamam (2026-10-09, kullanıcıyla): yeniden ayar: başta ana gelir iş, sonra işletmeler; Çiçek Tezgâhı $250, kısa turlar (1–15 sn), kilometre taşları 25 / 50 / 75, yükseltme fiyatı ulaşma maliyetine bağlı ([game-design §4.2, §5](./game-design-v2.md)). 2026-10-12: ev bonusu ve kira (§4.8).
-  - Kalan: çevrimdışı ödül, son işletmeler, ilk oturum temposu, reklam/ödeme profilleri ([discussion-notes.md](./discussion-notes.md) §5).
+  - Tamam (2026-10-13): son iki işletme alınmaya değer (Otel 22 gün → 4 gün, Teknoloji 208 gün → 3,5 gün geri ödeme), Milyarder töreni oteli ve Bülent Bey'i hediye eder ([game-design §4.2](./game-design-v2.md)).
+  - Kalan: çevrimdışı ödül, ilk oturum temposu, reklam/ödeme profilleri ([discussion-notes.md](./discussion-notes.md) §5).
 
 ### 1C. İlk izlenim ve ölçüm (3. hafta)
 

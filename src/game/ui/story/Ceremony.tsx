@@ -1,5 +1,6 @@
 import { ArrowRight, ChevronRight, Phone } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { BUSINESSES, CLASS_MANAGER_GIFT } from '../../core/config/businesses';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { OFFLINE_CAP_HOURS_BY_CLASS } from '../../core/config/economy';
 import type { MessageKey } from '../../i18n/translate';
@@ -7,6 +8,7 @@ import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { LIFE_MOMENTS, type LifeMomentId } from '../../runtime/story';
+import { managerKey, managerPortrait } from '../businesses/managers';
 import { GameButton } from '../kit';
 import {
   CEREMONIES,
@@ -266,6 +268,8 @@ function ClassSummary({ classIndex, onClose }: { classIndex: number; onClose: ()
   const next = WEALTH_CLASSES[classIndex + 1];
   const capBefore = OFFLINE_CAP_HOURS_BY_CLASS[Math.min(classIndex - 1, OFFLINE_CAP_HOURS_BY_CLASS.length - 1)];
   const capNow = OFFLINE_CAP_HOURS_BY_CLASS[Math.min(classIndex, OFFLINE_CAP_HOURS_BY_CLASS.length - 1)];
+  // The class that brings a manager with it says so on its card (businesses.ts CLASS_MANAGER_GIFT).
+  const gift = classIndex === CLASS_MANAGER_GIFT.classIndex ? BUSINESSES.find((def) => def.id === CLASS_MANAGER_GIFT.businessId) : undefined;
 
   return (
     <div className="v2-pop-in relative w-full max-w-[340px] rounded-[28px] bg-white shadow-2xl overflow-hidden text-center">
@@ -292,6 +296,15 @@ function ClassSummary({ classIndex, onClose }: { classIndex: number; onClose: ()
             <span className="text-[11px] font-black text-slate-500">{t('ceremony.offlineCap')}</span>
             <span className="text-sm font-black text-slate-900">
               {duration(capBefore * 3600)} → <span className="text-emerald-500">{duration(capNow * 3600)}</span>
+            </span>
+          </div>
+        )}
+
+        {gift && (
+          <div className="mt-3 flex items-center gap-2.5 rounded-2xl bg-amber-50 px-3 py-2 text-left">
+            <img src={managerPortrait(gift.id)} alt="" className="w-10 h-10 shrink-0 rounded-full object-cover border-2 border-white shadow" />
+            <span className="text-[11px] font-black text-slate-600">
+              {t('ceremony.managerGift', { business: name('business', gift), manager: t(managerKey(gift.id, 'name')) })}
             </span>
           </div>
         )}

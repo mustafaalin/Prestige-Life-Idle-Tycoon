@@ -91,9 +91,9 @@ Her işletmenin kendi yöneticisi var: kahramanın yolda tanıştığı insanlar
 | Mini Market | Ayten Abla / Aunt Annie | Mahallenin bakkalı, anneyi tanır |
 | Güzellik Salonu | Derya / Dana | İddialı kuaför |
 | Lojistik Deposu | Burak / Brad | Düzen takıntılı depo şefi |
-| Fabrika | Nermin Hanım / Nora | Mühendis, "önce güvenlik" |
+| Fabrika | Nermin Hanım / Nina | Mühendis, "önce güvenlik" |
 | Otel Zinciri | Bülent Bey / Mr. Bryce | Eski patron; Milyarder töreniyle bedava gelir |
-| Teknoloji Girişimi | Kuzen / Cousin | Kripto esprili kuzen |
+| Teknoloji Girişimi | Kuzen / Cousin | Kripto esprili kuzen; olay kartı Orta Sınıf'tan itibaren, yönetici olarak geç gelir (bağlı botta 19. gün) |
 
 ## 4. Nesil 1 hikaye akışı
 
@@ -134,7 +134,7 @@ Metinler oyunda: `src/game/i18n/messages/*` → `ceremony.c1…c7`; senaryo (kon
 | 1 | Gündelikçi ($1K, ~8 dk) | Kahraman: *"Merak etme anne, iyiyim. Bugün sıcak çorba içtim."* · Anne (telefon): *"Sesin güzel geliyor oğlum. Bunu duymak yetti."* · Rıza: *"Eski minibüsüm boşta duruyor. Çadırdan iyidir, anahtar senin."* · Rıza: *"Sen birine çok benziyorsun evlat... Neyse, boş ver."* | Rıza kimi hatırlıyor? Tören bitince minibüse taşınır | Minibüsün önünde çorba |
 | 2 | İşçi Sınıfı ($100K, ~32 dk) | Nevin Hanım: *"Cüzdanımı Şans getirmiş, değil mi? İçinde rahmetli eşimin fotoğrafı vardı."* · Defne: *"Babaannem seni bir haftadır arıyor. Sana kurabiye yaptı, hâlâ sıcak."* · Kahraman: *"Ben bir şey yapmadım. Bulan Şans'tı."* · Kahraman: *"Anne, artık bir dairem var. Kapısı bile kilitleniyor!"* · Anne: *"Ev deyince eski evimiz geldi aklıma. Babanın defteri hâlâ çatı katında."* | Defne (tanışma), defter | Daire kapısı (ilk üç cümle) |
 | 3 | Orta Sınıf ($1M, ~47 dk) | Kahraman: *"Anne... Eski evimizi geri aldım."* · Anne (ağlayan-mutlu): *"Erik ağacı... duruyor mu hâlâ?"* · Anlatım (çatı katı): *"Defter, çatı katında onu bekliyordu."* · *"Sayfaların arasından bir fotoğraf düştü."* · Kahraman (fotoğraf): *"Bu... Rıza Amca mı? Babamı tanıyor muydu?"* | Soru açık kalır | Çatı katı, eski fotoğraf |
-| 4 | Milyoner ($10M, ~54 dk, 2. gün) | Kahraman: *"Anne... Milyoner oldum. Bir ev aldım, tapusunda benim adım yazıyor."* (ilk kendi evin törenle gelir) · Anne: *"Bahçeye iki sandalye koydum. Gel de otur artık."* · Rıza (fotoğraf): *"Bu fotoğraf... Mehmet'in dükkânı bu."* · *"Sen Mehmet'in oğlusun. Nasıl görmedim?"* | Soru kapanır | Rıza bahçede, erik ağacının altında (fotoğraf anı balonunda) |
+| 4 | Milyoner ($10M, ~54 dk, 2. gün) | Kahraman: *"Anne... Milyoner oldum. Bu sefer kendime bir ev aldım."* (ilk kendi evin törenle gelir) · Anne: *"Bahçeye iki sandalye koydum. Gel de otur artık."* · Rıza (fotoğraf): *"Bu fotoğraf... Mehmet'in dükkânı bu."* · *"Sen Mehmet'in oğlusun. Nasıl görmedim?"* | Soru kapanır | Rıza bahçede, erik ağacının altında (fotoğraf anı balonunda) |
 | 5 | Milyarder ($1B, ~3. gün) | Anlatım: *"Bülent Bey'in restoranları satılığa çıkmıştı. Alıcı, yıllar önce kovduğu garsondu."* · Personel: *"Şirketi siz almışsınız... Bizim işimiz ne olacak?"* · Kahraman: *"Hiçbir şey değişmiyor. Sadece maaşlar artıyor."* · Bülent Bey (şaşkın): *"Ya... ben?"* · Kahraman: *"Size de bir işim var, Bülent Bey."* · *"Annenizi de istediğiniz zaman arayabilirsiniz."* | Önsözdeki kovulma. Bülent Bey, Otel Zinciri'nin yöneticisi olarak bedava gelir (game-design §4.2) | Önsözdeki restoran |
 | 6 | Multimilyarder ($100B, ~8. gün) | Kahraman: *"Rıza Amca, atölyenin anahtarları. Artık senin."* · Rıza: *"Mehmet'le burayı yıllarca hayal ettik..."* · *"Gel evlat, ilk tahtayı birlikte keselim."* | Annenin "atölye" mesajı | Portreler (atölye görseli isteğe bağlı) |
 | 7 | Dünyanın En Zengini ($1T, ~17. gün) | Kahraman: *"Sana bir saray sözü vermiştim anne."* · *"Bir de pasta getirdim. Biraz geç kaldı."* · Anne (ağlayan-mutlu): *"Ah oğlum... Sen bana hep yettin."* | Söz, pasta, "sen bana yetersin" | Konağın önü, pasta kutusu |
@@ -156,7 +156,7 @@ Sadece oyuncunun o anki sınıfının mesajları gelir, sırayla; geçilen sın�
 | İşçi töreninden ilk buluşmaya kadar (köprü, §4c) | *"Kurabiye getiren kızı anlatırken sesin bir tuhaftı. Adı neydi... Defne mi?"* |
 | Milyoner | *"Komşular seni gazetede görmüş. Kupürü buzdolabına astım!"* |
 | Milyarder | *"Bülent Bey'e iş vermişsin. Sen gerçekten babanın oğlusun."* |
-| Milyarder | ★ *"Rıza Amca uğradı. Babanla açamadıkları atölyeyi anlattı, gözleri doldu."* |
+| Milyarder | ★ *"Rıza Amca yıllar sonra kapımı çaldı. Babanla açamadıkları atölyeyi anlattı, gözleri doldu."* |
 | Milyarder | *"Erik ağacı bu yıl çok verdi. Reçel yaptım, sana bir kavanoz ayırdım."* |
 | Multimilyarder | ★ *"Saray maray istemem, biliyorsun. ...Ama pencereleri büyük olsun, çiçeklerim güneş alsın."* |
 | Multimilyarder | *"Rıza Amca bana bir sandalye yapmış. Bahçedekilerden çok daha rahat!"* |
@@ -190,7 +190,7 @@ Hikâyenin ikinci saati yaştır. Sınıf törenleri paraya bağlı olduğu içi
 | 38 | ~5 sa 35 dk (9. gün) | Okulun ilk günü | Doğum | Testten sonra |
 | 44 | ~7 sa 10 dk (11. gün) | Kızı ilk parasını Çiçek Tezgâhı'nda kazanır | Doğum | Testten sonra |
 | 49 | ~8,5 sa (13. gün) | Mezuniyet | Doğum | Testten sonra |
-| 59 | 11 sa 20 dk (17. gün) | En Zengin töreni (sınıf töreni, oyunda) | | 1 |
+| 57 | 10 sa 42 dk (16. gün) | En Zengin töreni (sınıf töreni, oyunda) | | 1 |
 | 63 | ~12 sa 15 dk (19. gün) | Torunu doğar | Doğum | Testten sonra |
 | 70 | ~14 sa (22. gün) | Dede ve torun | Torun | Testten sonra |
 | 80 | 16 sa 48 dk (25. gün) | Torun 17 yaşında: *"Dede, bana ilk işini öğretir misin?"* → devir (§6) | Torun | Faz 2.1 |

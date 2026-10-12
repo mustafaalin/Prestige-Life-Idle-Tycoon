@@ -128,7 +128,7 @@ export const en = {
     'flower-stand': {
       name: 'Old Ray',
       hire: 'I\'ll mind the stand, kid. You think big.',
-      line1: 'Roses are selling well today. I saved a bunch for your mom.',
+      line1: 'Roses are selling well today. I kept a bunch aside. Send it to your mom.',
       line2: 'I gave up carpentry, but flowers need patient hands too.',
     },
     'coffee-cart': {
@@ -168,7 +168,7 @@ export const en = {
       line2: 'I\'ve got a forklift license and big dreams.',
     },
     'factory': {
-      name: 'Nora',
+      name: 'Nina',
       hire: 'The machines don\'t miss, and neither do I.',
       line1: 'Efficiency\'s up ten percent. No thanks needed, a raise will do.',
       line2: 'Safety first. Hard hat on!',
@@ -340,6 +340,7 @@ export const en = {
     before: 'Before',
     now: 'Now',
     offlineCap: 'Earnings while away',
+    managerGift: '{business} is yours now. {manager} runs it.',
     nextGoal: 'Next: {name} at {amount} earned',
     top: 'You made it to the very top.',
     done: 'Continue',
@@ -371,7 +372,7 @@ export const en = {
       photo: 'Is that... Old Ray? He knew my dad?',
     },
     c4: {
-      hero: "Mom... I'm a millionaire. I bought a house. My name is on the deed.",
+      hero: "Mom... I'm a millionaire. This time I bought a house of my own.",
       mom: 'I put two chairs in the garden. Come and sit with me.',
       riza: "This photo... That's Martin's shop.",
       riza2: "You're Martin's boy. How did I not see it?",
@@ -431,7 +432,7 @@ export const en = {
     bryce: "The chairs are waiting for you. Oh, and I heard Mr. Bryce's restaurants are up for sale.",
     clipping: 'The neighbours saw you in the paper. I stuck the clipping on the fridge!',
     job: "You gave Mr. Bryce a job. You really are your father's son.",
-    workshop: 'Old Ray came by. He talked about the workshop he and your dad never opened. His eyes filled up.',
+    workshop: 'Old Ray knocked on my door after all these years. He talked about the workshop he and your dad never opened. His eyes filled up.',
     jam: 'The plum tree went wild this year. I made jam and saved you a jar.',
     windows: "I don't need a palace, you know that. ...But big windows would be nice, for my flowers.",
     chair: 'Old Ray made me a chair. Much comfier than the garden ones!',
