@@ -69,7 +69,6 @@ Kararlaşanlar taşındı: sahne, evler, araçlar ve kıyafetler [game-design-v2
 - **Apartman evlerinde dış mekân mı iç mekân mı?** Şimdilik dış mekân (bina girişi ve avlu), çünkü iç mekânda araç görünmez.
 - **Ara anlar** ("ilk sıcak yemek" gibi): art-brief H6 isteğe bağlı.
 - **Olay kartları (oyunda, game-design §4.7):** ödül sayıları ve sıklık telefonda denenmedi (45 / 100 / 10 sn gelir, 4–6 dk); Şans'ın getirdiği şeyin sınıfa göre değişmesi (mekanik aynı kalacak) konuşulmadı; kötü sonuçta reklamla "ikinci şans" reklam yerleriyle birlikte.
-- **Kıyafet 3 ve 4:** kullanıcı GPT ile üretecek. Okşama pozlarında Şans deri ve altın tasmalı; sahnedeki oturan Şans'ın tasma görselleri (art-brief §4.3) gelene kadar ipli kalır.
 - **Oyun testinden sonra karar:** annenin mesajında telefona bakma pozu (kıyafet başına 1 görsel) ve geç oyun için olgun görünüm (§3'teki "yaşlanan görünüm yok" kararını yeniden açar).
 - **Önerilmeyenler:** arabaya yaslanma gibi araca bağlı pozlar (12 aracın boyu farklı).
 
@@ -88,11 +87,11 @@ Claude'un hikâye, tasarım belgesi, plan ve simülatör zaman çizelgesi üzeri
 | 40–47 dk | 1 (3. oturum) | Hatchback, yenice daire; Orta Sınıf töreni, site |
 | 54 dk | 2 | Milyoner töreni, ilk kendi evin, pikap |
 | 1 sa 15 dk – 1 sa 30 dk | 2–3 | Banliyö evi, spor coupe, takım elbise, villa |
-| 1 sa 43 dk | 3 | Milyarder töreni |
+| 1 sa 36 dk | 3 | Milyarder töreni |
 | 2–4 sa | 3–6 | Göl evi, süper araba, sahil malikânesi, grand lüks |
 | 5 sa | 8 | Multimilyarder töreni |
 | 8,5 sa | 13 | Büyük malikâne |
-| 11 sa 20 dk | 17 | En Zengin töreni |
+| 11 sa 16 dk | 16 | En Zengin töreni |
 | 11–17 sa | 17–25 | Yeni bir şey yok; ömür 80 yaşında biter (hayat anları testten sonra doldurur) |
 
 Yaşa bağlı üç hayat anı (25, 28, 31 yaş: ~2–4. saat) ve Orta Sınıf'tan sonra olay kartları bu çizelgenin üstüne gelir.
@@ -102,15 +101,13 @@ Yaşa bağlı üç hayat anı (25, 28, 31 yaş: ~2–4. saat) ve Orta Sınıf'ta
 1. **İlk oturumda tek tören.** 30 dakikalık ilk oturumda yalnızca Gündelikçi (8. dk); oturum kiralık odada bitiyor. İşçi 32. dk (2. oturum).
 2. **Erken evler çok kısa, son evler çok uzun.** Kiralık oda ~5 dk, eski daire ~8 dk, site ~7 dk; büyük malikâne 8 saatten fazla.
 3. **4. saatten sonra ekranda neredeyse hiçbir şey değişmiyor.** Araçlar ve kıyafetler bitiyor; sonraki 13 saatte iki tören, bir ev, annenin birkaç mesajı.
-4. **Kahraman zenginleşince de iş kıyafetinde** (görsel bekleyenler): kıyafet 3 ve 4, Şans'ın deri ve altın tasması.
 
-**Tutarsızlık, yaş ile hikâye:** Milyarder 23, Multimilyarder 36, En Zengin 59 yaş. Önsözden son törene 42 yıl: anne pastayı aldığında ~87, Rıza Amca atölyede ~80. Portreler yaşlanmıyor; kahraman 59 yaşında 23'lük görünüyor (§3 ile birlikte ele alınır).
+**Tutarsızlık, yaş ile hikâye:** Milyarder 22, Multimilyarder 35, En Zengin 59 yaş. Önsözden son törene 42 yıl: anne pastayı aldığında ~87, Rıza Amca atölyede ~80. Portreler yaşlanmıyor; kahraman 59 yaşında 23'lük görünüyor (§3 ile birlikte ele alınır).
 
 **Eksikler (çoğu planda):** hayaller panosu (1.8; zincirden sonra daha değerli, sıradaki adım hep belli), lüks oyuncaklar sahnede (2.6), yağmur ve ortam sesi, Şans'ın dönüşte kapıda uyuması, konak ve pasta karesi, hayat anlarının ana ekranda iz bırakması (Defne ve kızından mesajlar, aile albümü: [story-v2.md §7](./story-v2.md)), En Zengin'den sonrası (§3).
 
 **Claude'un önerdiği sıra (karar kullanıcıda):**
 
-1. Görseller: kıyafet 3 ve 4 ile tasmalar (hissi en çok artıranlar).
-2. **Yaş temposu:** En Zengin'e kadar yıllar daha yavaş (zirve ~40 yaş), zirveden sonra hızlı. Hem annenin ve Rıza Amca'nın yaşını makul yapar hem sondaki boş saatleri kısaltır. Simülatörle denenmeli.
-3. **İlk oturum:** İşçi törenini ilk oturuma (~25. dk) çekmek; ekonomi ayarı, simülatörle.
-4. Hayaller panosu: ana ekranda zincirin sıradaki adımı.
+1. **Yaş temposu:** En Zengin'e kadar yıllar daha yavaş (zirve ~40 yaş), zirveden sonra hızlı. Hem annenin ve Rıza Amca'nın yaşını makul yapar hem sondaki boş saatleri kısaltır. Simülatörle denenmeli.
+2. **İlk oturum:** İşçi törenini ilk oturuma (~25. dk) çekmek; ekonomi ayarı, simülatörle.
+3. Hayaller panosu: ana ekranda zincirin sıradaki adımı.

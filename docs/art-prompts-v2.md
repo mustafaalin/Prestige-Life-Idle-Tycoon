@@ -2,7 +2,7 @@
 
 Son güncelleme: 2026-10-12 · Kurallar ve boyutlar: [art-brief-v2.md §2, §3, §4.2, §4.6](./art-brief-v2.md)
 
-Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üretilen görsel tablodaki dosya adıyla `art/pilot/...` altına konur; denemeler `-v1`, `-v2`, seçilmeyenler silinir. **Evler, araçlar ve iki karakter üretildi ve oyunda (§1–3); komutları yeniden üretim gerekirse diye duruyor. Sıradaki üretim: kıyafet 3 ve 4 (§4).**
+Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üretilen görsel tablodaki dosya adıyla `art/pilot/...` altına konur; denemeler `-v1`, `-v2`, seçilmeyenler silinir. **Evler, araçlar, iki karakter ve kıyafetler üretildi ve oyunda (§1–4); komutları yeniden üretim gerekirse diye duruyor.**
 
 ## 1. Evler (11 arka plan)
 
@@ -216,6 +216,8 @@ Zincir 12 ev için tam 12 araç ister; yeni araç ancak yeni bir evle birlikte e
 > Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
 
 ## 4. Kahraman: kıyafet 3 ve 4 (2 kılavuz + 6 poz)
+
+**Üretildi ve oyunda (2026-10-12):** `art/pilot/08-outfits/outfit-{3,4}-sheet.png`, `hero-{3,4}-{idle,joy,pet}.png` (kullanılan komutlar yanlarında `-prompt.txt`); oyunda `public/assets/scene/hero-smart-*.webp`, `hero-suit-*.webp`.
 
 Her kıyafette önce **kılavuz** üretilir; onaylanınca üç poz o kılavuzla üretilir (kıyafet pozlar arasında değişmesin). Toplama Orta Sınıf'ta bittiği için bu iki kıyafette `collect` pozu yok (game-design §4.7). Bekleme pozu kahramanın ruh hâlini anlatır ve her kıyafette ayrı bir duruştur: çadırda üşüyor → kapüşonluyla umutlu (ikisi de oyunda) → iş kıyafetiyle dik (oyunda) → şık günlükle rahat, bir eli cepte → takım elbiseyle kendinden emin, ceketini ilikliyor.
 

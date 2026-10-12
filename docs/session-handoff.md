@@ -57,7 +57,10 @@ Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · 
 - **12 ev ve 12 araç yeni görsellerle oyunda.** Ev 7 üçüncü kez üretildi (kullanıcı telefonda pikap ve makam sedanını evin önünde çok büyük buldu; yeni görselde ev uzakta ve yüksekte). Yeni ev 7 ve ev 10 telefonda bakılacak.
 - **Pozlar:** kapüşonlunun umutlu bekleme pozu (çadır dışındaki evlerde; `stages.ts` `heroLook(kıyafet, ev)`), iş kıyafetinin eğilme pozları büyütüldü. Telefonda bakılmadı.
 - **Belgeler gözden geçirildi:** eskimiş sayılar güncel simülatöre çekildi, kararlaşmış konular tartışma notlarından çıkarıldı, v1 reklam notları `v1/` altına taşındı, kullanılmayan görseller silindi.
-- Simülatör tüm hedefleri tutuyor: Milyarder 1 sa 43 dk, Multimilyarder 5 sa 6 dk, En Zengin 11 sa 21 dk, ömür sonu 25. gün ([game-design §5](./game-design-v2.md)).
+- **Kıyafet 3 ve 4 oyunda:** şık günlük ve takım elbise, 3'er poz (`stages.ts` `HERO_ART`; mağazadaki resimleri de yeni). Toplama pozları yok: yerde para varken erkenden alınırsa kahraman ayakta toplar. İş kıyafetinin sevinç pozu da gövdesi bekleme pozuyla aynı boyda olacak şekilde büyütüldü (0,425 → 0,444). Bileşik görüntüde bakıldı; oyunda ve telefonda bakılmadı.
+- **Şans'ın tasmaları oyunda:** Orta Sınıf'tan itibaren deri (duruş aynı), Milyarder'den itibaren altın (rahat ve mutlu oturuş, kuyruğu yukarıda neşeli getirme); tören bitince değişir (`stages.ts` `LOOK_ART`). Oyunda ve telefonda bakılmadı.
+- **Hedefler:** üretilen kilometre taşı hedefi tamamlanınca ödülü alınmadan kayboluyordu; artık ödülü alınana kadar ekranda kalıyor ([game-design §4.10](./game-design-v2.md)).
+- Simülatör tüm hedefleri tutuyor: Milyarder 1 sa 36 dk, Multimilyarder 4 sa 59 dk (8. gün 08:00, hedefin alt sınırında), En Zengin 11 sa 16 dk, ömür sonu 25. gün ([game-design §5](./game-design-v2.md)).
 
 ## Ekonomi
 
@@ -66,10 +69,9 @@ Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · 
 ## Sıradaki (sırayla)
 
 0. **Şans'ın getirdiği şey sınıfa göre değişsin mi** (konuşulacak; mekanik aynı kalacak): [discussion-notes.md §7](./discussion-notes.md).
-0. **Kıyafet 3 ve 4** (kullanıcı GPT ile üretiyor; komutlar [art-prompts-v2.md §4](./art-prompts-v2.md)): görseller gelince kesilip `stages.ts` `HERO_ART`'a bağlanır.
 0. **Hayat anlarının izi ana ekranda** (öneri, karar bekliyor): Defne ve kızından mesajlar, aile albümü ([story-v2.md §7](./story-v2.md)).
 0. **Konuşulacak kalanlar:** ilerleme hissi (ilk oturumda tek tören, yaş temposu, 4. saatten sonrası) [discussion-notes.md §8](./discussion-notes.md)'de; kararlaştırılmadı.
-1. **Görseller gelince oyuna bağlamak:** araçlar ve 12 ev bağlandı; sıradaki kıyafet 3, hikâye kareleri (`ceremonyScript.ts`). Liste [art-brief-v2.md](./art-brief-v2.md). Yeni ev gelince: `public/assets/scene/home-N.webp` (1080 px genişlik), `housing.ts`'te görsel, gerekirse `stages.ts` `HOME_ART`'a yerleşim; DEV → Sahne laboratuvarı'ndan bakılır. Araçta `scripts/cutout-vehicle.sh` ve `VEHICLE_SHAPE`.
+1. **Görseller gelince oyuna bağlamak:** araçlar, 12 ev, kıyafetler ve Şans'ın tasmaları bağlandı; sıradaki hikâye kareleri (`ceremonyScript.ts`). Liste [art-brief-v2.md](./art-brief-v2.md). Yeni ev gelince: `public/assets/scene/home-N.webp` (1080 px genişlik), `housing.ts`'te görsel, gerekirse `stages.ts` `HOME_ART`'a yerleşim; DEV → Sahne laboratuvarı'ndan bakılır. Araçta `scripts/cutout-vehicle.sh` ve `VEHICLE_SHAPE`.
 2. **Telefonda deneme:** törenler (DEV → "Töreni oynat" 1–7; sahne tören bitince değişmeli), annenin mesajı, bildirim ve "Deneme bildirimi (5 sn)", Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.prestigelife.idletycoon`). Yeni yerel eklentiler olduğu için `npm run phone -- --install`.
 3. **İmzalı v2 AAB → kapalı test kanalı:** ilk v2 AAB alındı (2026-10-09, sürüm kodu 25, `versionName` 2.0, İşçi sahnesi dahil; `~/Downloads/prestige-life-v2-25.aab`. 24 Play'e yüklenmişti; Play'in RevenueCat SDK uyarısı yüzünden eklenti 13.7.3'e güncellendi). Yükleme kullanıcıda. Kapalı testin 14 günü ~2026-10-20'de doluyor; testçiler listede kalmalı.
    Sürüm derleme: sürüm kodunu artır (`android/app/build.gradle`), sonra `VITE_DEV_MENU=false VITE_ADMOB_TESTING=false npm run build:v2 && npx cap sync android`, ardından `android/`'da `./gradlew bundleRelease` (JAVA_HOME Android Studio'nun Java'sı). Ortam değişkenleri şart: `.env.v2` DEV menüsünü, `.env.local` test reklamını açık tutuyor.
@@ -83,7 +85,8 @@ Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · 
 - **Telefonda olay kartlarını ve pozları denemek:** DEV → "Olay kartı gelsin" (çağrı alt ortada bekler, Şans ve Hedefler kartıyla çakışıyor mu; iki cevabı da dene; cesur cevaptan sonra bakiye "Topla"ya kadar sabit kalmalı; sonuç ekranındayken uygulamayı kapatıp açınca ödül bakiyede olmalı). Yerin boşalması için gerçekten Orta Sınıf'a çıkmak ya da DEV'den para eklemek gerekir ("Töreni oynat" 3 göstermez). Minibüste umutlu poz, iş kıyafetinde eğilme pozlarının boyu.
 - **Telefonda evlere bakmak:** yeni ev 7 (pikap ve makam sedanıyla; kahramanın başı çit hizasında), ev 10 (göl evi; arazi aracı sol kanadı kapatıyor), Evler sayfası ("Senin" etiketi, ek bonus, toplam kira), Milyoner töreni (DEV → "Töreni oynat" 4), zincirin başı (çadırda bisiklet, minibüste skuter).
 - **Telefonda hayat anlarını denemek:** DEV → "Hayat anını oynat" 25 / 28 / 31; 31'den sonra isim sorusu DEV'den oynatınca gelmez (gerçek akışta gelir).
-- **Görselleri GPT ile üretmeye devam:** araçlar ve evler oyunda; sıradaki kıyafet 3 ve 4 ([art-prompts-v2.md §4](./art-prompts-v2.md): önce kılavuz, onaylayınca 3 poz).
+- **Görselleri GPT ile üretmeye devam:** evler, araçlar, kıyafetler ve tasmalar oyunda; sıradaki hikâye kareleri ([art-brief-v2.md §5](./art-brief-v2.md)).
+- **Telefonda yeni kıyafetlere bakmak:** şık günlük (Orta Sınıf töreni ya da mağaza) ve takım elbise; bekleme, sevinç ve Şans'ı okşama pozlarının boyu ve yeri; Şans'ın deri (DEV → "Töreni oynat" 3 göstermez, Orta Sınıf'a çıkmak gerekir) ve altın tasması; hedef kartında tamamlanan kilometre taşı hedefinin ödülü.
 - **Telefonda İşçi sahnesini denemek:** DEV → "Töreni oynat" 2; tören bitince daire önü, iş kıyafeti ve bozuk paralar gelmeli. Boy/konum kötü görünürse söyle.
 - **Telefonda törenleri, sahne geçişini ve bildirimi denemek** (yukarıda 2).
 - **Telefonda gerçek test reklamını denemek:** DEV → "Test reklamı izle"; Google'ın "Test Ad" reklamı açılmalı, sonuç "rewarded" olmalı.

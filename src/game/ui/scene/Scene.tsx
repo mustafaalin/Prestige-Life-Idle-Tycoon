@@ -209,6 +209,10 @@ export function Scene() {
   // An outfit a ceremony gives is put on when the ceremony ends, like the new home.
   const [shownOutfit, setShownOutfit] = useState(wornOutfit);
   const hero = heroLook(shownOutfit, shownHome);
+  // An outfit without a collect pose stands in with its idle picture: each picture is drawn once.
+  const heroPoses = POSE_LIST.filter(
+    (key, index) => POSE_LIST.findIndex((other) => hero[other].src === hero[key].src) === index,
+  );
   useEffect(() => {
     if (ceremonyWaiting || wornOutfit === shownOutfit) return;
     setShownOutfit(wornOutfit);
@@ -375,7 +379,7 @@ export function Scene() {
             }}
           />
 
-          {POSE_LIST.map((key) => {
+          {heroPoses.map((key) => {
             const art = hero[key];
             return (
               <img
@@ -386,7 +390,7 @@ export function Scene() {
                 className="absolute pointer-events-none transition-opacity duration-150"
                 style={{
                   ...poseBox(fit, art, home.castX),
-                  opacity: pose === key ? 1 : 0,
+                  opacity: hero[pose].src === art.src ? 1 : 0,
                   transform: art.flip ? 'scaleX(-1)' : undefined,
                   filter: light,
                 }}

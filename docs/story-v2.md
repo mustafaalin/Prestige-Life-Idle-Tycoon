@@ -55,7 +55,7 @@ Varis torun, Faz 2.1'de (§6).
 
 ### Şans (köpek)
 
-- Karışık cins, kırpık kulaklı, tüyleri dağınık bir sokak köpeği. Her zaman sahnede, kahramanın yanında. Zenginleştikçe tasması değişir: ip → deri → altın (deri ve altın görselleri bekliyor).
+- Karışık cins, kırpık kulaklı, tüyleri dağınık bir sokak köpeği. Her zaman sahnede, kahramanın yanında. Zenginleştikçe tasması değişir: ip → deri (Orta Sınıf) → altın (Milyarder; duruşu da rahatlar). Oyunda.
 - Ona dokunmak para vermez: kahraman onu okşar. 5–10 dakikada bir ağzında bir cüzdanla gelir; oyuncu 12 sn içinde dokunursa kahraman cüzdanı sahibine verir ve teşekkür ödülü alır (oyunda; game-design §4.7). Kahraman bulduğu parayı cebine koymaz.
 - Çevrimdışı dönüşte kapının önünde uyurken uyanır (bekliyor; uyuyan poz görseli gerekiyor).
 
@@ -285,13 +285,13 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 | Şişe, kutu | 3 | **Tamam** |
 | Yönetici portreleri | 10 | **Tamam** (`public/assets/managers/`) |
 | Kahraman: sokak aşaması 5 poz | 5 | **Tamam** (çadırda üşüyen bekleme, başka evlerde umutlu bekleme, toplama, sevinç, Şans'ı okşama) |
-| Kahraman: 3 kıyafet (iş kıyafeti 4 poz, diğer ikisi toplama pozu olmadan 3'er) | 10 | İş kıyafeti oyunda, 6 poz bekliyor ([art-brief-v2.md](./art-brief-v2.md) 4.1) |
-| Şans: oturan, cüzdanlı | 2 | **Tamam**. Uyuyan (çevrimdışı dönüş) ve tasmalar bekliyor |
+| Kahraman: 3 kıyafet (iş kıyafeti 4 poz, diğer ikisi toplama pozu olmadan 3'er) | 10 | **Oyunda** (2026-10-12; [art-brief-v2.md](./art-brief-v2.md) 4.1) |
+| Şans: oturan, cüzdanlı | 2 | **Tamam**, deri ve altın tasmalı hâlleriyle (2026-10-12). Uyuyan (çevrimdışı dönüş) bekliyor |
 | Tören portreleri: kahraman, anne, Rıza, Bülent Bey (4'er ifade) | 16 | **Tamam** (`public/assets/story/portraits/`, kadro sayfalarından kesildi) |
 | Orta Sınıf: çatı katı ve eski fotoğraf | 2 | **Oyunda** (`public/assets/story/ceremony/`; kaynak `art/pilot/07-story/`). Kahraman kapüşonlu; 3. kıyafet tasarlanınca çatı katı yeniden üretilir |
 | En Zengin: konak, anne ve kahraman, elinde pasta (pencerede saksı) | 1 | Bekliyor (~$0,15); şimdilik portrelerle oynuyor |
 | Ev arka planları (12) ve araçlar (12) | 24 | **Oyunda** (2026-10-12; arka plan oturulan ev, araç önünde). Liste ve komutlar: [art-brief-v2.md](./art-brief-v2.md), [art-prompts-v2.md](./art-prompts-v2.md) |
-| Toplanacaklar (bozuk para) ve Şans tasmaları | 1 sayfa + 4 | Bozuk paralar oyunda; deri ve altın tasma bekliyor |
+| Toplanacaklar (bozuk para) | 1 sayfa | **Oyunda** |
 | Nevin Hanım ve Defne kılavuzları + portreler (4'er ifade) | 2 sayfa, 8 portre | **Oyunda** (2026-10-11, fal.ai $0,30; `art/pilot/03-cast/`, komutlar [art-prompts-v2.md §3](./art-prompts-v2.md)) |
 | Yeni hikâye kareleri (daire kapısı, Rıza bahçede; isteğe bağlı çorba, restoran) | 2–4 | Bekliyor ([art-brief-v2.md](./art-brief-v2.md) 4.5) |
 | Hayat anları: çay bahçesi, bahçe düğünü, bebek | 3 | **Oyunda** (`public/assets/story/life/`) |

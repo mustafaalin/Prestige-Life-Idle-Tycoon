@@ -44,8 +44,8 @@ Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Ş
 | 2 | Working Class | 100K | 19 |
 | 3 | Middle Class (Orta Sınıf) | 1M | 19 |
 | 4 | Millionaire (Milyoner) | 10M | 20 |
-| 5 | Billionaire | 1B | 23 |
-| 6 | Multibillionaire (Multimilyarder) | 100B | 36 |
+| 5 | Billionaire | 1B | 22 |
+| 6 | Multibillionaire (Multimilyarder) | 100B | 35 |
 | 7 | Richest Person Alive | 1T | 59 |
 
 Multimilyarder, Milyarder ile En Zengin arasındaki uzun boşluğa bir hikâye anı koymak için var.
@@ -115,7 +115,7 @@ Araç, kıyafet ve lüks oyuncaklar **gider değildir**; her biri tüm gelire ka
 
 En iyi evde (kendi evin) yaşanıp tüm eşyalar alındığında statü toplamı +%217 (×3,2): ev %96, araçlar %45, kıyafetler %36, oyuncaklar %40.
 
-**Kıyafetler (karar 2026-10-11, kullanıcı):** 20 kıyafet sahnede görünmüyordu (v2 kahramanına 20 kıyafet çizmek pahalı); yerine hikâyenin 4 kıyafeti geldi, evlerle aynı model. Kahraman sahip olduğu en iyi kıyafeti giyer. Sınıf töreni o sınıfın kıyafetini bedava verir (`CLASS_OUTFIT_FLOOR`: Sokak ve Gündelikçi kapüşonlu, İşçi iş kıyafeti, Orta Sınıf ve Milyoner şık günlük, Milyarder ve üstü takım elbise); önden satın alan hemen giyer. Yeni kıyafet tören bitince ya da alınınca "Yeni kıyafetin" etiketiyle gelir. Eski kayıtlar: 20 kıyafetin en iyisi fiyatça en yakın yenisine (7. → iş kıyafeti, 11. → şık günlük, 15. → takım elbise). Simülatörde tempo değişmedi.
+**Kıyafetler (karar 2026-10-11, kullanıcı):** 20 kıyafet sahnede görünmüyordu (v2 kahramanına 20 kıyafet çizmek pahalı); yerine hikâyenin 4 kıyafeti geldi, evlerle aynı model. Kahraman sahip olduğu en iyi kıyafeti giyer; dördünün de pozları oyunda (şık günlük ve takım elbisede toplama pozu yok: yerde para varken erkenden alınırsa kahraman ayakta toplar). Sınıf töreni o sınıfın kıyafetini bedava verir (`CLASS_OUTFIT_FLOOR`: Sokak ve Gündelikçi kapüşonlu, İşçi iş kıyafeti, Orta Sınıf ve Milyoner şık günlük, Milyarder ve üstü takım elbise); önden satın alan hemen giyer. Yeni kıyafet tören bitince ya da alınınca "Yeni kıyafetin" etiketiyle gelir. Eski kayıtlar: 20 kıyafetin en iyisi fiyatça en yakın yenisine (7. → iş kıyafeti, 11. → şık günlük, 15. → takım elbise). Simülatörde tempo değişmedi.
 
 **Araçlar (karar 2026-10-11, kullanıcı):** 12 araç (bisiklet, retro skuter, emektar sedan, motosiklet, hatchback, SUV, pikap, makam sedanı, spor coupe, lüks arazi aracı, süper otomobil, grand lüks); el arabası çıktı, yeni hayat araçsız başlar. Toplam bonus aynı kaldı (15 × %3 → 12 × %3,75). Eski kayıtlar: en iyi eski aracın bonusunu karşılayan sayıda yeni araç, asla daha az.
 
@@ -217,7 +217,7 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranı
 
 ### 4.10 Hedefler (`config/quests.ts`)
 
-Egg, Inc.'in 3 görevi gibi: ana ekranın sol üstünde "Hedefler" kartı, aynı anda 3 hedef (biten öne çıkar, "Ödülü al"). İlk saat için 25 yazılı hedef (5 şişe topla → Çiçek Tezgâhı aç → işe gir → Tente → ... → Orta Sınıf ol); bitince işletmelerin sıradaki kilometre taşından üretilen hedefler gelir. Ödül `max(küçük sabit, aktif gelir × 15 sn)`, üretilenlerde 20 sn. Ödüller bilinçli küçük: 45 sn'lik ödülde bot "al → hedef biter → ödülle yine al" zincirine girip ilk saati 2 dakikada bitirdi. Sayaçlar: toplanan şişe ve sahibine verilen cüzdan (`bottles`, `finds`). Toplama bitince (Orta Sınıf) şişe hedefi tamamlanmış sayılır, yoksa yerini ömür boyu tutardı. Hedefler aynı zamanda ilk dakikaların rehberi (plan 1.12).
+Egg, Inc.'in 3 görevi gibi: ana ekranın sol üstünde "Hedefler" kartı, aynı anda 3 hedef (biten öne çıkar, "Ödülü al"). İlk saat için 25 yazılı hedef (5 şişe topla → Çiçek Tezgâhı aç → işe gir → Tente → ... → Orta Sınıf ol); bitince işletmelerin kilometre taşlarından üretilen hedefler gelir: her işletmenin hedefi, ödülü alınmamış ilk kilometre taşıdır, yani ulaşılan taş ödülü alınana kadar ekranda kalır ve öne geçer (2026-10-12; önce hedef hep bir sonraki taşı gösteriyor, tamamlanan hedef ödülü alınmadan kayboluyordu). Ödül `max(küçük sabit, aktif gelir × 15 sn)`, üretilenlerde 20 sn. Ödüller bilinçli küçük: 45 sn'lik ödülde bot "al → hedef biter → ödülle yine al" zincirine girip ilk saati 2 dakikada bitirdi. Sayaçlar: toplanan şişe ve sahibine verilen cüzdan (`bottles`, `finds`). Toplama bitince (Orta Sınıf) şişe hedefi tamamlanmış sayılır, yoksa yerini ömür boyu tutardı. Hedefler aynı zamanda ilk dakikaların rehberi (plan 1.12).
 
 **Hedef kartı (2026-10-08, kullanıcı: "bazı görevlerin ne olduğu ve nereden yapılacağı anlaşılmıyor"):** Her hedefte resim (işletme, yönetici portresi, iş, ev, araç, şişe, Şans), nerede yapıldığı ("İşletmeler", "Alışveriş › Evler"; sokaktakilerde ipucu: "Sokaktaki şişe ve kutulara dokun", "Şans bir şey getirince ona dokun") ve "Git" düğmesi var. "Git" ilgili sekmeyi (ve Alışveriş'in alt sekmesini) açar, gereken düğmeye kaydırır, düğme 5 sn parlar ve üstünde el işareti durur (`ui/home/focus.ts`, `Focusable.tsx`). Sekme açıkken üstte ince bir hedef şeridi kalır: biten hedef, "Git" denen hedef ya da o sekmede yapılabilecek hedef; ödül oradan da alınır.
 
@@ -241,9 +241,9 @@ Güncel sonuç (2026-10-12; hedefler `src/game/sim/report.ts`):
 | İşçi Sınıfı | 18–35 dk oyun | 32 dk, 1. gün 2. oturum (19 yaş) | 30 dk, 2. gün |
 | Orta Sınıf | 25–50 dk oyun | 47 dk, 1. gün 3. oturum (19 yaş) | 35 dk, 2. gün |
 | Milyoner | 35 dk – 1 sa 15 dk oyun | 54 dk, 2. gün (20 yaş) | 45 dk, 3. gün |
-| İlk milyarder | 3–7. gün | 3. gün, 1 sa 43 dk (23 yaş) | 5. gün |
-| İlk multimilyarder | 8–14. gün | 8. gün, 5 sa 6 dk (36 yaş) | 15. gün |
-| İlk "en zengin" | 14–21. gün | 17. gün, 11 sa 21 dk (59 yaş) | 34. gün (48 yaş) |
+| İlk milyarder | 3–7. gün | 3. gün, 1 sa 36 dk (22 yaş) | 5. gün |
+| İlk multimilyarder | 8–14. gün | 8. gün 08:00, 4 sa 59 dk (35 yaş; hedefin alt sınırında) | 15. gün |
+| İlk "en zengin" | 14–21. gün | 16. günün son oturumu, 11 sa 16 dk (59 yaş) | 34. gün (48 yaş) |
 | İlk ömür sonu (80 yaş) | 21–37. gün | 25. gün (16 sa 48 dk oyun) | 45 günde gelmiyor |
 
 **His kontrolleri (`checkFeel`):** Tempo hedefleri tutarken işletmeler yan gelire düşebiliyor (eski bir ayarda Gündelikçi anında işletme payı %3'tü). Simülatör şunları da bekler: her işletmenin ilk biriminin turu ≥ $1; işletmelerin gelirdeki payı (toplama hariç) Gündelikçi anında, ilk oturumun sonunda ve 1. nesil oturumlarının ortancasında ≥ %50. Şu an: tur en az $1, pay %73 / %83 / %95. `npm run sim -- --purchases --timeline` her alımı zaman çizelgesinde gösterir.

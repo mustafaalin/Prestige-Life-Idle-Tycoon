@@ -53,8 +53,11 @@ export interface ClassLook {
 
 const DIR = '/assets/scene';
 
+/** An outfit's art. Outfits from Middle Class on have no collect pose (nothing lies on the ground by then). */
+type HeroArt = Omit<HeroLook, 'collect'> & { collect?: PoseArt };
+
 /** Index = outfit (OUTFITS order). Empty = art pending, the outfit before stands in. */
-const HERO_ART: (HeroLook | null)[] = [
+const HERO_ART: (HeroArt | null)[] = [
   // Hoodie: standing up, a hand on the backpack strap, hopeful (in the tent he is cold instead, below).
   {
     idle: { src: `${DIR}/hero-street-hopeful.webp`, height: 0.41, aspect: 0.319, x: 0.4 },
@@ -66,17 +69,27 @@ const HERO_ART: (HeroLook | null)[] = [
   {
     idle: { src: `${DIR}/hero-work-idle.webp`, height: 0.42, aspect: 0.371, x: 0.4 },
     collect: { src: `${DIR}/hero-work-collect.webp`, height: 0.25, aspect: 0.611, x: 0.4 },
-    joy: { src: `${DIR}/hero-work-joy.webp`, height: 0.425, aspect: 0.353, x: 0.4 },
+    joy: { src: `${DIR}/hero-work-joy.webp`, height: 0.444, aspect: 0.353, x: 0.4 },
     pet: { src: `${DIR}/hero-work-pet-sans.webp`, height: 0.25, aspect: 0.839, x: 0.47, flip: true },
   },
-  // Smart casual: art pending.
-  null,
-  // Suit: art pending.
-  null,
+  // Smart casual: relaxed, a hand in his pocket. A raised fist adds to a joy picture's height; the body
+  // stays the idle's size.
+  {
+    idle: { src: `${DIR}/hero-smart-idle.webp`, height: 0.42, aspect: 0.307, x: 0.4 },
+    joy: { src: `${DIR}/hero-smart-joy.webp`, height: 0.451, aspect: 0.328, x: 0.4 },
+    pet: { src: `${DIR}/hero-smart-pet-sans.webp`, height: 0.225, aspect: 1.046, x: 0.49, flip: true },
+  },
+  // Suit: sure of himself, buttoning his jacket.
+  {
+    idle: { src: `${DIR}/hero-suit-idle.webp`, height: 0.42, aspect: 0.328, x: 0.4 },
+    joy: { src: `${DIR}/hero-suit-joy.webp`, height: 0.444, aspect: 0.367, x: 0.4 },
+    pet: { src: `${DIR}/hero-suit-pet-sans.webp`, height: 0.222, aspect: 1.076, x: 0.49, flip: true },
+  },
 ];
 
 const HERO_LOOKS: HeroLook[] = HERO_ART.reduce<HeroLook[]>((looks, art, index) => {
-  looks.push(art ?? looks[index - 1]);
+  // Bought early, such an outfit can still meet coins on the ground: the hero collects standing.
+  looks.push(art ? { ...art, collect: art.collect ?? art.idle } : looks[index - 1]);
   return looks;
 }, []);
 
@@ -116,12 +129,18 @@ const LOOK_ART: Partial<ClassLook>[] = [
       { src: `${DIR}/coin-bill.webp`, width: 0.13 },
     ],
   },
-  // 3 Middle Class: nothing to collect from here on (COLLECT_END_CLASS). Şans gets a leather collar, art pending.
-  {},
+  // 3 Middle Class: nothing to collect from here on (COLLECT_END_CLASS). Şans gets a leather collar.
+  {
+    sans: { src: `${DIR}/sans-sit-leather.webp`, x: 0.66, y: 0.748, height: 0.15, aspect: 0.645 },
+    find: { src: `${DIR}/sans-wallet-leather.webp`, x: 0.72, y: 0.752, height: 0.15, aspect: 0.907 },
+  },
   // 4 Millionaire.
   {},
-  // 5 Billionaire (and up for now): Şans' gold collar. Art pending.
-  {},
+  // 5 Billionaire and up: a gold collar, and a dog at ease (he sits relaxed and trots in with his find).
+  {
+    sans: { src: `${DIR}/sans-sit-gold.webp`, x: 0.66, y: 0.748, height: 0.151, aspect: 0.631 },
+    find: { src: `${DIR}/sans-wallet-gold.webp`, x: 0.72, y: 0.752, height: 0.148, aspect: 0.883 },
+  },
 ];
 
 const LOOKS: ClassLook[] = LOOK_ART.reduce<ClassLook[]>((looks, art, index) => {

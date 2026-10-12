@@ -42,7 +42,7 @@ Yaşlar `npm run sim` sonucundan alındı.
 | Araç | Tek araç, gövde en az 1200 px genişlikte | Düz açık gri (#d9d9d9) | **Önden dörtte üç, önü sağa** (sahne aynalamaz), ön yüz tam görünür; kamera 1,6 m göz hizasında, uzun objektif (çapa `art/pilot/09-vehicles/vehicle-4.png`). Sahnede gerçek boyunda durur; araba şeridi 2,75 m olduğu için **kesilmiş görselin genişliği en çok 2,75 m ÷ aracın yüksekliği kadar olabilir** (araç başına sınır: [art-prompts-v2.md §2](./art-prompts-v2.md)); daha yandan çizilen araba küçültülür. Uzun arabalar biraz daha önden çizilir. Anten ve tavan yükü yok (boyu şişirir). Araç kadraja tam sığar; yakın taraftaki tekerlekler kesilmez. İnsan, plaka, logo, marka yok. |
 | Kahraman pozu | Tek karakter, ayakta boy en az 1500 px | Düz açık gri (#d9d9d9) | Arka planı sonra silinir. Ayaklar görünür, kesilmez. Kamera göz hizasında, hafif yandan (mevcut sokak pozları gibi). |
 | Toplanacaklar | Tek sayfada 3 nesne, aralarında boşluk | Düz açık gri | Her biri tek başına okunabilir, yukarıdan hafif açıyla. |
-| Şans | Tek köpek | Düz açık gri | Mevcut `sans-sit-cut.png` ve `sans-wallet-cut.png` ile aynı poz ve ölçek, sadece tasma değişir. |
+| Şans | Tek köpek | Düz açık gri | Mevcut `sans-sit-cut.png` ve `sans-wallet-cut.png` ile aynı ölçek; deri tasmada duruş aynı, altın tasmada ayrı (§4.3). |
 | Karakter kılavuzu | Yatay sayfa (mevcut `mom-sheet.png` gibi) | Düz açık gri | Önden tam boy + 4 ifade portresi (yakın plan, omuzdan yukarı). Portreler oyunda yuvarlak kesilir. |
 | Hikâye karesi | 9:16 dikey, en az 1536×2752 | Dolu | Alt %35'e konuşma balonu biner; yüzler ve önemli nesneler üst %65'te. |
 
@@ -54,7 +54,7 @@ Yaşlar `npm run sim` sonucundan alındı.
 
 ### 4.1 Kahraman kıyafetleri (A)
 
-Her kıyafet için önce bir kıyafet kılavuzu üretilir (önden ve yandan tam boy), onaylanınca pozlar o kılavuzla üretilir. Kıyafet 2 oyunda; 3 ve 4 bekliyor. Böylece kıyafet pozlar arasında değişmez.
+Her kıyafet için önce bir kıyafet kılavuzu üretilir (önden ve yandan tam boy), onaylanınca pozlar o kılavuzla üretilir. Dört kıyafetin pozları da oyunda (2026-10-12). Böylece kıyafet pozlar arasında değişmez.
 
 | Kıyafet | Kılavuz dosyası | Tasarım |
 | --- | --- | --- |
@@ -107,8 +107,8 @@ Not: annenin evleri (eski aile evi, konak) ayrı; mağazada yok, törenlerde hik
 | Dosya | İçerik |
 | --- | --- |
 | `art/pilot/05-scene/items-coins.png` (A, oyunda) | Üç nesne: tek parlak bozuk para, küçük bozuk para yığını, birkaç madeni para ve buruşuk tek banknot. |
-| `art/pilot/05-scene/sans-sit-leather.png` + `sans-wallet-leather.png` (B) | Şans oturuyor / ağzında cüzdanla; kahverengi deri tasma. |
-| `art/pilot/05-scene/sans-sit-gold.png` + `sans-wallet-gold.png` (B) | Aynısı, altın tasma. |
+| `art/pilot/05-scene/sans-sit-leather.png` + `sans-wallet-leather.png` (B, oyunda) | Şans oturuyor / ağzında cüzdanla; kahverengi deri tasma, ipli olanla aynı duruş. Orta Sınıf'tan itibaren. |
+| `art/pilot/05-scene/sans-sit-gold.png` + `sans-wallet-gold.png` (B, oyunda) | Altın tasma, ayrı duruş: rahat oturmuş, ağzı hafif açık ve mutlu; cüzdanı kuyruğu yukarıda, neşeli bir adımla getiriyor. Milyarder'den itibaren. |
 
 Şans için referans: `sans-sheet.png` + mevcut `sans-sit-cut.png` / `sans-wallet-cut.png`. Komut: *"The SAME dog as the reference, same pose, same scale; only change the collar to {a brown leather collar / a gold collar}. Real four-legged dog, quadruped, NOT anthropomorphic."*
 
@@ -144,13 +144,11 @@ Referanslar: sahnenin yeri (ilgili arka plan ya da önsöz karesi) + kahraman k�
 
 | Öncelik | Görseller | Adet |
 | --- | --- | --- |
-| A | Kıyafet 3 ve 4: 2 kılavuz + 6 poz (§4.1; komutlar [art-prompts-v2.md §4](./art-prompts-v2.md)) | 8 |
-| A | Hikâye kareleri H1–H3 (§4.5; H2 ve H3 kıyafet 3'ten sonra) | 3 |
-| B | Şans'ın deri ve altın tasması (§4.3) | 4 |
+| A | Hikâye kareleri H1–H3 (§4.5; H2 ve H3 kıyafet 3 kılavuzuyla: `outfit-3-sheet.png`) | 3 |
 | B | Hikâye kareleri H4–H6 (§4.5) | 3 |
 
 GPT'nin aracı ~1,57 MP veriyor: arka plan 941×1672 (1080 genişliğe büyütülüyor, telefonda kabul edilebilir), pozlar 1000 px yüksekliğe yetiyor.
 
 ## 6. Oyuna bağlama (Claude)
 
-Görsel `art/pilot/...` altına konunca: arka planı silinir (`scripts/cutout.sh`; kol ile gövde arasındaki kapalı gri boşluklar ayrıca silinir, ilk sette bu adım elle yapıldı) (karakterler ve nesneler), webp'ye çevrilir (`public/assets/scene/`, `public/assets/story/`), `stages.ts`'te o sınıfın satırı doldurulur (ev arka planı ise `config/housing.ts`'te evin `image`'ı, gerekirse `stages.ts` `HOME_ART`'ta yerleşim; araç `scripts/cutout-vehicle.sh` ile `public/assets/vehicles/v2/` ve `VEHICLE_SHAPE`), konum ve boy telefonda ayarlanır. Bir aşamanın görseli eksikken o aşama bir öncekinin görsellerini kullanır, oyun bozulmaz. Portreler karakter kılavuzlarından kesilir (`public/assets/story/portraits/`).
+Görsel `art/pilot/...` altına konunca: arka planı silinir (`scripts/cutout.sh`; beyaz ayakkabılı ya da açık renkli görselde betiğin %7 toleransı ve alt şerit kuralı ayakkabıyı da siler, kıyafet 3'te %3 toleransla ve şeritsiz kesildi; kol ile gövde arasındaki kapalı gri boşluklar ayrıca silinir, ilk sette bu adım elle yapıldı) (karakterler ve nesneler), webp'ye çevrilir (`public/assets/scene/`, `public/assets/story/`), `stages.ts`'te o sınıfın satırı doldurulur (ev arka planı ise `config/housing.ts`'te evin `image`'ı, gerekirse `stages.ts` `HOME_ART`'ta yerleşim; araç `scripts/cutout-vehicle.sh` ile `public/assets/vehicles/v2/` ve `VEHICLE_SHAPE`), konum ve boy telefonda ayarlanır. Bir aşamanın görseli eksikken o aşama bir öncekinin görsellerini kullanır, oyun bozulmaz. Portreler karakter kılavuzlarından kesilir (`public/assets/story/portraits/`).

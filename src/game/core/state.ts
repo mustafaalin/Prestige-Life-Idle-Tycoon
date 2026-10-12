@@ -1,13 +1,13 @@
 import { BUSINESSES } from './config/businesses';
 import { CAREERS } from './config/careers';
-import { STARTING_CASH } from './config/economy';
+import { PROFIT_MILESTONES, STARTING_CASH } from './config/economy';
 import { CLASS_HOME_FLOOR, FIRST_OWNED_HOME, HOUSES, STARTING_HOME_ID } from './config/housing';
 import { LIFE_SECONDS } from './config/life';
 import { CLASS_OUTFIT_FLOOR, LIFESTYLE_ITEMS, OUTFITS, STARTING_LIFESTYLE_IDS, VEHICLES } from './config/lifestyle';
 import { ACTIVE_QUESTS, GENERATED_QUEST_SECONDS, QUESTS } from './config/quests';
 import { COLLECT_END_CLASS } from './config/scene';
 import { UPGRADES } from './config/upgrades';
-import { classIndexFor, costForUnits, isLifeOver, nextMilestone, pendingLegacyPoints, questReward } from './formulas';
+import { classIndexFor, costForUnits, isLifeOver, pendingLegacyPoints, questReward } from './formulas';
 import type { BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind, QuestDef, QuestGoal, UpgradeDef } from './types';
 
 // Pure state transitions. Every action returns a new state, or null when it is not allowed.
@@ -338,9 +338,15 @@ export function isQuestComplete(state: GameStateV2, quest: QuestDef) {
   return current >= target;
 }
 
+/** Unit goals the written list already pays for (`businessId:count`); no generated goal repeats them. */
+const WRITTEN_UNIT_GOALS = new Set(
+  QUESTS.flatMap((quest) => (quest.goal.type === 'units' ? [`${quest.goal.businessId}:${quest.goal.count}`] : [])),
+);
+
 /**
  * Goals on screen: the next written ones, then generated "take a business to its next milestone"
- * goals so there is always something to aim for.
+ * goals so there is always something to aim for. A business's goal is its first milestone not
+ * claimed yet, so a reached milestone stays up (and comes first) until its reward is collected.
  */
 export function activeQuests(state: GameStateV2): QuestDef[] {
   const list = QUESTS.filter((quest) => !state.questsDone.includes(quest.id)).slice(0, ACTIVE_QUESTS);
@@ -348,10 +354,12 @@ export function activeQuests(state: GameStateV2): QuestDef[] {
   const generated: { quest: QuestDef; cost: number }[] = [];
   for (const def of BUSINESSES) {
     const { owned } = state.businesses[def.id];
-    const target = owned > 0 ? nextMilestone(owned) : null;
-    if (target === null) continue;
+    if (owned <= 0) continue;
+    const target = PROFIT_MILESTONES.find(
+      (count) => !state.questsDone.includes(`units:${def.id}:${count}`) && !WRITTEN_UNIT_GOALS.has(`${def.id}:${count}`),
+    );
+    if (target === undefined) continue;
     const id = `units:${def.id}:${target}`;
-    if (state.questsDone.includes(id) || list.some((quest) => quest.id === id)) continue;
     generated.push({
       quest: {
         id,
@@ -359,7 +367,7 @@ export function activeQuests(state: GameStateV2): QuestDef[] {
         rewardSeconds: GENERATED_QUEST_SECONDS,
         rewardMin: 0,
       },
-      cost: costForUnits(def, owned, target - owned),
+      cost: target > owned ? costForUnits(def, owned, target - owned) : 0,
     });
   }
   generated.sort((a, b) => a.cost - b.cost);

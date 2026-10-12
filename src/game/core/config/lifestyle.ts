@@ -54,8 +54,8 @@ const OUTFIT_SPECS: { id: string; name: string; image: string; cost: number }[] 
   { id: 'outfit-hoodie', name: 'Hoodie', image: '/assets/scene/hero-street-idle.webp', cost: 0 },
   { id: 'outfit-work', name: 'Work Clothes', image: '/assets/scene/hero-work-idle.webp', cost: 6_000 },
   // v1 pictures stand in until the new art comes.
-  { id: 'outfit-smart', name: 'Smart Casual', image: '/assets/outfits/ch-8-1.png', cost: 200_000 },
-  { id: 'outfit-suit', name: 'Suit', image: '/assets/outfits/ch-16-1.png', cost: 1.5e7 },
+  { id: 'outfit-smart', name: 'Smart Casual', image: '/assets/scene/hero-smart-idle.webp', cost: 200_000 },
+  { id: 'outfit-suit', name: 'Suit', image: '/assets/scene/hero-suit-idle.webp', cost: 1.5e7 },
 ];
 
 /** Status bonus of each outfit after the free hoodie. */
