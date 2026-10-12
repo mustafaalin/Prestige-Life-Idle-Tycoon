@@ -1,33 +1,33 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
 // The game look for screens inside sheets (2026-10-08): glossy buttons, white cards with a soft
 // colored edge, rounded display font. One place, so every tab reads the same.
 
-type Tone = 'buy' | 'manager' | 'gold' | 'soft';
+type Tone = 'buy' | 'manager' | 'gold' | 'soft' | 'ad';
 
 const TONES: Record<Tone, string> = {
   buy: 'from-emerald-400 to-green-600 text-white',
   manager: 'from-violet-400 to-indigo-600 text-white',
   gold: 'from-amber-300 to-orange-500 text-white',
   soft: 'from-white to-indigo-50 text-indigo-700',
+  // "Watch an ad" buttons, everywhere.
+  ad: 'from-orange-400 to-orange-600 text-white',
 };
 
-export function GameButton({
-  tone = 'buy',
-  className = '',
-  children,
-  ...rest
-}: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Tone }) {
-  return (
-    <button
-      type="button"
-      {...rest}
-      className={`rounded-2xl border-2 ${tone === 'soft' ? 'border-indigo-100' : 'border-white/70'} bg-gradient-to-b ${TONES[tone]} v2-glossy transition-all active:scale-[0.97] disabled:opacity-50 disabled:active:scale-100 ${className}`}
-    >
-      {children}
-    </button>
-  );
-}
+export const GameButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Tone }>(
+  function GameButton({ tone = 'buy', className = '', children, ...rest }, ref) {
+    return (
+      <button
+        ref={ref}
+        type="button"
+        {...rest}
+        className={`rounded-2xl border-2 ${tone === 'soft' ? 'border-indigo-100' : 'border-white/70'} bg-gradient-to-b ${TONES[tone]} v2-glossy transition-all active:scale-[0.97] disabled:opacity-50 disabled:active:scale-100 ${className}`}
+      >
+        {children}
+      </button>
+    );
+  },
+);
 
 /** A white card. `accent` marks the one big next step on a screen. */
 export function Panel({

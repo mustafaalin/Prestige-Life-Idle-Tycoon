@@ -15,6 +15,7 @@ import {
   nextMilestone,
   offlineEarnings,
   pendingLegacyPoints,
+  autoIncomePerSecond,
   canCollect,
   eventAverageReward,
   eventCardsFor,
@@ -23,6 +24,15 @@ import {
   steadyIncomePerSecond,
   tapValue,
 } from '../core/formulas';
+import {
+  AD_OFFLINE_MIN_SECONDS,
+  AD_FIND_MULTIPLIER,
+  AD_OFFLINE_MULTIPLIER,
+  BOOST_FACTOR,
+  BOOST_MAX_SECONDS,
+  BOOST_SECONDS,
+  HELP_INCOME_SECONDS,
+} from '../core/config/ads';
 import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
 import { COLLECT_SPAWN_SECONDS, FETCH_MAX_SECONDS, FETCH_MIN_SECONDS } from '../core/config/scene';
 import { HOUSES } from '../core/config/housing';
@@ -71,6 +81,18 @@ export interface PlayerProfile {
   fetchCatchRate: number;
   /** Share of the event cards the player answers (a call waits, but a session may end first). */
   eventAnswerRate: number;
+  /**
+   * Rewarded ads this player watches (config/ads.ts; left out: none). Offers start as in the game:
+   * after a manager is hired and the player has come back once.
+   */
+  ads?: {
+    /** Income boosts a day, one at the start of a session. */
+    boostsPerDay: number;
+    /** "A little help" ads a day, one a session. */
+    helpsPerDay: number;
+    /** Doubles offline earnings and Şans's finds. */
+    doubles: boolean;
+  };
 }
 
 /** On average Şans brings a find this often while the game is open. */
@@ -104,6 +126,11 @@ export interface SimEvent {
   income: number;
   /** Share of that income coming from businesses (the rest is salary and rent). */
   businessShare: number;
+  /** Income per second that keeps coming while away (managers, salary, rent), before the offline rate. */
+  idleIncome: number;
+  /** Money earned so far while playing and while away (offline earnings), since install. */
+  earnedPlaying: number;
+  earnedOffline: number;
 }
 
 export interface SimResult {
@@ -223,10 +250,17 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       ...time,
       income: incomePerSecond(state, 'active'),
       businessShare: businessShare(state),
+      idleIncome: incomePerSecond(state, 'idle'),
+      earnedPlaying: earned.playing,
+      earnedOffline: earned.offline,
     });
   };
 
-  const earnTracked = (amount: number) => {
+  /** Where the money came from: play time or time away. */
+  const earned = { playing: 0, offline: 0 };
+
+  const earnTracked = (amount: number, source: keyof typeof earned = 'playing') => {
+    earned[source] += amount;
     const before = state.classIndex;
     state = earn(state, amount);
     for (let index = before + 1; index <= state.classIndex; index += 1) {
@@ -234,13 +268,45 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     }
   };
 
+  // ── Rewarded ads (runtime/adRewards.ts rules, with the simulator's own clock) ──
+  const ads = profile.ads;
+  const watched = { returned: false, boostUntil: 0, day: 0, boosts: 0, helps: 0 };
+  const adsOpen = () =>
+    ads !== undefined && watched.returned && Object.values(state.businesses).some((business) => business.managed);
+  const boost = () => (time.clock < watched.boostUntil ? BOOST_FACTOR : 1);
+  const doubles = () => adsOpen() && ads?.doubles === true;
+
+  /** Coming back: offline earnings (the boost keeps running while away), then this session's ads. */
+  const comeBack = (start: number, day: number) => {
+    const away = start - time.clock;
+    if (away > 0) {
+      const boostedShare = Math.min(Math.max(watched.boostUntil - time.clock, 0), away) / away;
+      let amount = offlineEarnings(state, away, options.offlineCapHours) * (1 + (BOOST_FACTOR - 1) * boostedShare);
+      if (away >= AD_OFFLINE_MIN_SECONDS && doubles()) amount *= AD_OFFLINE_MULTIPLIER;
+      time.clock = start;
+      earnTracked(amount, 'offline');
+      if (amount > 0) watched.returned = true;
+    }
+    if (day !== watched.day) Object.assign(watched, { day, boosts: 0, helps: 0 });
+    if (!ads || !adsOpen()) return;
+    const left = Math.max(0, watched.boostUntil - time.clock);
+    if (watched.boosts < ads.boostsPerDay && left + BOOST_SECONDS <= BOOST_MAX_SECONDS) {
+      watched.boostUntil = time.clock + left + BOOST_SECONDS;
+      watched.boosts += 1;
+    }
+    if (watched.helps < ads.helpsPerDay) {
+      earnTracked(autoIncomePerSecond(state) * HELP_INCOME_SECONDS);
+      watched.helps += 1;
+    }
+  };
+
   /** Bottles a second: none once the ground is empty (Middle Class on). */
   const tapRate = () => (canCollect(state) ? profile.tapsPerSecond(time.activeGeneration) : 0);
 
   const activeRate = () =>
-    incomePerSecond(state, 'active') +
+    incomePerSecond(state, 'active') * boost() +
     tapRate() * tapValue(state) +
-    (profile.fetchCatchRate * fetchReward(state)) / FETCH_AVERAGE_SECONDS +
+    (profile.fetchCatchRate * fetchReward(state) * (doubles() ? AD_FIND_MULTIPLIER : 1)) / FETCH_AVERAGE_SECONDS +
     (eventCardsFor(state).length > 0 ? (profile.eventAnswerRate * eventAverageReward(state)) / EVENT_AVERAGE_SECONDS : 0);
 
   const playFor = (seconds: number) => {
@@ -335,12 +401,8 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
   for (let day = 1; day <= days; day += 1) {
     for (const session of profile.sessionsForDay(day)) {
       const start = (day - 1) * 86400 + session.startHour * 3600;
-      if (start > time.clock) {
-        // Offline earnings arrive when the player returns, so milestones they cause belong to this session.
-        const amount = offlineEarnings(state, start - time.clock, options.offlineCapHours);
-        time.clock = start;
-        earnTracked(amount);
-      }
+      // Offline earnings arrive when the player returns, so milestones they cause belong to this session.
+      comeBack(start, day);
       playSession(session.minutes * 60);
       log('session', sessionSummary(state));
     }
@@ -388,7 +450,19 @@ export const CASUAL_PLAYER: PlayerProfile = {
   eventAnswerRate: 0.7,
 };
 
-export const PROFILES = [ENGAGED_PLAYER, CASUAL_PLAYER];
+/**
+ * The engaged player who also watches ads: a boost at the first three sessions of the day, doubled
+ * offline earnings and finds, a little help twice a day. Shown for comparison (monetization-v2 §2.1:
+ * ads should bring the classes some 20–30% sooner, not halve the game); the targets stay the
+ * ad-free engaged player's.
+ */
+export const AD_WATCHER: PlayerProfile = {
+  ...ENGAGED_PLAYER,
+  name: 'engaged + ads',
+  ads: { boostsPerDay: 3, helpsPerDay: 2, doubles: true },
+};
+
+export const PROFILES = [ENGAGED_PLAYER, CASUAL_PLAYER, AD_WATCHER];
 
 /** Share of active income (bottles excluded) that comes from businesses rather than salary and rent. */
 export function businessShare(state: GameStateV2) {

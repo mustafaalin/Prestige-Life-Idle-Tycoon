@@ -154,7 +154,8 @@ En iyi evde (kendi evin) yaşanıp tüm eşyalar alındığında statü toplamı
 
 - Sadece yöneticili işletmeler, maaş ve kira çevrimdışı üretir
 - Oran %50. **Tavan sınıfla büyür (karar 2026-10-08):** Sokakta 10 dk, Gündelikçi 15 dk, İşçi 30 dk, Orta Sınıf 1 sa, Milyoner ve üstü 2 sa (`OFFLINE_CAP_HOURS_BY_CLASS`). Neden: sabit 2 saatte 3 dk oynayıp 1 sa uzak kalan oyuncu elindeki paranın yüzlerce katını buluyordu. Örnek: Egg, Inc. siloları (çevrimdışı süre bir ilerleme sistemi). Karşılama kartında tavan yazar.
-- Reklamla ×2; "Gece Vardiyası Ekibi" IAP'ı oranı %100'e çıkarır ve tavanı +2 saat uzatır ([monetization-v2.md](./monetization-v2.md); ikisi de henüz bağlı değil). Kullanıcı erken oyunda çevrimdışı ödülü hâlâ fazla buluyor; ekonomi ayarında tekrar ele alınacak (discussion-notes §5)
+- **Çevrimdışı kazanç oyunun asıl geliri (ölçüm 2026-10-13):** Milyoner'den sonra dolu bir kart 60 dakikalık oyun değerinde, oturum ise ~7 dakika; simülatörde ilk hayatta kazanılan paranın %87'si bu kartlardan geliyor (gündelik oyuncuda %91). Oranı ve tavanı değiştirmek bu payı pek oynatmıyor (%78–91), tempoyu oynatıyor; denenen seçenekler discussion-notes §5.
+- Reklamla +%30 (oyunda: en az 10 dk uzak kalınca, ilk dönüşten sonra; ×2 oyunu yarıya indirdiği için +%30, karar 2026-10-13); "Gece Vardiyası Ekibi" IAP'ı oranı %100'e çıkarır ve tavanı +2 saat uzatır (bekliyor). Reklam yerlerinin hepsi: [monetization-v2.md §4](./monetization-v2.md). Kullanıcı erken oyunda çevrimdışı ödülü hâlâ fazla buluyor; ekonomi ayarında tekrar ele alınacak (discussion-notes §5)
 
 ### 4.7 Sahnede kazanç: toplama, Şans'ın bulduğu, olay kartları
 
@@ -227,6 +228,7 @@ Egg, Inc.'in 3 görevi gibi: ana ekranın sol üstünde "Hedefler" kartı, aynı
 
 - **Engaged:** 1. gün 30 + 10 + 7 dk, sonraki günler 6 × 7 dk. GameAnalytics'teki ilk %10 idle oyuncuya yakın. Hedefler bu profile göre kontrol edilir.
 - **Casual:** 1. gün 20 + 5 dk, sonraki günler 3 × 5 dk. Yalnızca bilgi için.
+- **Engaged + ads:** engaged oyuncu, ayrıca reklam izler (günde 3 hızlandırıcı, çevrimdışı +%30, Şans ×2, günde 2 yardım). Yalnızca bilgi için; En Zengin'e reklamsızdan ~%33 erken ulaşıyor ([monetization-v2.md §4](./monetization-v2.md)). Hedefler reklamsız oyuncuya göre kalır.
 
 Bot her an en kısa sürede kendini ödeyen alımı yapar, yani optimal oynar. Gerçek oyuncuların ~1,3–1,8 kat yavaş olduğu tahmin, ölçülmüş değil. Bot yöneticisiz işletmeleri %60 verimle çalıştırıyor sayar; gerçek oyunda sadece başlatılan döngü ödenir (sınırlar: discussion-notes §6). Toplama, Şans'ın bulduğu ve olay kartları simülatörde modelli (§4.7).
 

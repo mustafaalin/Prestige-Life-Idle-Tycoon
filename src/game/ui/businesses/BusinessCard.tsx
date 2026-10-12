@@ -7,6 +7,7 @@ import type { BusinessDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
 import { upgradeNameKey } from '../home/questText';
 import { RewardCard } from '../home/RewardCard';
@@ -249,6 +250,7 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
           </Focusable>
         )}
       </div>
+      {owned > 0 && !managed && <HelpAd cost={def.managerCost} />}
 
       {hired && (
         <RewardCard

@@ -3,6 +3,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { autoIncomePerSecond, classProgress, heroAge } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
+import { boostFactor } from '../../runtime/adRewards';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { heldBalance, onHeldBalance, onWalletHit } from './coins';
 
@@ -10,8 +11,10 @@ import { heldBalance, onHeldBalance, onWalletHit } from './coins';
 // age and progress to the next class.
 
 export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
-  const { game } = useGameV2();
+  const { game, state } = useGameV2();
   const { t, name, money, perMonth } = useT();
+  // A watched ad's income boost shows in the income line.
+  const boost = boostFactor(state.ads, Date.now());
   // Each arriving coin bumps the wallet (the key restarts the animation).
   const [bump, setBump] = useState(0);
   useEffect(() => onWalletHit(() => setBump((count) => count + 1)), []);
@@ -39,8 +42,11 @@ export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
               <p className="v2-display v2-outline text-[26px] leading-none text-white tabular-nums truncate">
                 {money(Math.max(0, game.cash - held))}
               </p>
-              <p className="v2-display text-[12px] leading-tight text-emerald-300 v2-shadow tabular-nums truncate">
-                +{perMonth(autoIncomePerSecond(game))}
+              <p
+                className={`v2-display text-[12px] leading-tight v2-shadow tabular-nums truncate ${boost > 1 ? 'text-amber-300' : 'text-emerald-300'}`}
+              >
+                +{perMonth(autoIncomePerSecond(game) * boost)}
+                {boost > 1 && ` ×${boost}`}
               </p>
             </div>
           </div>

@@ -7,6 +7,7 @@ import type { GameStateV2, LifestyleKind } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
 import { useFocus, type ShopTabId } from '../home/focus';
 import { Chip, GameButton, Panel, Segmented, SectionLabel } from '../kit';
@@ -121,6 +122,7 @@ function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: (
                 {t('common.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}
               </p>
             )}
+            {!neededHome && <HelpAd cost={next.cost} />}
             {neededHome && (
               <GameButton
                 tone="soft"

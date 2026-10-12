@@ -25,6 +25,7 @@ import {
   live,
 } from '../core/state';
 import type { GameStateV2 } from '../core/types';
+import { boostFactor, boostShare, createAdProgress, type AdProgress } from './adRewards';
 import { createStoryProgress, type StoryProgress } from './story';
 
 // Runtime layer on top of the economy core: real-time production cycles, taps and offline time.
@@ -52,6 +53,8 @@ export interface RuntimeState {
   lastActiveAt: number;
   /** Ceremonies seen and Mom's messages (story-v2.md §4). */
   story: StoryProgress;
+  /** The income boost and the day's ad counters (monetization-v2.md §4). */
+  ads: AdProgress;
 }
 
 export interface Payout {
@@ -73,7 +76,14 @@ export function emptyCycles(): Record<string, CycleState> {
 }
 
 export function createRuntimeState(now: number, game: GameStateV2 = createInitialState()): RuntimeState {
-  return { game, cycles: emptyCycles(), offline: null, lastActiveAt: now, story: createStoryProgress() };
+  return {
+    game,
+    cycles: emptyCycles(),
+    offline: null,
+    lastActiveAt: now,
+    story: createStoryProgress(),
+    ads: createAdProgress(),
+  };
 }
 
 /** Runs production cycles for `seconds`. Offline time skips managed lines; their income comes from offlineEarnings. */
@@ -118,10 +128,12 @@ export function tick(state: RuntimeState, now: number, speed = 1): { state: Runt
   const seconds = elapsed * speed;
   const { cycles, payouts, earned } = advanceCycles(state, seconds, true);
   const steady = steadyIncomePerSecond(state.game) * globalMultiplier(state.game) * seconds;
+  // A watched ad's income boost multiplies everything the game earns by itself.
+  const boost = boostFactor(state.ads, now);
   return {
     // Only open-app time ages the hero; resume() (time away) never does.
-    state: { ...state, game: live(earn(state.game, earned + steady), seconds), cycles, lastActiveAt: now },
-    payouts,
+    state: { ...state, game: live(earn(state.game, (earned + steady) * boost), seconds), cycles, lastActiveAt: now },
+    payouts: boost === 1 ? payouts : payouts.map((payout) => ({ ...payout, amount: payout.amount * boost })),
   };
 }
 
@@ -134,7 +146,9 @@ export function resume(state: RuntimeState, now: number): { state: RuntimeState;
   if (away <= 0) return { state: { ...state, lastActiveAt: now }, payouts: [] };
 
   const { cycles, payouts, earned } = advanceCycles(state, away, false);
-  const offlineAmount = offlineEarnings(state.game, away);
+  // The income boost runs in real time: the part of the absence it covers earns double.
+  const boosted = 1 + (boostFactor(state.ads, state.lastActiveAt) - 1) * boostShare(state.ads, state.lastActiveAt, now);
+  const offlineAmount = offlineEarnings(state.game, away) * boosted;
   const base = { ...state, game: earn(state.game, earned), cycles, lastActiveAt: now };
 
   if (away < OFFLINE_MIN_SECONDS || offlineAmount <= 0) {
@@ -171,9 +185,9 @@ export function answerEvent(state: RuntimeState, outcome: EventOutcome, now: num
   };
 }
 
-/** The player caught what Şans brought (the scene decides when he brings something). */
-export function claimFind(state: RuntimeState): RuntimeState {
-  const game = earn(state.game, fetchReward(state.game));
+/** The player caught what Şans brought (the scene decides when he brings something); `multiplier` is 2 after a rewarded ad. */
+export function claimFind(state: RuntimeState, multiplier = 1): RuntimeState {
+  const game = earn(state.game, fetchReward(state.game) * multiplier);
   return { ...state, game: { ...game, finds: game.finds + 1 } };
 }
 
@@ -236,5 +250,10 @@ export function retire(state: RuntimeState): RuntimeState | null {
 /** Collects pending offline earnings; `multiplier` is 2 after a rewarded ad. */
 export function claimOffline(state: RuntimeState, multiplier = 1): RuntimeState | null {
   if (!state.offline) return null;
-  return { ...state, game: earn(state.game, state.offline.amount * multiplier), offline: null };
+  return {
+    ...state,
+    game: earn(state.game, state.offline.amount * multiplier),
+    offline: null,
+    ads: { ...state.ads, returned: true },
+  };
 }

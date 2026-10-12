@@ -8,6 +8,7 @@ import {
   FETCH_MIN_SECONDS,
   FETCH_WINDOW_SECONDS,
 } from '../../core/config/scene';
+import { AD_FIND_MULTIPLIER } from '../../core/config/ads';
 import { HOUSES } from '../../core/config/housing';
 import { OUTFITS, VEHICLES } from '../../core/config/lifestyle';
 import { fetchReward, tapValue } from '../../core/formulas';
@@ -17,6 +18,7 @@ import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { pendingCeremony, sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { useAdsUnlocked } from '../ads/useAdsUnlocked';
 import { useGuideTarget } from '../guide/guideSteps';
 import { burstCoins } from '../home/coins';
 import { PointingHand } from '../home/Focusable';
@@ -310,6 +312,7 @@ export function Scene() {
 
   // Tapping Şans with the wallet shows what it's worth; the money comes when the card is collected.
   const [findOffer, setFindOffer] = useState<number | null>(null);
+  const adsOpen = useAdsUnlocked();
 
   const openFind = (event: MouseEvent) => {
     event.stopPropagation();
@@ -318,13 +321,13 @@ export function Scene() {
     setFindOffer(fetchReward(game));
   };
 
-  const collectFind = (from: { x: number; y: number }) => {
-    actions.claimFind();
+  const collectFind = (from: { x: number; y: number }, multiplier = 1) => {
+    actions.claimFind(multiplier);
     playSfx('levelUp');
     haptic('medium');
     flashPose('joy', 1800);
     setFindOffer(null);
-    burstCoins({ ...from, count: 12 });
+    burstCoins({ ...from, count: multiplier > 1 ? 18 : 12 });
   };
 
   // A bottle near the middle (on screen also on wide phones) and not down by the menu, where the hand
@@ -506,6 +509,15 @@ export function Scene() {
           body={t('scene.findBody')}
           amount={`+${money(findOffer)}`}
           onCollect={collectFind}
+          ad={
+            adsOpen
+              ? {
+                  placement: 'find_x2',
+                  label: t('ads.double', { amount: money(findOffer * AD_FIND_MULTIPLIER), factor: AD_FIND_MULTIPLIER }),
+                  onReward: (from) => collectFind(from, AD_FIND_MULTIPLIER),
+                }
+              : undefined
+          }
         />
       )}
     </div>

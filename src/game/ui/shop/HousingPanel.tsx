@@ -13,6 +13,7 @@ import {
 import type { HouseDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
 import { Chip, GameButton, Panel, SectionLabel } from '../kit';
 import { Thumb } from './Thumb';
@@ -133,6 +134,7 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
                 </GameButton>
               )}
             </Focusable>
+            {!nextOwned && !neededVehicle && <HelpAd cost={next.moveInCost} className="-mt-1" />}
             {nextPrice !== null && (
               <GameButton
                 tone="soft"

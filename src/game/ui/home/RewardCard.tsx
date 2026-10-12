@@ -1,10 +1,13 @@
 import { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useT } from '../../i18n/useT';
+import type { AdPlacement } from '../../runtime/ads';
 import { useBackButton } from '../../runtime/backButton';
+import { AdButton } from '../ads/AdButton';
 
 // A moment the player confirms with one tap: a reward (Şans's find, offline earnings; the amount is
-// large enough to read, then coins fly from it into the wallet) or a new manager joining.
+// large enough to read, then coins fly from it into the wallet) or a new manager joining. A reward may
+// come with an ad that pays it twice over.
 
 interface RewardCardProps {
   image: string;
@@ -18,16 +21,29 @@ interface RewardCardProps {
   portrait?: boolean;
   /** Gets the amount's position on screen, so coins can start there. */
   onCollect: (from: { x: number; y: number }) => void;
+  /** "Watch an ad" above the collect button: `label` says what it gives, `onReward` collects with it. */
+  ad?: { placement: AdPlacement; label: string; onReward: (from: { x: number; y: number }) => void };
 }
 
-export function RewardCard({ image, title, body, amount, note, actionLabel, portrait, onCollect }: RewardCardProps) {
+export function RewardCard({
+  image,
+  title,
+  body,
+  amount,
+  note,
+  actionLabel,
+  portrait,
+  onCollect,
+  ad,
+}: RewardCardProps) {
   const { t } = useT();
   const amountRef = useRef<HTMLParagraphElement>(null);
 
-  const collect = () => {
+  const amountPlace = () => {
     const rect = amountRef.current?.getBoundingClientRect();
-    onCollect(rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : { x: 0, y: 0 });
+    return rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : { x: 0, y: 0 };
   };
+  const collect = () => onCollect(amountPlace());
 
   // Android back collects (the card's only action).
   useBackButton(true, 70, collect);
@@ -66,6 +82,11 @@ export function RewardCard({ image, title, body, amount, note, actionLabel, port
             </p>
           )}
           {note && <p className="text-[11px] font-semibold text-slate-500 mt-2 mb-3">{note}</p>}
+          {ad && (
+            <AdButton placement={ad.placement} onReward={() => ad.onReward(amountPlace())} className="mb-2">
+              {ad.label}
+            </AdButton>
+          )}
           <button
             type="button"
             onClick={collect}

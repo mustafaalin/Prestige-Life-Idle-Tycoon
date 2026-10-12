@@ -51,7 +51,21 @@ Ekonomi 2026-10-09'da kullanıcıyla yeniden ayarlandı (başta ana gelir iş, s
 - **Orta Sınıf ilk oturumda değil** (botta 47 dk, 1. günün 3. oturumu; Milyoner 2. gün). Defter sorusu yine oturum sınırını geçiyor. Faz 1 kapısındaki "ilk oturumda Orta Sınıf ≥ %60" ölçütü yeniden yazılmalı.
 - **İlk yönetici 19. dakikada**; o zamana kadar 1 sn'lik Çiçek Tezgâhı için sürekli "Çalıştır"a basılıyor. Telefonda yorucuysa ilk tur 2 sn ya da ilk yönetici ucuz.
 - **Kariyer/işletme dengesi:** ilk 4 dk gelir tamamen maaş, Gündelikçi'de %73 işletme, ömür boyunca ortanca %95 işletme. "Başta kariyer" daha uzun sürsün mü?
-- **Çevrimdışı ödül** (kullanıcı erken oyunda fazla buluyor; 4–8 saatlik tavan fikri) ve simülatörde reklamsız / reklam izleyen / ödeyen profilleri ([monetization-v2.md](./monetization-v2.md) §8).
+- **Çevrimdışı ödül** (kullanıcı erken oyunda fazla buluyor; 4–8 saatlik tavan fikri).
+- **Çevrimdışı oran ve tavan (simülatör, 2026-10-13; karar bekliyor):** paranın %87'si çevrimdışı kartlardan geliyor (game-design §4.6). Denenen seçenekler (bağlı oyuncu, reklamsız; şimdiki ayar %50 ve geç oyunda 2 sa tavan):
+
+  | Seçenek | Milyarder | Multimilyarder | En Zengin | Gündelik oyuncu En Zengin | Çevrimdışı pay | Hedefler |
+  | --- | --- | --- | --- | --- | --- | --- |
+  | Şimdiki: %50, 2 sa | 1 sa 36 dk | 4 sa 59 dk (8. gün) | 11 sa 16 dk (16. gün) | 34. gün | %87 | tutuyor |
+  | %35, 2 sa | 1 sa 57 dk | 6 sa 30 dk (10. gün) | 14 sa 54 dk (22. gün) | 45. gün | %83 | En Zengin geç |
+  | %25, 2 sa | 2 sa 11 dk | 8 sa 14 dk (12. gün) | ömürde yetişmiyor | 59. gün | %78 | bozuluyor |
+  | %50, 1 sa | 2 sa 4 dk | 8 sa 1 dk (12. gün) | ömürde yetişmiyor | 58. gün | %78 | bozuluyor |
+  | %50, 4 sa | 1 sa 36 dk | 3 sa 59 dk (6. gün) | 8 sa 13 dk (12. gün) | 20. gün | %91 | fazla hızlı |
+  | %35, 3 sa | 1 sa 57 dk | 5 sa 27 dk (8. gün) | 11 sa 45 dk (17. gün) | 34. gün | %87 | tutuyor |
+  | %25, 8 sa (Multimilyarder'den; Milyarder'de 4 sa) | 2 sa 11 dk | 6 sa 30 dk (10. gün) | 13 sa 2 dk (19. gün) | 29. gün | %86 | tutuyor |
+
+  Sonuç: pay hiçbir seçenekte %78'in altına inmiyor, çünkü oyuncu günde ~40 dakika oynuyor; oran ve tavan payı değil tempoyu ve "ne sıklıkla dönmeli" hissini belirliyor. Kısa tavan sık dönmeyi ödüllendirir (2 saatte bir), uzun tavan ve düşük oran günde bir iki kez dönen oyuncuyu (son satırda gündelik oyuncu 34. yerine 29. günde bitiriyor). "Gece Vardiyası Ekibi" IAP'ı tam bu ikisini satıyor (oran %100, tavan +2 sa). Erken sınıfların tavanları (10 dk → 1 sa) hiçbir seçenekte değişmedi; kullanıcının "erken oyunda fazla" gözlemi ayrıca denenmedi.
+- **"Ödeyen" oyuncu profili** simülatörde yok; IAP ile.
 - **Evler varise miras kalsın mı** (Faz 2.1).
 
 ## 6. Simülatörün sınırları (GPT Astra incelemesi, doğrulandı)

@@ -9,6 +9,7 @@ import { UPGRADES } from '../core/config/upgrades';
 import { classIndexFor } from '../core/formulas';
 import { applyClassFloors, createInitialState } from '../core/state';
 import type { GameStateV2 } from '../core/types';
+import { createAdProgress, type AdProgress } from './adRewards';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
 import { createStoryProgress, HERO_NAME_MAX, LIFE_MOMENTS, MOM_MESSAGES, type StoryProgress } from './story';
 
@@ -142,6 +143,19 @@ function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
   };
 }
 
+/** Saves from before the ad placements start with no boost and ads still locked. */
+function normalizeAds(raw: unknown): AdProgress {
+  const base = createAdProgress();
+  if (!isRecord(raw)) return base;
+  return {
+    boostUntil: finite(raw.boostUntil, 0),
+    day: typeof raw.day === 'string' ? raw.day : '',
+    boostsToday: Math.floor(finite(raw.boostsToday, 0)),
+    helpsToday: Math.floor(finite(raw.helpsToday, 0)),
+    returned: raw.returned === true,
+  };
+}
+
 const native = Capacitor.isNativePlatform();
 
 function savedAtOf(text: string | null) {
@@ -190,6 +204,7 @@ export function parseRuntime(text: string | null, now: number): RuntimeState {
       // A clock set forward and back again must not count as time away.
       lastActiveAt: Math.min(finite(runtime.lastActiveAt, now), now),
       story: normalizeStory(runtime.story, game),
+      ads: normalizeAds(runtime.ads),
     };
   } catch {
     return createRuntimeState(now);

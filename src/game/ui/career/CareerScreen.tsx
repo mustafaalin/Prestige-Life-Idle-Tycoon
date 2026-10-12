@@ -4,6 +4,7 @@ import { autoIncomePerSecond, careerBonus, globalMultiplier, salaryPerSecond } f
 import { nextCareer, promote } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
 import { Chip, GameButton, ImageTile, Panel, SectionLabel } from '../kit';
 
@@ -106,6 +107,7 @@ export function CareerScreen() {
                 {t('common.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}
               </p>
             )}
+            <HelpAd cost={next.cost} />
           </div>
         </Panel>
       ) : (

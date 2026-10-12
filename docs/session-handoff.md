@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-12 · Dal: `v2-rebuild`
+Son güncelleme: 2026-10-13 · Dal: `v2-rebuild`
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve v2 onu Faz 2.11'de kaldıracak. Bu belge tarih sırasıyla günlük tutmaz; her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**.
 
@@ -33,7 +33,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 - **Rehber (1.12, 2026-10-09):** Rıza Amca ilk dakikalarda kısa balonlarla ve işaret eden elle yönlendirir (şişe → ödül → iş → Çiçek Tezgâhı → isim → Çalıştır → yönetici); ilk tezgâhtan sonra kahramanın adını sorar (`ui/guide/`). Sürüm 26'da var.
 - **Ses ve haptik:** Toplama, alım, ödül.
 - **Analitik (1.14):** `runtime/analytics.ts`, Firebase Analytics; oyuncu eylemleri `store.ts`'te, sınıf atlama, törenler, reklam, bildirime dokunma, sekmeler. Firebase projesi `prestige-life-idle-tycoon`, `android/app/google-services.json` yerinde; telefonda DebugView ile doğrulanmadı.
-- **Reklam altyapısı:** `runtime/ads.ts` (AdMob 8.2.1, UMP izin formu, iOS ATT, web'de sahte reklam). Reklam yerleri henüz bağlı değil.
+- **Reklam (2026-10-12):** `runtime/ads.ts` (AdMob 8.2.1, UMP izin formu, iOS ATT, web'de sahte reklam). Dört ödüllü reklam yeri oyunda: çevrimdışı +%30, Şans ×2, 1 saatlik gelir ×2 (sahnenin sağındaki düğme), "biraz yardım" ([monetization-v2.md §4](./monetization-v2.md)). Teklifler ilk yönetici ve ilk çevrimdışı dönüşten sonra başlar. AdMob'da GDPR mesajı yayında; gizlilik politikası v2'ye göre (TR/EN) yayında.
 - **Mobil:** Kayıt Preferences'ta, Android geri tuşu, güvenli alanlar; `npm run phone` ile telefonda canlı yenileme.
 
 ## Sahne yerleşimi planı (2026-10-11, ikinci tur onaylandı; 1–4 kodda, 5–6 bekliyor)
@@ -49,7 +49,7 @@ Amaç: kahraman, Şans, araç ve ev her kombinasyonda aynı ölçekte ve birbiri
 
 Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · en çok %55 duvarın zemine değdiği çizgi · %62 araba şeridi (x %13–89) · %70 iki teker şeridi · %73,5 kahraman (x %40) ve Şans (x %66) · %77–87 toplanacaklar · alt %10 menü · yatay güvenli alan x %12–88.
 
-## Son oturum (2026-10-12)
+## Son oturum (2026-10-12 → 13)
 
 - **Yerden toplama Orta Sınıf'ta biter, yerini olay kartları alır** ([game-design §4.7](./game-design-v2.md), metinler [story-v2.md §4d](./story-v2.md)). Sağlamcı cevap 45 sn gelir, cesur cevap %50 ihtimalle 100 sn, olmazsa 10 sn. Ödül cevap anında ödenir, üst bar "Topla"ya kadar göstermez; cevabın saati kayıtta, oyunu kapatıp açmak avantaj vermez. "30 şişe topla" hedefi toplama bitince tamamlanmış sayılır. Kod `core/config/events.ts`, `ui/events/`; DEV → "Olay kartı gelsin" (Orta Sınıf'tan önce de çalışır). Tarayıcıda DEV'den bir kart denendi (ilk sürüm); ödeme ve kayıt betikle denendi. Gerçek zamanlama, Orta Sınıf'ta yerin boşalması, çağrı düğmesinin yeri ve telefon denenmedi.
 - **Konut ([game-design §4.8](./game-design-v2.md)):** kendi evinde oturana +%8 ek bonus; kira 3 kat hızlı; çıkılan eve geri taşınma yok. Milyoner töreni "İlk Kendi Evin"i sahipli verir.
@@ -59,8 +59,19 @@ Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · 
 - **Belgeler gözden geçirildi:** eskimiş sayılar güncel simülatöre çekildi, kararlaşmış konular tartışma notlarından çıkarıldı, v1 reklam notları `v1/` altına taşındı, kullanılmayan görseller silindi.
 - **Kıyafet 3 ve 4 oyunda:** şık günlük ve takım elbise, 3'er poz (`stages.ts` `HERO_ART`; mağazadaki resimleri de yeni). Toplama pozları yok: yerde para varken erkenden alınırsa kahraman ayakta toplar. İş kıyafetinin sevinç pozu da gövdesi bekleme pozuyla aynı boyda olacak şekilde büyütüldü (0,425 → 0,444). Bileşik görüntüde bakıldı; oyunda ve telefonda bakılmadı.
 - **Şans'ın tasmaları oyunda:** Orta Sınıf'tan itibaren deri (duruş aynı), Milyarder'den itibaren altın (rahat ve mutlu oturuş, kuyruğu yukarıda neşeli getirme); tören bitince değişir (`stages.ts` `LOOK_ART`). Oyunda ve telefonda bakılmadı.
+- **Reklam yerleri oyunda** (yukarıda "Reklam"). Tarayıcıda sahte reklamla çevrimdışı reklamı ve hızlandırıcı denendi (ödül, üst üste birikme, günlük sayaç, kayıt); Şans ×2 ve "biraz yardım" ekranda görülmedi, kuralları betikle denendi. Telefonda denenmedi. Çevrimdışı reklamı ×2'den +%30'a çekildi (2026-10-13): reklam izleyen oyuncu En Zengin'e ~%33 erken ulaşıyor ([monetization-v2.md §4](./monetization-v2.md)). **Açık karar:** çevrimdışı oran ve tavan ([discussion-notes.md §5](./discussion-notes.md)).
 - **Hedefler:** üretilen kilometre taşı hedefi tamamlanınca ödülü alınmadan kayboluyordu; artık ödülü alınana kadar ekranda kalıyor ([game-design §4.10](./game-design-v2.md)).
 - Simülatör tüm hedefleri tutuyor: Milyarder 1 sa 36 dk, Multimilyarder 4 sa 59 dk (8. gün 08:00, hedefin alt sınırında), En Zengin 11 sa 16 dk, ömür sonu 25. gün ([game-design §5](./game-design-v2.md)).
+
+## Bekleyen kararlar ve fikirler (son oturumdan)
+
+- **Çevrimdışı oran ve tavan:** şimdiki %50 / 2 sa duruyor. Yedi seçenek simülatörde denendi ([discussion-notes.md §5](./discussion-notes.md)); hedefleri tutanlar şimdiki, %35 / 3 sa ve %25 / 8 sa. Claude'un önerisi şimdikini bırakmak ("Gece Vardiyası Ekibi" paketi oran ve tavan satıyor); kullanıcı karar vermedi. Erken sınıfların tavanları ("erken oyunda çevrimdışı fazla" gözlemi) denenmedi.
+- **"Biraz yardım" düğmesinin yazısı:** kullanıcı ne işe yaradığını ilk bakışta anlamadı. Fikir: "Reklam izle, hemen al: +$X" gibi daha açık bir ifade (`ads.help`); karar verilmedi.
+- **Multimilyarder hedefi alt sınırda** (8. gün 08:00, sınır 8. gün 00:00): oyunu hızlandıran bir sonraki değişiklik bu hedefi bozar.
+- **Faz 1 kapısı:** "ilk oturumda Orta Sınıf ≥ %60" ölçütü güncel tempoda tutmuyor, yeniden yazılacak ([rebuild-plan.md](./rebuild-plan.md)).
+- **Stüdyo kimliği:** yayıncı Math Games Studio, iletişim `mathgamesstudio@gmail.com`. Kullanıcı ileride stüdyo sitesi açmayı düşünüyor (oyunlar listesi, kendi alan adında `support@` / `privacy@`); `app-ads.txt` ve gizlilik politikası o zaman oraya taşınır.
+- **Gizlilik politikası** v2'ye göre yeniden yazıldı, İngilizce ve Türkçe, yayında: `https://mustafaalin.github.io/Prestige-Life-Idle-Tycoon/privacy-policy.html` (kaynak `docs/privacy-policy.html`; GitHub Pages `main` dalından yayınlar, değişiklik için dosya `main`'e de alınmalı). Play Console'daki **veri güvenliği beyanı** v2'ye göre güncellenmedi (kullanıcıda).
+- **AdMob:** GDPR izin mesajı yayınlandı (9 dil, "İzin verme" açık). Hesapta v1 kapalı testinden tek bir gerçek gösterim var (₺14,83). Firebase bağlantısı ve test cihazı kaydı yapılmadı.
 
 ## Ekonomi
 
@@ -73,9 +84,9 @@ Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · 
 0. **Konuşulacak kalanlar:** ilerleme hissi (ilk oturumda tek tören, yaş temposu, 4. saatten sonrası) [discussion-notes.md §8](./discussion-notes.md)'de; kararlaştırılmadı.
 1. **Görseller gelince oyuna bağlamak:** araçlar, 12 ev, kıyafetler ve Şans'ın tasmaları bağlandı; sıradaki hikâye kareleri (`ceremonyScript.ts`). Liste [art-brief-v2.md](./art-brief-v2.md). Yeni ev gelince: `public/assets/scene/home-N.webp` (1080 px genişlik), `housing.ts`'te görsel, gerekirse `stages.ts` `HOME_ART`'a yerleşim; DEV → Sahne laboratuvarı'ndan bakılır. Araçta `scripts/cutout-vehicle.sh` ve `VEHICLE_SHAPE`.
 2. **Telefonda deneme:** törenler (DEV → "Töreni oynat" 1–7; sahne tören bitince değişmeli), annenin mesajı, bildirim ve "Deneme bildirimi (5 sn)", Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.prestigelife.idletycoon`). Yeni yerel eklentiler olduğu için `npm run phone -- --install`.
-3. **İmzalı v2 AAB → kapalı test kanalı:** güncel AAB sürüm kodu 26 (2026-10-12, `versionName` 2.0; `~/Downloads/prestige-life-v2-26.aab`): 12 ev ve araç, 4 kıyafet, Şans'ın tasmaları, olay kartları, hayat anları ve rehber dahil. İmzası doğrulandı, DEV menüsü ve test reklamı kapalı; telefona kurulup denenmedi. Öncekiler: 24 Play'e yüklenmişti; 25 (2026-10-09) derlenmişti, yüklenip yüklenmediği burada kayıtlı değil. Yükleme kullanıcıda. Kapalı testin 14 günü ~2026-10-20'de doluyor; testçiler listede kalmalı.
+3. **İmzalı v2 AAB → kapalı test kanalı:** sürüm kodu 26 (2026-10-12, `versionName` 2.0; `~/Downloads/prestige-life-v2-26.aab`) **kullanıcı tarafından Play'e yüklendi**: 12 ev ve araç, 4 kıyafet, Şans'ın tasmaları, olay kartları, hayat anları ve rehber dahil; reklam yerleri bu sürümde yok (sonraki AAB'de, sürüm kodu 27). İmzası doğrulandı, DEV menüsü ve test reklamı kapalı; telefona kurulup denenmedi. Öncekiler: 24 Play'e yüklenmişti; 25 (2026-10-09) derlenmişti, yüklenip yüklenmediği burada kayıtlı değil. Yükleme kullanıcıda. Kapalı testin 14 günü ~2026-10-20'de doluyor; testçiler listede kalmalı.
    Sürüm derleme: sürüm kodunu artır (`android/app/build.gradle`), sonra `VITE_DEV_MENU=false VITE_ADMOB_TESTING=false npm run build:v2 && npx cap sync android`, ardından `android/`'da `./gradlew bundleRelease` (JAVA_HOME Android Studio'nun Java'sı). Ortam değişkenleri şart: `.env.v2` DEV menüsünü, `.env.local` test reklamını açık tutuyor.
-4. **Faz 1'in kalanı:** oyun testi paketi (1.15), tören hediyesi, ekonomi ayarının kalanı (discussion-notes §5), reklam yerleri ve IAP ([monetization-v2](./monetization-v2.md)), hayaller panosu (1.8). Ayrıntı: [rebuild-plan.md](./rebuild-plan.md).
+4. **Faz 1'in kalanı:** oyun testi paketi (1.15), tören hediyesi, ekonomi ayarının kalanı (çevrimdışı oran ve tavan dahil; discussion-notes §5), IAP ([monetization-v2](./monetization-v2.md)), hayaller panosu (1.8). Ayrıntı: [rebuild-plan.md](./rebuild-plan.md).
 
 ## Kullanıcının yapacakları
 
@@ -89,8 +100,9 @@ Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · 
 - **Telefonda yeni kıyafetlere bakmak:** şık günlük (Orta Sınıf töreni ya da mağaza) ve takım elbise; bekleme, sevinç ve Şans'ı okşama pozlarının boyu ve yeri; Şans'ın deri (DEV → "Töreni oynat" 3 göstermez, Orta Sınıf'a çıkmak gerekir) ve altın tasması; hedef kartında tamamlanan kilometre taşı hedefinin ödülü.
 - **Telefonda İşçi sahnesini denemek:** DEV → "Töreni oynat" 2; tören bitince daire önü, iş kıyafeti ve bozuk paralar gelmeli. Boy/konum kötü görünürse söyle.
 - **Telefonda törenleri, sahne geçişini ve bildirimi denemek** (yukarıda 2).
-- **Telefonda gerçek test reklamını denemek:** DEV → "Test reklamı izle"; Google'ın "Test Ad" reklamı açılmalı, sonuç "rewarded" olmalı.
-- **AdMob konsolu:** Privacy & messaging → "European regulations" (GDPR) mesajı oluşturup uygulamaya bağlamak (yoksa AB'de izin formu açılmaz); yayından önce `app-ads.txt`.
+- **Telefonda reklam yerlerini denemek** (`npm run phone` test reklamı gösterir): bir yönetici al, DEV → "uzakta kal" ile bir kez çevrimdışı kazanç topla; sonraki dönüşte kartta "Reklam izle: +$X (+%30)", sahnenin sağında "×2" düğmesi, Şans'ın cüzdanında ×2, parası az kalan terfide "Reklam izle: +$X". Google'ın "Test Ad" reklamı açılmalı. Yayın sürümünde kendi telefonunda gerçek reklam izleme: AdMob → Ayarlar → Test cihazları'na telefonunu ekle.
+- **AdMob konsolu:** yayından önce `app-ads.txt` (stüdyo sitesiyle birlikte); Ayarlar → Test cihazları'na kendi telefonunu eklemek; isteğe bağlı Firebase bağlantısı.
+- **Play Console:** veri güvenliği beyanını v2'ye göre güncellemek (hesap ve sunucu kaydı yok; analitik ve reklam verisi var).
 - **Google Play kapalı testi (v1 yapısıyla, 2026-10-06 civarı 12 kişi tamamlandı):** 14 günlük süre işliyor, ~2026-10-20'de dolar. Testçiler listeden çıkmamalı, kapalı test kanalı kapatılmamalı. Süre dolunca Play Console'dan yayın erişimi başvurusu (test hakkında sorular sorar).
 - **Test kullanıcısı listesi** (Faz 1 oyun testi için 20–50 kişi; dahili test kanalı).
 

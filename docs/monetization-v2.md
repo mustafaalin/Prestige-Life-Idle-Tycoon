@@ -1,6 +1,6 @@
 # Prestige Life v2 — Reklam ve Uygulama İçi Satın Alma (IAP)
 
-Tarih: 2026-10-08 · Durum: **kararlaştırıldı (2026-10-08); reklam altyapısı hazır, reklam yerleri ve IAP bekliyor** · İlgili: [report-v2.md](./report-v2.md) §Monetizasyon, [rebuild-plan.md](./rebuild-plan.md) 2.9, [discussion-notes.md](./discussion-notes.md) §5 (ekonomi ayarı)
+Tarih: 2026-10-08 · Durum: **kararlaştırıldı (2026-10-08); reklam yerleri 1–4 oyunda (2026-10-12), IAP bekliyor** · İlgili: [report-v2.md](./report-v2.md) §Monetizasyon, [rebuild-plan.md](./rebuild-plan.md) 2.9, [discussion-notes.md](./discussion-notes.md) §5 (ekonomi ayarı)
 
 Kullanıcının isteği: "Ödüllü reklam için detaylı düşün; oyun tasarımı reklam izletmeye uygun olsun. Reklamla bazı şeyleri verebiliriz, IAP ile bir şeyler satabiliriz."
 
@@ -56,10 +56,10 @@ Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahip
 
 | # | Yer | Ne zaman | Ödül | Sınır | Durum |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **Çevrimdışı ×2** | "Tekrar hoş geldin" kartında, "Topla"nın yanında "Reklam izle: ×2" | Çevrimdışı kazancı ikiye katlar | Her dönüşte 1; en az 10 dk uzak kalınca | Kart hazır (`RewardCard`) |
-| 2 | **Şans'ın bulduğu ×2** | Cüzdan kartında "Reklam izle: ×2" | Teşekkür ödülü ×2 | Her bulguda 1 | Kart hazır |
-| 3 | **Gelir hızlandırıcı** | Üst barda kalıcı "×2" düğmesi; aktifken kalan süre görünür | Tüm gelir ×2, **1 saat** (gerçek zaman; çevrimdışında da sayar). Üst üste en fazla 4 saat | Günde 6 | Yeni |
-| 4 | **Hayaline yardım** | Sıradaki hayal, terfi ya da işletme için az para kalmışken o kartta | **15 dakikalık gelir** (AdCap/Rich Inc.'teki "+para" düğmesinin gelire oranlı hâli) | Günde 5; sadece eksik tutar 15 dakikalık gelirden azken çıkar | Yeni |
+| 1 | **Çevrimdışı +%30** | "Tekrar hoş geldin" kartında, "Topla"nın üstünde "Reklam izle: +$X (+%30)" | Çevrimdışı kazanca %30 ekler (önce ×2'ydi; aşağıda) | Her dönüşte 1; en az 10 dk uzak kalınca | **Oyunda** |
+| 2 | **Şans'ın bulduğu ×2** | Cüzdan kartında "Reklam izle: ×2" | Teşekkür ödülü ×2 | Her bulguda 1 | **Oyunda** |
+| 3 | **Gelir hızlandırıcı** | Üst barda kalıcı "×2" düğmesi; aktifken kalan süre görünür | Tüm gelir ×2, **1 saat** (gerçek zaman; çevrimdışında da sayar). Üst üste en fazla 4 saat | Günde 6 | **Oyunda** (düğme ana sahnenin sağında) |
+| 4 | **Hayaline yardım** | Sıradaki hayal, terfi ya da işletme için az para kalmışken o kartta | **15 dakikalık gelir** (AdCap/Rich Inc.'teki "+para" düğmesinin gelire oranlı hâli) | Günde 5; sadece eksik tutar 15 dakikalık gelirden azken çıkar | **Oyunda** (terfi, sıradaki eşya, sıradaki eve taşınma, yönetici) |
 | 5 | **Sınıf töreni hediyesi ×2** | Sınıf atlayınca (1.10 töreni) gelen hediyede | Hediye ×2 | Sınıf başına 1 | 1.10 ile |
 | 6 | **Günlük hediye / çark** | Günlük ödülde ek çevirme | Ek ödül | Günde 1–2 | Faz 2.7 |
 | 7 | **Olay kartında ikinci şans** | Kötü sonuçlu kartta "tekrar dene" | Yeniden seçim | Kart başına 1 | Kartlar oyunda (game-design §4.7); ikinci şans reklam yerleriyle |
@@ -68,7 +68,24 @@ Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahip
 
 **Zorla reklam (interstitial) ve banner:** lansmanda yok. 3. günden sonra, çok seyrek bir zorla reklamı yalnızca A/B testiyle deneriz; tutma düşerse kaldırırız.
 
-**Ekonomiye etkisi:** 3 ve 4 numaralı yerler ilerlemeyi doğrudan hızlandırır. Simülatöre "reklam izleyen oyuncu" profili eklenir: günde birkaç hızlandırıcı, her dönüşte ×2. Hedef, reklam izleyenin sınıflara %20–30 erken ulaşması; reklamsız oyuncu hedeflerin içinde kalır. Bu ayar discussion-notes §5'teki ekonomi düzeltmesiyle birlikte yapılmalı.
+**Nasıl çalışıyor (oyunda, 2026-10-12; sayılar `core/config/ads.ts`, kurallar `runtime/adRewards.ts`, arayüz `ui/ads/`):**
+
+- **Ne zaman açılır:** ilk oturumda teklif yok (§2.3). Teklifler, oyuncu bir yönetici işe aldıktan ve bir kez çevrimdışı kazanç topladıktan sonra başlar; dört yerin hepsi için aynı kural.
+- **Çevrimdışı +%30 ve Şans ×2:** ödül kartında "Topla"nın üstünde turuncu "Reklam izle: +$X" düğmesi (ne kadar fazla verdiği yanında yazar). Reklam sonuna kadar izlenirse kart artırılmış tutarla toplanır; erken kapatılırsa kart yerinde kalır.
+- **Hızlandırıcı:** ana sahnenin sağında "×2" düğmesi küçük bir kart açar. Bir reklam = 1 saat; kalan sürenin üstüne eklenir, 4 saati aşamaz, günde 6. Gerçek zamanda işler (oyun kapalıyken de); işletmelerin, maaşın ve kiranın getirdiği her şeyi, çevrimdışı kazancın o süreye düşen kısmını ikiye katlar. Elle kazançları (toplama, Şans, olay kartları, hedefler) değiştirmez. Aktifken üst bardaki gelir satırı "×2" ile gösterilir.
+- **Biraz yardım:** satın alma düğmesinin altında, yalnızca eksik tutar 15 dakikalık otomatik gelirden azken çıkar.
+- **Reklam yoksa:** düğmenin altında "Şu an reklam yok" yazar, ödül verilmez.
+- Günlük sayaçlar oyuncunun telefonundaki takvim gününe göre sıfırlanır. Analitik: `ad_offer` (teklif göründü), `ad_watch` (yer, sonuç).
+
+**Ekonomiye etkisi (simülatör, 2026-10-13):** simülatörde "engaged + ads" profili var: günde 3 hızlandırıcı, çevrimdışı reklamı, Şans ×2, günde 2 yardım. İlke reklam izleyenin %20–30 hızlı ilerlemesi (§2.1).
+
+| | Reklamsız | Reklam izleyen | Fark |
+| --- | --- | --- | --- |
+| Milyarder | 1 sa 36 dk (3. gün) | 1 sa 15 dk (2. gün) | −%22 |
+| Multimilyarder | 4 sa 59 dk (8. gün) | 3 sa 35 dk (6. gün) | −%28 |
+| En Zengin | 11 sa 16 dk (16. gün) | 7 sa 31 dk (11. gün) | −%33 |
+
+**Çevrimdışı reklamı +%30, ×2 değil (karar 2026-10-13, kullanıcı):** bir ömürde kazanılan paranın %87'si çevrimdışı kartlardan geliyor (game-design §4.6), bu yüzden kartı ikiye katlamak oyunu yarıya indiriyordu (En Zengin 5 sa 34 dk, −%51; çevrimdışı ×2 tek başına 6 sa 30 dk). Hızlandırıcı ×2 ve Şans ×2 onaylandığı gibi kaldı; payları küçük (günde 3 hızlandırıcı tek başına −%14, günde 2 yardım −%6). Reklamsız oyuncunun hedefleri değişmiyor.
 
 ## 5. IAP ürünleri
 
@@ -106,9 +123,9 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 
 ## 8. Uygulama sırası
 
-1. **Ekonomi ayarı (discussion-notes §5) ile birlikte:** Reklam ödüllerini ve kalıcı ×2'yi simülatöre ekle; "reklamsız", "reklam izleyen" ve "ödeyen" profilleri; hedefler üçünde de mantıklı.
+1. **Ekonomi ayarı (discussion-notes §5) ile birlikte:** ✅ reklam ödülleri ve "reklam izleyen" profili simülatörde (2026-10-12; sonuç §4 sonunda). Kalan: kalıcı ×2 ve "ödeyen" profili (IAP ile).
 2. **Reklam altyapısını v2'ye taşı:** ✅ 2026-10-08: `src/game/runtime/ads.ts` (AdMob 8.2.1, UMP + ATT, web'de sahte reklam, Ayarlar'da gizlilik seçenekleri). Ayrıntı: [mobile-ad-integration.md](./mobile-ad-integration.md). AdMob konsolunda GDPR mesajı kullanıcı tarafından oluşturulacak.
-3. **Reklam yerleri 1–4:** çevrimdışı ×2, Şans ×2, hızlandırıcı, hayaline yardım.
+3. **Reklam yerleri 1–4:** ✅ 2026-10-12 (çevrimdışı +%30, Şans ×2, hızlandırıcı, biraz yardım).
 4. **IAP:** RevenueCat'te yeni ürünler; Rahat Paket, Altın Tasma, Başlangıç, Gece Vardiyası; geri yükleme; v1 ürünlerini pasifleştir.
 5. **Analitik:** ✅ kod tamam (plan 1.14; `ad_watch`, sınıf atlama, oturum). Reklam teklifi ve satın alma olayları reklam yerleri ve IAP ile birlikte.
 6. **Sonra:** sınıf töreni ×2 (1.10), günlük hediye (2.7), olay kartı ikinci şans (2.4); zorla reklam ve fiyat A/B testleri (Faz 3).

@@ -20,6 +20,7 @@ export type AnalyticsEvent =
   | 'event_card'
   | 'offline_claim'
   | 'retire'
+  | 'ad_offer'
   | 'ad_watch'
   | 'story_view'
   | 'daughter_named'

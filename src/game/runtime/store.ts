@@ -4,6 +4,7 @@ import type { EventOutcome } from '../core/config/events';
 import { SECONDS_PER_YEAR } from '../core/config/life';
 import { eventReward, fetchReward } from '../core/formulas';
 import { earn, live } from '../core/state';
+import { applyBoost, applyHelp, helpReward } from './adRewards';
 import {
   buyBusinessUnits,
   buyHome,
@@ -49,8 +50,8 @@ export type GameEvent =
 
 export interface GameActions {
   tap(): void;
-  /** Pays for what Şans found; returns the amount for the flying number. */
-  claimFind(): number;
+  /** Pays for what Şans found (`multiplier` is 2 after a rewarded ad); returns the amount for the flying number. */
+  claimFind(multiplier?: number): number;
   /** Pays an event card the moment it is answered (the card rolled the bold answer); returns the amount. */
   answerEvent(cardId: string, outcome: EventOutcome): number;
   buyBusiness(businessId: string, count: number): boolean;
@@ -67,6 +68,13 @@ export interface GameActions {
   claimOffline(multiplier?: number): boolean;
   /** End of life: hand the family over to the heir. */
   retire(): boolean;
+  /** Rewards of watched ads (call only after showRewardedAd() returned 'rewarded'; adRewards.ts). */
+  ads: {
+    /** An hour of doubled income; false when the day's limit or the cap is reached. */
+    boost(): boolean;
+    /** A little help toward the next purchase; returns what it paid (0 if not allowed). */
+    help(): number;
+  };
   story: {
     /** Stops the clock (income and age) while a ceremony plays (story-v2.md §4). */
     setPaused(paused: boolean): void;
@@ -228,9 +236,9 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       tap: () => {
         act(tap);
       },
-      claimFind: () => {
-        const amount = fetchReward(state.game);
-        actTracked(claimFind, 'find_claim', () => ({ finds: state.game.finds }));
+      claimFind: (multiplier = 1) => {
+        const amount = fetchReward(state.game) * multiplier;
+        actTracked((s) => claimFind(s, multiplier), 'find_claim', () => ({ finds: state.game.finds, multiplier }));
         return amount;
       },
       answerEvent: (cardId, outcome) => {
@@ -273,6 +281,13 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         // The life that just ended, not the heir's.
         const { generation, classIndex } = state.game;
         return actTracked(retire, 'retire', () => ({ generation, class_index: classIndex }));
+      },
+      ads: {
+        boost: () => act((s) => applyBoost(s, clock())),
+        help: () => {
+          const amount = helpReward(state.game);
+          return act((s) => applyHelp(s, clock())) ? amount : 0;
+        },
       },
       story: {
         setPaused: (value) => {

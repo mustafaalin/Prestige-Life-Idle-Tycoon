@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { AD_OFFLINE_MIN_SECONDS, AD_OFFLINE_MULTIPLIER } from '../../core/config/ads';
 import { heroAge, isLifeOver, offlineCapHours, pendingLegacyPoints } from '../../core/formulas';
 import { canBuyAnythingInShop, nextCareer } from '../../core/state';
 import { useT } from '../../i18n/useT';
@@ -6,6 +7,8 @@ import { initAds } from '../../runtime/ads';
 import { trackScreen } from '../../runtime/analytics';
 import { haptic, playSfx, preloadSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { BoostButton } from '../ads/Boost';
+import { useAdsUnlocked } from '../ads/useAdsUnlocked';
 import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
 import { Guide } from '../guide/Guide';
@@ -36,6 +39,7 @@ export function HomeScreen() {
   // An event card is on screen: story moments wait for the home scene, as they do for a tab.
   const [eventOpen, setEventOpen] = useState(false);
   const promotion = nextCareer(game);
+  const adsOpen = useAdsUnlocked();
 
   const goToQuest: GoToQuest = (quest) => {
     const target = questTarget(quest);
@@ -70,6 +74,12 @@ export function HomeScreen() {
             <TabSheet tab={tab} onClose={() => selectTab(null)} pinnedQuest={pinnedQuest} onGo={goToQuest} />
           ) : (
             <QuestPanel onGo={goToQuest} />
+          )}
+          {/* The income boost floats on the right of the scene, clear of the goals card and the top bar. */}
+          {!tab && (
+            <div className="pointer-events-auto absolute right-3 top-[42%]">
+              <BoostButton />
+            </div>
           )}
           <Guide tabOpen={tab !== null} />
           <EventCards tabOpen={tab !== null} onOpenChange={setEventOpen} />
@@ -118,6 +128,23 @@ export function HomeScreen() {
             haptic('medium');
             burstCoins({ ...from, count: 12 });
           }}
+          ad={
+            adsOpen && state.offline.awaySeconds >= AD_OFFLINE_MIN_SECONDS
+              ? {
+                  placement: 'offline_x2',
+                  label: t('ads.more', {
+                    amount: money(state.offline.amount * AD_OFFLINE_MULTIPLIER),
+                    percent: Math.round((AD_OFFLINE_MULTIPLIER - 1) * 100),
+                  }),
+                  onReward: (from) => {
+                    actions.claimOffline(AD_OFFLINE_MULTIPLIER);
+                    playSfx('levelUp');
+                    haptic('medium');
+                    burstCoins({ ...from, count: 18 });
+                  },
+                }
+              : undefined
+          }
         />
       )}
 
