@@ -52,7 +52,7 @@ Ekonomi 2026-10-09'da kullanıcıyla yeniden ayarlandı (başta ana gelir iş, s
 - **İlk yönetici 19. dakikada**; o zamana kadar 1 sn'lik Çiçek Tezgâhı için sürekli "Çalıştır"a basılıyor. Telefonda yorucuysa ilk tur 2 sn ya da ilk yönetici ucuz.
 - **Kariyer/işletme dengesi:** ilk 4 dk gelir tamamen maaş, Gündelikçi'de %73 işletme, ömür boyunca ortanca %95 işletme. "Başta kariyer" daha uzun sürsün mü?
 - **Çevrimdışı ödül** (kullanıcı erken oyunda fazla buluyor; 4–8 saatlik tavan fikri).
-- **Çevrimdışı oran ve tavan (simülatör, 2026-10-13; karar bekliyor):** paranın %87'si çevrimdışı kartlardan geliyor (game-design §4.6). Denenen seçenekler (bağlı oyuncu, reklamsız; şimdiki ayar %50 ve geç oyunda 2 sa tavan; sayılar son işletmeler güçlenmeden önce ölçüldü, En Zengin şimdi 10 sa 42 dk):
+- **Çevrimdışı oran ve tavan (karar 2026-10-13, kullanıcı: Claude'un önerisi): şimdiki %50 / 2 sa kalır** ("Gece Vardiyası Ekibi" paketi oran ve tavan satıyor). Açık kalan yalnızca erken sınıfların tavanları (aşağıda). Denemenin kaydı: paranın %87'si çevrimdışı kartlardan geliyor (game-design §4.6). Denenen seçenekler (bağlı oyuncu, reklamsız; şimdiki ayar %50 ve geç oyunda 2 sa tavan; sayılar son işletmeler güçlenmeden önce ölçüldü, En Zengin şimdi 10 sa 42 dk):
 
   | Seçenek | Milyarder | Multimilyarder | En Zengin | Gündelik oyuncu En Zengin | Çevrimdışı pay | Hedefler |
   | --- | --- | --- | --- | --- | --- | --- |
