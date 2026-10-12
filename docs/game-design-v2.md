@@ -63,6 +63,7 @@ AdVenture Capitalist modeli: her işletme adet adet alınır, her birim bir üre
 - Kilometre taşları: 25, 50, 75 adette kâr ×2 (bir ömürde işletme başına ~70 adet alınıyor)
 - Yöneticisiz işletme sadece oyun açıkken ve "Çalıştır"a dokununca tek döngü çalışır, çevrimdışı üretmez (simülatör bunu %60 verimle yaklaşık modeller)
 - Yönetici: tek seferlik (ilk birimin 12 katı), işletmeyi otomatik ve çevrimdışı çalıştırır. Her işletmenin kendi yönetici karakteri var (story-v2 §3)
+- **Tören hediyesi (2026-10-13):** Milyarder olunca ilk Otel Zinciri ve yöneticisi Bülent Bey bedava gelir (`CLASS_MANAGER_GIFT`; minibüs ve ilk ev gibi, sınıfa ulaşıldığı anda). Oteli önceden almış olana yalnızca yönetici verilir. Sebep: ilk otel bir Milyarder'in gelirine binde bir kadar ekliyor, bot ilk hayatta hiç almıyordu ve törende işe alınan Bülent Bey ekrana gelmiyordu. Tempoya etkisi: En Zengin 11 sa 16 dk → 11 sa 10 dk; öteki hedefler aynı. İşletme listesi sahip olunan her işletmeyi gösterir, hediye sıradaki alınacak işletmenin altında durur
 - Ekranda gelir aylık gösterilir: $/ay = $/sn × 60. Para yine saniye saniye artar; işletme kartındaki çubuk tur başına geliri gösterir
 - Üst bar ve "~X sonra alabilirsin" tahminleri yalnızca otomatik geliri (yönetici, maaş, kira) kullanır; dokunarak çalıştırılan işletmeler sayılmaz
 
@@ -245,7 +246,7 @@ Güncel sonuç (2026-10-12; hedefler `src/game/sim/report.ts`):
 | Milyoner | 35 dk – 1 sa 15 dk oyun | 54 dk, 2. gün (20 yaş) | 45 dk, 3. gün |
 | İlk milyarder | 3–7. gün | 3. gün, 1 sa 36 dk (22 yaş) | 5. gün |
 | İlk multimilyarder | 8–14. gün | 8. gün 08:00, 4 sa 59 dk (35 yaş; hedefin alt sınırında) | 15. gün |
-| İlk "en zengin" | 14–21. gün | 16. günün son oturumu, 11 sa 16 dk (59 yaş) | 34. gün (48 yaş) |
+| İlk "en zengin" | 14–21. gün | 16. günün son oturumu, 11 sa 10 dk (58 yaş) | 34. gün (48 yaş) |
 | İlk ömür sonu (80 yaş) | 21–37. gün | 25. gün (16 sa 48 dk oyun) | 45 günde gelmiyor |
 
 **His kontrolleri (`checkFeel`):** Tempo hedefleri tutarken işletmeler yan gelire düşebiliyor (eski bir ayarda Gündelikçi anında işletme payı %3'tü). Simülatör şunları da bekler: her işletmenin ilk biriminin turu ≥ $1; işletmelerin gelirdeki payı (toplama hariç) Gündelikçi anında, ilk oturumun sonunda ve 1. nesil oturumlarının ortancasında ≥ %50. Şu an: tur en az $1, pay %73 / %83 / %95. `npm run sim -- --purchases --timeline` her alımı zaman çizelgesinde gösterir.

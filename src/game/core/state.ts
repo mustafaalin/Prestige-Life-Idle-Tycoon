@@ -1,4 +1,4 @@
-import { BUSINESSES } from './config/businesses';
+import { BUSINESSES, CLASS_MANAGER_GIFT } from './config/businesses';
 import { CAREERS } from './config/careers';
 import { PROFIT_MILESTONES, STARTING_CASH } from './config/economy';
 import { CLASS_HOME_FLOOR, FIRST_OWNED_HOME, HOUSES, STARTING_HOME_ID } from './config/housing';
@@ -73,7 +73,8 @@ export function earn(state: GameStateV2, amount: number): GameStateV2 {
  * A class-up gives what its story stands in: a hero still below the class's home moves there,
  * rented and free (CLASS_HOME_FLOOR), and gets the class's outfit and the ones before it
  * (CLASS_OUTFIT_FLOOR). Whoever bought ahead keeps what they have. From Millionaire on, the first
- * home of your own is yours (FIRST_OWNED_HOME).
+ * home of your own is yours (FIRST_OWNED_HOME); from Billionaire on, the first Hotel Chain and its
+ * manager are (CLASS_MANAGER_GIFT).
  */
 export function applyClassFloors(state: GameStateV2): GameStateV2 {
   const homeFloor = CLASS_HOME_FLOOR[Math.min(state.classIndex, CLASS_HOME_FLOOR.length - 1)];
@@ -84,9 +85,14 @@ export function applyClassFloors(state: GameStateV2): GameStateV2 {
     .filter((id) => !state.lifestyleOwned.includes(id));
   const gift = HOUSES[FIRST_OWNED_HOME.houseIndex].id;
   const gifted = state.classIndex >= FIRST_OWNED_HOME.classIndex && !state.homesOwned.includes(gift);
-  if (home === state.home && missing.length === 0 && !gifted) return state;
+  const hotel = state.businesses[CLASS_MANAGER_GIFT.businessId];
+  const hired = state.classIndex >= CLASS_MANAGER_GIFT.classIndex && !hotel.managed;
+  if (home === state.home && missing.length === 0 && !gifted && !hired) return state;
   return {
     ...state,
+    businesses: hired
+      ? { ...state.businesses, [CLASS_MANAGER_GIFT.businessId]: { ...hotel, owned: Math.max(1, hotel.owned), managed: true } }
+      : state.businesses,
     home,
     homesOwned: gifted ? [...state.homesOwned, gift] : state.homesOwned,
     lifestyleOwned: [...state.lifestyleOwned, ...missing],

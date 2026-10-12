@@ -376,6 +376,7 @@ export const tr: Messages = {
       riza2: 'Sen Mehmet\'in oğlusun. Nasıl görmedim?',
     },
     c5: {
+      sale: 'Bülent Bey\'in restoranları satılığa çıkmıştı. Alıcı, yıllar önce kovduğu garsondu.',
       staff: 'Şirketi siz almışsınız... Bizim işimiz ne olacak?',
       hero: 'Hiçbir şey değişmiyor. Sadece maaşlar artıyor.',
       bryce: 'Ya... ben?',

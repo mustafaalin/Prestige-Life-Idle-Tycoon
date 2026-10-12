@@ -10,6 +10,13 @@ export const BUSINESS_TUNING = {
   managerCostMultiple: 12,
 };
 
+/**
+ * The Billionaire ceremony brings Mr. Bryce to work for the hero (story-v2 §4): the first Hotel Chain
+ * and its manager come free with the class, like the van and the first home (decided 2026-10-13).
+ * A first hotel adds next to nothing to a Billionaire's income, so nobody met him otherwise.
+ */
+export const CLASS_MANAGER_GIFT = { classIndex: 5, businessId: 'hotel' };
+
 // Each tier's first unit costs `costStep` times the previous one (2026-10-09). Small steps early, so
 // the first businesses come quickly; bigger steps later, so new businesses keep arriving across the
 // days instead of all on the first one. Cycles are short and readable (1–15 s); they only change how
@@ -26,16 +33,16 @@ const TIERS: {
   costGrowth: number;
   paybackMinutes: number;
 }[] = [
-  { id: 'flower-stand', name: 'Flower Stand', image: '/assets/businesses/small/flower-shop.png', costStep: 1, cycleSeconds: 1, costGrowth: 1.2, paybackMinutes: 4 },
-  { id: 'coffee-cart', name: 'Coffee Cart', image: '/assets/businesses/small/coffee-shop.png', costStep: 3, cycleSeconds: 2, costGrowth: 1.2, paybackMinutes: 6 },
-  { id: 'bakery', name: 'Bakery', image: '/assets/businesses/small/bakery.png', costStep: 4, cycleSeconds: 3, costGrowth: 1.18, paybackMinutes: 15 },
-  { id: 'car-wash', name: 'Car Wash', image: '/assets/businesses/small/car-wash.png', costStep: 5, cycleSeconds: 4, costGrowth: 1.17, paybackMinutes: 30 },
-  { id: 'mini-market', name: 'Mini Market', image: '/assets/businesses/small/grocery-mini-market.png', costStep: 6, cycleSeconds: 5, costGrowth: 1.16, paybackMinutes: 90 },
-  { id: 'beauty-salon', name: 'Beauty Salon', image: '/assets/businesses/small/beauty-salon.png', costStep: 8, cycleSeconds: 7, costGrowth: 1.15, paybackMinutes: 150 },
-  { id: 'logistics-warehouse', name: 'Logistics Warehouse', image: '/assets/businesses/large/logistic-warehouse.png', costStep: 10, cycleSeconds: 9, costGrowth: 1.14, paybackMinutes: 750 },
-  { id: 'factory', name: 'Factory', image: '/assets/businesses/large/manufacturing-factory.png', costStep: 12, cycleSeconds: 11, costGrowth: 1.13, paybackMinutes: 4500 },
-  { id: 'hotel', name: 'Hotel Chain', image: '/assets/businesses/large/hotel.png', costStep: 15, cycleSeconds: 13, costGrowth: 1.12, paybackMinutes: 32000 },
-  { id: 'tech-startup', name: 'Tech Startup', image: '/assets/businesses/large/tech-startup.png', costStep: 20, cycleSeconds: 15, costGrowth: 1.12, paybackMinutes: 300000 },
+  { id: 'flower-stand', name: 'Flower Stand', image: '/assets/businesses/v2/flower-stand.webp', costStep: 1, cycleSeconds: 1, costGrowth: 1.2, paybackMinutes: 4 },
+  { id: 'coffee-cart', name: 'Coffee Cart', image: '/assets/businesses/v2/coffee-cart.webp', costStep: 3, cycleSeconds: 2, costGrowth: 1.2, paybackMinutes: 6 },
+  { id: 'bakery', name: 'Bakery', image: '/assets/businesses/v2/bakery.webp', costStep: 4, cycleSeconds: 3, costGrowth: 1.18, paybackMinutes: 15 },
+  { id: 'car-wash', name: 'Car Wash', image: '/assets/businesses/v2/car-wash.webp', costStep: 5, cycleSeconds: 4, costGrowth: 1.17, paybackMinutes: 30 },
+  { id: 'mini-market', name: 'Mini Market', image: '/assets/businesses/v2/mini-market.webp', costStep: 6, cycleSeconds: 5, costGrowth: 1.16, paybackMinutes: 90 },
+  { id: 'beauty-salon', name: 'Beauty Salon', image: '/assets/businesses/v2/beauty-salon.webp', costStep: 8, cycleSeconds: 7, costGrowth: 1.15, paybackMinutes: 150 },
+  { id: 'logistics-warehouse', name: 'Logistics Warehouse', image: '/assets/businesses/v2/logistics-warehouse.webp', costStep: 10, cycleSeconds: 9, costGrowth: 1.14, paybackMinutes: 750 },
+  { id: 'factory', name: 'Factory', image: '/assets/businesses/v2/factory.webp', costStep: 12, cycleSeconds: 11, costGrowth: 1.13, paybackMinutes: 4500 },
+  { id: 'hotel', name: 'Hotel Chain', image: '/assets/businesses/v2/hotel.webp', costStep: 15, cycleSeconds: 13, costGrowth: 1.12, paybackMinutes: 32000 },
+  { id: 'tech-startup', name: 'Tech Startup', image: '/assets/businesses/v2/tech-startup.webp', costStep: 20, cycleSeconds: 15, costGrowth: 1.12, paybackMinutes: 300000 },
 ];
 
 /** Rounds to 3 significant digits so generated prices read like designed ones. */

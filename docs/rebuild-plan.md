@@ -1,6 +1,6 @@
 # Prestige Life v2 — Yeniden Yapım Planı
 
-Son güncelleme: 2026-10-12 · Dal: `v2-rebuild` · Rapor (neden): [report-v2.md](./report-v2.md) · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikaye: [story-v2.md](./story-v2.md) · Açık kararlar: [discussion-notes.md](./discussion-notes.md)
+Son güncelleme: 2026-10-13 · Dal: `v2-rebuild` · Rapor (neden): [report-v2.md](./report-v2.md) · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikaye: [story-v2.md](./story-v2.md) · Açık kararlar: [discussion-notes.md](./discussion-notes.md)
 
 ## Amaç
 
@@ -122,11 +122,12 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 - [~] **1.10 Sınıf atlama töreni (2026-10-09):** Tamam: `ui/story/Ceremony.tsx` + `ceremonyScript.ts` + `StoryDirector.tsx`. "Yeni sınıf" başlığı (konfeti, ses, haptik) → görsel roman anları (24 ifade portresi, çatı katı ve eski fotoğraf kareleri; görselsiz anlar oyuncunun sahnesinin üstünde) → "Önce / Şimdi" kartı (kahramanın yüzü, çevrimdışı tavanı, sıradaki sınıf). 7 tören, 26 balon, TR/EN; İşçi töreninde Nevin Hanım ve torunu Defne (cüzdan zinciri, tanışma) ([story-v2.md §4](./story-v2.md)); defter sorusu oturum sınırını geçer (Orta Sınıf'ta açılır, Milyoner'de kapanır). Tören sırasında saat durur (store `story.setPaused`). Görülen törenler kayıtta (`runtime.story`); eski kayıtlar ulaştıkları sınıfları görmüş sayılır. Sadece 1. nesil (varisin hikâyesi Faz 2). Anne mesajları da tamam (11 mesaj, dönüş oturumunda, 20 saatte bir, `runtime/story.ts`). DEV: tören 1–7, annenin mesajları. Kalan: yeni hikâye kareleri ([art-brief-v2.md](./art-brief-v2.md) 4.5), hediye + "reklamla ×2" ([monetization-v2 §4](./monetization-v2.md)), En Zengin görseli (konak + pasta, ~$0,15).
 - [~] **1.11 Juice paketi:** Tamam: `runtime/feedback.ts` ses (v1 sfx dosyaları) ve haptik (`@capacitor/haptics`): toplama, alım, ödül, yönetici. Kalan: basma geri bildirimlerinin ekranlara yayılması, müzik, ses ayarı.
 
-- [~] **1.16 Hikaye görselleri (görsel roman):** Liste ve stil kılavuzu: [story-v2.md §8](./story-v2.md). Stil yarı 3D (2026-10-08). Karakterler, portreler ve hikâye kareleri fal.ai ile (toplam ~$5,95; kullanıcının bakiyesi ~$10, kalan ~$4,05), evler, araçlar ve iş kıyafeti GPT ile üretildi.
+- [~] **1.16 Hikaye görselleri (görsel roman):** Liste ve stil kılavuzu: [story-v2.md §8](./story-v2.md). Stil yarı 3D (2026-10-08). Karakterler, portreler ve hikâye kareleri fal.ai ile (toplam ~$5,95; kullanıcının bakiyesi ~$10, kalan ~$4,05), evler, araçlar, kıyafetler, altı tören karesi ve on işletme ikonu GPT ile üretildi (kareler ve ikonlar 2026-10-13'te oyuna bağlandı; [art-brief-v2.md §4.5, §4.7](./art-brief-v2.md)).
   - Tamam: kahraman kılavuzu ve sokak aşamasının 4 pozu, Şans (kılavuz, oturan, cüzdanlı), anne / Rıza Amca / Bülent Bey kılavuzları, önsözün 6 karesi, şişesiz ara sokak, şişe/kutu, 10 yönetici portresi. 2026-10-08 akşam: Orta Sınıf anı için çatı katı ve eski fotoğraf (`art/pilot/07-story/`, $0,45), Gündelikçi minibüs arka planı (deneme, $0,15). Kaynaklar `art/pilot/` (git'te değil), oyundakiler `public/assets/`.
   - Tamam (2026-10-09 → 10-12): iş kıyafeti (4 poz) ve umutlu bekleme pozu, bozuk paralar, 12 ev arka planı, 12 araç, Nevin Hanım ve Defne kılavuzları ve portreleri, hayat anlarının 3 karesi.
   - Tamam (2026-10-12): kıyafet 3 ve 4, Şans'ın deri ve altın tasmalı pozları (GPT).
-  - Kalan: çatı katı görseli 3. kıyafetle yeniden, Şans'ın uyuyan pozu, yeni hikâye kareleri (daire kapısı, Rıza bahçede, konak ve pasta), paranın fiziksel hali.
+  - Tamam (2026-10-13): altı tören karesi (çatı katı 3. kıyafetle yeniden dahil) ve on işletme ikonu (GPT).
+  - Kalan: Şans'ın uyuyan pozu, paranın fiziksel hali; isteğe bağlı atölye karesi (Multimilyarder töreni tek karesiz tören).
   - Kural: kodla zıplatma karakter animasyonu sayılmaz; gerçek animasyon sadece 2–3 büyük an için ve isteğe bağlı ([discussion-notes.md](./discussion-notes.md) §1). Özellikler görsel beklemez, yer tutucuyla yapılır.
 - [x] **1.17 Konut modeli:** Kirala → satın al → kiraya ver ([game-design-v2.md §4.8](./game-design-v2.md)). Kiraya verme Faz 2.5'ten buraya çekildi (karar 2026-10-07): o olmadan ev satın almanın bir getirisi yoktu.
   - Çekirdek: `config/housing.ts` (evler artık statü eşyası değil), durumda `home` + `homesOwned`, `rentHome` / `buyHome` / `moveHome`, `homeBonus` (yaşanan evin kademesi, kendi evinde +%8) ve `rentPerSecond` (maaşla birlikte her saniye, çevrimdışı da).

@@ -9,8 +9,9 @@ import { BusinessCard, type BuyMode } from './BusinessCard';
 const BUY_MODES: BuyMode[] = [1, 10, 'max'];
 
 /**
- * Business list. Lines are revealed one at a time: everything owned, the next one to buy,
- * and a locked teaser of the one after, so a new player is never facing ten choices.
+ * Business list. Lines are revealed one at a time: everything owned (a ceremony's gift can be
+ * further down the line), the next one to buy, and a locked teaser of the one after, so a new
+ * player is never facing ten choices.
  */
 export function BusinessesScreen() {
   const { game } = useGameV2();
@@ -18,8 +19,9 @@ export function BusinessesScreen() {
   const [buyMode, setBuyMode] = useState<BuyMode>(1);
 
   const firstUnowned = BUSINESSES.findIndex((def) => game.businesses[def.id].owned === 0);
-  const visible = firstUnowned < 0 ? BUSINESSES : BUSINESSES.slice(0, firstUnowned + 1);
-  const teaser = firstUnowned < 0 ? undefined : BUSINESSES[firstUnowned + 1];
+  const owns = (def: (typeof BUSINESSES)[number]) => game.businesses[def.id].owned > 0;
+  const visible = firstUnowned < 0 ? BUSINESSES : BUSINESSES.filter((def, index) => index <= firstUnowned || owns(def));
+  const teaser = firstUnowned < 0 ? undefined : BUSINESSES.find((def, index) => index > firstUnowned && !owns(def));
 
   return (
     <section className="flex flex-col gap-3">

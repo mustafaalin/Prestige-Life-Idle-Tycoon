@@ -29,7 +29,7 @@ export interface CeremonyShot {
 }
 
 const IMAGES = '/assets/story/ceremony';
-const ATTIC = { src: `${IMAGES}/attic.webp`, fit: 'cover' } as const;
+const panel = (name: string) => ({ src: `${IMAGES}/${name}.webp`, fit: 'cover' }) as const;
 const OLD_PHOTO = { src: `${IMAGES}/old-photo.webp`, fit: 'contain' } as const;
 
 export const CEREMONIES: Record<number, CeremonyShot[]> = {
@@ -37,6 +37,7 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
   // housing.ts CLASS_HOME_FLOOR) and sees someone in the hero's face.
   1: [
     {
+      image: panel('soup'),
       lines: [
         { speaker: 'hero', face: 'soft', text: 'ceremony.c1.hero' },
         { speaker: 'mom', face: 'teary', phone: true, text: 'ceremony.c1.mom' },
@@ -49,6 +50,7 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
   // (the hero's future wife, story §4c). Then a door that locks, and Mom remembers the notebook.
   2: [
     {
+      image: panel('nevin-door'),
       lines: [
         { speaker: 'nevin', face: 'moved', text: 'ceremony.c2.nevin' },
         { speaker: 'defne', face: 'smile', text: 'ceremony.c2.defne' },
@@ -71,7 +73,7 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
         { speaker: 'mom', face: 'tears', phone: true, text: 'ceremony.c3.mom' },
       ],
     },
-    { image: ATTIC, lines: [{ text: 'ceremony.c3.attic' }, { text: 'ceremony.c3.attic2' }] },
+    { image: panel('attic'), lines: [{ text: 'ceremony.c3.attic' }, { text: 'ceremony.c3.attic2' }] },
     { image: OLD_PHOTO, lines: [{ speaker: 'hero', face: 'worried', text: 'ceremony.c3.photo' }] },
   ],
   // Millionaire (the return session): two chairs in the garden; Old Ray recognises the photo.
@@ -83,17 +85,22 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
       ],
     },
     {
-      image: OLD_PHOTO,
+      // The photo's face is turned to Old Ray; the player sees it in the memory bubble by his head.
+      image: panel('riza-garden'),
       lines: [
         { speaker: 'riza', face: 'concerned', text: 'ceremony.c4.riza' },
         { speaker: 'riza', face: 'serious', text: 'ceremony.c4.riza2' },
       ],
     },
   ],
-  // Billionaire: the hero buys Mr. Bryce's company and keeps everyone, Bryce included.
+  // Billionaire: the hero buys Mr. Bryce's company and keeps everyone, Bryce included (he comes as
+  // the Hotel Chain's manager when the ceremony's class is reached, businesses.ts CLASS_MANAGER_GIFT).
   5: [
     {
+      image: panel('restaurant'),
       lines: [
+        // The sale, said here: Mom's message about it never reached a fast player.
+        { text: 'ceremony.c5.sale' },
         { speaker: 'staff', text: 'ceremony.c5.staff' },
         { speaker: 'hero', face: 'determined', text: 'ceremony.c5.hero' },
         { speaker: 'bryce', face: 'shocked', text: 'ceremony.c5.bryce' },
@@ -115,6 +122,7 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
   // Richest Person Alive: the promise from the bus station, and the birthday cake from the prologue.
   7: [
     {
+      image: panel('mansion-cake'),
       lines: [
         { speaker: 'hero', face: 'soft', text: 'ceremony.c7.hero' },
         { speaker: 'hero', face: 'happy', text: 'ceremony.c7.hero2' },

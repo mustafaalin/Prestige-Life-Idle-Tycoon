@@ -2,7 +2,7 @@
 
 Kararı henüz verilmemiş konular ve Claude'un önerileri. **Karar verilince ilgili belgeye (plan, hikâye, tasarım, monetizasyon) taşınır ve buradan silinir**; burada sadece açık konular durur.
 
-Son güncelleme: 2026-10-12 (belgeler gözden geçirildi: kararlaşmış konular ve eskimiş sayılar çıkarıldı)
+Son güncelleme: 2026-10-13 (§9: hikâye ve görsel gözden geçirmesi)
 
 ## 1. Görsel: açık kalanlar
 
@@ -28,7 +28,7 @@ React ile kodla video üretme çerçevesi; yeni görüntü üretmez, var olanlar
 
 Ana kurallar kararlaştırıldı ([game-design-v2.md §4.9](./game-design-v2.md)). Kalanlar:
 
-- **Kahraman yaşlanmıyor (2026-10-11, kullanıcı: şimdilik kalsın):** 31'inde baba, 63'ünde dede olan kahraman 17'lik görünüyor. Seçenekler: 3 görünüm (genç, yetişkin, kır saçlı; portreler ve sahne pozları katlanır) ya da yalnızca portreler yaşlanır. Kıyafet 3 ve 4 henüz üretilmedi; onları yetişkin ve olgun hâliyle tasarlamak en ucuz yol, ama hızlı oyuncuda kıyafet yaştan önce gelir.
+- **Kahraman yaşlanmıyor (2026-10-11, kullanıcı: şimdilik kalsın):** 31'inde baba, 63'ünde dede olan kahraman 17'lik görünüyor. Seçenekler: 3 görünüm (genç, yetişkin, kır saçlı; portreler ve sahne pozları katlanır) ya da yalnızca portreler yaşlanır. Kıyafet 3 ve 4 ile tören kareleri genç yüzle üretildi (2026-10-12/13); yaşlanan görünüm artık bunların da yeniden üretilmesi demek.
 - **Anne ve Şans, En Zengin'den sonra:** anne 59'da ~87 yaşında, Şans 40 yıldır yanında. Ölüm gösterilmiyor. Öneri: annenin mesajları En Zengin'den sonra biter, kanal Defne ve kızına geçer; Şans'ın yerini yavrusu alır.
 - **Ömür sonu uyarısı:** "65 yaşındasın, 15 yılın kaldı" gibi bir hatırlatma; zirveye ulaşmamış oyuncunun "sonu göremedim" hissi. Üst bar artık sadece yaşı gösteriyor ("kalan yıl" 2026-10-08'de kalktı).
 - **En Zengin'den sonrası (59 → 80):** hayat anları dolduracak (torun, devir; [story-v2.md §4c](./story-v2.md), testten sonra); başka içerik yok.
@@ -81,7 +81,6 @@ Kararlaşanlar taşındı: sahne, evler, araçlar ve kıyafetler [game-design-v2
 
 - **Lüks oyuncaklar (tekne, yat, helikopter, jet)** sahnede yok (plan 2.6).
 - **Apartman evlerinde dış mekân mı iç mekân mı?** Şimdilik dış mekân (bina girişi ve avlu), çünkü iç mekânda araç görünmez.
-- **Ara anlar** ("ilk sıcak yemek" gibi): art-brief H6 isteğe bağlı.
 - **Olay kartları (oyunda, game-design §4.7):** ödül sayıları ve sıklık telefonda denenmedi (45 / 100 / 10 sn gelir, 4–6 dk); Şans'ın getirdiği şeyin sınıfa göre değişmesi (mekanik aynı kalacak) konuşulmadı; kötü sonuçta reklamla "ikinci şans" reklam yerleriyle birlikte.
 - **Oyun testinden sonra karar:** annenin mesajında telefona bakma pozu (kıyafet başına 1 görsel) ve geç oyun için olgun görünüm (§3'teki "yaşlanan görünüm yok" kararını yeniden açar).
 - **Önerilmeyenler:** arabaya yaslanma gibi araca bağlı pozlar (12 aracın boyu farklı).
@@ -105,7 +104,7 @@ Claude'un hikâye, tasarım belgesi, plan ve simülatör zaman çizelgesi üzeri
 | 2–4 sa | 3–6 | Göl evi, süper araba, sahil malikânesi, grand lüks |
 | 5 sa | 8 | Multimilyarder töreni |
 | 8,5 sa | 13 | Büyük malikâne |
-| 11 sa 16 dk | 16 | En Zengin töreni |
+| 11 sa 10 dk | 16 | En Zengin töreni |
 | 11–17 sa | 17–25 | Yeni bir şey yok; ömür 80 yaşında biter (hayat anları testten sonra doldurur) |
 
 Yaşa bağlı üç hayat anı (25, 28, 31 yaş: ~2–4. saat) ve Orta Sınıf'tan sonra olay kartları bu çizelgenin üstüne gelir.
@@ -118,10 +117,33 @@ Yaşa bağlı üç hayat anı (25, 28, 31 yaş: ~2–4. saat) ve Orta Sınıf'ta
 
 **Tutarsızlık, yaş ile hikâye:** Milyarder 22, Multimilyarder 35, En Zengin 59 yaş. Önsözden son törene 42 yıl: anne pastayı aldığında ~87, Rıza Amca atölyede ~80. Portreler yaşlanmıyor; kahraman 59 yaşında 23'lük görünüyor (§3 ile birlikte ele alınır).
 
-**Eksikler (çoğu planda):** hayaller panosu (1.8; zincirden sonra daha değerli, sıradaki adım hep belli), lüks oyuncaklar sahnede (2.6), yağmur ve ortam sesi, Şans'ın dönüşte kapıda uyuması, konak ve pasta karesi, hayat anlarının ana ekranda iz bırakması (Defne ve kızından mesajlar, aile albümü: [story-v2.md §7](./story-v2.md)), En Zengin'den sonrası (§3).
+**Eksikler (çoğu planda):** hayaller panosu (1.8; zincirden sonra daha değerli, sıradaki adım hep belli), lüks oyuncaklar sahnede (2.6), yağmur ve ortam sesi, Şans'ın dönüşte kapıda uyuması, hayat anlarının ana ekranda iz bırakması (Defne ve kızından mesajlar, aile albümü: [story-v2.md §7](./story-v2.md)), En Zengin'den sonrası (§3).
 
 **Claude'un önerdiği sıra (karar kullanıcıda):**
 
 1. **Yaş temposu:** En Zengin'e kadar yıllar daha yavaş (zirve ~40 yaş), zirveden sonra hızlı. Hem annenin ve Rıza Amca'nın yaşını makul yapar hem sondaki boş saatleri kısaltır. Simülatörle denenmeli.
 2. **İlk oturum:** İşçi törenini ilk oturuma (~25. dk) çekmek; ekonomi ayarı, simülatörle.
 3. Hayaller panosu: ana ekranda zincirin sıradaki adımı.
+
+## 9. Hikâye ve görsel gözden geçirmesi (2026-10-13; karar bekliyor)
+
+Altı tören karesi bağlandıktan sonra hikâyenin akışına, tetiklere ve görsellere bakıldı. Yaş ve boş saatler §8'de, son işletmeler §5'te; buradakiler yeni.
+
+**Ölçüldü (simülatörün oturum çizelgesi + `runtime/story.ts` kuralları):**
+
+| Oyuncu | Gördüğü anne mesajı | Hiç görmediği |
+| --- | --- | --- |
+| Bağlı | 7 / 11 | perdeler, basamak, ★ Bülent Bey'in restoranları, gazete kupürü |
+| Bağlı + reklam | 6 / 11 | yukarıdakiler + börek |
+| Gündelik | 9 / 11 | perdeler, basamak |
+
+1. **Çözüldü (2026-10-13):** Milyarder töreninin kancası ("restoranlar satılık" mesajı) hızlı oyuncuya ulaşmıyordu; tören artık satışı kendi ilk cümlesinde söylüyor ([story-v2.md §4](./story-v2.md)). Kancalara öncelik vermek denendi: kancalar herkese ulaştı ama bağlı oyuncuda Defne köprüsü kayboldu, bu yüzden sıra değiştirilmedi. Açık kalan: İşçi ve Orta Sınıf mesajlarını (perdeler, basamak) hiçbir profil görmüyor; "basamak"ın geçerliliği Milyoner'e uzatılırsa gündelik oyuncu görür. Şimdilik kabul edildi.
+2. **Çözüldü (2026-10-13), Bülent Bey:** ilk Otel Zinciri ve yöneticisi Milyarder töreniyle bedava geliyor ([game-design-v2.md §4.2](./game-design-v2.md)). **Açık, Kuzen:** olay kartı her oyuncuya geliyor, ama Teknoloji Girişimi ilk hayatta alınmadığı için yönetici olarak (portre, cümleler) görünmüyor; §5'teki ekonomi çözümüne bağlı.
+3. **Kahramanın portresi her sınıfta kapüşonlu.** Milyarder ve En Zengin karelerinde takım elbiseli kahramanın balonunda ve "Şimdi" kartında gri kapüşonlu yüz var. Seçenek: kıyafet başına 4 ifade (12 yeni portre) ya da yalnızca "mutlu" ve "yumuşak" yüzler (6 portre).
+4. **İki ayrı çizim dili.** Önsöz, portreler ve eski fotoğraf çizgili, düz boyalı (fal.ai, 8–11 Ekim); evler, kıyafetler ve tören kareleri parlak 3D (GPT, 12–13 Ekim). Aynı törende yan yana geliyorlar. En görünür yer önsöz (ilk 40 saniye) ile ana ekranın farkı.
+5. **Multimilyarder tek karesiz tören;** oyuncunun göl evinin üstünde oynuyor, konusu atölye. Yeni Fabrika ikonu zaten ahşap atölye olarak çizildi (§7'deki "Mehmet & Rıza Atölyesi" fikriyle örtüşüyor).
+6. **En Zengin karesinde aile yok.** Kahraman o yaşta (59) evli ve kızı 28 yaşında; karede ve metinde yalnız anne ve kahraman var, Şans da yok. Yaş temposu (§8) değişirse sorun küçülür.
+7. **Küçük metin pürüzleri:** (a) Orta Sınıf'ta "eski evimizi geri aldım", bir tören sonra "bir ev aldım, tapusunda benim adım yazıyor": ilk tapu hangisi? (b) Anne, eşinin en yakın arkadaşı Rıza'yı tanıyor olmalı; kahraman ona Rıza Amca'dan hiç söz etmemiş gibi. (c) Rıza'nın tezgâh cümlesi "Annene de bir demet ayırdım" 18. dakikada geliyor; anne o sırada teyzede ve Rıza onu tanımıyor. (d) İngilizcede iki Nora var: Nevin Hanım "Mrs. Nora", Fabrika yöneticisi "Nora".
+
+**İyi çalışanlar:** önsözün geri dönüşleri karelerde de tutuyor (restoranın bakır lambaları ve personel üniforması, Bülent Bey'in takımı, kurdeleli pasta kutusu, annenin elbisesi); kıyafetler ve Şans'ın tasması her karede o sınıfınkiyle aynı; üç hayat anı Milyarder ile Multimilyarder arasındaki beş günlük boşluğa düşüyor; atölye ve pencere kancaları her profilde töreninden önce geliyor.
+

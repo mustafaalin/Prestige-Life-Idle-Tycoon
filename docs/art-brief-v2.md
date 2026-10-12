@@ -1,6 +1,6 @@
 # Görsel Brifi v2: Sahne aşamaları ve hikâye kareleri
 
-Son güncelleme: 2026-10-12 · İlgili: [story-v2.md §4, §8](./story-v2.md), [discussion-notes.md §7](./discussion-notes.md), kod `src/game/ui/scene/stages.ts`, `src/game/ui/story/ceremonyScript.ts`
+Son güncelleme: 2026-10-13 · İlgili: [story-v2.md §4, §8](./story-v2.md), [discussion-notes.md §7](./discussion-notes.md), kod `src/game/ui/scene/stages.ts`, `src/game/ui/story/ceremonyScript.ts`
 
 Bu belge, oyunun görsellerini üretecek kişiye ya da modele (GPT dahil) verilir. Neyin, hangi boyutta, hangi referansla ve hangi komutla üretileceğini anlatır. Üretilen dosyalar `art/pilot/` altına konur. Oyuna sıkıştırıp bağlamayı Claude yapar (webp, kesim, konum ayarı). Evler ve araçlar için doğrudan yapıştırılacak İngilizce komutlar: [art-prompts-v2.md](./art-prompts-v2.md).
 
@@ -125,14 +125,16 @@ Hazır komutlar: [art-prompts-v2.md §3](./art-prompts-v2.md). Özet: *"Characte
 
 ### 4.5 Hikâye kareleri
 
-| # | Tören | Dosya | Sahne | Öncelik |
+Altısı da oyunda (2026-10-13, GPT; `public/assets/story/ceremony/`, 1080 px genişlik). Her kare, töreninde aşağıdaki cümlelerin arkasında durur (`ceremonyScript.ts`).
+
+| # | Tören | Kaynak → oyundaki dosya | Sahne | Arkasında durduğu cümleler |
 | --- | --- | --- | --- | --- |
-| H1 | 2 İşçi | `art/pilot/07-story/c2-nevin-door.png` | Kiralık dairenin kapısı (4.2'deki apartman girişiyle aynı yer): Nevin Hanım elinde kurabiye tabağıyla, yanında Defne; kahraman (kıyafet 2) kapıda şaşkın ve mahcup; Şans kuyruk sallıyor. | A |
-| H2 | 3 Orta Sınıf | `art/pilot/07-story/c3-attic-v2.png` | Mevcut çatı katı (`art/pilot/07-story/milyoner-attic-v1.png`) **kıyafet 3** ile yeniden: kahraman tozlu çatı katında eski defteri açmış, sayfalardan bir fotoğraf düşüyor. | A |
-| H3 | 4 Milyoner | `art/pilot/07-story/c4-riza-garden.png` | Annenin eski evinin bahçesi, erik ağacının altında: Rıza Amca elinde eski fotoğrafla duygulanmış, kahraman (kıyafet 3) yanında. Arkada verandada iki sandalye. | A |
-| H4 | 7 En Zengin | `art/pilot/07-story/c7-mansion-cake.png` | Konağın önü, büyük pencereler, pencerede saksı çiçekler: anne ağlayan-mutlu, kahraman (kıyafet 4) elinde kurdeleli pasta kutusu (önsözdekinin aynısı, `art/pilot/04-prologue/prologue-4-door.png`). | B |
-| H5 | 5 Milyarder | `art/pilot/07-story/c5-restaurant.png` | Bülent Bey'in restoranı (önsözdeki restoran, `prologue-1-restaurant.png`): personel endişeli, Bülent Bey şaşkın, kahraman (kıyafet 4) sakin. | B |
-| H6 | 1 Gündelikçi | `art/pilot/07-story/c1-soup.png` | Minibüsün önünde (4.2'deki minibüs), Rıza Amca ve kahraman (kapüşonlu) tencereden sıcak çorba içiyor, Şans bekliyor. | B |
+| H1 | 2 İşçi | `art/pilot/07-story/c2-nevin-door.png` → `nevin-door.webp` | Kiralık dairenin kapısı: Nevin Hanım elinde kurabiye tabağıyla, yanında Defne; kahraman (kıyafet 2) kapıda şaşkın ve mahcup; Şans kuyruk sallıyor. | Nevin, Defne ve kahramanın ilk cevabı. Anneyle telefon görselsiz. |
+| H2 | 3 Orta Sınıf | `c3-attic-v2.png` → `attic.webp` (eskisinin yerine) | Çatı katı, **kıyafet 3**: kahraman eski defteri açmış, fotoğraf yere düşmüş; Şans deri tasmalı, yanında. | İki anlatım cümlesi. Ardından eski fotoğraf (`old-photo.webp`). |
+| H3 | 4 Milyoner | `c4-riza-garden-v2.png` → `riza-garden.webp` | Annenin eski evinin bahçesi, erik ağacının altı: Rıza Amca elindeki fotoğrafa bakıyor (fotoğrafın yüzü ona dönük), ne gördüğü başının yanındaki anı balonunda; kahraman (kıyafet 3) yanında, verandada iki sandalye. | Rıza'nın iki cümlesi (önce eski fotoğrafın üstünde oynuyordu). İlk deneme `c4-riza-garden.png` kullanılmadı: fotoğrafın yüzü kameraya dönüktü. |
+| H4 | 7 En Zengin | `c7-mansion-cake.png` → `mansion-cake.webp` | Konağın önü, pencerede saksı çiçekler: anne ağlayan-mutlu, kahraman (kıyafet 4) elinde kurdeleli pasta kutusu (önsözdekinin aynısı). | Törenin üç cümlesi. |
+| H5 | 5 Milyarder | `c5-restaurant.png` → `restaurant.webp` | Bülent Bey'in restoranı (önsözdeki restoran): iki personel endişeli, Bülent Bey şaşkın, kahraman (kıyafet 4) sakin. | Törenin beş cümlesi. |
+| H6 | 1 Gündelikçi | `c1-soup.png` → `soup.webp` | Minibüsün önünde Rıza Amca ve kahraman (kapüşonlu) sıcak çorba içiyor, Şans bekliyor. | Törenin dört cümlesi. |
 
 Referanslar: sahnenin yeri (ilgili arka plan ya da önsöz karesi) + kahraman kıyafet kılavuzu + ilgili kadro kılavuzları + `alley.png` (stil). Komut, yer ve kişiler tarif edildikten sonra: *"Story panel, 9:16 vertical. Keep faces and key objects in the upper two thirds; the bottom third will be covered by a speech bubble."* + stil paragrafı + arka plan cümlesi.
 
@@ -140,12 +142,15 @@ Referanslar: sahnenin yeri (ilgili arka plan ya da önsöz karesi) + kahraman k�
 
 12 araç (karar 2026-10-11; önce 16'ydı; motosiklet ve pikap ev–araç zinciri için eklendi), evin önünde park eder; her evin önünde yalnızca kendi iki aracı görülür (tablo: art-prompts §2): araba kahramanın ~2,5 m arkasında, burnu sağda; bisiklet ve skuter kahramanın yanında, sağda. Hepsi önden dörtte üç, önü sağa (§3 Araç). Liste, sıra, araç başına oran sınırı ve hazır komutlar: [art-prompts-v2.md §2](./art-prompts-v2.md). Çapa hatchback (4). 12'si de yeni açıyla oyunda (2026-10-12, `public/assets/vehicles/v2/`). Sahnedeki boy aracın gerçek yüksekliğinden hesaplanır (`stages.ts` `VEHICLE_SHAPE`), görselin genişliğinden değil. Kesim: arka plan silinir, aracın alt %30'undaki gri (gölge ve tekerlekler arasından görünen zemin) yarı saydam siyaha çevrilir (sahnede zemine basar); bisiklet ve skuterde tekerlek içindeki kapalı gri de silinir.
 
+### 4.7 İşletme ikonları (oyunda, 2026-10-13)
+
+On işletmenin ikonu yeni stilde, GPT ile (`art/pilot/10-businesses/`, 1254 px kare, şeffaf zemin; her dosyanın yanında komutu `*-prompt.txt`). Oyunda `public/assets/businesses/v2/<işletme kimliği>.webp` (384 px), `core/config/businesses.ts`. Basamak hissi ikonlarda: açık tezgâh → el arabası → küçük dükkân → ... → cam kule. Kahve Arabası'nın iki denemesinden ikincisi (`coffee-cart-v2.png`, yeşil el arabası) kullanıldı: ilki Çiçek Tezgâhı'yla aynı ahşap tezgâhtı. v1'in 40 ikonu (`public/assets/businesses/small/`, `large/`) v1'de kalır.
+
+Yeni ikon komutu (özet): *"ONE high-resolution square game business icon for {işletme}. Slight three-quarter view, whole building visible, centered. Genuine transparent background, no ground plane, no frame. Chunky readable simplified shapes for viewing at 76px. NO people, NO text, NO logos."* + stil paragrafı.
+
 ## 5. Bekleyenler
 
-| Öncelik | Görseller | Adet |
-| --- | --- | --- |
-| A | Hikâye kareleri H1–H3 (§4.5; H2 ve H3 kıyafet 3 kılavuzuyla: `outfit-3-sheet.png`) | 3 |
-| B | Hikâye kareleri H4–H6 (§4.5) | 3 |
+Bu brifteki görsellerin hepsi oyunda. İsteğe bağlı kalanlar [story-v2.md §8](./story-v2.md)'de (uyuyan Şans, atölye karesi).
 
 GPT'nin aracı ~1,57 MP veriyor: arka plan 941×1672 (1080 genişliğe büyütülüyor, telefonda kabul edilebilir), pozlar 1000 px yüksekliğe yetiyor.
 

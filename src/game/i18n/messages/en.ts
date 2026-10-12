@@ -377,6 +377,7 @@ export const en = {
       riza2: "You're Martin's boy. How did I not see it?",
     },
     c5: {
+      sale: 'Mr. Bryce\'s restaurants had gone up for sale. The buyer was the waiter he once fired.',
       staff: 'You bought the company... What happens to our jobs?',
       hero: 'Nothing changes. Except your pay goes up.',
       bryce: 'And... me?',
