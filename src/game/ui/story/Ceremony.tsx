@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { BUSINESSES, CLASS_MANAGER_GIFT } from '../../core/config/businesses';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { OFFLINE_CAP_HOURS_BY_CLASS } from '../../core/config/economy';
+import { bestOwnedLifestyle, currentHome, ownsHouse } from '../../core/state';
+import type { BusinessDef, GameStateV2, HouseDef, LifestyleDef } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
@@ -20,8 +22,8 @@ import {
 import { LIFE_SCRIPT } from './lifeScript';
 
 // Class-up ceremony (plan 1.10): "new class" title with confetti → story beats (portrait + bubble,
-// visual-novel style; hero on the right, everyone else on the left) → before/now card. Tap to go
-// on; Skip jumps to the before/now card. The store stops the clock while it plays.
+// visual-novel style; hero on the right, everyone else on the left) → closing card (what the class
+// really changed). Tap to go on; Skip jumps to the closing card. The store stops the clock while it plays.
 // A life moment (story §4c) plays the same way under its own title ("25 · First date") and has no
 // closing card: its last line, or Skip, ends it.
 
@@ -77,14 +79,22 @@ function Confetti() {
   );
 }
 
-export function Ceremony({ classIndex, onDone }: { classIndex: number; onDone: (skipped: boolean) => void }) {
+interface CeremonyProps {
+  classIndex: number;
+  /** The game just before the class was reached; null when it is not known. */
+  before: GameStateV2 | null;
+  now: GameStateV2;
+  onDone: (skipped: boolean) => void;
+}
+
+export function Ceremony({ classIndex, before, now, onDone }: CeremonyProps) {
   const { t, name } = useT();
   return (
     <StoryPlayer
       shots={CEREMONIES[classIndex] ?? []}
       pill={t('ceremony.newClass')}
       heading={name('wealthClass', WEALTH_CLASSES[classIndex])}
-      summary={(close) => <ClassSummary classIndex={classIndex} onClose={close} />}
+      summary={(close) => <ClassSummary classIndex={classIndex} before={before} now={now} onClose={close} />}
       onDone={onDone}
     />
   );
@@ -171,7 +181,7 @@ function StoryPlayer({ shots, pill, heading, summary, onDone }: StoryPlayerProps
       {/* Beats without a picture play over the player's own scene, dimmed. */}
       <div className="absolute inset-0 bg-[#140d2b]/55 backdrop-blur-[2px]" />
       <div className="relative h-full w-full max-w-[56.25dvh] mx-auto overflow-hidden">
-        {/* Warm sunburst for the title and the before/now card. */}
+        {/* Warm sunburst for the title and the closing card. */}
         <div
           className="absolute inset-0 bg-gradient-to-b from-amber-300 via-orange-400 to-rose-500 transition-opacity ease-in-out"
           style={{ opacity: phase === 'story' ? 0 : 1, transitionDuration: `${FADE_MS}ms` }}
@@ -280,16 +290,107 @@ function StoryPlayer({ shots, pill, heading, summary, onDone }: StoryPlayerProps
   );
 }
 
-/** The before/now card that closes a class ceremony. */
-function ClassSummary({ classIndex, onClose }: { classIndex: number; onClose: () => void }) {
+/**
+ * What reaching the class really changed, read from the game before and after it. A home or an
+ * outfit the player bought ahead is not a change, so it is never shown as the class's gift.
+ */
+function classChanges(classIndex: number, before: GameStateV2 | null, now: GameStateV2) {
+  const hotel = BUSINESSES.find((def) => def.id === CLASS_MANAGER_GIFT.businessId);
+  // Not known what it was like before: no comparison, only what the class itself brings.
+  if (!before) return { home: null, outfit: null, gift: classIndex === CLASS_MANAGER_GIFT.classIndex ? hotel : undefined };
+  const homes = { from: currentHome(before), to: currentHome(now) };
+  const outfits = { from: bestOwnedLifestyle(before, 'outfit'), to: bestOwnedLifestyle(now, 'outfit') };
+  const hired = !before.businesses[CLASS_MANAGER_GIFT.businessId]?.managed && now.businesses[CLASS_MANAGER_GIFT.businessId]?.managed;
+  return {
+    home: homes.from.id !== homes.to.id ? { ...homes, owned: ownsHouse(now, homes.to.id) } : null,
+    outfit:
+      outfits.from && outfits.to && outfits.from.id !== outfits.to.id ? { from: outfits.from, to: outfits.to } : null,
+    gift: hired ? hotel : undefined,
+  };
+}
+
+/** A home is a tall scene picture: the strip with the house itself. */
+function HomeShot({ house, dim }: { house: HouseDef; dim?: boolean }) {
+  return (
+    <img
+      src={house.image}
+      alt=""
+      draggable={false}
+      className={`w-full h-[78px] rounded-xl object-cover object-[center_34%] ${dim ? 'grayscale-[45%] opacity-80' : 'shadow'}`}
+    />
+  );
+}
+
+/** An outfit is the hero standing: the picture is cut at the waist so the clothes read. */
+function OutfitShot({ outfit, dim }: { outfit: LifestyleDef; dim?: boolean }) {
+  return (
+    <div className="h-[84px] overflow-hidden flex justify-center">
+      <img
+        src={outfit.image}
+        alt=""
+        draggable={false}
+        className={`h-[176px] max-w-none ${dim ? 'grayscale-[45%] opacity-80' : 'drop-shadow'}`}
+      />
+    </div>
+  );
+}
+
+/** The card's one main change: what it was on the left, what it is now on the right. */
+function Swap({ from, to }: { from: { picture: ReactNode; name: string }; to: { picture: ReactNode; name: string; badge?: string } }) {
+  const { t } = useT();
+  return (
+    <div className="flex items-stretch gap-1.5">
+      <div className="flex-1 min-w-0 rounded-2xl bg-slate-100 px-1.5 pt-1.5 pb-2">
+        {from.picture}
+        <p className="mt-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400">{t('ceremony.before')}</p>
+        <p className="text-[12px] font-black leading-tight text-slate-500 break-words">{from.name}</p>
+      </div>
+      <ArrowRight className="w-5 h-5 self-center text-slate-300 shrink-0" />
+      <div className="relative flex-1 min-w-0 rounded-2xl bg-amber-100 px-1.5 pt-1.5 pb-2">
+        {to.picture}
+        {to.badge && (
+          <span className="absolute top-2.5 right-2.5 rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-black text-white shadow">
+            {to.badge}
+          </span>
+        )}
+        <p className="mt-1.5 text-[10px] font-black uppercase tracking-widest text-amber-600">{t('ceremony.now')}</p>
+        <p className="text-[12px] font-black leading-tight text-slate-900 break-words">{to.name}</p>
+      </div>
+    </div>
+  );
+}
+
+/** The Hotel Chain and its manager, given by the class (businesses.ts CLASS_MANAGER_GIFT). */
+function ManagerGift({ business, main }: { business: BusinessDef; main?: boolean }) {
+  const { t, name } = useT();
+  const size = main ? 'w-16 h-16' : 'w-10 h-10';
+  return (
+    <div className={`flex items-center gap-2.5 rounded-2xl bg-amber-50 text-left ${main ? 'px-3 py-3' : 'mt-2 px-3 py-2'}`}>
+      <div className="shrink-0 flex items-center -space-x-3">
+        <img src={business.image} alt="" draggable={false} className={`${size} object-contain`} />
+        <img src={managerPortrait(business.id)} alt="" draggable={false} className={`${size} rounded-full object-cover border-2 border-white shadow`} />
+      </div>
+      <span className={`min-w-0 font-black text-slate-600 ${main ? 'text-[13px] leading-snug' : 'text-[11px]'}`}>
+        {t('ceremony.managerGift', { business: name('business', business), manager: t(managerKey(business.id, 'name')) })}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * The card that closes a class ceremony: one main change (the home, else the outfit, else the gift),
+ * then what else the class brought, the next goal and Continue. Without a known "before", or when
+ * the player already had it all, it shows the class reached instead of a made-up comparison.
+ */
+function ClassSummary({ classIndex, before, now, onClose }: { classIndex: number; before: GameStateV2 | null; now: GameStateV2; onClose: () => void }) {
   const { t, name, money, duration } = useT();
   const reached = WEALTH_CLASSES[classIndex];
-  const before = WEALTH_CLASSES[classIndex - 1];
+  const previous = WEALTH_CLASSES[classIndex - 1];
   const next = WEALTH_CLASSES[classIndex + 1];
   const capBefore = OFFLINE_CAP_HOURS_BY_CLASS[Math.min(classIndex - 1, OFFLINE_CAP_HOURS_BY_CLASS.length - 1)];
   const capNow = OFFLINE_CAP_HOURS_BY_CLASS[Math.min(classIndex, OFFLINE_CAP_HOURS_BY_CLASS.length - 1)];
-  // The class that brings a manager with it says so on its card (businesses.ts CLASS_MANAGER_GIFT).
-  const gift = classIndex === CLASS_MANAGER_GIFT.classIndex ? BUSINESSES.find((def) => def.id === CLASS_MANAGER_GIFT.businessId) : undefined;
+  const { home, outfit, gift } = classChanges(classIndex, before, now);
+  const giftIsMain = gift !== undefined && !home && !outfit;
 
   return (
     <div className="v2-pop-in relative w-full max-w-[340px] rounded-[28px] bg-white shadow-2xl overflow-hidden text-center">
@@ -297,37 +398,58 @@ function ClassSummary({ classIndex, onClose }: { classIndex: number; onClose: ()
         <h2 className="v2-display v2-outline-thin text-2xl text-white">{name('wealthClass', reached)}</h2>
       </div>
       <div className="px-5 pt-4 pb-5">
-        <div className="flex items-stretch gap-2">
-          <div className="flex-1 rounded-2xl bg-slate-100 px-2 py-2.5">
-            <img src={portraitOf('hero', 'worried') ?? ''} alt="" className="mx-auto mb-1 w-14 h-14 rounded-full object-cover border-2 border-white grayscale-[40%]" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('ceremony.before')}</p>
-            <p className="text-sm font-black text-slate-500 mt-0.5">{before ? name('wealthClass', before) : ''}</p>
+        {home ? (
+          <Swap
+            from={{ picture: <HomeShot house={home.from} dim />, name: name('lifestyle', home.from) }}
+            to={{
+              picture: <HomeShot house={home.to} />,
+              name: name('lifestyle', home.to),
+              badge: home.owned ? t('home.owned') : undefined,
+            }}
+          />
+        ) : outfit ? (
+          <Swap
+            from={{ picture: <OutfitShot outfit={outfit.from} dim />, name: name('lifestyle', outfit.from) }}
+            to={{ picture: <OutfitShot outfit={outfit.to} />, name: name('lifestyle', outfit.to) }}
+          />
+        ) : giftIsMain ? (
+          <ManagerGift business={gift} main />
+        ) : (
+          <div className="flex items-center gap-3 rounded-2xl bg-amber-100 px-3 py-2.5 text-left">
+            <img src={portraitOf('hero', 'happy') ?? ''} alt="" draggable={false} className="w-14 h-14 shrink-0 rounded-full object-cover border-2 border-white shadow" />
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">{t('ceremony.now')}</p>
+              <p className="text-sm font-black leading-tight text-slate-900 break-words">{name('wealthClass', reached)}</p>
+              {previous && (
+                <p className="text-[11px] font-semibold text-slate-500 break-words">
+                  {t('ceremony.before')}: {name('wealthClass', previous)}
+                </p>
+              )}
+            </div>
           </div>
-          <ArrowRight className="w-5 h-5 self-center text-slate-300 shrink-0" />
-          <div className="flex-1 rounded-2xl bg-amber-100 px-2 py-2.5">
-            <img src={portraitOf('hero', 'happy') ?? ''} alt="" className="mx-auto mb-1 w-14 h-14 rounded-full object-cover border-2 border-white shadow" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">{t('ceremony.now')}</p>
-            <p className="text-sm font-black text-slate-900 mt-0.5">{name('wealthClass', reached)}</p>
+        )}
+
+        {home && outfit && (
+          <div className="mt-2 flex items-center gap-2.5 rounded-2xl bg-slate-50 pl-2 pr-3 py-1.5 text-left">
+            <div className="w-9 h-9 shrink-0 overflow-hidden rounded-full bg-amber-100 flex justify-center">
+              <img src={outfit.to.image} alt="" draggable={false} className="h-[86px] max-w-none" />
+            </div>
+            <span className="min-w-0 text-[11px] font-black text-slate-600">
+              {t('scene.newOutfit', { outfit: name('lifestyle', outfit.to) })}
+            </span>
           </div>
-        </div>
+        )}
 
         {capNow !== capBefore && (
-          <div className="mt-3 flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2">
-            <span className="text-[11px] font-black text-slate-500">{t('ceremony.offlineCap')}</span>
-            <span className="text-sm font-black text-slate-900">
+          <div className="mt-2 flex items-center justify-between gap-2 rounded-2xl bg-slate-50 px-3 py-2">
+            <span className="min-w-0 text-left text-[11px] font-black text-slate-500">{t('ceremony.offlineCap')}</span>
+            <span className="shrink-0 text-sm font-black text-slate-900">
               {duration(capBefore * 3600)} → <span className="text-emerald-500">{duration(capNow * 3600)}</span>
             </span>
           </div>
         )}
 
-        {gift && (
-          <div className="mt-3 flex items-center gap-2.5 rounded-2xl bg-amber-50 px-3 py-2 text-left">
-            <img src={managerPortrait(gift.id)} alt="" className="w-10 h-10 shrink-0 rounded-full object-cover border-2 border-white shadow" />
-            <span className="text-[11px] font-black text-slate-600">
-              {t('ceremony.managerGift', { business: name('business', gift), manager: t(managerKey(gift.id, 'name')) })}
-            </span>
-          </div>
-        )}
+        {gift && !giftIsMain && <ManagerGift business={gift} />}
 
         <p className="text-[11px] font-semibold text-slate-500 mt-3">
           {next

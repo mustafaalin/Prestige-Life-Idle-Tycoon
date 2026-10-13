@@ -4,6 +4,7 @@ import type { EventOutcome } from '../core/config/events';
 import { SECONDS_PER_YEAR } from '../core/config/life';
 import { eventReward, fetchReward } from '../core/formulas';
 import { earn, live } from '../core/state';
+import type { GameStateV2 } from '../core/types';
 import { applyBoost, applyHelp, helpReward } from './adRewards';
 import {
   buyBusinessUnits,
@@ -79,6 +80,11 @@ export interface GameActions {
     /** Stops the clock (income and age) while a ceremony plays (story-v2.md §4). */
     setPaused(paused: boolean): void;
     ceremonySeen(classIndex: number): void;
+    /**
+     * The game as it was just before `classIndex` was reached, for the ceremony's before/now card; null
+     * when it is not known (the app was restarted in between, or the class was passed in one jump).
+     */
+    classUpFrom(classIndex: number): GameStateV2 | null;
     momShown(messageId: string): void;
     notificationsAsked(): void;
     setHeroName(name: string): void;
@@ -116,6 +122,8 @@ export function createGameStore(saveText: string | null, clock: () => number = D
   let speed = 1;
   let paused = false;
   let lastSavedAt = clock();
+  // Not saved: a card without it shows the class reached instead of a before/now picture.
+  let classUp: { classIndex: number; before: GameStateV2 } | null = null;
   const listeners = new Set<() => void>();
   const eventListeners = new Set<(event: GameEvent) => void>();
 
@@ -126,6 +134,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
 
   const commit = (next: RuntimeState, payouts: Payout[], save: boolean) => {
     const previousClass = state.game.classIndex;
+    if (next.game.classIndex > previousClass) classUp = { classIndex: next.game.classIndex, before: state.game };
     state = next;
     if (save || clock() - lastSavedAt >= AUTOSAVE_MS) persist();
     listeners.forEach((listener) => listener());
@@ -296,6 +305,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         },
         ceremonySeen: (classIndex) =>
           updateStory((story) => ({ ...story, ceremonySeen: Math.max(story.ceremonySeen, classIndex) })),
+        classUpFrom: (classIndex) => (classUp?.classIndex === classIndex ? classUp.before : null),
         momShown: (messageId) =>
           updateStory((story) => ({
             ...story,

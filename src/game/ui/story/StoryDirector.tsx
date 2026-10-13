@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { isLifeOver, offlineCapHours, offlineEarnings } from '../../core/formulas';
+import { applyClassFloors, createInitialState } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { track } from '../../runtime/analytics';
 import {
@@ -30,6 +31,12 @@ import { onStoryRequest } from './storyEvents';
 // life moment whose age has come (§4c), then (after the offline card) Mom's message on a return
 // session, and once, after the first ceremony, the reminder opt-in. Also schedules the reminders when
 // the app goes to the background.
+
+/** A replayed ceremony (dev menu) shows the story's own step: the class before it, then the class itself. */
+function storyStep(classIndex: number) {
+  const at = (index: number) => applyClassFloors({ ...createInitialState(), classIndex: index });
+  return { before: at(classIndex - 1), now: at(classIndex) };
+}
 
 export function StoryDirector({ tabOpen }: { tabOpen: boolean }) {
   const { game, state, actions } = useGameV2();
@@ -137,7 +144,8 @@ export function StoryDirector({ tabOpen }: { tabOpen: boolean }) {
   };
 
   if (ceremony !== null) {
-    return <Ceremony key={ceremony} classIndex={ceremony} onDone={(skipped) => finishCeremony(ceremony, skipped)} />;
+    const step = replay !== null ? storyStep(ceremony) : { before: actions.story.classUpFrom(ceremony), now: game };
+    return <Ceremony key={ceremony} classIndex={ceremony} {...step} onDone={(skipped) => finishCeremony(ceremony, skipped)} />;
   }
 
   if (life !== null) {
