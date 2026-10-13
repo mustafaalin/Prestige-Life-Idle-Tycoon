@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { Preferences } from '@capacitor/preferences';
 import { track } from './analytics';
 
 // Local notifications (docs/discussion-notes.md §8 → Faz 1, 2026-10-09): Mom's next message and
@@ -27,22 +28,49 @@ export interface Reminder {
   at: number;
 }
 
-/** The player's switch in Settings (on by default; the OS permission is separate). */
-export function notificationsEnabled(): boolean {
+function readLocal(): string | null {
   try {
-    return localStorage.getItem(PREF_KEY) !== 'off';
+    return localStorage.getItem(PREF_KEY);
   } catch {
-    return true;
+    return null;
   }
 }
 
-export function setNotificationsEnabled(enabled: boolean) {
+// Read once at launch (loadNotificationsPref); the switch and the scheduler read this copy.
+let enabled = readLocal() !== 'off';
+
+/**
+ * On phones the switch lives in Preferences like the save (the OS may clear a WebView's
+ * localStorage, which would turn reminders back on for a player who switched them off); a choice
+ * made before that only exists in localStorage and is copied over. Never throws.
+ */
+export async function loadNotificationsPref(): Promise<void> {
+  if (!native) return;
+  const local = readLocal();
   try {
-    localStorage.setItem(PREF_KEY, enabled ? 'on' : 'off');
+    const stored = (await Preferences.get({ key: PREF_KEY })).value;
+    if (stored === 'on' || stored === 'off') enabled = stored === 'on';
+    else if (local !== null) await Preferences.set({ key: PREF_KEY, value: local });
   } catch {
-    // Not saved; the switch resets next launch.
+    // Native storage unavailable: the local copy stays.
   }
-  if (!enabled) void cancelReminders();
+}
+
+/** The player's switch in Settings (on by default; the OS permission is separate). */
+export function notificationsEnabled(): boolean {
+  return enabled;
+}
+
+export function setNotificationsEnabled(value: boolean) {
+  enabled = value;
+  const text = value ? 'on' : 'off';
+  try {
+    localStorage.setItem(PREF_KEY, text);
+  } catch {
+    // The native copy below is the one that counts on phones.
+  }
+  if (native) Preferences.set({ key: PREF_KEY, value: text }).catch(() => {});
+  if (!value) void cancelReminders();
 }
 
 export const notificationsSupported = native;

@@ -6,7 +6,7 @@ import './mobile.css';
 import { I18nProvider } from './i18n/I18nProvider';
 import { loadLocale, type Locale } from './i18n/locales';
 import { installBackButton } from './runtime/backButton';
-import { installNotificationTracking } from './runtime/notifications';
+import { installNotificationTracking, loadNotificationsPref } from './runtime/notifications';
 import { GameV2Provider } from './runtime/GameV2Provider';
 import { readSave } from './runtime/storage';
 import { DevMenu } from './ui/DevMenu';
@@ -19,7 +19,7 @@ import { Prologue } from './ui/story/Prologue';
 const DEV_MENU_ENABLED = import.meta.env.DEV || import.meta.env.VITE_DEV_MENU === 'true';
 
 export default function AppV2() {
-  // undefined / null = still reading the save and language (native storage is async); the splash stays up until then.
+  // undefined / null = still reading the save, language and reminder switch (native storage is async); the splash stays up until then.
   const [saveText, setSaveText] = useState<string | null | undefined>(undefined);
   const [locale, setLocale] = useState<Locale | null>(null);
   // 'intro': a new player sees the prologue before the game (and its life clock) starts.
@@ -28,7 +28,7 @@ export default function AppV2() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([readSave(), loadLocale()]).then(([text, savedLocale]) => {
+    Promise.all([readSave(), loadLocale(), loadNotificationsPref()]).then(([text, savedLocale]) => {
       if (cancelled) return;
       setLocale(savedLocale);
       setSaveText(text);
