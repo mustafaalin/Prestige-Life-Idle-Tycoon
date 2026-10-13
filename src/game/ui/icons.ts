@@ -16,6 +16,11 @@ export const ICONS = {
   /** The family album: the story moments seen so far. */
   album: `${DIR}/family-album.webp`,
   retirement: `${DIR}/retirement.webp`,
+  /** The shop's four sections; `luxury` is a section mark, not a currency. */
+  home: `${DIR}/home.webp`,
+  vehicle: `${DIR}/vehicle.webp`,
+  outfit: `${DIR}/outfit.webp`,
+  luxury: `${DIR}/luxury.webp`,
   /** Family legacy points; never the status star. */
   legacy: `${DIR}/legacy-points.webp`,
 };

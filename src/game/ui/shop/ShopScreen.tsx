@@ -17,11 +17,11 @@ import { Thumb } from './Thumb';
 
 type ShopTab = ShopTabId;
 
-const TABS: { kind: ShopTab; label: MessageKey }[] = [
-  { kind: 'house', label: 'shop.house' },
-  { kind: 'vehicle', label: 'shop.vehicle' },
-  { kind: 'outfit', label: 'shop.outfit' },
-  { kind: 'toy', label: 'shop.toy' },
+const TABS: { kind: ShopTab; label: MessageKey; icon: string }[] = [
+  { kind: 'house', label: 'shop.house', icon: ICONS.home },
+  { kind: 'vehicle', label: 'shop.vehicle', icon: ICONS.vehicle },
+  { kind: 'outfit', label: 'shop.outfit', icon: ICONS.outfit },
+  { kind: 'toy', label: 'shop.toy', icon: ICONS.luxury },
 ];
 
 /** How many not-yet-affordable dreams are previewed after the next one. */
@@ -58,7 +58,15 @@ export function ShopScreen() {
       </div>
 
       <Segmented
-        options={TABS.map((entry) => ({ value: entry.kind, label: t(entry.label) }))}
+        options={TABS.map((entry) => ({
+          value: entry.kind,
+          label: (
+            <span className="flex flex-col items-center gap-0.5">
+              <img src={entry.icon} alt="" draggable={false} className="w-7 h-7 object-contain drop-shadow" />
+              <span className="text-[12px] leading-none">{t(entry.label)}</span>
+            </span>
+          ),
+        }))}
         value={tab}
         onChange={setTab}
         dot={(kind) => tabReady(game, kind)}
@@ -175,14 +183,14 @@ function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: (
       {owned.length > 0 && (
         <>
           <SectionLabel>{t('shop.collection')}</SectionLabel>
-          <ul className="grid grid-cols-4 gap-2">
+          <ul className="grid grid-cols-3 gap-2">
             {[...owned].reverse().map((item) => (
               <li
                 key={item.id}
                 className="relative bg-white rounded-2xl border-2 border-white shadow-[0_4px_14px_rgba(30,41,99,0.12)] p-1.5 flex flex-col items-center gap-1"
               >
                 <Thumb image={item.image} />
-                <span className="w-full text-center text-[9px] font-bold text-slate-500 leading-tight line-clamp-2">
+                <span className="w-full text-center text-[11px] font-bold text-slate-500 leading-tight line-clamp-2">
                   {name('lifestyle', item)}
                 </span>
                 <span className="absolute top-1 right-1 w-5 h-5 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 text-white flex items-center justify-center">

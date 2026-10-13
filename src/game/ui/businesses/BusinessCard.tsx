@@ -11,7 +11,7 @@ import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
 import { upgradeNameKey } from '../home/questText';
 import { RewardCard } from '../home/RewardCard';
-import { Chip, GameButton, GlossyBar, ImageTile, Panel } from '../kit';
+import { Chip, GameButton, ImageTile, Panel } from '../kit';
 import { CycleBar } from './CycleBar';
 import { managerKey, managerPortrait, type ManagerLine } from './managers';
 
@@ -75,7 +75,7 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
 
   return (
     <Panel className="p-3 flex flex-col gap-2.5">
-      <div className="flex gap-3">
+      <div className={`flex gap-3 ${owned > 0 ? 'pb-1.5' : ''}`}>
         <Focusable focusKey={`business:${def.id}:run`} className="shrink-0">
           <button
             type="button"
@@ -84,12 +84,12 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
             aria-label={canStart ? t('business.run') : name('business', def)}
             className="relative shrink-0 transition-all active:scale-95 disabled:active:scale-100"
           >
-            <ImageTile className="w-[76px] h-[76px]">
+            <ImageTile className={owned > 0 ? 'w-20 h-20' : 'w-[88px] h-[88px]'}>
               <img
                 src={def.image}
                 alt=""
                 draggable={false}
-                className={`w-[66px] h-[66px] object-contain ${owned === 0 ? 'grayscale opacity-60' : ''}`}
+                className={owned > 0 ? 'w-[70px] h-[70px] object-contain' : 'w-[78px] h-[78px] object-contain grayscale opacity-60'}
               />
             </ImageTile>
             {canStart && (
@@ -99,31 +99,37 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
               </span>
             )}
           </button>
+          {/* Under the picture, where "Run" sits on a line without a manager: the name keeps the whole row. */}
+          {managed && (
+            <button
+              type="button"
+              onClick={talk}
+              aria-label={managerName}
+              className="v2-hit absolute -left-1.5 -bottom-2.5 flex transition-all active:scale-95"
+            >
+              <Chip>
+                <img
+                  src={portrait}
+                  alt=""
+                  draggable={false}
+                  className="-ml-1.5 w-6 h-6 rounded-full object-cover border-2 border-white"
+                />
+                {t('business.auto')}
+              </Chip>
+            </button>
+          )}
         </Focusable>
 
         <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-          <div className="flex items-center justify-between gap-2">
-            <p className="v2-display text-[17px] leading-tight text-indigo-950 truncate">{name('business', def)}</p>
-            {managed && (
-              <button type="button" onClick={talk} aria-label={managerName} className="relative v2-hit transition-all active:scale-95">
-                <Chip>
-                  <img
-                    src={portrait}
-                    alt=""
-                    draggable={false}
-                    className="-ml-1.5 w-6 h-6 rounded-full object-cover border-2 border-white"
-                  />
-                  {t('business.auto')}
-                </Chip>
-              </button>
-            )}
-          </div>
+          <p className="v2-display text-[17px] leading-tight text-indigo-950 line-clamp-2 break-words">
+            {name('business', def)}
+          </p>
 
           {owned > 0 ? (
             <>
-              <p className="text-[11px] font-bold text-slate-500 truncate">
-                <span className="text-indigo-700">{t('business.owned', { count: owned })}</span>
-                {' · '}
+              {/* The income drops to its own line when both do not fit, instead of being cut. */}
+              <p className="flex flex-wrap gap-x-1.5 text-[12px] font-bold leading-tight">
+                <span className="text-indigo-700 whitespace-nowrap">{t('business.owned', { count: owned })}</span>
                 <span className={managed ? 'text-emerald-600' : 'text-violet-600'}>
                   {t(managed ? 'business.income' : 'business.withManager', { amount: monthly })}
                 </span>
@@ -163,60 +169,6 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
         </div>
       )}
 
-      {owned > 0 && (
-        <GlossyBar
-          progress={target === null ? 1 : (owned - previous) / (target - previous)}
-          label={target === null ? t('business.allMilestones') : t('business.milestone', { owned, target })}
-        />
-      )}
-
-      {upgrade && (
-        <Focusable focusKey={`business:${def.id}:upgrade`}>
-          {upgradeOpen ? (
-            <GameButton
-              tone="gold"
-              onClick={() => {
-                if (actions.buyUpgrade(upgrade.id)) {
-                  playSfx('levelUp');
-                  haptic('medium');
-                }
-              }}
-              disabled={game.cash < upgrade.cost}
-              className="w-full min-h-11 py-2 px-3 flex items-center gap-2"
-            >
-              <ArrowBigUpDash className="w-5 h-5 shrink-0" />
-              <span className="flex-1 min-w-0 text-left v2-display text-[13px] v2-shadow truncate">
-                {t(upgradeNameKey(upgrade.id))} · {t('business.upgradeEffect', { multiplier: upgrade.multiplier })}
-              </span>
-              <span className="v2-display text-[13px] v2-shadow tabular-nums">{money(upgrade.cost)}</span>
-            </GameButton>
-          ) : (
-            <p className="flex items-center gap-1 px-1 text-[11px] font-bold text-indigo-900/50">
-              <Lock className="w-3 h-3 shrink-0" />
-              {t('business.upgradeLocked', {
-                count: upgrade.requiredOwned,
-                upgrade: t(upgradeNameKey(upgrade.id)),
-                multiplier: upgrade.multiplier,
-              })}
-            </p>
-          )}
-        </Focusable>
-      )}
-
-      {owned > 0 && !managed && (
-        <div className="flex items-center gap-2 rounded-xl bg-violet-50 px-2 py-1.5">
-          <img
-            src={portrait}
-            alt=""
-            draggable={false}
-            className="w-9 h-9 rounded-full object-cover border-2 border-white shadow"
-          />
-          <p className="text-[11px] font-bold leading-snug text-violet-700">
-            {t('business.managerHint', { name: managerName })}
-          </p>
-        </div>
-      )}
-
       <div className="flex gap-2">
         <Focusable focusKey={`business:${def.id}:buy`} className="flex-1">
           <GameButton
@@ -251,6 +203,71 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
         )}
       </div>
       {owned > 0 && !managed && <HelpAd cost={def.managerCost} />}
+
+      {owned > 0 && !managed && (
+        <div className="flex items-center gap-2 rounded-xl bg-violet-50 px-2 py-1.5">
+          <img
+            src={portrait}
+            alt=""
+            draggable={false}
+            className="w-9 h-9 rounded-full object-cover border-2 border-white shadow"
+          />
+          <p className="text-[11px] font-bold leading-snug text-violet-700">
+            {t('business.managerHint', { name: managerName })}
+          </p>
+        </div>
+      )}
+
+      {owned > 0 &&
+        (target === null ? (
+          <p className="px-1 text-[11px] font-bold text-indigo-900/50">{t('business.allMilestones')}</p>
+        ) : (
+          // A thin line with its text beside it: the thick green bar above is production, this is the long goal.
+          <div className="flex items-center gap-2 px-1">
+            <span className="shrink-0 text-[11px] font-bold text-indigo-900/60 tabular-nums">
+              {t('business.milestone', { owned, target })}
+            </span>
+            <div className="flex-1 h-2 rounded-full bg-indigo-100 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-amber-300 to-orange-500 transition-all duration-300"
+                style={{ width: `${((owned - previous) / (target - previous)) * 100}%` }}
+              />
+            </div>
+          </div>
+        ))}
+
+      {upgrade && (
+        <Focusable focusKey={`business:${def.id}:upgrade`}>
+          {upgradeOpen ? (
+            <GameButton
+              tone="gold"
+              onClick={() => {
+                if (actions.buyUpgrade(upgrade.id)) {
+                  playSfx('levelUp');
+                  haptic('medium');
+                }
+              }}
+              disabled={game.cash < upgrade.cost}
+              className="w-full min-h-11 py-2 px-3 flex items-center gap-2"
+            >
+              <ArrowBigUpDash className="w-5 h-5 shrink-0" />
+              <span className="flex-1 min-w-0 text-left v2-display text-[13px] v2-shadow truncate">
+                {t(upgradeNameKey(upgrade.id))} · {t('business.upgradeEffect', { multiplier: upgrade.multiplier })}
+              </span>
+              <span className="v2-display text-[13px] v2-shadow tabular-nums">{money(upgrade.cost)}</span>
+            </GameButton>
+          ) : (
+            <p className="flex items-center gap-1 px-1 text-[11px] font-bold text-indigo-900/50">
+              <Lock className="w-3 h-3 shrink-0" />
+              {t('business.upgradeLocked', {
+                count: upgrade.requiredOwned,
+                upgrade: t(upgradeNameKey(upgrade.id)),
+                multiplier: upgrade.multiplier,
+              })}
+            </p>
+          )}
+        </Focusable>
+      )}
 
       {hired && (
         <RewardCard
