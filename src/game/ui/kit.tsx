@@ -41,7 +41,7 @@ export function Panel({
 }) {
   return (
     <div
-      className={`rounded-[22px] bg-white border-2 ${
+      className={`v2-panel rounded-[22px] bg-white border-2 ${
         accent
           ? 'border-amber-300 shadow-[0_6px_18px_rgba(245,158,11,0.25)]'
           : 'border-white shadow-[0_4px_14px_rgba(30,41,99,0.12)]'
@@ -53,14 +53,14 @@ export function Panel({
 }
 
 export function SectionLabel({ children }: { children: ReactNode }) {
-  return <h3 className="v2-display text-[13px] uppercase tracking-wide text-indigo-900/60 px-1">{children}</h3>;
+  return <h3 className="v2-section-label v2-display text-[13px] uppercase tracking-wide text-indigo-900/60 px-1">{children}</h3>;
 }
 
 /** Picture box for a business, job or item. */
 export function ImageTile({ className = 'w-16 h-16', children }: { className?: string; children: ReactNode }) {
   return (
     <div
-      className={`shrink-0 rounded-2xl bg-gradient-to-b from-sky-100 to-indigo-100 border-2 border-white shadow-inner overflow-hidden flex items-center justify-center ${className}`}
+      className={`v2-tile shrink-0 rounded-2xl bg-gradient-to-b from-sky-100 to-indigo-100 border-2 border-white shadow-inner overflow-hidden flex items-center justify-center ${className}`}
     >
       {children}
     </div>
@@ -78,13 +78,13 @@ export function GlossyBar({
   fill?: string;
 }) {
   return (
-    <div className="relative h-5 rounded-full bg-indigo-100 border border-indigo-200/60 overflow-hidden">
+    <div className="v2-bar relative h-5 rounded-full bg-indigo-100 border border-indigo-200/60 overflow-hidden">
       <div
         className={`h-full rounded-full bg-gradient-to-r ${fill} transition-all duration-300`}
         style={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }}
       />
       <div className="absolute inset-x-1 top-0.5 h-1.5 rounded-full bg-white/30" />
-      <span className="absolute inset-0 flex items-center justify-center v2-display text-[11px] text-white v2-shadow tabular-nums">
+      <span className="v2-bar-label absolute inset-0 flex items-center justify-center v2-display text-[11px] text-white v2-shadow tabular-nums">
         {label}
       </span>
     </div>
@@ -116,7 +116,7 @@ export function Segmented<T extends string | number>({
   dot?: (value: T) => boolean;
 }) {
   return (
-    <div className="flex gap-1 rounded-2xl bg-white/70 border-2 border-white p-1 shadow-sm">
+    <div className="v2-segmented flex gap-1 rounded-2xl bg-white/70 border-2 border-white p-1 shadow-sm">
       {options.map((option) => {
         const selected = option.value === value;
         return (

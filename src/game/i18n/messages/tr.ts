@@ -505,6 +505,8 @@ export const tr: Messages = {
     mom: 'Annenin sıradaki mesajı',
     notifyTest: 'Deneme bildirimi (5 sn)',
     sceneLab: 'Sahne laboratuvarı',
+    look: 'İşletmeler ekranının görünümü',
+    looks: { classic: 'Eski', a: 'A (sakin)', b: 'B (lacivert)' },
     labNoVehicle: 'Araçsız',
     labHint: 'Kırmızı: barların ve dar telefonların kapattığı yer. Mavi: araba, iki teker ve ayak çizgisi. ×0,67 gibi etiket: görsel şeride sığmadığı için küçültüldü.',
   },

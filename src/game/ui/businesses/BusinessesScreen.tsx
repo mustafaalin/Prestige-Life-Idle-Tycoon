@@ -41,7 +41,7 @@ export function BusinessesScreen() {
       ))}
 
       {teaser && (
-        <div className="rounded-[22px] border-2 border-dashed border-indigo-200 bg-white/50 p-3 flex items-center gap-3">
+        <div className="v2-teaser rounded-[22px] border-2 border-dashed border-indigo-200 bg-white/50 p-3 flex items-center gap-3">
           <ImageTile>
             <img
               src={teaser.image}

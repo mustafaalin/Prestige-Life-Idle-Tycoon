@@ -75,7 +75,7 @@ export function QuestStrip({ tab, pinnedId, onGo }: { tab: TabId; pinnedId: stri
     quests[0];
   if (!quest) return null;
   return (
-    <div className="shrink-0 px-3 py-1.5 bg-white/85 border-b border-indigo-100">
+    <div className="v2-quest-strip shrink-0 px-3 py-1.5 bg-white/85 border-b border-indigo-100">
       <ul>
         <QuestRow quest={quest} onGo={onGo} compact />
       </ul>

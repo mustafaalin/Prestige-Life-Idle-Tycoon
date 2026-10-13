@@ -8,6 +8,7 @@ import { showRewardedAd } from '../runtime/ads';
 import { scheduleTestReminder } from '../runtime/notifications';
 import { LIFE_MOMENTS } from '../runtime/story';
 import { requestEventCard } from './events/eventScript';
+import { LOOKS, setLook, useLook } from './look';
 import { SceneLab } from './scene/SceneLab';
 import { requestFind } from './scene/sceneEvents';
 import { requestCeremony, requestLifeMoment, requestMomMessage } from './story/storyEvents';
@@ -51,6 +52,7 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
   const [confirmReset, setConfirmReset] = useState(false);
   const [adResult, setAdResult] = useState<string | null>(null);
   const [lab, setLab] = useState(false);
+  const look = useLook();
 
   const changeSpeed = (value: number) => {
     actions.dev.setSpeed(value);
@@ -139,6 +141,14 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
           {(Object.keys(LOCALES) as Locale[]).map((code) => (
             <Chip key={code} active={locale === code} onClick={() => setLocale(code)}>
               {LOCALES[code].nativeName}
+            </Chip>
+          ))}
+        </Row>
+
+        <Row label={t('dev.look')}>
+          {LOOKS.map((value) => (
+            <Chip key={value} active={look === value} onClick={() => setLook(value)}>
+              {t(`dev.looks.${value}`)}
             </Chip>
           ))}
         </Row>

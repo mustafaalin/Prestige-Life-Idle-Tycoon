@@ -506,6 +506,8 @@ export const en = {
     mom: "Mom's next message",
     notifyTest: 'Test notification (5 s)',
     sceneLab: 'Scene lab',
+    look: 'Look of the Businesses screen',
+    looks: { classic: 'Old', a: 'A (calm)', b: 'B (navy)' },
     labNoVehicle: 'No vehicle',
     labHint: 'Red: hidden by the bars and on narrow phones. Blue: car, two-wheeler and feet lines. A label like ×0.67: the art is too wide for its lane and was shrunk.',
   },
