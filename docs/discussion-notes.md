@@ -32,7 +32,7 @@ Ana kurallar kararlaştırıldı ([game-design-v2.md §4.9](./game-design-v2.md)
 - **Anne ve Şans, En Zengin'den sonra:** anne 59'da ~87 yaşında, Şans 40 yıldır yanında. Ölüm gösterilmiyor. Öneri: annenin mesajları En Zengin'den sonra biter, kanal Defne ve kızına geçer; Şans'ın yerini yavrusu alır.
 - **Ömür sonu uyarısı:** "65 yaşındasın, 15 yılın kaldı" gibi bir hatırlatma; zirveye ulaşmamış oyuncunun "sonu göremedim" hissi. Üst bar artık sadece yaşı gösteriyor ("kalan yıl" 2026-10-08'de kalktı).
 - **En Zengin'den sonrası (57 → 80):** hayat anları dolduracak (torun, devir; [story-v2.md §4c](./story-v2.md), testten sonra); başka içerik yok.
-- **Ömür 70 yaş olsun mu (2026-10-13, kullanıcı: "işe yararsa"; karar bekliyor):** simülatörde denendi. Bağlı oyuncuda ömür sonu 25. günden 21. güne iniyor (14 sa 8 dk oyun; hedefin alt sınırı 21. gün), En Zengin'den sonraki boş süre 8,5 günden ~5 güne. Annenin ve Rıza Amca'nın zirvedeki yaşını değiştirmiyor (kahraman yine 57). Bedeli: torun 63 yerine 53'te doğmalı (hayat anları tablosu), gündelik oyuncu ömrün sonunu yine 45 günde görmüyor, varis 4 gün erken geliyor ve 2. neslin içeriği henüz yok.
+- **Ömür 80 yaş kalıyor (karar 2026-10-13, kullanıcı).** 70 yaş simülatörde denendi (ömür sonu 25. günden 21. güne, En Zengin'den sonraki boş süre 8,5 günden ~5 güne) ama torunun doğumunu 53'e çekiyor ve varisi 2. neslin içeriği yokken 4 gün erken getiriyordu.
 - **Gönüllü erken emeklilik:** Yok (kullanıcı: erken devir olmasın).
 
 ## 4. Faz 2.1 hanedan soruları ([story-v2.md §6](./story-v2.md))
