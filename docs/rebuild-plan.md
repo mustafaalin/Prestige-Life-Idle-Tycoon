@@ -137,7 +137,7 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 
 - [x] **1.18 Önsöz (görsel roman, 2026-10-08):** 6 kare, 13 balon: restoran, annenin doğum günü telefonu, kovulma, lojman kapısı, otogarda söz, ara sokakta Şans ([story-v2.md §4](./story-v2.md)). `ui/story/Prologue.tsx` + `prologueScript.ts`: tam ekran kare, yavaş yakınlaşma, isim etiketli balon, dokun → devam, "Geç", sona siyaha geçiş. Kayıt yoksa (yeni oyuncu) oyundan önce oynar; oyun ve yaş saati önsöz bitince başlar. Geniş ekranda 9:16 sütun. Geliştirici menüsünde "Önsözü tekrar oynat". Balonlar konuşanın başının üstünde, kuyruğu konuşana bakar. Ses yok (yağmur sesi bekliyor). Balon bileşeni törenlerde (1.10) ve rehberde (1.12) yeniden kullanılacak.
 - [x] **1.S Simülatör düzeltmeleri (2026-10-08):** Olay saatleri artık dönüş oturumuna ve adım sonuna yazılıyor (önce çevrimdışı kazançla gelen olaylar bir önceki oturumun saatine yazılıyordu). `--offline-cap <saat>` ve `--life <sn/ay>` (emekliliksiz tek kahraman, yaş ölçümü) seçenekleri. Sonuçlar tasarım belgesi §5.
-- [x] **1.L Yaş ve ömür (2026-10-08; ömür 80 yaş 2026-10-11):** [game-design-v2.md §4.9](./game-design-v2.md). `config/life.ts` (17 → 80, 80 sn = 1 ay), durumda `lifeSeconds`; yaş sadece tick'te ilerler, çevrimdışında ilerlemez. Emeklilik sadece ömür sonunda (`canRetire` = ömür bitti). Üst barda "24 yaş"; ömür sonunda "Bir ömür tamamlandı → Emekli ol ve devret" ekranı (geçici; vakıf töreni 2.1). Geliştirici menüsünde "Kahramanı yaşlandır +10 / +40 yıl". Simülatör tek ömür modelinde.
+- [x] **1.L Yaş ve ömür (2026-10-08; ömür 80 yaş 2026-10-11):** [game-design-v2.md §4.9](./game-design-v2.md). `config/life.ts` (17 → 80, 80 sn = 1 ay), durumda `lifeSeconds`; yaş sadece tick'te ilerler, çevrimdışında ilerlemez. Emeklilik sadece ömür sonunda (`canRetire` = ömür bitti). Üst barda "24 yaş"; ömür sonunda "Bir ömür tamamlandı" paneli (2026-10-13: hayattan kareler, işletme özeti, aile itibarı, "Emekli ol ve devret"; `ui/home/RetirementPanel.tsx`; vakıf töreni ve soy ağacı 2.1). Geliştirici menüsünde "Kahramanı yaşlandır +10 / +40 yıl". Simülatör tek ömür modelinde.
 - [x] **1.P Tek ömür temposu (2026-10-08):** Multimilyarder ($100B) sınıfı; orta oyun yavaş, geç oyun hızlı (`paybackMinutes`, `salaryFactor`, `costFactor`). Güncel yaşlar ve hedefler: [game-design-v2.md §5](./game-design-v2.md).
 - [x] **1.G Gelir ve toplama (2026-10-08):** Gelir "/ay" gösterilir; şişe ~2,5 sn gelir eder; çevrimdışı tavan sınıfla büyür (10 dk → 2 sa); Şans'ın cüzdanı ve çevrimdışı kazanç "Topla" kartıyla ([game-design §4.6–4.7](./game-design-v2.md)).
 - [~] **1.T Ekonomi ayarı (kullanıcıyla):**
@@ -170,7 +170,7 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 
 **Amaç:** Oyuncunun 1., 7. ve 30. gün geri gelmesi için sebep yaratmak.
 
-- [ ] **2.1 Hanedan ekranı:** Ömür sonu (80 yaş) emeklilik akışının tam hali: vakıf töreni, ne kazanıldığı, miras puanı, soy ağacı. Geçici ekran 1.L'de var.
+- [ ] **2.1 Hanedan ekranı:** Ömür sonu (80 yaş) emeklilik akışının tam hali: vakıf töreni, ne kazanıldığı, miras puanı, soy ağacı. Özet paneli 1.L'de var.
 - [ ] **2.2 Yadigarlar:** Miras puanıyla alınan kalıcı yetenekler (çevrimdışı tavanı +1 sa, başlangıç parası, yönetici indirimi...).
 - [ ] **2.3 Nesil içeriği:** Her nesil yeni bir şey açsın (yeni şehir + yeni işletme kademeleri; kullanılmayan 30 işletme görseli). Simülatöre eklenip 30 günlük tempo yeniden ayarlanacak.
 - [~] **2.4 Olay kartları:** Kart motoru + sınıfa göre değişen 60 kart (risk, duygu, mizah). Günde 3–5 kart.

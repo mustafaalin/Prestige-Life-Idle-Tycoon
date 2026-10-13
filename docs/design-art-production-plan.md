@@ -1,15 +1,18 @@
 # Tasarım görsel üretim planı
 
-Durum: kaynak üretim planı; dosya adları teslim sözleşmesidir. Planlanan yol dosyanın mevcut olduğu anlamına gelmez. Hazır dosyalar dışında Claude aktif referans değiştirmesin. Kullanıcı her kariyer görselinin özgün, önceki görsellerden kopyasız olmasını istiyor; her kariyer ayrı nesne/kompozisyon ve referanssız üretilecek. Ortak stil; yumuşak hacimli 3D CG, net siluet, küçük ölçekte okunurluk, yazısız, raster nesnelerde gerçek alpha. Tekrarlanan karakterlerde kimlik kılavuzları referans alınır.
+Durum (2026-10-13): Bölüm 1–3 tamamlandı. Şans'ın üç uyku tasması, 12 kariyer ikonu ve 20 menü/ortak ikon kaynak olarak hazır. Bu turda 32 yeni PNG üretildi: iki uyku varyantı, kalan 10 kariyer, 20 ortak ikon. Her kaynağın yanında `-prompt.txt` bulunur. PNG boyutları: uyku varyantları 1536×1024; kariyer ve ortak ikonlar 1254×1254. Dosya sayıları, prompt eşleri ve alpha kanalları kontrol edildi. Oyuna entegrasyon ve telefon testi Claude Code tarafında yapılacak.
+
+Bölüm 4–7 sonraki işlerdir; planlanan yol dosyanın mevcut olduğu anlamına gelmez. Hazır dosyalar dışında Claude aktif referans değiştirmesin. Kullanıcı her kariyer ve ortak ikonun özgün, önceki görsellerden kopyasız olmasını istiyor; her ikon ayrı nesne/kompozisyonla, önceki ikonlara görsel referans verilmeden üretildi. Ortak stil; yumuşak hacimli 3D CG, net siluet, yazısız, raster nesnelerde alpha. Tekrarlanan karakterlerde kimlik kılavuzları referans alınır.
 
 ## 1. Şans
 Hazır: art/pilot/05-scene/sans-sleep-rope.png
-Tasma sürekliliği için sonraki varyantlar:
+Tasma sürekliliği için tamamlanan varyantlar:
 - art/pilot/05-scene/sans-sleep-leather.png
 - art/pilot/05-scene/sans-sleep-gold.png
-Aynı köpek/anatomi/uyku; yalnız ilgili tasma. Bunlar üretilmeden ileri sınıflarda ipli uyku kullanılmaz.
+Aynı köpek/anatomi/uyku; ilgili tasma varyantı sınıfın mevcut tasma seçimine bağlanır. Oranı korunarak contain kullanılır; kareye gerilmez.
 
 ## 2. Kariyer — sıra ve kaynaklar
+Durum: aşağıdaki 12 kaynağın tamamı hazır.
 1. art/pilot/11-careers/flyer-distributor.png — hazır, çiçekçi broşürü; eski kaynak kaldırıldı.
 2. art/pilot/11-careers/dishwasher.png — hazır.
 3. art/pilot/11-careers/cashier.png
@@ -25,6 +28,7 @@ Aynı köpek/anatomi/uyku; yalnız ilgili tasma. Bunlar üretilmeden ileri sın�
 Garsonluk dahil sonraki mesleklerin kovulduğu restoranla bağlantısı otomatik kurulmaz. Kariyer ikonları insan kılavuzu değil meslek nesneleridir; hikâyeye aykırı sembol kullanılmaz.
 
 ## 3. Ortak ikon ailesi — kariyerlerden sonra
+Durum: aşağıdaki 20 kaynağın tamamı hazır.
 Ana gezinme:
 - art/pilot/12-icons/business.png
 - art/pilot/12-icons/career.png
@@ -52,6 +56,8 @@ Yeni ekranlar için:
 - art/pilot/12-icons/retirement.png
 
 Hepsi ayrı, anlamı net nesne kompozisyonu. Ortak açı/ışık/görsel ağırlık olabilir, aynı nesne şablonu yeniden renklendirilmez. 24/32/48 px hedefe göre detay azaltılır. Küçük işlevsel ok/kapat/kilit/onay/ayar için tutarlı vektör sistemini koru; sırf yeni olsun diye raster üretme. V1'in kullanılmayan gem, sağlık, mutluluk, para/gem paketleri bu turda yok.
+
+Entegrasyon: kaynak PNG'ler korunur; mevcut asset adlandırmasına uygun WebP kopyalar oluşturulur. Kariyer listesinde mevcut meslek ID'leriyle birebir eşleştirilir. Şans'ın üç tasması ve bütün ikonların açık/koyu yüzeylerde 32/48/64 px görünümü telefonda kontrol edilir. `luxury.png` mağaza kategori simgesidir, yeni premium para birimi değildir. Dosyaların hazır olması runtime referanslarının değiştirildiği anlamına gelmez.
 
 ## 4. Kahraman ifade portreleri — yeni eklenen süreklilik işi
 Kıyafet 2 de eksik kalmasın: her kıyafette mevcut dört anlam korunur. Kılavuz kimliği ve giysisi referans alınır, yüz değişmez.

@@ -250,7 +250,7 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 - **Annenin evi ara basamakları:** memlekette kiralık daire (İşçi), bahçeli ev (Milyoner), deniz kenarında villa (Multimilyarder); hayaller panosunda isteğe bağlı alım, fiyatlar simülatörle.
 - **Hikaye hayalleri:** sıcak bir çorba, Şans'a tasma, annene telefon kontörü, Rıza Amca'ya yeni mont, mahalleye kütüphane. Fiyatı o sınıfın birkaç dakikalık geliri.
 - **Hayat anlarının kalanı (§4c):** okulun ilk günü, ilk para, mezuniyet, torunun doğumu, dede ve torun. Her biri bir kare + 2–3 balon; kızının 3 yaş hâli ve torun için kılavuz gerekir.
-- **Aile albümü:** görülen hayat anlarının kareleri tek sayfada; sıradaki an kilitli siluet ("38 yaş: ?"). Yeni görsel gerektirmez.
+- **Aile albümü (oyunda, 2026-10-13):** görülen törenlerin ve hayat anlarının kareleri tek sayfada, dokununca yeniden oynar; yaşanmamış hayat anı kilitli ve yalnızca yaşıyla görünür ("28 yaş · ?"). Yeni hayat anı eklenince `ui/story/album.ts` `ALBUM` listesine de girer.
 - **Defne ve kızından mesajlar:** annenin mesaj kanalıyla; En Zengin'den sonra kanal onlara geçer.
 - **4. perde (59 → 80 yaş):** oynanabilir vakıf projesi (kütüphane, burs, genç bir girişimciyi yetiştirmek).
 - **Olay kartlarının büyük seti (Faz 2.4; ilk 10 kart oyunda, §4d):** sınıfa göre değişen kartlar. Taslaklar: Rıza (*"Eski atölyeyi yeniden açmak istiyorum, ortak olur musun?"*), Bülent Bey (*"Restoranımı sana satayım, ama bir şartım var..."*).

@@ -211,7 +211,7 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranı
 | Emeklilik yaşı | 80 (63 yıl; 2026-10-11, önce 97). Varis torun kahraman 63 yaşındayken doğar, devirde 17 olur |
 | Oyun ayı | 80 saniye oyun = 1 ay; 16 dakika = 1 yaş; bir ömür ≈ 17 saat oyun (2026-10-09) |
 | Yaş ne zaman ilerler | Sadece oyun açıkken. Uzaktayken para birikir ama yaşlanmazsın. 10 sn'den uzun boşluk çevrimdışı sayılır |
-| Ömür sonu | "Bir ömür tamamlandı" ekranı → Emekli ol ve devret. Ölüm gösterilmez; vakıf töreni 2.1'de |
+| Ömür sonu | "Bir ömür tamamlandı" paneli (hayattan kareler, işletme özeti, aile itibarı) → Emekli ol ve devret. Ölüm gösterilmez; vakıf töreni 2.1'de |
 | Gösterim | Üst barda "24 yaş" |
 
 - Tam ekran hikâye anlarında (tören, hayat anı) yaş durur.
