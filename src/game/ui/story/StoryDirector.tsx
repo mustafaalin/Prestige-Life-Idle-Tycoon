@@ -38,7 +38,7 @@ function storyStep(classIndex: number) {
   return { before: at(classIndex - 1), now: at(classIndex) };
 }
 
-export function StoryDirector({ tabOpen }: { tabOpen: boolean }) {
+export function StoryDirector({ tabOpen, hold = false }: { tabOpen: boolean; hold?: boolean }) {
   const { game, state, actions } = useGameV2();
   const { t } = useT();
   const [replay, setReplay] = useState<number | null>(null);
@@ -52,11 +52,12 @@ export function StoryDirector({ tabOpen }: { tabOpen: boolean }) {
   const [returned, setReturned] = useState<{ awaySeconds: number } | null>(null);
   const [devMomIndex, setDevMomIndex] = useState(0);
 
-  const ceremony = replay ?? pendingCeremony(game, state.story);
+  // `hold`: the family album is playing a moment again; a new one waits until it is over.
+  const ceremony = hold ? null : (replay ?? pendingCeremony(game, state.story));
   // A life moment never cuts into a shop sheet, a card or the end of life: it waits for the home scene.
   const lifeCanPlay =
     ceremony === null && !quiet && !tabOpen && !state.offline && !mom && !askNotify && !isLifeOver(game);
-  const life = replayLife ?? (lifeCanPlay ? (pendingLifeMoment(game, state.story)?.id ?? null) : null);
+  const life = hold ? null : (replayLife ?? (lifeCanPlay ? (pendingLifeMoment(game, state.story)?.id ?? null) : null));
   const playing = ceremony !== null || life !== null;
 
   useEffect(() => {
@@ -142,6 +143,8 @@ export function StoryDirector({ tabOpen }: { tabOpen: boolean }) {
     actions.story.lifeSeen(id);
     setQuiet(true);
   };
+
+  if (hold) return null;
 
   if (ceremony !== null) {
     const step = replay !== null ? storyStep(ceremony) : { before: actions.story.classUpFrom(ceremony), now: game };

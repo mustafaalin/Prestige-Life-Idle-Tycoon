@@ -12,6 +12,7 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { LIFE_MOMENTS, type LifeMomentId } from '../../runtime/story';
 import { managerKey, managerPortrait } from '../businesses/managers';
 import { GameButton } from '../kit';
+import { albumAge, albumShots, type AlbumEntry } from './album';
 import {
   CEREMONIES,
   portraitOf,
@@ -108,6 +109,26 @@ export function LifeMoment({ id, onDone }: { id: LifeMomentId; onDone: (skipped:
       shots={LIFE_SCRIPT[id]}
       pill={t('hud.ageShort', { age })}
       heading={t(`moments.${id}.title` as MessageKey)}
+      onDone={onDone}
+    />
+  );
+}
+
+/**
+ * A moment from the family album, played again: the same beats under the album's own label, without
+ * the closing card. It records nothing and leaves the clock alone.
+ */
+export function StoryReplay({ entry, onDone }: { entry: AlbumEntry; onDone: (skipped: boolean) => void }) {
+  const { t, name } = useT();
+  return (
+    <StoryPlayer
+      shots={albumShots(entry)}
+      pill={entry.kind === 'ceremony' ? t('album.title') : t('hud.ageShort', { age: albumAge(entry) })}
+      heading={
+        entry.kind === 'ceremony'
+          ? name('wealthClass', WEALTH_CLASSES[entry.classIndex])
+          : t(`moments.${entry.id}.title` as MessageKey)
+      }
       onDone={onDone}
     />
   );

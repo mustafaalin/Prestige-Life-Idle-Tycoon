@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AD_OFFLINE_MIN_SECONDS, AD_OFFLINE_MULTIPLIER } from '../../core/config/ads';
-import { heroAge, isLifeOver, offlineCapHours, pendingLegacyPoints } from '../../core/formulas';
+import { isLifeOver, offlineCapHours } from '../../core/formulas';
 import { canBuyAnythingInShop, nextCareer } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { initAds } from '../../runtime/ads';
@@ -14,6 +14,9 @@ import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
 import { classLook } from '../scene/stages';
 import { Guide } from '../guide/Guide';
+import { ICONS } from '../icons';
+import { ALBUM, albumSeen } from '../story/album';
+import { AlbumSheet } from '../story/AlbumSheet';
 import { StoryDirector } from '../story/StoryDirector';
 import { BottomNav } from './BottomNav';
 import { CoinLayer } from './CoinLayer';
@@ -21,6 +24,7 @@ import { burstCoins } from './coins';
 import { clearFocus, showFocus } from './focus';
 import { QuestPanel, type GoToQuest } from './QuestPanel';
 import { questTarget } from './questText';
+import { RetirementPanel } from './RetirementPanel';
 import { RewardCard } from './RewardCard';
 import { SettingsSheet } from './SettingsSheet';
 import type { TabId } from './tabs';
@@ -28,7 +32,7 @@ import { TabSheet } from './TabSheet';
 import { TopBar } from './TopBar';
 
 // Home: the scene fills the screen; the top bar and menu float over it, tabs open as sheets.
-// The offline claim and the end-of-life sheet stay on top of everything; story moments (ceremonies,
+// The family album opens the same way. The offline claim and the end-of-life panel stay on top of everything; story moments (ceremonies,
 // Mom's messages) come above them.
 
 export function HomeScreen() {
@@ -40,6 +44,9 @@ export function HomeScreen() {
   const [pinnedQuest, setPinnedQuest] = useState<string | null>(null);
   // An event card is on screen: story moments wait for the home scene, as they do for a tab.
   const [eventOpen, setEventOpen] = useState(false);
+  const [albumOpen, setAlbumOpen] = useState(false);
+  // The album is playing a moment again: new story moments wait for it.
+  const [albumPlaying, setAlbumPlaying] = useState(false);
   const promotion = nextCareer(game);
   const adsOpen = useAdsUnlocked();
 
@@ -47,21 +54,34 @@ export function HomeScreen() {
     const target = questTarget(quest);
     if (!target) return;
     setPinnedQuest(quest.id);
+    setAlbumOpen(false);
     setTab(target.tab);
     showFocus(target);
   };
 
   const selectTab = (next: TabId | null) => {
     clearFocus();
+    setAlbumOpen(false);
     setTab(next);
   };
 
+  const openAlbum = () => {
+    playSfx('click');
+    haptic('light');
+    clearFocus();
+    setTab(null);
+    setAlbumOpen(true);
+  };
+
   useEffect(() => preloadSfx(), []);
-  useEffect(() => trackScreen(tab ?? 'home'), [tab]);
+  useEffect(() => trackScreen(albumOpen ? 'album' : (tab ?? 'home')), [tab, albumOpen]);
   // Ads start once the player is in the game, so the consent form never covers the prologue.
   useEffect(() => void initAds(), []);
 
   const lifeOver = isLifeOver(game);
+  const sheetOpen = tab !== null || albumOpen;
+  // The album appears with its first picture; an empty book is not worth a button.
+  const albumStarted = ALBUM.some((entry) => albumSeen(entry, state.story));
 
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-[#0d1530] select-none">
@@ -72,19 +92,31 @@ export function HomeScreen() {
           <TopBar onOpenSettings={() => setSettingsOpen(true)} />
         </div>
         <main className="relative flex-1">
-          {tab ? (
+          {albumOpen ? (
+            <AlbumSheet onClose={() => setAlbumOpen(false)} onReplay={setAlbumPlaying} />
+          ) : tab ? (
             <TabSheet tab={tab} onClose={() => selectTab(null)} pinnedQuest={pinnedQuest} onGo={goToQuest} />
           ) : (
             <QuestPanel onGo={goToQuest} />
           )}
           {/* The income boost floats on the right of the scene, clear of the goals card and the top bar. */}
-          {!tab && (
+          {!sheetOpen && (
             <div className="pointer-events-auto absolute right-3 top-[42%]">
               <BoostButton />
             </div>
           )}
-          <Guide tabOpen={tab !== null} />
-          <EventCards tabOpen={tab !== null} onOpenChange={setEventOpen} />
+          {!sheetOpen && albumStarted && (
+            <button
+              type="button"
+              onClick={openAlbum}
+              aria-label={t('album.open')}
+              className="pointer-events-auto absolute left-3 top-[42%] w-14 h-14 rounded-full border-2 border-white bg-gradient-to-b from-white to-indigo-100 shadow-xl v2-glossy flex items-center justify-center transition-all active:scale-90"
+            >
+              <img src={ICONS.album} alt="" draggable={false} className="w-11 h-11 object-contain drop-shadow" />
+            </button>
+          )}
+          <Guide tabOpen={sheetOpen} />
+          <EventCards tabOpen={sheetOpen} onOpenChange={setEventOpen} />
         </main>
         <div className="pointer-events-auto">
           <BottomNav
@@ -95,27 +127,7 @@ export function HomeScreen() {
         </div>
       </div>
 
-      {lifeOver && !state.offline && (
-        <div className="fixed inset-0 z-[60] bg-black/35 flex items-end">
-          <div className="w-full bg-white rounded-t-[28px] shadow-2xl px-5 pt-5 pb-[calc(var(--safe-bottom)+20px)] text-center">
-            <h2 className="text-xl font-black text-slate-900">{t('life.title')}</h2>
-            <p className="text-sm font-bold text-slate-600 mt-2">
-              {t('life.body', {
-                age: heroAge(game).years,
-                total: game.legacyPoints + pendingLegacyPoints(game),
-                gained: pendingLegacyPoints(game),
-              })}
-            </p>
-            <button
-              type="button"
-              onClick={() => actions.retire()}
-              className="w-full mt-4 rounded-2xl py-3.5 font-black text-sm text-white bg-gradient-to-r from-violet-500 to-indigo-500 shadow-lg transition-all active:scale-[0.98]"
-            >
-              {t('life.retire')}
-            </button>
-          </div>
-        </div>
-      )}
+      {lifeOver && !state.offline && <RetirementPanel />}
 
       {state.offline && (
         <RewardCard
@@ -152,7 +164,7 @@ export function HomeScreen() {
 
       {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
 
-      <StoryDirector tabOpen={tab !== null || eventOpen} />
+      <StoryDirector tabOpen={sheetOpen || eventOpen} hold={albumPlaying} />
 
       <CoinLayer />
     </div>

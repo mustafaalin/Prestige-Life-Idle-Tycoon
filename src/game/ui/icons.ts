@@ -13,4 +13,9 @@ export const ICONS = {
   coin: `${DIR}/coin.webp`,
   /** Status: the wealth class and the status bonus. */
   status: `${DIR}/prestige-points.webp`,
+  /** The family album: the story moments seen so far. */
+  album: `${DIR}/family-album.webp`,
+  retirement: `${DIR}/retirement.webp`,
+  /** Family legacy points; never the status star. */
+  legacy: `${DIR}/legacy-points.webp`,
 };
