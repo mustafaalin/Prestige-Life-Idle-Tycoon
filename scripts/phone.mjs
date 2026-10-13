@@ -16,7 +16,8 @@ import { promisify } from 'node:util';
 const run = promisify(execFile);
 
 const PORT = 5173;
-const APP_ID = 'com.prestigelife.idletycoon';
+// The debug build has its own package (android/app/build.gradle), so it lives next to the Play build.
+const APP_ID = 'com.prestigelife.idletycoon.dev';
 const SAVED_FILE = '.phone.local'; // last wireless address; *.local is gitignored
 const ANDROID_HOME = process.env.ANDROID_HOME || join(homedir(), 'Library/Android/sdk');
 const ADB = existsSync(join(ANDROID_HOME, 'platform-tools/adb')) ? join(ANDROID_HOME, 'platform-tools/adb') : 'adb';
@@ -108,7 +109,8 @@ async function pickDevice(arg) {
 }
 
 async function isInstalled(serial) {
-  return ((await adb('-s', serial, 'shell', 'pm', 'list', 'packages', APP_ID)) ?? '').includes(APP_ID);
+  const out = (await adb('-s', serial, 'shell', 'pm', 'list', 'packages', APP_ID)) ?? '';
+  return out.split('\n').some((line) => line.trim() === `package:${APP_ID}`);
 }
 
 async function install(serial) {

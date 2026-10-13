@@ -31,6 +31,11 @@ android {
         }
     }
     buildTypes {
+        // The dev build (`npm run phone`) installs next to the Play build: own package, own save, own name.
+        debug {
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+        }
         release {
             signingConfig signingConfigs.release
             minifyEnabled false
