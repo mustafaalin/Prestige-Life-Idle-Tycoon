@@ -7,6 +7,7 @@ import { UPGRADES } from '../../core/config/upgrades';
 import type { QuestDef } from '../../core/types';
 import type { MessageKey, Translator } from '../../i18n/translate';
 import { managerKey, managerPortrait } from '../businesses/managers';
+import { ICONS } from '../icons';
 import type { FocusTarget } from './focus';
 
 // How a goal reads on screen: its sentence, its picture, where in the game it's done, and which
@@ -76,19 +77,19 @@ export function questVisual(quest: QuestDef): QuestVisual {
     case 'find':
       return { image: '/assets/scene/sans-wallet.webp' };
     case 'units':
-      return { image: BUSINESS_BY_ID.get(goal.businessId)?.image ?? '/assets/icons/business.png' };
+      return { image: BUSINESS_BY_ID.get(goal.businessId)?.image ?? ICONS.business };
     case 'manager':
       return { image: managerPortrait(goal.businessId), round: true };
     case 'upgrade': {
       const businessId = UPGRADE_BY_ID.get(goal.upgradeId)?.businessId ?? '';
-      return { image: BUSINESS_BY_ID.get(businessId)?.image ?? '/assets/icons/business.png', upgrade: true };
+      return { image: BUSINESS_BY_ID.get(businessId)?.image ?? ICONS.business, upgrade: true };
     }
     case 'career':
       return { image: CAREERS[goal.index].image };
     case 'home':
       return { image: HOUSES[goal.index].image, cover: true };
     case 'class':
-      return { image: '/assets/icons/prestige-points.png' };
+      return { image: ICONS.status };
     case 'vehicle':
       return { image: FIRST_VEHICLE.image };
   }

@@ -5,6 +5,7 @@ import { autoIncomePerSecond, classProgress, heroAge } from '../../core/formulas
 import { useT } from '../../i18n/useT';
 import { boostFactor } from '../../runtime/adRewards';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { ICONS } from '../icons';
 import { heldBalance, onHeldBalance, onWalletHit } from './coins';
 
 // Top bar over the scene: money (the target collected bottles fly to), auto income, wealth class,
@@ -33,7 +34,7 @@ export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
             <img
               key={bump}
               data-wallet-icon
-              src="/assets/icons/money.png"
+              src={ICONS.money}
               alt=""
               draggable={false}
               className={`shrink-0 w-11 drop-shadow-md ${bump ? 'v2-bump' : ''}`}
@@ -53,7 +54,7 @@ export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
           <div className="shrink-0 flex flex-col items-end gap-1">
             <span className="flex items-center gap-1 rounded-full bg-gradient-to-b from-amber-300 to-orange-500 border border-white/60 v2-glossy pl-1 pr-2.5 py-0.5">
               <img
-                src="/assets/icons/prestige-points.png"
+                src={ICONS.status}
                 alt=""
                 draggable={false}
                 className="w-5 h-5 object-contain"

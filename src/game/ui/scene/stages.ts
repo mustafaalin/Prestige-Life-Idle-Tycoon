@@ -49,6 +49,8 @@ export interface ClassLook {
   /** Şans sitting, and Şans with a found wallet (his collar changes with the class). */
   sans: SpriteArt;
   find: SpriteArt;
+  /** Şans asleep, for the "while you were away" card: a low, long picture, never put in the sitting dog's box. */
+  sleep: string;
 }
 
 const DIR = '/assets/scene';
@@ -113,6 +115,7 @@ const STREET: ClassLook = {
   ],
   sans: { src: `${DIR}/sans-sit.webp`, x: 0.66, y: 0.748, height: 0.15, aspect: 0.645 },
   find: { src: `${DIR}/sans-wallet.webp`, x: 0.72, y: 0.752, height: 0.15, aspect: 0.929 },
+  sleep: `${DIR}/sans-sleep.webp`,
 };
 
 /** Index = wealth class. Missing fields come from the class before (see the note at the top). */
@@ -133,6 +136,7 @@ const LOOK_ART: Partial<ClassLook>[] = [
   {
     sans: { src: `${DIR}/sans-sit-leather.webp`, x: 0.66, y: 0.748, height: 0.15, aspect: 0.645 },
     find: { src: `${DIR}/sans-wallet-leather.webp`, x: 0.72, y: 0.752, height: 0.15, aspect: 0.907 },
+    sleep: `${DIR}/sans-sleep-leather.webp`,
   },
   // 4 Millionaire.
   {},
@@ -140,6 +144,7 @@ const LOOK_ART: Partial<ClassLook>[] = [
   {
     sans: { src: `${DIR}/sans-sit-gold.webp`, x: 0.66, y: 0.748, height: 0.151, aspect: 0.631 },
     find: { src: `${DIR}/sans-wallet-gold.webp`, x: 0.72, y: 0.752, height: 0.148, aspect: 0.883 },
+    sleep: `${DIR}/sans-sleep-gold.webp`,
   },
 ];
 

@@ -9,6 +9,7 @@ import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
+import { ICONS } from '../icons';
 import { useFocus, type ShopTabId } from '../home/focus';
 import { Chip, GameButton, Panel, Segmented, SectionLabel } from '../kit';
 import { HousingPanel } from './HousingPanel';
@@ -50,7 +51,7 @@ export function ShopScreen() {
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-amber-300 to-orange-500 border-2 border-white v2-glossy px-3 py-1.5">
-        <img src="/assets/icons/prestige-points.png" alt="" draggable={false} className="w-6 h-6 object-contain" />
+        <img src={ICONS.status} alt="" draggable={false} className="w-6 h-6 object-contain" />
         <p className="v2-display text-[13px] text-white v2-shadow">
           {t('shop.statusTotal', { percent: percent(statusBonus(game)) })}
         </p>

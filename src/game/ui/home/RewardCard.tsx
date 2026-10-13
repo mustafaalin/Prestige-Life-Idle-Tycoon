@@ -66,7 +66,7 @@ export function RewardCard({
               src={image}
               alt=""
               draggable={false}
-              className="relative mx-auto mt-3 h-32 object-contain drop-shadow-xl"
+              className="relative mx-auto mt-3 h-32 max-w-[82%] object-contain drop-shadow-xl"
             />
           )}
         </div>

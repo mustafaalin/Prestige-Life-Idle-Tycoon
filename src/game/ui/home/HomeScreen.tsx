@@ -6,11 +6,13 @@ import { useT } from '../../i18n/useT';
 import { initAds } from '../../runtime/ads';
 import { trackScreen } from '../../runtime/analytics';
 import { haptic, playSfx, preloadSfx } from '../../runtime/feedback';
+import { sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { BoostButton } from '../ads/Boost';
 import { useAdsUnlocked } from '../ads/useAdsUnlocked';
 import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
+import { classLook } from '../scene/stages';
 import { Guide } from '../guide/Guide';
 import { StoryDirector } from '../story/StoryDirector';
 import { BottomNav } from './BottomNav';
@@ -117,7 +119,7 @@ export function HomeScreen() {
 
       {state.offline && (
         <RewardCard
-          image="/assets/icons/wallet.png"
+          image={classLook(sceneClass(game, state.story)).sleep}
           title={t('offline.title')}
           body={t('offline.body', { duration: duration(state.offline.awaySeconds) })}
           amount={`+${money(state.offline.amount)}`}

@@ -337,8 +337,21 @@ export function Scene() {
     ? items.reduce<Item | null>((best, item) => (!best || guideScore(item) < guideScore(best) ? item : best), null)?.id
     : undefined;
 
+  // The "while you were away" card shows Şans asleep, so he is not also sitting behind it; when the
+  // card closes he is back with a small pop.
+  const asleep = state.offline !== null;
+  const wasAsleep = useRef(asleep);
+  const [woke, setWoke] = useState(false);
+  useEffect(() => {
+    if (wasAsleep.current && !asleep) {
+      setWoke(true);
+      later(() => setWoke(false), 400);
+    }
+    wasAsleep.current = asleep;
+  }, [asleep, later]);
+
   const ready = fit.width > 0;
-  const sansVisible = !finding && pose !== 'pet';
+  const sansVisible = !finding && !asleep && pose !== 'pet';
 
   return (
     <div ref={rootRef} className="absolute inset-0 overflow-hidden bg-[#0d1530]">
@@ -406,7 +419,7 @@ export function Scene() {
               type="button"
               onClick={petSans}
               aria-label={t('scene.sans')}
-              className="absolute transition-transform active:scale-95"
+              className={`absolute transition-transform active:scale-95 ${woke ? 'v2-pop-in' : ''}`}
               style={spriteBox(fit, stage.sans, home.castX)}
             >
               <img
@@ -419,7 +432,7 @@ export function Scene() {
             </button>
           )}
 
-          {finding && (
+          {finding && !asleep && (
             <button
               type="button"
               onClick={openFind}

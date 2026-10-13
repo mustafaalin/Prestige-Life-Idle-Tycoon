@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { ICONS } from '../icons';
 import { emitWalletHit, onCoinBurst } from './coins';
 
 // Draws coin bursts: each coin pops out a little, then curves into the wallet in the top bar.
@@ -76,12 +77,13 @@ export function CoinLayer() {
               } as CSSProperties
             }
           >
-            <span
-              className="v2-coin-y block w-6 h-6 rounded-full border-2 border-amber-600 bg-[radial-gradient(circle_at_35%_30%,#fffbe0_0%,#fcd34d_35%,#f59e0b_70%,#b45309_100%)] shadow-md flex items-center justify-center text-[11px] font-black text-amber-800"
+            <img
+              src={ICONS.coin}
+              alt=""
+              draggable={false}
+              className="v2-coin-y block w-6 h-6 drop-shadow-md"
               style={{ '--sy': `${coin.sy}px`, '--dy': `${coin.dy}px`, ...timing } as CSSProperties}
-            >
-              $
-            </span>
+            />
           </span>
         );
       })}
