@@ -35,7 +35,7 @@ export function CareerScreen() {
           )}
         </ImageTile>
         <div className="flex-1 min-w-0">
-          <p className="v2-display text-[17px] leading-tight text-indigo-950 truncate">
+          <p className="v2-display text-[17px] leading-tight text-indigo-950">
             {current ? name('career', current) : t('career.unemployed')}
           </p>
           <p className="text-[12px] font-bold text-emerald-600">
@@ -142,18 +142,21 @@ export function CareerScreen() {
                     <Lock className="w-3 h-3" />
                   )}
                 </span>
-                <span
-                  className={`flex-1 min-w-0 truncate text-[13px] ${
-                    isCurrent
-                      ? 'v2-display text-indigo-950'
-                      : done
-                        ? 'font-bold text-slate-400'
-                        : 'font-bold text-slate-700'
-                  }`}
-                >
-                  {name('career', career)}
+                {/* The current job keeps its full name: the badge sits under it, not beside it. */}
+                <span className="flex-1 min-w-0 flex flex-col items-start gap-0.5">
+                  <span
+                    className={`max-w-full text-[13px] leading-tight ${
+                      isCurrent
+                        ? 'v2-display text-indigo-950'
+                        : done
+                          ? 'font-bold text-slate-400'
+                          : 'font-bold text-slate-700'
+                    }`}
+                  >
+                    {name('career', career)}
+                  </span>
+                  {isCurrent && <Chip tone="gold">{t('career.current')}</Chip>}
                 </span>
-                {isCurrent && <Chip tone="gold">{t('career.current')}</Chip>}
                 <span className="shrink-0 text-[11px] font-black text-violet-500 tabular-nums">
                   {t('career.bonusShort', { percent: percent(career.incomeBonus) })}
                 </span>

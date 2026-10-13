@@ -30,7 +30,8 @@ export function formatAmount(value: number, style: NumberStyle = EN_NUMBER_STYLE
   const tier = Math.min(Math.floor(Math.log10(abs) / 3), style.suffixes.length - 1);
   const scaled = abs / 1000 ** tier;
   const digits = scaled >= 100 ? 0 : scaled >= 10 ? 1 : 2;
-  const space = style.spaceBeforeSuffix ? ' ' : '';
+  // Non-breaking: the amount and its unit never land on separate lines.
+  const space = style.spaceBeforeSuffix ? '\u00a0' : '';
   return `${sign}${decimal(scaled.toFixed(digits))}${space}${style.suffixes[tier]}`;
 }
 

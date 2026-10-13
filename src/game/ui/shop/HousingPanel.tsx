@@ -183,7 +183,7 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
               >
                 <Thumb image={house.image} cover dim />
                 <div className="flex-1 min-w-0">
-                  <p className="v2-display text-[15px] text-indigo-900/50 truncate">{name('lifestyle', house)}</p>
+                  <p className="v2-display text-[15px] leading-tight text-indigo-900/50">{name('lifestyle', house)}</p>
                   <p className="text-[11px] font-bold text-indigo-900/40 flex items-center gap-1">
                     <Lock className="w-3 h-3" />
                     {money(house.moveInCost)} · {t('career.bonusShort', { percent: percent(house.homeBonus) })}
@@ -213,7 +213,7 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
                   <Panel className="p-2.5 flex items-center gap-3">
                     <Thumb image={house.image} cover />
                     <div className="flex-1 min-w-0">
-                      <p className="v2-display text-[15px] text-indigo-950 truncate">{name('lifestyle', house)}</p>
+                      <p className="v2-display text-[15px] leading-tight text-indigo-950">{name('lifestyle', house)}</p>
                       <p className={`text-[11px] font-bold ${livingHere ? 'text-violet-600' : 'text-emerald-600'}`}>
                         {livingHere ? t('home.livingHere') : t('home.rentedOut', { amount: rent(house) })}
                       </p>
@@ -237,7 +237,7 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
                   <Panel className="p-2.5 flex items-center gap-3">
                     <Thumb image={house.image} cover />
                     <div className="flex-1 min-w-0">
-                      <p className="v2-display text-[15px] text-indigo-950 truncate">{name('lifestyle', house)}</p>
+                      <p className="v2-display text-[15px] leading-tight text-indigo-950">{name('lifestyle', house)}</p>
                       <p className="text-[11px] font-bold text-emerald-600">
                         {t('home.rentsFor', { amount: rent(house) })}
                       </p>

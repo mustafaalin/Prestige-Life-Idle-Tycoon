@@ -222,16 +222,16 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
           {outcome === null ? (
             <div className="mt-4 flex flex-col gap-2.5">
               <GameButton tone="buy" onClick={() => answer(false)} className="w-full px-3 py-2.5 text-center">
-                <span className="block v2-display text-[16px] v2-shadow">{t(eventKey(cardId, 'safe'))}</span>
-                <span className="block text-[11px] font-black text-white/90 tabular-nums">
+                <span className="block v2-display text-[16px] v2-shadow [text-wrap:balance]">{t(eventKey(cardId, 'safe'))}</span>
+                <span className="block text-[11px] font-black text-white/90 tabular-nums [text-wrap:balance]">
                   {t('events.sure', {
                     amount: money(eventReward(game, 'safe')),
                   })}
                 </span>
               </GameButton>
               <GameButton tone="gold" onClick={() => answer(true)} className="w-full px-3 py-2.5 text-center">
-                <span className="block v2-display text-[16px] v2-shadow">{t(eventKey(cardId, 'bold'))}</span>
-                <span className="block text-[11px] font-black text-white/90 tabular-nums">
+                <span className="block v2-display text-[16px] v2-shadow [text-wrap:balance]">{t(eventKey(cardId, 'bold'))}</span>
+                <span className="block text-[11px] font-black text-white/90 tabular-nums [text-wrap:balance]">
                   {t('events.chance', {
                     chance: Math.round(EVENT_BOLD_CHANCE * 100),
                     win: money(eventReward(game, 'win')),

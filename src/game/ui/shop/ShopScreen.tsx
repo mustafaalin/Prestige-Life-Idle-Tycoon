@@ -163,7 +163,7 @@ function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: (
               >
                 <Thumb image={item.image} dim />
                 <div className="flex-1 min-w-0">
-                  <p className="v2-display text-[15px] text-indigo-900/50 truncate">{name('lifestyle', item)}</p>
+                  <p className="v2-display text-[15px] leading-tight text-indigo-900/50">{name('lifestyle', item)}</p>
                   <p className="text-[11px] font-bold text-indigo-900/40 flex items-center gap-1">
                     <Lock className="w-3 h-3" />
                     {money(item.cost)}
