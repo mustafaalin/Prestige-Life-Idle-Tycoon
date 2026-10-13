@@ -84,187 +84,190 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
   return (
     <div className="fixed inset-0 z-[200] bg-black/35 flex items-end" onClick={close}>
       <div
-        className="w-full bg-white rounded-t-[28px] shadow-2xl px-5 pt-3 pb-[calc(var(--safe-bottom)+20px)] flex flex-col gap-4"
+        className="w-full max-h-[calc(100dvh-var(--safe-top)-16px)] bg-white rounded-t-[28px] shadow-2xl pt-3 flex flex-col"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+        <div className="shrink-0 mx-5 flex items-center justify-between border-b border-slate-100 pb-2">
           <h2 className="text-xl font-black text-slate-900">{t('dev.title')}</h2>
           <button
             type="button"
             onClick={close}
             aria-label={t('common.close')}
-            className="p-1.5 rounded-full hover:bg-slate-900/10 transition-all active:scale-90"
+            className="relative v2-hit p-1.5 rounded-full hover:bg-slate-900/10 transition-all active:scale-90"
           >
             <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
 
-        <Row label={t('dev.speed')}>
-          {SPEEDS.map((value) => (
-            <Chip key={value} active={speed === value} onClick={() => changeSpeed(value)}>
-              ×{value}
-            </Chip>
-          ))}
-        </Row>
+        {/* The list is longer than a phone screen: it scrolls, the title and Close stay put. */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 pt-4 pb-[calc(var(--safe-bottom)+20px)] flex flex-col gap-4">
+          <Row label={t('dev.speed')}>
+            {SPEEDS.map((value) => (
+              <Chip key={value} active={speed === value} onClick={() => changeSpeed(value)}>
+                ×{value}
+              </Chip>
+            ))}
+          </Row>
 
-        <Row label={t('dev.addCash')}>
-          {CASH_AMOUNTS.map((amount) => (
-            <Chip key={amount} onClick={() => actions.dev.addCash(amount)}>
-              +{money(amount)}
-            </Chip>
-          ))}
-        </Row>
+          <Row label={t('dev.addCash')}>
+            {CASH_AMOUNTS.map((amount) => (
+              <Chip key={amount} onClick={() => actions.dev.addCash(amount)}>
+                +{money(amount)}
+              </Chip>
+            ))}
+          </Row>
 
-        <Row label={t('dev.away')}>
-          {AWAY_SECONDS.map((seconds) => (
-            <Chip
-              key={seconds}
-              onClick={() => {
-                actions.dev.awayFor(seconds);
-                close();
-              }}
-            >
-              {duration(seconds)}
-            </Chip>
-          ))}
-        </Row>
+          <Row label={t('dev.away')}>
+            {AWAY_SECONDS.map((seconds) => (
+              <Chip
+                key={seconds}
+                onClick={() => {
+                  actions.dev.awayFor(seconds);
+                  close();
+                }}
+              >
+                {duration(seconds)}
+              </Chip>
+            ))}
+          </Row>
 
-        <Row label={t('dev.age')}>
-          {AGE_YEARS.map((years) => (
-            <Chip key={years} onClick={() => actions.dev.age(years)}>
-              {t('dev.years', { count: years })}
-            </Chip>
-          ))}
-        </Row>
+          <Row label={t('dev.age')}>
+            {AGE_YEARS.map((years) => (
+              <Chip key={years} onClick={() => actions.dev.age(years)}>
+                {t('dev.years', { count: years })}
+              </Chip>
+            ))}
+          </Row>
 
-        <Row label={t('dev.language')}>
-          {(Object.keys(LOCALES) as Locale[]).map((code) => (
-            <Chip key={code} active={locale === code} onClick={() => setLocale(code)}>
-              {LOCALES[code].nativeName}
-            </Chip>
-          ))}
-        </Row>
+          <Row label={t('dev.language')}>
+            {(Object.keys(LOCALES) as Locale[]).map((code) => (
+              <Chip key={code} active={locale === code} onClick={() => setLocale(code)}>
+                {LOCALES[code].nativeName}
+              </Chip>
+            ))}
+          </Row>
 
-        <Row label={t('dev.look')}>
-          {LOOKS.map((value) => (
-            <Chip key={value} active={look === value} onClick={() => setLook(value)}>
-              {t(`dev.looks.${value}`)}
-            </Chip>
-          ))}
-        </Row>
+          <Row label={t('dev.look')}>
+            {LOOKS.map((value) => (
+              <Chip key={value} active={look === value} onClick={() => setLook(value)}>
+                {t(`dev.looks.${value}`)}
+              </Chip>
+            ))}
+          </Row>
 
-        <button
-          type="button"
-          onClick={async () => {
-            setAdResult(null);
-            setAdResult(await showRewardedAd('dev_test'));
-          }}
-          className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
-        >
-          {adResult ? t('dev.adResult', { result: adResult }) : t('dev.testAd')}
-        </button>
+          <button
+            type="button"
+            onClick={async () => {
+              setAdResult(null);
+              setAdResult(await showRewardedAd('dev_test'));
+            }}
+            className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+          >
+            {adResult ? t('dev.adResult', { result: adResult }) : t('dev.testAd')}
+          </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            close();
-            requestFind();
-          }}
-          className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
-        >
-          {t('dev.find')}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            close();
-            requestEventCard();
-          }}
-          className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
-        >
-          {t('dev.event')}
-        </button>
-
-        <Row label={t('dev.ceremony')}>
-          {CEREMONY_CLASSES.map((classIndex) => (
-            <Chip
-              key={classIndex}
-              onClick={() => {
-                close();
-                requestCeremony(classIndex);
-              }}
-            >
-              {classIndex}
-            </Chip>
-          ))}
-          <Chip
+          <button
+            type="button"
             onClick={() => {
               close();
-              requestMomMessage();
+              requestFind();
             }}
+            className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
           >
-            {t('dev.mom')}
-          </Chip>
-          <Chip
-            onClick={() =>
-              void scheduleTestReminder({ title: t('mom.from'), body: t('mom.stair') }, t('notify.channel'))
-            }
-          >
-            {t('dev.notifyTest')}
-          </Chip>
-        </Row>
+            {t('dev.find')}
+          </button>
 
-        <Row label={t('dev.life')}>
-          {LIFE_MOMENTS.map((moment) => (
+          <button
+            type="button"
+            onClick={() => {
+              close();
+              requestEventCard();
+            }}
+            className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+          >
+            {t('dev.event')}
+          </button>
+
+          <Row label={t('dev.ceremony')}>
+            {CEREMONY_CLASSES.map((classIndex) => (
+              <Chip
+                key={classIndex}
+                onClick={() => {
+                  close();
+                  requestCeremony(classIndex);
+                }}
+              >
+                {classIndex}
+              </Chip>
+            ))}
             <Chip
-              key={moment.id}
               onClick={() => {
                 close();
-                requestLifeMoment(moment.id);
+                requestMomMessage();
               }}
             >
-              {moment.age}
+              {t('dev.mom')}
             </Chip>
-          ))}
-        </Row>
+            <Chip
+              onClick={() =>
+                void scheduleTestReminder({ title: t('mom.from'), body: t('mom.stair') }, t('notify.channel'))
+              }
+            >
+              {t('dev.notifyTest')}
+            </Chip>
+          </Row>
 
-        <button
-          type="button"
-          onClick={() => {
-            close();
-            setLab(true);
-          }}
-          className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
-        >
-          {t('dev.sceneLab')}
-        </button>
+          <Row label={t('dev.life')}>
+            {LIFE_MOMENTS.map((moment) => (
+              <Chip
+                key={moment.id}
+                onClick={() => {
+                  close();
+                  requestLifeMoment(moment.id);
+                }}
+              >
+                {moment.age}
+              </Chip>
+            ))}
+          </Row>
 
-        <button
-          type="button"
-          onClick={() => {
-            close();
-            onReplayPrologue();
-          }}
-          className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
-        >
-          {t('dev.prologue')}
-        </button>
+          <button
+            type="button"
+            onClick={() => {
+              close();
+              setLab(true);
+            }}
+            className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+          >
+            {t('dev.sceneLab')}
+          </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            if (!confirmReset) {
-              setConfirmReset(true);
-              return;
-            }
-            actions.dev.reset();
-            close();
-          }}
-          className="rounded-2xl py-3.5 font-black text-sm text-white bg-gradient-to-r from-rose-500 to-rose-600 shadow-lg transition-all active:scale-[0.98]"
-        >
-          {confirmReset ? t('dev.resetConfirm') : t('dev.reset')}
-        </button>
+          <button
+            type="button"
+            onClick={() => {
+              close();
+              onReplayPrologue();
+            }}
+            className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+          >
+            {t('dev.prologue')}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (!confirmReset) {
+                setConfirmReset(true);
+                return;
+              }
+              actions.dev.reset();
+              close();
+            }}
+            className="rounded-2xl py-3.5 font-black text-sm text-white bg-gradient-to-r from-rose-500 to-rose-600 shadow-lg transition-all active:scale-[0.98]"
+          >
+            {confirmReset ? t('dev.resetConfirm') : t('dev.reset')}
+          </button>
+        </div>
       </div>
     </div>
   );
