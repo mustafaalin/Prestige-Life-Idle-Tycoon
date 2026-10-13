@@ -1,3 +1,4 @@
+import { CLASS_OUTFIT_FLOOR } from '../../core/config/lifestyle';
 import type { MessageKey } from '../../i18n/translate';
 
 // Class-up ceremonies (story-v2.md §4, plan 1.10): after the "new class" title, a few short story
@@ -144,8 +145,27 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
   ],
 };
 
-/** Cast without portraits (staff) speak with a name tag only. */
-export function portraitOf(speaker: CastId, face: string | undefined): string | null {
+/**
+ * The hero's portraits by outfit (index = OUTFITS). An outfit whose portraits are not drawn yet
+ * (smart casual, suit) uses the set before it.
+ */
+const HERO_PORTRAITS = ['hero', 'hero-work'];
+
+/** The outfit the hero wears in a class's ceremony: the one its story frames were drawn with. */
+export const ceremonyOutfit = (classIndex: number) =>
+  CLASS_OUTFIT_FLOOR[Math.min(Math.max(classIndex, 0), CLASS_OUTFIT_FLOOR.length - 1)];
+
+/**
+ * Cast without portraits (staff) speak with a name tag only. `heroOutfit` picks the hero's set, so
+ * his face in the bubble wears what he wears in the picture behind it.
+ */
+export function portraitOf(speaker: CastId, face: string | undefined, heroOutfit = 0): string | null {
   if (!(speaker in FACES) || !face) return null;
-  return `/assets/story/portraits/${speaker === 'bryce' ? 'bulent' : speaker}-${face}.webp`;
+  const set =
+    speaker === 'hero'
+      ? HERO_PORTRAITS[Math.min(Math.max(heroOutfit, 0), HERO_PORTRAITS.length - 1)]
+      : speaker === 'bryce'
+        ? 'bulent'
+        : speaker;
+  return `/assets/story/portraits/${set}-${face}.webp`;
 }

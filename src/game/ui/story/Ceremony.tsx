@@ -12,15 +12,16 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { LIFE_MOMENTS, type LifeMomentId } from '../../runtime/story';
 import { managerKey, managerPortrait } from '../businesses/managers';
 import { GameButton } from '../kit';
-import { albumAge, albumShots, type AlbumEntry } from './album';
+import { albumAge, albumOutfit, albumShots, type AlbumEntry } from './album';
 import {
   CEREMONIES,
+  ceremonyOutfit,
   portraitOf,
   type CastId,
   type CeremonyLine,
   type CeremonyShot,
 } from './ceremonyScript';
-import { LIFE_SCRIPT } from './lifeScript';
+import { LIFE_OUTFIT, LIFE_SCRIPT } from './lifeScript';
 
 // Class-up ceremony (plan 1.10): "new class" title with confetti → story beats (portrait + bubble,
 // visual-novel style; hero on the right, everyone else on the left) → closing card (what the class
@@ -93,6 +94,7 @@ export function Ceremony({ classIndex, before, now, onDone }: CeremonyProps) {
   return (
     <StoryPlayer
       shots={CEREMONIES[classIndex] ?? []}
+      heroOutfit={ceremonyOutfit(classIndex)}
       pill={t('ceremony.newClass')}
       heading={name('wealthClass', WEALTH_CLASSES[classIndex])}
       summary={(close) => <ClassSummary classIndex={classIndex} before={before} now={now} onClose={close} />}
@@ -107,6 +109,7 @@ export function LifeMoment({ id, onDone }: { id: LifeMomentId; onDone: (skipped:
   return (
     <StoryPlayer
       shots={LIFE_SCRIPT[id]}
+      heroOutfit={LIFE_OUTFIT[id]}
       pill={t('hud.ageShort', { age })}
       heading={t(`moments.${id}.title` as MessageKey)}
       onDone={onDone}
@@ -123,6 +126,7 @@ export function StoryReplay({ entry, onDone }: { entry: AlbumEntry; onDone: (ski
   return (
     <StoryPlayer
       shots={albumShots(entry)}
+      heroOutfit={albumOutfit(entry)}
       pill={entry.kind === 'ceremony' ? t('album.title') : t('hud.ageShort', { age: albumAge(entry) })}
       heading={
         entry.kind === 'ceremony'
@@ -136,6 +140,8 @@ export function StoryReplay({ entry, onDone }: { entry: AlbumEntry; onDone: (ski
 
 interface StoryPlayerProps {
   shots: CeremonyShot[];
+  /** The outfit the hero wears in this moment's pictures (index = OUTFITS). */
+  heroOutfit: number;
   /** The small label above the title, and the title itself. */
   pill: string;
   heading: string;
@@ -144,7 +150,7 @@ interface StoryPlayerProps {
   onDone: (skipped: boolean) => void;
 }
 
-function StoryPlayer({ shots, pill, heading, summary, onDone }: StoryPlayerProps) {
+function StoryPlayer({ shots, heroOutfit, pill, heading, summary, onDone }: StoryPlayerProps) {
   const { t } = useT();
   const [phase, setPhase] = useState<Phase>('title');
   const [shotIndex, setShotIndex] = useState(0);
@@ -275,7 +281,7 @@ function StoryPlayer({ shots, pill, heading, summary, onDone }: StoryPlayerProps
           </>
         )}
 
-        {line && (line.speaker ? <Dialogue key={`${shotIndex}-${lineIndex}`} line={line} delay={lineDelay} /> : (
+        {line && (line.speaker ? <Dialogue key={`${shotIndex}-${lineIndex}`} line={line} heroOutfit={heroOutfit} delay={lineDelay} /> : (
           <p
             key={`${shotIndex}-${lineIndex}`}
             className="v2-line-in absolute inset-x-0 bottom-[calc(var(--safe-bottom)+72px)] px-8 text-center text-xl font-black italic leading-snug text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]"
@@ -437,7 +443,7 @@ function ClassSummary({ classIndex, before, now, onClose }: { classIndex: number
           <ManagerGift business={gift} main />
         ) : (
           <div className="flex items-center gap-3 rounded-2xl bg-amber-100 px-3 py-2.5 text-left">
-            <img src={portraitOf('hero', 'happy') ?? ''} alt="" draggable={false} className="w-14 h-14 shrink-0 rounded-full object-cover border-2 border-white shadow" />
+            <img src={portraitOf('hero', 'happy', ceremonyOutfit(classIndex)) ?? ''} alt="" draggable={false} className="w-14 h-14 shrink-0 rounded-full object-cover border-2 border-white shadow" />
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">{t('ceremony.now')}</p>
               <p className="text-sm font-black leading-tight text-slate-900 break-words">{name('wealthClass', reached)}</p>
@@ -494,9 +500,9 @@ function ClassSummary({ classIndex, before, now, onClose }: { classIndex: number
 }
 
 /** One spoken line: the speaker's portrait sits on the bubble's top edge, hero right, others left. */
-function Dialogue({ line, delay }: { line: Extract<CeremonyLine, { speaker: CastId }>; delay: string }) {
+function Dialogue({ line, heroOutfit, delay }: { line: Extract<CeremonyLine, { speaker: CastId }>; heroOutfit: number; delay: string }) {
   const { t } = useT();
-  const portrait = portraitOf(line.speaker, line.face);
+  const portrait = portraitOf(line.speaker, line.face, heroOutfit);
   const right = line.speaker === 'hero';
   const label = line.speaker === 'hero' || line.speaker === 'mom'
     ? t(`prologue.speaker.${line.speaker}`)

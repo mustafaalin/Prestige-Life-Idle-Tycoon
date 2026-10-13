@@ -7,6 +7,9 @@ import type { CeremonyShot, StoryImage } from './ceremonyScript';
 const IMAGES = '/assets/story/life';
 const picture = (name: string): StoryImage => ({ src: `${IMAGES}/${name}.webp`, fit: 'panel' });
 
+/** What the hero wears in each picture (index = OUTFITS); his portrait in the bubble follows it. */
+export const LIFE_OUTFIT: Record<LifeMomentId, number> = { date: 2, wedding: 3, birth: 2 };
+
 export const LIFE_SCRIPT: Record<LifeMomentId, CeremonyShot[]> = {
   // The cookies from the Working Class ceremony come back, and so does Şans, who started it all.
   // The opening caption carries the years since they met, for a player Mom's message never reached.

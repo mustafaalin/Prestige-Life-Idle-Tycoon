@@ -1,6 +1,6 @@
 import { LIFE_MOMENTS, type LifeMomentId, type StoryProgress } from '../../runtime/story';
-import { CEREMONIES, portraitOf, type CeremonyShot } from './ceremonyScript';
-import { LIFE_SCRIPT } from './lifeScript';
+import { CEREMONIES, ceremonyOutfit, portraitOf, type CeremonyShot } from './ceremonyScript';
+import { LIFE_OUTFIT, LIFE_SCRIPT } from './lifeScript';
 
 // The family album (story-v2.md §7): the class ceremonies and life moments the player has seen, in
 // the order the story tells them. It only reads the story progress; watching one again changes nothing.
@@ -36,6 +36,11 @@ export function albumShots(entry: AlbumEntry): CeremonyShot[] {
   return entry.kind === 'ceremony' ? (CEREMONIES[entry.classIndex] ?? []) : LIFE_SCRIPT[entry.id];
 }
 
+/** The outfit the hero wears in a moment (his portraits follow it). */
+export function albumOutfit(entry: AlbumEntry) {
+  return entry.kind === 'ceremony' ? ceremonyOutfit(entry.classIndex) : LIFE_OUTFIT[entry.id];
+}
+
 /** The age a life moment plays at. */
 export function albumAge(entry: Extract<AlbumEntry, { kind: 'life' }>) {
   return LIFE_MOMENTS.find((moment) => moment.id === entry.id)?.age ?? 0;
@@ -51,6 +56,6 @@ export function albumCover(entry: AlbumEntry): { src: string; portrait: boolean 
   if (frame) return { src: frame.src, portrait: false };
   const spoken = shots.flatMap((shot) => shot.lines).filter((line) => line.speaker !== undefined);
   const last = spoken[spoken.length - 1];
-  const src = last ? portraitOf(last.speaker, last.face) : null;
+  const src = last ? portraitOf(last.speaker, last.face, albumOutfit(entry)) : null;
   return src ? { src, portrait: true } : null;
 }
