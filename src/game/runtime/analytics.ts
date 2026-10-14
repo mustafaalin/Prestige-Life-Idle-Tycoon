@@ -24,6 +24,7 @@ export type AnalyticsEvent =
   | 'ad_watch'
   | 'story_view'
   | 'story_gift'
+  | 'review_prompt'
   | 'daughter_named'
   | 'notification_prompt'
   | 'notification_open'

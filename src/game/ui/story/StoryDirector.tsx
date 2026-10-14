@@ -26,6 +26,7 @@ import {
 } from '../../runtime/story';
 import { useGameV2, useGameV2Events } from '../../runtime/useGameV2';
 import { offerCardDue } from '../../runtime/purchases';
+import { requestReview, reviewDue } from '../../runtime/review';
 import { RichMoment } from '../richList/RichList';
 import { OfferCard } from '../shop/OfferCard';
 import { Ceremony, LifeMoment } from './Ceremony';
@@ -151,6 +152,11 @@ export function StoryDirector({
       return;
     }
     actions.story.ceremonySeen(classIndex, giftMultiplier);
+    // A happy moment (Millionaire and after): the store's rating dialog, once the card is gone.
+    if (reviewDue(state.story, state.ads, classIndex, Date.now())) {
+      actions.story.reviewAsked();
+      window.setTimeout(() => void requestReview(classIndex), 900);
+    }
     setQuiet(true);
     if (notificationsSupported && !state.story.notificationsAsked) setAskNotify(true);
   };

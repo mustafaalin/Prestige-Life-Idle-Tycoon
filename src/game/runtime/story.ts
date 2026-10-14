@@ -28,6 +28,9 @@ export interface StoryProgress {
   eventAnsweredAt: number;
   /** Rich List cards already shown (discussion-notes §10). */
   richSeen: string[];
+  /** The store's review dialog (runtime/review.ts): how many times it was asked for, and when last (ms; 0 = never). */
+  reviewAsks: number;
+  reviewAskedAt: number;
 }
 
 export interface MomMessageDef {
@@ -79,6 +82,8 @@ export function createStoryProgress(classIndex = 0): StoryProgress {
     guideDone: [],
     eventAnsweredAt: 0,
     richSeen: [],
+    reviewAsks: 0,
+    reviewAskedAt: 0,
   };
 }
 

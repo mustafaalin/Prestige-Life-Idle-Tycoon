@@ -106,6 +106,8 @@ export interface GameActions {
     momShown(messageId: string): void;
     notificationsAsked(): void;
     setHeroName(name: string): void;
+    /** The store's review dialog was asked for (runtime/review.ts). */
+    reviewAsked(): void;
     /** Life moments seen (a luxury moment brings the ones below it); `giftMultiplier` as for ceremonies. */
     lifeSeen(momentIds: string[], giftMultiplier?: number): void;
     setDaughterName(name: string): void;
@@ -379,6 +381,8 @@ export function createGameStore(saveText: string | null, clock: () => number = D
             momShownAt: clock(),
           })),
         notificationsAsked: () => updateStory((story) => ({ ...story, notificationsAsked: true })),
+        reviewAsked: () =>
+          updateStory((story) => ({ ...story, reviewAsks: story.reviewAsks + 1, reviewAskedAt: clock() })),
         setHeroName: (name) =>
           updateStory((story) => ({ ...story, heroName: name.trim().slice(0, HERO_NAME_MAX) })),
         lifeSeen: (momentIds, giftMultiplier) =>
