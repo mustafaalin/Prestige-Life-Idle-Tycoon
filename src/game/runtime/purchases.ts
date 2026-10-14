@@ -1,4 +1,4 @@
-import { PRODUCT_LIST, PRODUCTS, SPECIAL_SHOP_CEREMONY, type ProductDef } from '../core/config/iap';
+import { PRODUCT_LIST, PRODUCTS, REVOKE_REFUNDS, SPECIAL_SHOP_CEREMONY, type ProductDef } from '../core/config/iap';
 import { autoIncomePerSecond } from '../core/formulas';
 import { earn } from '../core/state';
 import type { GameStateV2 } from '../core/types';
@@ -101,11 +101,30 @@ export function applyPurchase<T extends PurchaseContext>(state: T, productId: st
   };
 }
 
-/** Products the store says the player owns (a restore, a new phone): owned again, without the one-time rewards. */
-export function applyRestore<T extends PurchaseContext>(state: T, productIds: string[]): T {
-  // Consumables were used up when bought; the store lists them among past purchases all the same.
-  const known = new Set(Object.values(PRODUCTS).filter((product) => product.kind !== 'consumable').map((product) => product.id));
-  const added = productIds.filter((id) => known.has(id) && !state.purchases.owned.includes(id));
-  if (added.length === 0) return state;
-  return { ...state, purchases: { ...state.purchases, owned: [...state.purchases.owned, ...added] } };
+/** Products that are owned for good (not consumables), by store id. */
+const KEPT = new Set(Object.values(PRODUCTS).filter((product) => product.kind !== 'consumable').map((product) => product.id));
+
+/**
+ * The store's list of what the player owns (each opening, or "Restore purchases"): products this
+ * save has not got yet, with their rewards (2026-10-14). That covers a purchase paid but not written
+ * (the app closed in between): the player gets what was paid for. On a new phone or a fresh save the
+ * one-time rewards come once more; small, and it beats losing them. Consumables are left out: the
+ * store lists them among past purchases, but they were used up when bought.
+ */
+export function storeOwnedToGrant(purchases: PurchaseProgress, productIds: string[]) {
+  return [...new Set(productIds)].filter((id) => KEPT.has(id) && !purchases.owned.includes(id));
+}
+
+/**
+ * Refunded products leave the save (only with REVOKE_REFUNDS on): owned here but not in the store's
+ * list. Call only with a list the store really sent, never on an error.
+ */
+export function refundedToRevoke(purchases: PurchaseProgress, productIds: string[]) {
+  if (!REVOKE_REFUNDS) return [];
+  return purchases.owned.filter((id) => KEPT.has(id) && !productIds.includes(id));
+}
+
+export function applyRevoke<T extends PurchaseContext>(state: T, productIds: string[]): T {
+  if (productIds.length === 0) return state;
+  return { ...state, purchases: { ...state.purchases, owned: state.purchases.owned.filter((id) => !productIds.includes(id)) } };
 }

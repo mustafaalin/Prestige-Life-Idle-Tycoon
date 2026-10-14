@@ -589,6 +589,10 @@ export const tr: Messages = {
     restoreBody: 'Yeni telefonda ya da yeniden yüklemede.',
     restored: 'Satın alımların geri yüklendi.',
     restoreNone: 'Geri yüklenecek satın alım bulunamadı.',
+    playerId: 'Oyuncu kimliği',
+    playerIdBody: 'Satın almayla ilgili yazarken bunu da gönder.',
+    copy: 'Kopyala',
+    copied: 'Kopyalandı',
   },
   settings: {
     title: 'Ayarlar',

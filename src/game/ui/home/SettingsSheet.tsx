@@ -13,10 +13,12 @@ import {
 import { useBackButton } from '../../runtime/backButton';
 import { useAdsState } from '../../runtime/useAds';
 import { GameButton, Segmented, SectionLabel } from '../kit';
+import { PlayerId } from '../shop/PlayerId';
 import { useRestore } from '../shop/useRestore';
 
 // Settings: language, reminders (Mom and Lucky, phones only), and the privacy options the consent rules require players to be able to
-// reopen (EEA/UK/Switzerland), and "Restore purchases" (Apple requires it; docs/monetization-v2.md §7).
+// reopen (EEA/UK/Switzerland), "Restore purchases" (Apple requires it; docs/monetization-v2.md §7) and
+// the player id for purchase support.
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { t, locale, setLocale } = useT();
@@ -119,6 +121,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
               </span>
             </GameButton>
           )}
+          {storeAvailable && <PlayerId />}
         </div>
       </div>
     </div>

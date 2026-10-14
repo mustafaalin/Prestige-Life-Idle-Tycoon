@@ -148,9 +148,18 @@ Kod: ürünler `core/config/iap.ts`, kurallar `runtime/purchases.ts`, mağaza `r
 
 - **Ne zaman görünür:** Mağaza Gündelikçi töreninden sonra açılır. Başlangıç Paketi o andan itibaren 3 gün (`offerSeconds`), alınınca kaybolur; Rahat Paket alınınca "Sahipsin" rozetiyle kalır. Bu sürümden önce Gündelikçi'yi geçmiş oyuncuda 3 gün güncellemeden sonraki ilk açılışta başlar.
 - **Ödüller:** hızlandırıcı süresi kalanın üstüne eklenir (4 saat tavanını aşabilir, ücretli); 1 saatlik gelir o anki otomatik gelirle. Bir ürün ikinci kez ödül vermez.
-- **Kalıcılık:** satın alınan ürünler kayıtta (`purchases.owned`) ve hayatlar boyunca kalır. Her açılışta RevenueCat'e sorulur (`allPurchasedProductIdentifiers`); yeniden yüklemede ve yeni telefonda geri gelir, tek seferlik ödüller tekrar verilmez.
-- **Analitik:** `offer_view`, `purchase_start`, `purchase_result` (`purchased` / `cancelled` / `unavailable`), `purchase_restore`; reklamsız ödül `ad_watch` (`outcome: ad_free`).
+- **Kalıcılık:** satın alınan ürünler kayıtta (`purchases.owned`) ve hayatlar boyunca kalır. Her açılışta RevenueCat'e sorulur (`allPurchasedProductIdentifiers`; "Satın alımları geri yükle" de aynı listeyi ister). Kayıtta olmayan bir ürün listede çıkarsa **ödülleriyle** verilir (2026-10-14): ödendi ama uygulama kapandığı için kayda yazılmamış satın alma böylece eksiksiz gelir. Yeni telefonda ya da sıfır kayıtta tek seferlik ödüller bir kez daha gelir; bilerek kabul edildi.
+- **Analitik:** `offer_view`, `offer_card` (`opened`), `purchase_start`, `purchase_result` (`purchased` / `cancelled` / `unavailable`), `purchase_applied` (`source`: `purchase` / `open` / `restore`; ödül kayda yazıldı), `purchase_revoked`, `purchase_restore`; reklamsız ödül `ad_watch` (`outcome: ad_free`). Firebase'de `purchase_result: purchased` ile `purchase_applied` (`source: purchase`) sayıları denk olmalı; fark teslimat sorunudur.
+- **İade (2026-10-14, kapalı):** `REVOKE_REFUNDS` (`config/iap.ts`) açılınca RevenueCat'in listesinde artık olmayan ürün kayıttan çıkar: Rahat Paket'in reklamsızlığı ve fular gider, harcanmış ödüller kalır. Yalnızca gerçek mağazanın başarılı cevabıyla, hata ve sahte mağazada asla. **Açmadan önce:** lisans test hesabıyla satın al → Play Console'dan iade et → RevenueCat'te ürünün listeden düştüğünü gör; ayrıca uygulamayı silip yeniden yükle ve iade edilmemiş ürünün listede kaldığını doğrula (yeni anonim RevenueCat kimliği iade gibi görünmemeli).
 - **Deneme:** DEV sürümü (`.dev` paketi) Play'de olmadığı için satın alma "Mağazaya ulaşılamadı" der; web geliştirmede sahte mağaza her zaman "evet" der. Gerçek deneme: Play'in dahili test kanalına yüklenen sürüm + lisans test hesabı (ücret alınmaz).
+
+### Destek: "Ödedim ama gelmedi" (2026-10-14)
+
+1. Oyuncudan Google'ın e-posta makbuzundaki **sipariş numarasını** (`GPA.…`; Google Play → profil → Ödemeler ve abonelikler → Bütçe ve geçmiş) ve **Ayarlar → Oyuncu kimliği**'ni iste (kopyala düğmesi var; RevenueCat'in anonim kimliği).
+2. **Play Console → Para kazanma → Siparişler**'de sipariş numarasını ara: ödeme alındı mı, ürün, tarih, iade. Bulunmuyorsa iddia gerçek değil.
+3. **RevenueCat → Customers**'ta oyuncu kimliğiyle ara: satın alma geçmişi. Kimlik yeniden yüklemede değişebilir; sipariş numarası her zaman geçerli.
+4. Çözüm sırası: oyuncu **Satın alımları geri yükle**'ye basar (eksik ürün ödülleriyle gelir) → olmazsa **Play Console promosyon kodu** (uygulama içi ürün için; oyuncu Play Store'da kullanır, normal satın alma gibi gelir) → o da olmazsa siparişi Play Console'dan iade et. Oyunun sunucusu yok; uzaktan ödül göndermenin yolu promosyon kodu.
+5. **Önerilen ayar (kullanıcı, RevenueCat paneli):** Integrations → Firebase: gerçek gelir ve iade olayları oyun içi olaylarla aynı yerde görünür.
 
 **Mağaza kurulumu (kullanıcı):**
 

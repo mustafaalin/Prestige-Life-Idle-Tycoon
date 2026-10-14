@@ -6,8 +6,8 @@ import { eventReward, fetchReward } from '../core/formulas';
 import { earn, live } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { applyBoost, applyHelp } from './adRewards';
-import { ownedProducts } from './iap';
-import { applyPurchase, applyRestore, openOffers } from './purchases';
+import { ownedProducts, realStore } from './iap';
+import { applyPurchase, applyRevoke, openOffers, refundedToRevoke, storeOwnedToGrant } from './purchases';
 import {
   buyBusinessUnits,
   buyHome,
@@ -82,8 +82,11 @@ export interface GameActions {
   purchases: {
     /** A confirmed purchase: owned for good, with its one-time rewards; false if already owned. */
     apply(productId: string): boolean;
-    /** Products the store says the player owns, without the one-time rewards. */
-    restore(productIds: string[]): void;
+    /**
+     * The store's list of what the player owns (each opening, or "Restore purchases"): missing products
+     * are given with their rewards, refunded ones taken back (runtime/purchases.ts). Returns how many were given.
+     */
+    sync(productIds: string[], source: 'open' | 'restore'): number;
     /** The welcome card for the limited offer was shown (it shows once). */
     offerCardShown(): void;
   };
@@ -203,6 +206,22 @@ export function createGameStore(saveText: string | null, clock: () => number = D
     return done;
   };
 
+  // What a purchase gives, written to the save: `purchase_applied` next to `purchase_result` shows
+  // in Firebase whether every paid purchase reached the player (docs/monetization-v2.md §8).
+  const grant = (productId: string, source: 'purchase' | 'open' | 'restore') =>
+    actTracked((s) => {
+      const next = applyPurchase(s, productId, clock());
+      return next === s ? null : next;
+    }, 'purchase_applied', () => ({ product_id: productId, source }));
+
+  const syncStore = (productIds: string[], source: 'open' | 'restore') => {
+    const given = storeOwnedToGrant(state.purchases, productIds).filter((id) => grant(id, source));
+    for (const id of realStore ? refundedToRevoke(state.purchases, productIds) : []) {
+      actTracked((s) => applyRevoke(s, [id]), 'purchase_revoked', () => ({ product_id: id }));
+    }
+    return given.length;
+  };
+
   // The first class-up opens the special offers (runtime/purchases.ts).
   const updateStory = (change: (story: RuntimeState['story']) => RuntimeState['story']) => {
     act((s) => openOffers({ ...s, story: change(s.story) }, clock()));
@@ -237,7 +256,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       runResume();
       // What the store says this player owns (a reinstall, a new phone, a purchase finished while away).
       void ownedProducts().then((ids) => {
-        if (ids) act((s) => applyRestore(s, ids));
+        if (ids) syncStore(ids, 'open');
       });
       const interval = window.setInterval(() => {
         // Background tabs and suspended apps are caught up by resume() on return, never by ticks.
@@ -315,10 +334,8 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         help: (cost, amount) => (act((s) => applyHelp(s, clock(), cost, amount)) ? amount : 0),
       },
       purchases: {
-        apply: (productId) => act((s) => applyPurchase(s, productId, clock())),
-        restore: (productIds) => {
-          act((s) => applyRestore(s, productIds));
-        },
+        apply: (productId) => grant(productId, 'purchase'),
+        sync: (productIds, source) => syncStore(productIds, source),
         offerCardShown: () => {
           act((s) => (s.purchases.offerCardShown ? s : { ...s, purchases: { ...s.purchases, offerCardShown: true } }));
         },

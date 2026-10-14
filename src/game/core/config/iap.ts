@@ -77,5 +77,13 @@ export const PRODUCTS: Record<ProductKey, ProductDef> = {
 /** The products on sale, in the order they show within a section. */
 export const PRODUCT_LIST: ProductDef[] = [PRODUCTS.starter, PRODUCTS.comfort];
 
+/**
+ * Refunds (2026-10-14): when on, a product the store no longer lists for the player (refunded in Play
+ * Console, or by the player) leaves the save: the Comfort Pack's ad-free and the scarf go, rewards
+ * already used stay. Off until a refunded test purchase shows RevenueCat drops it from the list,
+ * including after a reinstall (a new anonymous RevenueCat id must not look like a refund).
+ */
+export const REVOKE_REFUNDS = false;
+
 /** The store opens with the first class-up (the Day Laborer ceremony). */
 export const SPECIAL_SHOP_CEREMONY = 1;

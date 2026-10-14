@@ -81,11 +81,26 @@ export async function buyProduct(productId: string): Promise<PurchaseOutcome> {
 
 /** The products the store says this player owns; null when the store could not be reached. */
 export async function ownedProducts(): Promise<string[] | null> {
-  if (mock) return [];
+  // The mock store remembers nothing: "unknown", so nothing is given or taken back.
+  if (mock) return null;
   if (!(await setup())) return null;
   try {
     const { customerInfo } = await Purchases.getCustomerInfo();
     return customerInfo.allPurchasedProductIdentifiers;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The player's RevenueCat id (anonymous, "$RCAnonymousID:…"), shown in Settings so a player who writes
+ * "I paid but got nothing" can send it: RevenueCat → Customers finds their purchases by it. Null without a store.
+ */
+export async function playerId(): Promise<string | null> {
+  if (mock) return '$RCAnonymousID:dev-mock';
+  if (!(await setup())) return null;
+  try {
+    return (await Purchases.getAppUserID()).appUserID;
   } catch {
     return null;
   }
@@ -104,3 +119,6 @@ export async function restoreProducts(): Promise<string[] | null> {
 }
 
 export const storeAvailable = native || mock;
+
+/** A real store answers (a phone), not the dev mock: only its lists may take a product back. */
+export const realStore = native;

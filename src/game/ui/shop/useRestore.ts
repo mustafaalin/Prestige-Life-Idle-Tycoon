@@ -15,7 +15,7 @@ export function useRestore() {
     setStatus('busy');
     const ids = await restoreProducts();
     track('purchase_restore', { found: ids?.length ?? -1 });
-    if (ids) actions.purchases.restore(ids);
+    if (ids) actions.purchases.sync(ids, 'restore');
     setStatus(ids === null ? 'failed' : ids.length > 0 ? 'done' : 'none');
   };
 

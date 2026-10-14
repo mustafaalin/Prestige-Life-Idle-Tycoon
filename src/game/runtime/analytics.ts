@@ -31,7 +31,9 @@ export type AnalyticsEvent =
   | 'offer_card'
   | 'purchase_start'
   | 'purchase_result'
-  | 'purchase_restore';
+  | 'purchase_restore'
+  | 'purchase_applied'
+  | 'purchase_revoked';
 
 type Params = Record<string, string | number | boolean>;
 

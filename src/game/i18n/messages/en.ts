@@ -590,6 +590,10 @@ export const en = {
     restoreBody: 'On a new phone or after reinstalling.',
     restored: 'Your purchases are restored.',
     restoreNone: 'No purchases to restore.',
+    playerId: 'Player ID',
+    playerIdBody: 'Send this along when you write to us about a purchase.',
+    copy: 'Copy',
+    copied: 'Copied',
   },
   settings: {
     title: 'Settings',
