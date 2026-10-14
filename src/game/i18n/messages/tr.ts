@@ -359,6 +359,7 @@ export const tr: Messages = {
     nextGoal: 'Sıradaki: {name}, {amount} kazanınca',
     top: 'Zirveye ulaştın.',
     done: 'Devam',
+    gift: 'Hediye',
     cast: {
       riza: 'Rıza Amca',
       bryce: 'Bülent Bey',

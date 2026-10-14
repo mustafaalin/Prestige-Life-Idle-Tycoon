@@ -4,7 +4,7 @@ import type { GameStateV2 } from '../core/types';
 
 // Story progress (story-v2.md §4): which class-up ceremonies and life moments the player has seen and
 // which of Mom's messages arrived. Pure functions; the store saves it next to the game state. Not part of the
-// economy core, so the simulator never sees it.
+// economy core; the simulator reads only LIFE_MOMENTS and storyRuns, for the gifts that close them.
 
 export interface StoryProgress {
   /** Highest wealth class whose ceremony was shown (0 = none yet; the street has no ceremony). */

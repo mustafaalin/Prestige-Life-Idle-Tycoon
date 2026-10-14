@@ -2,7 +2,7 @@ import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import type { EventOutcome } from '../core/config/events';
 import { SECONDS_PER_YEAR } from '../core/config/life';
-import { eventReward, fetchReward } from '../core/formulas';
+import { eventReward, fetchReward, storyGift } from '../core/formulas';
 import { earn, live } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { applyBoost, applyHelp } from './adRewards';
@@ -93,7 +93,11 @@ export interface GameActions {
   story: {
     /** Stops the clock (income and age) while a ceremony plays (story-v2.md §4). */
     setPaused(paused: boolean): void;
-    ceremonySeen(classIndex: number): void;
+    /**
+     * A ceremony was seen. `giftMultiplier` pays its closing gift (1, or 2 after an ad); left out, no
+     * gift. Seen and paid in one step: a gift is never lost and never paid twice.
+     */
+    ceremonySeen(classIndex: number, giftMultiplier?: number): void;
     /**
      * The game as it was just before `classIndex` was reached, for the ceremony's before/now card; null
      * when it is not known (the app was restarted in between, or the class was passed in one jump).
@@ -102,8 +106,8 @@ export interface GameActions {
     momShown(messageId: string): void;
     notificationsAsked(): void;
     setHeroName(name: string): void;
-    /** Life moments seen (a luxury moment brings the ones below it). */
-    lifeSeen(momentIds: string[]): void;
+    /** Life moments seen (a luxury moment brings the ones below it); `giftMultiplier` as for ceremonies. */
+    lifeSeen(momentIds: string[], giftMultiplier?: number): void;
     setDaughterName(name: string): void;
     /** A Rich List card was shown; it settles the places below it too. */
     richSeen(milestoneId: string): void;
@@ -227,6 +231,22 @@ export function createGameStore(saveText: string | null, clock: () => number = D
     act((s) => openOffers({ ...s, story: change(s.story) }, clock()));
   };
 
+  /** A story beat seen, with its closing gift (formulas.ts storyGift) when it is new. */
+  const seeWithGift = (
+    change: (story: RuntimeState['story']) => RuntimeState['story'],
+    giftMultiplier: number | undefined,
+    params: Record<string, string | number>,
+  ) => {
+    let paid = 0;
+    act((s) => {
+      const story = change(s.story);
+      if (story === s.story) return null;
+      paid = giftMultiplier ? storyGift(s.game) * giftMultiplier : 0;
+      return openOffers({ ...s, game: paid > 0 ? earn(s.game, paid) : s.game, story }, clock());
+    });
+    if (paid > 0) track('story_gift', { ...params, multiplier: giftMultiplier ?? 0, amount: Math.round(paid) });
+  };
+
   const goBackground = () => {
     runTick();
     persist();
@@ -345,8 +365,12 @@ export function createGameStore(saveText: string | null, clock: () => number = D
           if (paused && !value) state = { ...state, lastActiveAt: clock() };
           paused = value;
         },
-        ceremonySeen: (classIndex) =>
-          updateStory((story) => ({ ...story, ceremonySeen: Math.max(story.ceremonySeen, classIndex) })),
+        ceremonySeen: (classIndex, giftMultiplier) =>
+          seeWithGift(
+            (story) => (story.ceremonySeen >= classIndex ? story : { ...story, ceremonySeen: classIndex }),
+            giftMultiplier,
+            { kind: 'ceremony', class_index: classIndex },
+          ),
         classUpFrom: (classIndex) => (classUp?.classIndex === classIndex ? classUp.before : null),
         momShown: (messageId) =>
           updateStory((story) => ({
@@ -357,11 +381,15 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         notificationsAsked: () => updateStory((story) => ({ ...story, notificationsAsked: true })),
         setHeroName: (name) =>
           updateStory((story) => ({ ...story, heroName: name.trim().slice(0, HERO_NAME_MAX) })),
-        lifeSeen: (momentIds) =>
-          updateStory((story) => {
-            const added = momentIds.filter((id) => !story.lifeSeen.includes(id));
-            return added.length === 0 ? story : { ...story, lifeSeen: [...story.lifeSeen, ...added] };
-          }),
+        lifeSeen: (momentIds, giftMultiplier) =>
+          seeWithGift(
+            (story) => {
+              const added = momentIds.filter((id) => !story.lifeSeen.includes(id));
+              return added.length === 0 ? story : { ...story, lifeSeen: [...story.lifeSeen, ...added] };
+            },
+            giftMultiplier,
+            { kind: 'life', id: momentIds[momentIds.length - 1] ?? '' },
+          ),
         setDaughterName: (name) =>
           updateStory((story) => ({ ...story, daughterName: name.trim().slice(0, HERO_NAME_MAX) })),
         richSeen: (milestoneId) =>

@@ -458,6 +458,8 @@ Dört komutun ortak kuyruğu (her birinin sonuna aynen eklenir):
 
 ## 10. Mağaza: canlı paket görselleri ve ekran tasarımı (bekliyor, 2026-10-14)
 
+**Tasarım teslimi (GPT, 2026-10-14):** Kullanıcının tasarımı GPT'ye bırakmasıyla aşağıdaki ilk kapsam sadeleştirildi. **8 şeffaf nesne katmanı + 3 ekran maketi** hazır: `art/pilot/15-iap/v2/`. Kart arka planları/ışıma/parıltı CSS olarak tarif edildi; ayrı rasterları üretilmedi. Şans sabit, hareket kutu kapağı ve küçük nesnelerle sınırlı. Ücretli kart etiketi “Başlangıç teklifi”; üç ödül ayrı kutularda. Satın alınmış durum ayrı maket. [Etkileşimli tasarım önizlemesi](./iap-store-design-preview.html) · [Claude için seçili dosyalar, ölçüler, durumlar ve hareket notları](./iap-store-design-handoff.md). **Aşağıdaki komutlar ilk istemdir; uygulamada yeni handoff esas alınır.** Runtime entegrasyonu ve telefon QA bekliyor.
+
 **Neden (kullanıcı, 2026-10-14):** Mağaza ekranı ve iki paketin görselleri durağan duruyor. Paketler daha hareketli ve canlı görünmeli. Mevcut hâl: `public/assets/iap/{comfort,starter}.webp` (kaynak `art/pilot/15-iap/`), ekran `src/game/ui/shop/StoreSheet.tsx`, hoş geldin kartı `OfferCard.tsx`.
 
 **Hareket nasıl yapılacak:** GPT **durağan, katmanlı** görseller üretir, hareketi Claude kodla verir. Animasyonlu WebP ya da video istenmez: dosyalar büyür ve döngü güvenilir olmaz. Her nesne **ayrı bir PNG**, kendi şeffaf karesinde, ortalanmış ve kenarlarda boşlukla üretilir. Katmanların birbirine oturması beklenmez, yerleşimi Claude yapar. Koddan verilecek hareketler:

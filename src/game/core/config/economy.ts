@@ -36,3 +36,12 @@ export const LEGACY_EXPONENT = 1 / 3;
 export const LEGACY_BONUS_PER_POINT = 0.01;
 
 export const STARTING_CASH = 0;
+
+/**
+ * The gift that closes a class ceremony and the life moments told by age (date, wedding, birth;
+ * decided 2026-10-14): this many seconds of the income the top bar shows. A rewarded ad doubles it
+ * (config/ads.ts AD_STORY_GIFT_MULTIPLIER). 30 minutes was asked for, but the first classes come
+ * minutes apart and it pulled Millionaire and Billionaire before their targets; at 10 minutes only
+ * Multibillionaire comes about an hour early (it sat on the edge before).
+ */
+export const STORY_GIFT_SECONDS = 10 * 60;

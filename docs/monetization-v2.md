@@ -60,7 +60,7 @@ Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahip
 | 2 | **Şans'ın bulduğu ×2** | Cüzdan kartında "Reklam izle: ×2" | Teşekkür ödülü ×2 | Her bulguda 1 | **Oyunda** |
 | 3 | **Gelir hızlandırıcı** | Üst barda kalıcı "×2" düğmesi; aktifken kalan süre görünür | Tüm gelir ×2, **1 saat** (gerçek zaman; çevrimdışında da sayar). Üst üste en fazla 4 saat | Günde 6 | **Oyunda** (düğme ana sahnenin sağında) |
 | 4 | **Hayaline yardım** | Sıradaki hayal, terfi ya da işletme için az para kalmışken o kartta | **Eksik tutar** (önce 15 dakikalık gelirdi; aşağıda) | Günde 5; sadece eksik tutar fiyatın %10'undan ve 5 dakikalık gelirden azken çıkar | **Oyunda** (terfi, sıradaki eşya, sıradaki eve taşınma, yönetici) |
-| 5 | **Sınıf töreni hediyesi ×2** | Sınıf atlayınca (1.10 töreni) gelen hediyede | Hediye ×2 | Sınıf başına 1 | 1.10 ile |
+| 5 | **Tören ve hayat anı hediyesi ×2** | Sınıf töreninin kapanış kartında ve yaşa bağlı üç hayat anının (buluşma, düğün, doğum) sonunda | Hediye ×2 (hediye: 10 dakikalık gelir) | Her anda 1 | **Oyunda** (2026-10-14) |
 | 6 | **Günlük hediye / çark** | Günlük ödülde ek çevirme | Ek ödül | Günde 1–2 | Faz 2.7 |
 | 7 | **Olay kartında ikinci şans** | Kötü sonuçlu kartta "tekrar dene" | Yeniden seçim | Kart başına 1 | Kartlar oyunda (game-design §4.7); ikinci şans reklam yerleriyle |
 
@@ -84,6 +84,8 @@ Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahip
 | Milyarder | 1 sa 29 dk (3. gün) | 1 sa 8 dk (2. gün) | −%24 |
 | Multimilyarder | 4 sa 45 dk (7. gün) | 3 sa 21 dk (5. gün) | −%29 |
 | En Zengin | 10 sa 35 dk (16. gün) | 7 sa 19 dk (11. gün) | −%31 |
+
+**Tören ve hayat anı hediyesi (karar 2026-10-14, kullanıcı):** törenin "Önce / Şimdi" kartında ve buluşma, düğün, doğumun sonunda küçük bir kartta "Hediye: +$X" satırı, altında turuncu "Reklam izle: +$2X (×2)" (reklamlar açıldıktan sonra, diğer yerlerdeki kuralla) ve "Topla". Hediye, üst barda görünen gelirin (`incomePerSecond` active) **10 dakikası** (`config/economy.ts` `STORY_GIFT_SECONDS`, `formulas.ts` `storyGift`); lüks anlarında yok (oyuncu o an bir şey satın almış). Yalnızca hikâye gerçekten yaşanınca: albümden ya da DEV'den tekrar oynatmada hediye yok. Görüldü işaretiyle aynı adımda ödenir (`store.ts` `seeWithGift`): kart kapanmadan uygulama kapanırsa an yeniden oynar ve hediye yine gelir, iki kez ödenmez; Geri tuşu düz hediyeyi toplar. Analitik: `story_gift` (`kind`, `multiplier`, `amount`), reklamda `ad_watch` (`placement: story_gift_x2`). **Neden 30 değil 10 dakika:** kullanıcı 30'u seçti ama ilk sınıflar dakikalar arayla geldiği için 30 dakikalık gelir Milyoner'i (31 dk, hedef 35+) ve Milyarder'i (2. gün, hedef 3+) hedeflerin önüne çekiyordu; 10 dakikada yalnız Multimilyarder ~1 saat erken (7. gün 23:00, hedef 8. gün; önceden 8. gün 08:04'te sınırdaydı). Reklam izleyen En Zengin'e %32 kısa sürede (önce %31).
 
 **Çevrimdışı reklamı +%30, ×2 değil (karar 2026-10-13, kullanıcı):** bir ömürde kazanılan paranın %87'si çevrimdışı kartlardan geliyor (game-design §4.6), bu yüzden kartı ikiye katlamak oyunu yarıya indiriyordu (En Zengin 5 sa 34 dk, −%51; çevrimdışı ×2 tek başına 6 sa 30 dk). Hızlandırıcı ×2 ve Şans ×2 onaylandığı gibi kaldı; payları küçük (günde 3 hızlandırıcı tek başına −%14).
 
@@ -131,7 +133,7 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 3. **Reklam yerleri 1–4:** ✅ 2026-10-12 (çevrimdışı +%30, Şans ×2, hızlandırıcı, biraz yardım).
 4. **IAP, 1. adım:** ✅ kod 2026-10-14: Rahat Paket ve Yeni Başlangıç Paketi, geri yükleme (aşağıda "IAP nasıl çalışıyor"). Mağaza tarafı kullanıcıda. **2. adım:** Altın Tasma (kalıcı ×2) ve Gece Vardiyası, "ödeyen oyuncu" simülasyonundan sonra (discussion-notes §10). v1 ürünleri pasifleştirilir.
 5. **Analitik:** ✅ kod tamam (plan 1.14; `ad_watch`, sınıf atlama, oturum). Reklam teklifi ve satın alma olayları reklam yerleri ve IAP ile birlikte.
-6. **Sonra:** sınıf töreni ×2 (1.10), günlük hediye (2.7), olay kartı ikinci şans (2.4); zorla reklam ve fiyat A/B testleri (Faz 3).
+6. **Sonra:** ✅ tören ve hayat anı hediyesi ×2 (2026-10-14); günlük hediye (2.7), olay kartı ikinci şans (2.4); zorla reklam ve fiyat A/B testleri (Faz 3).
 
 ### IAP nasıl çalışıyor (2026-10-14)
 

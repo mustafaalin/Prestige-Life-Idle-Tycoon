@@ -12,6 +12,7 @@ import {
   OFFLINE_RATE,
   PROFIT_MILESTONES,
   PROFIT_MILESTONE_FACTOR,
+  STORY_GIFT_SECONDS,
   TAP_BASE,
   TAP_INCOME_SECONDS,
 } from './config/economy';
@@ -201,6 +202,11 @@ export function offlineEarnings(state: GameStateV2, awaySeconds: number, capHour
  */
 export function autoIncomePerSecond(state: GameStateV2) {
   return incomePerSecond(state, 'idle');
+}
+
+/** The gift that closes a ceremony or a life moment (config/economy.ts STORY_GIFT_SECONDS). */
+export function storyGift(state: GameStateV2) {
+  return incomePerSecond(state, 'active') * STORY_GIFT_SECONDS;
 }
 
 export function tapValue(state: GameStateV2) {

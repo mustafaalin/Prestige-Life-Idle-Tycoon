@@ -12,6 +12,7 @@ import {
 import {
   daughterNeedsName,
   LIFE_MOMENT_GAP_MS,
+  LIFE_MOMENTS,
   luxuryMomentsBelow,
   MOM_MESSAGES,
   MOM_MIN_GAP_MS,
@@ -142,24 +143,24 @@ export function StoryDirector({
     void scheduleReminders({ lucky, mom: momReminder }, t('notify.channel'));
   }
 
-  const finishCeremony = (classIndex: number, skipped: boolean) => {
+  const finishCeremony = (classIndex: number, skipped: boolean, giftMultiplier?: number) => {
     track('story_view', { kind: 'ceremony', class_index: classIndex, skipped, replay: replay !== null });
     if (replay !== null) {
       setReplay(null);
       return;
     }
-    actions.story.ceremonySeen(classIndex);
+    actions.story.ceremonySeen(classIndex, giftMultiplier);
     setQuiet(true);
     if (notificationsSupported && !state.story.notificationsAsked) setAskNotify(true);
   };
 
-  const finishLife = (id: LifeMomentId, skipped: boolean) => {
+  const finishLife = (id: LifeMomentId, skipped: boolean, giftMultiplier?: number) => {
     track('story_view', { kind: 'life', id, skipped, replay: replayLife !== null });
     if (replayLife !== null) {
       setReplayLife(null);
       return;
     }
-    actions.story.lifeSeen([...luxuryMomentsBelow(id), id]);
+    actions.story.lifeSeen([...luxuryMomentsBelow(id), id], giftMultiplier);
     setQuiet(true);
   };
 
@@ -167,11 +168,21 @@ export function StoryDirector({
 
   if (ceremony !== null) {
     const step = replay !== null ? storyStep(ceremony) : { before: actions.story.classUpFrom(ceremony), now: game };
-    return <Ceremony key={ceremony} classIndex={ceremony} {...step} onDone={(skipped) => finishCeremony(ceremony, skipped)} />;
+    return (
+      <Ceremony
+        key={ceremony}
+        classIndex={ceremony}
+        {...step}
+        gift={replay === null}
+        onDone={(skipped, giftMultiplier) => finishCeremony(ceremony, skipped, giftMultiplier)}
+      />
+    );
   }
 
   if (life !== null) {
-    return <LifeMoment key={life} id={life} onDone={(skipped) => finishLife(life, skipped)} />;
+    // The moments told by age close with a gift; the luxury moments follow a purchase and do not.
+    const gift = replayLife === null && LIFE_MOMENTS.some((moment) => moment.id === life);
+    return <LifeMoment key={life} id={life} gift={gift} onDone={(skipped, giftMultiplier) => finishLife(life, skipped, giftMultiplier)} />;
   }
 
   // Right after the birth; also on the next opening if the app closed before she was named.

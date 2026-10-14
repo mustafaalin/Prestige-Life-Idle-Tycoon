@@ -9,6 +9,8 @@ export const AD_FIND_MULTIPLIER = 2;
  * cards (87% in the simulator), so doubling them nearly halved the game (2026-10-13).
  */
 export const AD_OFFLINE_MULTIPLIER = 1.3;
+/** The gift that closes a ceremony or a life moment: the ad pays it this many times over (2026-10-14). */
+export const AD_STORY_GIFT_MULTIPLIER = 2;
 /** The offline card offers its ad only after this long away. */
 export const AD_OFFLINE_MIN_SECONDS = 10 * 60;
 

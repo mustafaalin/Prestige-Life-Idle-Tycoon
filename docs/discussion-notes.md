@@ -159,7 +159,11 @@ Kaynak: GPT incelemesi ([gpt-review-progression-monetization-answer.md](./gpt-re
 
 1. ✅ (2026-10-14, sahne hariç: [rebuild-plan 1.22](./rebuild-plan.md)) Lükslerin karşılığı: her lüks ilk alındığında hayat anı + sahnede iz + albüm; lüks fiyatları simülatörle (reklamsız oyuncu jetle yaşayacak zamanı bulmalı; bugün jet ilk hayatta alınmıyor). En Zengin'den sonraki boş saatleri (§8) liste doldurmuyor, bu doldurabilir.
 2. ✅ 1. adım kodda (2026-10-14; [monetization-v2 §8](./monetization-v2.md)). IAP kademeli: önce Rahat Paket ve Başlangıç Paketi; kalıcı ×2 ve Gece Vardiyası ücretli profil simülasyonundan sonra. Öncesinde mevcut dört reklam yeri telefonda doğrulanır.
-3. Tek yeni reklam yeri: tören ve hayat anı hediyesi (hikâye bittikten sonra).
+3. ✅ (2026-10-14) Tek yeni reklam yeri: tören ve hayat anı hediyesi (hikâye bittikten sonra; [monetization-v2 §4](./monetization-v2.md)).
 4. Yerel başarımlar; liderlik tablosu sonra.
 
 **Zenginler Listesi'nde açık kalanlar:** benzetme isimlerin hukuki riski (Claude'un notu: Hindistan'daki "Selmon Bhoi" davası; portre, şirket adı ve logo yok, ton alaycı değil; kullanıcı benzetme isimleri seçti); düğmenin yeri (albümün altında) ve kartın sıklığı telefonda bakılacak.
+
+## 11. Şans'ın aksesuarları gelire katkı versin mi? (2026-10-14; konuşulacak)
+
+Kullanıcının fikri: Başlangıç Paketi'nin kırmızı fuları bugün yalnızca görünüş; bir artısı olmalı. Genel hâli: Şans'ın takacağı aksesuarlar (fular, tasmalar, ileride kalıcı ×2'nin tasması) gelire belirli bir katkı sağlayabilir. Konuşulacaklar: katkı nereye (tüm gelir mi, Şans'ın bulduğu cüzdan mı, çevrimdışı mı), ne kadar (statü eşyaları gibi küçük yüzdeler mi), ücretli aksesuarın ücretsiz sınıf tasmasıyla ve kalıcı ×2 ürünüyle ilişkisi (§10: kalıcı ×2'nin kozmetiği fular değil, ör. yakut tasma), simülatörde "ödeyen oyuncu" profili. Karar verilmedi.

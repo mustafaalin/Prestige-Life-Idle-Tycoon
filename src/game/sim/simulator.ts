@@ -26,11 +26,14 @@ import {
   steadyIncomePerSecond,
   tapValue,
   richListRank,
+  heroAge,
+  storyGift,
 } from '../core/formulas';
 import {
   AD_OFFLINE_MIN_SECONDS,
   AD_FIND_MULTIPLIER,
   AD_OFFLINE_MULTIPLIER,
+  AD_STORY_GIFT_MULTIPLIER,
   BOOST_FACTOR,
   BOOST_MAX_SECONDS,
   BOOST_SECONDS,
@@ -38,6 +41,7 @@ import {
   HELP_MAX_SHARE,
 } from '../core/config/ads';
 import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
+import { LIFE_MOMENTS, storyRuns } from '../runtime/story';
 import { COLLECT_SPAWN_SECONDS } from '../core/config/scene';
 import { HOUSES } from '../core/config/housing';
 import {
@@ -335,6 +339,28 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     return true;
   };
 
+  /**
+   * The gifts that close each class ceremony and the life moments told by age (first life only, as
+   * the story): paid when the bot is playing, doubled when it watches ads.
+   */
+  const giftsPaid = { classes: 0, moments: new Set<string>() };
+  const payStoryGifts = () => {
+    for (let guard = 0; guard < 20 && storyRuns(state); guard += 1) {
+      const multiplier = doubles() ? AD_STORY_GIFT_MULTIPLIER : 1;
+      if (giftsPaid.classes < state.classIndex) {
+        giftsPaid.classes += 1;
+        earnTracked(storyGift(state) * multiplier);
+        continue;
+      }
+      const moment = LIFE_MOMENTS.find(
+        (entry) => !giftsPaid.moments.has(entry.id) && heroAge(state).years >= entry.age && state.classIndex >= entry.afterCeremony,
+      );
+      if (!moment) return;
+      giftsPaid.moments.add(moment.id);
+      earnTracked(storyGift(state) * multiplier);
+    }
+  };
+
   /** Bottles a second: none once the ground is empty (Middle Class on). */
   const tapRate = () => (canCollect(state) ? profile.tapsPerSecond(time.activeGeneration) : 0);
 
@@ -363,6 +389,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
         finds: state.finds + (profile.fetchCatchRate * step) / fetchAverageSeconds(state),
       };
       claimGoals();
+      payStoryGifts();
       // The hero ages only while playing; retirement comes at the end of life.
       state = live(state, step);
       maybeRetire();

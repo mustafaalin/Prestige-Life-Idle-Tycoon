@@ -360,6 +360,7 @@ export const en = {
     nextGoal: 'Next: {name} at {amount} earned',
     top: 'You made it to the very top.',
     done: 'Continue',
+    gift: 'Gift',
     cast: {
       riza: 'Old Ray',
       bryce: 'Mr. Bryce',

@@ -1,15 +1,22 @@
-import { ArrowRight, ChevronRight, Phone } from 'lucide-react';
+import { ArrowRight, ChevronRight, Gift, Phone } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { BUSINESSES, CLASS_MANAGER_GIFT } from '../../core/config/businesses';
 import { WEALTH_CLASSES } from '../../core/config/classes';
+import { AD_STORY_GIFT_MULTIPLIER } from '../../core/config/ads';
 import { OFFLINE_CAP_HOURS_BY_CLASS } from '../../core/config/economy';
+import { storyGift } from '../../core/formulas';
 import { bestOwnedLifestyle, currentHome, ownsHouse } from '../../core/state';
 import type { BusinessDef, GameStateV2, HouseDef, LifestyleDef } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
+import { adsUnlocked } from '../../runtime/adRewards';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
 import type { LifeMomentId } from '../../runtime/story';
+import { useGameV2 } from '../../runtime/useGameV2';
+import { AdButton } from '../ads/AdButton';
+import { useAdText } from '../ads/useAdText';
+import { burstCoins } from '../home/coins';
 import { managerKey, managerPortrait } from '../businesses/managers';
 import { GameButton } from '../kit';
 import { albumOutfit, albumShots, lifeMomentLabel, type AlbumEntry } from './album';
@@ -26,8 +33,10 @@ import { LIFE_OUTFIT, LIFE_SCRIPT } from './lifeScript';
 // Class-up ceremony (plan 1.10): "new class" title with confetti → story beats (portrait + bubble,
 // visual-novel style; hero on the right, everyone else on the left) → closing card (what the class
 // really changed). Tap to go on; Skip jumps to the closing card. The store stops the clock while it plays.
-// A life moment (story §4c) plays the same way under its own title ("25 · First date") and has no
-// closing card: its last line, or Skip, ends it.
+// A life moment (story §4c) plays the same way under its own title ("25 · First date"); the ones told
+// by age close with a small gift card, the luxury moments end on their last line (or Skip).
+// The gift (formulas.ts storyGift, decided 2026-10-14) closes both kinds of card: "Collect", or a
+// rewarded ad for twice as much. It comes only when the story happens, never on a replay.
 
 const TAP_GUARD_MS = 350;
 const FADE_MS = 500;
@@ -81,15 +90,20 @@ function Confetti() {
   );
 }
 
+/** How a story beat ended: skipped or not, and the gift's multiplier (none on a replay). */
+type StoryDone = (skipped: boolean, giftMultiplier?: number) => void;
+
 interface CeremonyProps {
   classIndex: number;
   /** The game just before the class was reached; null when it is not known. */
   before: GameStateV2 | null;
   now: GameStateV2;
-  onDone: (skipped: boolean) => void;
+  /** The closing gift is offered (not on a replay). */
+  gift: boolean;
+  onDone: StoryDone;
 }
 
-export function Ceremony({ classIndex, before, now, onDone }: CeremonyProps) {
+export function Ceremony({ classIndex, before, now, gift, onDone }: CeremonyProps) {
   const { t, name } = useT();
   return (
     <StoryPlayer
@@ -97,21 +111,26 @@ export function Ceremony({ classIndex, before, now, onDone }: CeremonyProps) {
       heroOutfit={ceremonyOutfit(classIndex)}
       pill={t('ceremony.newClass')}
       heading={name('wealthClass', WEALTH_CLASSES[classIndex])}
-      summary={(close) => <ClassSummary classIndex={classIndex} before={before} now={now} onClose={close} />}
+      gift={gift}
+      summary={(close) => <ClassSummary classIndex={classIndex} before={before} now={now} gift={gift} onClose={close} />}
       onDone={onDone}
     />
   );
 }
 
-export function LifeMoment({ id, onDone }: { id: LifeMomentId; onDone: (skipped: boolean) => void }) {
+/** `gift`: the moment closes with a gift card (the moments told by age, not on a replay). */
+export function LifeMoment({ id, gift, onDone }: { id: LifeMomentId; gift: boolean; onDone: StoryDone }) {
   const i18n = useT();
   const { t } = i18n;
+  const heading = t(`moments.${id}.title` as MessageKey);
   return (
     <StoryPlayer
       shots={LIFE_SCRIPT[id]}
       heroOutfit={LIFE_OUTFIT[id]}
       pill={lifeMomentLabel(id, i18n)}
-      heading={t(`moments.${id}.title` as MessageKey)}
+      heading={heading}
+      gift={gift}
+      summary={gift ? (close) => <LifeGift heading={heading} heroOutfit={LIFE_OUTFIT[id]} onClose={close} /> : undefined}
       onDone={onDone}
     />
   );
@@ -146,12 +165,14 @@ interface StoryPlayerProps {
   /** The small label above the title, and the title itself. */
   pill: string;
   heading: string;
+  /** The closing card has a gift: leaving it any way (Back too) collects at least the plain gift. */
+  gift?: boolean;
   /** The closing card; without one the last line (or Skip) ends the moment. */
-  summary?: (close: () => void) => ReactNode;
-  onDone: (skipped: boolean) => void;
+  summary?: (close: (giftMultiplier?: number) => void) => ReactNode;
+  onDone: StoryDone;
 }
 
-function StoryPlayer({ shots, heroOutfit, pill, heading, summary, onDone }: StoryPlayerProps) {
+function StoryPlayer({ shots, heroOutfit, pill, heading, gift = false, summary, onDone }: StoryPlayerProps) {
   const { t } = useT();
   const [phase, setPhase] = useState<Phase>('title');
   const [shotIndex, setShotIndex] = useState(0);
@@ -198,7 +219,7 @@ function StoryPlayer({ shots, heroOutfit, pill, heading, summary, onDone }: Stor
     }
   };
 
-  useBackButton(true, 200, () => (phase === 'summary' ? onDone(skipped) : toSummary(true)));
+  useBackButton(true, 200, () => (phase === 'summary' ? onDone(skipped, gift ? 1 : undefined) : toSummary(true)));
 
   const shot = shots[shotIndex];
   const line: CeremonyLine | undefined = phase === 'story' ? shot?.lines[lineIndex] : undefined;
@@ -310,7 +331,7 @@ function StoryPlayer({ shots, heroOutfit, pill, heading, summary, onDone }: Stor
         {phase === 'summary' && summary && (
           <div className="absolute inset-0 bg-black/35 flex items-center justify-center px-6">
             <Confetti />
-            {summary(() => onDone(skipped))}
+            {summary((giftMultiplier) => onDone(skipped, giftMultiplier))}
           </div>
         )}
       </div>
@@ -410,7 +431,19 @@ function ManagerGift({ business, main }: { business: BusinessDef; main?: boolean
  * then what else the class brought, the next goal and Continue. Without a known "before", or when
  * the player already had it all, it shows the class reached instead of a made-up comparison.
  */
-function ClassSummary({ classIndex, before, now, onClose }: { classIndex: number; before: GameStateV2 | null; now: GameStateV2; onClose: () => void }) {
+function ClassSummary({
+  classIndex,
+  before,
+  now,
+  gift: withGift,
+  onClose,
+}: {
+  classIndex: number;
+  before: GameStateV2 | null;
+  now: GameStateV2;
+  gift: boolean;
+  onClose: (giftMultiplier?: number) => void;
+}) {
   const { t, name, money, duration } = useT();
   const reached = WEALTH_CLASSES[classIndex];
   const previous = WEALTH_CLASSES[classIndex - 1];
@@ -485,16 +518,88 @@ function ClassSummary({ classIndex, before, now, onClose }: { classIndex: number
             : t('ceremony.top')}
         </p>
 
-        <GameButton
-          tone="buy"
-          onClick={(event) => {
-            event.stopPropagation();
-            onClose();
-          }}
-          className="w-full mt-4 py-3 v2-display text-lg v2-shadow"
-        >
-          {t('ceremony.done')}
-        </GameButton>
+        {withGift ? (
+          <StoryGift onCollect={onClose} />
+        ) : (
+          <GameButton
+            tone="buy"
+            onClick={(event) => {
+              event.stopPropagation();
+              onClose();
+            }}
+            className="w-full mt-4 py-3 v2-display text-lg v2-shadow"
+          >
+            {t('ceremony.done')}
+          </GameButton>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The gift that closes a ceremony or a life moment: its amount, the ad for twice as much (once ads are
+ * open, as everywhere) and Collect. Either button ends the card.
+ */
+function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void }) {
+  const { game, state } = useGameV2();
+  const { t, money } = useT();
+  const adText = useAdText();
+  const amount = storyGift(game);
+
+  const collect = (multiplier: number, from: { x: number; y: number }) => {
+    playSfx('coin');
+    haptic('medium');
+    burstCoins({ ...from, count: multiplier > 1 ? 18 : 12 });
+    onCollect(multiplier);
+  };
+
+  return (
+    <>
+      <div className="mt-3 flex items-center justify-between gap-2 rounded-2xl bg-emerald-50 border-2 border-emerald-100 px-3 py-2">
+        <span className="flex items-center gap-1.5 text-[12px] font-black text-emerald-700">
+          <Gift className="w-4 h-4" />
+          {t('ceremony.gift')}
+        </span>
+        <span className="v2-display text-[20px] text-emerald-600 tabular-nums">+{money(amount)}</span>
+      </div>
+      {adsUnlocked(state) && (
+        <AdButton placement="story_gift_x2" className="mt-3" onReward={(from) => collect(AD_STORY_GIFT_MULTIPLIER, from)}>
+          {adText('ads.double', { amount: money(amount * AD_STORY_GIFT_MULTIPLIER), factor: AD_STORY_GIFT_MULTIPLIER })}
+        </AdButton>
+      )}
+      <GameButton
+        tone="buy"
+        onClick={(event) => {
+          event.stopPropagation();
+          const rect = event.currentTarget.getBoundingClientRect();
+          collect(1, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+        }}
+        className="w-full mt-2.5 py-3 v2-display text-lg v2-shadow"
+      >
+        {t('common.collect')}
+      </GameButton>
+    </>
+  );
+}
+
+/** The card that closes a life moment told by age: the hero glad, and the gift. */
+function LifeGift({ heading, heroOutfit, onClose }: { heading: string; heroOutfit: number; onClose: (giftMultiplier?: number) => void }) {
+  return (
+    <div className="v2-pop-in relative w-full max-w-[340px] rounded-[28px] bg-white shadow-2xl overflow-hidden text-center">
+      <div className="bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-3">
+        <h2 className="v2-display v2-outline-thin text-2xl text-white break-words">{heading}</h2>
+      </div>
+      <div className="px-5 pt-4 pb-5 flex flex-col items-center">
+        <img
+          src={portraitOf('hero', 'happy', heroOutfit) ?? ''}
+          alt=""
+          draggable={false}
+          className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg bg-amber-100"
+        />
+        <div className="w-full">
+          <StoryGift onCollect={onClose} />
+        </div>
       </div>
     </div>
   );
