@@ -14,6 +14,7 @@ import { ICONS } from '../icons';
 import { useFocus, type ShopTabId } from '../home/focus';
 import { Chip, GameButton, Panel, Segmented, SectionLabel } from '../kit';
 import { HousingPanel } from './HousingPanel';
+import { SpecialOffers } from './SpecialOffers';
 import { Thumb } from './Thumb';
 
 type ShopTab = ShopTabId;
@@ -78,6 +79,8 @@ export function ShopScreen() {
       ) : (
         <LifestylePanel kind={tab} onGoHomes={() => setTab('house')} />
       )}
+
+      <SpecialOffers />
     </section>
   );
 }

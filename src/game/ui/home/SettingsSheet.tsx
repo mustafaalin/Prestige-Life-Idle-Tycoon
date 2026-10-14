@@ -1,8 +1,9 @@
-import { Bell, ShieldCheck, X } from 'lucide-react';
+import { Bell, RotateCcw, ShieldCheck, X } from 'lucide-react';
 import { useState } from 'react';
 import { LOCALES, type Locale } from '../../i18n/locales';
 import { useT } from '../../i18n/useT';
 import { showPrivacyOptions } from '../../runtime/ads';
+import { restoreProducts, storeAvailable } from '../../runtime/iap';
 import {
   notificationsEnabled,
   notificationsSupported,
@@ -11,15 +12,28 @@ import {
 } from '../../runtime/notifications';
 import { useBackButton } from '../../runtime/backButton';
 import { useAdsState } from '../../runtime/useAds';
+import { track } from '../../runtime/analytics';
+import { useGameV2 } from '../../runtime/useGameV2';
 import { GameButton, Segmented, SectionLabel } from '../kit';
 
 // Settings: language, reminders (Mom and Lucky, phones only), and the privacy options the consent rules require players to be able to
-// reopen (EEA/UK/Switzerland). Restore purchases joins here with IAP (docs/monetization-v2.md).
+// reopen (EEA/UK/Switzerland), and "Restore purchases" (Apple requires it; docs/monetization-v2.md §7).
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { t, locale, setLocale } = useT();
   const { privacyOptionsRequired } = useAdsState();
   const [notify, setNotify] = useState(notificationsEnabled);
+  const { actions } = useGameV2();
+  const [restore, setRestore] = useState<'idle' | 'busy' | 'done' | 'none' | 'failed'>('idle');
+
+  const restorePurchases = async () => {
+    if (restore === 'busy') return;
+    setRestore('busy');
+    const ids = await restoreProducts();
+    track('purchase_restore', { found: ids?.length ?? -1 });
+    if (ids) actions.purchases.restore(ids);
+    setRestore(ids === null ? 'failed' : ids.length > 0 ? 'done' : 'none');
+  };
 
   const toggleNotify = () => {
     const next = !notify;
@@ -90,6 +104,29 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
               <span className="flex flex-col">
                 <span className="v2-display text-[15px]">{t('settings.privacy')}</span>
                 <span className="text-[11px] font-bold text-indigo-900/60">{t('settings.privacyBody')}</span>
+              </span>
+            </GameButton>
+          )}
+
+          {storeAvailable && (
+            <GameButton
+              tone="soft"
+              onClick={() => void restorePurchases()}
+              disabled={restore === 'busy'}
+              className="mt-1 py-2.5 px-4 flex items-center gap-3 text-left"
+            >
+              <RotateCcw className="w-6 h-6 shrink-0" />
+              <span className="flex flex-col">
+                <span className="v2-display text-[15px]">{t('iap.restore')}</span>
+                <span className="text-[11px] font-bold text-indigo-900/60">
+                  {restore === 'done'
+                    ? t('iap.restored')
+                    : restore === 'none'
+                      ? t('iap.restoreNone')
+                      : restore === 'failed'
+                        ? t('iap.failed')
+                        : t('iap.restoreBody')}
+                </span>
               </span>
             </GameButton>
           )}

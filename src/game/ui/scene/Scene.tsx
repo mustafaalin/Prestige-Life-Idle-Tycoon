@@ -14,9 +14,11 @@ import { bestOwnedLifestyle, houseIndex, parkedVehicle } from '../../core/state'
 import type { GameStateV2 } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
+import { hasScarf } from '../../runtime/purchases';
 import { pendingCeremony, sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { useAdsUnlocked } from '../ads/useAdsUnlocked';
+import { useAdText } from '../ads/useAdText';
 import { useGuideTarget } from '../guide/guideSteps';
 import { burstCoins } from '../home/coins';
 import { PointingHand } from '../home/Focusable';
@@ -46,6 +48,9 @@ import {
 type NewsKind = 'home' | 'vehicle' | 'outfit';
 
 /** A stronger moment is not cut short by a weaker one. */
+/** The Starter Pack's scarf (runtime/purchases.ts hasScarf), drawn over the sitting dog. */
+const SCARF_SRC = '/assets/scene/sans-scarf.webp';
+
 const POSE_RANK: Record<Pose, number> = { idle: 0, collect: 1, pet: 2, joy: 3 };
 const POSE_LIST = Object.keys(POSE_RANK) as Pose[];
 
@@ -137,6 +142,7 @@ export function Scene() {
     new Image().src = homeArt(game.home).background;
   }, [game.home]);
   const { t, money, name } = useT();
+  const adText = useAdText();
   const rootRef = useRef<HTMLDivElement>(null);
   const fit = useCoverFit(rootRef);
   const pictureWidth = fit.h(9 / 16);
@@ -428,6 +434,16 @@ export function Scene() {
                 className="w-full h-full"
                 style={{ filter: light }}
               />
+              {/* The Starter Pack's red scarf, on his neck in all three sitting pictures (same spot). */}
+              {hasScarf(state.purchases) && (
+                <img
+                  src={SCARF_SRC}
+                  alt=""
+                  draggable={false}
+                  className="absolute"
+                  style={{ left: '46.5%', top: '46.2%', width: '38.4%', filter: light }}
+                />
+              )}
             </button>
           )}
 
@@ -525,7 +541,7 @@ export function Scene() {
             adsOpen
               ? {
                   placement: 'find_x2',
-                  label: t('ads.double', { amount: money(findOffer * AD_FIND_MULTIPLIER), factor: AD_FIND_MULTIPLIER }),
+                  label: adText('ads.double', { amount: money(findOffer * AD_FIND_MULTIPLIER), factor: AD_FIND_MULTIPLIER }),
                   onReward: (from) => collectFind(from, AD_FIND_MULTIPLIER),
                 }
               : undefined

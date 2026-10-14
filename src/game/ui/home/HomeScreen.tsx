@@ -10,6 +10,7 @@ import { sceneClass, storyRuns } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { BoostButton } from '../ads/Boost';
 import { useAdsUnlocked } from '../ads/useAdsUnlocked';
+import { useAdText } from '../ads/useAdText';
 import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
 import { classLook } from '../scene/stages';
@@ -39,6 +40,7 @@ import { TopBar } from './TopBar';
 export function HomeScreen() {
   const { game, state, actions } = useGameV2();
   const { t, money, duration } = useT();
+  const adText = useAdText();
   const [tab, setTab] = useState<TabId | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   // The goal the player last tapped "Go" on; the strip in the open tab keeps showing it.
@@ -167,7 +169,7 @@ export function HomeScreen() {
             adsOpen && state.offline.awaySeconds >= AD_OFFLINE_MIN_SECONDS
               ? {
                   placement: 'offline_x2',
-                  label: t('ads.more', {
+                  label: adText('ads.more', {
                     amount: money(state.offline.amount * AD_OFFLINE_MULTIPLIER),
                     percent: Math.round((AD_OFFLINE_MULTIPLIER - 1) * 100),
                   }),

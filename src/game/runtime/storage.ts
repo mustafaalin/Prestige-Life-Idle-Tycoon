@@ -5,6 +5,7 @@ import { WEALTH_CLASSES } from '../core/config/classes';
 import { HOUSES, LEGACY_HOUSE_TO_HOME } from '../core/config/housing';
 import { LIFE_SECONDS } from '../core/config/life';
 import { legacyOutfitIndex, legacyVehicleCount, LIFESTYLE_ITEMS, OUTFITS, VEHICLES } from '../core/config/lifestyle';
+import { PRODUCT_LIST } from '../core/config/iap';
 import { RICH_MILESTONES } from '../core/config/richList';
 import { UPGRADES } from '../core/config/upgrades';
 import { classIndexFor } from '../core/formulas';
@@ -12,6 +13,7 @@ import { applyClassFloors, createInitialState } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { createAdProgress, type AdProgress } from './adRewards';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
+import { createPurchaseProgress, type PurchaseProgress } from './purchases';
 import { createStoryProgress, HERO_NAME_MAX, LIFE_MOMENT_IDS, MOM_MESSAGES, type StoryProgress } from './story';
 
 // Local save for v2. Separate key from v1 so both games can live side by side until v1 is removed.
@@ -165,6 +167,18 @@ function normalizeAds(raw: unknown): AdProgress {
   };
 }
 
+const knownProducts = new Set(PRODUCT_LIST.map((product) => product.id));
+
+/** Saves from before the store start with nothing bought; the store's restore fills it in. */
+function normalizePurchases(raw: unknown): PurchaseProgress {
+  const base = createPurchaseProgress();
+  if (!isRecord(raw)) return base;
+  return {
+    owned: stringList(raw.owned).filter((id) => knownProducts.has(id)),
+    offersFrom: finite(raw.offersFrom, 0),
+  };
+}
+
 const native = Capacitor.isNativePlatform();
 
 function savedAtOf(text: string | null) {
@@ -239,6 +253,7 @@ export function parseRuntime(text: string | null, now: number): RuntimeState {
       lastActiveAt: Math.min(finite(runtime.lastActiveAt, now), now),
       story: normalizeStory(runtime.story, game),
       ads: normalizeAds(runtime.ads),
+      purchases: normalizePurchases(runtime.purchases),
     };
   } catch {
     keepUnreadable(text);

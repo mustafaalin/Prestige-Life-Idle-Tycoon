@@ -194,7 +194,7 @@ Always play a sound for meaningful player actions. Cooldown / disabled states â†
 
 ### Monetization Status
 
-- **v2:** own ad layer `src/game/runtime/ads.ts` (AdMob 8.2.1, UMP consent, iOS ATT, mock ad on web); four rewarded placements wired (numbers `src/game/core/config/ads.ts`, rules `src/game/runtime/adRewards.ts`, UI `src/game/ui/ads/`); IAP not wired yet. Decisions: `docs/monetization-v2.md`; setup: `docs/mobile-ad-integration.md`.
+- **v2:** own ad layer `src/game/runtime/ads.ts` (AdMob 8.2.1, UMP consent, iOS ATT, mock ad on web); four rewarded placements wired (numbers `src/game/core/config/ads.ts`, rules `src/game/runtime/adRewards.ts`, UI `src/game/ui/ads/`); IAP step 1 wired (Comfort Pack = ad-free, Starter Pack; products `src/game/core/config/iap.ts`, rules `src/game/runtime/purchases.ts`, RevenueCat `src/game/runtime/iap.ts`, shop `src/game/ui/shop/SpecialOffers.tsx`). Decisions: `docs/monetization-v2.md`; setup: `docs/mobile-ad-integration.md`.
 
 v1 wiring (RevenueCat keys and ad unit IDs are reused by v2):
 

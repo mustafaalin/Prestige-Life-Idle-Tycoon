@@ -26,6 +26,7 @@ import {
 } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { boostFactor, boostShare, createAdProgress, type AdProgress } from './adRewards';
+import { createPurchaseProgress, type PurchaseProgress } from './purchases';
 import { createStoryProgress, type StoryProgress } from './story';
 
 // Runtime layer on top of the economy core: real-time production cycles, taps and offline time.
@@ -55,6 +56,8 @@ export interface RuntimeState {
   story: StoryProgress;
   /** The income boost and the day's ad counters (monetization-v2.md §4). */
   ads: AdProgress;
+  /** What was bought in the store, kept across lives (monetization-v2.md §5). */
+  purchases: PurchaseProgress;
 }
 
 export interface Payout {
@@ -83,6 +86,7 @@ export function createRuntimeState(now: number, game: GameStateV2 = createInitia
     lastActiveAt: now,
     story: createStoryProgress(),
     ads: createAdProgress(),
+    purchases: createPurchaseProgress(),
   };
 }
 

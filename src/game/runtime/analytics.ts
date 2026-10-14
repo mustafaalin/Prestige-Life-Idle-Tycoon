@@ -26,7 +26,11 @@ export type AnalyticsEvent =
   | 'daughter_named'
   | 'notification_prompt'
   | 'notification_open'
-  | 'tutorial_step';
+  | 'tutorial_step'
+  | 'offer_view'
+  | 'purchase_start'
+  | 'purchase_result'
+  | 'purchase_restore';
 
 type Params = Record<string, string | number | boolean>;
 

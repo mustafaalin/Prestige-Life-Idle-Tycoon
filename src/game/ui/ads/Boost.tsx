@@ -8,6 +8,7 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { GameButton } from '../kit';
 import { AdButton } from './AdButton';
+import { useAdFree, useAdText } from './useAdText';
 
 // The income boost (monetization-v2 §4 #3): a button on the home scene opens a small card; one ad
 // doubles all earnings for an hour of real time. While it runs, the button shows the time left.
@@ -46,6 +47,8 @@ export function BoostButton() {
 function BoostCard({ onClose }: { onClose: () => void }) {
   const { state, actions } = useGameV2();
   const { t, duration } = useT();
+  const adText = useAdText();
+  const free = useAdFree();
   useBackButton(true, 70, onClose);
 
   const now = Date.now();
@@ -65,7 +68,7 @@ function BoostCard({ onClose }: { onClose: () => void }) {
         <div className="px-5 pt-3 pb-5">
           <h2 className="v2-display text-xl text-slate-900">{t('ads.boostTitle', { factor: BOOST_FACTOR })}</h2>
           <p className="text-sm font-bold text-slate-600 mt-1">
-            {t('ads.boostBody', { factor: BOOST_FACTOR, duration: duration(BOOST_SECONDS) })}
+            {t(free ? 'ads.boostBodyFree' : 'ads.boostBody', { factor: BOOST_FACTOR, duration: duration(BOOST_SECONDS) })}
           </p>
           {left > 0 && (
             <p className="v2-display text-[20px] text-orange-500 tabular-nums mt-2">
@@ -89,7 +92,7 @@ function BoostCard({ onClose }: { onClose: () => void }) {
                 haptic('medium');
               }}
             >
-              {t('ads.boostWatch', { factor: BOOST_FACTOR, duration: duration(BOOST_SECONDS) })}
+              {adText('ads.boostWatch', { factor: BOOST_FACTOR, duration: duration(BOOST_SECONDS) })}
             </AdButton>
           )}
           <GameButton tone="soft" onClick={onClose} className="w-full py-2.5 v2-display text-[15px]">

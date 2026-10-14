@@ -128,9 +128,32 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 1. **Ekonomi ayarı (discussion-notes §5) ile birlikte:** ✅ reklam ödülleri ve "reklam izleyen" profili simülatörde (2026-10-12; sonuç §4 sonunda). Kalan: kalıcı ×2 ve "ödeyen" profili (IAP ile).
 2. **Reklam altyapısını v2'ye taşı:** ✅ 2026-10-08: `src/game/runtime/ads.ts` (AdMob 8.2.1, UMP + ATT, web'de sahte reklam, Ayarlar'da gizlilik seçenekleri). Ayrıntı: [mobile-ad-integration.md](./mobile-ad-integration.md). AdMob konsolunda GDPR mesajı kullanıcı tarafından oluşturulacak.
 3. **Reklam yerleri 1–4:** ✅ 2026-10-12 (çevrimdışı +%30, Şans ×2, hızlandırıcı, biraz yardım).
-4. **IAP:** RevenueCat'te yeni ürünler; Rahat Paket, Altın Tasma, Başlangıç, Gece Vardiyası; geri yükleme; v1 ürünlerini pasifleştir.
+4. **IAP, 1. adım:** ✅ kod 2026-10-14: Rahat Paket ve Yeni Başlangıç Paketi, geri yükleme (aşağıda "IAP nasıl çalışıyor"). Mağaza tarafı kullanıcıda. **2. adım:** Altın Tasma (kalıcı ×2) ve Gece Vardiyası, "ödeyen oyuncu" simülasyonundan sonra (discussion-notes §10). v1 ürünleri pasifleştirilir.
 5. **Analitik:** ✅ kod tamam (plan 1.14; `ad_watch`, sınıf atlama, oturum). Reklam teklifi ve satın alma olayları reklam yerleri ve IAP ile birlikte.
 6. **Sonra:** sınıf töreni ×2 (1.10), günlük hediye (2.7), olay kartı ikinci şans (2.4); zorla reklam ve fiyat A/B testleri (Faz 3).
+
+### IAP nasıl çalışıyor (2026-10-14)
+
+Kod: ürünler `core/config/iap.ts`, kurallar `runtime/purchases.ts`, mağaza `runtime/iap.ts` (RevenueCat, web'de geliştirme sırasında sahte mağaza), arayüz `ui/shop/SpecialOffers.tsx`, Ayarlar'da "Satın alımları geri yükle".
+
+| Ürün | Mağaza kimliği | Fiyat | İçerik |
+| --- | --- | --- | --- |
+| Rahat Paket | `v2_comfort_pack` | $7,99, kalıcı | Bütün ödüllü reklam düğmeleri reklamsız çalışır ("Hemen al", hediye simgesi; günlük sınırlar aynı); bir kez 2 saat ×2 |
+| Yeni Başlangıç Paketi | `v2_starter_pack` | $1,99, tek seferlik | Bir kez 4 saat ×2 ve 1 saatlik otomatik gelir; Şans'a kırmızı fular (oturan Şans'ın üstüne çizilir, `sans-scarf.webp`) |
+
+- **Ne zaman görünür:** Alışveriş sekmesinin altında "Özel" bölümü, Gündelikçi töreninden sonra. Başlangıç Paketi o andan itibaren 3 gün (`STARTER_OFFER_SECONDS`), sahip olunan ürün görünmez. Bu sürümden önce Gündelikçi'yi geçmiş oyuncuda 3 gün güncellemeden sonraki ilk açılışta başlar.
+- **Ödüller:** hızlandırıcı süresi kalanın üstüne eklenir (4 saat tavanını aşabilir, ücretli); 1 saatlik gelir o anki otomatik gelirle. Bir ürün ikinci kez ödül vermez.
+- **Kalıcılık:** satın alınan ürünler kayıtta (`purchases.owned`) ve hayatlar boyunca kalır. Her açılışta RevenueCat'e sorulur (`allPurchasedProductIdentifiers`); yeniden yüklemede ve yeni telefonda geri gelir, tek seferlik ödüller tekrar verilmez.
+- **Analitik:** `offer_view`, `purchase_start`, `purchase_result` (`purchased` / `cancelled` / `unavailable`), `purchase_restore`; reklamsız ödül `ad_watch` (`outcome: ad_free`).
+- **Deneme:** DEV sürümü (`.dev` paketi) Play'de olmadığı için satın alma "Mağazaya ulaşılamadı" der; web geliştirmede sahte mağaza her zaman "evet" der. Gerçek deneme: Play'in dahili test kanalına yüklenen sürüm + lisans test hesabı (ücret alınmaz).
+
+**Mağaza kurulumu (kullanıcı):**
+
+1. **Play Console** → uygulama → Para kazanma → Ürünler → Uygulama içi ürünler: `v2_comfort_pack` ($7,99) ve `v2_starter_pack` ($1,99), ikisi de etkin. Adlar ve açıklamalar TR/EN (Rahat Paket / Comfort Pack; Yeni Başlangıç Paketi / Fresh Start Pack).
+2. **RevenueCat** → proje → Products: iki ürünü Play (ve sonra App Store) için ekle, **tüketilmeyen (non-consumable)** olarak işaretle; yoksa Android'de satın alma tüketilir ve geri yükleme çalışmaz.
+3. **Lisans testi:** Play Console → Ayarlar → Lisans testi'ne kendi Google hesabını ekle.
+4. **App Store** (iOS sürümünde): aynı kimliklerle "Non-Consumable" ürünler.
+5. v1'in 8 ürününü pasifleştir (§5).
 
 ## 9. Kararlar (kullanıcı, 2026-10-08)
 

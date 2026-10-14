@@ -6,6 +6,8 @@ import { eventReward, fetchReward } from '../core/formulas';
 import { earn, live } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { applyBoost, applyHelp } from './adRewards';
+import { ownedProducts } from './iap';
+import { applyPurchase, applyRestore, openOffers } from './purchases';
 import {
   buyBusinessUnits,
   buyHome,
@@ -76,6 +78,13 @@ export interface GameActions {
     /** A little help toward something that costs `cost`: pays the `amount` its button showed; returns it (0 if not allowed). */
     help(cost: number, amount: number): number;
   };
+  /** Store purchases (call only after runtime/iap.ts confirmed them; runtime/purchases.ts). */
+  purchases: {
+    /** A confirmed purchase: owned for good, with its one-time rewards; false if already owned. */
+    apply(productId: string): boolean;
+    /** Products the store says the player owns, without the one-time rewards. */
+    restore(productIds: string[]): void;
+  };
   story: {
     /** Stops the clock (income and age) while a ceremony plays (story-v2.md §4). */
     setPaused(paused: boolean): void;
@@ -88,7 +97,6 @@ export interface GameActions {
     momShown(messageId: string): void;
     notificationsAsked(): void;
     setHeroName(name: string): void;
-    /** A life moment was shown (story §4c). */
     /** Life moments seen (a luxury moment brings the ones below it). */
     lifeSeen(momentIds: string[]): void;
     setDaughterName(name: string): void;
@@ -121,7 +129,8 @@ export interface GameStore {
 
 /** `saveText` comes from readSave(), which is async on phones, so it is read before the store is made. */
 export function createGameStore(saveText: string | null, clock: () => number = Date.now): GameStore {
-  let state = parseRuntime(saveText, clock());
+  // A save from before the store: the offers open now if the first class-up was already seen.
+  let state = openOffers(parseRuntime(saveText, clock()), clock());
   let speed = 1;
   let paused = false;
   let lastSavedAt = clock();
@@ -192,8 +201,9 @@ export function createGameStore(saveText: string | null, clock: () => number = D
     return done;
   };
 
+  // The first class-up opens the special offers (runtime/purchases.ts).
   const updateStory = (change: (story: RuntimeState['story']) => RuntimeState['story']) => {
-    act((s) => ({ ...s, story: change(s.story) }));
+    act((s) => openOffers({ ...s, story: change(s.story) }, clock()));
   };
 
   const goBackground = () => {
@@ -223,6 +233,10 @@ export function createGameStore(saveText: string | null, clock: () => number = D
     start() {
       setPlayerProperties(state.game);
       runResume();
+      // What the store says this player owns (a reinstall, a new phone, a purchase finished while away).
+      void ownedProducts().then((ids) => {
+        if (ids) act((s) => applyRestore(s, ids));
+      });
       const interval = window.setInterval(() => {
         // Background tabs and suspended apps are caught up by resume() on return, never by ticks.
         if (!document.hidden) runTick();
@@ -297,6 +311,12 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       ads: {
         boost: () => act((s) => applyBoost(s, clock())),
         help: (cost, amount) => (act((s) => applyHelp(s, clock(), cost, amount)) ? amount : 0),
+      },
+      purchases: {
+        apply: (productId) => act((s) => applyPurchase(s, productId, clock())),
+        restore: (productIds) => {
+          act((s) => applyRestore(s, productIds));
+        },
       },
       story: {
         setPaused: (value) => {
