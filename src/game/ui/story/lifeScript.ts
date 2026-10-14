@@ -1,3 +1,4 @@
+import { outfitIndex } from '../../core/config/lifestyle';
 import type { LifeMomentId } from '../../runtime/story';
 import type { CeremonyShot, StoryImage } from './ceremonyScript';
 
@@ -9,14 +10,16 @@ const IMAGES = '/assets/story/life';
 const picture = (name: string): StoryImage => ({ src: `${IMAGES}/${name}.webp`, fit: 'panel' });
 
 /** What the hero wears in each picture (index = OUTFITS); his portrait in the bubble follows it. */
+const SMART = outfitIndex('outfit-smart');
+const SUIT = outfitIndex('outfit-suit');
 export const LIFE_OUTFIT: Record<LifeMomentId, number> = {
-  date: 2,
-  wedding: 3,
-  birth: 2,
-  boat: 3,
-  yacht: 3,
-  heli: 3,
-  jet: 3,
+  date: SMART,
+  wedding: SUIT,
+  birth: SMART,
+  boat: SUIT,
+  yacht: SUIT,
+  heli: SUIT,
+  jet: SUIT,
 };
 
 export const LIFE_SCRIPT: Record<LifeMomentId, CeremonyShot[]> = {

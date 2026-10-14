@@ -50,31 +50,44 @@ const TOYS: { name: string; image: string; cost: number }[] = [
   { name: 'Private Jet', image: `${V2}/luxury-private-jet.webp`, cost: 1.2e11 },
 ];
 
-// The hero's four story outfits (decided 2026-10-11; there were 20 that never showed on screen).
+// The hero's story outfits (decided 2026-10-11; there were 20 that never showed on screen). Seven since
+// 2026-10-14: the coat (Millionaire), three-piece (Multibillionaire) and tuxedo (Richest) joined.
 // The one you wear is the best you own; a class-up gives its outfit for free (CLASS_OUTFIT_FLOOR),
 // buying ahead wears it early. Art: docs/art-brief-v2.md §4.1, scene poses in ui/scene/stages.ts.
 // Money alone does not open an outfit (decided 2026-10-14): `minClass` is the wealth class it opens in,
-// so a Working Class hero wears work clothes at most. Smart casual opens with Middle Class, which also
-// gives it, so it is never bought; the suit can be bought from Millionaire, a class before its gift.
+// so a Working Class hero wears work clothes at most. Smart casual and the coat open with the class that
+// gives them, so they are never bought; the suit, three-piece and tuxedo can be bought a class early.
 const OUTFIT_SPECS: { id: string; name: string; image: string; cost: number; minClass: number }[] = [
   { id: 'outfit-hoodie', name: 'Hoodie', image: '/assets/scene/hero-street-idle.webp', cost: 0, minClass: 0 },
   { id: 'outfit-work', name: 'Work Clothes', image: '/assets/scene/hero-work-idle.webp', cost: 6_000, minClass: 1 },
   { id: 'outfit-smart', name: 'Smart Casual', image: '/assets/scene/hero-smart-idle.webp', cost: 200_000, minClass: 3 },
+  { id: 'outfit-coat', name: 'Camel Overcoat', image: '/assets/scene/hero-coat-idle.webp', cost: 3e6, minClass: 4 },
   { id: 'outfit-suit', name: 'Suit', image: '/assets/scene/hero-suit-idle.webp', cost: 1.5e7, minClass: 4 },
+  { id: 'outfit-threepiece', name: 'Three-Piece Suit', image: '/assets/scene/hero-threepiece-idle.webp', cost: 1.5e10, minClass: 5 },
+  { id: 'outfit-tux', name: 'Tuxedo', image: '/assets/scene/hero-tux-idle.webp', cost: 2e11, minClass: 6 },
 ];
 
-/** Status bonus of each outfit after the free hoodie. */
-const OUTFIT_STATUS_BONUS = 0.12;
+/**
+ * Status bonus of each outfit after the free hoodie. Six outfits at 6% keep the +36% the three at 12%
+ * gave (2026-10-14, with the coat, three-piece and tuxedo; at 12% the late game ran ~5% faster).
+ */
+const OUTFIT_STATUS_BONUS = 0.06;
 
-/** The outfit each wealth class wears at least (index into OUTFITS: hoodie, work clothes, smart casual, suit). */
-export const CLASS_OUTFIT_FLOOR = [0, 0, 1, 2, 2, 3, 3, 3];
+/**
+ * The outfit each wealth class wears at least (index into OUTFITS: hoodie, work clothes, smart casual,
+ * coat, suit, three-piece, tuxedo).
+ */
+export const CLASS_OUTFIT_FLOOR = [0, 0, 1, 2, 3, 4, 5, 6];
+
+/** Index of an outfit in OUTFITS by id. */
+export const outfitIndex = (id: string) => OUTFIT_SPECS.findIndex((outfit) => outfit.id === id);
 
 /**
  * Saves from before 2026-10-11 had 20 outfits (`outfit-1`…`outfit-20`, bought in order); the best one
  * maps to the new outfit closest in price, never lower: from #7 work clothes, #11 smart casual, #15 suit.
  */
 export function legacyOutfitIndex(oldNumber: number) {
-  return oldNumber >= 15 ? 3 : oldNumber >= 11 ? 2 : oldNumber >= 7 ? 1 : 0;
+  return outfitIndex(oldNumber >= 15 ? 'outfit-suit' : oldNumber >= 11 ? 'outfit-smart' : oldNumber >= 7 ? 'outfit-work' : 'outfit-hoodie');
 }
 
 export const VEHICLES: LifestyleDef[] = VEHICLE_SPECS.map((vehicle) => ({

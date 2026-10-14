@@ -1,4 +1,4 @@
-import { CLASS_OUTFIT_FLOOR } from '../../core/config/lifestyle';
+import { outfitIndex } from '../../core/config/lifestyle';
 import type { MessageKey } from '../../i18n/translate';
 
 // Class-up ceremonies (story-v2.md §4, plan 1.10): after the "new class" title, a few short story
@@ -147,11 +147,26 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
 };
 
 /** The hero's portraits by outfit (index = OUTFITS). */
-const HERO_PORTRAITS = ['hero', 'hero-work', 'hero-smart', 'hero-suit'];
+const HERO_PORTRAITS = ['hero', 'hero-work', 'hero-smart', 'hero-coat', 'hero-suit', 'hero-threepiece', 'hero-tux'];
 
-/** The outfit the hero wears in a class's ceremony: the one its story frames were drawn with. */
+/**
+ * The outfit the hero wears in each class's ceremony: the one its story frames were drawn with. The
+ * coat, three-piece and tuxedo came later (2026-10-14), so those ceremonies keep smart casual and the
+ * suit; the class's new outfit shows on the scene once the ceremony ends.
+ */
+const CEREMONY_OUTFITS = [
+  'outfit-hoodie',
+  'outfit-hoodie',
+  'outfit-work',
+  'outfit-smart',
+  'outfit-smart',
+  'outfit-suit',
+  'outfit-suit',
+  'outfit-suit',
+].map(outfitIndex);
+
 export const ceremonyOutfit = (classIndex: number) =>
-  CLASS_OUTFIT_FLOOR[Math.min(Math.max(classIndex, 0), CLASS_OUTFIT_FLOOR.length - 1)];
+  CEREMONY_OUTFITS[Math.min(Math.max(classIndex, 0), CEREMONY_OUTFITS.length - 1)];
 
 /**
  * Cast without portraits (staff) speak with a name tag only. `heroOutfit` picks the hero's set, so

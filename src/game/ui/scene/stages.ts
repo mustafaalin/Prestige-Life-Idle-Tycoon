@@ -81,11 +81,29 @@ const HERO_ART: (HeroArt | null)[] = [
     joy: { src: `${DIR}/hero-smart-joy.webp`, height: 0.451, aspect: 0.328, x: 0.4 },
     pet: { src: `${DIR}/hero-smart-pet-sans.webp`, height: 0.225, aspect: 1.046, x: 0.49, flip: true },
   },
+  // Camel overcoat: hands in the coat pockets, enjoying a cold bright day.
+  {
+    idle: { src: `${DIR}/hero-coat-idle.webp`, height: 0.42, aspect: 0.306, x: 0.4 },
+    joy: { src: `${DIR}/hero-coat-joy.webp`, height: 0.445, aspect: 0.37, x: 0.4 },
+    pet: { src: `${DIR}/hero-coat-pet-sans.webp`, height: 0.222, aspect: 1.142, x: 0.49, flip: true },
+  },
   // Suit: sure of himself, buttoning his jacket.
   {
     idle: { src: `${DIR}/hero-suit-idle.webp`, height: 0.42, aspect: 0.328, x: 0.4 },
     joy: { src: `${DIR}/hero-suit-joy.webp`, height: 0.444, aspect: 0.367, x: 0.4 },
     pet: { src: `${DIR}/hero-suit-pet-sans.webp`, height: 0.222, aspect: 1.076, x: 0.49, flip: true },
+  },
+  // Three-piece suit: adjusting a cufflink.
+  {
+    idle: { src: `${DIR}/hero-threepiece-idle.webp`, height: 0.42, aspect: 0.322, x: 0.4 },
+    joy: { src: `${DIR}/hero-threepiece-joy.webp`, height: 0.448, aspect: 0.365, x: 0.4 },
+    pet: { src: `${DIR}/hero-threepiece-pet-sans.webp`, height: 0.222, aspect: 1.088, x: 0.49, flip: true },
+  },
+  // Tuxedo: hands loosely together, calm and warm.
+  {
+    idle: { src: `${DIR}/hero-tux-idle.webp`, height: 0.42, aspect: 0.29, x: 0.4 },
+    joy: { src: `${DIR}/hero-tux-joy.webp`, height: 0.443, aspect: 0.364, x: 0.4 },
+    pet: { src: `${DIR}/hero-tux-pet-sans.webp`, height: 0.222, aspect: 1.093, x: 0.49, flip: true },
   },
 ];
 
