@@ -159,7 +159,7 @@ Kod: ürünler `core/config/iap.ts`, kurallar `runtime/purchases.ts`, mağaza `r
 2. **Play Console → Para kazanma → Siparişler**'de sipariş numarasını ara: ödeme alındı mı, ürün, tarih, iade. Bulunmuyorsa iddia gerçek değil.
 3. **RevenueCat → Customers**'ta oyuncu kimliğiyle ara: satın alma geçmişi. Kimlik yeniden yüklemede değişebilir; sipariş numarası her zaman geçerli.
 4. Çözüm sırası: oyuncu **Satın alımları geri yükle**'ye basar (eksik ürün ödülleriyle gelir) → olmazsa **Play Console promosyon kodu** (uygulama içi ürün için; oyuncu Play Store'da kullanır, normal satın alma gibi gelir) → o da olmazsa siparişi Play Console'dan iade et. Oyunun sunucusu yok; uzaktan ödül göndermenin yolu promosyon kodu.
-5. **Önerilen ayar (kullanıcı, RevenueCat paneli):** Integrations → Firebase: gerçek gelir ve iade olayları oyun içi olaylarla aynı yerde görünür.
+5. **RevenueCat → Firebase (Google Analytics):** RevenueCat gerçek satın almaları Firebase'e `purchase` (gelirle), iptal/iadeyi `rc_cancellation` olarak gönderir. Kod tarafı hazır (2026-10-14): açılışta oyuncunun Firebase kimliği RevenueCat'e verilir (`runtime/iap.ts`, `setFirebaseAppInstanceID`); bu olmadan olaylar Firebase'e ulaşmaz, yeni sürüm yüklenene kadar çalışmaz. Panel: RevenueCat → Integrations → Firebase → **Google Analytics** bölümü: Android uygulamasının **Firebase App ID**'si ve **Measurement Protocol API secret** (ikisi de Firebase konsolu → Analytics → Admin (Yönetici) → Data Streams (Veri akışları) → Android akışı), gelir para birimi ve brüt/net seçimi. **RevenueCat Firebase Extension** bölümü gerekmiyor (Firestore ve Blaze ücretli planı ister). Deneme: lisans hesabıyla satın al → Firebase → Realtime'da `purchase`.
 
 **Mağaza kurulumu (kullanıcı):**
 

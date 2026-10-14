@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { LOG_LEVEL, PRODUCT_CATEGORY, PURCHASES_ERROR_CODE, Purchases } from '@revenuecat/purchases-capacitor';
 import { PRODUCT_LIST } from '../core/config/iap';
-import { track } from './analytics';
+import { firebaseInstanceId, track } from './analytics';
 
 // In-app purchases for v2 (docs/monetization-v2.md §5) through RevenueCat, which also keeps what was
 // bought so a new phone or a reinstall can restore it. One-time products, no account: RevenueCat's
@@ -28,6 +28,11 @@ function setup(): Promise<boolean> {
     try {
       await Purchases.setLogLevel({ level: LOG_LEVEL.ERROR });
       await Purchases.configure({ apiKey });
+      // RevenueCat → Integrations → Firebase sends real purchase events (revenue, refunds) to Firebase
+      // only for players whose Firebase id it knows (docs/monetization-v2.md §8).
+      void firebaseInstanceId().then((id) => {
+        if (id) Purchases.setFirebaseAppInstanceID({ firebaseAppInstanceID: id }).catch(() => {});
+      });
       return true;
     } catch {
       return false;

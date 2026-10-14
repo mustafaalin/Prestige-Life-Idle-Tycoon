@@ -57,6 +57,16 @@ export function trackScreen(screen: string) {
   if (native) FirebaseAnalytics.setCurrentScreen({ screenName: screen }).catch(() => {});
 }
 
+/** This install's Firebase Analytics id; RevenueCat needs it to send purchase events to Firebase. */
+export async function firebaseInstanceId(): Promise<string | null> {
+  if (!native) return null;
+  try {
+    return (await FirebaseAnalytics.getAppInstanceId()).appInstanceId ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /** Lets every report be split by where the player is (wealth class, generation). */
 export function setPlayerProperties(properties: { classIndex: number; generation: number }) {
   if (!native) return;
