@@ -10,9 +10,9 @@ Kullanıcı mağaza tasarımını GPT'ye bıraktı. Bu teslim, §10'daki ilk ür
 
 **PNG maketleri:**
 
-- [Mağaza](../art/pilot/15-iap/v2/store-mockup-1080.png)
-- [Başlangıç teklifi](../art/pilot/15-iap/v2/offer-card-mockup-1080.png)
-- [Satın alınmış durum](../art/pilot/15-iap/v2/store-owned-mockup-1080.png)
+- [Mağaza](../../art/pilot/15-iap/v2/store-mockup-1080.png)
+- [Başlangıç teklifi](../../art/pilot/15-iap/v2/offer-card-mockup-1080.png)
+- [Satın alınmış durum](../../art/pilot/15-iap/v2/store-owned-mockup-1080.png)
 
 Üç maketin ImageGen kaynakları `*-mockup.png` (853×1844); `*-mockup-1080.png` teslim kopyaları 1080×2340. Yeniden boyutlandırma yaklaşık %0,3 oran farkı içerir, yalnız sunum içindir. Kaynaklar korunur. Her üretimin promptu aynı gövde adıyla `-prompt.txt` yanında bulunur.
 

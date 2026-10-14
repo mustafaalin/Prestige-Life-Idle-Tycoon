@@ -1,6 +1,6 @@
 # Prestige Life v2 — Reklam ve Uygulama İçi Satın Alma (IAP)
 
-Tarih: 2026-10-08 · Durum: **kararlaştırıldı (2026-10-08); reklam yerleri 1–4 oyunda (2026-10-12), IAP bekliyor** · İlgili: [report-v2.md](./report-v2.md) §Monetizasyon, [rebuild-plan.md](./rebuild-plan.md) 2.9, [discussion-notes.md](./discussion-notes.md) §5 (ekonomi ayarı)
+Tarih: 2026-10-08 · Son güncelleme: 2026-10-15 · Durum: **reklam yerleri 1–5 ve IAP 1. adım (Mağaza, Rahat Paket, Başlangıç Paketi) oyunda; IAP 2. adım (Yakut Tasma, Gece Vardiyası) bekliyor** · İlgili: [report-v2.md](./report-v2.md) §Monetizasyon, [rebuild-plan.md](./rebuild-plan.md) 2.9, [discussion-notes.md](./discussion-notes.md) §4 (ekonomi)
 
 Kullanıcının isteği: "Ödüllü reklam için detaylı düşün; oyun tasarımı reklam izletmeye uygun olsun. Reklamla bazı şeyleri verebiliriz, IAP ile bir şeyler satabiliriz."
 
@@ -13,7 +13,7 @@ Kullanıcının isteği: "Ödüllü reklam için detaylı düşün; oyun tasarı
 - **Reklam, oyuncunun ihtiyaç anında teklif edilsin.** Çevrimdışı dönüş, Şans'ın bulduğu cüzdan, sıradaki hayale az kalmışken. Sektör verisi: ihtiyaç anında teklif %38, rastgele araya koyma %24 dönüşüm.
 - **Lansman IAP'ı 4 ürün:**
   1. Reklamsız paket: ödüller reklamsız alınır.
-  2. Kalıcı gelir bonusu: Şans'ın Yakut Tasması (+%50 öneri, 2026-10-15; önce ×2 ve "Altın Tasma"ydı), sahnede de görünür.
+  2. Kalıcı gelir bonusu: Şans'ın Yakut Tasması (+%50, 2026-10-15; önce ×2 ve "Altın Tasma"ydı), sahnede de görünür.
   3. Başlangıç paketi.
   4. Çevrimdışı ekip: tavan ve oran artışı.
   
@@ -25,7 +25,7 @@ Kullanıcının isteği: "Ödüllü reklam için detaylı düşün; oyun tasarı
 1. **Reklamsız oyun da tatmin edici olmalı.** Simülatör hedefleri reklam izlemeyen oyuncu için tutmalı. Reklam izleyen yaklaşık %20–30 hızlı ilerlesin; oyunu ikiye katlamasın.
 2. **Her reklam isteğe bağlı ve tek tek seçilir.** AdMob politikası: oyuncu her reklamı açıkça kendisi seçer. Reklamdan önce ne kazanacağı yazılır ("Reklam izle: +$4,2 Bin"). Reklam kapatılabilir.
 3. **İlk oturumda reklam teklifi yok.** İlk teklif oyuncu ilk yöneticisini aldıktan ve bir kez çevrimdışı döndükten sonra gelir. Rich Inc.'in onboarding'de reklam öğretmesi yorucu bulunmuştu.
-4. **Ödüller gelire oranlı ve günlük sınırlı.** Ekonomi ayarı (discussion-notes §5) yapılırken reklam ödülleri de simülatöre girer.
+4. **Ödüller gelire oranlı ve günlük sınırlı.** Ekonomi ayarı (discussion-notes §4) yapılırken reklam ödülleri de simülatöre girer.
 5. **Satılan şey hız, konfor ve kozmetik; cezadan kaçış değil.** v1'deki "gem ile gider atlama" hatası tekrar etmez. Oyunda ceza veren sistem yok, olmayacak.
 6. **Şeffaflık.** "Reklamsız" paketin neyi kaldırdığı açıkça yazılır: ödüllü reklamları ödülüyle birlikte atlatır. Rastgele ödül (çark, kutu) varsa ihtimaller gösterilir; lansmanda yok.
 7. **Ton.** Satın almalar hikâyeyle uyumlu adlar taşır. "Altın Kaşık" adı "sıfırdan kendi hayatını kuran" kahramanla çelişir (GPT Astra incelemesi); onun yerine Şans ve ekip temalı adlar.
@@ -77,13 +77,13 @@ Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahip
 - **Reklam yoksa:** düğmenin altında "Şu an reklam yok" yazar, ödül verilmez.
 - Günlük sayaçlar oyuncunun telefonundaki takvim gününe göre sıfırlanır. Analitik: `ad_offer` (teklif göründü), `ad_watch` (yer, sonuç).
 
-**Ekonomiye etkisi (simülatör, 2026-10-14):** simülatörde "engaged + ads" profili var: günde 3 hızlandırıcı, çevrimdışı reklamı, Şans ×2, günde 2 yardım (yönetici, terfi, eşya ya da ev beklerken eksik sınıra inince, eksik kadar). İlke reklam izleyenin %20–30 hızlı ilerlemesi (§2.1).
+**Ekonomiye etkisi (simülatör, 2026-10-15):** simülatörde "engaged + ads" profili var: günde 3 hızlandırıcı, çevrimdışı reklamı, Şans ×2, günde 2 yardım (yönetici, terfi, eşya ya da ev beklerken eksik sınıra inince, eksik kadar). İlke reklam izleyenin %20–30 hızlı ilerlemesi (§2.1). Ödeyen profiller §5 sonunda.
 
 | | Reklamsız | Reklam izleyen | Fark |
 | --- | --- | --- | --- |
-| Milyarder | 1 sa 29 dk (3. gün) | 1 sa 8 dk (2. gün) | −%24 |
-| Multimilyarder | 4 sa 45 dk (7. gün) | 3 sa 21 dk (5. gün) | −%29 |
-| En Zengin | 10 sa 35 dk (16. gün) | 7 sa 19 dk (11. gün) | −%31 |
+| Milyarder | 1 sa 22 dk (2. gün) | 1 sa 8 dk (2. gün) | −%17 |
+| Multimilyarder | 4 sa 42 dk (7. gün) | 3 sa 21 dk (5. gün) | −%29 |
+| En Zengin | 10 sa 21 dk (15. gün) | 7 sa 8 dk (11. gün) | −%31 |
 
 **Tören ve hayat anı hediyesi (karar 2026-10-14, kullanıcı):** İşçi'den itibaren törenin "Önce / Şimdi" kartında ve buluşma, düğün, doğumun sonunda küçük bir kartta "Hediye: +$X" satırı, altında turuncu "Reklam izle: +$2X (×2)" (reklamlar açıldıktan sonra, diğer yerlerdeki kuralla) ve "Topla". Hediye, oyun içi gelirin (`incomePerSecond` active: yöneticiler, maaş, kira ve elle çalıştırılan işletmeler; üst bar yalnız otomatik geliri gösterir) **10 dakikası** (`config/economy.ts` `STORY_GIFT_SECONDS`, `formulas.ts` `storyGift`); lüks anlarında yok (oyuncu o an bir şey satın almış). Yalnızca hikâye gerçekten yaşanınca: albümden ya da DEV'den tekrar oynatmada hediye yok. Görüldü işaretiyle aynı adımda ödenir (`store.ts` `seeWithGift`): kart kapanmadan uygulama kapanırsa an yeniden oynar ve hediye yine gelir, iki kez ödenmez; Geri tuşu düz hediyeyi toplar. Analitik: `story_gift` (`kind`, `multiplier`, `amount`), reklamda `ad_watch` (`placement: story_gift_x2`). **Neden 30 değil 10 dakika:** kullanıcı 30'u seçti ama ilk sınıflar dakikalar arayla geldiği için 30 dakikalık gelir Milyoner'i (31 dk, hedef 35+) ve Milyarder'i (2. gün, hedef 3+) hedeflerin önüne çekiyordu; **Gündelikçi'de hediye yok** (kullanıcı, 2026-10-14; `STORY_GIFT_FROM_CLASS` = İşçi): ilk oturumda geliyor, reklam henüz açık değil ve hediye ilk yöneticinin parasını hemen veriyordu (4 dk 33 sn, hedef 5 dk+). Kullanıcı 10 dakikayı onayladı (çok gelirse 7–8). 10, 8 ve 7 dakikada sonuç aynı: Multimilyarder 7. gün 23:00 (hedef 8. gün), yani fark hediyenin büyüklüğünden değil botun oturum saatlerinden; oyun süresi olarak 11 dakika erken (5 sa 3 dk → 4 sa 52 dk). Kabul edildi; diğer bütün hedefler tutuyor. Reklam izleyen En Zengin'e %32 kısa sürede (önce %31).
 
@@ -98,9 +98,9 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 | Ürün (öneri ad) | Tür | Fiyat | İçerik | Neden |
 | --- | --- | --- | --- | --- |
 | **Rahat Paket** (Reklamsız) | Kalıcı | $7,99 | Bütün ödüllü reklam ödülleri reklam izlemeden alınır (§4); ileride zorla reklam eklenirse o da kalkar; bonus olarak 2 saatlik ×2 hızlandırıcı | Idle Miner'ın No Ads Bundle'ı bu modeli kullanıyor. Rakiplerde $15,99 "pahalı" bulunmuş; $7,99 orta nokta |
-| **Şans'ın Yakut Tasması** | Kalıcı | $4,99 | Tüm gelir **kalıcı +%50** (ayrı çarpan ×1,5; öneri, karar simülasyondan sonra); Şans sahnede yakut tasmayla görünür. Sınıf tasmasının bonusu sürer (yakut ayrı sayılır) | Türün en iyi satan tipi (Idle Miner "2x Income Forever", Double Cash $6,99). **2026-10-15:** altın tasma artık Milyarder'de bedava geliyor, ad ve görsel yakut oldu; ×2 yerine %50, çünkü ücretli bonus sonradan düşürülemez, yükseltilebilir. Bonus veren köpek değil, onun aksesuarı |
+| **Şans'ın Yakut Tasması** | Kalıcı | $4,99 | Tüm gelir **kalıcı +%50** (ayrı çarpan ×1,5; kullanıcı onayladı, 2026-10-15); Şans sahnede yakut tasmayla görünür (görseller hazır: `public/assets/scene/sans-*-ruby.webp`). Sınıf tasmasının bonusu sürer (yakut ayrı sayılır) | Türün en iyi satan tipi (Idle Miner "2x Income Forever", Double Cash $6,99). **2026-10-15:** altın tasma artık Milyarder'de bedava geliyor, ad ve görsel yakut oldu; ×2 yerine %50, çünkü ücretli bonus sonradan düşürülemez, yükseltilebilir. Bonus veren köpek değil, onun aksesuarı |
 | **Yeni Başlangıç Paketi** | Tek seferlik | $2,99; ilk 3 gün hoş geldin fiyatı $1,49 | 4 saatlik ×2 hızlandırıcı + 1 saatlik gelir + Şans'a kırmızı fular: kalıcı +%10 gelir. 1. sınıf atlamadan sonra mağazada; ilk 3 gün $1,49 (geri sayım, "Sonra $2,99"), sonra $2,99'la satışta kalır (2026-10-15; önce yalnız 3 gün $1,99'du) | Başlangıç paketi rakiplerin hepsinde var ($1,99–4,99). İlk ödemeyi düşük tutarla almak için. "%50 indirim" ve üstü çizili fiyat yok: oyuncuya hiç uygulanmamış bir fiyattan indirim gibi görünür (AB Omnibus kuralı: indirim, son 30 günün en düşük fiyatına göre); "Hoş geldin fiyatı · Sonra $2,99" gerçeği söyler |
-| **Gece Vardiyası Ekibi** | Kalıcı | $3,99 | Çevrimdışı oran %50 → %100 ve tavan +2 saat | Egg, Inc.'in Pro Permit karşılığı ($9,99). Kullanıcının "çevrimdışı fazla" gözlemiyle birlikte ayarlanmalı (discussion-notes §5) |
+| **Gece Vardiyası Ekibi** | Kalıcı | $3,99 | Çevrimdışı oran %50 → %100 ve tavan +2 saat | Egg, Inc.'in Pro Permit karşılığı ($9,99). Kullanıcının "çevrimdışı fazla" gözlemiyle birlikte ayarlanmalı (discussion-notes §4) |
 | **Para çantası** (ileride) | Tüketilir | $0,99–4,99 | "X saatlik gelir"; gelire oranlı | v1'de vardı (dinamik ölçekli). Lansmanda isteğe bağlı |
 | **Sezon bileti, VIP abonelik** | — | — | Lansmanda yok | GPT Astra: erken aşamada odak dağıtır. Canlı etkinliklerle (Faz 3) değerlendirilir. Haftalık abonelik ($7,99/hafta örnekleri) güven açısından riskli |
 
@@ -115,15 +115,15 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 | + reklam | 1 sa 8 dk | 3 sa 21 dk (5. gün) | 7 sa 8 dk (11. gün) | −%31 |
 | + reklam + fular + yakut (+%50) | 53 dk (2. gün) | 2 sa 11 dk (4. gün) | 4 sa 28 dk (7. gün) | −%57 |
 
-Fular küçük ve güvenli. Yakut %50 reklamla birleşince zirveyi yarıdan kısa sürede getiriyor, ömrün kalan ~12 saati boş kalır (§5 ilke: ödeyen hız alır, ama geç oyun dolu kalmalı). Yakut kodlanmadan önce karar: değer (%25–50), ya da En Zengin sonrası içerik. Simülatörde `RUBY_COLLAR_TRIAL`.
+Fular küçük ve güvenli. Yakut %50 reklamla birleşince zirveyi yarıdan kısa sürede getiriyor ve ömrün kalan ~12 saati boş kalıyor. Yakutu %25'e indirmek bu oyuncuyu yalnız bir gün geciktiriyordu (7. gün yerine 8. gün), ürünü ise zayıflatıyordu. **Karar (kullanıcı, 2026-10-15): yakut %50 kalır, çözüm zirve sonrası içerik** (plan 2.12, Faz 2; adaylar [discussion-notes.md §2](./discussion-notes.md)). Simülatörde `RUBY_COLLAR_TRIAL`; ürün kodlanınca `config/iap.ts`'e taşınır.
 
 ## 6. Oyunda nerede görünecek?
 
-- **Üst bar:** ×2 hızlandırıcı düğmesi; aktifken parlayan "×2 · 42 dk" rozeti.
-- **Ödül kartları:** "Topla" ve "Reklam izle ×2" yan yana. Reklamsız paket sahibinde ikinci düğme "×2 Topla" olur.
+- **Sahnenin sağında:** ×2 hızlandırıcı düğmesi (küçük bir kart açar); aktifken üst bardaki gelir satırında "×2".
+- **Ödül kartları:** "Topla"nın üstünde turuncu "Reklam izle: +$X". Rahat Paket sahibinde aynı düğme hediye simgesiyle "Hemen al" olur.
 - **Hayal, terfi ve işletme kartları:** az para kalmışken küçük "Reklam izle: +$X" düğmesi (X = eksik tutar).
 - **Mağaza (karar 2026-10-14, kullanıcı):** ayrı bir Mağaza ekranı; sahnenin solundaki yuvarlak düğmelerin üçüncüsü (albüm, Zenginler Listesi, Mağaza), Gündelikçi töreninden sonra çıkar. Alt menüye 4. sekme eklenmedi. Sınırlı teklif varken düğmede kırmızı nokta. Alışveriş sekmesinin altında Mağaza'ya götüren bir şerit. Geri yükleme hem Mağaza'nın altında hem Ayarlar'da.
-- **Hoş geldin kartı (karar 2026-10-14, kullanıcı):** sınırlı teklif açılınca bir kez, sakin bir anda (törenden ve bildirim sorusundan sonra, araya 2 dakika girer; açık sekme, kart ya da hikâye yokken) küçük bir kart: paketin görseli ve maddeleri, "Bak" (Mağaza'yı açar, satın almaz) ve "Sonra". Bir daha kendiliğinden çıkmaz.
+- **Hoş geldin kartı (karar 2026-10-14, kullanıcı):** Başlangıç Paketi'nin hoş geldin fiyatı sürerken bir kez, sakin bir anda (törenden ve bildirim sorusundan sonra, araya 2 dakika girer; açık sekme, kart ya da hikâye yokken) küçük bir kart: paketin görseli ve ödülleri, "Hoş geldin fiyatı: $1,49 · sonra $2,99", geri sayım, "Paketi incele" (Mağaza'yı açar, satın almaz) ve "Şimdi değil". Bir daha kendiliğinden çıkmaz.
 - **Sahnede:** Başlangıç paketindeki fular (ileride yakut tasma); satın almanın görünür karşılığı. Sınıf tasmaları (deri, gümüş, altın) bedava ve törende ayrı kartla gösterilir.
 
 ## 7. Kurallar ve uyum (lansman öncesi zorunlu)
@@ -148,10 +148,10 @@ Fular küçük ve güvenli. Yakut %50 reklamla birleşince zirveyi yarıdan kıs
 
 ## 8. Uygulama sırası
 
-1. **Ekonomi ayarı (discussion-notes §5) ile birlikte:** ✅ reklam ödülleri ve "reklam izleyen" profili simülatörde (2026-10-12; sonuç §4 sonunda). ✅ 2026-10-15: "fular" ve "reklam + fular + yakut" profilleri (§5 sonunda).
+1. **Ekonomi ayarı (discussion-notes §4) ile birlikte:** ✅ reklam ödülleri ve "reklam izleyen" profili simülatörde (2026-10-12; sonuç §4 sonunda). ✅ 2026-10-15: "fular" ve "reklam + fular + yakut" profilleri (§5 sonunda).
 2. **Reklam altyapısını v2'ye taşı:** ✅ 2026-10-08: `src/game/runtime/ads.ts` (AdMob 8.2.1, UMP + ATT, web'de sahte reklam, Ayarlar'da gizlilik seçenekleri). Ayrıntı: [mobile-ad-integration.md](./mobile-ad-integration.md). AdMob konsolunda GDPR mesajı kullanıcı tarafından oluşturulacak.
 3. **Reklam yerleri 1–4:** ✅ 2026-10-12 (çevrimdışı +%30, Şans ×2, hızlandırıcı, biraz yardım).
-4. **IAP, 1. adım:** ✅ kod 2026-10-14: Rahat Paket ve Yeni Başlangıç Paketi, geri yükleme (aşağıda "IAP nasıl çalışıyor"). Mağaza tarafı kullanıcıda. **2. adım:** Yakut Tasma (kalıcı +%50 öneri) ve Gece Vardiyası, "ödeyen oyuncu" simülasyonundan sonra (discussion-notes §10). v1 ürünleri pasifleştirilir.
+4. **IAP, 1. adım:** ✅ kod 2026-10-14: Rahat Paket ve Yeni Başlangıç Paketi, geri yükleme (aşağıda "IAP nasıl çalışıyor"). Mağaza tarafı kullanıcıda. **2. adım:** Yakut Tasma (kalıcı +%50) ve Gece Vardiyası; ödeyen oyuncu simülasyonu yapıldı (§5), sıra Faz 2'de zirve sonrası içerikten sonra. v1 ürünleri pasifleştirilir.
 5. **Analitik:** ✅ kod tamam (plan 1.14; `ad_watch`, sınıf atlama, oturum). Reklam teklifi ve satın alma olayları reklam yerleri ve IAP ile birlikte.
 6. **Sonra:** ✅ tören ve hayat anı hediyesi ×2 (2026-10-14); günlük hediye (2.7), olay kartı ikinci şans (2.4); zorla reklam ve fiyat A/B testleri (Faz 3).
 
@@ -159,7 +159,7 @@ Fular küçük ve güvenli. Yakut %50 reklamla birleşince zirveyi yarıdan kıs
 
 Kod: ürünler `core/config/iap.ts`, kurallar `runtime/purchases.ts`, mağaza `runtime/iap.ts` (RevenueCat, web'de geliştirme sırasında sahte mağaza), ekran `ui/shop/StoreSheet.tsx` (düğme, ekran, Alışveriş'teki şerit), hoş geldin kartı `ui/shop/OfferCard.tsx` (`StoryDirector` gösterir), geri yükleme `ui/shop/useRestore.ts`. Görseller `public/assets/iap/` (kaynak `art/pilot/15-iap/`).
 
-**Görünüm (GPT tasarımı, 2026-10-14; [iap-store-design-handoff.md](./iap-store-design-handoff.md)):** Başlangıç Paketi ve Rahat Paket'in kendi kartları var (`StoreSheet.tsx` `StarterCard`, `ComfortCard`, `ComfortActive`; parçalar `StoreParts.tsx`): rozet → ad → ana fayda + katmanlı görsel (Şans, para, madeni para, kum saati; kutu, kapak, madalyon; `public/assets/iap/v2/`, kırpılmadan, yerleşim yüzdeyle) → üç ödül kutucuğu ya da bonus şeridi → altın "Paketi al · fiyat" düğmesi. Hareket: kapak 3,6 sn'de hafifçe kalkıp iner, para destesi 3,2 sn'de yüzer, kart 200 ms'de belirir; `prefers-reduced-motion`'da hepsi durur. Renk ve ölçüler `mobile.css` `.v2-iap*` (yalnız mağaza; genel `Panel` ve `GameButton` değişmedi). Rahat Paket alınınca kompakt "Aktif" kartı; Başlangıç Paketi alınınca kart kalkar, üstte bir kez "Başlangıç Paketin hazır!" özeti. Satın alma sürerken düğmede "İşleniyor…", hata kartın altında. Hoş geldin kartı "Başlangıç teklifi" adıyla ve fiyatla ("Tek seferlik satın alma · fiyat"; ücretli paket olduğu için "hediye" denmez), "Paketi incele" / "Şimdi değil", kapat düğmesi. Mağaza düğmesi 3D çanta. Yeni bir ürün kendi kartı yapılana kadar sade kartla görünür (`PlainCard`). Mağaza içi kısa ad TR "Başlangıç Paketi" (Play'deki ürün adı değişmedi).
+**Görünüm (GPT tasarımı, 2026-10-14; [iap-store-design-handoff.md](./archive/iap-store-design-handoff.md)):** Başlangıç Paketi ve Rahat Paket'in kendi kartları var (`StoreSheet.tsx` `StarterCard`, `ComfortCard`, `ComfortActive`; parçalar `StoreParts.tsx`): rozet → ad → ana fayda + katmanlı görsel (Şans, para, madeni para, kum saati; kutu, kapak, madalyon; `public/assets/iap/v2/`, kırpılmadan, yerleşim yüzdeyle) → üç ödül kutucuğu ya da bonus şeridi → altın "Paketi al · fiyat" düğmesi. Hareket: kapak 3,6 sn'de hafifçe kalkıp iner, para destesi 3,2 sn'de yüzer, kart 200 ms'de belirir; `prefers-reduced-motion`'da hepsi durur. Renk ve ölçüler `mobile.css` `.v2-iap*` (yalnız mağaza; genel `Panel` ve `GameButton` değişmedi). Rahat Paket alınınca kompakt "Aktif" kartı; Başlangıç Paketi alınınca kart kalkar, üstte bir kez "Başlangıç Paketin hazır!" özeti. Satın alma sürerken düğmede "İşleniyor…", hata kartın altında. Hoş geldin kartı "Başlangıç teklifi" rozetiyle ve fiyatla ("Hoş geldin fiyatı: fiyat · sonra normal fiyat"; ücretli paket olduğu için "hediye" denmez), "Paketi incele" / "Şimdi değil", kapat düğmesi. Başlangıç Paketi'nin kartında hoş geldin fiyatı sürerken "Hoş geldin fiyatı" rozeti, geri sayım ve düğmenin altında "Sonra $2,99"; sonra "Tek seferlik" rozeti. Mağaza düğmesi 3D çanta. Yeni bir ürün kendi kartı yapılana kadar sade kartla görünür (`PlainCard`). Mağaza içi kısa ad TR "Başlangıç Paketi" (Play'deki ürün adı değişmedi).
 
 **Ekranın düzeni (ileriye dönük, 2026-10-14):** ürünler bölümlere göre dizilir, boş bölüm görünmez: **Sınırlı teklif** (büyük kart, geri sayım; bugün Başlangıç Paketi, ileride etkinlik teklifleri), **Hep senin** (kalıcılar; bugün Rahat Paket, ileride Yakut Tasma ve Gece Vardiyası), **Para çantaları** (tüketilir, üçlü ızgara; bugün boş). Her üründe tür var: `permanent` (alınınca "Sahipsin" rozetiyle kalır), `once` (alınınca kaybolur), `consumable` (tekrar tekrar alınır, "sahip olunmaz", geri yüklenmez). Satışta olmayan ürün ekranda görünmez ("Yakında" kartı yok; karar 2026-10-14).
 
@@ -187,7 +187,13 @@ Kod: ürünler `core/config/iap.ts`, kurallar `runtime/purchases.ts`, mağaza `r
 
 **Mağaza kurulumu (kullanıcı):**
 
-1. **Play Console** → uygulama → Para kazanma → Ürünler → Uygulama içi ürünler: `v2_comfort_pack` ($7,99), `v2_starter_pack` ($2,99) ve `v2_starter_pack_welcome` ($1,49), üçü de etkin. Adlar ve açıklamalar TR/EN (Rahat Paket / Comfort Pack; Yeni Başlangıç Paketi / Fresh Start Pack).
+1. **Play Console** → uygulama → Para kazanma → Ürünler → Uygulama içi ürünler: `v2_comfort_pack` ($7,99), `v2_starter_pack` ($2,99) ve `v2_starter_pack_welcome` ($1,49), üçü de etkin (tanımlandı, 2026-10-15). Adlar ve açıklamalar TR/EN; ad en fazla 55, açıklama en fazla 200 karakter. Ürünlere görsel eklenmez; satın alma penceresi uygulama ikonunu ve ürün adını gösterir.
+
+   | Ürün | Ad (TR / EN) | Açıklama (TR / EN) |
+   | --- | --- | --- |
+   | `v2_starter_pack` | Yeni Başlangıç Paketi / Fresh Start Pack | 4 saat ×2 gelir, hemen 1 saatlik gelir ve Şans için kırmızı fular: tüm gelire kalıcı +%10. Tek seferlik satın alma. / 4 hours of ×2 income, 1 hour of income right away, and a red scarf for Lucky: +10% to all income, for good. One-time purchase. |
+   | `v2_starter_pack_welcome` | Yeni Başlangıç Paketi – Hoş Geldin Fiyatı / Fresh Start Pack – Welcome Price | Yukarıdakiyle aynı |
+   | `v2_comfort_pack` | Rahat Paket / Comfort Pack | Reklam ödülleri reklamsız, bir kez 2 saat ×2 |
 2. **RevenueCat** → proje → Products: üç ürünü Play (ve sonra App Store) için ekle, **tüketilmeyen (non-consumable)** olarak işaretle; yoksa Android'de satın alma tüketilir ve geri yükleme çalışmaz.
 3. **Lisans testi:** Play Console → Ayarlar → Lisans testi'ne kendi Google hesabını ekle.
 4. **App Store** (iOS sürümünde): aynı kimliklerle "Non-Consumable" ürünler.
@@ -195,6 +201,6 @@ Kod: ürünler `core/config/iap.ts`, kurallar `runtime/purchases.ts`, mağaza `r
 
 ## 9. Kararlar (kullanıcı, 2026-10-08)
 
-Altı sorunun hepsi önerildiği gibi onaylandı: lansmanda zorla reklam yok (sonra A/B testi); reklam yerleri 1–4'ün hepsi; hızlandırıcı 1 saat ×2, en fazla 4 saat, günde 6; IAP listesi ve fiyatları (Rahat Paket $7,99, Şans'ın Altın Tasması $4,99, Yeni Başlangıç $1,99, Gece Vardiyası Ekibi $3,99) ve adları; lansmanda premium para birimi yok; v1'in 8 ürünü pasifleştirilip yenileri açılır.
+Altı sorunun hepsi önerildiği gibi onaylandı (sonradan değişenler: Altın Tasma ×2 → Yakut Tasma +%50, Başlangıç Paketi $1,99 → $2,99 ve hoş geldin fiyatı $1,49, reklam yerine 5. olarak tören hediyesi; 2026-10-14/15): lansmanda zorla reklam yok (sonra A/B testi); reklam yerleri 1–4'ün hepsi; hızlandırıcı 1 saat ×2, en fazla 4 saat, günde 6; IAP listesi ve fiyatları (Rahat Paket $7,99, Şans'ın Altın Tasması $4,99, Yeni Başlangıç $1,99, Gece Vardiyası Ekibi $3,99) ve adları; lansmanda premium para birimi yok; v1'in 8 ürünü pasifleştirilip yenileri açılır.
 
 Karar verilirken tartılan risk: "Hayaline yardım" (ihtiyaç anında para) v1'deki "asıl para reklamdan" hissini geri getirebilir; bu yüzden yalnızca eksik fiyatın %10'undan ve 5 dakikalık gelirden azken çıkar ve eksik tutarı verir (2026-10-14).

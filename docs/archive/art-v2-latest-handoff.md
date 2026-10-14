@@ -2,7 +2,7 @@
 
 Bu tur: 8 kahraman portresi, 1 atölye tören karesi, 4 lüks araç, 1 önsöz stil denemesi. Yerleşik imagegen kullanıldı. Her kaynağın yanında kullanılan `-prompt.txt` bulunur. Runtime dosyaları değiştirilmedi.
 
-**Entegrasyon (Claude, 2026-10-13):** portreler, atölye karesi ve dört lüks oyunda; önsöz denemesi kullanıcı kararını bekliyor. Portreler 900 px'e kırpılarak (baş oyundaki setlerle aynı ölçekte) 240 px'e indirildi; lüksler `FUZZ=3.5 PALE=1 scripts/cutout-vehicle.sh` ile kesildi. Ayrıntı: [session-handoff.md](./session-handoff.md) "Son oturum".
+**Entegrasyon (Claude, 2026-10-13):** portreler, atölye karesi ve dört lüks oyunda; önsöz denemesi kullanıcı kararını bekliyor. Portreler 900 px'e kırpılarak (baş oyundaki setlerle aynı ölçekte) 240 px'e indirildi; lüksler `FUZZ=3.5 PALE=1 scripts/cutout-vehicle.sh` ile kesildi. Ayrıntı: [session-handoff.md](../session-handoff.md) "Son oturum".
 
 ## Portreler
 

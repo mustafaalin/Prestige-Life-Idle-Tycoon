@@ -1,6 +1,6 @@
 # Görsel Brifi v2: Sahne aşamaları ve hikâye kareleri
 
-Son güncelleme: 2026-10-13 · İlgili: [story-v2.md §4, §8](./story-v2.md), [discussion-notes.md §7](./discussion-notes.md), kod `src/game/ui/scene/stages.ts`, `src/game/ui/story/ceremonyScript.ts`
+Son güncelleme: 2026-10-15 · İlgili: [story-v2.md §4, §8](./story-v2.md), [discussion-notes.md §1](./discussion-notes.md), kod `src/game/ui/scene/stages.ts`, `src/game/ui/story/ceremonyScript.ts`
 
 Bu belge, oyunun görsellerini üretecek kişiye ya da modele (GPT dahil) verilir. Neyin, hangi boyutta, hangi referansla ve hangi komutla üretileceğini anlatır. Üretilen dosyalar `art/pilot/` altına konur. Oyuna sıkıştırıp bağlamayı Claude yapar (webp, kesim, konum ayarı). Evler ve araçlar için doğrudan yapıştırılacak İngilizce komutlar: [art-prompts-v2.md](./art-prompts-v2.md).
 
@@ -46,15 +46,27 @@ Yaşlar `npm run sim` sonucundan alındı.
 | Karakter kılavuzu | Yatay sayfa (mevcut `mom-sheet.png` gibi) | Düz açık gri | Önden tam boy + 4 ifade portresi (yakın plan, omuzdan yukarı). Portreler oyunda yuvarlak kesilir. |
 | Hikâye karesi | 9:16 dikey, en az 1536×2752 | Dolu | Alt %35'e konuşma balonu biner; yüzler ve önemli nesneler üst %65'te. |
 
+### Sahne ölçeği ve ekran haritası (2026-10-11; kod `ui/scene/stages.ts`, `place.ts`, DEV → Sahne laboratuvarı)
+
+Kahraman, Şans, araç ve ev her kombinasyonda aynı ölçekte ve birbirini kapatmadan durur:
+
+- **Metre ölçeği:** kahraman 1,78 m = resim yüksekliğinin %40'ı; ayak çizgisinde (y %73,5) 1 m = %22,5. Ufuk göz hizasında (y %37); geriye gidince küçülme `(y − ufuk) / (ayak − ufuk)`.
+- **Araba şeridi geride, gerçek boyda:** tekerlekler y %62 (kahramanın ~2,5 m arkası), şerit x %13–89 = 2,75 m. Bisiklet ve skuter kahramanın yanında (y %70).
+- **Burundan hizalama, aynalama yok:** aracın burnu x %89'da, fazlası kahramanın arkasına gider; bütün araçlar önü sağa. Tek istisna çadır: iki teker solda, önü sola.
+- **Boy gerçek yükseklikten:** `VEHICLE_SHAPE.metres` görselin kapsadığı her şeyin yüksekliği (anten, tavan rayı, aynalar dahil); 2,75 m'yi aşan görsel küçültülür (şimdi pikap ve arazi aracı, ×0,96).
+- **Ev başına ayar:** araç şeridi, ışık ve kahramanın yatay yeri (`castX`) `HOME_ART`'ta; ev 2–5'te kahraman %7 sağda. Telefonda ev ev son ayar ve araç gölgesinin sahnede çizilmesi bekliyor (plan 1.6).
+
+Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · en çok %55 duvarın zemine değdiği çizgi · %62 araba şeridi (x %13–89) · %70 iki teker şeridi · %73,5 kahraman (x %40) ve Şans (x %66) · %77–87 toplanacaklar · alt %10 menü · yatay güvenli alan x %12–88. Sol ve sağdaki yuvarlak düğmeler y %42 dolayında; hedef kartı sol üstte, tek satır.
+
 **Dosya adları ve yerler** aşağıdaki tablolarda. Kaynak `art/pilot/...` altına PNG olarak konur. Aynı görselin denemeleri `-v1`, `-v2` diye adlandırılır; seçilen sürüm tablodaki adı alır, seçilmeyen denemeler silinir (kaynaklar Drive yedeğinde kalır).
 
 ## 4. Liste
 
-**Öncelik:** A, AAB'den (kapalı teste çıkacak sürüm) önce gerekenler. B, olsa iyi olur. **Durum (2026-10-12):** evler, araçlar, iş kıyafeti, bozuk paralar, Nevin Hanım ve Defne oyunda; bekleyenler §5'te.
+**Öncelik:** A, AAB'den (kapalı teste çıkacak sürüm) önce gerekenler. B, olsa iyi olur. **Durum (2026-10-15):** listedeki görsellerin hepsi oyunda; açık kalanlar §5'te.
 
 ### 4.1 Kahraman kıyafetleri (A)
 
-Her kıyafet için önce bir kıyafet kılavuzu üretilir (önden ve yandan tam boy), onaylanınca pozlar o kılavuzla üretilir. Dört kıyafetin pozları da oyunda (2026-10-12). Böylece kıyafet pozlar arasında değişmez.
+Her kıyafet için önce bir kıyafet kılavuzu üretilir (önden ve yandan tam boy), onaylanınca pozlar o kılavuzla üretilir; böylece kıyafet pozlar arasında değişmez. Yedi kıyafetin hepsi oyunda: aşağıdaki üçü 2026-10-12'de, deve tüyü palto, üç parçalı takım ve smokin 2026-10-14'te ([art-prompts-v2.md §9](./art-prompts-v2.md)); her birinin 4 ifade portresi de var.
 
 | Kıyafet | Kılavuz dosyası | Tasarım |
 | --- | --- | --- |
@@ -108,7 +120,11 @@ Not: annenin evleri (eski aile evi, konak) ayrı; mağazada yok, törenlerde hik
 | --- | --- |
 | `art/pilot/05-scene/items-coins.png` (A, oyunda) | Üç nesne: tek parlak bozuk para, küçük bozuk para yığını, birkaç madeni para ve buruşuk tek banknot. |
 | `art/pilot/05-scene/sans-sit-leather.png` + `sans-wallet-leather.png` (B, oyunda) | Şans oturuyor / ağzında cüzdanla; kahverengi deri tasma, ipli olanla aynı duruş. Orta Sınıf'tan itibaren. |
+| `art/pilot/05-scene/sans-sit-silver.png` + `sans-wallet-silver.png` + `sans-sleep-silver.png` (oyunda, 2026-10-15) | Gümüş tasma, altın tasmanın rahat duruşuyla. Milyoner'den itibaren. Komut [art-prompts-v2.md §11](./art-prompts-v2.md). |
 | `art/pilot/05-scene/sans-sit-gold.png` + `sans-wallet-gold.png` (B, oyunda) | Altın tasma, ayrı duruş: rahat oturmuş, ağzı hafif açık ve mutlu; cüzdanı kuyruğu yukarıda, neşeli bir adımla getiriyor. Milyarder'den itibaren. |
+| `art/pilot/05-scene/sans-sleep-{rope,leather,gold}.png` (oyunda) | Uyuyan Şans, sınıfın tasmasıyla; çevrimdışı kazanç kartında. |
+| `art/pilot/05-scene/sans-*-ruby.png` (hazır, 2026-10-15) | Yakut tasma (ücretli ürün, IAP 2. adım); oturan, cüzdanlı, uyuyan. Oyundaki dosyalar `public/assets/scene/sans-*-ruby.webp`, bağlanmadı. |
+| `public/assets/scene/sans-scarf.webp` (oyunda) | Başlangıç Paketi'nin kırmızı fuları, yalnız oturan Şans'ın üstüne çiziliyor; öbür pozlarda yok ([discussion-notes.md §1](./discussion-notes.md)). |
 
 Şans için referans: `sans-sheet.png` + mevcut `sans-sit-cut.png` / `sans-wallet-cut.png`. Komut: *"The SAME dog as the reference, same pose, same scale; only change the collar to {a brown leather collar / a gold collar}. Real four-legged dog, quadruped, NOT anthropomorphic."*
 
@@ -125,7 +141,7 @@ Hazır komutlar: [art-prompts-v2.md §3](./art-prompts-v2.md). Özet: *"Characte
 
 ### 4.5 Hikâye kareleri
 
-Altısı da oyunda (2026-10-13, GPT; `public/assets/story/ceremony/`, 1080 px genişlik). Kareler tam genişlikte, üstten hizalı gösterilir (kırpma yok); alt üçte birin boş bırakılması bu yüzden şart. Her kare, töreninde aşağıdaki cümlelerin arkasında durur (`ceremonyScript.ts`).
+Yedisi de oyunda (2026-10-13, GPT; `public/assets/story/ceremony/`, 1080 px genişlik). Kareler tam genişlikte, üstten hizalı gösterilir (kırpma yok); alt üçte birin boş bırakılması bu yüzden şart. Her kare, töreninde aşağıdaki cümlelerin arkasında durur (`ceremonyScript.ts`).
 
 | # | Tören | Kaynak → oyundaki dosya | Sahne | Arkasında durduğu cümleler |
 | --- | --- | --- | --- | --- |
@@ -135,6 +151,7 @@ Altısı da oyunda (2026-10-13, GPT; `public/assets/story/ceremony/`, 1080 px ge
 | H4 | 7 En Zengin | `c7-mansion-cake.png` → `mansion-cake.webp` | Konağın önü, pencerede saksı çiçekler: anne ağlayan-mutlu, kahraman (kıyafet 4) elinde kurdeleli pasta kutusu (önsözdekinin aynısı). | Törenin üç cümlesi. |
 | H5 | 5 Milyarder | `c5-restaurant.png` → `restaurant.webp` | Bülent Bey'in restoranı (önsözdeki restoran): iki personel endişeli, Bülent Bey şaşkın, kahraman (kıyafet 4) sakin. | Törenin beş cümlesi. |
 | H6 | 1 Gündelikçi | `c1-soup.png` → `soup.webp` | Minibüsün önünde Rıza Amca ve kahraman (kapüşonlu) sıcak çorba içiyor, Şans bekliyor. | Törenin dört cümlesi. |
+| H7 | 6 Multimilyarder | `c6-workshop.png` → `workshop.webp` (2026-10-13) | Rıza Amca'nın atölyesi: kahraman anahtarları uzatıyor ([art-prompts-v2.md §6](./art-prompts-v2.md)). | Törenin üç cümlesi. |
 
 Referanslar: sahnenin yeri (ilgili arka plan ya da önsöz karesi) + kahraman kıyafet kılavuzu + ilgili kadro kılavuzları + `alley.png` (stil). Komut, yer ve kişiler tarif edildikten sonra: *"Story panel, 9:16 vertical. Keep faces and key objects in the upper two thirds; the bottom third will be covered by a speech bubble."* + stil paragrafı + arka plan cümlesi.
 
@@ -150,7 +167,7 @@ Yeni ikon komutu (özet): *"ONE high-resolution square game business icon for {i
 
 ## 5. Bekleyenler
 
-Bu brifteki görsellerin hepsi oyunda. İsteğe bağlı kalanlar [story-v2.md §8](./story-v2.md)'de (uyuyan Şans, atölye karesi).
+Bu brifteki görsellerin hepsi oyunda. Açık kalanlar ([discussion-notes.md §1](./discussion-notes.md)): fuların öbür pozlarda görünmesi, önsözün stil kararı (3D denemesi hazır), lüks görsellerinin kesim kalıntıları, lükslerin sahnede gösterimi (plan 2.6).
 
 GPT'nin aracı ~1,57 MP veriyor: arka plan 941×1672 (1080 genişliğe büyütülüyor, telefonda kabul edilebilir), pozlar 1000 px yüksekliğe yetiyor.
 

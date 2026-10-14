@@ -1,6 +1,6 @@
 # Prestige Life v2 — Hikaye ve Karakterler
 
-Son güncelleme: 2026-10-13 (tören kareleri ve işletme ikonları oyunda; süreler güncel simülatörden) · İlgili: [game-design-v2.md](./game-design-v2.md), [rebuild-plan.md](./rebuild-plan.md)
+Son güncelleme: 2026-10-15 (tasma kartı, tekne anının yeni karesi; süreler güncel simülatörden) · İlgili: [game-design-v2.md](./game-design-v2.md), [rebuild-plan.md](./rebuild-plan.md)
 
 Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor](./report-v2.md) §6 (fakirlikten zenginliğe hissi) ve §7'dir (hanedan, olay kartları).
 
@@ -47,7 +47,7 @@ Varis torun, Faz 2.1'de (§6).
 
 ### Kahraman
 
-- Genç (17 yaşında başlar), koyu saçlı, gri kapüşonlu ve sırt çantalı; yarı 3D. Kapüşonlu ve iş kıyafetli pozları oyunda (§8).
+- Genç (17 yaşında başlar), koyu saçlı, gri kapüşonlu ve sırt çantalı; yarı 3D. Yedi kıyafetin pozları ve 4'er ifade portresi oyunda (§8).
 - Geçmiş: babasının küçük mahalle dükkânı yıllar önce battı, aile evini kaybettiler; baba vefat etmiş (ayrıntıya girilmez). Kahraman Bülent Bey'in restoran zincirinde garson, annesiyle restoranın üstündeki personel lojmanında yaşıyor. Önsözde kovulur ve lojmandan çıkarılırlar.
 - Söz: *"Anne, bir gün seni saraylarda yaşatacağım."* Oyunun duygusal omurgası.
 - İsim: ilk tezgâhtan sonra Rıza Amca sorar. Varsayılan dolu gelir, tek dokunuşla geçilir. En fazla 16 karakter.
@@ -57,7 +57,8 @@ Varis torun, Faz 2.1'de (§6).
 
 - Karışık cins, kırpık kulaklı, tüyleri dağınık bir sokak köpeği. Her zaman sahnede, kahramanın yanında. Zenginleştikçe tasması değişir: ip → deri (Orta Sınıf) → gümüş (Milyoner; görseli bekliyor) → altın (Milyarder; duruşu da rahatlar). Oyunda. Her tasma gelire küçük bir bonus verir (2026-10-15; [game-design §4.4](./game-design-v2.md)).
 - Ona dokunmak para vermez: kahraman onu okşar. 5–10 dakikada bir ağzında bir cüzdanla gelir; oyuncu 12 sn içinde dokunursa kahraman cüzdanı sahibine verir ve teşekkür ödülü alır (oyunda; game-design §4.7). Kahraman bulduğu parayı cebine koymaz.
-- Çevrimdışı dönüşte kapının önünde uyurken uyanır (bekliyor; uyuyan poz görseli gerekiyor).
+- Çevrimdışı kazanç kartında sınıfın tasmasıyla uyur; kart kapanınca küçük bir sıçramayla sahneye döner (oyunda).
+- Ücretli aksesuarlar: Başlangıç Paketi'nin kırmızı fuları (kalıcı +%10; şimdilik yalnız oturan pozda görünür), ileride yakut tasma (+%50; [monetization-v2.md §5](./monetization-v2.md)). Satın almanın sahnede görünen karşılığı.
 
 ### Rıza Amca (Old Ray)
 
@@ -118,7 +119,7 @@ Kirli bir ara sokak; kahraman çadırın önünde üşüyor, yanında Şans. 4 �
 
 ### 7 sınıf töreni (Faz 1)
 
-Tören yapısı (plan 1.10, oyunda): "Yeni sınıf" başlığı (konfeti, ses, haptik) → hikâye anları (görsel roman: yuvarlak ifade portresi + balon; kahraman sağda, diğerleri solda; görselsiz anlar oyuncunun kendi sahnesinin üstünde karartılmış oynar; kareler tam genişlikte ve üstten hizalı durur, uzun telefonda yanlardan kırpılmaz, alttaki boşluk balonun arkasında kalır) → "Önce / Şimdi" kartı (kahramanın endişeli → mutlu yüzü, çevrimdışı tavanının artışı, sıradaki sınıf). "Geç" doğrudan son karta atlar. Tören sırasında saat durur (gelir ve yaş). Tören bitince kahraman o sınıfın kıyafetine geçer ve hikâyenin evinden gerideyse oraya taşınır; mağazadan önden giden kendi kıyafetinde ve evinde kalır (game-design §4.4, §4.8). Arka plan oturulan evdir, mağazadan taşınınca da değişir (`ui/scene/stages.ts`). Her oyuncu sınıfları aynı sırayla geçtiği için hiçbir şey denk getirilmez.
+Tören yapısı (plan 1.10, oyunda): "Yeni sınıf" başlığı (konfeti, ses, haptik) → hikâye anları (görsel roman: yuvarlak ifade portresi + balon; kahraman sağda, diğerleri solda; görselsiz anlar oyuncunun kendi sahnesinin üstünde karartılmış oynar; kareler tam genişlikte ve üstten hizalı durur, uzun telefonda yanlardan kırpılmaz, alttaki boşluk balonun arkasında kalır) → tasma veren sınıflarda (Orta Sınıf, Milyoner, Milyarder) "Şans'ın yeni tasması!" kartı (önce / şimdi ve gelir bonusu) → kapanış kartı (gerçekten değişen ev ya da kıyafet, otel hediyesi, çevrimdışı tavanı, tasma satırı, sıradaki sınıf; İşçi'den itibaren hediye ve "Reklam izle ×2"). "Geç" tasma kartına, yoksa kapanış kartına atlar. Tören sırasında saat durur (gelir ve yaş). Tören bitince kahraman o sınıfın kıyafetine geçer ve hikâyenin evinden gerideyse oraya taşınır; mağazadan önden giden kendi kıyafetinde ve evinde kalır (game-design §4.4, §4.8). Arka plan oturulan evdir, mağazadan taşınınca da değişir (`ui/scene/stages.ts`). Her oyuncu sınıfları aynı sırayla geçtiği için hiçbir şey denk getirilmez.
 
 **Kanca zinciri (2026-10-09):** Her tören ya da anne mesajı bir sonraki törenin sorusunu eker; cevap bir sonraki törende gelir. Hepsi kesin tetiklerde. Dayanak: Asbury Pines (en iyi yazılmış idle oyun sayılıyor) hikâyeyi ilerleme anlarına bağlı kısa metinlerle verir ve açıklamaları bilerek geciktirir ([AV Club](https://www.avclub.com/game-theory-asbury-pines-best-written-idle-game)). Kanca, yapay gerilim değil beklenti kurar; her tören uçurumla bitmez.
 
@@ -131,15 +132,15 @@ Metinler oyunda: `src/game/i18n/messages/*` → `ceremony.c1…c7`; senaryo (kon
 | # | Sınıf | Tören (konuşan: metin) | Ektiği / kapattığı | Görsel |
 | --- | --- | --- | --- | --- |
 | 0 | Sokakta Yaşayan | Tören yok; önsöz ve açılış | Söz (saray) | |
-| 1 | Gündelikçi ($1K, ~8 dk) | Kahraman: *"Merak etme anne, iyiyim. Bugün sıcak çorba içtim."* · Anne (telefon): *"Sesin güzel geliyor oğlum. Bunu duymak yetti."* · Rıza: *"Eski minibüsüm boşta duruyor. Çadırdan iyidir, anahtar senin."* · Rıza: *"Sen birine çok benziyorsun evlat... Neyse, boş ver."* | Rıza kimi hatırlıyor? Tören bitince minibüse taşınır | Minibüsün önünde çorba |
-| 2 | İşçi Sınıfı ($100K, ~32 dk) | Nevin Hanım: *"Cüzdanımı Şans getirmiş, değil mi? İçinde rahmetli eşimin fotoğrafı vardı."* · Defne: *"Babaannem seni bir haftadır arıyor. Sana kurabiye yaptı, hâlâ sıcak."* · Kahraman: *"Ben bir şey yapmadım. Bulan Şans'tı."* · Kahraman: *"Anne, artık bir dairem var. Kapısı bile kilitleniyor!"* · Anne: *"Ev deyince eski evimiz geldi aklıma. Babanın defteri hâlâ çatı katında."* | Defne (tanışma), defter | Daire kapısı (ilk üç cümle) |
-| 3 | Orta Sınıf ($1M, ~47 dk) | Kahraman: *"Anne... Eski evimizi geri aldım."* · Anne (ağlayan-mutlu): *"Erik ağacı... duruyor mu hâlâ?"* · Anlatım (çatı katı): *"Defter, çatı katında onu bekliyordu."* · *"Sayfaların arasından bir fotoğraf düştü."* · Kahraman (fotoğraf): *"Bu... Rıza Amca mı? Babamı tanıyor muydu?"* | Soru açık kalır | Çatı katı, eski fotoğraf |
-| 4 | Milyoner ($10M, ~54 dk, 2. gün) | Kahraman: *"Anne... Milyoner oldum. Bu sefer kendime bir ev aldım."* (ilk kendi evin törenle gelir) · Anne: *"Bahçeye iki sandalye koydum. Gel de otur artık."* · Rıza (fotoğraf): *"Bu fotoğraf... Mehmet'in dükkânı bu."* · *"Sen Mehmet'in oğlusun. Nasıl görmedim?"* | Soru kapanır | Rıza bahçede, erik ağacının altında (fotoğraf anı balonunda) |
-| 5 | Milyarder ($1B, ~3. gün) | Anlatım: *"Bülent Bey'in restoranları satılığa çıkmıştı. Alıcı, yıllar önce kovduğu garsondu."* · Personel: *"Şirketi siz almışsınız... Bizim işimiz ne olacak?"* · Kahraman: *"Hiçbir şey değişmiyor. Sadece maaşlar artıyor."* · Bülent Bey (şaşkın): *"Ya... ben?"* · Kahraman: *"Size de bir işim var, Bülent Bey."* · *"Annenizi de istediğiniz zaman arayabilirsiniz."* | Önsözdeki kovulma. Bülent Bey, Otel Zinciri'nin yöneticisi olarak bedava gelir (game-design §4.2) | Önsözdeki restoran |
-| 6 | Multimilyarder ($100B, ~8. gün) | Kahraman: *"Rıza Amca, atölyenin anahtarları. Artık senin."* · Rıza: *"Mehmet'le burayı yıllarca hayal ettik..."* · *"Gel evlat, ilk tahtayı birlikte keselim."* | Annenin "atölye" mesajı | Portreler (atölye görseli isteğe bağlı) |
-| 7 | Dünyanın En Zengini ($1T, ~17. gün) | Kahraman: *"Sana bir saray sözü vermiştim anne."* · *"Bir de pasta getirdim. Biraz geç kaldı."* · Anne (ağlayan-mutlu): *"Ah oğlum... Sen bana hep yettin."* | Söz, pasta, "sen bana yetersin" | Konağın önü, pasta kutusu |
+| 1 | Gündelikçi ($1K, ~4,5 dk) | Kahraman: *"Merak etme anne, iyiyim. Bugün sıcak çorba içtim."* · Anne (telefon): *"Sesin güzel geliyor oğlum. Bunu duymak yetti."* · Rıza: *"Eski minibüsüm boşta duruyor. Çadırdan iyidir, anahtar senin."* · Rıza: *"Sen birine çok benziyorsun evlat... Neyse, boş ver."* | Rıza kimi hatırlıyor? Tören bitince minibüse taşınır | Minibüsün önünde çorba |
+| 2 | İşçi Sınıfı ($100K, ~25 dk) | Nevin Hanım: *"Cüzdanımı Şans getirmiş, değil mi? İçinde rahmetli eşimin fotoğrafı vardı."* · Defne: *"Babaannem seni bir haftadır arıyor. Sana kurabiye yaptı, hâlâ sıcak."* · Kahraman: *"Ben bir şey yapmadım. Bulan Şans'tı."* · Kahraman: *"Anne, artık bir dairem var. Kapısı bile kilitleniyor!"* · Anne: *"Ev deyince eski evimiz geldi aklıma. Babanın defteri hâlâ çatı katında."* | Defne (tanışma), defter | Daire kapısı (ilk üç cümle) |
+| 3 | Orta Sınıf ($1M, ~30 dk) | Kahraman: *"Anne... Eski evimizi geri aldım."* · Anne (ağlayan-mutlu): *"Erik ağacı... duruyor mu hâlâ?"* · Anlatım (çatı katı): *"Defter, çatı katında onu bekliyordu."* · *"Sayfaların arasından bir fotoğraf düştü."* · Kahraman (fotoğraf): *"Bu... Rıza Amca mı? Babamı tanıyor muydu?"* | Soru açık kalır | Çatı katı, eski fotoğraf |
+| 4 | Milyoner ($10M, ~40 dk, 1. gün) | Kahraman: *"Anne... Milyoner oldum. Bu sefer kendime bir ev aldım."* (ilk kendi evin törenle gelir) · Anne: *"Bahçeye iki sandalye koydum. Gel de otur artık."* · Rıza (fotoğraf): *"Bu fotoğraf... Mehmet'in dükkânı bu."* · *"Sen Mehmet'in oğlusun. Nasıl görmedim?"* | Soru kapanır | Rıza bahçede, erik ağacının altında (fotoğraf anı balonunda) |
+| 5 | Milyarder ($1B, ~2. gün) | Anlatım: *"Bülent Bey'in restoranları satılığa çıkmıştı. Alıcı, yıllar önce kovduğu garsondu."* · Personel: *"Şirketi siz almışsınız... Bizim işimiz ne olacak?"* · Kahraman: *"Hiçbir şey değişmiyor. Sadece maaşlar artıyor."* · Bülent Bey (şaşkın): *"Ya... ben?"* · Kahraman: *"Size de bir işim var, Bülent Bey."* · *"Annenizi de istediğiniz zaman arayabilirsiniz."* | Önsözdeki kovulma. Bülent Bey, Otel Zinciri'nin yöneticisi olarak bedava gelir (game-design §4.2) | Önsözdeki restoran |
+| 6 | Multimilyarder ($100B, ~7. gün) | Kahraman: *"Rıza Amca, atölyenin anahtarları. Artık senin."* · Rıza: *"Mehmet'le burayı yıllarca hayal ettik..."* · *"Gel evlat, ilk tahtayı birlikte keselim."* | Annenin "atölye" mesajı | Rıza'nın atölyesi |
+| 7 | Dünyanın En Zengini ($1T, ~15. gün) | Kahraman: *"Sana bir saray sözü vermiştim anne."* · *"Bir de pasta getirdim. Biraz geç kaldı."* · Anne (ağlayan-mutlu): *"Ah oğlum... Sen bana hep yettin."* | Söz, pasta, "sen bana yetersin" | Konağın önü, pasta kutusu |
 
-Zaman çizelgesi (`npm run sim`, 2026-10-12, en iyi oynayan bot): ilk oturumda önsöz ve Gündelikçi töreni; 1. gün İşçi (2. oturum) ve Orta Sınıf (3. oturum) da gelir. Engaged oyuncuda Milyoner 2. gün, Milyarder 3. gün, Multimilyarder 8. gün, En Zengin 17. gün, ömür sonu 25. gün; casual oyuncuda Milyoner 3., Milyarder 5., Multimilyarder 15., En Zengin 34. gün. Törenler arasındaki günleri annenin mesajları, hayat anları (§4c) ve olay kartları (§4d) doldurur.
+Zaman çizelgesi (`npm run sim`, 2026-10-15, en iyi oynayan bot): ilk oturumda önsöz, Gündelikçi ve İşçi törenleri; Orta Sınıf ve Milyoner 1. günün sonraki oturumlarında. Engaged oyuncuda Milyarder 2. gün, Multimilyarder 7. gün, En Zengin 15. gün, ömür sonu 25. gün; casual oyuncuda Milyoner 2., Milyarder 4., Multimilyarder 14., En Zengin 31. gün. Törenler arasındaki günleri annenin mesajları, hayat anları (§4c), lüks anları ve olay kartları (§4d) doldurur.
 
 **Annenin evi:** Faz 1'de iki basamak, ikisi de törenle: eski aile evi (Orta Sınıf; küçük bir bahçesi ve erik ağacı var, Milyoner'deki "iki sandalye" mesajı oraya bağlı) ve konak (En Zengin). Fiyatı yok, gelir bonusu yok. Ara basamaklar §7'de.
 
@@ -179,7 +180,7 @@ Hikâyenin ikinci saati yaştır. Sınıf törenleri paraya bağlı olduğu içi
 - Kapanış kartı yok: son balon ya da "Geç" anı bitirir. Başlık "28 yaş · Düğün".
 - Aradaki yıllar görselleştirilmez.
 - Kahramanın kızı vardır (cinsiyet sabit, karar 2026-10-11); adını oyuncu verir (doğum anından sonra sorulur; varsayılan **Elif** / **Ella**, en fazla 16 karakter, tek dokunuşla geçilir).
-- Kahramanın görünümü şimdilik yaşlanmaz (karar 2026-10-11: sonra bakılacak; [discussion-notes.md §3](./discussion-notes.md)).
+- Kahramanın görünümü şimdilik yaşlanmaz (karar 2026-10-11: sonra bakılacak; [discussion-notes.md §1](./discussion-notes.md)).
 
 | Yaş | Oyun süresi (engaged bot) | An | Ön koşul | Faz |
 | --- | --- | --- | --- | --- |
@@ -209,7 +210,7 @@ Geri dönüşler: kurabiye (İşçi töreni), iki sandalye ve erik reçeli (anne
 
 **Görseller (2026-10-11, fal.ai, 3 kare $0,45):** çay bahçesi, erik ağacının altında düğün, hastane odasında bebek; `public/assets/story/life/`, kaynak `art/pilot/10-life/`. Karelerde kahraman gömlekli ve takım elbiseli, yüzü aynı (yaşlanmıyor).
 
-**Lüks anları (karar 2026-10-14, kullanıcı; oyunda):** dört lüksün her biri ilk alındığında aile onu birlikte kullanır; lüks gösteriş değil, verilen sözlerin karşılığı. Tetik kesin: satın alma (`LUXURY_MOMENTS`, `runtime/story.ts`); yaşa bağlı anlardan sonra sıradadır. Lüksler sırayla alındığı için birkaçı birden beklerse (uzun yokluk, bu anlardan önceki bir kayıt) yalnızca en yenisi oynar, alttakiler görülmüş sayılır ve albümde bekler. Albümde etiket yaş değil lüksün adı. Kızın görünüşü tasarlanmadığı için karelerde yok. Görseller fal.ai (2026-10-14), `public/assets/story/life/{boat,yacht,heli,jet}.webp`.
+**Lüks anları (karar 2026-10-14, kullanıcı; oyunda):** dört lüksün her biri ilk alındığında aile onu birlikte kullanır; lüks gösteriş değil, verilen sözlerin karşılığı. Tetik kesin: satın alma (`LUXURY_MOMENTS`, `runtime/story.ts`); yaşa bağlı anlardan sonra sıradadır. Lüksler sırayla alındığı için birkaçı birden beklerse (uzun yokluk, bu anlardan önceki bir kayıt) yalnızca en yenisi oynar, alttakiler görülmüş sayılır ve albümde bekler. Albümde etiket yaş değil lüksün adı. Kızın görünüşü tasarlanmadığı için karelerde yok. Görseller `public/assets/story/life/{boat,yacht,heli,jet}.webp`: yat, helikopter ve jet fal.ai (2026-10-14); tekne GPT (2026-10-15; mağazadaki sürat teknesinin aynısı, kaynak `art/pilot/10-life/life-boat-luxury-v2.png`).
 
 | An | Türkçe | English |
 | --- | --- | --- |
@@ -259,10 +260,10 @@ Faz 1'de pano sadece statü eşyalarını gösterir (sıradaki ev, araç, kıyaf
 ## 6. Hanedan (Faz 2, ilke kararları)
 
 - Varis ömrün sonunda (80 yaş; 2026-10-11'de 97'den indi) devralır, erken değil ([game-design-v2.md §4.9](./game-design-v2.md)). Varis, kahramanın kızının çocuğu: kahraman 63 yaşındayken doğar, devirde 17 yaşındadır (§4c). Dede ona Rıza'nın kendisine öğrettiği gibi ilk işini öğretir.
-- Torun kahraman kadar sıfırdan değil, biraz alttan başlar (yön kararı 2026-10-11; nereden ve neyle başladığı açık: [discussion-notes.md §4](./discussion-notes.md)).
+- Torun kahraman kadar sıfırdan değil, biraz alttan başlar (yön kararı 2026-10-11; nereden ve neyle başladığı açık: [discussion-notes.md §3](./discussion-notes.md)).
 - Emeklilik = servetini vakfa bağışlamak; çocuğuna para değil adını bırakır. Miras puanı arayüzde **"Aile İtibarı"** (Family Legacy): her puan +%1 gelir.
 - Ölüm hiç gösterilmez; anne, Rıza ve Şans'ın varlığı fotoğraflar ve bıraktıkları eserlerle sürer.
-- Açık sorular: [discussion-notes.md §4](./discussion-notes.md).
+- Açık sorular: [discussion-notes.md §3](./discussion-notes.md).
 
 ## 7. Sonra: testten sonra ya da Faz 2 (fikir havuzu)
 
@@ -274,9 +275,8 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 - **Annenin evi ara basamakları:** memlekette kiralık daire (İşçi), bahçeli ev (Milyoner), deniz kenarında villa (Multimilyarder); hayaller panosunda isteğe bağlı alım, fiyatlar simülatörle.
 - **Hikaye hayalleri:** sıcak bir çorba, Şans'a tasma, annene telefon kontörü, Rıza Amca'ya yeni mont, mahalleye kütüphane. Fiyatı o sınıfın birkaç dakikalık geliri.
 - **Hayat anlarının kalanı (§4c):** okulun ilk günü, ilk para, mezuniyet, torunun doğumu, dede ve torun. Her biri bir kare + 2–3 balon; kızının 3 yaş hâli ve torun için kılavuz gerekir.
-- **Aile albümü (oyunda, 2026-10-13):** görülen törenlerin ve hayat anlarının kareleri tek sayfada, dokununca yeniden oynar; yaşanmamış hayat anı kilitli ve yalnızca yaşıyla görünür ("28 yaş · ?"). Yeni hayat anı eklenince `ui/story/album.ts` `ALBUM` listesine de girer.
 - **Defne ve kızından mesajlar:** annenin mesaj kanalıyla; En Zengin'den sonra kanal onlara geçer.
-- **4. perde (59 → 80 yaş):** oynanabilir vakıf projesi (kütüphane, burs, genç bir girişimciyi yetiştirmek).
+- **4. perde (zirveden ömür sonuna):** oynanabilir vakıf projesi (kütüphane, burs, genç bir girişimciyi yetiştirmek). Zirve sonrası adaylarından biri ([discussion-notes.md §2](./discussion-notes.md), plan 2.12).
 - **Olay kartlarının büyük seti (Faz 2.4; ilk 10 kart oyunda, §4d):** sınıfa göre değişen kartlar. Taslaklar: Rıza (*"Eski atölyeyi yeniden açmak istiyorum, ortak olur musun?"*), Bülent Bey (*"Restoranımı sana satayım, ama bir şartım var..."*).
 - **Şans'ın yavruları** (öneri Milyarder dolayları), dergi kapakları ("Garsondan patrona").
 
@@ -309,16 +309,17 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 | Şişe, kutu | 3 | **Tamam** |
 | Yönetici portreleri | 10 | **Tamam** (`public/assets/managers/`) |
 | Kahraman: sokak aşaması 5 poz | 5 | **Tamam** (çadırda üşüyen bekleme, başka evlerde umutlu bekleme, toplama, sevinç, Şans'ı okşama) |
-| Kahraman: 3 kıyafet (iş kıyafeti 4 poz, diğer ikisi toplama pozu olmadan 3'er) | 10 | **Oyunda** (2026-10-12; [art-brief-v2.md](./art-brief-v2.md) 4.1) |
-| Şans: oturan, cüzdanlı | 2 | **Tamam**, deri ve altın tasmalı hâlleriyle (2026-10-12). Uyuyan (çevrimdışı dönüş) bekliyor |
+| Kahraman: 6 kıyafet (iş kıyafeti 4 poz, diğerleri toplama pozu olmadan 3'er) + 7 kıyafetin 4'er ifade portresi | 19 poz, 28 portre | **Oyunda** (2026-10-12 → 14; [art-brief-v2.md](./art-brief-v2.md) 4.1) |
+| Şans: oturan, cüzdanlı, uyuyan | 3 × 4 tasma | **Oyunda**: ip, deri, gümüş, altın (gümüş 2026-10-15); yakut hazır, kırmızı fular oturan pozda |
 | Tören portreleri: kahraman, anne, Rıza, Bülent Bey (4'er ifade) | 16 | **Tamam** (`public/assets/story/portraits/`, kadro sayfalarından kesildi) |
 | Orta Sınıf: çatı katı ve eski fotoğraf | 2 | **Oyunda** (`public/assets/story/ceremony/`; kaynak `art/pilot/07-story/`). Çatı katı 3. kıyafetle yeniden üretildi (2026-10-13) |
-| Tören kareleri: çorba (Gündelikçi), daire kapısı (İşçi), Rıza bahçede (Milyoner), restoran (Milyarder), konak ve pasta (En Zengin) | 5 | **Oyunda** (2026-10-13, GPT; [art-brief-v2.md](./art-brief-v2.md) 4.5). Multimilyarder (atölye) portrelerle oynuyor; atölye karesi isteğe bağlı |
+| Tören kareleri: çorba (Gündelikçi), daire kapısı (İşçi), Rıza bahçede (Milyoner), restoran (Milyarder), atölye (Multimilyarder), konak ve pasta (En Zengin) | 6 | **Oyunda** (2026-10-13, GPT; [art-brief-v2.md](./art-brief-v2.md) 4.5) |
 | Ev arka planları (12) ve araçlar (12) | 24 | **Oyunda** (2026-10-12; arka plan oturulan ev, araç önünde). Liste ve komutlar: [art-brief-v2.md](./art-brief-v2.md), [art-prompts-v2.md](./art-prompts-v2.md) |
 | Toplanacaklar (bozuk para) | 1 sayfa | **Oyunda** |
 | Nevin Hanım ve Defne kılavuzları + portreler (4'er ifade) | 2 sayfa, 8 portre | **Oyunda** (2026-10-11, fal.ai $0,30; `art/pilot/03-cast/`, komutlar [art-prompts-v2.md §3](./art-prompts-v2.md)) |
 | İşletme ikonları | 10 | **Oyunda** (2026-10-13, GPT; `public/assets/businesses/v2/`, [art-brief-v2.md](./art-brief-v2.md) 4.7) |
 | Hayat anları: çay bahçesi, bahçe düğünü, bebek | 3 | **Oyunda** (`public/assets/story/life/`) |
+| Lüks anları: tekne, yat, helikopter, jet | 4 | **Oyunda** (§4c) |
 
 Kaynak dosyalar `art/pilot/` (git'te değil), oyundaki sıkıştırılmış hâlleri `public/assets/`. Harcama: plan 1.16.
 
@@ -335,6 +336,9 @@ Kaynak dosyalar `art/pilot/` (git'te değil), oyundaki sıkıştırılmış hâl
 | Rıza Amca rehber balonları | 6 + isim sorusu | **Tamam** (`guide`) |
 | Hayat anları | 3 an, 11 balon + isim sorusu | **Tamam** (`moments`) |
 | Olay kartları | 10 kart × 5 cümle | **Tamam** (`events`) |
+| Lüks anları | 4 an | **Tamam** (`moments.{boat,yacht,heli,jet}`) |
+| Zenginler Listesi kartları | 6 | **Tamam** (`richList.moments`) |
+| Tasma kartı | 1 kart, 4 tasma adı | **Tamam** (`ceremony.collar`) |
 
 Metinler `src/game/i18n/` içine, ilgili özellik yazılırken eklenir.
 
@@ -348,7 +352,7 @@ Metinler `src/game/i18n/` içine, ilgili özellik yazılırken eklenir.
 | 1.10 Sınıf töreni | 7 tören kartı, defter merakı, annenin evi iki basamağı (§4) |
 | 1.10 ile | Anne mesajları (sınıfa bağlı, günde en fazla 1), aynı balon bileşeniyle |
 | 1.12 Onboarding | Rehber Rıza Amca; ilk tezgâhtan sonra kahramanın adını sorar (tamam) |
-| 1.13 Çevrimdışı kartı | Kart hazır; Şans'ın kapıda uyanması bekliyor |
+| 1.13 Çevrimdışı kartı | Kartta uyuyan Şans (tamam) |
 | 1.14–1.15 Analitik, test | Tören atlama oranı, Orta Sınıf'a ulaşanın ertesi gün dönüşü (§0) |
 | 1.18 Önsöz | Tamam |
 | 1.20 Hayat anları | Yaşa bağlı 3 an, kızın adı (§4c) |

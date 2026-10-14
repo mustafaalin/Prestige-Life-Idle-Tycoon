@@ -1,178 +1,81 @@
 # Tartışma notları (sonra konuşulacak)
 
-Kararı henüz verilmemiş konular ve Claude'un önerileri. **Karar verilince ilgili belgeye (plan, hikâye, tasarım, monetizasyon) taşınır ve buradan silinir**; burada sadece açık konular durur.
+Kararı henüz verilmemiş konular ve Claude'un önerileri. **Karar verilince ilgili belgeye (plan, hikâye, tasarım, monetizasyon) taşınır ve buradan silinir**; burada yalnızca açık konular durur.
 
-Son güncelleme: 2026-10-13 (§5: erken oyun ayarı ve Multimilyarder hedefi; §9: hikâye ve görsel gözden geçirmesi)
+Son güncelleme: 2026-10-15 (belgeler toparlandı; çözülen maddeler taşındı; zirve sonrası adayları §2)
 
-## 1. Görsel: açık kalanlar
+## 1. Görsel
 
-Görsel roman yaklaşımı ve yarı 3D stil kararlaştırıldı ([story-v2.md §8](./story-v2.md)). Açık kalanlar:
+Yaklaşım (görsel roman) ve stil (yarı 3D) kararlaştı: [story-v2.md §8](./story-v2.md). Açık kalanlar:
 
-- **Özel anlar için video (isteğe bağlı, sonra):** "Eski evimizi geri aldım" gibi 2–3 büyük anda kısa yapay zekâ videosu. Yol: Higgsfield MCP (`claude mcp add --transport http higgsfield https://mcp.higgsfield.ai/mcp`, `/mcp` ile giriş; Kling 3.0, Seedance 2.0, Veo 3.1, Soul ID), yedek fal.ai. Her üretimden önce maliyet söylenir; kabul ölçütü kabul edilen bir animasyonun toplam maliyeti.
-- **İskeletli 2D (Spine / Rive):** Oyun testi "karakter hareketi şart" demezse gerek yok.
+- **Fular bütün pozlarda görünmüyor (GPT görsel incelemesi, 2026-10-14; kodla doğrulandı):** ücretli kırmızı fular yalnız oturan Şans'ın üstüne çiziliyor (`Scene.tsx` `hasScarf`). Cüzdanlı Şans, uyuyan Şans (çevrimdışı kartı) ve kahramanın okşama pozlarında yok; satın alınan aksesuar kayboluyor. Öneri: önce aynı fular görselini poz başına boyun noktasına yerleştirmeyi denemek (yeni üretim yok); boyun açısı uymazsa 2–3 açı varyantı. Yakut tasma gelince aynı soru onun için de geçerli.
+- **İki çizim dili:** önsöz, sokak kahramanı, ana kadro portreleri ve fal.ai'nin lüks anı kareleri çizgili ve düz boyalı; evler, kıyafetler, tören kareleri ve mağaza parlak 3D. En görünür yer önsöz (ilk 40 saniye) ile ana ekranın farkı. Önsözün 3D denemesi hazır (`art/pilot/04-prologue/prologue-4-door-3d.png`, karşılaştırma `art/pilot/reviews/prologue-door-style-comparison.jpg`); kullanıcının kararı bekleniyor. Uygunsa kalan beş kare, sonra sokak kahramanı.
+- **Lükslerin kesim kalıntıları:** sürat teknesi ve yatın sol altında gri gölge, jetin ve helikopterin bazı kenarlarında açık gri. Yeni tasarım değil, kesim temizliği; beyaz gövdeler delinmeden.
+- **Lüks oyuncaklar sahnede (plan 2.6):** jet ve helikopter ara sıra geçer, yat sahil evinde, tekne göl evinde. Mağaza görselleri 3/4 açıyla çizildi; önce yerleşim denemesi, gerekirse uçuş ve su üstü açıları.
+- **Kahraman yaşlanmıyor (kullanıcı: şimdilik kalsın):** 31'inde baba, 59'unda En Zengin olan kahraman 23'lük görünüyor. Seçenekler: 3 görünüm (genç, yetişkin, kır saçlı) ya da yalnız portreler yaşlanır. Yedi kıyafet ve bütün kareler genç yüzle üretildi; yaşlanan görünüm onların da yeniden üretilmesi demek. Yaş temposu (§2) değişirse sorun küçülür.
+- **Oyun testinden sonra:** annenin mesajında telefona bakan kahraman pozu (kıyafet başına bir görsel); apartman evlerinde iç mekân (şimdilik dış mekân, çünkü araç görünmeli). Önerilmeyen: araca yaslanma gibi araca bağlı pozlar (12 aracın boyu farklı).
+- **Özel anlar için video (isteğe bağlı):** 2–3 büyük anda kısa yapay zekâ videosu (Higgsfield MCP: `claude mcp add --transport http higgsfield https://mcp.higgsfield.ai/mcp`; yedek fal.ai). Her üretimden önce maliyet söylenir. İskeletli 2D (Spine / Rive) ancak oyun testi "karakter hareketi şart" derse.
+- **Remotion (React ile video):** mağaza tanıtım videosu ve reklamlar (TR/EN, dikey/yatay) için yayından önce repoda ayrı bir `video/` klasöründe kurulsun; oyun içinde gerek yok.
 
-## 2. Remotion (github.com/remotion-dev/remotion)
+## 2. Zirveden sonrası (plan 2.12, Faz 2; kullanıcı 2026-10-15)
 
-React ile kodla video üretme çerçevesi; yeni görüntü üretmez, var olanları düzenler. Bireyler ve en fazla 3 çalışanlı şirketler için ticari kullanım ücretsiz.
+En Zengin'den ömür sonuna (80 yaş) kadar yeni hedef yok: reklamsız bağlı oyuncuda ~6,5 saat oyun (En Zengin 10 sa 21 dk, ömür 16 sa 48 dk), reklam + fular + yakut oyuncusunda ~12 saat (En Zengin 4 sa 28 dk, jet 6 sa 2 dk). Ödeyen oyuncu, en değerli oyuncu, oyunu en erken bitiriyor. Kullanıcı yakutu %50'de tuttu; çözüm içerik. Adaylar (karar yok):
 
-| Kullanım | Değer | Zaman |
-| --- | --- | --- |
-| Mağaza tanıtım videosu ve reklamlar (Play Store, TikTok, Reels; TR/EN, dikey/yatay) | Yüksek | Yayından önce (Faz 3) |
-| Mağaza ekran görüntüleri (her dil ve cihaz boyutu) | Orta | Yayından önce |
-| "Hayat hikâyen" paylaşım videosu | Deneysel | Faz 2+ |
-| Oyun içi tören ve hikâye kartları | Düşük (oyun zaten React) | Gerekmez |
+- **Erken emeklilik:** En Zengin töreninden sonra "Devret" açılır, ömür sonu beklenmez. Kullanıcı "olabilir" dedi (2026-10-15); bugünkü kural (game-design §4.9: devir yalnız ömür sonunda; 2026-10-08'de "erken devir olmasın" denmişti) değişir. Miras puanı kazanılan paraya bağlı, erken devreden daha az puan alır: bir "erken devir" payı ya da puanın zirveye göre hesaplanması gerekir.
+- **Servet yadigâra:** En Zengin'den sonra kazanılan para varise kalacak yadigârlara (plan 2.2) harcanır; boş saatler bir sonraki hayatı güçlendirir, ödeyenin hızı da oraya taşınır.
+- **Vakıf zinciri:** annenin ve Rıza Amca'nın hikâyesine bağlı büyük hayaller (mahalle kütüphanesi, babanın adına burs, Rıza'nın atölyesi), her biri bir hayat anı. En duygusal, en pahalı (yazı ve kare). Hikâyenin "4. perde"si ([story-v2.md §7](./story-v2.md)).
+- **Yaş temposu:** zirveye kadar yıllar yavaş (zirve ~40 yaş), sonra hızlı. İçerik eklemeden boş saatleri kısaltır; annenin (En Zengin'de ~87) ve Rıza'nın yaşını makul yapar; En Zengin karesinde ailenin yokluğu da daha az göze batar.
+- **Claude'un önerisi:** erken emeklilik + servet yadigâra birlikte ("Şimdi devret" ya da "Kal, varisine biriktir"); ikisi de mevcut miras sistemine oturur, yeni hikâye yazmayı gerektirmez. Vakıf zinciri sonra hikâye katmanı olarak.
+- **Aynı yerde duran küçük sorular:** annenin mesajları En Zengin'den sonra biter mi (kanal Defne ve kızına geçebilir); Şans'ın yerini yavrusu alır mı; "65 yaşındasın" gibi ömür sonu hatırlatması (zirveye varamamış oyuncunun "sonu göremedim" hissi).
 
-**Öneri:** Yayından önce repoda ayrı bir `video/` klasöründe tanıtım videoları için kurulsun.
+## 3. Hanedan (plan 2.1; [story-v2.md §6](./story-v2.md))
 
-## 3. Yaş ve ömür: açık ayrıntılar
+Kararlaşanlar: varis 17 yaşında torun (kızının çocuğu), devir 80 yaşında, ölüm gösterilmez, eş Defne. Açıklar:
 
-Ana kurallar kararlaştırıldı ([game-design-v2.md §4.9](./game-design-v2.md)). Kalanlar:
+1. **Torunun cinsiyeti.** Öneri: oyuncu seçsin (tek seçim); bütçe kısıtlıysa sabit.
+2. **2. neslin başlangıcı:** sıfırdan değil, biraz alttan (yön kararı 2026-10-11). Öneri: küçük yurt odası ya da kiralık oda ve dedesinin ilk tezgâhı; "para yok ama ad var" Aile İtibarı'yla örtüşür. Evler varise kalsın mı?
+3. **2. nesil kıyafet ve poz seti:** aynı sayıda yeni set; babadan kalan bir yadigâr (saat ya da Şans'ın tasması) hep görünsün.
+4. **Varis çok hızlı:** 1. ömür ~1.800 miras puanı (×19 gelir) bırakıyor, reklam izleyende ~3.800; 2. nesil dakikalar içinde Milyoner ve üstü. Miras formülü ve nesil içeriğiyle (2.3) birlikte.
 
-- **Kahraman yaşlanmıyor (2026-10-11, kullanıcı: şimdilik kalsın):** 31'inde baba, 63'ünde dede olan kahraman 17'lik görünüyor. Seçenekler: 3 görünüm (genç, yetişkin, kır saçlı; portreler ve sahne pozları katlanır) ya da yalnızca portreler yaşlanır. Kıyafet 3 ve 4 ile tören kareleri genç yüzle üretildi (2026-10-12/13); yaşlanan görünüm artık bunların da yeniden üretilmesi demek.
-- **Anne ve Şans, En Zengin'den sonra:** anne 59'da ~87 yaşında, Şans 40 yıldır yanında. Ölüm gösterilmiyor. Öneri: annenin mesajları En Zengin'den sonra biter, kanal Defne ve kızına geçer; Şans'ın yerini yavrusu alır.
-- **Ömür sonu uyarısı:** "65 yaşındasın, 15 yılın kaldı" gibi bir hatırlatma; zirveye ulaşmamış oyuncunun "sonu göremedim" hissi. Üst bar artık sadece yaşı gösteriyor ("kalan yıl" 2026-10-08'de kalktı).
-- **En Zengin'den sonrası (57 → 80):** hayat anları dolduracak (torun, devir; [story-v2.md §4c](./story-v2.md), testten sonra); başka içerik yok.
-- **Ömür 80 yaş kalıyor (karar 2026-10-13, kullanıcı).** 70 yaş simülatörde denendi (ömür sonu 25. günden 21. güne, En Zengin'den sonraki boş süre 8,5 günden ~5 güne) ama torunun doğumunu 53'e çekiyor ve varisi 2. neslin içeriği yokken 4 gün erken getiriyordu.
-- **Gönüllü erken emeklilik:** Yok (kullanıcı: erken devir olmasın).
+## 4. Ekonomi
 
-## 4. Faz 2.1 hanedan soruları ([story-v2.md §6](./story-v2.md))
+Kurallar ve sayılar [game-design-v2.md §4–5](./game-design-v2.md). Çevrimdışı oran ve tavan kararlaştı (%50, geç oyunda 2 sa; 2026-10-13). Açıklar:
 
-Kararlaştırılanlar (story §6, §4c): varis 17 yaşında bir torun (kahramanın kızının çocuğu), devir 80 yaşında, ölüm gösterilmez, 4. perde oynanabilir bir vakıf projesi, eş Nevin Hanım'ın torunu Defne.
+- **Multimilyarder hedefi FAIL:** bağlı bot 7. gün 18:04'te (4 sa 42 dk oyun) varıyor, hedef 8. günden itibaren. Ucuz tezgâh, tören hediyesi ve tasmalar onu birkaç oturum öne çekti. Seçenekler: (a) hedefin alt sınırını 7. gün akşamına çekmek (Claude'un önerisi; Milyarder'de de böyle yapıldı); (b) geç oyunu ~15–20 dakikalık oyun kadar yavaşlatmak. Tek bir geç işletmeyi %5–7 kısmak yetmedi.
+- **Faz 1 kapısı yeniden yazılmalı:** "ilk oturumda Orta Sınıf ≥ %60" güncel tempoda tutmuyor (botta Orta Sınıf 30. dk, 1. günün 2. oturumu; ilk oturumda Gündelikçi ve İşçi törenleri geliyor).
+- **Erken oyun telefonda bakılacak:** ucuz tezgâh, $1K yönetici, ilk yöneticiye kadar sık gelen Şans. Elle çalışan tezgâhın geliri üst barda görünmüyor (kullanıcı: yönetici atanınca görünsün). Hâlâ boş geliyorsa yeni bir uğraş.
+- **Çevrimdışı ödül erken sınıflarda:** kullanıcı erken oyunda fazla buluyor; erken sınıfların tavanları (10 dk → 1 sa) hiç denenmedi. Ölçüm: paranın ~%87'si çevrimdışı kartlardan geliyor; oran ve tavan payı pek oynatmıyor (%78–91), tempoyu ve "ne sıklıkla dönmeli" hissini belirliyor.
+- **Kariyer / işletme dengesi:** ilk 4 dk gelir tamamen maaş, sonra hızla işletmelere geçiyor (ömür boyunca ortanca %95). "Başta kariyer" daha uzun sürsün mü?
+- **"Biraz yardım" düğmesinin yazısı:** kullanıcı ilk bakışta anlamadı. Fikir: "Reklam izle, hemen al: +$X" (`ads.help`).
+- **Yöneticisiz işletmeye dokunma:** AdCap modeli ("Çalıştır" → tek döngü). "Dokundukça hızlanır" alternatifi oyun testinden sonra.
 
-1. **Torunun cinsiyeti.** Öneri: oyuncu seçsin (tek seçim). Bütçe kısıtlıysa sabit, seçim sonra.
-2. **2. neslin başlangıcı.** Yön kararı (2026-10-11): torun sıfırdan değil, biraz alttan başlar. Açık: nereden ve neyle. Öneri: küçük yurt odası veya kiralık oda ve dedesinin ilk tezgâhı; servet vakfa gittiği için "para yok ama ad var" Aile İtibarı ile örtüşür.
-3. **2. nesil kıyafet ve poz seti.** Öneri: aynı yaşam aşaması sayısında yeni set; babadan kalan bir yadigâr (saat veya Şans'ın tasması) hep görünsün.
-4. **Varis çok hızlı:** 1. ömür ~1.800 miras puanı (×19 gelir; ömür 80 yaşla; son işletmeler güçlenince 1.400'den çıktı, reklam izleyende ~3.900) bırakıyor; 2. nesil dakikalar içinde Milyoner ve üstü. Miras formülüyle birlikte ele alınacak.
+## 5. Simülatörün sınırları (GPT Astra incelemesi, doğrulandı)
 
-## 5. Ekonomi: açık sorular
-
-Ekonomi 2026-10-09'da kullanıcıyla yeniden ayarlandı (başta ana gelir iş, sonra işletmeler); güncel kurallar ve sayılar [game-design-v2.md §4–5](./game-design-v2.md). Kullanıcı telefonda deneyecek; aşağıdakiler testten sonra konuşulacak:
-
-- **Orta Sınıf ilk oturumda değil** (botta 31 dk, 1. günün 2. oturumu; Milyoner 2. gün; 2026-10-13). Defter sorusu yine oturum sınırını geçiyor. Faz 1 kapısındaki "ilk oturumda Orta Sınıf ≥ %60" ölçütü yeniden yazılmalı.
-- **Multimilyarder hedefi bozuk (2026-10-13; karar bekliyor):** Çiçek Tezgâhı $120 ve yöneticisi $1K olunca (kullanıcı kararı, [game-design-v2.md §4.2](./game-design-v2.md)) bağlı bot Multimilyarder'e bir oturum erken ulaşıyor: 7. gün 21:00 (4 sa 45 dk oyun), hedefin alt sınırı 8. gün 00:00; `npm run sim` bu satırda FAIL veriyor, diğer bütün hedefler tutuyor. Tek bir geç işletmenin gelirini %5–7 kısmak yetmedi (Güzellik Salonu, Lojistik, Fabrika, Mini Market tek tek denendi; bot aynı oturuma düşüyor). Seçenekler: (a) hedefin alt sınırını 7. günün akşamına çekmek (fark 3 saat, tek oturum); (b) geç oyunu ~15 dakikalık oyun kadar yavaşlatacak daha büyük bir ayar. Claude'un önerisi (a).
-- **Erken oyun, telefonda bakılacak (2026-10-13):** ucuz tezgâh, $1K yönetici, ilk yöneticiye kadar sık gelen Şans ve öne alınan iki hedef (bisiklet, Bulaşıkçı) kodda. Elle çalışan tezgâhın geliri üst barda görünmüyor, yönetici atanınca görünüyor (kullanıcı: böyle kalsın). Hâlâ boş gelirse yeni bir uğraş konuşulur. Yöneticiye kadar 1 sn'lik tezgâh için sürekli "Çalıştır"a basılıyor; süre 19 dakikadan ~6,5 dakikaya indi (botta).
-- **Kariyer/işletme dengesi:** ilk 4 dk gelir tamamen maaş, Gündelikçi'de %73 işletme, ömür boyunca ortanca %95 işletme. "Başta kariyer" daha uzun sürsün mü?
-- **Çevrimdışı ödül** (kullanıcı erken oyunda fazla buluyor; 4–8 saatlik tavan fikri).
-- **Çevrimdışı oran ve tavan (karar 2026-10-13, kullanıcı: Claude'un önerisi): şimdiki %50 / 2 sa kalır** ("Gece Vardiyası Ekibi" paketi oran ve tavan satıyor). Açık kalan yalnızca erken sınıfların tavanları (aşağıda). Denemenin kaydı: paranın %87'si çevrimdışı kartlardan geliyor (game-design §4.6). Denenen seçenekler (bağlı oyuncu, reklamsız; şimdiki ayar %50 ve geç oyunda 2 sa tavan; sayılar son işletmeler güçlenmeden önce ölçüldü, En Zengin şimdi 10 sa 42 dk):
-
-  | Seçenek | Milyarder | Multimilyarder | En Zengin | Gündelik oyuncu En Zengin | Çevrimdışı pay | Hedefler |
-  | --- | --- | --- | --- | --- | --- | --- |
-  | Şimdiki: %50, 2 sa | 1 sa 36 dk | 4 sa 59 dk (8. gün) | 11 sa 16 dk (16. gün) | 34. gün | %87 | tutuyor |
-  | %35, 2 sa | 1 sa 57 dk | 6 sa 30 dk (10. gün) | 14 sa 54 dk (22. gün) | 45. gün | %83 | En Zengin geç |
-  | %25, 2 sa | 2 sa 11 dk | 8 sa 14 dk (12. gün) | ömürde yetişmiyor | 59. gün | %78 | bozuluyor |
-  | %50, 1 sa | 2 sa 4 dk | 8 sa 1 dk (12. gün) | ömürde yetişmiyor | 58. gün | %78 | bozuluyor |
-  | %50, 4 sa | 1 sa 36 dk | 3 sa 59 dk (6. gün) | 8 sa 13 dk (12. gün) | 20. gün | %91 | fazla hızlı |
-  | %35, 3 sa | 1 sa 57 dk | 5 sa 27 dk (8. gün) | 11 sa 45 dk (17. gün) | 34. gün | %87 | tutuyor |
-  | %25, 8 sa (Multimilyarder'den; Milyarder'de 4 sa) | 2 sa 11 dk | 6 sa 30 dk (10. gün) | 13 sa 2 dk (19. gün) | 29. gün | %86 | tutuyor |
-
-  Sonuç: pay hiçbir seçenekte %78'in altına inmiyor, çünkü oyuncu günde ~40 dakika oynuyor; oran ve tavan payı değil tempoyu ve "ne sıklıkla dönmeli" hissini belirliyor. Kısa tavan sık dönmeyi ödüllendirir (2 saatte bir), uzun tavan ve düşük oran günde bir iki kez dönen oyuncuyu (son satırda gündelik oyuncu 34. yerine 29. günde bitiriyor). "Gece Vardiyası Ekibi" IAP'ı tam bu ikisini satıyor (oran %100, tavan +2 sa). Erken sınıfların tavanları (10 dk → 1 sa) hiçbir seçenekte değişmedi; kullanıcının "erken oyunda fazla" gözlemi ayrıca denenmedi.
-- **"Ödeyen" oyuncu profili** simülatörde yok; IAP ile.
-- **Evler varise miras kalsın mı** (Faz 2.1).
-
-## 6. Simülatörün sınırları (GPT Astra incelemesi, doğrulandı)
-
-- Bot yöneticisiz işletmeleri %60 verimle çalışıyor sayıyor (`ACTIVE_UNMANAGED_EFFICIENCY`); gerçek oyunda sadece "Çalıştır"la başlatılan döngü ödenir.
-- Bot açgözlü ve optimal; menü okuma, hikâye izleme, kararsızlık yok. "Gerçek oyuncu 1,3–1,8 kat yavaş" ölçülmüş değil, tahmin; kullanıcının gözlemi ise tersine "hızlı" (§5).
-- Önerilen ek profiller: ilk 2 dakikada çıkan, yöneticiyi geciktiren, günde iki kez dönen, 24 saat ara veren (+ §5'teki reklam/ödeme profilleri).
+- Bot yöneticisiz işletmeleri %60 verimle çalışıyor sayıyor (`ACTIVE_UNMANAGED_EFFICIENCY`); gerçekte yalnız "Çalıştır"la başlatılan döngü ödenir.
+- Bot açgözlü ve optimal; menü okuma, hikâye izleme, kararsızlık yok. "Gerçek oyuncu 1,3–1,8 kat yavaş" tahmin; kullanıcının gözlemi tersine "hızlı".
+- Eklenebilecek profiller: ilk 2 dakikada çıkan, yöneticiyi geciktiren, günde iki kez dönen, 24 saat ara veren.
 - Gerçek doğrulama oyun testi ve analitikle (plan 1.14–1.15).
 
-## 7. Sahne, kıyafetler ve olay kartları: kalan sorular
+## 6. İlerleme hissi (2026-10-11 gözlemi, güncellendi 2026-10-15)
 
-Kararlaşanlar taşındı: sahne, evler, araçlar ve kıyafetler [game-design-v2.md §4.4, §4.8](./game-design-v2.md); pozların sırası ve komutları [art-prompts-v2.md §4](./art-prompts-v2.md).
+Fakirlikten zenginliğe geçiş ilk ~2 saate sıkışıyor. O günden beri iyileşenler: İşçi töreni ilk oturuma girdi (25. dk), kapanış kartı gerçekten değişeni gösteriyor, tasma kartı ve hediye eklendi, lükslerin her biri bir an getiriyor, Zenginler Listesi geç oyunda sıra gösteriyor. Hâlâ açık:
 
-- **Lüks oyuncaklar (tekne, yat, helikopter, jet)** sahnede yok (plan 2.6).
-- **Apartman evlerinde dış mekân mı iç mekân mı?** Şimdilik dış mekân (bina girişi ve avlu), çünkü iç mekânda araç görünmez.
-- **Olay kartları (oyunda, game-design §4.7):** ödül sayıları ve sıklık telefonda denenmedi (45 / 100 / 10 sn gelir, 4–6 dk); Şans'ın getirdiği şeyin sınıfa göre değişmesi (mekanik aynı kalacak) konuşulmadı; kötü sonuçta reklamla "ikinci şans" reklam yerleriyle birlikte.
-- **Oyun testinden sonra karar:** annenin mesajında telefona bakma pozu (kıyafet başına 1 görsel) ve geç oyun için olgun görünüm (§3'teki "yaşlanan görünüm yok" kararını yeniden açar).
-- **Önerilmeyenler:** arabaya yaslanma gibi araca bağlı pozlar (12 aracın boyu farklı).
+1. **Erken evler çok kısa, son evler çok uzun:** kiralık oda ~5 dk, eski daire ~8 dk; büyük malikâne 8 saatten fazla.
+2. **Zirveden sonrası boş** (§2).
+3. **Hayaller panosu** (plan 1.8): ana ekranda zincirin sıradaki adımı hep belli olsun.
+4. **Eksik his parçaları:** yağmur ve ortam sesi, müzik, paranın fiziksel hâli (cüzdan → kasa → altın oda), işletmeden uçan "+$1.2K".
 
-## 8. Genel gözden geçirme: ilerleme hissi (konuşulacak)
+## 7. Hikâye
 
-Claude'un hikâye, tasarım belgesi, plan ve simülatör zaman çizelgesi üzerinden gözlemi (2026-10-11; sayılar 2026-10-12 simülatöründen). **Hiçbiri kararlaştırılmadı**; kullanıcı birlikte konuşmak istedi. Ana sonuç: fakirlikten zenginliğe geçiş ilk ~2 saate sıkışmış, kalan ~15 saat neredeyse boş.
+- **İki anne mesajını kimse görmüyor:** İşçi ve Orta Sınıf mesajları (perdeler, basamak) hiçbir profile yetişmiyor (günde bir mesaj kuralı); "basamak"ın geçerliliği Milyoner'e uzatılırsa gündelik oyuncu görür. Şimdilik kabul edildi.
+- **En Zengin karesinde aile yok:** kahraman o yaşta evli ve kızı 28 yaşında; karede ve metinde yalnız anne ve kahraman var, Şans da yok.
+- **Hikâye ayrıntıları:** anne, eşinin en yakın arkadaşı Rıza'yı tanıyor olmalı; kahraman ona Rıza'dan hiç söz etmemiş gibi duruyor.
+- **Şans'ın getirdiği şey sınıfa göre değişsin mi** (mekanik aynı): sokakta cüzdan, ileride başka şeyler.
+- **Hayat anlarının izi ana ekranda:** Defne ve kızından mesajlar (öneri; [story-v2.md §7](./story-v2.md)).
+- **Olay kartları:** ödül sayıları ve sıklık (45 / 100 / 10 sn gelir, 4–6 dk) telefonda denenmedi; kötü sonuçta reklamla "ikinci şans" (monetizasyon #7).
 
-**Zaman çizelgesi** (`npm run sim -- --purchases --timeline`, en iyi oynayan bot; gerçek oyuncu farklı olabilir):
+## 8. Diğer
 
-| Oynama süresi | Gün | Ne oluyor |
-| --- | --- | --- |
-| 0–8 dk | 1 | Çadır; 4. dk'da bisiklet |
-| 8 dk | 1 | Gündelikçi töreni, minibüs; 14. dk'da skuter |
-| 27 dk | 1 | Kiralık oda, emektar sedan (ilk oturumun sonu) |
-| 32 dk | 1 (2. oturum) | İşçi töreni, eski daire, motosiklet |
-| 40–47 dk | 1 (3. oturum) | Hatchback, yenice daire; Orta Sınıf töreni, site |
-| 54 dk | 2 | Milyoner töreni, ilk kendi evin, pikap |
-| 1 sa 15 dk – 1 sa 30 dk | 2–3 | Banliyö evi, spor coupe, takım elbise, villa |
-| 1 sa 36 dk | 3 | Milyarder töreni |
-| 2–4 sa | 3–6 | Göl evi, süper araba, sahil malikânesi, grand lüks |
-| 5 sa | 8 | Multimilyarder töreni |
-| 8,5 sa | 13 | Büyük malikâne |
-| 10 sa 42 dk | 16 | En Zengin töreni |
-| 11–17 sa | 17–25 | Yeni bir şey yok; ömür 80 yaşında biter (hayat anları testten sonra doldurur) |
-
-Yaşa bağlı üç hayat anı (25, 28, 31 yaş: ~2–4. saat) ve Orta Sınıf'tan sonra olay kartları bu çizelgenin üstüne gelir.
-
-**Hissi en çok zayıflatanlar:**
-
-1. **İlk oturumda tek tören.** 30 dakikalık ilk oturumda yalnızca Gündelikçi (8. dk); oturum kiralık odada bitiyor. İşçi 32. dk (2. oturum).
-2. **Erken evler çok kısa, son evler çok uzun.** Kiralık oda ~5 dk, eski daire ~8 dk, site ~7 dk; büyük malikâne 8 saatten fazla.
-3. **4. saatten sonra ekranda neredeyse hiçbir şey değişmiyor.** Araçlar ve kıyafetler bitiyor; sonraki 13 saatte iki tören, bir ev, annenin birkaç mesajı.
-
-**Tutarsızlık, yaş ile hikâye:** Milyarder 22, Multimilyarder 35, En Zengin 59 yaş. Önsözden son törene 42 yıl: anne pastayı aldığında ~87, Rıza Amca atölyede ~80. Portreler yaşlanmıyor; kahraman 59 yaşında 23'lük görünüyor (§3 ile birlikte ele alınır).
-
-**Eksikler (çoğu planda):** hayaller panosu (1.8; zincirden sonra daha değerli, sıradaki adım hep belli), lüks oyuncaklar sahnede (2.6), yağmur ve ortam sesi, Şans'ın dönüşte kapıda uyuması, hayat anlarının ana ekranda iz bırakması (Defne ve kızından mesajlar, aile albümü: [story-v2.md §7](./story-v2.md)), En Zengin'den sonrası (§3).
-
-**Claude'un önerdiği sıra (karar kullanıcıda):**
-
-1. **Yaş temposu:** En Zengin'e kadar yıllar daha yavaş (zirve ~40 yaş), zirveden sonra hızlı. Hem annenin ve Rıza Amca'nın yaşını makul yapar hem sondaki boş saatleri kısaltır. Simülatörle denenmeli.
-2. **İlk oturum:** İşçi törenini ilk oturuma (~25. dk) çekmek; ekonomi ayarı, simülatörle.
-3. Hayaller panosu: ana ekranda zincirin sıradaki adımı.
-
-## 9. Hikâye ve görsel gözden geçirmesi (2026-10-13; karar bekliyor)
-
-Altı tören karesi bağlandıktan sonra hikâyenin akışına, tetiklere ve görsellere bakıldı. Yaş ve boş saatler §8'de; buradakiler yeni.
-
-**Ölçüldü (simülatörün oturum çizelgesi + `runtime/story.ts` kuralları):**
-
-| Oyuncu | Gördüğü anne mesajı | Hiç görmediği |
-| --- | --- | --- |
-| Bağlı | 7 / 11 | perdeler, basamak, ★ Bülent Bey'in restoranları, gazete kupürü |
-| Bağlı + reklam | 6 / 11 | yukarıdakiler + börek |
-| Gündelik | 9 / 11 | perdeler, basamak |
-
-1. **Çözüldü (2026-10-13):** Milyarder töreninin kancası ("restoranlar satılık" mesajı) hızlı oyuncuya ulaşmıyordu; tören artık satışı kendi ilk cümlesinde söylüyor ([story-v2.md §4](./story-v2.md)). Kancalara öncelik vermek denendi: kancalar herkese ulaştı ama bağlı oyuncuda Defne köprüsü kayboldu, bu yüzden sıra değiştirilmedi. Açık kalan: İşçi ve Orta Sınıf mesajlarını (perdeler, basamak) hiçbir profil görmüyor; "basamak"ın geçerliliği Milyoner'e uzatılırsa gündelik oyuncu görür. Şimdilik kabul edildi.
-2. **Çözüldü (2026-10-13), Bülent Bey:** ilk Otel Zinciri ve yöneticisi Milyarder töreniyle bedava geliyor ([game-design-v2.md §4.2](./game-design-v2.md)). **Kuzen de çözüldü (2026-10-13):** son iki işletme güçlendirildi ([game-design-v2.md §4.2](./game-design-v2.md)); bağlı bot Teknoloji Girişimi'ni 14. günde alıyor, Kuzen'i 19. günde (En Zengin'den sonra) işe alıyor. Gündelik oyuncuda 39. gün.
-3. **Çözüldü (2026-10-13):** kahramanın portresi kıyafeti izliyor; dört kıyafetin dördünün de 4 ifadesi oyunda (kapüşonlu set eski çizgili dilde kaldı, madde 4).
-4. **İki ayrı çizim dili.** Önsöz, portreler ve eski fotoğraf çizgili, düz boyalı (fal.ai, 8–11 Ekim); evler, kıyafetler ve tören kareleri parlak 3D (GPT, 12–13 Ekim). Aynı törende yan yana geliyorlar. En görünür yer önsöz (ilk 40 saniye) ile ana ekranın farkı.
-5. **Çözüldü (2026-10-13):** Multimilyarder töreninin atölye karesi oyunda. Eski not: oyuncunun göl evinin üstünde oynuyordu, konusu atölye. Yeni Fabrika ikonu zaten ahşap atölye olarak çizildi (§7'deki "Mehmet & Rıza Atölyesi" fikriyle örtüşüyor).
-6. **En Zengin karesinde aile yok.** Kahraman o yaşta (59) evli ve kızı 28 yaşında; karede ve metinde yalnız anne ve kahraman var, Şans da yok. Yaş temposu (§8) değişirse sorun küçülür.
-7. **Küçük metin pürüzleri:** (a) Orta Sınıf'ta "eski evimizi geri aldım", bir tören sonra "bir ev aldım, tapusunda benim adım yazıyor": ilk tapu hangisi? (b) Anne, eşinin en yakın arkadaşı Rıza'yı tanıyor olmalı; kahraman ona Rıza Amca'dan hiç söz etmemiş gibi. (c) Rıza'nın tezgâh cümlesi "Annene de bir demet ayırdım" 18. dakikada geliyor; anne o sırada teyzede ve Rıza onu tanımıyor. (d) İngilizcede iki Nora var: Nevin Hanım "Mrs. Nora", Fabrika yöneticisi "Nora".
-
-**İyi çalışanlar:** önsözün geri dönüşleri karelerde de tutuyor (restoranın bakır lambaları ve personel üniforması, Bülent Bey'in takımı, kurdeleli pasta kutusu, annenin elbisesi); kıyafetler ve Şans'ın tasması her karede o sınıfınkiyle aynı; üç hayat anı Milyarder ile Multimilyarder arasındaki beş günlük boşluğa düşüyor; atölye ve pencere kancaları her profilde töreninden önce geliyor.
-
-
-## 10. Geç oyun: lükslerin karşılığı, IAP sırası, reklam (2026-10-14; karar bekliyor)
-
-Kaynak: GPT incelemesi ([gpt-review-progression-monetization-answer.md](./gpt-review-progression-monetization-answer.md)) ve Claude'un cevabı. Zenginler Listesi kararlaştı ve oyunda ([game-design-v2.md §4.11](./game-design-v2.md)); kalanlar kararlaştırılmadı.
-
-**Uzlaşılanlar:** lüks bonusu statü bonusuna eklendiği için gerçek etkisi ~%3; kalıcı ×2 IAP'ın kozmetiği kırmızı fular değil (Başlangıç Paketi'nde var), örneğin yakut tasma; Gece Vardiyası + kalıcı ×2 dolu kartı ~×8 yapar; reklam izleyen En Zengin'e %33 kısa sürede ulaşıyor (~%49 hızlı; hedef %20–30).
-
-**Önerilen sıra:**
-
-1. ✅ (2026-10-14, sahne hariç: [rebuild-plan 1.22](./rebuild-plan.md)) Lükslerin karşılığı: her lüks ilk alındığında hayat anı + sahnede iz + albüm; lüks fiyatları simülatörle (reklamsız oyuncu jetle yaşayacak zamanı bulmalı; bugün jet ilk hayatta alınmıyor). En Zengin'den sonraki boş saatleri (§8) liste doldurmuyor, bu doldurabilir.
-2. ✅ 1. adım kodda (2026-10-14; [monetization-v2 §8](./monetization-v2.md)). IAP kademeli: önce Rahat Paket ve Başlangıç Paketi; kalıcı ×2 ve Gece Vardiyası ücretli profil simülasyonundan sonra. Öncesinde mevcut dört reklam yeri telefonda doğrulanır.
-3. ✅ (2026-10-14) Tek yeni reklam yeri: tören ve hayat anı hediyesi (hikâye bittikten sonra; [monetization-v2 §4](./monetization-v2.md)).
-4. Yerel başarımlar; liderlik tablosu sonra.
-
-**Zenginler Listesi'nde açık kalanlar:** benzetme isimlerin hukuki riski (Claude'un notu: Hindistan'daki "Selmon Bhoi" davası; portre, şirket adı ve logo yok, ton alaycı değil; kullanıcı benzetme isimleri seçti); düğmenin yeri (albümün altında) ve kartın sıklığı telefonda bakılacak.
-
-## 11. Şans'ın aksesuarları: kalan iki soru (2026-10-15)
-
-Karar verildi ve oyunda ([game-design §4.4](./game-design-v2.md)): sınıf tasmaları deri %2, gümüş %4, altın %6, birbirine eklenmez, törende ayrı kart; fular kalıcı +%10, ayrı çarpan. Açık kalanlar:
-
-1. ✅ **Gümüş %4 kalıyor** (kullanıcı, 2026-10-15): Milyarder'e 2. gün 23:00'te varılması sorun değil; simülatörün alt sınırı 2. gün 20:00'e indi (`sim/report.ts`). Multimilyarder FAIL'i önceden vardı (7. gün 18:04).
-2. ✅ **Yakut Tasma %50 kalıyor** (kullanıcı, 2026-10-15). Görselleri hazır (`public/assets/scene/sans-{sit,wallet,sleep}-ruby.webp`, kaynak `art/pilot/05-scene/`); ürün 2. adımda kodlanır.
-3. **Zirveden sonrası (Faz 2, plan 2.12):** reklam + fular + yakut oyuncusu En Zengin'e 4 sa 28 dk oyunla varıyor, jet 6 sa 2 dk, ömür 16 sa 48 dk; ~10 saat yeni hedef yok (reklamsızda ~3 sa). Adaylar (Claude'un önerisi, karar yok):
-   - **Erken emeklilik:** En Zengin töreninden sonra "Devret" açılır; ömür sonunu beklemek zorunlu değil. Bugünkü kural (game-design §4.9, devir yalnız ömür sonunda) değişir. Miras puanı kazanılan paraya bağlı olduğu için erken devreden daha az puan alır: bir "erken devir" payı ya da puanın zirveye göre hesaplanması gerekir.
-   - **Servet yadigâra:** En Zengin'den sonra kazanılan para, varise kalacak yadigârlara (plan 2.2) harcanır: boş saatler bir sonraki hayatı güçlendirir. Ödeyen oyuncunun hızı da böylece bir sonraki hayata taşınır.
-   - **Vakıf zinciri:** annenin ve Rıza Amca'nın hikâyesine bağlı büyük hayaller (mahalle kütüphanesi, babanın adına burs, Rıza'nın atölyesi); her biri bir hayat anı. Önsözün geri dönüşleri; en pahalısı (yazı ve kare).
-   - **Yaş temposu (§8):** zirveye kadar yıllar yavaş, sonra hızlı; boş saatleri içerik eklemeden kısaltır, annenin yaşını da makul yapar.
-
+- **Zenginler Listesi:** benzetme isimlerin hukuki riski (Claude'un notu: Hindistan'daki "Selmon Bhoi" davası; portre, şirket adı ve logo yok, ton alaycı değil; kullanıcı benzetme isimleri seçti). Düğmenin yeri ve kartın sıklığı telefonda bakılacak.
+- **Başarımlar:** Google Play Games başarımları olarak yapılacak (kullanıcı, 2026-10-15; sonra), plan 2.13. Liderlik tablosu sonra.
+- **Fiyat A/B testleri:** Başlangıç Paketi'nin normal fiyatı ($2,99) ve hoş geldin fiyatı ($1,49) ileride Remote Config ile denenebilir (Faz 3).
