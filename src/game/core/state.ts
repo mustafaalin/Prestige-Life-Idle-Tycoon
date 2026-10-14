@@ -21,10 +21,11 @@ function emptyBusinesses(): Record<string, BusinessState> {
 }
 
 export function createInitialState(
-  family: Pick<GameStateV2, 'generation' | 'legacyPoints' | 'totalEarnings'> = {
+  family: Pick<GameStateV2, 'generation' | 'legacyPoints' | 'totalEarnings' | 'accessoryMultiplier'> = {
     generation: 1,
     legacyPoints: 0,
     totalEarnings: 0,
+    accessoryMultiplier: 1,
   }
 ): GameStateV2 {
   return {
@@ -45,6 +46,7 @@ export function createInitialState(
     questsDone: [],
     bottles: 0,
     finds: 0,
+    accessoryMultiplier: family.accessoryMultiplier,
   };
 }
 
@@ -410,5 +412,6 @@ export function retire(state: GameStateV2): GameStateV2 | null {
     generation: state.generation + 1,
     legacyPoints: state.legacyPoints + pendingLegacyPoints(state),
     totalEarnings: state.totalEarnings,
+    accessoryMultiplier: state.accessoryMultiplier,
   });
 }

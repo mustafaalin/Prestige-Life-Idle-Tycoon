@@ -34,7 +34,8 @@ export const PACING_TARGETS: PacingTarget[] = [
   // Millionaire (10M) should land on a return session, after Middle Class's session.
   { label: 'Millionaire (gen 1)', find: firstClass('Millionaire', 1), measure: 'active', min: 35 * 60, max: 75 * 60 },
   // Classes spread over more days since 2026-10-09 (slower ageing, life.ts).
-  { label: 'First Billionaire', find: firstClass('Billionaire'), measure: 'clock', min: 2 * DAY, max: 6 * DAY },
+  // Day 2 evening is fine (2026-10-15, user): Şans's silver collar (+4%) brings it to the 23:00 session.
+  { label: 'First Billionaire', find: firstClass('Billionaire'), measure: 'clock', min: DAY + 20 * 3600, max: 6 * DAY },
   { label: 'First Multibillionaire', find: firstClass('Multibillionaire'), measure: 'clock', min: 7 * DAY, max: 13 * DAY },
   { label: 'First Richest Person Alive', find: firstClass('Richest Person Alive'), measure: 'clock', min: 13 * DAY, max: 20 * DAY },
   // Single life (§4.9): the first hand-over to the heir comes when the hero's life ends (~17 h played).

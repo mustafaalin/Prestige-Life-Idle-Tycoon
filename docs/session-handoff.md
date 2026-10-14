@@ -11,7 +11,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 | [report-v2.md](./report-v2.md) | **Neden?** | Tasarım analizi ve yeniden doğuş raporu. Değişmez referans. |
 | [game-design-v2.md](./game-design-v2.md) | **Ne?** Kurallar ve sayılar | Rapordan sapmalar §9'da. Rapor ile çelişirse bu geçerli. |
 | [story-v2.md](./story-v2.md) | Hikâye, karakterler, ton, görsel listesi ve stil kılavuzu | |
-| [monetization-v2.md](./monetization-v2.md) | Reklam ve IAP | Reklam yerleri 1–4 ve IAP 1. adım (Mağaza ekranı) oyunda; kalıcı ×2 ve Gece Vardiyası bekliyor. |
+| [monetization-v2.md](./monetization-v2.md) | Reklam ve IAP | Reklam yerleri 1–4 ve IAP 1. adım (Mağaza ekranı) oyunda; Yakut Tasma (kalıcı +%50 öneri) ve Gece Vardiyası bekliyor. |
 | [rebuild-plan.md](./rebuild-plan.md) | **Ne zaman?** Fazlar, görevler, durum | Yapılanlar işaretli. |
 | [discussion-notes.md](./discussion-notes.md) | Kararı bekleyen konular | Sadece açık konular; karar verilince taşınır. |
 | [art-brief-v2.md](./art-brief-v2.md) | Görsel listesi | Boyutlar, referanslar, durum; bekleyenler §5. |
@@ -51,7 +51,16 @@ Amaç: kahraman, Şans, araç ve ev her kombinasyonda aynı ölçekte ve birbiri
 
 Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · en çok %55 duvarın zemine değdiği çizgi · %62 araba şeridi (x %13–89) · %70 iki teker şeridi · %73,5 kahraman (x %40) ve Şans (x %66) · %77–87 toplanacaklar · alt %10 menü · yatay güvenli alan x %12–88.
 
-## Son oturum (2026-10-14)
+## Son oturum (2026-10-15)
+
+- **Şans'ın tasmaları gelir veriyor** (kullanıcı kararı; [game-design §4.4](./game-design-v2.md)): deri %2, gümüş %4, altın %6, yalnız takılı olan sayılır; tasma veren törende hikâyeden sonra ayrı "Şans'ın yeni tasması!" kartı, kapanış kartında "Şans'ın tasması +%2 → +%4" satırı. Kart önce/şimdi yan yana (ip → deri: +%0 → +%2). Gümüş tasmanın üç görseli oyunda (GPT, altın tasmanın rahat duruşuyla); yakutun üçü `public/assets/scene/sans-*-ruby.webp`'de hazır, ürün 2. adımda.
+- **Fular kalıcı +%10:** ücretli aksesuarlar ayrı çarpan (`GameStateV2.accessoryMultiplier`, satın almalardan her açılışta yeniden hesaplanır; kayıt şeması değişmedi, eski kayıtlarda 1). Mağaza kartı, paket satırı ve satın alma özeti bonusu yazıyor. **Play Console'daki Başlangıç Paketi açıklaması da güncellenmeli (kullanıcı).**
+- **Kalıcı ×2 → Yakut Tasma, +%50** (kullanıcı onayladı; altın tasma artık bedava): ürün kodu yok, simülatörde `RUBY_COLLAR_TRIAL`. Ödeyen oyuncuda zirveden sonra ~10 saat boş kalıyor: Faz 2'de ele alınacak (plan 2.12, adaylar [discussion-notes §11](./discussion-notes.md)).
+- **Simülatör:** yeni profiller "engaged + scarf" ve "engaged + ads + scarf + ruby" ([monetization-v2 §5](./monetization-v2.md)). Gümüş %4 Milyarder'i 2. gün 23:00'e çekiyor; kullanıcı kabul etti, hedefin alt sınırı 2. gün 20:00.
+- **Tekne anı yeni kare:** `story/life/boat.webp` GPT'nin sürat teknesiyle yenilendi (kaynak `art/pilot/10-life/life-boat-luxury-v2.png`, 941×1672 → 1080×1935, hafif büyütme). Mağazadaki teknenin aynısı; Şans altın tasmalı.
+- Bakılan: tarayıcıda 390 px, Orta Sınıf (TR), Milyarder (TR) ve Milyoner (EN) tasma kartları, Orta Sınıf kapanış kartı, tekne anının ilk karesi. Bakılmayan: Mağaza'da fular metinleri, gerçek satın alma, telefon.
+
+## Önceki oturum (2026-10-14)
 
 - **GPT'nin ilerleme ve monetizasyon incelemesi** ([gpt-review-progression-monetization-answer.md](./gpt-review-progression-monetization-answer.md)) konuşuldu; uzlaşılanlar ve önerilen sıra [discussion-notes.md §10](./discussion-notes.md).
 - **Zenginler Listesi oyunda** (yukarıda "Durum"; plan 1.21). Kullanıcı kararları: benzetme isimler, zirve $880B ($10T denendi: En Zengin töreni #4'e düşüyordu), Bülent Bey ve Kuzen. Ekonomi değişmedi; simülatör aynı (Multimilyarder FAIL'i önceden vardı). Zaman çizelgesinde "Rich List" satırları: bağlı botta giriş 1 sa 29 dk, ilk 100 3 sa 7 dk, ilk 10 5 sa 34 dk, 2. sıra 7 sa 54 dk, #1 10 sa 35 dk. Tarayıcıda (Türkçe, geliştirme kaydı Milyarder) bakıldı: kilitli olmayan düğme ve sıra rozeti, giriş kartı (Bülent Bey), kartın "Listeyi aç" düğmesi, liste sayfası (kahramanın satırı ilk 20'nin altında). Sıra hesabı ve ilk 20'nin içi betikle denendi. Bakılmayan: diğer beş kart, İngilizce, kahraman ilk 20'deyken sayfa, dar ekran, telefon. Not: kart çevrimdışı kartı toplanır toplanmaz açılırsa uçan paralar kartın üstünden geçiyor (hayat anlarında da böyle).

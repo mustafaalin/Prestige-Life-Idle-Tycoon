@@ -3,6 +3,7 @@
 
 import { BUSINESSES } from '../core/config/businesses';
 import { WEALTH_CLASSES } from '../core/config/classes';
+import { PRODUCTS, SPECIAL_SHOP_CEREMONY } from '../core/config/iap';
 import { RICH_MILESTONES } from '../core/config/richList';
 import {
   businessBaseIncomePerSecond,
@@ -102,6 +103,12 @@ export interface PlayerProfile {
     /** Doubles offline earnings and Şans's finds. */
     doubles: boolean;
   };
+  /**
+   * Şans's paid accessories this player buys as soon as the store opens (Day Laborer), as one income
+   * multiplier (config/iap.ts incomeBonus; left out: none). The packs' one-time boost and income are
+   * left out: small next to a bonus that stays for good.
+   */
+  accessoryMultiplier?: number;
 }
 
 /** On average Şans brings a find this often while the game is open (more often before the first manager). */
@@ -283,6 +290,8 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     const before = state.classIndex;
     const rankBefore = richListRank(state.generationEarnings);
     state = earn(state, amount);
+    const paid = profile.accessoryMultiplier ?? 1;
+    if (state.classIndex >= SPECIAL_SHOP_CEREMONY && state.accessoryMultiplier !== paid) state = { ...state, accessoryMultiplier: paid };
     for (let index = before + 1; index <= state.classIndex; index += 1) {
       log('class', WEALTH_CLASSES[index].name);
     }
@@ -532,7 +541,28 @@ export const AD_WATCHER: PlayerProfile = {
   ads: { boostsPerDay: 3, helpsPerDay: 2, doubles: true },
 };
 
-export const PROFILES = [ENGAGED_PLAYER, CASUAL_PLAYER, AD_WATCHER];
+/** Buys the Starter Pack: Şans's red scarf, +10% income for good (config/iap.ts). */
+export const SCARF_BUYER: PlayerProfile = {
+  ...ENGAGED_PLAYER,
+  name: 'engaged + scarf',
+  accessoryMultiplier: 1 + PRODUCTS.starter.incomeBonus,
+};
+
+/** The ruby collar's bonus (decided 2026-10-15); it moves to config/iap.ts when the product is built (step 2). */
+export const RUBY_COLLAR_TRIAL = 0.5;
+
+/**
+ * The paying player of step 2 (monetization-v2 §5, not on sale yet): watches ads, wears the scarf and
+ * the ruby collar (+50%). Shown to watch the late game of the fastest player.
+ */
+export const RUBY_PAYER: PlayerProfile = {
+  ...AD_WATCHER,
+  name: 'engaged + ads + scarf + ruby',
+  accessoryMultiplier: (1 + PRODUCTS.starter.incomeBonus) * (1 + RUBY_COLLAR_TRIAL),
+};
+
+
+export const PROFILES = [ENGAGED_PLAYER, CASUAL_PLAYER, AD_WATCHER, SCARF_BUYER, RUBY_PAYER];
 
 /** Share of active income (bottles excluded) that comes from businesses rather than salary and rent. */
 export function businessShare(state: GameStateV2) {

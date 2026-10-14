@@ -156,8 +156,12 @@ const LOOK_ART: Partial<ClassLook>[] = [
     find: { src: `${DIR}/sans-wallet-leather.webp`, x: 0.72, y: 0.752, height: 0.15, aspect: 0.907 },
     sleep: `${DIR}/sans-sleep-leather.webp`,
   },
-  // 4 Millionaire.
-  {},
+  // 4 Millionaire: a silver collar (2026-10-15), drawn on the at-ease dog of the gold collar.
+  {
+    sans: { src: `${DIR}/sans-sit-silver.webp`, x: 0.66, y: 0.748, height: 0.151, aspect: 0.64 },
+    find: { src: `${DIR}/sans-wallet-silver.webp`, x: 0.72, y: 0.752, height: 0.148, aspect: 0.89 },
+    sleep: `${DIR}/sans-sleep-silver.webp`,
+  },
   // 5 Billionaire and up: a gold collar, and a dog at ease (he sits relaxed and trots in with his find).
   {
     sans: { src: `${DIR}/sans-sit-gold.webp`, x: 0.66, y: 0.748, height: 0.151, aspect: 0.631 },

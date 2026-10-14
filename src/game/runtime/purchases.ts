@@ -43,6 +43,20 @@ export function hasScarf(purchases: PurchaseProgress) {
   return owns(purchases, PRODUCTS.starter);
 }
 
+/** What Şans's paid accessories multiply all income by: each owned product's bonus, one after another. */
+export function accessoryMultiplier(purchases: PurchaseProgress) {
+  return Object.values(PRODUCTS).reduce(
+    (multiplier, product) => (product.incomeBonus > 0 && owns(purchases, product) ? multiplier * (1 + product.incomeBonus) : multiplier),
+    1,
+  );
+}
+
+/** The game with the accessories' bonus of these purchases (game.accessoryMultiplier follows the purchases). */
+export function withAccessories(game: GameStateV2, purchases: PurchaseProgress): GameStateV2 {
+  const multiplier = accessoryMultiplier(purchases);
+  return game.accessoryMultiplier === multiplier ? game : { ...game, accessoryMultiplier: multiplier };
+}
+
 /** The store opens with the first class-up. */
 export function offersOpen(story: StoryProgress) {
   return story.ceremonySeen >= SPECIAL_SHOP_CEREMONY;
@@ -92,14 +106,17 @@ export function applyPurchase<T extends PurchaseContext>(state: T, productId: st
   const product = Object.values(PRODUCTS).find((entry) => entry.id === productId);
   if (!product || state.purchases.owned.includes(productId)) return state;
   const owned = product.kind === 'consumable' ? state.purchases.owned : [...state.purchases.owned, productId];
+  const purchases = { ...state.purchases, owned };
   const boostFrom = Math.max(state.ads.boostUntil, now);
+  // The accessory's bonus first, so the hour of income below already counts it.
+  const game = withAccessories(state.game, purchases);
   return {
     ...state,
     // The income while playing, hand-run businesses included: right after the first ceremony most
     // players have no manager yet, and the managed income alone was close to $0 (2026-10-14).
-    game: product.incomeSeconds > 0 ? earn(state.game, incomePerSecond(state.game, 'active') * product.incomeSeconds) : state.game,
+    game: product.incomeSeconds > 0 ? earn(game, incomePerSecond(game, 'active') * product.incomeSeconds) : game,
     ads: product.boostSeconds > 0 ? { ...state.ads, boostUntil: boostFrom + product.boostSeconds * 1000 } : state.ads,
-    purchases: { ...state.purchases, owned },
+    purchases,
   };
 }
 
@@ -128,5 +145,6 @@ export function refundedToRevoke(purchases: PurchaseProgress, productIds: string
 
 export function applyRevoke<T extends PurchaseContext>(state: T, productIds: string[]): T {
   if (productIds.length === 0) return state;
-  return { ...state, purchases: { ...state.purchases, owned: state.purchases.owned.filter((id) => !productIds.includes(id)) } };
+  const purchases = { ...state.purchases, owned: state.purchases.owned.filter((id) => !productIds.includes(id)) };
+  return { ...state, game: withAccessories(state.game, purchases), purchases };
 }

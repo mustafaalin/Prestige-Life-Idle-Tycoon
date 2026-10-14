@@ -133,6 +133,12 @@ export interface GameStateV2 {
   bottles: number;
   /** Wallets Şans found and the hero returned in this life (goal counter). */
   finds: number;
+  /**
+   * What Şans's paid accessories multiply all income by (1 = none; the Starter Pack's scarf 1.1). Kept
+   * across lives. The player's purchases decide it (runtime/purchases.ts accessoryMultiplier): it is set
+   * again from them on every load, so the saved number is never the source.
+   */
+  accessoryMultiplier: number;
 }
 
 export type IncomeMode = 'active' | 'idle';

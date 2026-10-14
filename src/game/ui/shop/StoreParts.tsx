@@ -52,7 +52,7 @@ export function StarterRewards({ product }: { product: ProductDef }) {
     <div className="grid grid-cols-3 gap-1.5 mt-1 mb-3">
       <Tile image={STORE_ART.hourglass} title={t('iap.starter.boost')} note={t('iap.starter.boostFor', { count: boostHours })} />
       <Tile image={STORE_ART.cash} title={t('iap.starter.income', { count: incomeHours })} note={t('iap.starter.incomeWhen')} />
-      <Tile image={STORE_ART.scarf} title={t('iap.starter.scarf')} note={t('iap.starter.scarfFor')} />
+      <Tile image={STORE_ART.scarf} title={t('iap.starter.scarf')} note={t('iap.starter.scarfFor', { percent: Math.round(product.incomeBonus * 100) })} />
     </div>
   );
 }

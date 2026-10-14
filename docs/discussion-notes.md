@@ -164,6 +164,15 @@ Kaynak: GPT incelemesi ([gpt-review-progression-monetization-answer.md](./gpt-re
 
 **Zenginler Listesi'nde açık kalanlar:** benzetme isimlerin hukuki riski (Claude'un notu: Hindistan'daki "Selmon Bhoi" davası; portre, şirket adı ve logo yok, ton alaycı değil; kullanıcı benzetme isimleri seçti); düğmenin yeri (albümün altında) ve kartın sıklığı telefonda bakılacak.
 
-## 11. Şans'ın aksesuarları gelire katkı versin mi? (2026-10-14; konuşulacak)
+## 11. Şans'ın aksesuarları: kalan iki soru (2026-10-15)
 
-Kullanıcının fikri: Başlangıç Paketi'nin kırmızı fuları bugün yalnızca görünüş; bir artısı olmalı. Genel hâli: Şans'ın takacağı aksesuarlar (fular, tasmalar, ileride kalıcı ×2'nin tasması) gelire belirli bir katkı sağlayabilir. Konuşulacaklar: katkı nereye (tüm gelir mi, Şans'ın bulduğu cüzdan mı, çevrimdışı mı), ne kadar (statü eşyaları gibi küçük yüzdeler mi), ücretli aksesuarın ücretsiz sınıf tasmasıyla ve kalıcı ×2 ürünüyle ilişkisi (§10: kalıcı ×2'nin kozmetiği fular değil, ör. yakut tasma), simülatörde "ödeyen oyuncu" profili. Karar verilmedi.
+Karar verildi ve oyunda ([game-design §4.4](./game-design-v2.md)): sınıf tasmaları deri %2, gümüş %4, altın %6, birbirine eklenmez, törende ayrı kart; fular kalıcı +%10, ayrı çarpan. Açık kalanlar:
+
+1. ✅ **Gümüş %4 kalıyor** (kullanıcı, 2026-10-15): Milyarder'e 2. gün 23:00'te varılması sorun değil; simülatörün alt sınırı 2. gün 20:00'e indi (`sim/report.ts`). Multimilyarder FAIL'i önceden vardı (7. gün 18:04).
+2. ✅ **Yakut Tasma %50 kalıyor** (kullanıcı, 2026-10-15). Görselleri hazır (`public/assets/scene/sans-{sit,wallet,sleep}-ruby.webp`, kaynak `art/pilot/05-scene/`); ürün 2. adımda kodlanır.
+3. **Zirveden sonrası (Faz 2, plan 2.12):** reklam + fular + yakut oyuncusu En Zengin'e 4 sa 28 dk oyunla varıyor, jet 6 sa 2 dk, ömür 16 sa 48 dk; ~10 saat yeni hedef yok (reklamsızda ~3 sa). Adaylar (Claude'un önerisi, karar yok):
+   - **Erken emeklilik:** En Zengin töreninden sonra "Devret" açılır; ömür sonunu beklemek zorunlu değil. Bugünkü kural (game-design §4.9, devir yalnız ömür sonunda) değişir. Miras puanı kazanılan paraya bağlı olduğu için erken devreden daha az puan alır: bir "erken devir" payı ya da puanın zirveye göre hesaplanması gerekir.
+   - **Servet yadigâra:** En Zengin'den sonra kazanılan para, varise kalacak yadigârlara (plan 2.2) harcanır: boş saatler bir sonraki hayatı güçlendirir. Ödeyen oyuncunun hızı da böylece bir sonraki hayata taşınır.
+   - **Vakıf zinciri:** annenin ve Rıza Amca'nın hikâyesine bağlı büyük hayaller (mahalle kütüphanesi, babanın adına burs, Rıza'nın atölyesi); her biri bir hayat anı. Önsözün geri dönüşleri; en pahalısı (yazı ve kare).
+   - **Yaş temposu (§8):** zirveye kadar yıllar yavaş, sonra hızlı; boş saatleri içerik eklemeden kısaltır, annenin yaşını da makul yapar.
+

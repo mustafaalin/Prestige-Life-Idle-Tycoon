@@ -12,7 +12,7 @@ import { applyClassFloors, createInitialState } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { createAdProgress, type AdProgress } from './adRewards';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
-import { createPurchaseProgress, type PurchaseProgress } from './purchases';
+import { createPurchaseProgress, withAccessories, type PurchaseProgress } from './purchases';
 import { createStoryProgress, HERO_NAME_MAX, LIFE_MOMENT_IDS, MOM_MESSAGES, type StoryProgress } from './story';
 
 // Local save for v2. Separate key from v1 so both games can live side by side until v1 is removed.
@@ -110,6 +110,8 @@ function normalizeGame(raw: unknown): GameStateV2 {
     questsDone: stringList(raw.questsDone),
     bottles: Math.floor(finite(raw.bottles, 0)),
     finds: Math.floor(finite(raw.finds, 0)),
+    // Set from the purchases right after (parseRuntime); saves from before 2026-10-15 have none.
+    accessoryMultiplier: 1,
   });
 }
 
@@ -248,7 +250,8 @@ export function parseRuntime(text: string | null, now: number): RuntimeState {
       return createRuntimeState(now);
     }
     const runtime = file.runtime;
-    const game = normalizeGame(runtime.game);
+    const purchases = normalizePurchases(runtime.purchases);
+    const game = withAccessories(normalizeGame(runtime.game), purchases);
     return {
       game,
       cycles: normalizeCycles(runtime.cycles),
@@ -257,7 +260,7 @@ export function parseRuntime(text: string | null, now: number): RuntimeState {
       lastActiveAt: Math.min(finite(runtime.lastActiveAt, now), now),
       story: normalizeStory(runtime.story, game),
       ads: normalizeAds(runtime.ads),
-      purchases: normalizePurchases(runtime.purchases),
+      purchases,
     };
   } catch {
     keepUnreadable(text);

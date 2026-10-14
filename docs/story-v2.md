@@ -55,7 +55,7 @@ Varis torun, Faz 2.1'de (§6).
 
 ### Şans (köpek)
 
-- Karışık cins, kırpık kulaklı, tüyleri dağınık bir sokak köpeği. Her zaman sahnede, kahramanın yanında. Zenginleştikçe tasması değişir: ip → deri (Orta Sınıf) → altın (Milyarder; duruşu da rahatlar). Oyunda.
+- Karışık cins, kırpık kulaklı, tüyleri dağınık bir sokak köpeği. Her zaman sahnede, kahramanın yanında. Zenginleştikçe tasması değişir: ip → deri (Orta Sınıf) → gümüş (Milyoner; görseli bekliyor) → altın (Milyarder; duruşu da rahatlar). Oyunda. Her tasma gelire küçük bir bonus verir (2026-10-15; [game-design §4.4](./game-design-v2.md)).
 - Ona dokunmak para vermez: kahraman onu okşar. 5–10 dakikada bir ağzında bir cüzdanla gelir; oyuncu 12 sn içinde dokunursa kahraman cüzdanı sahibine verir ve teşekkür ödülü alır (oyunda; game-design §4.7). Kahraman bulduğu parayı cebine koymaz.
 - Çevrimdışı dönüşte kapının önünde uyurken uyanır (bekliyor; uyuyan poz görseli gerekiyor).
 

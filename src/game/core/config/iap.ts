@@ -39,6 +39,11 @@ export interface ProductDef {
   boostSeconds: number;
   /** Income it pays once, counted as while playing (hand-run businesses included). */
   incomeSeconds: number;
+  /**
+   * A permanent bonus to all income while owned, kept across lives (0.1 = +10%). It multiplies on its
+   * own, outside the status bonus, so what the card says is what the player gets (decided 2026-10-15).
+   */
+  incomeBonus: number;
   /** A limited offer: on show for this long once the store opens (0 = always). */
   offerSeconds: number;
 }
@@ -57,9 +62,10 @@ export const PRODUCTS: Record<ProductKey, ProductDef> = {
     fallbackPrice: '$7.99',
     boostSeconds: 2 * 3600,
     incomeSeconds: 0,
+    incomeBonus: 0,
     offerSeconds: 0,
   },
-  /** One time, in the first days: a 4-hour boost, an hour of income and Lucky's red scarf. */
+  /** One time, in the first days: a 4-hour boost, an hour of income and Lucky's red scarf (+10% income for good). */
   starter: {
     key: 'starter',
     id: 'v2_starter_pack',
@@ -70,6 +76,7 @@ export const PRODUCTS: Record<ProductKey, ProductDef> = {
     fallbackPrice: '$1.99',
     boostSeconds: 4 * 3600,
     incomeSeconds: 3600,
+    incomeBonus: 0.1,
     offerSeconds: 3 * 24 * 3600,
   },
 };
@@ -79,7 +86,7 @@ export const PRODUCT_LIST: ProductDef[] = [PRODUCTS.starter, PRODUCTS.comfort];
 
 /**
  * Refunds (2026-10-14): when on, a product the store no longer lists for the player (refunded in Play
- * Console, or by the player) leaves the save: the Comfort Pack's ad-free and the scarf go, rewards
+ * Console, or by the player) leaves the save: the Comfort Pack's ad-free and the scarf (with its bonus) go, rewards
  * already used stay. Off until a refunded test purchase shows RevenueCat drops it from the list,
  * including after a reinstall (a new anonymous RevenueCat id must not look like a refund).
  */

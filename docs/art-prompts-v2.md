@@ -532,3 +532,21 @@ Bu iki görsel kodda kullanılmaz. Claude ekranı bunlara bakarak oyunun bileşe
 **Kontrol listesi (teslimden önce):** şeffaf olması gerekenlerde gerçek alfa var mı (dama tahtası çizilmemiş), nesne kenara değiyor mu, Şans'ın kimliği (bükük kulak, beyaz ağız) ve fuları doğru mu, yazı ya da rakam sızmış mı, 64 px'te okunuyor mu. Maketlerde yazılar okunaklı ve doğru yazılmış mı.
 
 **Oyuna bağlama (Claude):** katmanlar `public/assets/iap/` altına WebP; hareketler CSS ile (`mobile.css` `v2-*` sınıfları), ekran ve kart maketlere göre yeniden düzenlenir; `prefers-reduced-motion`'da hareket durur.
+
+## 11. Şans'ın gümüş tasması (Milyoner; 3 görsel, oyunda 2026-10-15; yakut tasmanın üç görseli de hazır, ürünle bağlanacak)
+
+Tasmalar artık gelir bonusu veriyor (deri %2, gümüş %4, altın %6; [game-design §4.4](./game-design-v2.md)) ve sınıf töreni yeni tasmayı ayrı bir kartta gösteriyor. Gümüşün görseli yok: Milyoner'de sahne ve kart deri tasmalı Şans'ı gösteriyor. Üçü de deri tasmalı görselin **düzenlemesi**: aynı duruş, aynı ölçek, yalnız tasma değişir (Milyoner'de Şans hâlâ deri tasmalı dönemin sakin duruşunda; rahat duruş altınla gelir). Referans olarak her birine ilgili deri tasmalı dosya verilir. Teslim sonrası Claude: `scripts/cutout.sh` ile kesim, `public/assets/scene/sans-{sit,wallet,sleep}-silver.webp`, `ui/scene/stages.ts` `LOOK_ART[4]`.
+
+### Oturan → `art/pilot/05-scene/sans-sit-silver.png` (referans `sans-sit-leather.png`)
+
+> Edit the referenced dog sprite, changing ONLY the collar. Preserve the EXACT same dog Şans, scruffy sandy mixed-breed, brown eyes, white muzzle and chest, one upright ear and one folded ear, identical face, expression, seated pose, body proportions, tail shape, camera angle, lighting, semi-3D illustrated rendering and silhouette. Replace the brown leather collar with a polished brushed SILVER collar: a slim band of linked flat silver plates (clearly metal, cool grey-white with soft highlights, not leather, not gold, not chain-mail), a small silver buckle and a small round silver tag. The collar must read as silver at a small size on a phone. No changes to paws, ears, coat markings or expression. ONE dog only, full body, all ears, tail and paws visible with small margins. Genuine transparent background, no ground shadow, no scenery, no text, no logos. High-resolution clean game cutout with crisp natural fur edges.
+
+### Cüzdanla → `art/pilot/05-scene/sans-wallet-silver.png` (referans `sans-wallet-leather.png`)
+
+> Edit the referenced dog-with-wallet sprite changing ONLY the collar. Preserve exact same dog Şans, sandy scruffy mixed-breed with one upright ear and one folded ear, brown eyes, white muzzle and chest, identical face, happy expression, walking/trotting pose, body proportions, raised curled tail, camera angle, lighting, semi-3D illustrated rendering and exact same brown wallet in his mouth. Replace the brown leather collar with a polished brushed SILVER collar: a slim band of linked flat silver plates, small silver buckle and small round silver tag; clearly metal, cool grey-white, not leather, not gold. Do not change wallet, coat markings, paws or silhouette. ONE real quadruped dog only, whole body, wallet, ears, tail and all paws fully inside frame with small clear margins. Genuine transparent background, no ground shadows or scenery. No text, logos or watermarks. High-resolution clean game cutout.
+
+### Uyuyan → `art/pilot/05-scene/sans-sleep-silver.png` (referans `sans-sleep-leather.png`)
+
+> Edit this EXACT sleeping Şans dog sprite. Preserve identity, face, closed eyes, coat, anatomy, curled sleeping pose, proportions, camera, lighting and alpha silhouette unchanged. Replace ONLY the brown leather collar with a polished brushed SILVER collar of linked flat silver plates, a small silver buckle and a small round silver tag, matching the game's silver stage. Leather completely removed. All else unchanged. Transparent alpha background, no floor/shadow, text, halo or extra objects. One sleeping quadruped dog.
+
+**İsteğe bağlı:** palto okşama pozunda (`hero-5-pet`, Milyoner) Şans deri tasmalı ve gümüş künyeli; gümüş tasma gelince bu poz da aynı düzenlemeyle yenilenebilir (referans `art/pilot/08-outfits/hero-5-pet-v2.png`, yalnız tasma).

@@ -183,7 +183,7 @@ function PlainCard(props: CardProps) {
             {Array.from({ length: product.lines }, (_, index) => (
               <li key={index} className="flex items-start gap-1.5 text-[12px] font-bold leading-snug v2-iap-muted">
                 <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-emerald-500" />
-                {t(`iap.${product.key}.line${index + 1}` as MessageKey)}
+                {t(`iap.${product.key}.line${index + 1}` as MessageKey, { percent: Math.round(product.incomeBonus * 100) })}
               </li>
             ))}
           </ul>
@@ -205,7 +205,7 @@ function StarterReceipt({ onDismiss }: { onDismiss: () => void }) {
   const lines = [
     t('iap.starter.gotBoost', { count: product.boostSeconds / 3600 }),
     t('iap.starter.gotIncome', { count: product.incomeSeconds / 3600 }),
-    t('iap.starter.gotScarf'),
+    t('iap.starter.gotScarf', { percent: Math.round(product.incomeBonus * 100) }),
   ];
   return (
     <section role="status" aria-live="polite" className="v2-iap-card bg-[#fff7e1] border-[#edcf93]">

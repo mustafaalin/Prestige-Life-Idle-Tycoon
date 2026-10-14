@@ -33,7 +33,7 @@ import {
   FETCH_MIN_SECONDS,
 } from './config/scene';
 import { HOUSES, OWNER_HOME_BONUS } from './config/housing';
-import { LIFESTYLE_ITEMS } from './config/lifestyle';
+import { COLLARS, LIFESTYLE_ITEMS, type CollarDef } from './config/lifestyle';
 import { RICH_LIST_ANCHORS, RICH_LIST_ENTRY, RICH_RIVALS } from './config/richList';
 import { UPGRADES } from './config/upgrades';
 import type { BusinessDef, GameStateV2, IncomeMode, QuestDef } from './types';
@@ -112,9 +112,14 @@ export function homeBonus(state: GameStateV2) {
   return house.homeBonus + (state.homesOwned.includes(house.id) ? OWNER_HOME_BONUS : 0);
 }
 
-/** Status = your home plus every owned vehicle, outfit and luxury toy. */
+/** The collar Şans wears in a class (null: still the rope). */
+export function collarAt(classIndex: number): CollarDef | null {
+  return COLLARS.filter((collar) => collar.fromClass <= classIndex).pop() ?? null;
+}
+
+/** Status = your home, Şans's collar and every owned vehicle, outfit and luxury toy. */
 export function statusBonus(state: GameStateV2) {
-  let bonus = homeBonus(state);
+  let bonus = homeBonus(state) + (collarAt(state.classIndex)?.statusBonus ?? 0);
   for (const id of state.lifestyleOwned) {
     bonus += LIFESTYLE_BY_ID.get(id)?.statusBonus ?? 0;
   }
@@ -125,9 +130,11 @@ export function legacyMultiplier(legacyPoints: number) {
   return 1 + legacyPoints * LEGACY_BONUS_PER_POINT;
 }
 
-/** Everything that scales all income: career, status items and family legacy. */
+/** Everything that scales all income: career, status items, family legacy and Şans's paid accessories. */
 export function globalMultiplier(state: GameStateV2) {
-  return (1 + careerBonus(state)) * (1 + statusBonus(state)) * legacyMultiplier(state.legacyPoints);
+  return (
+    (1 + careerBonus(state)) * (1 + statusBonus(state)) * legacyMultiplier(state.legacyPoints) * state.accessoryMultiplier
+  );
 }
 
 export function salaryPerSecond(state: GameStateV2) {

@@ -4,7 +4,8 @@ import { BUSINESSES, CLASS_MANAGER_GIFT } from '../../core/config/businesses';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { AD_STORY_GIFT_MULTIPLIER } from '../../core/config/ads';
 import { OFFLINE_CAP_HOURS_BY_CLASS } from '../../core/config/economy';
-import { storyGift } from '../../core/formulas';
+import { COLLARS, type CollarDef } from '../../core/config/lifestyle';
+import { collarAt, storyGift } from '../../core/formulas';
 import { bestOwnedLifestyle, currentHome, ownsHouse } from '../../core/state';
 import type { BusinessDef, GameStateV2, HouseDef, LifestyleDef } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
@@ -19,6 +20,7 @@ import { useAdText } from '../ads/useAdText';
 import { burstCoins } from '../home/coins';
 import { managerKey, managerPortrait } from '../businesses/managers';
 import { GameButton } from '../kit';
+import { classLook } from '../scene/stages';
 import { albumOutfit, albumShots, lifeMomentLabel, type AlbumEntry } from './album';
 import {
   CEREMONIES,
@@ -37,6 +39,8 @@ import { LIFE_OUTFIT, LIFE_SCRIPT } from './lifeScript';
 // by age close with a small gift card, the luxury moments end on their last line (or Skip).
 // The gift (formulas.ts storyGift, decided 2026-10-14) closes both kinds of card: "Collect", or a
 // rewarded ad for twice as much. It comes only when the story happens, never on a replay.
+// A class that gives Şans a new collar (config/lifestyle.ts COLLARS, decided 2026-10-15) shows it on a
+// card of its own before the closing card, with its income bonus: Skip still stops there.
 
 const TAP_GUARD_MS = 350;
 const FADE_MS = 500;
@@ -53,7 +57,7 @@ const TAG_STYLE: Record<CastId, string> = {
 
 const CONFETTI_COLORS = ['#fbbf24', '#f472b6', '#34d399', '#60a5fa', '#a78bfa', '#fb7185'];
 
-type Phase = 'title' | 'story' | 'summary';
+type Phase = 'title' | 'story' | 'interlude' | 'summary';
 
 function Confetti() {
   // Fixed per mount, so pieces don't jump on re-render.
@@ -105,6 +109,7 @@ interface CeremonyProps {
 
 export function Ceremony({ classIndex, before, now, gift, onDone }: CeremonyProps) {
   const { t, name } = useT();
+  const collar = COLLARS.find((item) => item.fromClass === classIndex);
   return (
     <StoryPlayer
       shots={CEREMONIES[classIndex] ?? []}
@@ -112,6 +117,7 @@ export function Ceremony({ classIndex, before, now, gift, onDone }: CeremonyProp
       pill={t('ceremony.newClass')}
       heading={name('wealthClass', WEALTH_CLASSES[classIndex])}
       gift={gift}
+      interlude={collar ? (next) => <CollarCard collar={collar} onNext={next} /> : undefined}
       summary={(close) => <ClassSummary classIndex={classIndex} before={before} now={now} gift={gift} onClose={close} />}
       onDone={onDone}
     />
@@ -167,12 +173,14 @@ interface StoryPlayerProps {
   heading: string;
   /** The closing card has a gift: leaving it any way (Back too) collects at least the plain gift. */
   gift?: boolean;
+  /** A card between the story and the closing card (Şans's new collar); Skip stops there too. */
+  interlude?: (next: () => void) => ReactNode;
   /** The closing card; without one the last line (or Skip) ends the moment. */
   summary?: (close: (giftMultiplier?: number) => void) => ReactNode;
   onDone: StoryDone;
 }
 
-function StoryPlayer({ shots, heroOutfit, pill, heading, gift = false, summary, onDone }: StoryPlayerProps) {
+function StoryPlayer({ shots, heroOutfit, pill, heading, gift = false, interlude, summary, onDone }: StoryPlayerProps) {
   const { t } = useT();
   const [phase, setPhase] = useState<Phase>('title');
   const [shotIndex, setShotIndex] = useState(0);
@@ -189,19 +197,29 @@ function StoryPlayer({ shots, heroOutfit, pill, heading, gift = false, summary, 
     haptic('medium');
   }, []);
 
-  const toSummary = (bySkip: boolean) => {
+  const toEnd = (bySkip: boolean) => {
     if (!summary) {
       onDone(bySkip);
       return;
     }
-    if (bySkip) setSkipped(true);
     setPhase('summary');
     playSfx('purchase');
   };
 
+  const toSummary = (bySkip: boolean) => {
+    if (bySkip) setSkipped(true);
+    if (interlude) {
+      setPhase('interlude');
+      playSfx('levelUp');
+      haptic('medium');
+      return;
+    }
+    toEnd(bySkip);
+  };
+
   const advance = () => {
     const now = Date.now();
-    if (phase === 'summary' || now - lastStep.current < TAP_GUARD_MS) return;
+    if (phase === 'summary' || phase === 'interlude' || now - lastStep.current < TAP_GUARD_MS) return;
     lastStep.current = now;
     if (phase === 'title') {
       if (shots.length > 0) setPhase('story');
@@ -219,7 +237,9 @@ function StoryPlayer({ shots, heroOutfit, pill, heading, gift = false, summary, 
     }
   };
 
-  useBackButton(true, 200, () => (phase === 'summary' ? onDone(skipped, gift ? 1 : undefined) : toSummary(true)));
+  useBackButton(true, 200, () =>
+    phase === 'summary' ? onDone(skipped, gift ? 1 : undefined) : phase === 'interlude' ? toEnd(skipped) : toSummary(true),
+  );
 
   const shot = shots[shotIndex];
   const line: CeremonyLine | undefined = phase === 'story' ? shot?.lines[lineIndex] : undefined;
@@ -313,7 +333,7 @@ function StoryPlayer({ shots, heroOutfit, pill, heading, gift = false, summary, 
           </p>
         ))}
 
-        {phase !== 'summary' && (
+        {(phase === 'title' || phase === 'story') && (
           <div className="absolute inset-x-0 top-0 flex justify-end px-4 pt-[calc(var(--safe-top)+12px)]">
             <button
               type="button"
@@ -325,6 +345,13 @@ function StoryPlayer({ shots, heroOutfit, pill, heading, gift = false, summary, 
             >
               {t('ceremony.skip')}
             </button>
+          </div>
+        )}
+
+        {phase === 'interlude' && interlude && (
+          <div className="absolute inset-0 bg-black/35 flex items-center justify-center px-6">
+            <Confetti />
+            {interlude(() => toEnd(skipped))}
           </div>
         )}
 
@@ -452,6 +479,7 @@ function ClassSummary({
   const capNow = OFFLINE_CAP_HOURS_BY_CLASS[Math.min(classIndex, OFFLINE_CAP_HOURS_BY_CLASS.length - 1)];
   const { home, outfit, gift } = classChanges(classIndex, before, now);
   const giftIsMain = gift !== undefined && !home && !outfit;
+  const collar = COLLARS.find((item) => item.fromClass === classIndex);
 
   return (
     <div className="v2-pop-in relative w-full max-w-[340px] rounded-[28px] bg-white shadow-2xl overflow-hidden text-center">
@@ -510,6 +538,16 @@ function ClassSummary({
           </div>
         )}
 
+        {collar && (
+          <div className="mt-2 flex items-center justify-between gap-2 rounded-2xl bg-slate-50 px-3 py-2">
+            <span className="min-w-0 text-left text-[11px] font-black text-slate-500">{t('ceremony.collar.row')}</span>
+            <span className="shrink-0 text-sm font-black text-slate-900">
+              {t('ceremony.collar.short', { percent: percent(collarAt(classIndex - 1)?.statusBonus ?? 0) })} →{' '}
+              <span className="text-emerald-500">{t('ceremony.collar.short', { percent: percent(collar.statusBonus) })}</span>
+            </span>
+          </div>
+        )}
+
         {gift && !giftIsMain && <ManagerGift business={gift} />}
 
         <p className="text-[11px] font-semibold text-slate-500 mt-3">
@@ -532,6 +570,71 @@ function ClassSummary({
             {t('ceremony.done')}
           </GameButton>
         )}
+      </div>
+    </div>
+  );
+}
+
+const percent = (fraction: number) => Math.round(fraction * 100);
+
+/** Şans close on his head and neck in a collar, so the collar reads; the legs are cut by the frame. */
+function CollarShot({ classIndex, dim }: { classIndex: number; dim?: boolean }) {
+  return (
+    <div className="relative h-[124px] overflow-hidden rounded-xl bg-gradient-to-b from-white/70 to-transparent">
+      <img
+        src={classLook(classIndex).sans.src}
+        alt=""
+        draggable={false}
+        className={`absolute left-1/2 top-1 h-[190px] w-auto max-w-none -translate-x-1/2 ${dim ? 'grayscale-[45%] opacity-80' : 'drop-shadow'}`}
+      />
+    </div>
+  );
+}
+
+/**
+ * Şans's new collar and what it adds to income: the collar before and the new one side by side, then
+ * the bonus. Only the collar he wears counts, so a better one replaces the bonus of the one before, it
+ * does not add to it (the rope gives nothing).
+ */
+function CollarCard({ collar, onNext }: { collar: CollarDef; onNext: () => void }) {
+  const { t } = useT();
+  const previous = collarAt(collar.fromClass - 1);
+  const named = (id: string, bonus: number) =>
+    t('ceremony.collar.named', { name: t(`ceremony.collar.${id}` as MessageKey), percent: percent(bonus) });
+  return (
+    <div className="v2-pop-in relative w-full max-w-[340px] rounded-[28px] bg-white shadow-2xl overflow-hidden text-center">
+      <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3">
+        <h2 className="v2-display v2-outline-thin text-2xl text-white break-words">{t('ceremony.collar.title')}</h2>
+      </div>
+      <div className="px-5 pt-4 pb-5 flex flex-col items-center">
+        <div className="w-full">
+          <Swap
+            from={{
+              picture: <CollarShot classIndex={collar.fromClass - 1} dim />,
+              name: named(previous?.id ?? 'rope', previous?.statusBonus ?? 0),
+            }}
+            to={{
+              picture: <CollarShot classIndex={collar.fromClass} />,
+              name: t(`ceremony.collar.${collar.id}`),
+              badge: t('ceremony.collar.short', { percent: percent(collar.statusBonus) }),
+            }}
+          />
+        </div>
+        <p className="v2-pop-in mt-3 rounded-full bg-emerald-500 px-4 py-1.5 v2-display text-[20px] leading-tight text-white shadow" style={{ animationDelay: '250ms' }}>
+          {t('ceremony.collar.bonus', { percent: percent(collar.statusBonus) })}
+        </p>
+        <p className="mt-2 text-[12px] font-bold leading-snug text-slate-500">{t('ceremony.collar.body')}</p>
+        <GameButton
+          tone="buy"
+          onClick={(event) => {
+            event.stopPropagation();
+            playSfx('click');
+            onNext();
+          }}
+          className="w-full mt-4 py-3 v2-display text-lg v2-shadow"
+        >
+          {t('ceremony.collar.ok')}
+        </GameButton>
       </div>
     </div>
   );

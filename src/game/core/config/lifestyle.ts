@@ -117,3 +117,22 @@ export const LIFESTYLE_ITEMS: LifestyleDef[] = [...VEHICLES, ...OUTFITS, ...LUXU
 
 /** Items every new life starts with. */
 export const STARTING_LIFESTYLE_IDS = ['outfit-hoodie'];
+
+/**
+ * Şans's collars (decided 2026-10-15, user): a class-up gives him a better one, and only the one he
+ * wears counts, so the gold collar is +6%, not +12%. They are not bought and not saved: the class
+ * reached decides (a new life starts him on the rope again). Their bonus is a status bonus, like a
+ * vehicle's. The scene and the ceremony's collar card show them (ui/scene/stages.ts).
+ */
+export interface CollarDef {
+  id: 'leather' | 'silver' | 'gold';
+  /** The wealth class that gives it (index into WEALTH_CLASSES). */
+  fromClass: number;
+  statusBonus: number;
+}
+
+export const COLLARS: CollarDef[] = [
+  { id: 'leather', fromClass: 3, statusBonus: 0.02 },
+  { id: 'silver', fromClass: 4, statusBonus: 0.04 },
+  { id: 'gold', fromClass: 5, statusBonus: 0.06 },
+];
