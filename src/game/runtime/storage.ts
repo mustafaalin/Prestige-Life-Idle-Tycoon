@@ -5,7 +5,6 @@ import { WEALTH_CLASSES } from '../core/config/classes';
 import { HOUSES, LEGACY_HOUSE_TO_HOME } from '../core/config/housing';
 import { LIFE_SECONDS } from '../core/config/life';
 import { legacyOutfitIndex, legacyVehicleCount, LIFESTYLE_ITEMS, OUTFITS, VEHICLES } from '../core/config/lifestyle';
-import { PRODUCT_LIST } from '../core/config/iap';
 import { RICH_MILESTONES } from '../core/config/richList';
 import { UPGRADES } from '../core/config/upgrades';
 import { classIndexFor } from '../core/formulas';
@@ -167,15 +166,18 @@ function normalizeAds(raw: unknown): AdProgress {
   };
 }
 
-const knownProducts = new Set(PRODUCT_LIST.map((product) => product.id));
-
-/** Saves from before the store start with nothing bought; the store's restore fills it in. */
+/**
+ * Saves from before the store start with nothing bought; the store's restore fills it in. Owned ids
+ * are kept even when a product is no longer on sale (config/iap.ts PRODUCT_LIST): what was paid for
+ * is never dropped.
+ */
 function normalizePurchases(raw: unknown): PurchaseProgress {
   const base = createPurchaseProgress();
   if (!isRecord(raw)) return base;
   return {
-    owned: stringList(raw.owned).filter((id) => knownProducts.has(id)),
+    owned: [...new Set(stringList(raw.owned))],
     offersFrom: finite(raw.offersFrom, 0),
+    offerCardShown: raw.offerCardShown === true,
   };
 }
 

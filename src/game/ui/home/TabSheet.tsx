@@ -16,11 +16,13 @@ export function TabSheet({
   onClose,
   pinnedQuest,
   onGo,
+  onOpenStore,
 }: {
   tab: TabId;
   onClose: () => void;
   pinnedQuest: string | null;
   onGo: GoToQuest;
+  onOpenStore: () => void;
 }) {
   const { t } = useT();
   const def = TABS.find((item) => item.id === tab)!;
@@ -50,7 +52,7 @@ export function TabSheet({
       <div key={tab} className="v2-sheet-body flex-1 overflow-y-auto px-3 py-3 bg-gradient-to-b from-sky-100 to-indigo-100">
         {tab === 'businesses' && <BusinessesScreen />}
         {tab === 'career' && <CareerScreen />}
-        {tab === 'shop' && <ShopScreen />}
+        {tab === 'shop' && <ShopScreen onOpenStore={onOpenStore} />}
       </div>
     </div>
   );

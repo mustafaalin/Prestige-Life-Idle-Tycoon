@@ -28,6 +28,7 @@ export type AnalyticsEvent =
   | 'notification_open'
   | 'tutorial_step'
   | 'offer_view'
+  | 'offer_card'
   | 'purchase_start'
   | 'purchase_result'
   | 'purchase_restore';

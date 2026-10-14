@@ -14,7 +14,7 @@ import { ICONS } from '../icons';
 import { useFocus, type ShopTabId } from '../home/focus';
 import { Chip, GameButton, Panel, Segmented, SectionLabel } from '../kit';
 import { HousingPanel } from './HousingPanel';
-import { SpecialOffers } from './SpecialOffers';
+import { StoreStrip } from './StoreSheet';
 import { Thumb } from './Thumb';
 
 type ShopTab = ShopTabId;
@@ -38,7 +38,7 @@ function tabReady(game: GameStateV2, tab: ShopTab) {
 }
 
 /** Homes, vehicles, outfits and luxury toys. Status items are bought in order: one clear next dream per category. */
-export function ShopScreen() {
+export function ShopScreen({ onOpenStore }: { onOpenStore: () => void }) {
   const { game } = useGameV2();
   const { t } = useT();
   const focus = useFocus();
@@ -80,7 +80,7 @@ export function ShopScreen() {
         <LifestylePanel kind={tab} onGoHomes={() => setTab('house')} />
       )}
 
-      <SpecialOffers />
+      <StoreStrip onOpen={onOpenStore} />
     </section>
   );
 }

@@ -23,7 +23,9 @@ import {
   type LifeMomentId,
 } from '../../runtime/story';
 import { useGameV2, useGameV2Events } from '../../runtime/useGameV2';
+import { offerCardDue } from '../../runtime/purchases';
 import { RichMoment } from '../richList/RichList';
+import { OfferCard } from '../shop/OfferCard';
 import { Ceremony, LifeMoment } from './Ceremony';
 import { portraitOf } from './ceremonyScript';
 import { MomMessage, NotifyPrompt } from './MomMessage';
@@ -46,10 +48,12 @@ export function StoryDirector({
   tabOpen,
   hold = false,
   onOpenRichList,
+  onOpenStore,
 }: {
   tabOpen: boolean;
   hold?: boolean;
   onOpenRichList: () => void;
+  onOpenStore: () => void;
 }) {
   const { game, state, actions } = useGameV2();
   const { t } = useT();
@@ -72,6 +76,8 @@ export function StoryDirector({
   const life = hold ? null : (replayLife ?? (lifeCanPlay ? (pendingLifeMoment(game, state.story)?.id ?? null) : null));
   const playing = ceremony !== null || life !== null;
   const rich = lifeCanPlay && life === null && !daughterNeedsName(state.story) ? pendingRichMoment(game, state.story) : null;
+  // The welcome card for the limited offer: once, at a quiet moment with nothing else on screen.
+  const offer = lifeCanPlay && life === null && rich === null && !daughterNeedsName(state.story) && offerCardDue(state, Date.now());
 
   useEffect(() => {
     if (!playing) return;
@@ -208,6 +214,16 @@ export function StoryDirector({
       if (openList) onOpenRichList();
     };
     return <RichMoment key={rich.id} milestone={rich} onClose={() => done(false)} onOpenList={() => done(true)} />;
+  }
+
+  if (offer) {
+    const done = (look: boolean) => {
+      actions.purchases.offerCardShown();
+      track('offer_card', { opened: look });
+      setQuiet(true);
+      if (look) onOpenStore();
+    };
+    return <OfferCard onLook={() => done(true)} onLater={() => done(false)} />;
   }
 
   if (mom && !state.offline) {

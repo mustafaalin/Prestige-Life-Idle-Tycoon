@@ -111,7 +111,8 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 - **Üst bar:** ×2 hızlandırıcı düğmesi; aktifken parlayan "×2 · 42 dk" rozeti.
 - **Ödül kartları:** "Topla" ve "Reklam izle ×2" yan yana. Reklamsız paket sahibinde ikinci düğme "×2 Topla" olur.
 - **Hayal, terfi ve işletme kartları:** az para kalmışken küçük "Reklam izle: +$X" düğmesi (X = eksik tutar).
-- **Mağaza:** Alt menüye 4. bir sekme yerine Alışveriş sekmesinin içinde "Özel" bölümü; yalnızca ilk sınıf atlamadan sonra açılır. Ayarlar ekranında "Satın alımları geri yükle".
+- **Mağaza (karar 2026-10-14, kullanıcı):** ayrı bir Mağaza ekranı; sahnenin solundaki yuvarlak düğmelerin üçüncüsü (albüm, Zenginler Listesi, Mağaza), Gündelikçi töreninden sonra çıkar. Alt menüye 4. sekme eklenmedi. Sınırlı teklif varken düğmede kırmızı nokta. Alışveriş sekmesinin altında Mağaza'ya götüren bir şerit. Geri yükleme hem Mağaza'nın altında hem Ayarlar'da.
+- **Hoş geldin kartı (karar 2026-10-14, kullanıcı):** sınırlı teklif açılınca bir kez, sakin bir anda (törenden ve bildirim sorusundan sonra, araya 2 dakika girer; açık sekme, kart ya da hikâye yokken) küçük bir kart: paketin görseli ve maddeleri, "Bak" (Mağaza'yı açar, satın almaz) ve "Sonra". Bir daha kendiliğinden çıkmaz.
 - **Sahnede:** Altın tasmalı Şans ve başlangıç paketindeki fular; satın almanın görünür karşılığı.
 
 ## 7. Kurallar ve uyum (lansman öncesi zorunlu)
@@ -134,14 +135,18 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 
 ### IAP nasıl çalışıyor (2026-10-14)
 
-Kod: ürünler `core/config/iap.ts`, kurallar `runtime/purchases.ts`, mağaza `runtime/iap.ts` (RevenueCat, web'de geliştirme sırasında sahte mağaza), arayüz `ui/shop/SpecialOffers.tsx`, Ayarlar'da "Satın alımları geri yükle".
+Kod: ürünler `core/config/iap.ts`, kurallar `runtime/purchases.ts`, mağaza `runtime/iap.ts` (RevenueCat, web'de geliştirme sırasında sahte mağaza), ekran `ui/shop/StoreSheet.tsx` (düğme, ekran, Alışveriş'teki şerit), hoş geldin kartı `ui/shop/OfferCard.tsx` (`StoryDirector` gösterir), geri yükleme `ui/shop/useRestore.ts`. Görseller `public/assets/iap/` (kaynak `art/pilot/15-iap/`).
+
+**Ekranın düzeni (ileriye dönük, 2026-10-14):** ürünler bölümlere göre dizilir, boş bölüm görünmez: **Sınırlı teklif** (büyük kart, geri sayım; bugün Başlangıç Paketi, ileride etkinlik teklifleri), **Hep senin** (kalıcılar; bugün Rahat Paket, ileride kalıcı ×2 ve Gece Vardiyası), **Para çantaları** (tüketilir, üçlü ızgara; bugün boş). Her üründe tür var: `permanent` (alınınca "Sahipsin" rozetiyle kalır), `once` (alınınca kaybolur), `consumable` (tekrar tekrar alınır, "sahip olunmaz", geri yüklenmez). Satışta olmayan ürün ekranda görünmez ("Yakında" kartı yok; karar 2026-10-14).
+
+**Yeni ürün eklemek:** (1) `config/iap.ts`'te `ProductKey`'e ad ve `PRODUCTS`'a giriş (mağaza kimliği, tür, bölüm, görsel, madde sayısı, yedek fiyat, ödül, sınırlı süre), satışa çıkınca `PRODUCT_LIST`'e; (2) `public/assets/iap/<ad>.webp`; (3) `iap.<ad>.name` ve `line1..N` metinleri `en` ve `tr`'de; (4) Play Console ve RevenueCat'te ürün (tüketilir ürünse RevenueCat'te consumable). Ekran, fiyat, geri yükleme ve analitik kendiliğinden alır. Ürünün oyundaki etkisi (×2, çevrimdışı oranı) `runtime/purchases.ts` ve ilgili formüllerde ayrıca yazılır. Satıştan kalkan ürün `PRODUCT_LIST`'ten çıkar ama `PRODUCTS`'ta kalır: sahibinin kaydından silinmez, geri yüklenir.
 
 | Ürün | Mağaza kimliği | Fiyat | İçerik |
 | --- | --- | --- | --- |
 | Rahat Paket | `v2_comfort_pack` | $7,99, kalıcı | Bütün ödüllü reklam düğmeleri reklamsız çalışır ("Hemen al", hediye simgesi; günlük sınırlar aynı); bir kez 2 saat ×2 |
 | Yeni Başlangıç Paketi | `v2_starter_pack` | $1,99, tek seferlik | Bir kez 4 saat ×2 ve 1 saatlik otomatik gelir; Şans'a kırmızı fular (oturan Şans'ın üstüne çizilir, `sans-scarf.webp`) |
 
-- **Ne zaman görünür:** Alışveriş sekmesinin altında "Özel" bölümü, Gündelikçi töreninden sonra. Başlangıç Paketi o andan itibaren 3 gün (`STARTER_OFFER_SECONDS`), sahip olunan ürün görünmez. Bu sürümden önce Gündelikçi'yi geçmiş oyuncuda 3 gün güncellemeden sonraki ilk açılışta başlar.
+- **Ne zaman görünür:** Mağaza Gündelikçi töreninden sonra açılır. Başlangıç Paketi o andan itibaren 3 gün (`offerSeconds`), alınınca kaybolur; Rahat Paket alınınca "Sahipsin" rozetiyle kalır. Bu sürümden önce Gündelikçi'yi geçmiş oyuncuda 3 gün güncellemeden sonraki ilk açılışta başlar.
 - **Ödüller:** hızlandırıcı süresi kalanın üstüne eklenir (4 saat tavanını aşabilir, ücretli); 1 saatlik gelir o anki otomatik gelirle. Bir ürün ikinci kez ödül vermez.
 - **Kalıcılık:** satın alınan ürünler kayıtta (`purchases.owned`) ve hayatlar boyunca kalır. Her açılışta RevenueCat'e sorulur (`allPurchasedProductIdentifiers`); yeniden yüklemede ve yeni telefonda geri gelir, tek seferlik ödüller tekrar verilmez.
 - **Analitik:** `offer_view`, `purchase_start`, `purchase_result` (`purchased` / `cancelled` / `unavailable`), `purchase_restore`; reklamsız ödül `ad_watch` (`outcome: ad_free`).

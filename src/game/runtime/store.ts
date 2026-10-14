@@ -84,6 +84,8 @@ export interface GameActions {
     apply(productId: string): boolean;
     /** Products the store says the player owns, without the one-time rewards. */
     restore(productIds: string[]): void;
+    /** The welcome card for the limited offer was shown (it shows once). */
+    offerCardShown(): void;
   };
   story: {
     /** Stops the clock (income and age) while a ceremony plays (story-v2.md §4). */
@@ -316,6 +318,9 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         apply: (productId) => act((s) => applyPurchase(s, productId, clock())),
         restore: (productIds) => {
           act((s) => applyRestore(s, productIds));
+        },
+        offerCardShown: () => {
+          act((s) => (s.purchases.offerCardShown ? s : { ...s, purchases: { ...s.purchases, offerCardShown: true } }));
         },
       },
       story: {

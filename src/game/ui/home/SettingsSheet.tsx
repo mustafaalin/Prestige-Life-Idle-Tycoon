@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { LOCALES, type Locale } from '../../i18n/locales';
 import { useT } from '../../i18n/useT';
 import { showPrivacyOptions } from '../../runtime/ads';
-import { restoreProducts, storeAvailable } from '../../runtime/iap';
+import { storeAvailable } from '../../runtime/iap';
 import {
   notificationsEnabled,
   notificationsSupported,
@@ -12,9 +12,8 @@ import {
 } from '../../runtime/notifications';
 import { useBackButton } from '../../runtime/backButton';
 import { useAdsState } from '../../runtime/useAds';
-import { track } from '../../runtime/analytics';
-import { useGameV2 } from '../../runtime/useGameV2';
 import { GameButton, Segmented, SectionLabel } from '../kit';
+import { useRestore } from '../shop/useRestore';
 
 // Settings: language, reminders (Mom and Lucky, phones only), and the privacy options the consent rules require players to be able to
 // reopen (EEA/UK/Switzerland), and "Restore purchases" (Apple requires it; docs/monetization-v2.md §7).
@@ -23,17 +22,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { t, locale, setLocale } = useT();
   const { privacyOptionsRequired } = useAdsState();
   const [notify, setNotify] = useState(notificationsEnabled);
-  const { actions } = useGameV2();
-  const [restore, setRestore] = useState<'idle' | 'busy' | 'done' | 'none' | 'failed'>('idle');
-
-  const restorePurchases = async () => {
-    if (restore === 'busy') return;
-    setRestore('busy');
-    const ids = await restoreProducts();
-    track('purchase_restore', { found: ids?.length ?? -1 });
-    if (ids) actions.purchases.restore(ids);
-    setRestore(ids === null ? 'failed' : ids.length > 0 ? 'done' : 'none');
-  };
+  const { status: restore, restore: restorePurchases } = useRestore();
 
   const toggleNotify = () => {
     const next = !notify;
