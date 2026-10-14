@@ -1,5 +1,5 @@
-import { ArrowBigUpDash, ChevronDown, ChevronRight, ChevronUp, Target } from 'lucide-react';
-import { useState, type MouseEvent } from 'react';
+import { ArrowBigUpDash, ChevronDown, ChevronRight, ChevronUp } from 'lucide-react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { questReward } from '../../core/formulas';
 import { activeQuests, isQuestComplete, questProgress } from '../../core/state';
 import type { GameStateV2, QuestDef } from '../../core/types';
@@ -15,8 +15,13 @@ import type { TabId } from './tabs';
 // Goals (plan 1.12/2.7). On the home scene: a card with the next goal (a finished one jumps to the top
 // with a Claim button); "All" shows the three on screen. Inside a tab: a thin strip with one goal, so
 // the player still sees it while doing it. Each goal shows its picture, where it's done, and "Go".
+// The card sits over the home's face (2026-10-15): one row without a header, see-through glass, and the
+// open list folds back by itself after a few seconds or at a tap anywhere else.
 
 export type GoToQuest = (quest: QuestDef) => void;
+
+/** The open list folds back after this long. */
+const EXPANDED_MS = 8000;
 
 /** Finished goals first, then the order they were given. */
 function orderedQuests(game: GameStateV2) {
@@ -29,34 +34,53 @@ export function QuestPanel({ onGo }: { onGo: GoToQuest }) {
   const { game } = useGameV2();
   const { t } = useT();
   const [expanded, setExpanded] = useState(false);
+  const panel = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!expanded) return;
+    const timer = window.setTimeout(() => setExpanded(false), EXPANDED_MS);
+    const outside = (event: PointerEvent) => {
+      if (!panel.current?.contains(event.target as Node)) setExpanded(false);
+    };
+    document.addEventListener('pointerdown', outside);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('pointerdown', outside);
+    };
+  }, [expanded]);
 
   const quests = orderedQuests(game);
   if (quests.length === 0) return null;
   const shown = expanded ? quests : quests.slice(0, 1);
+  const go: GoToQuest = (quest) => {
+    setExpanded(false);
+    onGo(quest);
+  };
 
   return (
-    <div className="pointer-events-auto absolute left-3 top-2 w-[min(300px,calc(100%-24px))] rounded-2xl bg-white/90 border-2 border-white shadow-lg px-2.5 py-2">
-      <div className="flex items-center gap-1.5">
-        <Target className="w-4 h-4 text-orange-500" />
-        <p className="flex-1 v2-display text-[12px] uppercase tracking-wide text-indigo-900/60">{t('quests.title')}</p>
-        {quests.length > 1 && (
-          <button
-            type="button"
-            onClick={() => setExpanded(!expanded)}
-            className="relative v2-hit flex items-center gap-0.5 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-black text-indigo-600 transition-all active:scale-95"
-          >
-            {expanded ? t('quests.less') : t('quests.all')}
-            {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </button>
-        )}
+    <section
+      ref={panel}
+      aria-label={t('quests.title')}
+      className="pointer-events-auto absolute left-3 top-2 w-[min(270px,calc(100%-24px))]"
+    >
+      <div className="rounded-2xl bg-white/80 backdrop-blur-sm border-2 border-white/90 shadow-lg px-2 py-1.5">
+        <ul className="flex flex-col gap-2">
+          {shown.map((quest) => (
+            <QuestRow key={quest.id} quest={quest} onGo={go} />
+          ))}
+        </ul>
       </div>
-
-      <ul className="mt-1.5 flex flex-col gap-2">
-        {shown.map((quest) => (
-          <QuestRow key={quest.id} quest={quest} onGo={onGo} />
-        ))}
-      </ul>
-    </div>
+      {quests.length > 1 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="relative v2-hit ml-3 -mt-0.5 flex items-center gap-0.5 rounded-b-xl bg-white/80 backdrop-blur-sm border-2 border-t-0 border-white/90 px-2 pb-0.5 text-[10px] font-black text-indigo-600 shadow transition-all active:scale-95"
+        >
+          {expanded ? t('quests.less') : `${t('quests.all')} (${quests.length})`}
+          {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+        </button>
+      )}
+    </section>
   );
 }
 

@@ -1,4 +1,12 @@
-import { PRODUCT_LIST, PRODUCTS, REVOKE_REFUNDS, SPECIAL_SHOP_CEREMONY, type ProductDef } from '../core/config/iap';
+import {
+  PRODUCT_LIST,
+  PRODUCTS,
+  REVOKE_REFUNDS,
+  SPECIAL_SHOP_CEREMONY,
+  productById,
+  productIds,
+  type ProductDef,
+} from '../core/config/iap';
 import { incomePerSecond } from '../core/formulas';
 import { earn } from '../core/state';
 import type { GameStateV2 } from '../core/types';
@@ -29,8 +37,9 @@ interface PurchaseContext {
   purchases: PurchaseProgress;
 }
 
+/** Bought, at either of its prices. */
 export function owns(purchases: PurchaseProgress, product: ProductDef) {
-  return purchases.owned.includes(product.id);
+  return productIds(product).some((id) => purchases.owned.includes(id));
 }
 
 /** The Comfort Pack: every rewarded ad gives its reward without the ad. */
@@ -82,9 +91,31 @@ export function storeProducts({ story, purchases }: Pick<PurchaseContext, 'story
   });
 }
 
+/** Seconds the welcome price has left (0: none, over, or the store not open yet). */
+export function welcomeSecondsLeft(purchases: PurchaseProgress, product: ProductDef, now: number) {
+  if (!product.welcome || purchases.offersFrom === 0) return 0;
+  return Math.max(0, product.welcome.seconds - (now - purchases.offersFrom) / 1000);
+}
+
+/** The store id to sell now: the welcome price while it lasts, else the regular one. */
+export function saleId(purchases: PurchaseProgress, product: ProductDef, now: number) {
+  return product.welcome && welcomeSecondsLeft(purchases, product, now) > 0 ? product.welcome.id : product.id;
+}
+
+/** The limited offer on show and not bought: a limited product in its days, or a welcome price that lasts. */
+function limitedNow(purchases: PurchaseProgress, product: ProductDef, now: number) {
+  if (owns(purchases, product)) return false;
+  return product.welcome ? welcomeSecondsLeft(purchases, product, now) > 0 : product.section === 'limited';
+}
+
+/** The product a limited offer is on for now (the welcome card points at it), if any. */
+export function limitedOffer(context: Pick<PurchaseContext, 'story' | 'purchases'>, now: number) {
+  return storeProducts(context, now).find((product) => limitedNow(context.purchases, product, now));
+}
+
 /** A limited offer on show and not bought: it puts a dot on the store button. */
 export function limitedOfferOn(context: Pick<PurchaseContext, 'story' | 'purchases'>, now: number) {
-  return storeProducts(context, now).some((product) => product.section === 'limited' && !owns(context.purchases, product));
+  return limitedOffer(context, now) !== undefined;
 }
 
 /** The welcome card pointing at the limited offer is due: once, while the offer is on. */
@@ -103,8 +134,9 @@ export function openOffers<T extends PurchaseContext>(state: T, now: number): T 
  * consumable. A product already owned gives nothing again.
  */
 export function applyPurchase<T extends PurchaseContext>(state: T, productId: string, now: number): T {
-  const product = Object.values(PRODUCTS).find((entry) => entry.id === productId);
-  if (!product || state.purchases.owned.includes(productId)) return state;
+  const product = productById(productId);
+  // Either price of a product gives it once: the other id later (a restore) gives nothing again.
+  if (!product || owns(state.purchases, product)) return state;
   const owned = product.kind === 'consumable' ? state.purchases.owned : [...state.purchases.owned, productId];
   const purchases = { ...state.purchases, owned };
   const boostFrom = Math.max(state.ads.boostUntil, now);
@@ -121,7 +153,7 @@ export function applyPurchase<T extends PurchaseContext>(state: T, productId: st
 }
 
 /** Products that are owned for good (not consumables), by store id. */
-const KEPT = new Set(Object.values(PRODUCTS).filter((product) => product.kind !== 'consumable').map((product) => product.id));
+const KEPT = new Set(Object.values(PRODUCTS).filter((product) => product.kind !== 'consumable').flatMap(productIds));
 
 /**
  * The store's list of what the player owns (each opening, or "Restore purchases"): products this
@@ -130,8 +162,12 @@ const KEPT = new Set(Object.values(PRODUCTS).filter((product) => product.kind !=
  * one-time rewards come once more; small, and it beats losing them. Consumables are left out: the
  * store lists them among past purchases, but they were used up when bought.
  */
-export function storeOwnedToGrant(purchases: PurchaseProgress, productIds: string[]) {
-  return [...new Set(productIds)].filter((id) => KEPT.has(id) && !purchases.owned.includes(id));
+export function storeOwnedToGrant(purchases: PurchaseProgress, storeIds: string[]) {
+  return [...new Set(storeIds)].filter((id) => {
+    const product = productById(id);
+    // Either price of a pack owned here is the pack owned: the other id gives nothing.
+    return KEPT.has(id) && product !== undefined && !owns(purchases, product);
+  });
 }
 
 /**

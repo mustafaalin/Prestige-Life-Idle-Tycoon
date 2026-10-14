@@ -57,6 +57,8 @@ Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · 
 - **Fular kalıcı +%10:** ücretli aksesuarlar ayrı çarpan (`GameStateV2.accessoryMultiplier`, satın almalardan her açılışta yeniden hesaplanır; kayıt şeması değişmedi, eski kayıtlarda 1). Mağaza kartı, paket satırı ve satın alma özeti bonusu yazıyor. **Play Console'daki Başlangıç Paketi açıklaması da güncellenmeli (kullanıcı).**
 - **Kalıcı ×2 → Yakut Tasma, +%50** (kullanıcı onayladı; altın tasma artık bedava): ürün kodu yok, simülatörde `RUBY_COLLAR_TRIAL`. Ödeyen oyuncuda zirveden sonra ~10 saat boş kalıyor: Faz 2'de ele alınacak (plan 2.12, adaylar [discussion-notes §11](./discussion-notes.md)).
 - **Simülatör:** yeni profiller "engaged + scarf" ve "engaged + ads + scarf + ruby" ([monetization-v2 §5](./monetization-v2.md)). Gümüş %4 Milyarder'i 2. gün 23:00'e çekiyor; kullanıcı kabul etti, hedefin alt sınırı 2. gün 20:00.
+- **Ana ekrandaki hedef kartı inceldi:** başlıksız tek satır, yarı saydam cam, 270 px; "Tümü (3)" kartın altında küçük bir sekme; açılan liste 8 sn sonra ya da başka yere dokununca kapanır (`ui/home/QuestPanel.tsx`). Önce sitede dairenin ve villanın cephesini, açıkken villanın tamamını ve 360 px'de kahramanın başını kapatıyordu. Tarayıcıda 360/390/412 px'de ev 6 ve 9 ile bakıldı.
+- **Başlangıç Paketi hoş geldin fiyatı:** ilk 3 gün $1,49 (`v2_starter_pack_welcome`), sonra $2,99 (`v2_starter_pack`) ve satışta kalır; kartta "Hoş geldin fiyatı", geri sayım, "Sonra $2,99". İkisinden biri alınınca paket alınmış (`config/iap.ts` `welcome`, `runtime/purchases.ts` `saleId`). Eski $1,99 alıcılarının paketi geçerli. Kurallar betikle, kart tarayıcıda 1. ve 4. günde denendi. **Kullanıcı:** Play'de yeni ürün ve fiyat, RevenueCat'e ekleme.
 - **Tekne anı yeni kare:** `story/life/boat.webp` GPT'nin sürat teknesiyle yenilendi (kaynak `art/pilot/10-life/life-boat-luxury-v2.png`, 941×1672 → 1080×1935, hafif büyütme). Mağazadaki teknenin aynısı; Şans altın tasmalı.
 - Bakılan: tarayıcıda 390 px, Orta Sınıf (TR), Milyarder (TR) ve Milyoner (EN) tasma kartları, Orta Sınıf kapanış kartı, tekne anının ilk karesi. Bakılmayan: Mağaza'da fular metinleri, gerçek satın alma, telefon.
 
@@ -150,13 +152,13 @@ Yayından sonra her güncelleme oyuncunun kaydını korumalı; kapalı testten i
 
 ## Kullanıcının yapacakları
 
-- **Uygulama içi satın almalar (2026-10-14):** Play Console'da `v2_comfort_pack` ($7,99) ve `v2_starter_pack` ($1,99), RevenueCat'te ikisi tüketilmeyen ürün, lisans testine kendi hesabın; adımlar [monetization-v2.md §8 "Mağaza kurulumu"](./monetization-v2.md). Gerçek deneme dahili test kanalındaki sürümle (DEV sürümü satın alamaz).
+- **Uygulama içi satın almalar (2026-10-14):** Play Console'da `v2_comfort_pack` ($7,99), `v2_starter_pack` ($2,99) ve `v2_starter_pack_welcome` ($1,49, 2026-10-15), RevenueCat'te üçü tüketilmeyen ürün, lisans testine kendi hesabın; adımlar [monetization-v2.md §8 "Mağaza kurulumu"](./monetization-v2.md). Gerçek deneme dahili test kanalındaki sürümle (DEV sürümü satın alamaz).
 - **Play mağaza ekran görüntüleri (2026-10-09):** 4 görsel × TR/EN, 1080×1920 JPG, `~/Downloads/play-store-v2/` ve `art/store-v2/` (yeniden üretme betikleri de orada: `capture.mjs` sürüm derlemesinden ekranları çeker, `compose.mjs` başlıkla çerçeveler). Play Console → Ana mağaza girişi → Telefon ekran görüntüleri; TR görseller Türkçe girişe, EN İngilizce girişe.
 - **Play ikonu ve özellik grafiği (2026-10-09):** `icon-512.png` (fal.ai nano-banana-pro, yarı sokak / yarı takım elbise + Şans; 1024'lük kaynağı `art/store-v2/icon-1024.png`) ve `feature-tr.jpg` / `feature-en.jpg` (1024×500, `feature.mjs`). Uygulamanın telefondaki ikonu (`android/.../mipmap-*`) hâlâ v1'inki; istenirse bu ikondan üretilir.
 
 - **Telefonda test:** aşağıdaki "Telefonda test listesi" (kullanıcı bakacak, 2026-10-13).
 - **AdMob konsolu:** yayından önce `app-ads.txt` (stüdyo sitesiyle birlikte); Ayarlar → Test cihazları'na kendi telefonunu eklemek; isteğe bağlı Firebase bağlantısı.
-- **Play Console:** veri güvenliği beyanını v2'ye göre güncellemek (hesap ve sunucu kaydı yok; analitik ve reklam verisi var).
+- **Play Console:** veri güvenliği beyanını v2'ye göre güncellemek; cevaplar [monetization-v2.md §7](./monetization-v2.md) (2026-10-15). Başlangıç Paketi açıklamasına fuların +%10'u eklenecek. Paketler Play'de ve RevenueCat'te tanımlı (kullanıcı, 2026-10-15); lisans testi: Play Console → Ayarlar → Lisans testi, telefonun Google hesabı.
 - **Google Play kapalı testi (v1 yapısıyla, 2026-10-06 civarı 12 kişi tamamlandı):** 14 günlük süre işliyor, ~2026-10-20'de dolar. Testçiler listeden çıkmamalı, kapalı test kanalı kapatılmamalı. Süre dolunca Play Console'dan yayın erişimi başvurusu (test hakkında sorular sorar).
 - **Test kullanıcısı listesi** (Faz 1 oyun testi için 20–50 kişi; dahili test kanalı).
 

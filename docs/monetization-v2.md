@@ -99,7 +99,7 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 | --- | --- | --- | --- | --- |
 | **Rahat Paket** (Reklamsız) | Kalıcı | $7,99 | Bütün ödüllü reklam ödülleri reklam izlemeden alınır (§4); ileride zorla reklam eklenirse o da kalkar; bonus olarak 2 saatlik ×2 hızlandırıcı | Idle Miner'ın No Ads Bundle'ı bu modeli kullanıyor. Rakiplerde $15,99 "pahalı" bulunmuş; $7,99 orta nokta |
 | **Şans'ın Yakut Tasması** | Kalıcı | $4,99 | Tüm gelir **kalıcı +%50** (ayrı çarpan ×1,5; öneri, karar simülasyondan sonra); Şans sahnede yakut tasmayla görünür. Sınıf tasmasının bonusu sürer (yakut ayrı sayılır) | Türün en iyi satan tipi (Idle Miner "2x Income Forever", Double Cash $6,99). **2026-10-15:** altın tasma artık Milyarder'de bedava geliyor, ad ve görsel yakut oldu; ×2 yerine %50, çünkü ücretli bonus sonradan düşürülemez, yükseltilebilir. Bonus veren köpek değil, onun aksesuarı |
-| **Yeni Başlangıç Paketi** | Tek seferlik | $1,99 | 4 saatlik ×2 hızlandırıcı + 1 saatlik gelir + Şans'a kırmızı fular: kalıcı +%10 gelir (2026-10-15; önce yalnız kozmetikti). Sadece ilk 3 günde, 1. sınıf atlamadan sonra gösterilir | Başlangıç paketi rakiplerin hepsinde var ($1,99–4,99). İlk ödemeyi düşük tutarla almak için |
+| **Yeni Başlangıç Paketi** | Tek seferlik | $2,99; ilk 3 gün hoş geldin fiyatı $1,49 | 4 saatlik ×2 hızlandırıcı + 1 saatlik gelir + Şans'a kırmızı fular: kalıcı +%10 gelir. 1. sınıf atlamadan sonra mağazada; ilk 3 gün $1,49 (geri sayım, "Sonra $2,99"), sonra $2,99'la satışta kalır (2026-10-15; önce yalnız 3 gün $1,99'du) | Başlangıç paketi rakiplerin hepsinde var ($1,99–4,99). İlk ödemeyi düşük tutarla almak için. "%50 indirim" ve üstü çizili fiyat yok: oyuncuya hiç uygulanmamış bir fiyattan indirim gibi görünür (AB Omnibus kuralı: indirim, son 30 günün en düşük fiyatına göre); "Hoş geldin fiyatı · Sonra $2,99" gerçeği söyler |
 | **Gece Vardiyası Ekibi** | Kalıcı | $3,99 | Çevrimdışı oran %50 → %100 ve tavan +2 saat | Egg, Inc.'in Pro Permit karşılığı ($9,99). Kullanıcının "çevrimdışı fazla" gözlemiyle birlikte ayarlanmalı (discussion-notes §5) |
 | **Para çantası** (ileride) | Tüketilir | $0,99–4,99 | "X saatlik gelir"; gelire oranlı | v1'de vardı (dinamik ölçekli). Lansmanda isteğe bağlı |
 | **Sezon bileti, VIP abonelik** | — | — | Lansmanda yok | GPT Astra: erken aşamada odak dağıtır. Canlı etkinliklerle (Faz 3) değerlendirilir. Haftalık abonelik ($7,99/hafta örnekleri) güven açısından riskli |
@@ -134,6 +134,17 @@ Fular küçük ve güvenli. Yakut %50 reklamla birleşince zirveyi yarıdan kıs
 - **Apple 3.1.1:** Dijital ürünler (kalıcı ×2, reklamsız paket) uygulama içi satın almayla satılır; dışarıya ödeme yönlendirmesi yok ([Apple forum](https://developer.apple.com/forums/thread/748871)). Kalıcı ürünler için **"Satın alımları geri yükle"** düğmesi gerekli.
 - **Yaş sınıflandırması:** Simüle kumar yok. Hedef kitle çocuk değil (Families programına girmiyoruz); reklam içerikleri buna göre filtrelenir.
 - **Kayıt:** Satın alınan kalıcı ürünler, kayıt silinse bile RevenueCat'ten geri yüklenebilmeli. Rakip yorumlarında "VIP'ye £60 verdim, hepsi gitti" şikâyeti var.
+- **Play veri güvenliği beyanı (2026-10-15, AAB 28 için):** v2'nin veri gönderen SDK'ları AdMob, Firebase Analytics ve RevenueCat (Supabase v2 paketinde yok; kahramanın ve kızının adı telefonda kalır, analitiğe gitmez). Kaynaklar: [AdMob](https://developers.google.com/admob/android/privacy/play-data-disclosure) ("collects and shares"), [Google Analytics](https://support.google.com/analytics/answer/11582702), [RevenueCat](https://www.revenuecat.com/docs/platform-resources/google-platform-resources/google-plays-data-safety). Cevaplar: veri toplanıyor **evet**; aktarımda şifreli **evet**; hesap açma **yok**; silme isteği **evet**, e-postayla (gizlilik politikası §6, `mathgamesstudio@gmail.com`).
+
+  | Veri türü | Toplanır | Paylaşılır | Amaç | Kaynak |
+  | --- | --- | --- | --- | --- |
+  | Konum → Yaklaşık konum | Evet | Evet | Reklam, Analiz, Dolandırıcılığı önleme | IP'den (AdMob, Analytics) |
+  | Finansal bilgi → Satın alma geçmişi | Evet | Hayır | Uygulama işlevselliği, Analiz | RevenueCat, Analytics satın alma olayları |
+  | Uygulama etkinliği → Uygulama etkileşimleri | Evet | Evet | Analiz, Reklam, Dolandırıcılığı önleme | Analytics olayları, AdMob |
+  | Uygulama bilgisi ve performansı → Teşhis | Evet | Evet | Analiz, Dolandırıcılığı önleme | AdMob |
+  | Cihaz veya diğer kimlikler | Evet | Evet | Reklam, Analiz, Dolandırıcılığı önleme, Uygulama işlevselliği | Reklam kimliği (AdMob, Analytics), uygulama örneği kimliği, RevenueCat anonim kimliği |
+
+  Hepsi "zorunlu" (kullanıcı kapatamaz), "geçici değil". Toplanmayanlar: ad, e-posta, telefon, kesin konum, mesaj, fotoğraf, kişi, sağlık, dosya, takvim, web geçmişi. Paylaşım AdMob'dan (Google kendisi "shares" diyor); Analytics ve RevenueCat hizmet sağlayıcı sayıldığı için paylaşım değil. Fazla beyan sorun değil, eksik beyan Play'de ret sebebi.
 
 ## 8. Uygulama sırası
 
@@ -157,9 +168,9 @@ Kod: ürünler `core/config/iap.ts`, kurallar `runtime/purchases.ts`, mağaza `r
 | Ürün | Mağaza kimliği | Fiyat | İçerik |
 | --- | --- | --- | --- |
 | Rahat Paket | `v2_comfort_pack` | $7,99, kalıcı | Bütün ödüllü reklam düğmeleri reklamsız çalışır ("Hemen al", hediye simgesi; günlük sınırlar aynı); bir kez 2 saat ×2 |
-| Yeni Başlangıç Paketi | `v2_starter_pack` | $1,99, tek seferlik | Bir kez 4 saat ×2 ve 1 saatlik gelir; Şans'a kırmızı fular: kalıcı +%10 gelir (`incomeBonus`, hayatlar boyunca; oturan Şans'ın üstüne çizilir, `sans-scarf.webp`). Kart, satın alma özeti ve paket satırı bonusu yazar |
+| Yeni Başlangıç Paketi | `v2_starter_pack` ($2,99) ve hoş geldin fiyatı `v2_starter_pack_welcome` ($1,49) | tek seferlik; ikisinden biri alınınca paket alınmış sayılır | Bir kez 4 saat ×2 ve 1 saatlik gelir; Şans'a kırmızı fular: kalıcı +%10 gelir (`incomeBonus`, hayatlar boyunca; oturan Şans'ın üstüne çizilir, `sans-scarf.webp`). Kart, satın alma özeti ve paket satırı bonusu yazar |
 
-- **Ne zaman görünür:** Mağaza Gündelikçi töreninden sonra açılır. Başlangıç Paketi o andan itibaren 3 gün (`offerSeconds`), alınınca kaybolur; Rahat Paket alınınca "Sahipsin" rozetiyle kalır. Bu sürümden önce Gündelikçi'yi geçmiş oyuncuda 3 gün güncellemeden sonraki ilk açılışta başlar.
+- **Ne zaman görünür:** Mağaza Gündelikçi töreninden sonra açılır. Başlangıç Paketi o andan itibaren 3 gün hoş geldin fiyatıyla (`welcome`, ayrı mağaza ürünü: Play bir ürünü herkese aynı fiyatla satar, RevenueCat Play'in tek seferlik ürün indirimlerini henüz desteklemiyor), sonra normal fiyatla hep satışta; alınınca kaybolur. Kırmızı nokta ve hoş geldin kartı yalnız hoş geldin fiyatı sürerken. Herkese aynı anda indirim (kampanya) için yeni ürün gerekmez: Play Console'da fiyat değiştirilir; Rahat Paket alınınca "Sahipsin" rozetiyle kalır. Bu sürümden önce Gündelikçi'yi geçmiş oyuncuda 3 gün güncellemeden sonraki ilk açılışta başlar.
 - **Ödüller:** hızlandırıcı süresi kalanın üstüne eklenir (4 saat tavanını aşabilir, ücretli); 1 saatlik gelir o anki oyun içi gelirle (yöneticiler, maaş, kira ve elle çalıştırılan işletmeler; 2026-10-14'e kadar yalnız otomatik gelirdi ve Gündelikçi'den hemen sonra $0'a yakın çıkıyordu). Bir ürün ikinci kez ödül vermez.
 - **Kalıcılık:** satın alınan ürünler kayıtta (`purchases.owned`) ve hayatlar boyunca kalır. Her açılışta RevenueCat'e sorulur (`allPurchasedProductIdentifiers`; "Satın alımları geri yükle" de aynı listeyi ister). Kayıtta olmayan bir ürün listede çıkarsa **ödülleriyle** verilir (2026-10-14): ödendi ama uygulama kapandığı için kayda yazılmamış satın alma böylece eksiksiz gelir. Yeni telefonda ya da sıfır kayıtta tek seferlik ödüller bir kez daha gelir; bilerek kabul edildi.
 - **Analitik:** `offer_view`, `offer_card` (`opened`), `purchase_start`, `purchase_result` (`purchased` / `cancelled` / `unavailable`), `purchase_applied` (`source`: `purchase` / `open` / `restore`; ödül kayda yazıldı), `purchase_revoked`, `purchase_restore`; reklamsız ödül `ad_watch` (`outcome: ad_free`). Firebase'de `purchase_result: purchased` ile `purchase_applied` (`source: purchase`) sayıları denk olmalı; fark teslimat sorunudur.
@@ -176,8 +187,8 @@ Kod: ürünler `core/config/iap.ts`, kurallar `runtime/purchases.ts`, mağaza `r
 
 **Mağaza kurulumu (kullanıcı):**
 
-1. **Play Console** → uygulama → Para kazanma → Ürünler → Uygulama içi ürünler: `v2_comfort_pack` ($7,99) ve `v2_starter_pack` ($1,99), ikisi de etkin. Adlar ve açıklamalar TR/EN (Rahat Paket / Comfort Pack; Yeni Başlangıç Paketi / Fresh Start Pack).
-2. **RevenueCat** → proje → Products: iki ürünü Play (ve sonra App Store) için ekle, **tüketilmeyen (non-consumable)** olarak işaretle; yoksa Android'de satın alma tüketilir ve geri yükleme çalışmaz.
+1. **Play Console** → uygulama → Para kazanma → Ürünler → Uygulama içi ürünler: `v2_comfort_pack` ($7,99), `v2_starter_pack` ($2,99) ve `v2_starter_pack_welcome` ($1,49), üçü de etkin. Adlar ve açıklamalar TR/EN (Rahat Paket / Comfort Pack; Yeni Başlangıç Paketi / Fresh Start Pack).
+2. **RevenueCat** → proje → Products: üç ürünü Play (ve sonra App Store) için ekle, **tüketilmeyen (non-consumable)** olarak işaretle; yoksa Android'de satın alma tüketilir ve geri yükleme çalışmaz.
 3. **Lisans testi:** Play Console → Ayarlar → Lisans testi'ne kendi Google hesabını ekle.
 4. **App Store** (iOS sürümünde): aynı kimliklerle "Non-Consumable" ürünler.
 5. v1'in 8 ürününü pasifleştir (§5).

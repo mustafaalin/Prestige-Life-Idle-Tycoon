@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { LOG_LEVEL, PRODUCT_CATEGORY, PURCHASES_ERROR_CODE, Purchases } from '@revenuecat/purchases-capacitor';
-import { PRODUCT_LIST } from '../core/config/iap';
+import { PRODUCT_LIST, productIds } from '../core/config/iap';
 import { firebaseInstanceId, track } from './analytics';
 
 // In-app purchases for v2 (docs/monetization-v2.md §5) through RevenueCat, which also keeps what was
@@ -46,7 +46,7 @@ export async function loadPrices(): Promise<Record<string, string>> {
   if (!(await setup())) return {};
   try {
     const { products } = await Purchases.getProducts({
-      productIdentifiers: PRODUCT_LIST.map((product) => product.id),
+      productIdentifiers: PRODUCT_LIST.flatMap(productIds),
       type: PRODUCT_CATEGORY.NON_SUBSCRIPTION,
     });
     return Object.fromEntries(products.map((product) => [product.identifier, product.priceString]));

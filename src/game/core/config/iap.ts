@@ -23,9 +23,24 @@ export type ProductKind = 'permanent' | 'once' | 'consumable';
 export type StoreSection = 'limited' | 'permanent' | 'bundles';
 export const STORE_SECTIONS: StoreSection[] = ['limited', 'permanent', 'bundles'];
 
+/**
+ * A lower price for the player's first days (decided 2026-10-15): a second store product with the same
+ * rewards. Play prices one product the same for everyone at a time, and RevenueCat does not support
+ * Play's discount offers on one-time products yet, so a price that depends on the player is its own
+ * product. Owning either id owns the pack. A sale for everyone at once needs none of this: the price is
+ * changed in Play Console.
+ */
+export interface WelcomePrice {
+  /** Store product id of the lower price. Saved like any product id: never rename it. */
+  id: string;
+  /** How long it lasts, from the moment the store opens for the player. */
+  seconds: number;
+  fallbackPrice: string;
+}
+
 export interface ProductDef {
   key: ProductKey;
-  /** Store product id. */
+  /** Store product id (the regular price). */
   id: string;
   kind: ProductKind;
   section: StoreSection;
@@ -46,6 +61,8 @@ export interface ProductDef {
   incomeBonus: number;
   /** A limited offer: on show for this long once the store opens (0 = always). */
   offerSeconds: number;
+  /** A welcome price for the first days; afterwards the regular price. */
+  welcome?: WelcomePrice;
 }
 
 const ART = '/assets/iap';
@@ -65,7 +82,10 @@ export const PRODUCTS: Record<ProductKey, ProductDef> = {
     incomeBonus: 0,
     offerSeconds: 0,
   },
-  /** One time, in the first days: a 4-hour boost, an hour of income and Lucky's red scarf (+10% income for good). */
+  /**
+   * One time: a 4-hour boost, an hour of income and Lucky's red scarf (+10% income for good). $1.49
+   * for the first 3 days, then $2.99, on sale for good (2026-10-15; it was $1.99 for 3 days only).
+   */
   starter: {
     key: 'starter',
     id: 'v2_starter_pack',
@@ -73,16 +93,27 @@ export const PRODUCTS: Record<ProductKey, ProductDef> = {
     section: 'limited',
     art: `${ART}/starter.webp`,
     lines: 3,
-    fallbackPrice: '$1.99',
+    fallbackPrice: '$2.99',
     boostSeconds: 4 * 3600,
     incomeSeconds: 3600,
     incomeBonus: 0.1,
-    offerSeconds: 3 * 24 * 3600,
+    offerSeconds: 0,
+    welcome: { id: 'v2_starter_pack_welcome', seconds: 3 * 24 * 3600, fallbackPrice: '$1.49' },
   },
 };
 
 /** The products on sale, in the order they show within a section. */
 export const PRODUCT_LIST: ProductDef[] = [PRODUCTS.starter, PRODUCTS.comfort];
+
+/** Every store id of a product: its own and its welcome price's. */
+export function productIds(product: ProductDef) {
+  return product.welcome ? [product.id, product.welcome.id] : [product.id];
+}
+
+/** The product a store id belongs to (either of its prices). */
+export function productById(id: string): ProductDef | undefined {
+  return Object.values(PRODUCTS).find((product) => productIds(product).includes(id));
+}
 
 /**
  * Refunds (2026-10-14): when on, a product the store no longer lists for the player (refunded in Play

@@ -7,7 +7,7 @@ import { track } from '../../runtime/analytics';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { buyProduct, storeAvailable } from '../../runtime/iap';
-import { limitedOfferOn, offerSecondsLeft, owns, storeProducts } from '../../runtime/purchases';
+import { limitedOfferOn, offerSecondsLeft, owns, saleId, storeProducts, welcomeSecondsLeft } from '../../runtime/purchases';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { burstCoins } from '../home/coins';
 import { SectionLabel } from '../kit';
@@ -59,6 +59,10 @@ interface CardProps {
   product: ProductDef;
   owned: boolean;
   price: string;
+  /** While a welcome price lasts: the regular price it goes up to, and how long it has left. */
+  welcome: { later: string; secondsLeft: number } | null;
+  /** The store id being sold now (the welcome price's while it lasts). */
+  saleId: string;
   /** The product being bought now, if any (one purchase at a time). */
   busy: string | null;
   failed: boolean;
@@ -66,13 +70,16 @@ interface CardProps {
   onBuy: () => void;
 }
 
-function BuyRow({ product, price, busy, failed, onBuy }: CardProps) {
+function BuyRow({ price, welcome, saleId: id, busy, failed, onBuy }: CardProps) {
   const { t } = useT();
   return (
     <>
       <BuyButton disabled={busy !== null} onClick={onBuy}>
-        {busy === product.id ? t('iap.busy') : t('iap.buy', { price })}
+        {busy === id ? t('iap.busy') : t('iap.buy', { price })}
       </BuyButton>
+      {welcome && (
+        <p className="mt-1.5 text-[11px] font-bold text-center v2-iap-muted">{t('iap.welcome.later', { price: welcome.later })}</p>
+      )}
       {failed && (
         <p role="status" className="mt-2 text-[12px] font-bold text-center v2-iap-muted">
           {t('iap.failed')}
@@ -85,16 +92,18 @@ function BuyRow({ product, price, busy, failed, onBuy }: CardProps) {
 const TITLE = 'v2-display text-[23px] max-[359px]:text-[21px] leading-[1.1] break-words';
 const HEADLINE = 'v2-display text-[21px] max-[359px]:text-[19px] leading-[1.13] mb-2 break-words';
 
+/** The Starter Pack: a welcome price with its countdown in the first days, then the regular price. */
 function StarterCard(props: CardProps) {
   const { t, duration } = useT();
+  const left = props.welcome?.secondsLeft ?? props.secondsLeft;
   return (
     <article className="v2-iap-card v2-iap-starter">
       <div className="flex items-center justify-between gap-2">
-        <span className="v2-iap-badge">{t('iap.offer.tag')}</span>
-        {Number.isFinite(props.secondsLeft) && (
+        <span className="v2-iap-badge">{props.welcome ? t('iap.welcome.tag') : t('iap.once')}</span>
+        {Number.isFinite(left) && (
           <span className="flex items-center gap-1 text-[11px] max-[359px]:text-[10px] font-bold text-[#814307] whitespace-nowrap">
             <Clock className="w-3.5 h-3.5" />
-            {duration(props.secondsLeft)}
+            {duration(left)}
           </span>
         )}
       </div>
@@ -257,12 +266,13 @@ export function StoreSheet({ onClose }: { onClose: () => void }) {
   const buy = async (product: ProductDef) => {
     if (busy) return;
     playSfx('click');
-    setBusy(product.id);
+    const id = saleId(state.purchases, product, Date.now());
+    setBusy(id);
     setFailed(null);
-    const outcome = await buyProduct(product.id);
+    const outcome = await buyProduct(id);
     setBusy(null);
     if (outcome === 'purchased') {
-      actions.purchases.apply(product.id);
+      actions.purchases.apply(id);
       playSfx('purchase');
       haptic('medium');
       const rect = body.current?.getBoundingClientRect();
@@ -274,10 +284,14 @@ export function StoreSheet({ onClose }: { onClose: () => void }) {
   };
 
   const card = (product: ProductDef) => {
+    const id = saleId(state.purchases, product, now);
+    const welcomeLeft = welcomeSecondsLeft(state.purchases, product, now);
     const props: CardProps = {
       product,
       owned: owns(state.purchases, product),
-      price: price(product),
+      price: price(product, id),
+      welcome: welcomeLeft > 0 ? { later: price(product), secondsLeft: welcomeLeft } : null,
+      saleId: id,
       busy,
       failed: failed === product.id,
       secondsLeft: offerSecondsLeft(state.purchases, product, now),

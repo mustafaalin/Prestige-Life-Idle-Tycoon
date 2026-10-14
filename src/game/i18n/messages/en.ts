@@ -594,7 +594,12 @@ export const en = {
       paid: 'One-time purchase · {price}',
       look: 'View pack',
       later: 'Not now',
-      ends: 'Offer ends in {duration}',
+      ends: 'Welcome price for {duration} more',
+      welcome: 'Welcome price: {price} · then {later}',
+    },
+    welcome: {
+      tag: 'Welcome price',
+      later: 'Then {price}',
     },
     comfort: {
       name: 'Comfort Pack',

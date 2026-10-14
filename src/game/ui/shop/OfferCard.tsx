@@ -2,7 +2,7 @@ import { Clock, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
-import { offerSecondsLeft, storeProducts } from '../../runtime/purchases';
+import { limitedOffer, saleId, welcomeSecondsLeft } from '../../runtime/purchases';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { STORE_ART } from './storeArt';
 import { BuyButton, StarterRewards } from './StoreParts';
@@ -20,9 +20,9 @@ export function OfferCard({ onLook, onLater }: { onLook: () => void; onLater: ()
   useBackButton(true, 80, onLater);
 
   const now = Date.now();
-  const product = storeProducts(state, now).find((entry) => entry.section === 'limited');
+  const product = limitedOffer(state, now);
   if (!product) return null;
-  const left = offerSecondsLeft(state.purchases, product, now);
+  const left = welcomeSecondsLeft(state.purchases, product, now);
 
   return createPortal(
     <div className="fixed inset-0 z-[80] bg-black/35 flex items-center justify-center p-4 overflow-y-auto">
@@ -47,13 +47,17 @@ export function OfferCard({ onLook, onLater }: { onLook: () => void; onLater: ()
         <h3 id="offer-title" className="v2-display text-[25px] leading-[1.1] mt-1 break-words">
           {t(`iap.${product.key}.name` as 'iap.starter.name')}
         </h3>
-        <p className="mt-1 text-[12px] v2-iap-muted">{t('iap.offer.paid', { price: price(product) })}</p>
+        <p className="mt-1 text-[12px] v2-iap-muted">
+          {left > 0
+            ? t('iap.offer.welcome', { price: price(product, saleId(state.purchases, product, now)), later: price(product) })
+            : t('iap.offer.paid', { price: price(product) })}
+        </p>
         <div className="v2-iap-art mx-auto my-1 w-[142px] h-[142px] max-[359px]:w-[120px] max-[359px]:h-[120px]">
           <img src={STORE_ART.dog} alt="" draggable={false} className="w-full h-full object-contain" />
         </div>
         <h4 className="v2-display text-[19px] leading-tight mb-2.5 break-words">{t('iap.starter.headline')}</h4>
         <StarterRewards product={product} />
-        {Number.isFinite(left) && (
+        {left > 0 && (
           <p className="mb-3.5 inline-flex items-center gap-1.5 rounded-full bg-[#fff1cf] px-3 py-1 text-[11px] font-bold text-[#814307]">
             <Clock className="w-3.5 h-3.5" />
             {t('iap.offer.ends', { duration: duration(left) })}

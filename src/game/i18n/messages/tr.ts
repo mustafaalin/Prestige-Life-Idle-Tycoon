@@ -593,7 +593,12 @@ export const tr: Messages = {
       paid: 'Tek seferlik satın alma · {price}',
       look: 'Paketi incele',
       later: 'Şimdi değil',
-      ends: 'Teklif {duration} sonra biter',
+      ends: 'Hoş geldin fiyatı {duration} daha geçerli',
+      welcome: 'Hoş geldin fiyatı: {price} · sonra {later}',
+    },
+    welcome: {
+      tag: 'Hoş geldin fiyatı',
+      later: 'Sonra {price}',
     },
     comfort: {
       name: 'Rahat Paket',
