@@ -41,7 +41,12 @@ export const STARTING_CASH = 0;
  * The gift that closes a class ceremony and the life moments told by age (date, wedding, birth;
  * decided 2026-10-14): this many seconds of the income the top bar shows. A rewarded ad doubles it
  * (config/ads.ts AD_STORY_GIFT_MULTIPLIER). 30 minutes was asked for, but the first classes come
- * minutes apart and it pulled Millionaire and Billionaire before their targets. At 10 minutes the first
- * manager comes at 4.5 minutes (target 5+) and Multibillionaire about an hour early.
+ * minutes apart and it pulled Millionaire and Billionaire before their targets. At 10 minutes (and at 7
+ * or 8) Multibillionaire comes 11 minutes of play earlier, in day 7's last session instead of day 8's first.
  */
 export const STORY_GIFT_SECONDS = 10 * 60;
+/**
+ * Ceremonies from this class on close with the gift: none for Day Laborer (2026-10-14), it comes in the
+ * first session, before ads open, and paid for the first manager at once.
+ */
+export const STORY_GIFT_FROM_CLASS = 2;

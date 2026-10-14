@@ -1,3 +1,4 @@
+import { STORY_GIFT_FROM_CLASS } from '../../core/config/economy';
 import { useEffect, useState } from 'react';
 import { isLifeOver, offlineCapHours, offlineEarnings } from '../../core/formulas';
 import { applyClassFloors, createInitialState } from '../../core/state';
@@ -173,7 +174,7 @@ export function StoryDirector({
         key={ceremony}
         classIndex={ceremony}
         {...step}
-        gift={replay === null}
+        gift={replay === null && ceremony >= STORY_GIFT_FROM_CLASS}
         onDone={(skipped, giftMultiplier) => finishCeremony(ceremony, skipped, giftMultiplier)}
       />
     );

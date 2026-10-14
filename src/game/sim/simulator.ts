@@ -40,6 +40,7 @@ import {
   HELP_MAX_INCOME_SECONDS,
   HELP_MAX_SHARE,
 } from '../core/config/ads';
+import { STORY_GIFT_FROM_CLASS } from '../core/config/economy';
 import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
 import { LIFE_MOMENTS, storyRuns } from '../runtime/story';
 import { COLLECT_SPAWN_SECONDS } from '../core/config/scene';
@@ -349,7 +350,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       const multiplier = doubles() ? AD_STORY_GIFT_MULTIPLIER : 1;
       if (giftsPaid.classes < state.classIndex) {
         giftsPaid.classes += 1;
-        earnTracked(storyGift(state) * multiplier);
+        if (giftsPaid.classes >= STORY_GIFT_FROM_CLASS) earnTracked(storyGift(state) * multiplier);
         continue;
       }
       const moment = LIFE_MOMENTS.find(
