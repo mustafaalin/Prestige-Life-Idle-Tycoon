@@ -1,19 +1,22 @@
-import { Check } from 'lucide-react';
+import { Clock, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
-import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
 import { offerSecondsLeft, storeProducts } from '../../runtime/purchases';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { GameButton } from '../kit';
+import { STORE_ART } from './storeArt';
+import { BuyButton, StarterRewards } from './StoreParts';
+import { usePrices } from './usePrices';
 
-// The welcome card (decided 2026-10-14): once, at a quiet moment after the first ceremony, it points
-// at the limited offer. "Take a look" opens the Store; it never buys from here. StoryDirector decides
-// when (runtime/purchases.ts offerCardDue).
+// The welcome offer (decided 2026-10-14; look: docs/iap-store-design-handoff.md): once, at a quiet
+// moment after the first ceremony, it points at the limited offer. It is a paid pack, so the card says
+// so with its price; "View pack" opens the Store and never buys from here. StoryDirector decides when
+// (runtime/purchases.ts offerCardDue).
 
 export function OfferCard({ onLook, onLater }: { onLook: () => void; onLater: () => void }) {
   const { state } = useGameV2();
   const { t, duration } = useT();
+  const price = usePrices();
   useBackButton(true, 80, onLater);
 
   const now = Date.now();
@@ -22,41 +25,45 @@ export function OfferCard({ onLook, onLater }: { onLook: () => void; onLater: ()
   const left = offerSecondsLeft(state.purchases, product, now);
 
   return createPortal(
-    <div className="fixed inset-0 z-[80] bg-black/35 flex items-center justify-center px-6">
-      <div className="v2-pop-in w-full max-w-[340px] rounded-[28px] bg-gradient-to-b from-amber-50 to-white shadow-2xl overflow-hidden">
-        <div className="px-4 py-3 bg-gradient-to-r from-violet-500 to-indigo-500">
-          <p className="text-[10px] font-black uppercase tracking-widest text-white/80">{t('iap.card.tag')}</p>
-          <p className="v2-display v2-outline-thin text-xl text-white leading-tight break-words">
-            {t(`iap.${product.key}.name` as MessageKey)}
-          </p>
-        </div>
-        <div className="px-4 pt-3 pb-5 flex flex-col items-center">
-          <img src={product.art} alt="" draggable={false} className="w-36 h-36 object-contain drop-shadow" />
-          <ul className="mt-2 self-stretch flex flex-col gap-1">
-            {Array.from({ length: product.lines }, (_, index) => (
-              <li key={index} className="flex items-start gap-2 text-[14px] font-bold leading-snug text-slate-700">
-                <Check className="w-4 h-4 mt-0.5 shrink-0 text-emerald-500" />
-                {t(`iap.${product.key}.line${index + 1}` as MessageKey)}
-              </li>
-            ))}
-          </ul>
-          {Number.isFinite(left) && (
-            <p className="mt-2 text-[11px] font-black uppercase tracking-widest text-amber-600">
-              {t('iap.ends', { duration: duration(left) })}
-            </p>
-          )}
-          <GameButton tone="gold" onClick={onLook} className="w-full mt-4 py-3 v2-display text-lg v2-shadow">
-            {t('iap.card.look')}
-          </GameButton>
+    <div className="fixed inset-0 z-[80] bg-black/35 flex items-center justify-center p-4 overflow-y-auto">
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="offer-title"
+        className="v2-iap v2-iap-card w-full max-w-[340px] max-h-full overflow-y-auto rounded-[25px] border-[#f1c05d] p-[15px] text-center shadow-2xl"
+        style={{ background: 'radial-gradient(ellipse at 50% 30%, #ffe9af, transparent 60%), #fff5de' }}
+      >
+        <div className="flex items-center justify-between gap-2 text-left">
+          <span className="v2-iap-badge">{t('iap.offer.tag')}</span>
           <button
             type="button"
             onClick={onLater}
-            className="w-full mt-2 rounded-2xl py-3 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+            aria-label={t('common.close')}
+            className="-mr-2 -mt-1 w-11 h-11 rounded-full flex items-center justify-center text-[#231951] transition-all active:scale-90"
           >
-            {t('iap.card.later')}
+            <X className="w-6 h-6" />
           </button>
         </div>
-      </div>
+        <h3 id="offer-title" className="v2-display text-[25px] leading-[1.1] mt-1 break-words">
+          {t(`iap.${product.key}.name` as 'iap.starter.name')}
+        </h3>
+        <p className="mt-1 text-[12px] v2-iap-muted">{t('iap.offer.paid', { price: price(product) })}</p>
+        <div className="v2-iap-art mx-auto my-1 w-[142px] h-[142px] max-[359px]:w-[120px] max-[359px]:h-[120px]">
+          <img src={STORE_ART.dog} alt="" draggable={false} className="w-full h-full object-contain" />
+        </div>
+        <h4 className="v2-display text-[19px] leading-tight mb-2.5 break-words">{t('iap.starter.headline')}</h4>
+        <StarterRewards product={product} />
+        {Number.isFinite(left) && (
+          <p className="mb-3.5 inline-flex items-center gap-1.5 rounded-full bg-[#fff1cf] px-3 py-1 text-[11px] font-bold text-[#814307]">
+            <Clock className="w-3.5 h-3.5" />
+            {t('iap.offer.ends', { duration: duration(left) })}
+          </p>
+        )}
+        <BuyButton onClick={onLook}>{t('iap.offer.look')}</BuyButton>
+        <button type="button" onClick={onLater} className="w-full mt-1 min-h-11 font-bold text-[14px] text-[#665978]">
+          {t('iap.offer.later')}
+        </button>
+      </section>
     </div>,
     document.body,
   );
