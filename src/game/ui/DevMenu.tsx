@@ -6,7 +6,7 @@ import { useBackButton } from '../runtime/backButton';
 import { useGameV2 } from '../runtime/useGameV2';
 import { showRewardedAd } from '../runtime/ads';
 import { scheduleTestReminder } from '../runtime/notifications';
-import { LIFE_MOMENTS } from '../runtime/story';
+import { LIFE_MOMENTS, LUXURY_MOMENTS } from '../runtime/story';
 import { requestEventCard } from './events/eventScript';
 import { LOOKS, setLook, useLook } from './look';
 import { SceneLab } from './scene/SceneLab';
@@ -227,6 +227,17 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
                 }}
               >
                 {moment.age}
+              </Chip>
+            ))}
+            {LUXURY_MOMENTS.map((moment) => (
+              <Chip
+                key={moment.id}
+                onClick={() => {
+                  close();
+                  requestLifeMoment(moment.id);
+                }}
+              >
+                {moment.id}
               </Chip>
             ))}
           </Row>

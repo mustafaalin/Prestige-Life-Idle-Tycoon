@@ -12,11 +12,11 @@ import {
   salaryPerSecond,
   statusBonus,
   costForUnits,
+  autoIncomePerSecond,
   incomePerSecond,
   nextMilestone,
   offlineEarnings,
   pendingLegacyPoints,
-  autoIncomePerSecond,
   canCollect,
   eventAverageReward,
   eventCardsFor,
@@ -34,7 +34,8 @@ import {
   BOOST_FACTOR,
   BOOST_MAX_SECONDS,
   BOOST_SECONDS,
-  HELP_INCOME_SECONDS,
+  HELP_MAX_INCOME_SECONDS,
+  HELP_MAX_SHARE,
 } from '../core/config/ads';
 import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
 import { COLLECT_SPAWN_SECONDS } from '../core/config/scene';
@@ -54,7 +55,7 @@ import {
   hireManager,
   housePrice,
   isQuestComplete,
-  lifestyleNeedsHome,
+  lifestyleLocked,
   live,
   moveUpNeedsVehicle,
   nextCareer,
@@ -157,6 +158,9 @@ interface Candidate {
   apply: (state: GameStateV2) => GameStateV2 | null;
 }
 
+/** The purchases whose cards offer "a little help" (managers, promotions, the next item, the next home). */
+const HELP_KINDS = new Set<SimEventKind>(['manager', 'career', 'lifestyle', 'home']);
+
 /** How much the bot values income that keeps flowing while the app is closed. */
 const IDLE_VALUE_WEIGHT = 0.5;
 
@@ -207,7 +211,7 @@ function candidates(state: GameStateV2): Candidate[] {
 
   for (const kind of LIFESTYLE_KINDS) {
     const next = nextLifestyle(state, kind);
-    if (next && !lifestyleNeedsHome(state, next)) {
+    if (next && !lifestyleLocked(state, next)) {
       list.push({ label: next.name, kind: 'lifestyle', cost: next.cost, apply: (s) => buyLifestyle(s, next.id) });
     }
   }
@@ -311,10 +315,24 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       watched.boostUntil = time.clock + left + BOOST_SECONDS;
       watched.boosts += 1;
     }
-    if (watched.helps < ads.helpsPerDay) {
-      earnTracked(autoIncomePerSecond(state) * HELP_INCOME_SECONDS);
-      watched.helps += 1;
-    }
+  };
+
+  /** "A little help" is on offer for this purchase today (cards that show it, daily limit). */
+  const helpOffered = (candidate: Candidate) =>
+    ads !== undefined && adsOpen() && watched.helps < ads.helpsPerDay && HELP_KINDS.has(candidate.kind);
+
+  /** The most the help pays: 10% of the price, at most 5 minutes of income. */
+  const helpCap = (candidate: Candidate) =>
+    Math.min(candidate.cost * HELP_MAX_SHARE, autoIncomePerSecond(state) * HELP_MAX_INCOME_SECONDS);
+
+  /** The help pays what is missing once that is within the cap. */
+  const helpWith = (candidate: Candidate) => {
+    const missing = candidate.cost - state.cash;
+    if (!helpOffered(candidate) || missing <= 0 || missing > helpCap(candidate)) return false;
+    earnTracked(missing);
+    if (state.cash < candidate.cost) state = { ...state, cash: candidate.cost };
+    watched.helps += 1;
+    return true;
   };
 
   /** Bottles a second: none once the ground is empty (Middle Class on). */
@@ -392,7 +410,14 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
         playFor(end - time.clock);
         break;
       }
-      if (best.wait > 0) {
+      if (best.wait > 0 && helpOffered(best.candidate)) {
+        if (!helpWith(best.candidate)) {
+          // Play until the gap is within the cap, when the help appears, then choose again.
+          const helpAt = best.candidate.cost - helpCap(best.candidate);
+          playFor(Math.min(Math.max((helpAt - state.cash) / rate, 0.05), end - time.clock));
+          continue;
+        }
+      } else if (best.wait > 0) {
         // Floor the wait so float rounding can't leave the bot waiting forever for a few cents.
         playFor(Math.min(Math.max(best.wait, 0.05), end - time.clock));
         const shortfall = best.candidate.cost - state.cash;

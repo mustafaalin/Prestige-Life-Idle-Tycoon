@@ -59,7 +59,7 @@ Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahip
 | 1 | **Çevrimdışı +%30** | "Tekrar hoş geldin" kartında, "Topla"nın üstünde "Reklam izle: +$X (+%30)" | Çevrimdışı kazanca %30 ekler (önce ×2'ydi; aşağıda) | Her dönüşte 1; en az 10 dk uzak kalınca | **Oyunda** |
 | 2 | **Şans'ın bulduğu ×2** | Cüzdan kartında "Reklam izle: ×2" | Teşekkür ödülü ×2 | Her bulguda 1 | **Oyunda** |
 | 3 | **Gelir hızlandırıcı** | Üst barda kalıcı "×2" düğmesi; aktifken kalan süre görünür | Tüm gelir ×2, **1 saat** (gerçek zaman; çevrimdışında da sayar). Üst üste en fazla 4 saat | Günde 6 | **Oyunda** (düğme ana sahnenin sağında) |
-| 4 | **Hayaline yardım** | Sıradaki hayal, terfi ya da işletme için az para kalmışken o kartta | **15 dakikalık gelir** (AdCap/Rich Inc.'teki "+para" düğmesinin gelire oranlı hâli) | Günde 5; sadece eksik tutar 15 dakikalık gelirden azken çıkar | **Oyunda** (terfi, sıradaki eşya, sıradaki eve taşınma, yönetici) |
+| 4 | **Hayaline yardım** | Sıradaki hayal, terfi ya da işletme için az para kalmışken o kartta | **Eksik tutar** (önce 15 dakikalık gelirdi; aşağıda) | Günde 5; sadece eksik tutar fiyatın %10'undan ve 5 dakikalık gelirden azken çıkar | **Oyunda** (terfi, sıradaki eşya, sıradaki eve taşınma, yönetici) |
 | 5 | **Sınıf töreni hediyesi ×2** | Sınıf atlayınca (1.10 töreni) gelen hediyede | Hediye ×2 | Sınıf başına 1 | 1.10 ile |
 | 6 | **Günlük hediye / çark** | Günlük ödülde ek çevirme | Ek ödül | Günde 1–2 | Faz 2.7 |
 | 7 | **Olay kartında ikinci şans** | Kötü sonuçlu kartta "tekrar dene" | Yeniden seçim | Kart başına 1 | Kartlar oyunda (game-design §4.7); ikinci şans reklam yerleriyle |
@@ -73,19 +73,21 @@ Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahip
 - **Ne zaman açılır:** ilk oturumda teklif yok (§2.3). Teklifler, oyuncu bir yönetici işe aldıktan ve bir kez çevrimdışı kazanç topladıktan sonra başlar; dört yerin hepsi için aynı kural.
 - **Çevrimdışı +%30 ve Şans ×2:** ödül kartında "Topla"nın üstünde turuncu "Reklam izle: +$X" düğmesi (ne kadar fazla verdiği yanında yazar). Reklam sonuna kadar izlenirse kart artırılmış tutarla toplanır; erken kapatılırsa kart yerinde kalır.
 - **Hızlandırıcı:** ana sahnenin sağında "×2" düğmesi küçük bir kart açar. Bir reklam = 1 saat; kalan sürenin üstüne eklenir, 4 saati aşamaz, günde 6. Gerçek zamanda işler (oyun kapalıyken de); işletmelerin, maaşın ve kiranın getirdiği her şeyi, çevrimdışı kazancın o süreye düşen kısmını ikiye katlar. Elle kazançları (toplama, Şans, olay kartları, hedefler) değiştirmez. Aktifken üst bardaki gelir satırı "×2" ile gösterilir.
-- **Biraz yardım:** satın alma düğmesinin altında, yalnızca eksik tutar 15 dakikalık otomatik gelirden azken çıkar.
+- **Biraz yardım:** satın alma düğmesinin altında, yalnızca eksik tutar fiyatın %10'undan ve 5 dakikalık otomatik gelirden azken çıkar ("Reklam izle: +$X", X = düğme çıktığında eksik olan). Tutar sabit kalır: gelir geldikçe aşağı saymaz; başka bir alışveriş eksik tutarı büyütürse yukarı çıkar. Reklam düğmede yazan tutarı verir (en fazla bu sınır).
 - **Reklam yoksa:** düğmenin altında "Şu an reklam yok" yazar, ödül verilmez.
 - Günlük sayaçlar oyuncunun telefonundaki takvim gününe göre sıfırlanır. Analitik: `ad_offer` (teklif göründü), `ad_watch` (yer, sonuç).
 
-**Ekonomiye etkisi (simülatör, 2026-10-13):** simülatörde "engaged + ads" profili var: günde 3 hızlandırıcı, çevrimdışı reklamı, Şans ×2, günde 2 yardım. İlke reklam izleyenin %20–30 hızlı ilerlemesi (§2.1).
+**Ekonomiye etkisi (simülatör, 2026-10-14):** simülatörde "engaged + ads" profili var: günde 3 hızlandırıcı, çevrimdışı reklamı, Şans ×2, günde 2 yardım (yönetici, terfi, eşya ya da ev beklerken eksik sınıra inince, eksik kadar). İlke reklam izleyenin %20–30 hızlı ilerlemesi (§2.1).
 
 | | Reklamsız | Reklam izleyen | Fark |
 | --- | --- | --- | --- |
-| Milyarder | 1 sa 36 dk (3. gün) | 1 sa 15 dk (2. gün) | −%22 |
-| Multimilyarder | 4 sa 59 dk (8. gün) | 3 sa 28 dk (5. gün) | −%30 |
-| En Zengin | 10 sa 42 dk (16. gün) | 7 sa 12 dk (11. gün) | −%33 |
+| Milyarder | 1 sa 29 dk (3. gün) | 1 sa 8 dk (2. gün) | −%24 |
+| Multimilyarder | 4 sa 45 dk (7. gün) | 3 sa 21 dk (5. gün) | −%29 |
+| En Zengin | 10 sa 35 dk (16. gün) | 7 sa 19 dk (11. gün) | −%31 |
 
-**Çevrimdışı reklamı +%30, ×2 değil (karar 2026-10-13, kullanıcı):** bir ömürde kazanılan paranın %87'si çevrimdışı kartlardan geliyor (game-design §4.6), bu yüzden kartı ikiye katlamak oyunu yarıya indiriyordu (En Zengin 5 sa 34 dk, −%51; çevrimdışı ×2 tek başına 6 sa 30 dk). Hızlandırıcı ×2 ve Şans ×2 onaylandığı gibi kaldı; payları küçük (günde 3 hızlandırıcı tek başına −%14, günde 2 yardım −%6). Reklamsız oyuncunun hedefleri değişmiyor.
+**Çevrimdışı reklamı +%30, ×2 değil (karar 2026-10-13, kullanıcı):** bir ömürde kazanılan paranın %87'si çevrimdışı kartlardan geliyor (game-design §4.6), bu yüzden kartı ikiye katlamak oyunu yarıya indiriyordu (En Zengin 5 sa 34 dk, −%51; çevrimdışı ×2 tek başına 6 sa 30 dk). Hızlandırıcı ×2 ve Şans ×2 onaylandığı gibi kaldı; payları küçük (günde 3 hızlandırıcı tek başına −%14).
+
+**Yardım eksik tutar kadar; fiyatın %10'u ve 5 dakikalık gelirle sınırlı; 15 dakikalık gelir değil (karar 2026-10-14, kullanıcı):** telefonda yöneticiyi aldıktan sonra ödülün büyük kısmı cüzdanda kalıyordu; düğmedeki tutarın her saniye azalması da rahatsız ediciydi. Yönetici fiyatı işletmenin taban fiyatının 12 katı, toplam gelirin yanında küçük; işletmeyi almak da parayı sıfırladığı için düğme hemen her işletmeden sonra çıkıyordu. Simülatör bu farkı göstermiyor: eski modelde yardım günde 2 kez oturum başında 15 dakikalık gelir veriyordu, yeni modelde gerçekteki gibi bekleme anında eksik kadar veriyor; sonuçlar ±%2 içinde. %10 tek başına geç terfi ve yöneticilerde 18–42 dakikalık gelire denk geliyordu (simülatör ölçümü), bu yüzden ikinci sınır 5 dakika. Reklamsız oyuncunun hedefleri değişmiyor.
 
 ## 5. IAP ürünleri
 
@@ -108,7 +110,7 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 
 - **Üst bar:** ×2 hızlandırıcı düğmesi; aktifken parlayan "×2 · 42 dk" rozeti.
 - **Ödül kartları:** "Topla" ve "Reklam izle ×2" yan yana. Reklamsız paket sahibinde ikinci düğme "×2 Topla" olur.
-- **Hayal, terfi ve işletme kartları:** az para kalmışken küçük "Reklamla +15 dk gelir" düğmesi.
+- **Hayal, terfi ve işletme kartları:** az para kalmışken küçük "Reklam izle: +$X" düğmesi (X = eksik tutar).
 - **Mağaza:** Alt menüye 4. bir sekme yerine Alışveriş sekmesinin içinde "Özel" bölümü; yalnızca ilk sınıf atlamadan sonra açılır. Ayarlar ekranında "Satın alımları geri yükle".
 - **Sahnede:** Altın tasmalı Şans ve başlangıç paketindeki fular; satın almanın görünür karşılığı.
 
@@ -134,4 +136,4 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 
 Altı sorunun hepsi önerildiği gibi onaylandı: lansmanda zorla reklam yok (sonra A/B testi); reklam yerleri 1–4'ün hepsi; hızlandırıcı 1 saat ×2, en fazla 4 saat, günde 6; IAP listesi ve fiyatları (Rahat Paket $7,99, Şans'ın Altın Tasması $4,99, Yeni Başlangıç $1,99, Gece Vardiyası Ekibi $3,99) ve adları; lansmanda premium para birimi yok; v1'in 8 ürünü pasifleştirilip yenileri açılır.
 
-Karar verilirken tartılan risk: "Hayaline yardım" (ihtiyaç anında para) v1'deki "asıl para reklamdan" hissini geri getirebilir; bu yüzden 15 dakikalık gelirle sınırlı.
+Karar verilirken tartılan risk: "Hayaline yardım" (ihtiyaç anında para) v1'deki "asıl para reklamdan" hissini geri getirebilir; bu yüzden yalnızca eksik fiyatın %10'undan ve 5 dakikalık gelirden azken çıkar ve eksik tutarı verir (2026-10-14).

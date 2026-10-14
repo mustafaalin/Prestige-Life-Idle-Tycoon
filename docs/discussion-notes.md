@@ -157,7 +157,7 @@ Kaynak: GPT incelemesi ([gpt-review-progression-monetization-answer.md](./gpt-re
 
 **Önerilen sıra:**
 
-1. Lükslerin karşılığı: her lüks ilk alındığında hayat anı + sahnede iz + albüm; lüks fiyatları simülatörle (reklamsız oyuncu jetle yaşayacak zamanı bulmalı; bugün jet ilk hayatta alınmıyor). En Zengin'den sonraki boş saatleri (§8) liste doldurmuyor, bu doldurabilir.
+1. ✅ (2026-10-14, sahne hariç: [rebuild-plan 1.22](./rebuild-plan.md)) Lükslerin karşılığı: her lüks ilk alındığında hayat anı + sahnede iz + albüm; lüks fiyatları simülatörle (reklamsız oyuncu jetle yaşayacak zamanı bulmalı; bugün jet ilk hayatta alınmıyor). En Zengin'den sonraki boş saatleri (§8) liste doldurmuyor, bu doldurabilir.
 2. IAP kademeli: önce Rahat Paket ve Başlangıç Paketi; kalıcı ×2 ve Gece Vardiyası ücretli profil simülasyonundan sonra. Öncesinde mevcut dört reklam yeri telefonda doğrulanır.
 3. Tek yeni reklam yeri: tören ve hayat anı hediyesi (hikâye bittikten sonra).
 4. Yerel başarımlar; liderlik tablosu sonra.

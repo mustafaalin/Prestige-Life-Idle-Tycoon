@@ -12,13 +12,19 @@ import { applyClassFloors, createInitialState } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { createAdProgress, type AdProgress } from './adRewards';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
-import { createStoryProgress, HERO_NAME_MAX, LIFE_MOMENTS, MOM_MESSAGES, type StoryProgress } from './story';
+import { createStoryProgress, HERO_NAME_MAX, LIFE_MOMENT_IDS, MOM_MESSAGES, type StoryProgress } from './story';
 
 // Local save for v2. Separate key from v1 so both games can live side by side until v1 is removed.
 // On phones the save lives in Preferences (SharedPreferences / UserDefaults): the OS may clear a
 // WebView's localStorage. localStorage keeps a copy as the synchronous web fallback.
+//
+// Players' saves must survive every update (docs/session-handoff.md, "Kayıt uyumluluğu"): never
+// rename or remove a saved id without a legacy map here, give new fields defaults in normalize*(),
+// and bump SAVE_SCHEMA only together with a step in migrate(). A save that cannot be read is kept
+// under BACKUP_KEY before a new life starts, so a bug never loses it for good.
 
 export const STORAGE_KEY = 'prestige_life_v2';
+const BACKUP_KEY = 'prestige_life_v2_unreadable';
 const SAVE_SCHEMA = 1;
 
 interface SaveFile {
@@ -125,7 +131,7 @@ function normalizeOffline(raw: unknown): PendingOffline | null {
 }
 
 const knownMomMessages = new Set(MOM_MESSAGES.map((message) => message.id));
-const knownLifeMoments = new Set<string>(LIFE_MOMENTS.map((moment) => moment.id));
+const knownLifeMoments = new Set<string>(LIFE_MOMENT_IDS);
 const knownRichMoments = new Set<string>(RICH_MILESTONES.map((milestone) => milestone.id));
 
 /** Saves from before the ceremonies count every class reached as seen, so nobody gets a flood of them. */
@@ -192,12 +198,37 @@ export async function readSave(): Promise<string | null> {
   return savedAtOf(local) > savedAtOf(stored) ? local : stored;
 }
 
+/** Keeps a save that could not be read, so a fix in a later update can still bring it back. */
+function keepUnreadable(text: string) {
+  try {
+    localStorage.setItem(BACKUP_KEY, text);
+  } catch {
+    // Storage full or blocked.
+  }
+  if (native) void Preferences.set({ key: BACKUP_KEY, value: text }).catch(() => undefined);
+}
+
+/**
+ * Brings an older save file up to SAVE_SCHEMA, one step per schema. A file from a newer app (the
+ * player went back a version) is read as it is: normalize*() drops what this version does not know.
+ */
+function migrate(file: Raw): Raw | null {
+  const schema = finite(file.schema, 0);
+  if (schema < 1 || !isRecord(file.runtime)) return null;
+  // Add steps here when SAVE_SCHEMA goes up: if (schema < 2) file = { ...file, schema: 2, runtime: ... }.
+  return file;
+}
+
 /** Builds the runtime from save text, or starts a new life. Never throws. */
 export function parseRuntime(text: string | null, now: number): RuntimeState {
+  if (!text) return createRuntimeState(now);
   try {
-    if (!text) return createRuntimeState(now);
-    const file: unknown = JSON.parse(text);
-    if (!isRecord(file) || file.schema !== SAVE_SCHEMA || !isRecord(file.runtime)) return createRuntimeState(now);
+    const parsed: unknown = JSON.parse(text);
+    const file = isRecord(parsed) ? migrate(parsed) : null;
+    if (!file || !isRecord(file.runtime)) {
+      keepUnreadable(text);
+      return createRuntimeState(now);
+    }
     const runtime = file.runtime;
     const game = normalizeGame(runtime.game);
     return {
@@ -210,6 +241,7 @@ export function parseRuntime(text: string | null, now: number): RuntimeState {
       ads: normalizeAds(runtime.ads),
     };
   } catch {
+    keepUnreadable(text);
     return createRuntimeState(now);
   }
 }

@@ -40,21 +40,27 @@ export function legacyVehicleCount(oldNumber: number) {
   return oldNumber <= 1 ? 0 : Math.min(VEHICLE_SPECS.length, Math.ceil((oldNumber - 1) * 0.8));
 }
 
+// Priced so a player without ads owns all four in the first life (2026-10-14; the jet used to be out
+// of reach): the boat between Billionaire and Multibillionaire, the yacht before Richest, the
+// helicopter right after it and the jet with a few hours of the life left to fly it.
 const TOYS: { name: string; image: string; cost: number }[] = [
-  { name: 'Speedboat', image: `${V2}/luxury-speedboat.webp`, cost: 5e9 },
-  { name: 'Mega Yacht', image: `${V2}/luxury-mega-yacht.webp`, cost: 5e10 },
-  { name: 'Private Helicopter', image: `${V2}/luxury-private-helicopter.webp`, cost: 2e11 },
-  { name: 'Private Jet', image: `${V2}/luxury-private-jet.webp`, cost: 1e12 },
+  { name: 'Speedboat', image: `${V2}/luxury-speedboat.webp`, cost: 3e9 },
+  { name: 'Mega Yacht', image: `${V2}/luxury-mega-yacht.webp`, cost: 2e10 },
+  { name: 'Private Helicopter', image: `${V2}/luxury-private-helicopter.webp`, cost: 5e10 },
+  { name: 'Private Jet', image: `${V2}/luxury-private-jet.webp`, cost: 1.2e11 },
 ];
 
 // The hero's four story outfits (decided 2026-10-11; there were 20 that never showed on screen).
 // The one you wear is the best you own; a class-up gives its outfit for free (CLASS_OUTFIT_FLOOR),
 // buying ahead wears it early. Art: docs/art-brief-v2.md §4.1, scene poses in ui/scene/stages.ts.
-const OUTFIT_SPECS: { id: string; name: string; image: string; cost: number }[] = [
-  { id: 'outfit-hoodie', name: 'Hoodie', image: '/assets/scene/hero-street-idle.webp', cost: 0 },
-  { id: 'outfit-work', name: 'Work Clothes', image: '/assets/scene/hero-work-idle.webp', cost: 6_000 },
-  { id: 'outfit-smart', name: 'Smart Casual', image: '/assets/scene/hero-smart-idle.webp', cost: 200_000 },
-  { id: 'outfit-suit', name: 'Suit', image: '/assets/scene/hero-suit-idle.webp', cost: 1.5e7 },
+// Money alone does not open an outfit (decided 2026-10-14): `minClass` is the wealth class it opens in,
+// so a Working Class hero wears work clothes at most. Smart casual opens with Middle Class, which also
+// gives it, so it is never bought; the suit can be bought from Millionaire, a class before its gift.
+const OUTFIT_SPECS: { id: string; name: string; image: string; cost: number; minClass: number }[] = [
+  { id: 'outfit-hoodie', name: 'Hoodie', image: '/assets/scene/hero-street-idle.webp', cost: 0, minClass: 0 },
+  { id: 'outfit-work', name: 'Work Clothes', image: '/assets/scene/hero-work-idle.webp', cost: 6_000, minClass: 1 },
+  { id: 'outfit-smart', name: 'Smart Casual', image: '/assets/scene/hero-smart-idle.webp', cost: 200_000, minClass: 3 },
+  { id: 'outfit-suit', name: 'Suit', image: '/assets/scene/hero-suit-idle.webp', cost: 1.5e7, minClass: 4 },
 ];
 
 /** Status bonus of each outfit after the free hoodie. */
@@ -82,6 +88,7 @@ export const OUTFITS: LifestyleDef[] = OUTFIT_SPECS.map((outfit, index) => ({
   name: outfit.name,
   image: outfit.image,
   cost: outfit.cost,
+  minClass: outfit.minClass,
   statusBonus: index === 0 ? 0 : OUTFIT_STATUS_BONUS,
 }));
 export const LUXURY_TOYS: LifestyleDef[] = TOYS.map((toy, index) => ({

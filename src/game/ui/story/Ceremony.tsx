@@ -9,10 +9,10 @@ import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
-import { LIFE_MOMENTS, type LifeMomentId } from '../../runtime/story';
+import type { LifeMomentId } from '../../runtime/story';
 import { managerKey, managerPortrait } from '../businesses/managers';
 import { GameButton } from '../kit';
-import { albumAge, albumOutfit, albumShots, type AlbumEntry } from './album';
+import { albumOutfit, albumShots, lifeMomentLabel, type AlbumEntry } from './album';
 import {
   CEREMONIES,
   ceremonyOutfit,
@@ -104,13 +104,13 @@ export function Ceremony({ classIndex, before, now, onDone }: CeremonyProps) {
 }
 
 export function LifeMoment({ id, onDone }: { id: LifeMomentId; onDone: (skipped: boolean) => void }) {
-  const { t } = useT();
-  const age = LIFE_MOMENTS.find((moment) => moment.id === id)?.age ?? 0;
+  const i18n = useT();
+  const { t } = i18n;
   return (
     <StoryPlayer
       shots={LIFE_SCRIPT[id]}
       heroOutfit={LIFE_OUTFIT[id]}
-      pill={t('hud.ageShort', { age })}
+      pill={lifeMomentLabel(id, i18n)}
       heading={t(`moments.${id}.title` as MessageKey)}
       onDone={onDone}
     />
@@ -122,12 +122,13 @@ export function LifeMoment({ id, onDone }: { id: LifeMomentId; onDone: (skipped:
  * the closing card. It records nothing and leaves the clock alone.
  */
 export function StoryReplay({ entry, onDone }: { entry: AlbumEntry; onDone: (skipped: boolean) => void }) {
-  const { t, name } = useT();
+  const i18n = useT();
+  const { t, name } = i18n;
   return (
     <StoryPlayer
       shots={albumShots(entry)}
       heroOutfit={albumOutfit(entry)}
-      pill={entry.kind === 'ceremony' ? t('album.title') : t('hud.ageShort', { age: albumAge(entry) })}
+      pill={entry.kind === 'ceremony' ? t('album.title') : lifeMomentLabel(entry.id, i18n)}
       heading={
         entry.kind === 'ceremony'
           ? name('wealthClass', WEALTH_CLASSES[entry.classIndex])

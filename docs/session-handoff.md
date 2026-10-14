@@ -35,7 +35,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum özeti. Oyun v2 ol
 - **Rehber (1.12, 2026-10-09):** Rıza Amca ilk dakikalarda kısa balonlarla ve işaret eden elle yönlendirir (şişe → ödül → iş → Çiçek Tezgâhı → isim → Çalıştır → yönetici); ilk tezgâhtan sonra kahramanın adını sorar (`ui/guide/`). Sürüm 26'da var.
 - **Ses ve haptik:** Toplama, alım, ödül.
 - **Analitik (1.14):** `runtime/analytics.ts`, Firebase Analytics; oyuncu eylemleri `store.ts`'te, sınıf atlama, törenler, reklam, bildirime dokunma, sekmeler. Firebase projesi `prestige-life-idle-tycoon`, `android/app/google-services.json` yerinde; telefonda DebugView ile doğrulanmadı.
-- **Reklam (2026-10-12):** `runtime/ads.ts` (AdMob 8.2.1, UMP izin formu, iOS ATT, web'de sahte reklam). Dört ödüllü reklam yeri oyunda: çevrimdışı +%30, Şans ×2, 1 saatlik gelir ×2 (sahnenin sağındaki düğme), "biraz yardım" ([monetization-v2.md §4](./monetization-v2.md)). Teklifler ilk yönetici ve ilk çevrimdışı dönüşten sonra başlar. AdMob'da GDPR mesajı yayında; gizlilik politikası v2'ye göre (TR/EN) yayında.
+- **Reklam (2026-10-12):** `runtime/ads.ts` (AdMob 8.2.1, UMP izin formu, iOS ATT, web'de sahte reklam). Dört ödüllü reklam yeri oyunda: çevrimdışı +%30, Şans ×2, 1 saatlik gelir ×2 (sahnenin sağındaki düğme), "biraz yardım" (eksik fiyatın %10'undan ve 5 dakikalık gelirden azken çıkar, eksik tutarı verir, 2026-10-14; [monetization-v2.md §4](./monetization-v2.md)). Teklifler ilk yönetici ve ilk çevrimdışı dönüşten sonra başlar. AdMob'da GDPR mesajı yayında; gizlilik politikası v2'ye göre (TR/EN) yayında.
 - **Mobil:** Kayıt Preferences'ta, Android geri tuşu, güvenli alanlar; `npm run phone` ile telefonda canlı yenileme.
 
 ## Sahne yerleşimi planı (2026-10-11, ikinci tur onaylandı; 1–4 kodda, 5–6 bekliyor)
@@ -105,6 +105,17 @@ Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · 
 - **Stüdyo kimliği:** yayıncı Math Games Studio, iletişim `mathgamesstudio@gmail.com`. Kullanıcı ileride stüdyo sitesi açmayı düşünüyor (oyunlar listesi, kendi alan adında `support@` / `privacy@`); `app-ads.txt` ve gizlilik politikası o zaman oraya taşınır.
 - **Gizlilik politikası** v2'ye göre yeniden yazıldı, İngilizce ve Türkçe, yayında: `https://mustafaalin.github.io/Prestige-Life-Idle-Tycoon/privacy-policy.html` (kaynak `docs/privacy-policy.html`; GitHub Pages `main` dalından yayınlar, değişiklik için dosya `main`'e de alınmalı). Play Console'daki **veri güvenliği beyanı** v2'ye göre güncellenmedi (kullanıcıda).
 - **AdMob:** GDPR izin mesajı yayınlandı (9 dil, "İzin verme" açık). Hesapta v1 kapalı testinden tek bir gerçek gösterim var (₺14,83). Firebase bağlantısı ve test cihazı kaydı yapılmadı.
+
+## Kayıt uyumluluğu (kural, 2026-10-14, kullanıcı)
+
+Yayından sonra her güncelleme oyuncunun kaydını korumalı; kapalı testten itibaren buna göre çalışılır. Kod: `src/game/runtime/storage.ts`.
+
+- **Kimlikler değişmez:** kayıtta duran bir id (işletme, eşya, ev, hedef, yükseltme, an) yeniden adlandırılmaz, silinmez. Gerekirse eskisi `storage.ts`'te yenisine eşlenir (örnekler: `legacyOutfitIndex`, `legacyVehicleCount`, `LEGACY_HOUSE_TO_HOME`).
+- **Yeni alan varsayılanla gelir:** `normalize*()` her alanı tek tek okur; kayıtta yoksa varsayılan verir, bilinmeyen id'yi atar. Yeni sistem eski oyuncuya bir yağmur (bir anda onlarca kart ya da tören) yaşatmaz: geçmişte kalanlar görülmüş sayılır.
+- **Alınmış olan geri alınmaz:** kural sıkılaşsa da (ör. kıyafet sınıf kilidi) oyuncunun sahip olduğu kalır; sınıf hediyeleri `applyClassFloors` ile eksikse verilir.
+- **Şema:** `SAVE_SCHEMA` yalnızca `migrate()`'e bir adım eklenerek artırılır; hiçbir kayıt şema numarası yüzünden reddedilmez (eski sürüme dönen oyuncunun kaydı da okunur). Okunamayan kayıt yeni hayat başlamadan `prestige_life_v2_unreadable` anahtarına yedeklenir.
+- **Kayıt anahtarı** `prestige_life_v2` ve uygulama kimliği değişmez.
+- **Denetim:** kaydı etkileyen her değişiklikte eski bir kayıtla açılış denenir (DEV kaydı ya da betikle `parseRuntime`).
 
 ## Ekonomi
 
@@ -188,7 +199,7 @@ Kurulum: `npm run phone -- --install` (yeni yerel eklentiler var). Bulgular geli
 - Telefonda gerçek uygulama, canlı yenilemeyle: `npm run phone` (Android; kablosuz hata ayıklama ya da USB). Kablosuz port değişince `npm run phone -- PORT`; yerel eklenti değişince `npm run phone -- --install`. Oyun adb tüneliyle gelir, Mac'in IP'si önemli değil. **Geliştirme sürümü ayrı bir uygulama (2026-10-13):** paket `com.prestigelife.idletycoon.dev`, telefondaki adı "Prestige DEV", kendi kaydı var; Play'den inen sürümle (`com.prestigelife.idletycoon`) yan yana durur, biri kaldırılmadan diğeri kurulur (`android/app/build.gradle` `debug`, `android/app/src/debug/`; Firebase ayarı ana dosyanın paket adı değişmiş kopyası, olaylar aynı Firebase uygulamasına gider). APK derlendi ve paket adı doğrulandı; telefona kurulup denenmedi. Kullanıcının telefonu Samsung Galaxy S24+ (Android 16), eşlendi. Gradle için `JAVA_HOME` Android Studio'nun Java 21'i (`~/.zshrc`; sistemdeki `java` 8 kaldı).
 - `npm run sim` ekonomi simülatörü; `npm run typecheck`, `npx eslint src/game`.
 - Kod: `src/game/` (çekirdek `core/`, simülatör `sim/`, runtime `runtime/`, i18n `i18n/`, ekranlar `ui/`). Kayıt anahtarı `prestige_life_v2`. Türkçe + İngilizce; sabit metin yok.
-- Görseller fal.ai ile (MCP bağlı, kullanıcının bakiyesi ~$10, ~$5,95 harcandı, kalan ~$4,05 (2026-10-11: Defne ve Nevin sayfaları, 3 hayat karesi, $0,75)); stil kılavuzu [story-v2.md §8](./story-v2.md). Kaynak dosyalar `art/` (git'te değil, 184 MB), oyundakiler `public/assets/`.
+- Görseller fal.ai ile (MCP bağlı, kullanıcının bakiyesi ~$10, ~$7,15–7,30 harcandı, kalan ~$2,70–2,85 (2026-10-11: Defne ve Nevin sayfaları, 3 hayat karesi, $0,75; 2026-10-14: 4 lüks anı karesi, iki yeniden üretim ve bir düzeltmeyle 8 görsel, $1,20; takılı kalan ilk tekne işi biterse +$0,15)); stil kılavuzu [story-v2.md §8](./story-v2.md). Kaynak dosyalar `art/` (git'te değil, 184 MB), oyundakiler `public/assets/`.
 - Git dışı klasörler (`art/`, `gpt-astra-inceleme/`, `rich inc oyun görselleri/`) Google Drive'da yedekli: My Drive → "Prestige Life yedek" (Drive for desktop). Yeni görsel üretince `npm run backup` (sadece yeni/değişen dosyaları kopyalar).
 
 ## Uygulama kimliği (v1 ve v2 ortak)

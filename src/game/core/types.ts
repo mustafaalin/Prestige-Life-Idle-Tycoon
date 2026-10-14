@@ -49,6 +49,8 @@ export interface LifestyleDef {
   statusBonus: number;
   /** Vehicles: index of the home you must live in (or above) to buy it and to see it parked out front. */
   home?: number;
+  /** Outfits: the wealth class (index into WEALTH_CLASSES) you must reach to buy it, however much cash you have. */
+  minClass?: number;
 }
 
 export interface HouseDef {

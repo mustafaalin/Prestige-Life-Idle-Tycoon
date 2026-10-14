@@ -5,7 +5,7 @@ import { SECONDS_PER_YEAR } from '../core/config/life';
 import { eventReward, fetchReward } from '../core/formulas';
 import { earn, live } from '../core/state';
 import type { GameStateV2 } from '../core/types';
-import { applyBoost, applyHelp, helpReward } from './adRewards';
+import { applyBoost, applyHelp } from './adRewards';
 import {
   buyBusinessUnits,
   buyHome,
@@ -73,8 +73,8 @@ export interface GameActions {
   ads: {
     /** An hour of doubled income; false when the day's limit or the cap is reached. */
     boost(): boolean;
-    /** A little help toward the next purchase; returns what it paid (0 if not allowed). */
-    help(): number;
+    /** A little help toward something that costs `cost`: pays the `amount` its button showed; returns it (0 if not allowed). */
+    help(cost: number, amount: number): number;
   };
   story: {
     /** Stops the clock (income and age) while a ceremony plays (story-v2.md §4). */
@@ -89,7 +89,8 @@ export interface GameActions {
     notificationsAsked(): void;
     setHeroName(name: string): void;
     /** A life moment was shown (story §4c). */
-    lifeSeen(momentId: string): void;
+    /** Life moments seen (a luxury moment brings the ones below it). */
+    lifeSeen(momentIds: string[]): void;
     setDaughterName(name: string): void;
     /** A Rich List card was shown; it settles the places below it too. */
     richSeen(milestoneId: string): void;
@@ -295,10 +296,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       },
       ads: {
         boost: () => act((s) => applyBoost(s, clock())),
-        help: () => {
-          const amount = helpReward(state.game);
-          return act((s) => applyHelp(s, clock())) ? amount : 0;
-        },
+        help: (cost, amount) => (act((s) => applyHelp(s, clock(), cost, amount)) ? amount : 0),
       },
       story: {
         setPaused: (value) => {
@@ -317,10 +315,11 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         notificationsAsked: () => updateStory((story) => ({ ...story, notificationsAsked: true })),
         setHeroName: (name) =>
           updateStory((story) => ({ ...story, heroName: name.trim().slice(0, HERO_NAME_MAX) })),
-        lifeSeen: (momentId) =>
-          updateStory((story) =>
-            story.lifeSeen.includes(momentId) ? story : { ...story, lifeSeen: [...story.lifeSeen, momentId] },
-          ),
+        lifeSeen: (momentIds) =>
+          updateStory((story) => {
+            const added = momentIds.filter((id) => !story.lifeSeen.includes(id));
+            return added.length === 0 ? story : { ...story, lifeSeen: [...story.lifeSeen, ...added] };
+          }),
         setDaughterName: (name) =>
           updateStory((story) => ({ ...story, daughterName: name.trim().slice(0, HERO_NAME_MAX) })),
         richSeen: (milestoneId) =>

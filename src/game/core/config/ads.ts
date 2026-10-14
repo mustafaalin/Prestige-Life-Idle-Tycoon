@@ -19,6 +19,12 @@ export const BOOST_SECONDS = 60 * 60;
 export const BOOST_MAX_SECONDS = 4 * 60 * 60;
 export const BOOSTS_PER_DAY = 6;
 
-/** "A little help": this much automatic income, offered only when what is missing is no more than that. */
-export const HELP_INCOME_SECONDS = 15 * 60;
+/**
+ * "A little help" pays what is missing for the purchase, offered only when that is no more than 10% of
+ * its price and no more than 5 minutes of automatic income (the share alone reached 40 minutes on late
+ * promotions and managers). It used to pay 15 minutes of income whenever that covered the gap, which
+ * left most of it in the wallet and sped the game up too much (2026-10-14).
+ */
+export const HELP_MAX_SHARE = 0.1;
+export const HELP_MAX_INCOME_SECONDS = 5 * 60;
 export const HELPS_PER_DAY = 5;

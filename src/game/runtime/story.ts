@@ -101,10 +101,12 @@ export function pendingCeremony(game: GameStateV2, story: StoryProgress): number
   return story.ceremonySeen + 1;
 }
 
-export type LifeMomentId = 'date' | 'wedding' | 'birth';
+export type AgeMomentId = 'date' | 'wedding' | 'birth';
+export type LuxuryMomentId = 'boat' | 'yacht' | 'heli' | 'jet';
+export type LifeMomentId = AgeMomentId | LuxuryMomentId;
 
 export interface LifeMomentDef {
-  id: LifeMomentId;
+  id: AgeMomentId;
   /** The hero's age (whole years) from which the moment plays. */
   age: number;
   /** The class ceremony that has to be seen first: the moment builds on what it showed. */
@@ -122,15 +124,49 @@ export const LIFE_MOMENTS: LifeMomentDef[] = [
   { id: 'birth', age: 31, afterCeremony: 3 },
 ];
 
+/**
+ * Luxury moments (story §4c, 2026-10-14): the first time a luxury is bought, the family gets to use it.
+ * Luxuries are bought in order; when several are due at once (a long time away, or a save from before
+ * these moments) the newest plays and the ones below it count as seen with it (they wait in the album).
+ */
+export const LUXURY_MOMENTS: { id: LuxuryMomentId; item: string }[] = [
+  { id: 'boat', item: 'toy-1' },
+  { id: 'yacht', item: 'toy-2' },
+  { id: 'heli', item: 'toy-3' },
+  { id: 'jet', item: 'toy-4' },
+];
+
+/** Every life moment id, for the save and the album. */
+export const LIFE_MOMENT_IDS: LifeMomentId[] = [
+  ...LIFE_MOMENTS.map((moment) => moment.id),
+  ...LUXURY_MOMENTS.map((moment) => moment.id),
+];
+
+/** The luxury a moment belongs to, or null for a moment told by age. */
+export function luxuryOf(id: LifeMomentId): string | null {
+  return LUXURY_MOMENTS.find((moment) => moment.id === id)?.item ?? null;
+}
+
+/** The luxury moments below `id`, seen together with it. */
+export function luxuryMomentsBelow(id: LifeMomentId): LuxuryMomentId[] {
+  const index = LUXURY_MOMENTS.findIndex((moment) => moment.id === id);
+  return index > 0 ? LUXURY_MOMENTS.slice(0, index).map((moment) => moment.id) : [];
+}
+
 /** After a ceremony or a life moment the next life moment waits this long: one story beat at a time. */
 export const LIFE_MOMENT_GAP_MS = 2 * 60 * 1000;
 
-/** The life moment that is due now, or null. A waiting class ceremony always plays first. */
-export function pendingLifeMoment(game: GameStateV2, story: StoryProgress): LifeMomentDef | null {
+/**
+ * The life moment that is due now, or null. A waiting class ceremony always plays first; then the
+ * moments told by age, then the newest luxury bought whose moment was not seen.
+ */
+export function pendingLifeMoment(game: GameStateV2, story: StoryProgress): { id: LifeMomentId } | null {
   if (!storyRuns(game) || pendingCeremony(game, story) !== null) return null;
   const next = LIFE_MOMENTS.find((moment) => !story.lifeSeen.includes(moment.id));
-  if (!next || heroAge(game).years < next.age || story.ceremonySeen < next.afterCeremony) return null;
-  return next;
+  if (next && heroAge(game).years >= next.age && story.ceremonySeen >= next.afterCeremony) return next;
+  const owned = LUXURY_MOMENTS.filter((moment) => game.lifestyleOwned.includes(moment.item));
+  const newest = owned[owned.length - 1];
+  return newest && !story.lifeSeen.includes(newest.id) ? newest : null;
 }
 
 /** She was born but the app closed before the player named her: the question is still open. */

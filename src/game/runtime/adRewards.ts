@@ -3,7 +3,8 @@ import {
   BOOST_MAX_SECONDS,
   BOOST_SECONDS,
   BOOSTS_PER_DAY,
-  HELP_INCOME_SECONDS,
+  HELP_MAX_INCOME_SECONDS,
+  HELP_MAX_SHARE,
   HELPS_PER_DAY,
 } from '../core/config/ads';
 import { autoIncomePerSecond } from '../core/formulas';
@@ -97,25 +98,33 @@ export function applyBoost<T extends AdContext>(state: T, now: number): T | null
 
 // ── A little help ──
 
-export function helpReward(game: GameStateV2) {
-  return autoIncomePerSecond(game) * HELP_INCOME_SECONDS;
+/** How much is missing for something that costs `cost`. */
+export function helpMissing(game: GameStateV2, cost: number) {
+  return Math.max(0, cost - game.cash);
+}
+
+/** The most a help can pay toward something that costs `cost`: 10% of it, at most 5 minutes of income. */
+function helpCap(game: GameStateV2, cost: number) {
+  return Math.min(cost * HELP_MAX_SHARE, autoIncomePerSecond(game) * HELP_MAX_INCOME_SECONDS);
 }
 
 export function helpsLeft(ads: AdProgress, now: number) {
   return Math.max(0, HELPS_PER_DAY - today(ads, now).helpsToday);
 }
 
-/** Offered on something that costs `cost` only when the help would cover what is missing. */
+/** Offered on something that costs `cost` only when what is missing is within the cap above. */
 export function canHelp(context: AdContext, now: number, cost: number) {
-  const missing = cost - context.game.cash;
-  return (
-    adsUnlocked(context) && helpsLeft(context.ads, now) > 0 && missing > 0 && missing <= helpReward(context.game)
-  );
+  const missing = helpMissing(context.game, cost);
+  return adsUnlocked(context) && helpsLeft(context.ads, now) > 0 && missing > 0 && missing <= helpCap(context.game, cost);
 }
 
-/** A help ad was watched. */
-export function applyHelp<T extends AdContext>(state: T, now: number): T | null {
+/**
+ * A help ad was watched for something that costs `cost`: pays `amount`, the figure the button showed
+ * (what was missing when the offer appeared), never more than the cap.
+ */
+export function applyHelp<T extends AdContext>(state: T, now: number, cost: number, amount: number): T | null {
   const ads = today(state.ads, now);
-  if (!adsUnlocked(state) || ads.helpsToday >= HELPS_PER_DAY) return null;
-  return { ...state, game: earn(state.game, helpReward(state.game)), ads: { ...ads, helpsToday: ads.helpsToday + 1 } };
+  const paid = Math.min(amount, helpCap(state.game, cost));
+  if (!adsUnlocked(state) || ads.helpsToday >= HELPS_PER_DAY || paid <= 0) return null;
+  return { ...state, game: earn(state.game, paid), ads: { ...ads, helpsToday: ads.helpsToday + 1 } };
 }

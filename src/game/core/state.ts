@@ -165,6 +165,16 @@ export function lifestyleNeedsHome(state: GameStateV2, item: LifestyleDef): Hous
   return item.home !== undefined && item.home > houseIndex(state.home) ? HOUSES[item.home] : null;
 }
 
+/** The wealth class an item opens in when you are below it (outfits), or null. */
+export function lifestyleNeedsClass(state: GameStateV2, item: LifestyleDef): number | null {
+  return item.minClass !== undefined && item.minClass > state.classIndex ? item.minClass : null;
+}
+
+/** Whether something other than money keeps an item from being bought: its home or its class. */
+export function lifestyleLocked(state: GameStateV2, item: LifestyleDef) {
+  return lifestyleNeedsHome(state, item) !== null || lifestyleNeedsClass(state, item) !== null;
+}
+
 /**
  * The next vehicle to buy before you can move up from where you live, or null: every vehicle opened
  * here or in a home below must be owned. A ceremony moves the hero without his vehicles catching
@@ -190,7 +200,7 @@ export function parkedVehicle(state: GameStateV2): LifestyleDef | null {
 /** Whether the next item of a kind can be bought right now. */
 export function canBuyNextLifestyle(state: GameStateV2, kind: LifestyleKind) {
   const next = nextLifestyle(state, kind);
-  return next !== null && state.cash >= next.cost && !lifestyleNeedsHome(state, next);
+  return next !== null && state.cash >= next.cost && !lifestyleLocked(state, next);
 }
 
 /** Whether the next status item of any kind can be bought right now. */
@@ -205,7 +215,7 @@ export function canBuyAnythingInShop(state: GameStateV2) {
 
 export function buyLifestyle(state: GameStateV2, itemId: string): GameStateV2 | null {
   const item = LIFESTYLE_BY_ID.get(itemId);
-  if (!item || state.lifestyleOwned.includes(itemId) || lifestyleNeedsHome(state, item)) return null;
+  if (!item || state.lifestyleOwned.includes(itemId) || lifestyleLocked(state, item)) return null;
   const paid = spend(state, item.cost);
   if (!paid) return null;
   return { ...paid, lifestyleOwned: [...paid.lifestyleOwned, itemId] };

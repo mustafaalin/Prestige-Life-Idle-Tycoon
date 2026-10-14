@@ -1,8 +1,9 @@
 import { Check, Lock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
+import { WEALTH_CLASSES } from '../../core/config/classes';
 import { autoIncomePerSecond, statusBonus } from '../../core/formulas';
-import { canBuyNextLifestyle, canMoveUp, lifestyleNeedsHome, nextLifestyle } from '../../core/state';
+import { canBuyNextLifestyle, canMoveUp, lifestyleNeedsClass, lifestyleNeedsHome, nextLifestyle } from '../../core/state';
 import type { GameStateV2, LifestyleKind } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
@@ -93,11 +94,12 @@ function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: (
   const hiddenCount = Math.max(0, items.length - (nextIndex + 1 + UPCOMING_COUNT));
 
   const income = autoIncomePerSecond(game);
-  // A vehicle opens in its home (core/state.ts lifestyleNeedsHome).
+  // A vehicle opens in its home, an outfit in its wealth class (core/state.ts).
   const neededHome = next ? lifestyleNeedsHome(game, next) : null;
-  const canBuy = next !== null && !neededHome && game.cash >= next.cost;
-  const secondsToAfford =
-    next && !neededHome && !canBuy && income > 0 ? (next.cost - game.cash) / income : null;
+  const neededClass = next ? lifestyleNeedsClass(game, next) : null;
+  const locked = neededHome !== null || neededClass !== null;
+  const canBuy = next !== null && !locked && game.cash >= next.cost;
+  const secondsToAfford = next && !locked && !canBuy && income > 0 ? (next.cost - game.cash) / income : null;
 
   return (
     <div className="flex flex-col gap-3">
@@ -131,7 +133,15 @@ function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: (
                 {t('common.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}
               </p>
             )}
-            {!neededHome && <HelpAd cost={next.cost} />}
+            {!locked && <HelpAd cost={next.cost} />}
+            {neededClass !== null && (
+              <p className="-mt-1 min-h-11 py-2 px-4 rounded-2xl bg-slate-100 flex items-center justify-center gap-1.5 text-slate-600">
+                <Lock className="w-4 h-4 shrink-0" />
+                <span className="v2-display text-[13px]">
+                  {t('shop.needsClass', { class: name('wealthClass', WEALTH_CLASSES[neededClass]) })}
+                </span>
+              </p>
+            )}
             {neededHome && (
               <GameButton
                 tone="soft"

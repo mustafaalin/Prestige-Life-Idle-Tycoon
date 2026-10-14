@@ -1,4 +1,6 @@
-import { LIFE_MOMENTS, type LifeMomentId, type StoryProgress } from '../../runtime/story';
+import { LUXURY_TOYS } from '../../core/config/lifestyle';
+import type { Translator } from '../../i18n/translate';
+import { LIFE_MOMENTS, luxuryOf, type LifeMomentId, type StoryProgress } from '../../runtime/story';
 import { CEREMONIES, ceremonyOutfit, portraitOf, type CeremonyShot } from './ceremonyScript';
 import { LIFE_OUTFIT, LIFE_SCRIPT } from './lifeScript';
 
@@ -10,7 +12,11 @@ export type AlbumEntry = { kind: 'ceremony'; classIndex: number } | { kind: 'lif
 const ceremony = (classIndex: number): AlbumEntry => ({ kind: 'ceremony', classIndex });
 const life = (id: LifeMomentId): AlbumEntry => ({ kind: 'life', id });
 
-/** Each life moment sits after the ceremony it builds on (LIFE_MOMENTS `afterCeremony`). */
+/**
+ * Each life moment sits after the ceremony it builds on (LIFE_MOMENTS `afterCeremony`); the luxury
+ * moments where the simulator buys them: the boat and the yacht before the next class, the helicopter
+ * and the jet after Richest.
+ */
 export const ALBUM: AlbumEntry[] = [
   ceremony(1),
   ceremony(2),
@@ -20,8 +26,12 @@ export const ALBUM: AlbumEntry[] = [
   life('birth'),
   ceremony(4),
   ceremony(5),
+  life('boat'),
   ceremony(6),
+  life('yacht'),
   ceremony(7),
+  life('heli'),
+  life('jet'),
 ];
 
 export function albumKey(entry: AlbumEntry) {
@@ -41,9 +51,11 @@ export function albumOutfit(entry: AlbumEntry) {
   return entry.kind === 'ceremony' ? ceremonyOutfit(entry.classIndex) : LIFE_OUTFIT[entry.id];
 }
 
-/** The age a life moment plays at. */
-export function albumAge(entry: Extract<AlbumEntry, { kind: 'life' }>) {
-  return LIFE_MOMENTS.find((moment) => moment.id === entry.id)?.age ?? 0;
+/** The small label over a life moment: the age it plays at, or the luxury it belongs to. */
+export function lifeMomentLabel(id: LifeMomentId, { t, name }: Pick<Translator, 't' | 'name'>) {
+  const item = LUXURY_TOYS.find((toy) => toy.id === luxuryOf(id));
+  if (item) return name('lifestyle', item);
+  return t('hud.ageShort', { age: LIFE_MOMENTS.find((moment) => moment.id === id)?.age ?? 0 });
 }
 
 /**

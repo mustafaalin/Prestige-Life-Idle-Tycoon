@@ -2,7 +2,7 @@ import { Play } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useT } from '../../i18n/useT';
 import { showRewardedAd, type AdPlacement } from '../../runtime/ads';
-import { canHelp, helpReward } from '../../runtime/adRewards';
+import { canHelp, helpMissing } from '../../runtime/adRewards';
 import { track } from '../../runtime/analytics';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
@@ -71,25 +71,37 @@ export function AdButton({ placement, children, onReward, className = '' }: AdBu
 }
 
 /**
- * "A little help" under a buy button: shown only while what is missing for `cost` is no more than
- * the help pays, so it is the last step toward a purchase and never a money tap.
+ * "A little help" under a buy button: shown only while what is missing for `cost` is no more than 10%
+ * of it and 5 minutes of income, so it is the last step toward a purchase and never a money tap.
  */
 export function HelpAd({ cost, className = '' }: { cost: number; className?: string }) {
-  const { state, game, actions } = useGameV2();
-  const { t, money } = useT();
+  const { state } = useGameV2();
   if (!canHelp(state, Date.now(), cost)) return null;
+  return <HelpOffer cost={cost} className={className} />;
+}
+
+/**
+ * The offer keeps the amount it first showed: income would otherwise tick it down every second. It
+ * only goes up, when a purchase elsewhere makes the gap bigger, so it always covers what is missing.
+ */
+function HelpOffer({ cost, className }: { cost: number; className: string }) {
+  const { game, actions } = useGameV2();
+  const { t, money } = useT();
+  const missing = helpMissing(game, cost);
+  const [amount, setAmount] = useState(missing);
+  if (missing > amount) setAmount(missing);
   return (
     <AdButton
       placement="dream_help"
       className={className}
       onReward={(from) => {
-        if (actions.ads.help() <= 0) return;
+        if (actions.ads.help(cost, amount) <= 0) return;
         playSfx('coin');
         haptic('medium');
         burstCoins({ ...from, count: 10 });
       }}
     >
-      {t('ads.help', { amount: money(helpReward(game)) })}
+      {t('ads.help', { amount: money(amount) })}
     </AdButton>
   );
 }

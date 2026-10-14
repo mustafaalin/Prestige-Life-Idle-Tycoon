@@ -12,6 +12,7 @@ import {
 import {
   daughterNeedsName,
   LIFE_MOMENT_GAP_MS,
+  luxuryMomentsBelow,
   MOM_MESSAGES,
   MOM_MIN_GAP_MS,
   momMessageOnReturn,
@@ -152,7 +153,7 @@ export function StoryDirector({
       setReplayLife(null);
       return;
     }
-    actions.story.lifeSeen(id);
+    actions.story.lifeSeen([...luxuryMomentsBelow(id), id]);
     setQuiet(true);
   };
 

@@ -9,7 +9,7 @@ import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { ICONS } from '../icons';
-import { ALBUM, albumAge, albumCover, albumKey, albumSeen, type AlbumEntry } from './album';
+import { ALBUM, albumCover, albumKey, albumSeen, lifeMomentLabel, type AlbumEntry } from './album';
 import { StoryReplay } from './Ceremony';
 
 // The family album (story-v2.md §7): one page with every story moment, the ones lived as pictures,
@@ -31,7 +31,8 @@ export function AlbumPicture({ entry, className = '' }: { entry: AlbumEntry; cla
 
 export function AlbumSheet({ onClose, onReplay }: { onClose: () => void; onReplay: (playing: boolean) => void }) {
   const { state } = useGameV2();
-  const { t, name } = useT();
+  const i18n = useT();
+  const { t, name } = i18n;
   const [playing, setPlaying] = useState<AlbumEntry | null>(null);
 
   useBackButton(true, 50, onClose);
@@ -67,7 +68,7 @@ export function AlbumSheet({ onClose, onReplay }: { onClose: () => void; onRepla
           {ALBUM.map((entry) => {
             const seen = albumSeen(entry, state.story);
             const label =
-              entry.kind === 'ceremony' ? t('ceremony.newClass') : t('hud.ageShort', { age: albumAge(entry) });
+              entry.kind === 'ceremony' ? t('ceremony.newClass') : lifeMomentLabel(entry.id, i18n);
             // The class ladder is no secret; what a coming year of life holds is.
             const title =
               entry.kind === 'ceremony'
