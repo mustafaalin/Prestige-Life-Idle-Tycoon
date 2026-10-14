@@ -1,4 +1,5 @@
-import { heroAge } from '../core/formulas';
+import { RICH_MILESTONES, type RichMilestoneDef } from '../core/config/richList';
+import { heroAge, richListRank } from '../core/formulas';
 import type { GameStateV2 } from '../core/types';
 
 // Story progress (story-v2.md §4): which class-up ceremonies and life moments the player has seen and
@@ -25,6 +26,8 @@ export interface StoryProgress {
   guideDone: string[];
   /** When the last event card was answered (ms; 0 = never): reopening the game does not bring the next call sooner. */
   eventAnsweredAt: number;
+  /** Rich List cards already shown (discussion-notes §10). */
+  richSeen: string[];
 }
 
 export interface MomMessageDef {
@@ -75,6 +78,7 @@ export function createStoryProgress(classIndex = 0): StoryProgress {
     guideSeen: [],
     guideDone: [],
     eventAnsweredAt: 0,
+    richSeen: [],
   };
 }
 
@@ -156,4 +160,27 @@ export function momMessageOnReturn(
 ): MomMessageDef | null {
   if (awaySeconds < MOM_MIN_AWAY_SECONDS || now - story.momShownAt < MOM_MIN_GAP_MS) return null;
   return nextMomMessage(game, story);
+}
+
+/** The Rich List opens with the Billionaire ceremony. */
+export const RICH_LIST_CLASS = 5;
+
+/**
+ * The Rich List card due now, or null: the best place passed whose card was not shown. Places passed
+ * together (a long time away) bring one card, the latest; the ones below it count as shown with it.
+ * Ceremonies come first, and at #1 the Richest ceremony says it all.
+ */
+export function pendingRichMoment(game: GameStateV2, story: StoryProgress): RichMilestoneDef | null {
+  if (!storyRuns(game) || pendingCeremony(game, story) !== null || story.ceremonySeen < RICH_LIST_CLASS) return null;
+  const rank = richListRank(game.generationEarnings);
+  if (rank === null || rank === 1) return null;
+  const passed = RICH_MILESTONES.filter((milestone) => rank <= milestone.rank);
+  const latest = passed[passed.length - 1];
+  return latest && !story.richSeen.includes(latest.id) ? latest : null;
+}
+
+/** The ids a shown card settles: its own and every place below it. */
+export function richMomentsUpTo(id: string): string[] {
+  const index = RICH_MILESTONES.findIndex((milestone) => milestone.id === id);
+  return RICH_MILESTONES.slice(0, index + 1).map((milestone) => milestone.id);
 }

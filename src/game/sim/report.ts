@@ -23,11 +23,12 @@ const firstClass = (name: string, generation?: number) => (events: SimEvent[]) =
 const DAY = 86400;
 
 export const PACING_TARGETS: PacingTarget[] = [
-  // A job comes first, the Flower Stand ($250) is bought from savings (2026-10-09).
+  // A job comes first, the Flower Stand ($120) is bought from savings (2026-10-09; price 2026-10-13).
   { label: 'First purchase', find: (e) => e.find((x) => x.kind === 'purchase'), measure: 'active', min: 0, max: 60 },
   { label: 'First business', find: (e) => e.find((x) => x.kind === 'business'), measure: 'active', min: 2 * 60, max: 6 * 60 },
-  { label: 'First manager', find: (e) => e.find((x) => x.kind === 'manager'), measure: 'active', min: 8 * 60, max: 25 * 60 },
-  { label: 'Day Laborer (gen 1)', find: firstClass('Day Laborer', 1), measure: 'active', min: 5 * 60, max: 10 * 60 },
+  // The stand's manager costs $1K and Day Laborer comes sooner since 2026-10-13 (a faster first ten minutes).
+  { label: 'First manager', find: (e) => e.find((x) => x.kind === 'manager'), measure: 'active', min: 5 * 60, max: 25 * 60 },
+  { label: 'Day Laborer (gen 1)', find: firstClass('Day Laborer', 1), measure: 'active', min: 4 * 60, max: 10 * 60 },
   { label: 'Working Class (gen 1)', find: firstClass('Working Class', 1), measure: 'active', min: 18 * 60, max: 35 * 60 },
   { label: 'Middle Class (gen 1)', find: firstClass('Middle Class', 1), measure: 'active', min: 25 * 60, max: 50 * 60 },
   // Millionaire (10M) should land on a return session, after Middle Class's session.
@@ -111,7 +112,7 @@ export function checkFeel(result: SimResult) {
   ];
 }
 
-const TIMELINE_KINDS = new Set(['class', 'manager', 'career', 'retire', 'business', 'session']);
+const TIMELINE_KINDS = new Set(['class', 'rank', 'manager', 'career', 'retire', 'business', 'session']);
 
 export function timeline(result: SimResult, maxRows = 200, kinds: Set<string> = TIMELINE_KINDS) {
   return result.events

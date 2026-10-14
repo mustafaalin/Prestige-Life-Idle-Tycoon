@@ -5,6 +5,7 @@ import { WEALTH_CLASSES } from '../core/config/classes';
 import { HOUSES, LEGACY_HOUSE_TO_HOME } from '../core/config/housing';
 import { LIFE_SECONDS } from '../core/config/life';
 import { legacyOutfitIndex, legacyVehicleCount, LIFESTYLE_ITEMS, OUTFITS, VEHICLES } from '../core/config/lifestyle';
+import { RICH_MILESTONES } from '../core/config/richList';
 import { UPGRADES } from '../core/config/upgrades';
 import { classIndexFor } from '../core/formulas';
 import { applyClassFloors, createInitialState } from '../core/state';
@@ -125,6 +126,7 @@ function normalizeOffline(raw: unknown): PendingOffline | null {
 
 const knownMomMessages = new Set(MOM_MESSAGES.map((message) => message.id));
 const knownLifeMoments = new Set<string>(LIFE_MOMENTS.map((moment) => moment.id));
+const knownRichMoments = new Set<string>(RICH_MILESTONES.map((milestone) => milestone.id));
 
 /** Saves from before the ceremonies count every class reached as seen, so nobody gets a flood of them. */
 function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
@@ -140,6 +142,7 @@ function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
     guideSeen: stringList(raw.guideSeen),
     guideDone: stringList(raw.guideDone),
     eventAnsweredAt: finite(raw.eventAnsweredAt, 0),
+    richSeen: stringList(raw.richSeen).filter((id) => knownRichMoments.has(id)),
   };
 }
 

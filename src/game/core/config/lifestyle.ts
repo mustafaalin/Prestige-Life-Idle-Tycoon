@@ -40,11 +40,11 @@ export function legacyVehicleCount(oldNumber: number) {
   return oldNumber <= 1 ? 0 : Math.min(VEHICLE_SPECS.length, Math.ceil((oldNumber - 1) * 0.8));
 }
 
-const TOYS: { name: string; vehicleImage: number; cost: number }[] = [
-  { name: 'Speedboat', vehicleImage: 17, cost: 5e9 },
-  { name: 'Mega Yacht', vehicleImage: 18, cost: 5e10 },
-  { name: 'Private Helicopter', vehicleImage: 19, cost: 2e11 },
-  { name: 'Private Jet', vehicleImage: 20, cost: 1e12 },
+const TOYS: { name: string; image: string; cost: number }[] = [
+  { name: 'Speedboat', image: `${V2}/luxury-speedboat.webp`, cost: 5e9 },
+  { name: 'Mega Yacht', image: `${V2}/luxury-mega-yacht.webp`, cost: 5e10 },
+  { name: 'Private Helicopter', image: `${V2}/luxury-private-helicopter.webp`, cost: 2e11 },
+  { name: 'Private Jet', image: `${V2}/luxury-private-jet.webp`, cost: 1e12 },
 ];
 
 // The hero's four story outfits (decided 2026-10-11; there were 20 that never showed on screen).
@@ -88,7 +88,7 @@ export const LUXURY_TOYS: LifestyleDef[] = TOYS.map((toy, index) => ({
   id: `toy-${index + 1}`,
   kind: 'toy',
   name: toy.name,
-  image: `/assets/vehicles/vehicle-${toy.vehicleImage}.png`,
+  image: toy.image,
   cost: toy.cost,
   statusBonus: 0.1,
 }));

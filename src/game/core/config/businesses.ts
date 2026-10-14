@@ -4,11 +4,18 @@ import type { BusinessDef } from '../types';
 // Values are generated from a few tuning knobs so the whole curve moves together.
 // Change knobs here, then run `npm run sim` to check pacing (docs/game-design-v2.md §5).
 export const BUSINESS_TUNING = {
-  /** Price of the first Flower Stand. A job comes first (2026-10-09): the stand is bought from savings. */
-  firstCost: 250,
+  /** The price the tier ladder is built from: each tier's first unit is `costStep` times the one before. */
+  ladderBase: 250,
   /** Manager price as a multiple of the tier's first unit price. */
   managerCostMultiple: 12,
 };
+
+/**
+ * The Flower Stand is cheaper than its place on the ladder and so is its manager (decided 2026-10-13,
+ * after the first phone test): at $250 and $3K there was nothing to buy between the second job and
+ * the stand, and the first manager took 19 minutes. The other tiers keep their ladder prices.
+ */
+const FIRST_STAND = { cost: 120, managerCost: 1000 };
 
 /**
  * The Billionaire ceremony brings Mr. Bryce to work for the hero (story-v2 §4): the first Hotel Chain
@@ -36,7 +43,7 @@ const TIERS: {
   costGrowth: number;
   paybackMinutes: number;
 }[] = [
-  { id: 'flower-stand', name: 'Flower Stand', image: '/assets/businesses/v2/flower-stand.webp', costStep: 1, cycleSeconds: 1, costGrowth: 1.2, paybackMinutes: 4 },
+  { id: 'flower-stand', name: 'Flower Stand', image: '/assets/businesses/v2/flower-stand.webp', costStep: 1, cycleSeconds: 1, costGrowth: 1.2, paybackMinutes: 2 },
   { id: 'coffee-cart', name: 'Coffee Cart', image: '/assets/businesses/v2/coffee-cart.webp', costStep: 3, cycleSeconds: 2, costGrowth: 1.2, paybackMinutes: 6 },
   { id: 'bakery', name: 'Bakery', image: '/assets/businesses/v2/bakery.webp', costStep: 4, cycleSeconds: 3, costGrowth: 1.18, paybackMinutes: 15 },
   { id: 'car-wash', name: 'Car Wash', image: '/assets/businesses/v2/car-wash.webp', costStep: 5, cycleSeconds: 4, costGrowth: 1.17, paybackMinutes: 30 },
@@ -54,16 +61,16 @@ export function roundNice(value: number) {
   return Math.round(value / magnitude) * magnitude;
 }
 
-let tierCost = BUSINESS_TUNING.firstCost;
+let tierCost = BUSINESS_TUNING.ladderBase;
 
-export const BUSINESSES: BusinessDef[] = TIERS.map(({ paybackMinutes, costStep, ...tier }) => {
+export const BUSINESSES: BusinessDef[] = TIERS.map(({ paybackMinutes, costStep, ...tier }, index) => {
   const t = BUSINESS_TUNING;
   tierCost *= costStep;
-  const baseCost = roundNice(tierCost);
+  const baseCost = index === 0 ? FIRST_STAND.cost : roundNice(tierCost);
   return {
     ...tier,
     baseCost,
     baseRevenue: roundNice((baseCost * tier.cycleSeconds) / (paybackMinutes * 60)),
-    managerCost: roundNice(baseCost * t.managerCostMultiple),
+    managerCost: index === 0 ? FIRST_STAND.managerCost : roundNice(baseCost * t.managerCostMultiple),
   };
 });

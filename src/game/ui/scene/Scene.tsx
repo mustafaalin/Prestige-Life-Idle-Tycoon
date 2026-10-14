@@ -4,14 +4,12 @@ import {
   COLLECT_END_CLASS,
   COLLECT_MAX_ON_SCREEN,
   COLLECT_SPAWN_SECONDS,
-  FETCH_MAX_SECONDS,
-  FETCH_MIN_SECONDS,
   FETCH_WINDOW_SECONDS,
 } from '../../core/config/scene';
 import { AD_FIND_MULTIPLIER } from '../../core/config/ads';
 import { HOUSES } from '../../core/config/housing';
 import { OUTFITS, VEHICLES } from '../../core/config/lifestyle';
-import { fetchReward, tapValue } from '../../core/formulas';
+import { fetchReward, fetchSeconds, tapValue } from '../../core/formulas';
 import { bestOwnedLifestyle, houseIndex, parkedVehicle } from '../../core/state';
 import type { GameStateV2 } from '../../core/types';
 import { useT } from '../../i18n/useT';
@@ -290,6 +288,7 @@ export function Scene() {
 
   const [finding, setFinding] = useState(false);
   const [findRound, setFindRound] = useState(0);
+  const wait = fetchSeconds(game);
 
   useEffect(() => {
     if (finding) {
@@ -297,9 +296,9 @@ export function Scene() {
       const timer = window.setTimeout(() => setFinding(false), FETCH_WINDOW_SECONDS * 1000);
       return () => window.clearTimeout(timer);
     }
-    const timer = window.setTimeout(() => setFinding(true), random(FETCH_MIN_SECONDS, FETCH_MAX_SECONDS) * 1000);
+    const timer = window.setTimeout(() => setFinding(true), random(wait.min, wait.max) * 1000);
     return () => window.clearTimeout(timer);
-  }, [finding, findRound]);
+  }, [finding, findRound, wait.min, wait.max]);
 
   useEffect(
     () =>

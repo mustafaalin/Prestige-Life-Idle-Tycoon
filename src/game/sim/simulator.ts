@@ -3,6 +3,7 @@
 
 import { BUSINESSES } from '../core/config/businesses';
 import { WEALTH_CLASSES } from '../core/config/classes';
+import { RICH_MILESTONES } from '../core/config/richList';
 import {
   businessBaseIncomePerSecond,
   careerBonus,
@@ -20,9 +21,11 @@ import {
   eventAverageReward,
   eventCardsFor,
   fetchReward,
+  fetchSeconds,
   rentPerSecond,
   steadyIncomePerSecond,
   tapValue,
+  richListRank,
 } from '../core/formulas';
 import {
   AD_OFFLINE_MIN_SECONDS,
@@ -34,7 +37,7 @@ import {
   HELP_INCOME_SECONDS,
 } from '../core/config/ads';
 import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
-import { COLLECT_SPAWN_SECONDS, FETCH_MAX_SECONDS, FETCH_MIN_SECONDS } from '../core/config/scene';
+import { COLLECT_SPAWN_SECONDS } from '../core/config/scene';
 import { HOUSES } from '../core/config/housing';
 import {
   LIFESTYLE_KINDS,
@@ -95,10 +98,16 @@ export interface PlayerProfile {
   };
 }
 
-/** On average Şans brings a find this often while the game is open. */
-const FETCH_AVERAGE_SECONDS = (FETCH_MIN_SECONDS + FETCH_MAX_SECONDS) / 2;
+/** On average Şans brings a find this often while the game is open (more often before the first manager). */
+const fetchAverageSeconds = (state: GameStateV2) => {
+  const { min, max } = fetchSeconds(state);
+  return (min + max) / 2;
+};
 /** Event cards come about this often from Middle Class on (the quick first call of a session is not counted). */
 const EVENT_AVERAGE_SECONDS = (EVENT_MIN_SECONDS + EVENT_MAX_SECONDS) / 2;
+
+/** Rich List places worth a timeline row: the cards' places plus top 20 and #1 (their ceremonies). */
+const RICH_LIST_PLACES = [...RICH_MILESTONES.map((milestone) => milestone.rank), 20, 1].sort((a, b) => b - a);
 
 export type SimEventKind =
   | 'purchase'
@@ -109,6 +118,7 @@ export type SimEventKind =
   | 'home'
   | 'upgrade'
   | 'class'
+  | 'rank'
   | 'retire'
   | 'session';
 
@@ -262,9 +272,16 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
   const earnTracked = (amount: number, source: keyof typeof earned = 'playing') => {
     earned[source] += amount;
     const before = state.classIndex;
+    const rankBefore = richListRank(state.generationEarnings);
     state = earn(state, amount);
     for (let index = before + 1; index <= state.classIndex; index += 1) {
       log('class', WEALTH_CLASSES[index].name);
+    }
+    // Rich List places that bring a card (or a ceremony), discussion-notes §10.
+    const rank = richListRank(state.generationEarnings);
+    if (rank === null) return;
+    for (const place of RICH_LIST_PLACES) {
+      if (rank <= place && (rankBefore === null || rankBefore > place)) log('rank', `Rich List #${place === 3400 ? rank : place}`);
     }
   };
 
@@ -306,7 +323,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
   const activeRate = () =>
     incomePerSecond(state, 'active') * boost() +
     tapRate() * tapValue(state) +
-    (profile.fetchCatchRate * fetchReward(state) * (doubles() ? AD_FIND_MULTIPLIER : 1)) / FETCH_AVERAGE_SECONDS +
+    (profile.fetchCatchRate * fetchReward(state) * (doubles() ? AD_FIND_MULTIPLIER : 1)) / fetchAverageSeconds(state) +
     (eventCardsFor(state).length > 0 ? (profile.eventAnswerRate * eventAverageReward(state)) / EVENT_AVERAGE_SECONDS : 0);
 
   const playFor = (seconds: number) => {
@@ -325,7 +342,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       state = {
         ...state,
         bottles: state.bottles + tapRate() * step,
-        finds: state.finds + (profile.fetchCatchRate * step) / FETCH_AVERAGE_SECONDS,
+        finds: state.finds + (profile.fetchCatchRate * step) / fetchAverageSeconds(state),
       };
       claimGoals();
       // The hero ages only while playing; retirement comes at the end of life.

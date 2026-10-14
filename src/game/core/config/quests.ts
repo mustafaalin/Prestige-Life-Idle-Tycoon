@@ -15,6 +15,10 @@ export const QUESTS: QuestDef[] = [
   // A job comes first; the Flower Stand is bought from the savings (2026-10-09).
   quest('collect-5', { type: 'collect', count: 5 }, 3),
   quest('job-1', { type: 'career', index: 0 }, 5),
+  // Something to buy while saving for the stand (2026-10-13): the bike, then the second job.
+  // The id keeps its old name (it counted the old free wheelbarrow) so saves that claimed it stay claimed.
+  quest('vehicle-2', { type: 'vehicle', count: 1 }, 8),
+  quest('job-2', { type: 'career', index: 1 }, 15),
   quest('flower-1', { type: 'units', businessId: 'flower-stand', count: 1 }, 20),
   quest('flower-5', { type: 'units', businessId: 'flower-stand', count: 5 }, 40),
   quest('flower-up-1', { type: 'upgrade', upgradeId: 'flower-stand:1' }, 20),
@@ -25,9 +29,6 @@ export const QUESTS: QuestDef[] = [
   quest('coffee-1', { type: 'units', businessId: 'coffee-cart', count: 1 }, 100),
   // Old Ray's van comes with the Day Laborer ceremony; the room is the first move you pay for.
   quest('home-room', { type: 'home', index: 2 }, 150),
-  // The id keeps its old name (it counted the old free wheelbarrow) so saves that claimed it stay claimed.
-  quest('vehicle-2', { type: 'vehicle', count: 1 }, 150),
-  quest('job-2', { type: 'career', index: 1 }, 200),
   quest('coffee-10', { type: 'units', businessId: 'coffee-cart', count: 10 }, 300),
   quest('flower-up-2', { type: 'upgrade', upgradeId: 'flower-stand:2' }, 400),
   quest('coffee-manager', { type: 'manager', businessId: 'coffee-cart' }, 600),

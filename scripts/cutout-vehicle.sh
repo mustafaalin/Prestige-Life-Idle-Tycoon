@@ -3,12 +3,15 @@
 # The background goes (flood fill from the corners, low tolerance so beige paint survives); the soft grey
 # contact shadow under the wheels turns into a translucent black one, so it darkens any ground instead of
 # leaving a light smear. --spokes also clears grey enclosed by wheels and frames (bikes, scooters).
+# White or cream bodies (boats, jets): FUZZ=3.5 PALE=1, or the flood fill eats the shaded hull and the
+# shadow rule takes the pale underside for ground (the four luxury toys, 2026-10-13).
 IN=$1; OUT=$2
+FUZZ=${FUZZ:-7}
 W=$(magick identify -format '%w' $IN); H=$(magick identify -format '%h' $IN)
 TMP=$(mktemp -d)
 EXTRA=()
 [[ $3 == --spokes ]] && EXTRA=(-fuzz 3% -transparent "$(magick $IN -format '%[pixel:p{5,5}]' info:)")
-magick $IN -alpha set -fuzz 7% -fill none \
+magick $IN -alpha set -fuzz ${FUZZ}% -fill none \
   -draw "color 0,0 floodfill" -draw "color $((W-1)),0 floodfill" \
   -draw "color 0,$((H-1)) floodfill" -draw "color $((W-1)),$((H-1)) floodfill" \
   $EXTRA $TMP/a.png
@@ -18,6 +21,7 @@ magick $IN -alpha set -fuzz 7% -fill none \
 BAND=$(magick $TMP/a.png -alpha extract -threshold 50% -format '%@' info: | awk -F'[x+]' '{print int($4+$2*0.7)}')
 # Grey, or light with a tint: bright paint colours the ground next to the car.
 GREY="((saturation<0.12 && lightness>0.3) || (saturation<0.6 && lightness>0.7))"
+[[ -n $PALE ]] && GREY="(saturation<0.12 && lightness>0.3 && lightness<0.80)"
 magick $TMP/a.png -channel RGBA -fx "(a>0.5 && !$GREY) ? 1 : 0" -alpha off -colorspace Gray \
   -morphology Dilate "1x${H}+0+$((H-1)):$(printf '1,%.0s' {2..$H})1" $TMP/solid-below.png
 magick $TMP/a.png -channel RGBA -fx "(a>0 && j>=$BAND && $GREY) ? 1 : 0" -alpha off -colorspace Gray \

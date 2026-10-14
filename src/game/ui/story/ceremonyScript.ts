@@ -125,6 +125,7 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
   // Multibillionaire: the workshop Old Ray and Dad never opened.
   6: [
     {
+      image: panel('workshop'),
       lines: [
         { speaker: 'hero', face: 'happy', text: 'ceremony.c6.hero' },
         { speaker: 'riza', face: 'serious', text: 'ceremony.c6.riza' },
@@ -145,11 +146,8 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
   ],
 };
 
-/**
- * The hero's portraits by outfit (index = OUTFITS). An outfit whose portraits are not drawn yet
- * (smart casual, suit) uses the set before it.
- */
-const HERO_PORTRAITS = ['hero', 'hero-work'];
+/** The hero's portraits by outfit (index = OUTFITS). */
+const HERO_PORTRAITS = ['hero', 'hero-work', 'hero-smart', 'hero-suit'];
 
 /** The outfit the hero wears in a class's ceremony: the one its story frames were drawn with. */
 export const ceremonyOutfit = (classIndex: number) =>

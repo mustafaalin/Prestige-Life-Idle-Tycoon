@@ -228,6 +228,19 @@ Yerden toplama Orta Sınıf'ta bitince kahramanı tanıdıkları arar (game-desi
 
 Geri dönüşler: erik (ağaç, reçel), annenin "komşunun oğlu"su, önsözdeki doğum günü pastası.
 
+### 4e. Zenginler Listesi kartları (karar 2026-10-14; oyunda)
+
+Kurallar [game-design-v2.md §4.11](./game-design-v2.md). Liste ilerlemeyi gösterir; karakterler sıraya değil kahramana bakar. Bülent Bey rakip değil: listeye girişte satılan şirketiyle boşalan sırada görünür. Metinler `richList.moments.*`.
+
+| Sıra | Kim | Türkçe | English |
+| --- | --- | --- | --- |
+| Giriş | Bülent Bey | *Bülent Bey şirketini sattı ve listeden düştü. Onun sırasına sen girdin.* · *"O sıra benimdi, haberin olsun! ...Neyse. İyi bak ona."* | *Mr. Bryce sold his company and dropped off the list. You took his place.* · *"That spot was mine, you know! ...Fine. Take good care of it."* |
+| İlk 1000 | Gazete | *"Garsonluktan dünyanın en zengin bin kişisine."* | *"From waiter to the world's richest thousand."* |
+| İlk 100 | Kuzen | *"Kuzen! Listede adını gördüm. Soyadımız aynı, ben de sayılır mıyım?"* | *"Cousin! I saw your name on the list. Same last name. Does that count for me too?"* |
+| İlk 10 | Anne | *"Televizyonda adını söylediler. Ben yüzüne baktım: zayıflamışsın. Yemek yiyor musun?"* | *"They said your name on TV. I just looked at your face. You've lost weight. Are you eating?"* |
+| İlk 5 | Rıza Amca | *"İlk beşteymişsin evlat. Ben listeden anlamam; tezgâhta bugün kırk demet sattık, onu söyleyeyim."* | *"Top five, they tell me, kid. I don't know about lists. We sold forty bunches at the stand today, that I can tell you."* |
+| 2. sıra | Gazete | *"Alan Trusk'ın uykuları kaçtı: eski garson artık ikinci."* | *"Alan Trusk can't sleep: the former waiter is now number two."* |
+
 ## 5. Hayaller panosu (plan 1.8)
 
 Faz 1'de pano sadece statü eşyalarını gösterir (sıradaki ev, araç, kıyafet; gelir bonusu verir). Hikaye hayalleri (küçük mikro hikâyeli tek seferlik alımlar) §7'de bekler.

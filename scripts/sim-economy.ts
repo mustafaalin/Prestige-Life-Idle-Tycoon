@@ -48,7 +48,7 @@ for (const profile of PROFILES) {
 
   if (showTimeline || showSessions || showPurchases) {
     const kinds = showSessions
-      ? new Set(['session', 'retire', 'class'])
+      ? new Set(['session', 'retire', 'class', 'rank'])
       : showPurchases
         ? new Set(['class', 'manager', 'career', 'retire', 'business', 'purchase', 'upgrade', 'lifestyle', 'home'])
         : undefined;

@@ -2,7 +2,7 @@
 
 Kararı henüz verilmemiş konular ve Claude'un önerileri. **Karar verilince ilgili belgeye (plan, hikâye, tasarım, monetizasyon) taşınır ve buradan silinir**; burada sadece açık konular durur.
 
-Son güncelleme: 2026-10-13 (§9: hikâye ve görsel gözden geçirmesi)
+Son güncelleme: 2026-10-13 (§5: erken oyun ayarı ve Multimilyarder hedefi; §9: hikâye ve görsel gözden geçirmesi)
 
 ## 1. Görsel: açık kalanlar
 
@@ -48,8 +48,9 @@ Kararlaştırılanlar (story §6, §4c): varis 17 yaşında bir torun (kahraman�
 
 Ekonomi 2026-10-09'da kullanıcıyla yeniden ayarlandı (başta ana gelir iş, sonra işletmeler); güncel kurallar ve sayılar [game-design-v2.md §4–5](./game-design-v2.md). Kullanıcı telefonda deneyecek; aşağıdakiler testten sonra konuşulacak:
 
-- **Orta Sınıf ilk oturumda değil** (botta 47 dk, 1. günün 3. oturumu; Milyoner 2. gün). Defter sorusu yine oturum sınırını geçiyor. Faz 1 kapısındaki "ilk oturumda Orta Sınıf ≥ %60" ölçütü yeniden yazılmalı.
-- **İlk yönetici 19. dakikada**; o zamana kadar 1 sn'lik Çiçek Tezgâhı için sürekli "Çalıştır"a basılıyor. Telefonda yorucuysa ilk tur 2 sn ya da ilk yönetici ucuz.
+- **Orta Sınıf ilk oturumda değil** (botta 31 dk, 1. günün 2. oturumu; Milyoner 2. gün; 2026-10-13). Defter sorusu yine oturum sınırını geçiyor. Faz 1 kapısındaki "ilk oturumda Orta Sınıf ≥ %60" ölçütü yeniden yazılmalı.
+- **Multimilyarder hedefi bozuk (2026-10-13; karar bekliyor):** Çiçek Tezgâhı $120 ve yöneticisi $1K olunca (kullanıcı kararı, [game-design-v2.md §4.2](./game-design-v2.md)) bağlı bot Multimilyarder'e bir oturum erken ulaşıyor: 7. gün 21:00 (4 sa 45 dk oyun), hedefin alt sınırı 8. gün 00:00; `npm run sim` bu satırda FAIL veriyor, diğer bütün hedefler tutuyor. Tek bir geç işletmenin gelirini %5–7 kısmak yetmedi (Güzellik Salonu, Lojistik, Fabrika, Mini Market tek tek denendi; bot aynı oturuma düşüyor). Seçenekler: (a) hedefin alt sınırını 7. günün akşamına çekmek (fark 3 saat, tek oturum); (b) geç oyunu ~15 dakikalık oyun kadar yavaşlatacak daha büyük bir ayar. Claude'un önerisi (a).
+- **Erken oyun, telefonda bakılacak (2026-10-13):** ucuz tezgâh, $1K yönetici, ilk yöneticiye kadar sık gelen Şans ve öne alınan iki hedef (bisiklet, Bulaşıkçı) kodda. Elle çalışan tezgâhın geliri üst barda görünmüyor, yönetici atanınca görünüyor (kullanıcı: böyle kalsın). Hâlâ boş gelirse yeni bir uğraş konuşulur. Yöneticiye kadar 1 sn'lik tezgâh için sürekli "Çalıştır"a basılıyor; süre 19 dakikadan ~6,5 dakikaya indi (botta).
 - **Kariyer/işletme dengesi:** ilk 4 dk gelir tamamen maaş, Gündelikçi'de %73 işletme, ömür boyunca ortanca %95 işletme. "Başta kariyer" daha uzun sürsün mü?
 - **Çevrimdışı ödül** (kullanıcı erken oyunda fazla buluyor; 4–8 saatlik tavan fikri).
 - **Çevrimdışı oran ve tavan (karar 2026-10-13, kullanıcı: Claude'un önerisi): şimdiki %50 / 2 sa kalır** ("Gece Vardiyası Ekibi" paketi oran ve tavan satıyor). Açık kalan yalnızca erken sınıfların tavanları (aşağıda). Denemenin kaydı: paranın %87'si çevrimdışı kartlardan geliyor (game-design §4.6). Denenen seçenekler (bağlı oyuncu, reklamsız; şimdiki ayar %50 ve geç oyunda 2 sa tavan; sayılar son işletmeler güçlenmeden önce ölçüldü, En Zengin şimdi 10 sa 42 dk):
@@ -139,11 +140,26 @@ Altı tören karesi bağlandıktan sonra hikâyenin akışına, tetiklere ve gö
 
 1. **Çözüldü (2026-10-13):** Milyarder töreninin kancası ("restoranlar satılık" mesajı) hızlı oyuncuya ulaşmıyordu; tören artık satışı kendi ilk cümlesinde söylüyor ([story-v2.md §4](./story-v2.md)). Kancalara öncelik vermek denendi: kancalar herkese ulaştı ama bağlı oyuncuda Defne köprüsü kayboldu, bu yüzden sıra değiştirilmedi. Açık kalan: İşçi ve Orta Sınıf mesajlarını (perdeler, basamak) hiçbir profil görmüyor; "basamak"ın geçerliliği Milyoner'e uzatılırsa gündelik oyuncu görür. Şimdilik kabul edildi.
 2. **Çözüldü (2026-10-13), Bülent Bey:** ilk Otel Zinciri ve yöneticisi Milyarder töreniyle bedava geliyor ([game-design-v2.md §4.2](./game-design-v2.md)). **Kuzen de çözüldü (2026-10-13):** son iki işletme güçlendirildi ([game-design-v2.md §4.2](./game-design-v2.md)); bağlı bot Teknoloji Girişimi'ni 14. günde alıyor, Kuzen'i 19. günde (En Zengin'den sonra) işe alıyor. Gündelik oyuncuda 39. gün.
-3. **Kahramanın portresi her sınıfta kapüşonlu.** Milyarder ve En Zengin karelerinde takım elbiseli kahramanın balonunda ve "Şimdi" kartında gri kapüşonlu yüz var. Seçenek: kıyafet başına 4 ifade (12 yeni portre) ya da yalnızca "mutlu" ve "yumuşak" yüzler (6 portre).
+3. **Çözüldü (2026-10-13):** kahramanın portresi kıyafeti izliyor; dört kıyafetin dördünün de 4 ifadesi oyunda (kapüşonlu set eski çizgili dilde kaldı, madde 4).
 4. **İki ayrı çizim dili.** Önsöz, portreler ve eski fotoğraf çizgili, düz boyalı (fal.ai, 8–11 Ekim); evler, kıyafetler ve tören kareleri parlak 3D (GPT, 12–13 Ekim). Aynı törende yan yana geliyorlar. En görünür yer önsöz (ilk 40 saniye) ile ana ekranın farkı.
-5. **Multimilyarder tek karesiz tören;** oyuncunun göl evinin üstünde oynuyor, konusu atölye. Yeni Fabrika ikonu zaten ahşap atölye olarak çizildi (§7'deki "Mehmet & Rıza Atölyesi" fikriyle örtüşüyor).
+5. **Çözüldü (2026-10-13):** Multimilyarder töreninin atölye karesi oyunda. Eski not: oyuncunun göl evinin üstünde oynuyordu, konusu atölye. Yeni Fabrika ikonu zaten ahşap atölye olarak çizildi (§7'deki "Mehmet & Rıza Atölyesi" fikriyle örtüşüyor).
 6. **En Zengin karesinde aile yok.** Kahraman o yaşta (59) evli ve kızı 28 yaşında; karede ve metinde yalnız anne ve kahraman var, Şans da yok. Yaş temposu (§8) değişirse sorun küçülür.
 7. **Küçük metin pürüzleri:** (a) Orta Sınıf'ta "eski evimizi geri aldım", bir tören sonra "bir ev aldım, tapusunda benim adım yazıyor": ilk tapu hangisi? (b) Anne, eşinin en yakın arkadaşı Rıza'yı tanıyor olmalı; kahraman ona Rıza Amca'dan hiç söz etmemiş gibi. (c) Rıza'nın tezgâh cümlesi "Annene de bir demet ayırdım" 18. dakikada geliyor; anne o sırada teyzede ve Rıza onu tanımıyor. (d) İngilizcede iki Nora var: Nevin Hanım "Mrs. Nora", Fabrika yöneticisi "Nora".
 
 **İyi çalışanlar:** önsözün geri dönüşleri karelerde de tutuyor (restoranın bakır lambaları ve personel üniforması, Bülent Bey'in takımı, kurdeleli pasta kutusu, annenin elbisesi); kıyafetler ve Şans'ın tasması her karede o sınıfınkiyle aynı; üç hayat anı Milyarder ile Multimilyarder arasındaki beş günlük boşluğa düşüyor; atölye ve pencere kancaları her profilde töreninden önce geliyor.
 
+
+## 10. Geç oyun: lükslerin karşılığı, IAP sırası, reklam (2026-10-14; karar bekliyor)
+
+Kaynak: GPT incelemesi ([gpt-review-progression-monetization-answer.md](./gpt-review-progression-monetization-answer.md)) ve Claude'un cevabı. Zenginler Listesi kararlaştı ve oyunda ([game-design-v2.md §4.11](./game-design-v2.md)); kalanlar kararlaştırılmadı.
+
+**Uzlaşılanlar:** lüks bonusu statü bonusuna eklendiği için gerçek etkisi ~%3; kalıcı ×2 IAP'ın kozmetiği kırmızı fular değil (Başlangıç Paketi'nde var), örneğin yakut tasma; Gece Vardiyası + kalıcı ×2 dolu kartı ~×8 yapar; reklam izleyen En Zengin'e %33 kısa sürede ulaşıyor (~%49 hızlı; hedef %20–30).
+
+**Önerilen sıra:**
+
+1. Lükslerin karşılığı: her lüks ilk alındığında hayat anı + sahnede iz + albüm; lüks fiyatları simülatörle (reklamsız oyuncu jetle yaşayacak zamanı bulmalı; bugün jet ilk hayatta alınmıyor). En Zengin'den sonraki boş saatleri (§8) liste doldurmuyor, bu doldurabilir.
+2. IAP kademeli: önce Rahat Paket ve Başlangıç Paketi; kalıcı ×2 ve Gece Vardiyası ücretli profil simülasyonundan sonra. Öncesinde mevcut dört reklam yeri telefonda doğrulanır.
+3. Tek yeni reklam yeri: tören ve hayat anı hediyesi (hikâye bittikten sonra).
+4. Yerel başarımlar; liderlik tablosu sonra.
+
+**Zenginler Listesi'nde açık kalanlar:** benzetme isimlerin hukuki riski (Claude'un notu: Hindistan'daki "Selmon Bhoi" davası; portre, şirket adı ve logo yok, ton alaycı değil; kullanıcı benzetme isimleri seçti); düğmenin yeri (albümün altında) ve kartın sıklığı telefonda bakılacak.

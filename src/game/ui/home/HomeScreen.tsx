@@ -6,7 +6,7 @@ import { useT } from '../../i18n/useT';
 import { initAds } from '../../runtime/ads';
 import { trackScreen } from '../../runtime/analytics';
 import { haptic, playSfx, preloadSfx } from '../../runtime/feedback';
-import { sceneClass } from '../../runtime/story';
+import { sceneClass, storyRuns } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { BoostButton } from '../ads/Boost';
 import { useAdsUnlocked } from '../ads/useAdsUnlocked';
@@ -17,6 +17,7 @@ import { Guide } from '../guide/Guide';
 import { ICONS } from '../icons';
 import { ALBUM, albumSeen } from '../story/album';
 import { AlbumSheet } from '../story/AlbumSheet';
+import { RICH_BUTTON_CLASS, RichListButton, RichListSheet } from '../richList/RichList';
 import { StoryDirector } from '../story/StoryDirector';
 import { BottomNav } from './BottomNav';
 import { CoinLayer } from './CoinLayer';
@@ -32,7 +33,7 @@ import { TabSheet } from './TabSheet';
 import { TopBar } from './TopBar';
 
 // Home: the scene fills the screen; the top bar and menu float over it, tabs open as sheets.
-// The family album opens the same way. The offline claim and the end-of-life panel stay on top of everything; story moments (ceremonies,
+// The family album and the Rich List open the same way. The offline claim and the end-of-life panel stay on top of everything; story moments (ceremonies,
 // Mom's messages) come above them.
 
 export function HomeScreen() {
@@ -45,6 +46,7 @@ export function HomeScreen() {
   // An event card is on screen: story moments wait for the home scene, as they do for a tab.
   const [eventOpen, setEventOpen] = useState(false);
   const [albumOpen, setAlbumOpen] = useState(false);
+  const [richOpen, setRichOpen] = useState(false);
   // The album is playing a moment again: new story moments wait for it.
   const [albumPlaying, setAlbumPlaying] = useState(false);
   const promotion = nextCareer(game);
@@ -55,6 +57,7 @@ export function HomeScreen() {
     if (!target) return;
     setPinnedQuest(quest.id);
     setAlbumOpen(false);
+    setRichOpen(false);
     setTab(target.tab);
     showFocus(target);
   };
@@ -62,6 +65,7 @@ export function HomeScreen() {
   const selectTab = (next: TabId | null) => {
     clearFocus();
     setAlbumOpen(false);
+    setRichOpen(false);
     setTab(next);
   };
 
@@ -70,18 +74,28 @@ export function HomeScreen() {
     haptic('light');
     clearFocus();
     setTab(null);
+    setRichOpen(false);
     setAlbumOpen(true);
   };
 
+  const openRichList = () => {
+    clearFocus();
+    setTab(null);
+    setAlbumOpen(false);
+    setRichOpen(true);
+  };
+
   useEffect(() => preloadSfx(), []);
-  useEffect(() => trackScreen(albumOpen ? 'album' : (tab ?? 'home')), [tab, albumOpen]);
+  useEffect(() => trackScreen(albumOpen ? 'album' : richOpen ? 'rich_list' : (tab ?? 'home')), [tab, albumOpen, richOpen]);
   // Ads start once the player is in the game, so the consent form never covers the prologue.
   useEffect(() => void initAds(), []);
 
   const lifeOver = isLifeOver(game);
-  const sheetOpen = tab !== null || albumOpen;
+  const sheetOpen = tab !== null || albumOpen || richOpen;
   // The album appears with its first picture; an empty book is not worth a button.
   const albumStarted = ALBUM.some((entry) => albumSeen(entry, state.story));
+  // The Rich List shows itself with the Millionaire ceremony, a class before the list opens.
+  const richShown = (storyRuns(game) ? state.story.ceremonySeen : game.classIndex) >= RICH_BUTTON_CLASS;
 
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-[#0d1530] select-none">
@@ -94,6 +108,8 @@ export function HomeScreen() {
         <main className="relative flex-1">
           {albumOpen ? (
             <AlbumSheet onClose={() => setAlbumOpen(false)} onReplay={setAlbumPlaying} />
+          ) : richOpen ? (
+            <RichListSheet onClose={() => setRichOpen(false)} />
           ) : tab ? (
             <TabSheet tab={tab} onClose={() => selectTab(null)} pinnedQuest={pinnedQuest} onGo={goToQuest} />
           ) : (
@@ -114,6 +130,11 @@ export function HomeScreen() {
             >
               <img src={ICONS.album} alt="" draggable={false} className="w-11 h-11 object-contain drop-shadow" />
             </button>
+          )}
+          {!sheetOpen && richShown && (
+            <div className="absolute left-3 top-[calc(42%+68px)]">
+              <RichListButton onOpen={openRichList} />
+            </div>
           )}
           <Guide tabOpen={sheetOpen} />
           <EventCards tabOpen={sheetOpen} onOpenChange={setEventOpen} />
@@ -164,7 +185,7 @@ export function HomeScreen() {
 
       {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
 
-      <StoryDirector tabOpen={sheetOpen || eventOpen} hold={albumPlaying} />
+      <StoryDirector tabOpen={sheetOpen || eventOpen} hold={albumPlaying} onOpenRichList={openRichList} />
 
       <CoinLayer />
     </div>

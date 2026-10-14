@@ -1,5 +1,7 @@
 # Tasarım görsel üretim planı
 
+**Son teslim:** 12 ifade portresi (iş setinde `-v2` kaynaklar seçili), atölye, dört lüks ve tek önsöz stil denemesi artık kaynak olarak hazır. Bölüm 4–6'daki bekleme ifadeleri ilk planın durumudur. Güncel dosya/durum ve boyutlar: [art-v2-latest-handoff.md](./art-v2-latest-handoff.md). Önsözün kalan beş karesi ve eski kadro portrelerinin toplu stil değişimi bu teslimde yok.
+
 Durum (2026-10-13): Bölüm 1–3 tamamlandı. Şans'ın üç uyku tasması, 12 kariyer ikonu ve 20 menü/ortak ikon kaynak olarak hazır. Bu turda 32 yeni PNG üretildi: iki uyku varyantı, kalan 10 kariyer, 20 ortak ikon. Her kaynağın yanında `-prompt.txt` bulunur. PNG boyutları: uyku varyantları 1536×1024; kariyer ve ortak ikonlar 1254×1254. Dosya sayıları, prompt eşleri ve alpha kanalları kontrol edildi. Oyuna entegrasyon ve telefon testi Claude Code tarafında yapılacak.
 
 Bölüm 4–7 sonraki işlerdir; planlanan yol dosyanın mevcut olduğu anlamına gelmez. Hazır dosyalar dışında Claude aktif referans değiştirmesin. Kullanıcı her kariyer ve ortak ikonun özgün, önceki görsellerden kopyasız olmasını istiyor; her ikon ayrı nesne/kompozisyonla, önceki ikonlara görsel referans verilmeden üretildi. Ortak stil; yumuşak hacimli 3D CG, net siluet, yazısız, raster nesnelerde alpha. Tekrarlanan karakterlerde kimlik kılavuzları referans alınır.

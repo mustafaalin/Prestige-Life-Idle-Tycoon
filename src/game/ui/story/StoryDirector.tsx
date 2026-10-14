@@ -18,9 +18,11 @@ import {
   nextMomMessage,
   pendingCeremony,
   pendingLifeMoment,
+  pendingRichMoment,
   type LifeMomentId,
 } from '../../runtime/story';
 import { useGameV2, useGameV2Events } from '../../runtime/useGameV2';
+import { RichMoment } from '../richList/RichList';
 import { Ceremony, LifeMoment } from './Ceremony';
 import { portraitOf } from './ceremonyScript';
 import { MomMessage, NotifyPrompt } from './MomMessage';
@@ -29,7 +31,8 @@ import { onStoryRequest } from './storyEvents';
 
 // Decides which story moment is on screen (story-v2.md §4): a waiting class-up ceremony first, then a
 // life moment whose age has come (§4c), then (after the offline card) Mom's message on a return
-// session, and once, after the first ceremony, the reminder opt-in. Also schedules the reminders when
+// session, and once, after the first ceremony, the reminder opt-in. A new place on the Rich List
+// brings its short card when nothing else is on screen. Also schedules the reminders when
 // the app goes to the background.
 
 /** A replayed ceremony (dev menu) shows the story's own step: the class before it, then the class itself. */
@@ -38,7 +41,15 @@ function storyStep(classIndex: number) {
   return { before: at(classIndex - 1), now: at(classIndex) };
 }
 
-export function StoryDirector({ tabOpen, hold = false }: { tabOpen: boolean; hold?: boolean }) {
+export function StoryDirector({
+  tabOpen,
+  hold = false,
+  onOpenRichList,
+}: {
+  tabOpen: boolean;
+  hold?: boolean;
+  onOpenRichList: () => void;
+}) {
   const { game, state, actions } = useGameV2();
   const { t } = useT();
   const [replay, setReplay] = useState<number | null>(null);
@@ -59,6 +70,7 @@ export function StoryDirector({ tabOpen, hold = false }: { tabOpen: boolean; hol
     ceremony === null && !quiet && !tabOpen && !state.offline && !mom && !askNotify && !isLifeOver(game);
   const life = hold ? null : (replayLife ?? (lifeCanPlay ? (pendingLifeMoment(game, state.story)?.id ?? null) : null));
   const playing = ceremony !== null || life !== null;
+  const rich = lifeCanPlay && life === null && !daughterNeedsName(state.story) ? pendingRichMoment(game, state.story) : null;
 
   useEffect(() => {
     if (!playing) return;
@@ -185,6 +197,16 @@ export function StoryDirector({ tabOpen, hold = false }: { tabOpen: boolean; hol
         }}
       />
     );
+  }
+
+  if (rich) {
+    const done = (openList: boolean) => {
+      actions.story.richSeen(rich.id);
+      track('story_view', { kind: 'rich_list', id: rich.id });
+      setQuiet(true);
+      if (openList) onOpenRichList();
+    };
+    return <RichMoment key={rich.id} milestone={rich} onClose={() => done(false)} onOpenList={() => done(true)} />;
   }
 
   if (mom && !state.offline) {

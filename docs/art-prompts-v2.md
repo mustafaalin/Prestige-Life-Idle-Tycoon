@@ -1,5 +1,7 @@
 # Hazır görsel komutları v2: Evler, araçlar, karakterler, kıyafetler ve bekleyen yeni görseller
 
+**Yeni teslim durumu (2026-10-13):** §5'teki 12 portre tamamlandı (iş kıyafeti için `hero-work-*-v2.png` seçili; şık günlük ve takım elbiseli setler aşağıdaki ana dosya adlarında). §6 atölye ve §7 dört lüks kaynak hazır. §8 tek önsöz denemesi üretildi; diğer beş önsöz için stil kararı bekleniyor. Eski “bekliyor” notları başlangıç durumunu anlatır. Bu turda 14 kaynak PNG ve prompt eşleri teslim edildi; runtime entegrasyonu yapılmadı. Ayrıntılar: [art-v2-latest-handoff.md](./art-v2-latest-handoff.md).
+
 Son güncelleme: 2026-10-13 · Kurallar ve boyutlar: [art-brief-v2.md §2, §3, §4.2, §4.6](./art-brief-v2.md)
 
 Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üretilen görsel tablodaki dosya adıyla `art/pilot/...` altına konur; denemeler `-v1`, `-v2`, seçilmeyenler silinir. **Evler, araçlar, iki karakter ve kıyafetler üretildi ve oyunda (§1–4); komutları yeniden üretim gerekirse diye duruyor.** **Bekleyenler §5–8'de (2026-10-13): kahramanın 12 ifade portresi, atölye karesi, 4 lüks, önsözün 3D denemesi.**

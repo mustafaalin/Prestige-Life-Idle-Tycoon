@@ -23,9 +23,17 @@ import {
   type EventCardDef,
   type EventOutcome,
 } from './config/events';
-import { COLLECT_END_CLASS, FETCH_BOTTLES } from './config/scene';
+import {
+  COLLECT_END_CLASS,
+  FETCH_BOTTLES,
+  FETCH_EARLY_MAX_SECONDS,
+  FETCH_EARLY_MIN_SECONDS,
+  FETCH_MAX_SECONDS,
+  FETCH_MIN_SECONDS,
+} from './config/scene';
 import { HOUSES, OWNER_HOME_BONUS } from './config/housing';
 import { LIFESTYLE_ITEMS } from './config/lifestyle';
+import { RICH_LIST_ANCHORS, RICH_LIST_ENTRY, RICH_RIVALS } from './config/richList';
 import { UPGRADES } from './config/upgrades';
 import type { BusinessDef, GameStateV2, IncomeMode, QuestDef } from './types';
 
@@ -209,6 +217,14 @@ export function fetchReward(state: GameStateV2) {
   return FETCH_BOTTLES * tapValue(state);
 }
 
+/** How long Şans stays away between finds: much shorter until the first manager is hired (config/scene.ts). */
+export function fetchSeconds(state: GameStateV2) {
+  const early = !Object.values(state.businesses).some((business) => business.managed);
+  return early
+    ? { min: FETCH_EARLY_MIN_SECONDS, max: FETCH_EARLY_MAX_SECONDS }
+    : { min: FETCH_MIN_SECONDS, max: FETCH_MAX_SECONDS };
+}
+
 // ── Event cards (config/events.ts) ───────────────────────────────────────────
 
 /**
@@ -286,4 +302,57 @@ export function legacyPointsFor(totalEarnings: number) {
  */
 export function pendingLegacyPoints(state: GameStateV2) {
   return Math.max(0, legacyPointsFor(state.totalEarnings) - state.legacyPoints);
+}
+
+// ── Rich List ─────────────────────────────────────────────────────────────────
+
+/**
+ * A rival's fortune as the list shows it. The top one does not let go: once the hero gets close he
+ * stays just ahead, so first place comes with $1T and the Richest Person Alive ceremony, not before.
+ */
+export function rivalFortune(rivalIndex: number, generationEarnings: number) {
+  const rival = RICH_RIVALS[rivalIndex];
+  if (rivalIndex !== 0) return rival.fortune;
+  const top = WEALTH_CLASSES[WEALTH_CLASSES.length - 1].threshold;
+  return Math.max(rival.fortune, Math.min(generationEarnings * 1.02, top));
+}
+
+/** The hero's place on the Rich List, or null below it. Earnings never fall, so neither does the place. */
+export function richListRank(generationEarnings: number): number | null {
+  if (generationEarnings < RICH_LIST_ENTRY) return null;
+  const top20 = RICH_LIST_ANCHORS[RICH_LIST_ANCHORS.length - 1];
+  if (generationEarnings >= top20[0]) {
+    const top = WEALTH_CLASSES[WEALTH_CLASSES.length - 1].threshold;
+    if (generationEarnings >= top) return 1;
+    return 1 + RICH_RIVALS.filter((_, index) => rivalFortune(index, generationEarnings) > generationEarnings).length;
+  }
+  const upper = RICH_LIST_ANCHORS.findIndex(([earnings]) => earnings > generationEarnings);
+  const [lowEarnings, lowRank] = RICH_LIST_ANCHORS[upper - 1];
+  const [highEarnings, highRank] = RICH_LIST_ANCHORS[upper];
+  const share = Math.log(generationEarnings / lowEarnings) / Math.log(highEarnings / lowEarnings);
+  const rank = Math.exp(Math.log(lowRank) + share * (Math.log(highRank) - Math.log(lowRank)));
+  // The named top 20 starts with the Multibillionaire class.
+  return Math.max(top20[1] + 1, Math.round(rank));
+}
+
+export type RichListTarget =
+  | { kind: 'entry'; gap: number }
+  | { kind: 'place'; rank: number; gap: number }
+  | { kind: 'rival'; rivalIndex: number; gap: number }
+  | { kind: 'top' };
+
+/** What the hero climbs toward next on the Rich List, and how much more has to be earned for it. */
+export function richListTarget(generationEarnings: number): RichListTarget {
+  const rank = richListRank(generationEarnings);
+  if (rank === null) return { kind: 'entry', gap: RICH_LIST_ENTRY - generationEarnings };
+  if (rank === 1) return { kind: 'top' };
+  if (rank <= RICH_RIVALS.length + 1) {
+    const rivalIndex = rank - 2;
+    // The top rival is passed at $1T, however close his shown fortune is.
+    const goal =
+      rivalIndex === 0 ? WEALTH_CLASSES[WEALTH_CLASSES.length - 1].threshold : RICH_RIVALS[rivalIndex].fortune;
+    return { kind: 'rival', rivalIndex, gap: Math.max(0, goal - generationEarnings) };
+  }
+  const [earnings, place] = RICH_LIST_ANCHORS.find(([, anchorRank]) => anchorRank < rank)!;
+  return { kind: 'place', rank: place, gap: earnings - generationEarnings };
 }

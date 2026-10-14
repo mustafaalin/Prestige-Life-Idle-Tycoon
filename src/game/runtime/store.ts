@@ -30,7 +30,7 @@ import {
 } from './engine';
 import { setPlayerProperties, track } from './analytics';
 import { clearSave, parseRuntime, saveRuntime } from './storage';
-import { HERO_NAME_MAX } from './story';
+import { HERO_NAME_MAX, richMomentsUpTo } from './story';
 
 // Owns the live game: 250 ms tick, autosave, foreground/background handling (web visibility events
 // plus native app pause/resume, which fire more reliably when the phone suspends the app).
@@ -91,6 +91,8 @@ export interface GameActions {
     /** A life moment was shown (story §4c). */
     lifeSeen(momentId: string): void;
     setDaughterName(name: string): void;
+    /** A Rich List card was shown; it settles the places below it too. */
+    richSeen(milestoneId: string): void;
     /** Old Ray's guide (plan 1.12): a step's line was shown / a step was done. */
     guideSeen(stepId: string): void;
     guideDone(stepId: string): void;
@@ -321,6 +323,11 @@ export function createGameStore(saveText: string | null, clock: () => number = D
           ),
         setDaughterName: (name) =>
           updateStory((story) => ({ ...story, daughterName: name.trim().slice(0, HERO_NAME_MAX) })),
+        richSeen: (milestoneId) =>
+          updateStory((story) => ({
+            ...story,
+            richSeen: [...new Set([...story.richSeen, ...richMomentsUpTo(milestoneId)])],
+          })),
         guideSeen: (stepId) =>
           updateStory((story) =>
             story.guideSeen.includes(stepId) ? story : { ...story, guideSeen: [...story.guideSeen, stepId] },
