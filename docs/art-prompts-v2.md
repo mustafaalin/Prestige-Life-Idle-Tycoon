@@ -6,7 +6,7 @@
 
 Son güncelleme: 2026-10-13 · Kurallar ve boyutlar: [art-brief-v2.md §2, §3, §4.2, §4.6](./art-brief-v2.md)
 
-Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üretilen görsel tablodaki dosya adıyla `art/pilot/...` altına konur; denemeler `-v1`, `-v2`, seçilmeyenler silinir. **Evler, araçlar, iki karakter ve kıyafetler üretildi ve oyunda (§1–4); komutları yeniden üretim gerekirse diye duruyor.** **Bekleyenler §5–8'de (2026-10-13): kahramanın 12 ifade portresi, atölye karesi, 4 lüks, önsözün 3D denemesi.** **§9 (2026-10-14, bekliyor): üç yeni kıyafet (Milyoner deve tüyü palto, Multimilyarder üç parçalı takım, En Zengin smokin): her biri kılavuz + 3 poz + 4 portre.**
+Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üretilen görsel tablodaki dosya adıyla `art/pilot/...` altına konur; denemeler `-v1`, `-v2`, seçilmeyenler silinir. **Evler, araçlar, iki karakter ve kıyafetler üretildi ve oyunda (§1–4); komutları yeniden üretim gerekirse diye duruyor.** **Bekleyenler §5–8'de (2026-10-13): kahramanın 12 ifade portresi, atölye karesi, 4 lüks, önsözün 3D denemesi.** **§10 (2026-10-14, bekliyor): Mağaza'nın canlı paket görselleri (katmanlı), kart arka planları ve iki ekran maketi.** **§9 (2026-10-14, oyunda): üç yeni kıyafet (Milyoner deve tüyü palto, Multimilyarder üç parçalı takım, En Zengin smokin): her biri kılavuz + 3 poz + 4 portre.**
 
 ## 1. Evler (11 arka plan)
 
@@ -455,3 +455,78 @@ Dört komutun ortak kuyruğu (her birinin sonuna aynen eklenir):
 #### 7.4 Portreler → `art/pilot/13-portraits/hero-tux-{worried,soft,determined,happy}.png`
 
 > Create FOUR separate square images, 1024 × 1024 each, one at a time: four close-up expression portraits of the same young man, for round dialogue avatars in a mobile game. References from the project: (1) `art/pilot/01-hero-sheet/A1-semi3d.png` — AUTHORITATIVE identity: the same face, brown eyes, thick dark eyebrows, dark brown hair, skin tone, nose and ears; (2) `art/pilot/08-outfits/outfit-7-sheet.png` — AUTHORITATIVE clothes: a black tuxedo jacket with satin peak lapels over a white dress shirt with a black bow tie (only the lapels, shoulders, the collar and the bow tie are in frame); (3) `public/assets/story/portraits/hero-suit-worried.webp`, `hero-suit-soft.webp`, `hero-suit-determined.webp`, `hero-suit-happy.webp` — the four existing portraits of him at this age: match their face, framing, head size, camera, background and rendering style exactly, and match each expression one to one. He looks in his mid twenties, neat hair, clean-shaven; he does not age beyond that and has no beard. Every image: head and shoulders only, straight front view, eyes to the camera, the face centred and large (the frame runs from just inside the top of the hair to the collar, shoulders cut by the left and right edges), nothing important in the corners because the image is cropped to a circle; plain flat light grey background (#d9d9d9), no vignette, no props, no hands in frame. Only the expression changes between the four images; the face, the hair and the clothes stay identical. Image 1 `hero-tux-worried.png`: worried, eyebrows raised and drawn together, eyes wide, mouth slightly open and turned down. Image 2 `hero-tux-soft.png`: soft and touched, relaxed raised brows, a small closed-mouth smile, warm eyes. Image 3 `hero-tux-determined.png`: determined, lowered brows, steady gaze, lips pressed together, no anger. Image 4 `hero-tux-happy.png`: happy, a wide open smile showing the upper teeth, raised brows, bright eyes. Save them under `art/pilot/13-portraits/` with exactly those four file names.
+
+## 10. Mağaza: canlı paket görselleri ve ekran tasarımı (bekliyor, 2026-10-14)
+
+**Neden (kullanıcı, 2026-10-14):** Mağaza ekranı ve iki paketin görselleri durağan duruyor. Paketler daha hareketli ve canlı görünmeli. Mevcut hâl: `public/assets/iap/{comfort,starter}.webp` (kaynak `art/pilot/15-iap/`), ekran `src/game/ui/shop/StoreSheet.tsx`, hoş geldin kartı `OfferCard.tsx`.
+
+**Hareket nasıl yapılacak:** GPT **durağan, katmanlı** görseller üretir, hareketi Claude kodla verir. Animasyonlu WebP ya da video istenmez: dosyalar büyür ve döngü güvenilir olmaz. Her nesne **ayrı bir PNG**, kendi şeffaf karesinde, ortalanmış ve kenarlarda boşlukla üretilir. Katmanların birbirine oturması beklenmez, yerleşimi Claude yapar. Koddan verilecek hareketler:
+- ana nesnenin hafifçe yüzmesi (2–3 sn döngü)
+- arkadaki ışımanın yavaşça dönmesi ve nefes alması
+- parıltıların sırayla yanıp sönmesi
+- fiyat düğmesinde ve kart kenarında ışık süzülmesi
+- Rahat Paket'te kapağın hafifçe kalkıp inmesi, madalyonun parlaması
+- Başlangıç Paketi'nde Şans'ın başının hafifçe sallanması, kum saatinin dönmesi, paraların sırayla parlaması
+
+Bu yüzden her nesnenin silüeti tek parça ve net olmalı. Nesnelerin önüne başka bir nesne binmemeli, hareket edecek parçalar ayrı katmanda olmalı.
+
+**Ortak stil:** oyunun ikonlarıyla aynı yarı 3D, yumuşak üst-sol ışık, sıcak palet. Mevcut `art/pilot/15-iap/v2-comfort-pack-play.png` ve `v2-starter-pack-play.png` malzeme ve ışık referansıdır; yeni set daha canlı renkler, daha güçlü ışık ve daha "satın almak isteten" bir his taşır. Yazı, rakam, fiyat, logo yok.
+
+**Teslim:** her dosyanın yanında aynı gövde adıyla `-prompt.txt`. Dosyalar `art/pilot/15-iap/v2/` altına.
+
+| Dosya | Ne | Boyut |
+| --- | --- | --- |
+| `comfort-box.png` | Mor hediye kutusunun gövdesi (kapaksız, içi altın ışıkla dolu) | 1024², şeffaf |
+| `comfort-lid.png` | Kutunun kapağı, altın kurdele ve fiyonkla | 1024², şeffaf |
+| `comfort-medal.png` | Yeşil-altın onay madalyonu | 512², şeffaf |
+| `comfort-glow.png` | Mor-altın yumuşak ışın patlaması (arka plan) | 1024², şeffaf |
+| `starter-dog.png` | Şans, baş ve göğüs, kırmızı puantiyeli fularla | 1024², şeffaf |
+| `starter-cash.png` | Yeşil banknot destesi | 512², şeffaf |
+| `starter-coins.png` | Küçük altın para yığını (3–5 para) | 512², şeffaf |
+| `starter-hourglass.png` | Altın çerçeveli mavi kum saati | 512², şeffaf |
+| `starter-glow.png` | Sıcak turuncu-altın ışın patlaması (arka plan) | 1024², şeffaf |
+| `sparkle.png` | Tek bir dört köşeli parıltı yıldızı (beyaz-altın) | 256², şeffaf |
+| `card-limited-bg.png` | Sınırlı teklif kartının arka planı: sıcak turuncu-pembe gradyan, hafif ışın deseni | 1080 × 720 |
+| `card-permanent-bg.png` | Kalıcı ürün kartının arka planı: yumuşak mor-lacivert, hafif yıldız tozu | 1080 × 720 |
+| `store-mockup.png` | Mağaza ekranının görsel hedefi (aşağıda) | 1080 × 2340 |
+| `offer-card-mockup.png` | Hoş geldin kartının görsel hedefi | 1080 × 2340 |
+
+### 10.1 Nesne katmanları (her dosya ayrı istek)
+
+> Create ONE game UI asset for a mobile idle game's in-app store: [NESNE]. Genuinely transparent background (real alpha, no checkerboard, no white or grey plate), the object centered with about 12% empty margin on every side, nothing cut by the frame. Match the material, lighting and rendering of the reference icons `art/pilot/15-iap/v2-comfort-pack-play.png` and `art/pilot/15-iap/v2-starter-pack-play.png`: stylized semi-3D mobile-game rendering, rounded clean shapes, soft key light from the upper left, rich saturated but warm colors, gentle rim light, restrained glossy highlights. This object will be animated in code (floating, glowing, rotating), so it must be ONE clean, solid, readable silhouette with no other objects, no ground plane, no cast shadow, no motion blur, no text, no numbers, no logos. Readable at 64 pixels. Save as `art/pilot/15-iap/v2/[DOSYA]`.
+
+[NESNE] ve [DOSYA] tablodan:
+- `comfort-box.png`: "the open body of a purple gift box seen from a slight three-quarter angle above, WITHOUT its lid, a vertical gold ribbon band on the front, warm golden light glowing up from inside the box"
+- `comfort-lid.png`: "the separate lid of a purple gift box, slightly tilted, with a gold ribbon band and a big glossy gold bow on top, as if just lifted off"
+- `comfort-medal.png`: "a round emerald-green medallion with a thick gold rim and a simple raised gold checkmark in the middle (a symbol, not a letter)"
+- `starter-dog.png`: "head and upper chest of Lucky, the scruffy sandy-golden mixed-breed terrier from `art/pilot/02-poses/sans-sheet.png` (white muzzle and chest, warm brown eyes, black nose, one bent ear and one upright ear), delighted with a small open smile and tongue out, wearing the warm red triangular neck bandana with small cream dots from `art/pilot/02-poses/sans-scarf.png`; a real dog, not human-like"
+- `starter-cash.png`: "a neat stack of green banknotes with a gold paper band, no currency text or markings"
+- `starter-coins.png`: "a small pile of 4 shiny gold coins with a simple star emboss, no text"
+- `starter-hourglass.png`: "an upright hourglass with a gold frame and round gold caps, blue glass and warm golden sand flowing"
+- `sparkle.png`: "a single four-pointed sparkle star, white core fading to warm gold, soft glow"
+
+### 10.2 Işıma arka planları
+
+> Create ONE soft glowing background element for a mobile game store card: [IŞIMA]. Genuinely transparent background (real alpha), centered, the glow fading fully to transparent before the edges, no hard edges, no objects, no text. It sits behind an animated product picture and will rotate slowly, so it must look good rotated. 1024 × 1024. Save as `art/pilot/15-iap/v2/[DOSYA]`.
+
+- `comfort-glow.png`: "a radial burst of soft violet and warm gold light rays with a bright warm center"
+- `starter-glow.png`: "a radial burst of warm orange, pink and gold light rays with a bright warm center"
+
+### 10.3 Kart arka planları
+
+> Create ONE background texture for a product card in a mobile game store, 1080 × 720, landscape, fully opaque. [ARKA PLAN]. Soft and calm so white and dark text and a product picture stay readable on top; most detail near the edges, the center quiet. Stylized semi-3D mobile game look, no objects, no text, no logos. Save as `art/pilot/15-iap/v2/[DOSYA]`.
+
+- `card-limited-bg.png`: "a warm gradient from soft orange at the top left to pink at the bottom right, with faint diagonal light rays and a few tiny soft sparkles"
+- `card-permanent-bg.png`: "a soft gradient from violet to deep indigo with faint, sparse star dust and a gentle light bloom at the top"
+
+### 10.4 Ekran maketleri (görsel hedef, uygulanmaz)
+
+Bu iki görsel kodda kullanılmaz. Claude ekranı bunlara bakarak oyunun bileşenleriyle (`src/game/ui/kit.tsx`, Fredoka yazı tipi, parlak düğmeler) yeniden kurar. Bu yüzden maketteki yazılar okunaklı olmalı ama yazı tipi birebir olmak zorunda değil.
+
+> Create a high-fidelity mobile game UI mockup, portrait 1080 × 2340 (a phone screen), for the in-app STORE screen of a cozy semi-3D idle life-simulation game ("Prestige Life"). The store opens as a large rounded sheet (28 px corners) over the game scene, between a dark navy top bar (money, class badge, age, settings gear) and a bottom menu of three glossy blue buttons (Businesses, Career, Shop). Sheet header: violet-to-indigo gradient with a white store icon and the title "Store", a round close button on the right. Sheet body, light sky-to-lavender gradient, scrolling, with these parts in order: (1) small uppercase section label "LIMITED OFFER", then ONE big hero card for the "Fresh Start Pack": warm orange-pink card background with light rays, a large picture of Lucky the dog in a red bandana with a cash stack, coins and an hourglass, a soft glow behind, a few sparkles, the name in a rounded bold display font, a small badge "ONE TIME · ENDS IN 2D 23H", three short benefit lines with green check marks ("Income ×2 for 4 hours", "1 hour of income right away", "A red scarf for Lucky"), and a big glossy gold-to-orange price button "$1.99"; the card should feel alive and premium but friendly, not casino-like; (2) section label "YOURS FOR GOOD", then a smaller card for the "Comfort Pack": violet card background, a purple gift box with the lid lifting and a green check medallion, badge "FOREVER", two benefit lines ("No ads: every ad reward is yours at once", "Gift: income ×2 for 2 hours") and a gold price button "$7.99"; (3) the same Comfort Pack card in its OWNED state shown as a small inset example on the side: dimmed, the price replaced by a soft green pill "✓ Owned"; (4) at the bottom a small underlined link "Restore purchases". Style: the game's look — glossy rounded buttons with a light top highlight, white cards with soft colored borders and soft shadows, rounded bold display font with a thin dark outline on white headings, warm and cheerful, readable at phone size, generous spacing, 16 px side gutters. No real brand logos, no real people. Save as `art/pilot/15-iap/v2/store-mockup.png`.
+
+> Create a high-fidelity mobile game UI mockup, portrait 1080 × 2340, of a one-time WELCOME OFFER pop-up in the same cozy semi-3D idle game: the game scene (a sunny brick alley with the young hero and his sandy dog) dimmed behind a 35% black overlay; centered, a rounded card (28 px corners), max width about 80% of the screen: a violet-to-indigo header with a tiny uppercase label "WELCOME GIFT" and the title "Fresh Start Pack"; a warm cream body with a large lively picture of Lucky the dog in his red bandana with a cash stack, coins and an hourglass on a warm light burst with sparkles; three benefit lines with green checks; a small orange uppercase line "ENDS IN 3D"; a big glossy gold-to-orange button "Take a look" and under it a quiet grey button "Later". Friendly and inviting, not pushy, no price on this card. Save as `art/pilot/15-iap/v2/offer-card-mockup.png`.
+
+**Kontrol listesi (teslimden önce):** şeffaf olması gerekenlerde gerçek alfa var mı (dama tahtası çizilmemiş), nesne kenara değiyor mu, Şans'ın kimliği (bükük kulak, beyaz ağız) ve fuları doğru mu, yazı ya da rakam sızmış mı, 64 px'te okunuyor mu. Maketlerde yazılar okunaklı ve doğru yazılmış mı.
+
+**Oyuna bağlama (Claude):** katmanlar `public/assets/iap/` altına WebP; hareketler CSS ile (`mobile.css` `v2-*` sınıfları), ekran ve kart maketlere göre yeniden düzenlenir; `prefers-reduced-motion`'da hareket durur.
