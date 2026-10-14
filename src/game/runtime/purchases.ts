@@ -1,5 +1,5 @@
 import { PRODUCT_LIST, PRODUCTS, REVOKE_REFUNDS, SPECIAL_SHOP_CEREMONY, type ProductDef } from '../core/config/iap';
-import { autoIncomePerSecond } from '../core/formulas';
+import { incomePerSecond } from '../core/formulas';
 import { earn } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import type { AdProgress } from './adRewards';
@@ -95,7 +95,9 @@ export function applyPurchase<T extends PurchaseContext>(state: T, productId: st
   const boostFrom = Math.max(state.ads.boostUntil, now);
   return {
     ...state,
-    game: product.incomeSeconds > 0 ? earn(state.game, autoIncomePerSecond(state.game) * product.incomeSeconds) : state.game,
+    // The income while playing, hand-run businesses included: right after the first ceremony most
+    // players have no manager yet, and the managed income alone was close to $0 (2026-10-14).
+    game: product.incomeSeconds > 0 ? earn(state.game, incomePerSecond(state.game, 'active') * product.incomeSeconds) : state.game,
     ads: product.boostSeconds > 0 ? { ...state.ads, boostUntil: boostFrom + product.boostSeconds * 1000 } : state.ads,
     purchases: { ...state.purchases, owned },
   };

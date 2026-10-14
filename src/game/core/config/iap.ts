@@ -37,7 +37,7 @@ export interface ProductDef {
   fallbackPrice: string;
   /** The income boost (×2) it adds once, on top of what is running. */
   boostSeconds: number;
-  /** Automatic income it pays once. */
+  /** Income it pays once, counted as while playing (hand-run businesses included). */
   incomeSeconds: number;
   /** A limited offer: on show for this long once the store opens (0 = always). */
   offerSeconds: number;

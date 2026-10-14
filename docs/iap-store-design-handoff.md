@@ -101,7 +101,7 @@ TR/EN metinleri `iap` i18n alanına; prototipteki `T` tablosu copy örneğidir. 
 
 “Hoş geldin hediyesi” kaldırılır: bu ücretli paket. Fiyat varsa teklif subline'ında `Tek seferlik satın alma · {price}`; yerel fiyat henüz yüklenmediyse ücretli olduğu açıklanır ve uygulamanın mevcut fiyat politikasına uyulur. UI'da USD'yi sabit yazmayın. Yeni indirim veya ilk fiyat çizgisi eklemeyin.
 
-Başlangıç parası `applyPurchase`'ta `autoIncomePerSecond(state.game) × product.incomeSeconds` ile, satın alma anındaki game state üzerinden hesaplanıyor. Yeni alınan booster bu tek seferlik ödüle UI tarafından ayrıca çarpılmamalı. Bu tur bir para tahmini eklemiyor: “1 saatlik gelir” doğru ve sade. İleride miktar gösterilecekse ödeme ile aynı fonksiyondan türetin.
+Başlangıç parası `applyPurchase`'ta `incomePerSecond(state.game, 'active') × product.incomeSeconds` ile (2026-10-14; önce `autoIncomePerSecond`, yöneticisiz oyuncuda $0'a yakındı), satın alma anındaki game state üzerinden hesaplanıyor. Yeni alınan booster bu tek seferlik ödüle UI tarafından ayrıca çarpılmamalı. Bu tur bir para tahmini eklemiyor: “1 saatlik gelir” doğru ve sade. İleride miktar gösterilecekse ödeme ile aynı fonksiyondan türetin.
 
 Rozetteki “Tek seferlik” ödüllerin bir kez verildiğini anlatır; kırmızı fular kalıcı kozmetiktir. İstenirse fular tile alt etiketi “Kalıcı fular” olabilir. Rahat Paket reklamsızlığı bütün günlük sınırları aynen korur. Kalıcı ×2 vaat edilmez.
 
