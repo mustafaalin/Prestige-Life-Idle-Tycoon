@@ -28,6 +28,7 @@ import { useGameV2, useGameV2Events } from '../../runtime/useGameV2';
 import { offerCardDue } from '../../runtime/purchases';
 import { requestReview, reviewDue } from '../../runtime/review';
 import { RichMoment } from '../richList/RichList';
+import { DailyCard } from '../home/DailyCard';
 import { OfferCard } from '../shop/OfferCard';
 import { Ceremony, LifeMoment } from './Ceremony';
 import { portraitOf } from './ceremonyScript';
@@ -36,8 +37,8 @@ import { NameSheet } from './NameSheet';
 import { onStoryRequest } from './storyEvents';
 
 // Decides which story moment is on screen (story-v2.md §4): a waiting class-up ceremony first, then a
-// life moment whose age has come (§4c), then (after the offline card) Mom's message on a return
-// session, and once, after the first ceremony, the reminder opt-in. A new place on the Rich List
+// life moment whose age has come (§4c), then (after the offline card) the day's reward, then Mom's
+// message on a return session, and once, after the first ceremony, the reminder opt-in. A new place on the Rich List
 // brings its short card when nothing else is on screen. Also schedules the reminders when
 // the app goes to the background.
 
@@ -222,6 +223,11 @@ export function StoryDirector({
         }}
       />
     );
+  }
+
+  // The day's reward: after the offline card and any story beat of this opening, before the lighter cards.
+  if (lifeCanPlay && life === null && state.daily.offer) {
+    return <DailyCard offer={state.daily.offer} onCollected={() => setQuiet(true)} />;
   }
 
   if (rich) {

@@ -26,6 +26,7 @@ import {
 } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { boostFactor, boostShare, createAdProgress, type AdProgress } from './adRewards';
+import { createDailyProgress, type DailyProgress } from './daily';
 import { createPurchaseProgress, type PurchaseProgress } from './purchases';
 import { createStoryProgress, type StoryProgress } from './story';
 
@@ -58,6 +59,8 @@ export interface RuntimeState {
   ads: AdProgress;
   /** What was bought in the store, kept across lives (monetization-v2.md §5). */
   purchases: PurchaseProgress;
+  /** The daily reward's calendar and today's offer (runtime/daily.ts). */
+  daily: DailyProgress;
 }
 
 export interface Payout {
@@ -87,6 +90,7 @@ export function createRuntimeState(now: number, game: GameStateV2 = createInitia
     story: createStoryProgress(),
     ads: createAdProgress(),
     purchases: createPurchaseProgress(),
+    daily: createDailyProgress(),
   };
 }
 

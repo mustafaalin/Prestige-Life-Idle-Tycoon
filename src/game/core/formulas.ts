@@ -247,6 +247,11 @@ export function storyGift(state: GameStateV2) {
   return incomePerSecond(state, 'active') * STORY_GIFT_SECONDS;
 }
 
+/** The daily reward: `months` of the monthly income the top bar shows (config/daily.ts). */
+export function dailyReward(state: GameStateV2, months: number) {
+  return autoIncomePerSecond(state) * SECONDS_PER_MONTH * months;
+}
+
 export function tapValue(state: GameStateV2) {
   return TAP_BASE * legacyMultiplier(state.legacyPoints) + incomePerSecond(state, 'active') * TAP_INCOME_SECONDS;
 }

@@ -61,7 +61,7 @@ Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahip
 | 3 | **Gelir hızlandırıcı** | Üst barda kalıcı "×2" düğmesi; aktifken kalan süre görünür | Tüm gelir ×2, **1 saat** (gerçek zaman; çevrimdışında da sayar). Üst üste en fazla 4 saat | Günde 6 | **Oyunda** (düğme ana sahnenin sağında) |
 | 4 | **Hayaline yardım** | Sıradaki hayal, terfi ya da işletme için az para kalmışken o kartta | **Eksik tutar** (önce 15 dakikalık gelirdi; aşağıda) | Günde 5; sadece eksik tutar fiyatın %10'undan ve 5 dakikalık gelirden azken çıkar | **Oyunda** (terfi, sıradaki eşya, sıradaki eve taşınma, yönetici) |
 | 5 | **Tören ve hayat anı hediyesi ×2** | Sınıf töreninin kapanış kartında ve yaşa bağlı üç hayat anının (buluşma, düğün, doğum) sonunda | Hediye ×2 (hediye: 10 dakikalık gelir) | Her anda 1 | **Oyunda** (2026-10-14) |
-| 6 | **Günlük hediye / çark** | Günlük ödülde ek çevirme | Ek ödül | Günde 1–2 | Faz 2.7 |
+| 6 | **Günlük ödül ×2** | Günlük ödül kartında, "Topla"nın üstünde | Günün ödülü ×2 (game-design §4.12) | Günde 1 | **Oyunda** (2026-10-15; çark yerine) |
 | 7 | **Olay kartında ikinci şans** | Kötü sonuçlu kartta "tekrar dene" | Yeniden seçim | Kart başına 1 | Kartlar oyunda (game-design §4.7); ikinci şans reklam yerleriyle |
 
 **Günlük toplam:** pratikte en fazla ~15–20 reklam. Sektör verisi 15–20 reklam yerinden sonra artışın durduğunu gösteriyor; asıl sınırlayıcı ödülün değeri.
@@ -153,7 +153,7 @@ Fular küçük ve güvenli. Yakut %50 reklamla birleşince zirveyi yarıdan kıs
 3. **Reklam yerleri 1–4:** ✅ 2026-10-12 (çevrimdışı +%30, Şans ×2, hızlandırıcı, biraz yardım).
 4. **IAP, 1. adım:** ✅ kod 2026-10-14: Rahat Paket ve Yeni Başlangıç Paketi, geri yükleme (aşağıda "IAP nasıl çalışıyor"). Mağaza tarafı kullanıcıda. **2. adım:** Yakut Tasma (kalıcı +%50) ve Gece Vardiyası; ödeyen oyuncu simülasyonu yapıldı (§5), sıra Faz 2'de zirve sonrası içerikten sonra. v1 ürünleri pasifleştirilir.
 5. **Analitik:** ✅ kod tamam (plan 1.14; `ad_watch`, sınıf atlama, oturum). Reklam teklifi ve satın alma olayları reklam yerleri ve IAP ile birlikte.
-6. **Sonra:** ✅ tören ve hayat anı hediyesi ×2 (2026-10-14); günlük hediye (2.7), olay kartı ikinci şans (2.4); zorla reklam ve fiyat A/B testleri (Faz 3).
+6. **Sonra:** ✅ tören ve hayat anı hediyesi ×2 (2026-10-14); ✅ günlük ödül ×2 (2026-10-15), olay kartı ikinci şans (2.4); zorla reklam ve fiyat A/B testleri (Faz 3).
 
 ### IAP nasıl çalışıyor (2026-10-14)
 

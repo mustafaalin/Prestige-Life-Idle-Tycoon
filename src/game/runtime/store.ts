@@ -6,6 +6,7 @@ import { fetchReward, storyGift } from '../core/formulas';
 import { earn, live } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { applyBoost, applyHelp } from './adRewards';
+import { claimDaily, offerDaily } from './daily';
 import { ownedProducts, realStore } from './iap';
 import { applyPurchase, applyRevoke, openOffers, refundedToRevoke, storeOwnedToGrant } from './purchases';
 import {
@@ -69,6 +70,8 @@ export interface GameActions {
   buyHome(houseId: string): boolean;
   moveHome(houseId: string): boolean;
   claimOffline(multiplier?: number): boolean;
+  /** Collects the day's reward (`multiplier` is 2 after a rewarded ad); returns what it paid (0 if none waited). */
+  claimDaily(multiplier?: number): number;
   /** End of life: hand the family over to the heir. */
   retire(): boolean;
   /** Rewards of watched ads (call only after showRewardedAd() returned 'rewarded'; adRewards.ts). */
@@ -126,6 +129,8 @@ export interface GameActions {
     /** Ages the hero by `years`, to test the end of life. */
     age(years: number): void;
     reset(): void;
+    /** Offers the daily reward again today (the next day of the calendar). */
+    dailyAgain(): void;
   };
 }
 
@@ -183,13 +188,15 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       return;
     }
     const result = tick(state, clock(), speed);
-    if (result.state !== state) commit(result.state, result.payouts, false);
+    // The day's reward is offered as soon as it is due (a new day, or the first return).
+    const next = offerDaily(result.state, clock());
+    if (next !== state) commit(next, result.payouts, false);
   };
 
   const runResume = () => {
     const awaySeconds = Math.max(0, (clock() - state.lastActiveAt) / 1000);
     const result = resume(state, clock());
-    commit(result.state, result.payouts, true);
+    commit(offerDaily(result.state, clock()), result.payouts, true);
     eventListeners.forEach((listener) => listener({ type: 'returned', awaySeconds }));
   };
 
@@ -346,6 +353,17 @@ export function createGameStore(saveText: string | null, clock: () => number = D
           multiplier: multiplier ?? 1,
         }));
       },
+      claimDaily: (multiplier = 1) => {
+        const offer = state.daily.offer;
+        if (!offer) return 0;
+        const day = state.daily.claimed + 1;
+        const paid = actTracked((s) => claimDaily(s, multiplier), 'daily_claim', () => ({
+          day,
+          months: offer.months,
+          multiplier,
+        }));
+        return paid ? offer.amount * multiplier : 0;
+      },
       retire: () => {
         // The life that just ended, not the heir's.
         const { generation, classIndex } = state.game;
@@ -424,6 +442,9 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         },
         age: (years) => {
           act((s) => ({ ...s, game: live(s.game, years * SECONDS_PER_YEAR) }));
+        },
+        dailyAgain: () => {
+          act((s) => offerDaily({ ...s, daily: { ...s.daily, claimedDay: '', offer: null } }, clock()));
         },
         reset: () => {
           clearSave();

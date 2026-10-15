@@ -1,6 +1,7 @@
-// Usage: npm run sim [-- --days 45 --timeline --purchases --sessions --offline-cap 8]
+// Usage: npm run sim [-- --days 45 --timeline --purchases --sessions --offline-cap 8 --daily-claims]
 //   --purchases            add every purchase to the timeline
 //   --offline-cap <hours>  try another offline cap (default: OFFLINE_CAP_HOURS)
+//   --daily-claims         list the first daily rewards (day, amount, class)
 // Bundled with esbuild and run in Node; logic lives in src/game/sim.
 
 import { BUSINESSES } from '../src/game/core/config/businesses';
@@ -75,6 +76,14 @@ for (const profile of PROFILES) {
   });
   console.log(`ages (gen 1): ${ages.join(' · ')}`);
 
+  {
+    const earnedTotal = result.events.at(-1);
+    const total = earnedTotal ? earnedTotal.earnedPlaying + earnedTotal.earnedOffline : 0;
+    if (args.includes('--daily-claims')) {
+      console.log(result.dailyClaims.slice(0, 16).map((c) => `D${c.day} ${formatMoney(c.amount)} (${c.className})`).join(' · '));
+    }
+    console.log(`daily reward paid ${formatMoney(result.dailyPaid)} (${((result.dailyPaid / Math.max(total, 1)) * 100).toFixed(1)}% of all money earned)`);
+  }
   const final = result.finalState;
   console.log(
     `final: generation ${final.generation}, legacy ${final.legacyPoints}, class ${final.classIndex}, job ${final.careerIndex + 1}`

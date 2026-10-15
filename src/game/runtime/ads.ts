@@ -13,7 +13,7 @@ import { track } from './analytics';
 // Framework-free; React reads the state through useAdsState().
 
 /** Where an ad was offered; kept for analytics and per-placement rules. */
-export type AdPlacement = 'offline_x2' | 'find_x2' | 'income_boost' | 'dream_help' | 'story_gift_x2' | 'dev_test';
+export type AdPlacement = 'offline_x2' | 'find_x2' | 'income_boost' | 'dream_help' | 'story_gift_x2' | 'daily_x2' | 'dev_test';
 
 /** rewarded: watched to the end. dismissed: closed early. unavailable: no ad (no fill, no consent, busy). */
 export type AdOutcome = 'rewarded' | 'dismissed' | 'unavailable';

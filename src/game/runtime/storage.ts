@@ -12,6 +12,7 @@ import { applyClassFloors, createInitialState } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { createAdProgress, type AdProgress } from './adRewards';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
+import { createDailyProgress, type DailyProgress } from './daily';
 import { createPurchaseProgress, withAccessories, type PurchaseProgress } from './purchases';
 import { createStoryProgress, HERO_NAME_MAX, LIFE_MOMENT_IDS, MOM_MESSAGES, type StoryProgress } from './story';
 
@@ -185,6 +186,22 @@ function normalizePurchases(raw: unknown): PurchaseProgress {
   };
 }
 
+/** Saves from before the daily reward (2026-10-15) start on its first day, nothing waiting. */
+function normalizeDaily(raw: unknown): DailyProgress {
+  const base = createDailyProgress();
+  if (!isRecord(raw)) return base;
+  const offer = isRecord(raw.offer) ? raw.offer : null;
+  const amount = offer ? finite(offer.amount, 0) : 0;
+  return {
+    claimed: Math.floor(finite(raw.claimed, 0)),
+    claimedDay: typeof raw.claimedDay === 'string' ? raw.claimedDay : '',
+    offer:
+      offer && amount > 0 && typeof offer.day === 'string'
+        ? { day: offer.day, months: finite(offer.months, 0), amount }
+        : null,
+  };
+}
+
 const native = Capacitor.isNativePlatform();
 
 function savedAtOf(text: string | null) {
@@ -261,6 +278,7 @@ export function parseRuntime(text: string | null, now: number): RuntimeState {
       story: normalizeStory(runtime.story, game),
       ads: normalizeAds(runtime.ads),
       purchases,
+      daily: normalizeDaily(runtime.daily),
     };
   } catch {
     keepUnreadable(text);

@@ -180,7 +180,7 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
   - Kalan: büyük set, kötü sonuçta reklamla "ikinci şans".
 - [ ] **2.5 Yatırımlar:** Tek "Yatırım Hesabı" (güvenli / orta / riskli vadeler). Kiradaki evler 1.17'de yapıldı ([game-design-v2.md §4.8](./game-design-v2.md)). Ayrı emlak listesi ve borsa yok.
 - [ ] **2.6 Lüks oyuncaklar sahnede:** Jet gökyüzünden geçer, helikopter süzülür, yat sahil evlerinde görünür; ayrıca Garaj/Marina koleksiyon ekranı.
-- [ ] **2.7 Günlük döngü:** Gelire oranlı günlük ödül serisi, günlük çark (reklamla ek çevirme). "Sıradaki 3 hedef" zinciri 1.T'de yapıldı. Lansmanda gem yok.
+- [~] **2.7 Günlük döngü:** Tamam (2026-10-15): günlük ödül, aylık gelirin katı, 7 günlük takvim, cezasız, reklamla ×2 ([game-design-v2.md §4.12](./game-design-v2.md); `ui/home/DailyCard.tsx`). Çark yapılmadı (tona uymuyor, yerine ödülde ×2). Kalan: "ödülün hazır" bildirimi (bildirimler günde bir; şimdilik Şans'ın hatırlatması yetiyor), günlük görevler. "Sıradaki 3 hedef" zinciri 1.T'de yapıldı. Lansmanda gem yok.
 - [ ] **2.8 Bildirimlerin kalanı:** annenin mesajı ve "Kasan doldu" 1.19'da yapıldı; kalan "Emekli olabilirsin", "Günlük ödül hazır".
 - [~] **2.9 Monetizasyon v2:** Kararlar: [monetization-v2.md](./monetization-v2.md) (2026-10-08).
   - Tamam: reklam altyapısı (`runtime/ads.ts`: AdMob 8.2.1, UMP izin formu ana ekranda, ATT ilk reklamda, web'de sahte reklam, Ayarlar'da gizlilik seçenekleri, geliştirici menüsünde test reklamı). Ayrıntı: [mobile-ad-integration.md](./mobile-ad-integration.md).

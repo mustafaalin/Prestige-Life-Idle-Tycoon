@@ -244,6 +244,19 @@ Kurgusal bir dünya zenginleri listesi; geç oyunda ilerlemeyi görünür kılar
 - **Kartlar:** altı sıra kısa bir kart getirir (kim konuşur, sıra, tek cümle; metinler [story-v2.md §4e](./story-v2.md)): giriş, ilk 1000, ilk 100, ilk 10, ilk 5, 2. sıra. İlk 20 ve #1'in kartı yok, törenleri o an. Kart yalnızca ilk nesilde, ana sahnede ve başka hikâye anı yokken gelir; tören ve hayat anından sonra 2 dk bekler. Birkaç sıra birden geçilirse (uzun uzak kalma) yalnızca en sonuncusunun kartı gelir.
 - **Simülatörde (2026-10-14, bağlı bot):** giriş 1 sa 29 dk (#2.594), ilk 1000 1 sa 57 dk, ilk 100 3 sa 7 dk, ilk 20 4 sa 45 dk, ilk 10 5 sa 34 dk, ilk 5 6 sa 37 dk, 2. sıra 7 sa 54 dk, #1 10 sa 35 dk. Liste En Zengin'den sonraki saatleri doldurmaz. `npm run sim -- --timeline` "Rich List" satırlarını gösterir.
 
+### 4.12 Günlük ödül (`config/daily.ts`, `runtime/daily.ts`, karar 2026-10-15)
+
+Oyuncuya her gün geri gelmesi için bir sebep verir. Tasarım benzer oyunlara bakılarak seçildi (AdVenture Capitalist, Egg, Inc., Idle Miner Tycoon).
+
+- **Ödül:** aylık gelirin katı, kartta "×N" diye yazar. İlk hafta ×5, ×10, ×15, ×20, ×30, ×40, ×50. 2. haftadan itibaren her gün ×15, 7. gün yine ×50. 7. gün "Şans'ın günü": kutuda cüzdanla gelen Şans (tasması sınıfı izler). Hızlandırıcı verilmez; ×2 reklamla alınan bir şey olarak kalır.
+- **Tutar sabit:** günün ödülü teklif edildiği anda, günün ilk açılışında, oyuncu bir şey almadan hesaplanır ve kayda yazılır. Ne zaman toplanırsa toplansın aynı tutar ödenir; bekleyip geliri büyütmek ödülü büyütmez. Kartta tutarın nereden geldiği yazar: "Aylık gelirin $323 Bin × 15".
+- **Sonraki günler:** kartta dolar değil çarpan yazar; tutar o günün ilk açılışında belli olur.
+- **Gün kaçırmak:** ceza yok, takvim kaldığı yerden devam eder (Egg, Inc. gibi). Sayaç ömürler boyunca sürer, varise geçer.
+- **Ne zaman başlar:** reklamlarla aynı anda (bir yönetici ve çevrimdışı kartının bir kez toplanması). İlk ödül ilk dönüşte gelir, rehberin ortasında değil. Gün telefonun takvimine göre değişir.
+- **Sıra:** çevrimdışı kartı → tören ve hayat anları → günlük ödül → diğer kartlar. Toplandıktan sonra sonraki kart 2 dk bekler.
+- **Reklamla ×2:** kartta, Rahat Paket'le reklamsız (monetization-v2 §4, yer 6).
+- **Simülatörde (2026-10-15):** bağlı oyuncunun parasının ~%6'sı, hafif oyuncunun ~%11'i. En Zengin: bağlı 15. gün 21:00 → 14. gün 23:00; hafif 31. gün → 27. gün. Multimilyarder 7. gün 18:04 → 08:03 (zaten hedefin altındaydı, discussion-notes §4). `npm run sim -- --daily-claims` ilk günlerin tutarlarını gösterir.
+
 ## 5. Tempo hedefleri ve simülasyon sonuçları
 
 `npm run sim` iki oyuncu profilini 45 gün oynatır:
@@ -255,7 +268,7 @@ Kurgusal bir dünya zenginleri listesi; geç oyunda ilerlemeyi görünür kılar
 
 Bot her an en kısa sürede kendini ödeyen alımı yapar, yani optimal oynar. Gerçek oyuncuların ~1,3–1,8 kat yavaş olduğu tahmin, ölçülmüş değil. Bot yöneticisiz işletmeleri %60 verimle çalıştırıyor sayar; gerçek oyunda sadece başlatılan döngü ödenir (sınırlar: discussion-notes §5). Toplama, Şans'ın bulduğu ve olay kartları simülatörde modelli (§4.7).
 
-Güncel sonuç (2026-10-15; hedefler `src/game/sim/report.ts`):
+Güncel sonuç (2026-10-15, günlük ödülle; hedefler `src/game/sim/report.ts`):
 
 | Kilometre taşı | Hedef (engaged bot) | Engaged bot | Casual bot |
 | --- | --- | --- | --- |
@@ -267,8 +280,8 @@ Güncel sonuç (2026-10-15; hedefler `src/game/sim/report.ts`):
 | Orta Sınıf | 25–50 dk oyun | 30 dk, 1. gün 2. oturum (18 yaş) | 25 dk, 2. gün |
 | Milyoner | 35 dk – 1 sa 15 dk oyun | 40 dk, 1. gün son oturum (19 yaş) | 35 dk, 2. gün |
 | İlk milyarder | 2. gün 20:00 – 7. gün (alt sınır 2026-10-15'te 3. günden indi: gümüş tasma) | 2. gün 23:00, 1 sa 22 dk (22 yaş) | 4. gün |
-| İlk multimilyarder | 8–14. gün | **7. gün 18:04, 4 sa 42 dk (34 yaş): hedefin altında, simülatör bu satırda FAIL veriyor** (karar bekliyor, [discussion-notes.md §4](./discussion-notes.md)) | 14. gün |
-| İlk "en zengin" | 14–21. gün | 15. gün 21:00, 10 sa 21 dk (55 yaş) | 31. gün (45 yaş) |
+| İlk multimilyarder | 8–14. gün | **7. gün 08:03, 4 sa 20 dk (33 yaş): hedefin altında, simülatör bu satırda FAIL veriyor** (karar bekliyor, [discussion-notes.md §4](./discussion-notes.md)) | 13. gün |
+| İlk "en zengin" | 14–21. gün | 14. gün 23:00, 9 sa 46 dk (53 yaş) | 27. gün (42 yaş) |
 | İlk ömür sonu (80 yaş) | 21–37. gün | 25. gün (16 sa 48 dk oyun) | 45 günde gelmiyor |
 
 **His kontrolleri (`checkFeel`):** Tempo hedefleri tutarken işletmeler yan gelire düşebiliyor (eski bir ayarda Gündelikçi anında işletme payı %3'tü). Simülatör şunları da bekler: her işletmenin ilk biriminin turu ≥ $1; işletmelerin gelirdeki payı (toplama hariç) Gündelikçi anında, ilk oturumun sonunda ve 1. nesil oturumlarının ortancasında ≥ %50. Şu an: tur en az $1, pay %84 / %91 / %98. `npm run sim -- --purchases --timeline` her alımı zaman çizelgesinde gösterir.
@@ -294,7 +307,7 @@ Engaged botun ilk günü (2026-10-13, tasmalardan önce; sıra aynı): şişeler
 - **Olay kartları:** büyük set, sınıfa göre değişen 60+ kart (ilk 10 kart oyunda, §4.7).
 - **Yatırımlar:** Kiradaki evler (§4.8) ve tek bir "Yatırım Hesabı": güvenli / orta / riskli vadeler (risk anları). Ayrı emlak listesi ve borsa yok.
 - **Lüks oyuncakların sahnede gösterimi:** Jet gökyüzünden geçer, yat sadece sahil evlerinde görünür.
-- **Günlük döngü:** Gelire oranlı günlük ödül ve günlük görevler.
+- **Günlük döngü:** Günlük ödül yapıldı (§4.12); günlük görevler sonra.
 
 ## 8. Açık sorular
 

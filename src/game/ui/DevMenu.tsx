@@ -256,6 +256,17 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
           <button
             type="button"
             onClick={() => {
+              actions.dev.dailyAgain();
+              close();
+            }}
+            className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+          >
+            {t('dev.daily')}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
               close();
               onReplayPrologue();
             }}

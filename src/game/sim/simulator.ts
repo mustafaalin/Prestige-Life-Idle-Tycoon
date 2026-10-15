@@ -29,6 +29,7 @@ import {
   richListRank,
   heroAge,
   storyGift,
+  dailyReward,
 } from '../core/formulas';
 import {
   AD_OFFLINE_MIN_SECONDS,
@@ -42,6 +43,7 @@ import {
   HELP_MAX_SHARE,
 } from '../core/config/ads';
 import { STORY_GIFT_FROM_CLASS } from '../core/config/economy';
+import { dailyMonths } from '../core/config/daily';
 import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
 import { LIFE_MOMENTS, storyRuns } from '../runtime/story';
 import { COLLECT_SPAWN_SECONDS } from '../core/config/scene';
@@ -161,6 +163,10 @@ export interface SimResult {
   days: number;
   events: SimEvent[];
   finalState: GameStateV2;
+  /** Money the daily reward paid. */
+  dailyPaid: number;
+  /** Each daily claim: calendar day, money paid, class at the time. */
+  dailyClaims: { day: number; amount: number; className: string }[];
 }
 
 interface Candidate {
@@ -371,6 +377,23 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     }
   };
 
+  /**
+   * The daily reward (runtime/daily.ts): offered from the first return with a manager, once a calendar
+   * day; the amount is fixed when the day's first session opens, doubled when the bot watches ads.
+   */
+  const daily = { day: 0, claimed: 0, paid: 0, claims: [] as { day: number; amount: number; className: string }[] };
+  const claimDaily = () => {
+    const day = Math.floor(time.clock / 86400) + 1;
+    if (daily.day === day || !watched.returned) return;
+    if (!Object.values(state.businesses).some((business) => business.managed)) return;
+    daily.day = day;
+    const amount = dailyReward(state, dailyMonths(daily.claimed)) * (doubles() ? 2 : 1);
+    daily.claimed += 1;
+    daily.paid += amount;
+    daily.claims.push({ day, amount, className: WEALTH_CLASSES[state.classIndex].name });
+    earnTracked(amount);
+  };
+
   /** Bottles a second: none once the ground is empty (Middle Class on). */
   const tapRate = () => (canCollect(state) ? profile.tapsPerSecond(time.activeGeneration) : 0);
 
@@ -400,6 +423,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       };
       claimGoals();
       payStoryGifts();
+      claimDaily();
       // The hero ages only while playing; retirement comes at the end of life.
       state = live(state, step);
       maybeRetire();
@@ -482,12 +506,14 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       const start = (day - 1) * 86400 + session.startHour * 3600;
       // Offline earnings arrive when the player returns, so milestones they cause belong to this session.
       comeBack(start, day);
+      // The day's reward is fixed when the day's first session opens (before any purchase).
+      claimDaily();
       playSession(session.minutes * 60);
       log('session', sessionSummary(state));
     }
   }
 
-  return { profile: profile.name, days, events, finalState: state };
+  return { profile: profile.name, days, events, finalState: state, dailyPaid: daily.paid, dailyClaims: daily.claims };
 }
 
 // ── Player profiles ──────────────────────────────────────────────────────────
