@@ -167,7 +167,7 @@ Yeni ikon komutu (özet): *"ONE high-resolution square game business icon for {i
 
 ## 5. Bekleyenler
 
-Bu brifteki görsellerin hepsi oyunda. Açık kalanlar ([discussion-notes.md §1](./discussion-notes.md)): fuların öbür pozlarda görünmesi, önsözün stil kararı (3D denemesi hazır), lüks görsellerinin kesim kalıntıları, lükslerin sahnede gösterimi (plan 2.6).
+Bu brifteki görsellerin hepsi oyunda. Devrin görselleri (dede, yaşlı Defne, Elif, Ada, üç hikâye karesi, yadigâr ikonları) ayrı belgede: [art-prompts-dynasty.md](./art-prompts-dynasty.md). Açık kalanlar ([discussion-notes.md §1](./discussion-notes.md)): fuların öbür pozlarda görünmesi, önsözün stil kararı (3D denemesi hazır), lüks görsellerinin kesim kalıntıları, lükslerin sahnede gösterimi (plan 2.6).
 
 GPT'nin aracı ~1,57 MP veriyor: arka plan 941×1672 (1080 genişliğe büyütülüyor, telefonda kabul edilebilir), pozlar 1000 px yüksekliğe yetiyor.
 
