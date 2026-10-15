@@ -45,11 +45,11 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 - **Tekne anı yeni kare:** mağazadaki sürat teknesinin aynısı.
 - **Simülatör:** "fular" ve "reklam + fular + yakut" profilleri; Milyarder hedefinin alt sınırı 2. gün 20:00 (gümüş tasma yüzünden; kullanıcı kabul etti).
 - **Belgeler toparlandı:** bitmiş teslimler `archive/`'e taşındı, eskimiş yerler güncellendi, açık konular [discussion-notes.md](./discussion-notes.md)'de.
-- **AAB 29 derlendi ama Play Console'a yüklenmedi (kullanıcı, 2026-10-15):** bir sonraki derleme yine `versionCode` 29 olacak, kod artırılmaz. Eski dosya `~/Downloads/prestige-life-v2-29.aab` günlük ödül ve yatırımdan öncesi; yenisi onun yerine geçer.
+- **AAB 29 yeniden derlendi (2026-10-15):** `~/Downloads/prestige-life-v2-29.aab` (41 MB, imzası doğrulandı, DEV menüsü ve test reklamı kapalı). İlk AAB 29 Play Console'a yüklenmemişti, kod 29'da kaldı; bu dosya günlük ödül, yatırım ve hayaller panosunu da içeriyor. Telefona kurulup denenmedi.
 
 ## Sıradaki
 
-1. **AAB 29'u yeniden derle (sürüm kodu 29 kalır; günlük ödül, yatırım ve hayaller panosu içinde), dahili teste yükle ve telefonda dene (kullanıcı).** Lisans hesabıyla üç ürün: ödüller geliyor mu, RevenueCat → Customers, Firebase Realtime'da `purchase` ve `purchase_applied`. Puanlama penceresi Milyoner'e ulaşmış kayıtta, ikinci oturumda. Sonra "Telefonda test listesi".
+1. **AAB 29'u dahili teste yükle ve telefonda dene (kullanıcı).** Lisans hesabıyla üç ürün: ödüller geliyor mu, RevenueCat → Customers, Firebase Realtime'da `purchase` ve `purchase_applied`. Puanlama penceresi Milyoner'e ulaşmış kayıtta, ikinci oturumda. Sonra "Telefonda test listesi".
 2. **Kapalı test:** sorun yoksa aynı sürüm kapalı test kanalına. 14 gün ~2026-10-20'de doluyor; testçiler listede kalmalı, sonra Play'den yayın erişimi başvurusu.
 3. **Telefondan gelen bulguları düzeltmek**, gerekiyorsa AAB 30.
 4. **Faz 2:** günlük ödül (2.7) ve yatırım (2.5) yapıldı, telefonda denenmedi; sıradaki zirve sonrası (plan 2.12; adaylar [discussion-notes §2](./discussion-notes.md)). Sonra Yakut Tasma ve Gece Vardiyası (IAP 2. adım), Remote Config (2.10).
