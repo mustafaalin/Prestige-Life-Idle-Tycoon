@@ -27,6 +27,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 - **Ekonomi:** 10 işletme (+ yükseltmeler, yöneticiler), 12 basamak kariyer, 8 sınıf, 12 ev (kirala → satın al → kiraya ver), 12 araç (ev–araç zinciri), 7 kıyafet, 4 lüks, Şans'ın tasmaları (deri %2, gümüş %4, altın %6), yaş ve ömür (17 → 80, ~17 saatlik oyun), miras, hedefler, Zenginler Listesi. `npm run sim` tempo ve his hedefleri.
 - **Hikâye:** önsöz (6 kare), 7 sınıf töreni (hepsinin kendi karesi), tasma kartı, annenin 11 mesajı, yaşa bağlı 3 hayat anı, 4 lüks anı, 10 olay kartı, Zenginler Listesi'nin 6 kartı, aile albümü, emeklilik paneli. Kapanış kartında ve hayat anlarında hediye (10 dk gelir, reklamla ×2).
 - **Ana ekran:** oturulan ev ve önünde araç, kahraman (kıyafetine göre pozlar), Şans (cüzdan getirir, tasması sınıfı izler), yerden toplama (Orta Sınıf'ta biter), solda üstte yuvarlak hedef rozeti (ilerleme halkası; biten hedefte yeşil halka, "!" ve yanında "Topla"; dokununca tüm hedefler açılır, 8 sn sonra kapanır), üst bardaki paraya dokununca gelir dökümü (`ui/home/IncomeSheet.tsx`, `incomeBreakdown()`), solda albüm / Zenginler Listesi / Mağaza, sağda ×2 hızlandırıcı. Rıza Amca rehberi.
+- **Hayaller panosu:** alt menünün üstünde sıradaki ev, araç ve kıyafet, yüzdeyle; dokununca Alışveriş o eşyada açılır (plan 1.8).
 - **Yatırım (Rıza Amca'nın fırsatları):** 1 / 4 / 8 saatlik vade, cesur vadede +%70 ya da −%20, en fazla 5 yıllık gelir, Orta Sınıf'ta açılır; alt menüde 4. düğme, öncesinde kilitli (game-design §4.13). DEV → "Yatırımı hemen bitir".
 - **Günlük ödül:** aylık gelirin katı (×5 → ×50), 7 günlük takvim, cezasız, reklamla ×2 (game-design §4.12). DEV → "Günlük ödülü tekrar ver".
 - **Para:** 6 ödüllü reklam yeri (çevrimdışı +%30, Şans ×2, 1 saatlik ×2, biraz yardım, hediye ×2, günlük ödül ×2); Mağaza ve 3 ürün (Rahat Paket $7,99; Başlangıç Paketi $2,99, ilk 3 gün hoş geldin fiyatı $1,49); geri yükleme; Play puanlama penceresi (Milyoner'den sonra).
@@ -44,17 +45,17 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 - **Tekne anı yeni kare:** mağazadaki sürat teknesinin aynısı.
 - **Simülatör:** "fular" ve "reklam + fular + yakut" profilleri; Milyarder hedefinin alt sınırı 2. gün 20:00 (gümüş tasma yüzünden; kullanıcı kabul etti).
 - **Belgeler toparlandı:** bitmiş teslimler `archive/`'e taşındı, eskimiş yerler güncellendi, açık konular [discussion-notes.md](./discussion-notes.md)'de.
-- **AAB 29 derlendi:** `~/Downloads/prestige-life-v2-29.aab` (41 MB, imzası doğrulandı, DEV menüsü ve test reklamı kapalı). AAB 28'in telefon testindeki düzeltmeler ve yukarıdakiler içinde. Telefona kurulup denenmedi.
+- **AAB 29 derlendi ama Play Console'a yüklenmedi (kullanıcı, 2026-10-15):** bir sonraki derleme yine `versionCode` 29 olacak, kod artırılmaz. Eski dosya `~/Downloads/prestige-life-v2-29.aab` günlük ödül ve yatırımdan öncesi; yenisi onun yerine geçer.
 
 ## Sıradaki
 
-1. **AAB 29'u dahili teste yükle ve telefonda dene (kullanıcı).** Lisans hesabıyla üç ürün: ödüller geliyor mu, RevenueCat → Customers, Firebase Realtime'da `purchase` ve `purchase_applied`. Puanlama penceresi Milyoner'e ulaşmış kayıtta, ikinci oturumda. Sonra "Telefonda test listesi".
+1. **AAB 29'u yeniden derle (sürüm kodu 29 kalır; günlük ödül, yatırım ve hayaller panosu içinde), dahili teste yükle ve telefonda dene (kullanıcı).** Lisans hesabıyla üç ürün: ödüller geliyor mu, RevenueCat → Customers, Firebase Realtime'da `purchase` ve `purchase_applied`. Puanlama penceresi Milyoner'e ulaşmış kayıtta, ikinci oturumda. Sonra "Telefonda test listesi".
 2. **Kapalı test:** sorun yoksa aynı sürüm kapalı test kanalına. 14 gün ~2026-10-20'de doluyor; testçiler listede kalmalı, sonra Play'den yayın erişimi başvurusu.
 3. **Telefondan gelen bulguları düzeltmek**, gerekiyorsa AAB 30.
 4. **Faz 2:** günlük ödül (2.7) ve yatırım (2.5) yapıldı, telefonda denenmedi; sıradaki zirve sonrası (plan 2.12; adaylar [discussion-notes §2](./discussion-notes.md)). Sonra Yakut Tasma ve Gece Vardiyası (IAP 2. adım), Remote Config (2.10).
-5. **Faz 1'in küçük kalanları:** oyun testi paketi (1.15: anket, test notları), hayaller panosu (1.8), fuların bütün pozlarda görünmesi ([discussion-notes §1](./discussion-notes.md)).
+5. **Faz 1'in küçük kalanları:** oyun testi paketi (1.15: anket, test notları), fuların bütün pozlarda görünmesi ([discussion-notes §1](./discussion-notes.md)).
 
-**Sürüm derleme:** sürüm kodunu artır (`android/app/build.gradle`), sonra `VITE_DEV_MENU=false VITE_ADMOB_TESTING=false npm run build:v2 && npx cap sync android`, ardından `android/`'da `./gradlew bundleRelease` (`JAVA_HOME` Android Studio'nun Java'sı). Ortam değişkenleri şart: `.env.v2` DEV menüsünü, `.env.local` test reklamını açık tutuyor. Çıktı `android/app/build/outputs/bundle/release/app-release.aab`; `~/Downloads/prestige-life-v2-<kod>.aab` adıyla kopyalanır.
+**Sürüm derleme:** sürüm kodunu artır (`android/app/build.gradle`; Play'e yüklenmemiş bir kodu artırma), sonra `VITE_DEV_MENU=false VITE_ADMOB_TESTING=false npm run build:v2 && npx cap sync android`, ardından `android/`'da `./gradlew bundleRelease` (`JAVA_HOME` Android Studio'nun Java'sı). Ortam değişkenleri şart: `.env.v2` DEV menüsünü, `.env.local` test reklamını açık tutuyor. Çıktı `android/app/build/outputs/bundle/release/app-release.aab`; `~/Downloads/prestige-life-v2-<kod>.aab` adıyla kopyalanır.
 
 ## Kullanıcının yapacakları
 
@@ -83,6 +84,7 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
 7. **Olay kartları:** çağrı düğmesinin titremesi, iki cevap, kayıpta paraların dökülmesi ve bakiyenin düşmesi, kapat-aç sonrası ödül ya da kayıp bakiyede mi.
 7b. **Günlük ödül:** ertesi gün ilk açılışta çevrimdışı kartından sonra geliyor mu, küçük ekranda kart sığıyor mu, ×2 reklamı, uygulamayı kapatıp açınca tutar aynı mı (DEV → "Günlük ödülü tekrar ver").
 7c. **Yatırım:** alt menüde 4 düğme dar ekranda sığıyor mu, kilitli düğmenin baloncuğu, üç vade, kalan süre, vade dolunca bildirim ve "!", cesur vadenin kaybı (DEV → "Yatırımı hemen bitir").
+7d. **Hayaller panosu:** alt menü yükseldi; şişeler menünün altında kalıyor mu, kahramanın ayakları ve araç görünüyor mu (özellikle küçük ekranlarda), "Al!" ve kilit, dokununca doğru sekme.
 8. **Bildirim ve annenin mesajı:** DEV → "Deneme bildirimi (5 sn)", Ayarlar'daki anahtar.
 9. **Erken oyun (yeni kayıtla):** tezgâha ve ilk yöneticiye kadar boşluk var mı, Şans sık geliyor mu, hedef sırası ve rehber.
 10. **Genel:** Android geri tuşu, güvenli alanlar, akıcılık, Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.prestigelife.idletycoon.dev`; Play sürümünde `.dev` olmadan).

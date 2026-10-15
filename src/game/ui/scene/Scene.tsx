@@ -55,17 +55,17 @@ const POSE_RANK: Record<Pose, number> = { idle: 0, collect: 1, pet: 2, joy: 3 };
 const POSE_LIST = Object.keys(POSE_RANK) as Pose[];
 
 /** Ground spots where items show up; x stays inside what tall phones show, y above the menu and in
- * front of where the vehicle stands. */
+ * front of where the vehicle stands. At most 0.81 since the dreams board made the menu taller (2026-10-15). */
 const SPOTS: [number, number][] = [
   [0.18, 0.7],
-  [0.24, 0.79],
-  [0.17, 0.85],
-  [0.32, 0.84],
-  [0.55, 0.79],
-  [0.46, 0.84],
-  [0.68, 0.84],
-  [0.79, 0.77],
-  [0.8, 0.85],
+  [0.24, 0.78],
+  [0.14, 0.81],
+  [0.33, 0.81],
+  [0.55, 0.78],
+  [0.46, 0.81],
+  [0.68, 0.81],
+  [0.79, 0.76],
+  [0.85, 0.8],
 ];
 
 const ITEM_FILTER = 'drop-shadow(0 0 6px rgba(255,230,150,0.85)) brightness(1.05)';

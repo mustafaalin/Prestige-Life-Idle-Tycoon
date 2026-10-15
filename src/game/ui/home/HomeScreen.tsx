@@ -34,6 +34,8 @@ import { questTarget } from './questText';
 import { RetirementPanel } from './RetirementPanel';
 import { IncomeSheet } from './IncomeSheet';
 import { RewardCard } from './RewardCard';
+import { DreamsRow } from './DreamsRow';
+import type { FocusTarget } from './focus';
 import { SettingsSheet } from './SettingsSheet';
 import type { TabId } from './tabs';
 import { TabSheet } from './TabSheet';
@@ -66,6 +68,15 @@ export function HomeScreen() {
     const target = questTarget(quest);
     if (!target) return;
     setPinnedQuest(quest.id);
+    setAlbumOpen(false);
+    setRichOpen(false);
+    setStoreOpen(false);
+    setTab(target.tab);
+    showFocus(target);
+  };
+
+  // A dream on the board: the shop opens on it, its buy button glowing.
+  const goToDream = (target: FocusTarget) => {
     setAlbumOpen(false);
     setRichOpen(false);
     setStoreOpen(false);
@@ -198,6 +209,7 @@ export function HomeScreen() {
               // A deal is due, or the account just opened and was never used.
               invest: investTabOpen(state) && (investmentDue(state.invest, Date.now()) || state.invest.made === 0),
             }}
+            top={sheetOpen ? undefined : <DreamsRow onGo={goToDream} />}
             locked={
               investTabOpen(state)
                 ? {}

@@ -314,6 +314,10 @@ export const en = {
     body: 'You were away for {duration}. Your managers earned:',
     cap: 'Earnings pile up for at most {duration}; it grows as you climb classes.',
   },
+  dreams: {
+    buy: 'Buy!',
+    percent: '{percent}%',
+  },
   invest: {
     locked: 'Opens at {class}',
     title: "Old Ray's deals",

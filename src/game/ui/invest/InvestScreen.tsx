@@ -172,7 +172,7 @@ function NewDeal({ onStarted }: { onStarted: () => void }) {
                 value === share ? 'bg-gradient-to-b from-amber-300 to-orange-500 text-white v2-shadow v2-glossy' : 'text-indigo-900/60'
               }`}
             >
-              {value === 1 ? t('invest.all') : `%${value * 100}`}
+              {value === 1 ? t('invest.all') : t('dreams.percent', { percent: value * 100 })}
             </button>
           ))}
         </div>

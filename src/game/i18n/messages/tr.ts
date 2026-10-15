@@ -313,6 +313,10 @@ export const tr: Messages = {
     body: '{duration} uzaktaydın. Yöneticilerin kazandı:',
     cap: 'Kazanç en fazla {duration} birikir; sınıf atladıkça bu süre uzar.',
   },
+  dreams: {
+    buy: 'Al!',
+    percent: '%{percent}',
+  },
   invest: {
     locked: '{class} olunca açılır',
     title: 'Rıza Amca\'nın fırsatları',
