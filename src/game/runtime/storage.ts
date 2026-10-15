@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { CAREERS } from '../core/config/careers';
 import { WEALTH_CLASSES } from '../core/config/classes';
+import { HEIRLOOMS } from '../core/config/heirlooms';
 import { HOUSES, LEGACY_HOUSE_TO_HOME } from '../core/config/housing';
 import { LIFE_SECONDS } from '../core/config/life';
 import { legacyOutfitIndex, legacyVehicleCount, LIFESTYLE_ITEMS, OUTFITS, VEHICLES } from '../core/config/lifestyle';
@@ -115,7 +116,20 @@ function normalizeGame(raw: unknown): GameStateV2 {
     finds: Math.floor(finite(raw.finds, 0)),
     // Set from the purchases right after (parseRuntime); saves from before 2026-10-15 have none.
     accessoryMultiplier: 1,
+    // Saves from before the heirlooms (2026-10-15) have none: their legacy points are now there to spend.
+    heirlooms: normalizeHeirlooms(raw.heirlooms),
   });
+}
+
+/** Known heirlooms only, whole levels, never past the last level. */
+function normalizeHeirlooms(raw: unknown): Record<string, number> {
+  const levels: Record<string, number> = {};
+  if (!isRecord(raw)) return levels;
+  for (const def of HEIRLOOMS) {
+    const level = Math.min(Math.floor(finite(raw[def.id], 0)), def.maxLevel);
+    if (level > 0) levels[def.id] = level;
+  }
+  return levels;
 }
 
 function normalizeCycles(raw: unknown): Record<string, CycleState> {

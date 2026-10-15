@@ -9,7 +9,10 @@ import {
   businessBaseIncomePerSecond,
   careerBonus,
   globalMultiplier,
+  heirloomLevel,
+  heirloomPrice,
   legacyMultiplier,
+  managerCost,
   salaryPerSecond,
   statusBonus,
   costForUnits,
@@ -43,7 +46,7 @@ import {
   HELP_MAX_SHARE,
 } from '../core/config/ads';
 import { STORY_GIFT_FROM_CLASS } from '../core/config/economy';
-import { LIFE_SECONDS, SECONDS_PER_MONTH } from '../core/config/life';
+import { SECONDS_PER_MONTH } from '../core/config/life';
 import { expectedGain, INVEST_CAP_MONTHS, INVEST_FROM_CLASS, INVEST_PLANS } from '../core/config/investments';
 import { dailyMonths } from '../core/config/daily';
 import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
@@ -58,6 +61,8 @@ import {
   buyLifestyle,
   buyUpgrade,
   canBuyUpgrade,
+  buyHeirloom,
+  canHandOverEarly,
   canRetire,
   claimQuest,
   createInitialState,
@@ -75,8 +80,10 @@ import {
   ownsHouse,
   promote,
   rentHome,
+  handOverEarly,
   retire,
 } from '../core/state';
+import { HEIRLOOMS } from '../core/config/heirlooms';
 import type { GameStateV2 } from '../core/types';
 
 export interface Session {
@@ -221,7 +228,7 @@ function candidates(state: GameStateV2): Candidate[] {
       list.push({
         label: `Manager: ${def.name}`,
         kind: 'manager',
-        cost: def.managerCost,
+        cost: managerCost(state, def),
         apply: (s) => hireManager(s, def.id),
       });
     }
@@ -280,7 +287,7 @@ export interface SimOptions {
 
 export function simulate(profile: PlayerProfile, days: number, options: SimOptions = {}): SimResult {
   let state = createInitialState();
-  if (options.startLegacyPoints) state = { ...state, legacyPoints: options.startLegacyPoints };
+  if (options.startLegacyPoints) state = buyHeirlooms({ ...state, legacyPoints: options.startLegacyPoints });
   const events: SimEvent[] = [];
   const time: Clock = { clock: 0, activeTotal: 0, activeGeneration: 0 };
 
@@ -455,14 +462,13 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
   };
 
   const maybeRetire = () => {
-    const early = options.retireAtTop === true && state.classIndex === WEALTH_CLASSES.length - 1;
-    if (!canRetire(state) && !early) return;
-    // The trial's early hand-over: the life is treated as complete.
-    if (early && !canRetire(state)) state = { ...state, lifeSeconds: LIFE_SECONDS };
+    // "Hand over now" at the top class skips the remaining years.
+    if (options.retireAtTop === true && canHandOverEarly(state)) state = handOverEarly(state) ?? state;
+    if (!canRetire(state)) return;
     log('retire', `Life ends, gen ${state.generation} (+${pendingLegacyPoints(state)} legacy)`);
     const next = retire(state);
     if (next) {
-      state = next;
+      state = buyHeirlooms(next);
       time.activeGeneration = 0;
     }
   };
@@ -568,6 +574,20 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     investProfit: investing.profit,
     investCount: investing.count,
   };
+}
+
+/** The bot spends legacy points at once: the watch (income) first, then always the cheapest level it can. */
+function buyHeirlooms(start: GameStateV2) {
+  let state = start;
+  for (let guard = 0; guard < 100; guard += 1) {
+    const options = HEIRLOOMS.map((def) => ({ def, price: heirloomPrice(def, heirloomLevel(state, def.id)) })).sort(
+      (a, b) => (a.def.id === 'watch' ? -1 : b.def.id === 'watch' ? 1 : a.price - b.price),
+    );
+    const next = options.map(({ def }) => buyHeirloom(state, def.id)).find((bought) => bought !== null);
+    if (!next) return state;
+    state = next;
+  }
+  return state;
 }
 
 // ── Player profiles ──────────────────────────────────────────────────────────
@@ -676,7 +696,7 @@ export function sessionSummary(state: GameStateV2) {
     .join(', ');
   return [
     `cash ${state.cash.toExponential(2)}`,
-    `x${globalMultiplier(state).toFixed(1)} (career +${Math.round(careerBonus(state) * 100)}%, status +${Math.round(statusBonus(state) * 100)}%, legacy x${legacyMultiplier(state.legacyPoints).toFixed(2)})`,
+    `x${globalMultiplier(state).toFixed(1)} (career +${Math.round(careerBonus(state) * 100)}%, status +${Math.round(statusBonus(state) * 100)}%, legacy x${legacyMultiplier(state).toFixed(2)})`,
     `items ${state.lifestyleOwned.length}`,
     `home ${state.home}${state.homesOwned.includes(state.home) ? ' (owned)' : ''}, owns ${state.homesOwned.length}`,
     `salary ${Math.round((salary / total) * 100)}%`,

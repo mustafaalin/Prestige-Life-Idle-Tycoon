@@ -2,7 +2,7 @@ import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import type { EventOutcome } from '../core/config/events';
 import { SECONDS_PER_MONTH, SECONDS_PER_YEAR } from '../core/config/life';
-import { autoIncomePerSecond, fetchReward, storyGift } from '../core/formulas';
+import { autoIncomePerSecond, fetchReward, heroAge, storyGift } from '../core/formulas';
 import { earn, live } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { applyBoost, applyHelp } from './adRewards';
@@ -27,6 +27,8 @@ import {
   rentHome,
   resume,
   retire,
+  handOverEarly,
+  buyHeirloom,
   startCycle,
   tap,
   tick,
@@ -76,6 +78,10 @@ export interface GameActions {
   claimDaily(multiplier?: number): number;
   /** End of life: hand the family over to the heir. */
   retire(): boolean;
+  /** "Hand over now" from the top class: skips the remaining years, so the end of life opens. */
+  handOverEarly(): boolean;
+  /** Buys the next level of a family heirloom with legacy points. */
+  buyHeirloom(id: string): boolean;
   /** Old Ray's deals (runtime/investment.ts). */
   invest: {
     /** Puts `stake` into a deal; false when not allowed (one at a time, at most the cap). */
@@ -379,6 +385,15 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         // The life that just ended, not the heir's.
         const { generation, classIndex } = state.game;
         return actTracked(retire, 'retire', () => ({ generation, class_index: classIndex }));
+      },
+      handOverEarly: () => {
+        const { generation } = state.game;
+        const age = heroAge(state.game).years;
+        return actTracked(handOverEarly, 'hand_over_early', () => ({ generation, age }));
+      },
+      buyHeirloom: (id) => {
+        const level = (state.game.heirlooms[id] ?? 0) + 1;
+        return actTracked((s) => buyHeirloom(s, id), 'heirloom_buy', () => ({ heirloom: id, level }));
       },
       invest: {
         start: (planId, stake) =>

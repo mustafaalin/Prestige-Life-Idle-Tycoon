@@ -7,7 +7,21 @@ import { CLASS_OUTFIT_FLOOR, LIFESTYLE_ITEMS, OUTFITS, STARTING_LIFESTYLE_IDS, V
 import { ACTIVE_QUESTS, GENERATED_QUEST_SECONDS, QUESTS } from './config/quests';
 import { COLLECT_END_CLASS } from './config/scene';
 import { UPGRADES } from './config/upgrades';
-import { classIndexFor, costForUnits, isLifeOver, pendingLegacyPoints, questReward } from './formulas';
+import { WEALTH_CLASSES } from './config/classes';
+import { heirloomDef } from './config/heirlooms';
+import {
+  classIndexFor,
+  costForUnits,
+  heirloomCap,
+  heirloomLevel,
+  heirloomPrice,
+  isLifeOver,
+  jamCash,
+  legacyAvailable,
+  managerCost,
+  pendingLegacyPoints,
+  questReward,
+} from './formulas';
 import type { BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind, QuestDef, QuestGoal, UpgradeDef } from './types';
 
 // Pure state transitions. Every action returns a new state, or null when it is not allowed.
@@ -21,16 +35,18 @@ function emptyBusinesses(): Record<string, BusinessState> {
 }
 
 export function createInitialState(
-  family: Pick<GameStateV2, 'generation' | 'legacyPoints' | 'totalEarnings' | 'accessoryMultiplier'> = {
+  family: Pick<GameStateV2, 'generation' | 'legacyPoints' | 'totalEarnings' | 'accessoryMultiplier' | 'heirlooms'> = {
     generation: 1,
     legacyPoints: 0,
     totalEarnings: 0,
     accessoryMultiplier: 1,
+    heirlooms: {},
   }
 ): GameStateV2 {
   return {
     version: 2,
-    cash: STARTING_CASH,
+    // Mom's plum jam: the heir starts with some cash.
+    cash: STARTING_CASH + jamCash(family.heirlooms.jam ?? 0),
     generationEarnings: 0,
     totalEarnings: family.totalEarnings,
     generation: family.generation,
@@ -47,6 +63,7 @@ export function createInitialState(
     bottles: 0,
     finds: 0,
     accessoryMultiplier: family.accessoryMultiplier,
+    heirlooms: { ...family.heirlooms },
   };
 }
 
@@ -122,7 +139,7 @@ export function hireManager(state: GameStateV2, businessId: string): GameStateV2
   const def = BUSINESS_BY_ID.get(businessId);
   const current = state.businesses[businessId];
   if (!def || current.managed || current.owned <= 0) return null;
-  const paid = spend(state, def.managerCost);
+  const paid = spend(state, managerCost(state, def));
   if (!paid) return null;
   return {
     ...paid,
@@ -400,12 +417,26 @@ export function claimQuest(state: GameStateV2, questId: string): GameStateV2 | n
   return { ...paid, questsDone: [...paid.questsDone, questId] };
 }
 
-/** Retirement comes only at the end of life (no early hand-over; game-design-v2 §4.9). */
+/** Retirement comes at the end of life; "Hand over now" gets there early (handOverEarly). */
 export function canRetire(state: GameStateV2) {
   return isLifeOver(state);
 }
 
-/** Retire: the heir inherits the family legacy and starts a new life from the street. */
+/** From the top class on, the player may hand over without waiting for 80 (game-design-v2 §4.5). */
+export function canHandOverEarly(state: GameStateV2) {
+  return state.classIndex === WEALTH_CLASSES.length - 1 && !isLifeOver(state);
+}
+
+/**
+ * "Hand over now": the remaining years are skipped and the life ends at 80 as always (the story's
+ * hand-over is at 80); the legacy is what was earned until now.
+ */
+export function handOverEarly(state: GameStateV2): GameStateV2 | null {
+  if (!canHandOverEarly(state)) return null;
+  return { ...state, lifeSeconds: LIFE_SECONDS };
+}
+
+/** Retire: the heir inherits the family legacy and heirlooms and starts a new life from the street. */
 export function retire(state: GameStateV2): GameStateV2 | null {
   if (!canRetire(state)) return null;
   return createInitialState({
@@ -413,5 +444,17 @@ export function retire(state: GameStateV2): GameStateV2 | null {
     legacyPoints: state.legacyPoints + pendingLegacyPoints(state),
     totalEarnings: state.totalEarnings,
     accessoryMultiplier: state.accessoryMultiplier,
+    heirlooms: state.heirlooms,
   });
+}
+
+/** Buys the next level of a family heirloom with legacy points. */
+export function buyHeirloom(state: GameStateV2, id: string): GameStateV2 | null {
+  const def = heirloomDef(id);
+  if (!def) return null;
+  const level = heirloomLevel(state, def.id);
+  if (level >= heirloomCap(def, state.generation) || heirloomPrice(def, level) > legacyAvailable(state)) return null;
+  // Bought during a life, the jam's cash comes at once (what the heir would have started with).
+  const cash = def.id === 'jam' ? jamCash(level + 1) - jamCash(level) : 0;
+  return { ...state, cash: state.cash + cash, heirlooms: { ...state.heirlooms, [def.id]: level + 1 } };
 }

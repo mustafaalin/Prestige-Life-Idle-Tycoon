@@ -5,7 +5,6 @@ import { WEALTH_CLASSES } from './config/classes';
 import {
   ACTIVE_UNMANAGED_EFFICIENCY,
   LEGACY_BASE,
-  LEGACY_BONUS_PER_POINT,
   LEGACY_EXPONENT,
   LEGACY_SCALE,
   OFFLINE_CAP_HOURS_BY_CLASS,
@@ -16,6 +15,7 @@ import {
   TAP_BASE,
   TAP_INCOME_SECONDS,
 } from './config/economy';
+import { HEIRLOOMS, JAM_FIRST_CASH, NOTEBOOK_MIN_SHARE, heirloomDef, type HeirloomDef, type HeirloomId } from './config/heirlooms';
 import {
   EVENT_BOLD_CHANCE,
   EVENT_CARDS,
@@ -126,15 +126,56 @@ export function statusBonus(state: GameStateV2) {
   return bonus;
 }
 
-export function legacyMultiplier(legacyPoints: number) {
-  return 1 + legacyPoints * LEGACY_BONUS_PER_POINT;
+// ── Family heirlooms (config/heirlooms.ts) ────────────────────────────────────
+
+export function heirloomLevel(state: GameStateV2, id: HeirloomId) {
+  return state.heirlooms[id] ?? 0;
+}
+
+/** Levels the family can own now: the first heir's cap, a little more each generation. */
+export function heirloomCap(def: HeirloomDef, generation: number) {
+  return Math.min(def.maxLevel, def.firstCap + Math.max(0, generation - 2) * def.capGrowth);
+}
+
+/** What the next level costs when `level` are owned. */
+export function heirloomPrice(def: HeirloomDef, level: number) {
+  return def.firstCost * 2 ** level;
+}
+
+/** Legacy points spent on heirlooms so far (worked out from their levels). */
+export function legacySpent(state: GameStateV2) {
+  let spent = 0;
+  for (const def of HEIRLOOMS) {
+    for (let level = 0; level < heirloomLevel(state, def.id); level += 1) spent += heirloomPrice(def, level);
+  }
+  return spent;
+}
+
+/** Legacy points left to spend. */
+export function legacyAvailable(state: GameStateV2) {
+  return Math.max(0, state.legacyPoints - legacySpent(state));
+}
+
+const effect = (state: GameStateV2, id: HeirloomId) => heirloomLevel(state, id) * (heirloomDef(id)?.perLevel ?? 0);
+
+/** The family legacy's income multiplier: Grandfather's watch. */
+export function legacyMultiplier(state: GameStateV2) {
+  return 1 + effect(state, 'watch');
+}
+
+/** The cash an heir starts with from Mom's plum jam at `level`. */
+export function jamCash(level: number) {
+  return level > 0 ? JAM_FIRST_CASH * (heirloomDef('jam')?.perLevel ?? 10) ** (level - 1) : 0;
+}
+
+/** A manager's price after Old Ray's notebook. */
+export function managerCost(state: GameStateV2, def: BusinessDef) {
+  return def.managerCost * Math.max(NOTEBOOK_MIN_SHARE, 1 - effect(state, 'notebook'));
 }
 
 /** Everything that scales all income: career, status items, family legacy and Şans's paid accessories. */
 export function globalMultiplier(state: GameStateV2) {
-  return (
-    (1 + careerBonus(state)) * (1 + statusBonus(state)) * legacyMultiplier(state.legacyPoints) * state.accessoryMultiplier
-  );
+  return (1 + careerBonus(state)) * (1 + statusBonus(state)) * legacyMultiplier(state) * state.accessoryMultiplier;
 }
 
 export function salaryPerSecond(state: GameStateV2) {
@@ -187,7 +228,7 @@ export function cycleRevenue(state: GameStateV2, def: BusinessDef) {
 /** What claiming a goal pays: a little early on, then a slice of income. */
 export function questReward(state: GameStateV2, quest: QuestDef) {
   return Math.max(
-    quest.rewardMin * legacyMultiplier(state.legacyPoints),
+    quest.rewardMin * legacyMultiplier(state),
     incomePerSecond(state, 'active') * quest.rewardSeconds,
   );
 }
@@ -236,7 +277,7 @@ export function incomeBreakdown(state: GameStateV2) {
     home,
     collar,
     items: statusBonus(state) - home - collar,
-    legacy: legacyMultiplier(state.legacyPoints) - 1,
+    legacy: legacyMultiplier(state) - 1,
     accessory: state.accessoryMultiplier - 1,
     unmanaged,
   };
@@ -244,7 +285,7 @@ export function incomeBreakdown(state: GameStateV2) {
 
 /** The gift that closes a ceremony or a life moment (config/economy.ts STORY_GIFT_SECONDS). */
 export function storyGift(state: GameStateV2) {
-  return incomePerSecond(state, 'active') * STORY_GIFT_SECONDS;
+  return incomePerSecond(state, 'active') * STORY_GIFT_SECONDS * (1 + effect(state, 'album'));
 }
 
 /** The daily reward: `months` of the monthly income the top bar shows (config/daily.ts). */
@@ -253,7 +294,7 @@ export function dailyReward(state: GameStateV2, months: number) {
 }
 
 export function tapValue(state: GameStateV2) {
-  return TAP_BASE * legacyMultiplier(state.legacyPoints) + incomePerSecond(state, 'active') * TAP_INCOME_SECONDS;
+  return TAP_BASE * legacyMultiplier(state) + incomePerSecond(state, 'active') * TAP_INCOME_SECONDS;
 }
 
 /** Whether there is still something on the ground to collect (config/scene.ts). */
@@ -263,7 +304,7 @@ export function canCollect(state: GameStateV2) {
 
 /** What Şans's find pays when the player catches it (config/scene.ts). */
 export function fetchReward(state: GameStateV2) {
-  return FETCH_BOTTLES * tapValue(state);
+  return FETCH_BOTTLES * tapValue(state) * (1 + effect(state, 'collar'));
 }
 
 /** How long Şans stays away between finds: much shorter until the first manager is hired (config/scene.ts). */

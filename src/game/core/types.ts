@@ -139,6 +139,8 @@ export interface GameStateV2 {
    * again from them on every load, so the saved number is never the source.
    */
   accessoryMultiplier: number;
+  /** Family heirlooms bought with legacy points: level by heirloom id (config/heirlooms.ts). Kept across lives. */
+  heirlooms: Record<string, number>;
 }
 
 export type IncomeMode = 'active' | 'idle';

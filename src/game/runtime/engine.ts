@@ -11,12 +11,14 @@ import {
 } from '../core/formulas';
 import {
   buyBusinessUnits as coreBuyBusinessUnits,
+  buyHeirloom as coreBuyHeirloom,
   buyHome as coreBuyHome,
   buyLifestyle as coreBuyLifestyle,
   buyUpgrade as coreBuyUpgrade,
   claimQuest as coreClaimQuest,
   createInitialState,
   earn,
+  handOverEarly as coreHandOverEarly,
   hireManager as coreHireManager,
   moveHome as coreMoveHome,
   promote as corePromote,
@@ -253,6 +255,16 @@ export function buyHome(state: RuntimeState, houseId: string) {
 
 export function moveHome(state: RuntimeState, houseId: string) {
   return withGame(state, coreMoveHome(state.game, houseId));
+}
+
+/** "Hand over now" (from the top class): the remaining years are skipped, the life ends at 80. */
+export function handOverEarly(state: RuntimeState) {
+  return withGame(state, coreHandOverEarly(state.game));
+}
+
+/** Buys the next level of a family heirloom with legacy points. */
+export function buyHeirloom(state: RuntimeState, id: string) {
+  return withGame(state, coreBuyHeirloom(state.game, id));
 }
 
 /** End of life: the heir takes over with the family legacy; production starts from scratch. */

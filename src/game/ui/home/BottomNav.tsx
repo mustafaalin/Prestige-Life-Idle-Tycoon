@@ -44,7 +44,8 @@ export function BottomNav({ open, onSelect, attention, locked = {}, top }: Botto
         className={`rounded-[24px] bg-gradient-to-b from-[#2b3f87]/95 to-[#1b2758]/95 border-2 border-white/20 shadow-xl px-2.5 pb-2 ${top ? 'pt-4' : 'pt-6'}`}
       >
         {top}
-        <div className="flex gap-2.5">
+        {/* Five buttons fit a phone with a tighter gap and smaller labels. */}
+        <div className={`flex ${TABS.length > 4 ? 'gap-1.5' : 'gap-2.5'}`}>
           {TABS.map(({ id, label, icon }) => {
             const selected = id === open;
             const lockedHint = locked[id];
@@ -88,7 +89,11 @@ export function BottomNav({ open, onSelect, attention, locked = {}, top }: Botto
                     {lockedHint}
                   </span>
                 )}
-                <span className="absolute inset-x-0 bottom-1 truncate px-0.5 v2-display text-[13px] text-white v2-outline-thin">
+                <span
+                  className={`absolute inset-x-0 bottom-1 truncate px-0.5 v2-display text-white v2-outline-thin ${
+                    TABS.length > 4 ? 'text-[11px] tracking-tight' : 'text-[13px]'
+                  }`}
+                >
                   {t(label)}
                 </span>
                 {attention[id] && !selected && lockedHint === undefined && (

@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { BUSINESSES } from '../../core/config/businesses';
-import { LEGACY_BONUS_PER_POINT } from '../../core/config/economy';
-import { heroAge, pendingLegacyPoints } from '../../core/formulas';
+import { heroAge, legacyAvailable, pendingLegacyPoints } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { storyRuns } from '../../runtime/story';
@@ -42,7 +41,8 @@ export function RetirementPanel() {
   const age = heroAge(game).years;
   const { heroName, daughterName } = state.story;
   const gained = pendingLegacyPoints(game);
-  const total = game.legacyPoints + gained;
+  // Points the heir can spend: what is left unspent plus this life's.
+  const total = legacyAvailable(game) + gained;
   const owned = BUSINESSES.filter((def) => (game.businesses[def.id]?.owned ?? 0) > 0);
   const managers = owned.filter((def) => game.businesses[def.id].managed).length;
   // The pictures are the first generation's life; an heir has none of their own yet (story §6).
@@ -124,7 +124,7 @@ export function RetirementPanel() {
                 <span className="text-[12px] font-black text-emerald-500 tabular-nums">{t('life.legacyGain', { gained })}</span>
               </p>
               <p className="text-[11px] font-semibold leading-snug text-slate-500">
-                {t('life.legacyBonus', { percent: Math.round(total * LEGACY_BONUS_PER_POINT * 100) })}
+                {t('life.legacySpend')}
               </p>
             </div>
           </div>

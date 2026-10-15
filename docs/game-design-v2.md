@@ -10,7 +10,7 @@ Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-
 
 - AdVenture Capitalist tarzı üstel idle ekonomi (sayılar her zaman akar, büyük basamaklar "vay" anıdır)
 - 7 basamaklı, törenli sınıf merdiveni (her basamakta sahne, ev, araç, kıyafet değişir)
-- Bir ömür: kahraman 17 yaşında başlar, yaş sadece oyun açıkken ilerler (1 dk ≈ 3 hafta; 2026-10-09). 80 yaşında emekli olur ve torunu miras çarpanıyla devralır; bugün erken emeklilik yok (§4.9). Karar 2026-10-15 (henüz oyunda değil): En Zengin'den sonra "Şimdi devret" kalan yılları atlar, devir yine 80'de; miras yadigârlara harcanır (§4.5)
+- Bir ömür: kahraman 17 yaşında başlar, yaş sadece oyun açıkken ilerler (1 dk ≈ 3 hafta; 2026-10-09). 80 yaşında emekli olur ve torunu devralır. En Zengin'den sonra "Şimdi devret" kalan yılları atlar, devir yine 80'de; miras yadigârlara harcanır (§4.5; 2026-10-16)
 - Tanıdıklardan gelen olay kartları: bir fırsat, iki cevap (§4.7; ilk 10 kart oyunda, büyük set Faz 2)
 
 Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Şans, Rıza Amca, annesine verilen söz).
@@ -152,23 +152,24 @@ En iyi evde (kendi evin) yaşanıp tüm eşyalar alındığında statü toplamı
 - **Simülatör (bot, 2026-10-13):** bisiklet 3. dk, skuter 10., emektar sedan 16., motosiklet 27., hatchback 30., SUV 40., pikap 47., makam sedanı 52. dk.
 - Kod: `config/lifestyle.ts` (`home`), `core/state.ts` (`lifestyleNeedsHome`, `moveUpNeedsVehicle`, `parkedVehicle`).
 
-### 4.5 Hanedan / miras (`config/economy.ts`)
+### 4.5 Hanedan / miras (`config/economy.ts`, `config/heirlooms.ts`; karar 2026-10-15, plan 2.12)
 
-- Bugün: emeklilik sadece ömrün sonunda (80 yaş, §4.9); oyuncu erken emekli olamaz (değişecek, aşağıdaki karar)
-- Ailenin toplam miras puanı: `floor(10 × (toplamKazanç / 1M)^(1/3))`
-- Emeklilikte kazanılan = toplam puan − eldeki puan
-- Her puan: tüm gelire +%1
-- Küpkök bilinçli seçildi: mirası ikiye katlamak 8 kat kazanç ister ve resetler kartopu yapmaz (bkz. §6)
+- **Miras puanı:** ailenin toplam puanı `floor(10 × (toplamKazanç / 1M)^(1/3))`; devirde kazanılan = toplam − eldeki. Küpkök bilinçli: mirası ikiye katlamak 8 kat kazanç ister, resetler kartopu yapmaz (§6).
+- **Puan harcanır (oyunda, 2026-10-16):** puan artık otomatik +%1 değil; Aile sekmesinde (alt menüde 5. düğme) kalıcı yadigârlara harcanır, yadigârlar bütün nesillere kalır. Harcanan puan seviyelerden hesaplanır (ayrı alan yok); kayıtta `heirlooms` (yadigâr → seviye). Eski kayıtların puanı silinmez, harcanabilir olur (önceki +%1'ler düşer).
+- **Yadigârlar:** her seviye bir öncekinin iki katı; ilk varisin (2. nesil) sınırı, her nesil +1 seviye.
 
-**Kararlaşan yeni hanedan (kullanıcı 2026-10-15, plan 2.12; henüz oyunda değil, yukarıdaki kuralların yerini alacak):**
+| Yadigâr | Etki / seviye | İlk fiyat | 2. nesil sınırı (en çok) |
+| --- | --- | --- | --- |
+| Mehmet'in saati | Bütün gelir +%30 (sınırda ×2,5) | 50 | 5 (10) |
+| Annenin erik reçeli | Başlangıç parası $1K, $10K, $100K... (yaşarken alınırsa fark hemen gelir) | 150 | 3 (6) |
+| Rıza Amca'nın defteri | Yöneticiler %10 ucuz (en çok %50) | 150 | 3 (5) |
+| Şans'ın tasması | Şans'ın bulduğu +%25 | 150 | 3 (6) |
+| Aile albümü | Tören ve hayat anı hediyesi +%25 (varisin törenleri 2. nesil içeriğiyle gelecek; o zamana kadar etkisiz) | 150 | 3 (6) |
 
-- **Görünür miras:** En Zengin'den sonra ekranda canlı "Varisine bırakacağın" sayacı (puan ve gelir etkisi) ve iki düğme: "Şimdi devret" / "Kal, biriktir".
-- **Erken devir, yıllar atlanır:** "Şimdi devret" ömrün kalan yıllarını atlar: "Yıllar geçti…" geçişi, sonra torunun doğumu (63), dede ve torun (70), devir (80) art arda oynar. Hikâye değişmez, devir hep 80 yaşta; miras puanı o ana kadarki kazançtan. "Kal, biriktir" diyen daha çok puan bırakır (ölçüm: zirve sonrası ~7,5 saat kazancı ~14 kat, puanı ~2,5 kat artırıyor).
-- **Yadigâr mağazası (plan 2.2):** puan otomatik +%1 değil, kalıcı aile yadigârlarına harcanan para birimi. Öneri (onay bekliyor): babanın saati (gelir +%20/seviye, 2. nesilde 5 seviye = en fazla ×2), annenin erik reçeli (başlangıç parası), Rıza Amca'nın defteri (yönetici indirimi), Şans'ın tasması (Şans daha sık/çok bulur), aile albümü (tören hediyesi). Seviye fiyatları katlanır (ör. 100, 200, 400, 800, 1.600); harcanmayan puan sonraki nesle kalır, sınırlar her nesil biraz yükselir. Çevrimdışı tavanı yadigâr değil (Gece Vardiyası ürünüyle çakışır). Eski kayıtların puanı silinmez, harcanabilir puana dönüşür.
-- **Varisin hızı:** hedef, varis En Zengin'e 1. neslin ~üçte biri sürede (bağlı oyuncu ~3–4 saat oyun). Ölçüm (2026-10-15, başlangıç gelir çarpanı → bağlı oyuncunun En Zengin süresi): ×1 9 sa 11 dk, ×1,5 6 sa 16 dk, ×2 4 sa 52 dk, ×3 3 sa 28 dk, ×5 2 sa 18 dk, ×26 (bugün 80 yaşta kalan) 47 dk. Yani yadigârların toplam gelir etkisi 2. nesilde en fazla ×2–3. Simülatör seçenekleri: `retireAtTop`, `startLegacyPoints` (`sim/simulator.ts`).
-- **Yeni şehir (plan 2.3):** her nesil yeni şehirde; işletmeler (kullanılmayan görsellerden), evler, fiyat, gelir ve sınıf eşikleri şehirle aynı oranda büyür, hızı yadigârlar belirler. Miras puanı her neslin kendi şehrine göre hesaplanmalı (büyük rakamlar puanı patlatmasın). Varis kiralık odadan ve dedenin Çiçek Tezgâhı'yla (yadigâr) başlar (öneri).
-- **Varisler ve görünüm:** 2. nesil kız torun (sabit), 3. nesil erkek (ilk kahramanın görselleri yeniden kullanılır), sonra kadın-erkek sırayla. Kahraman 60 yaştan sonra dede görünümüne geçer; aynı dede 2. nesilde rehber. Ayrıntı [story-v2.md §6](./story-v2.md).
-- **Yayın:** görünür miras, yadigârlar ve 2. nesil içeriği birlikte yayınlanır.
+- **Erken devir (oyunda):** En Zengin'den sonra Aile sekmesi açılır (önce kilitli: "Dünyanın En Zengini olunca açılır"): canlı "Varisine bırakacağın +N itibar puanı", "Kal, biriktir" (sekmeyi kapatır) ve "Şimdi devret" (onay: "Kalan yıllar atlanır; 80 yaşında torununa devredersin"). Devret kalan yılları atlar (`handOverEarly`: ömür 80'de biter), ardından ömür sonu paneli. Hikâye anları (torunun doğumu 63, dede ve torun 70, devir 80) görsellerle gelecek. Sekmede "!": alınabilir yadigâr varsa, ya da devir seçimi açıkken oturumda bir kez. Analitik `hand_over_early`, `heirloom_buy`.
+- **Varisin hızı (simülatör 2026-10-16, bot puanını hemen harcar: önce saat, sonra en ucuzu):** bağlı oyuncunun 2. nesli En Zengin'e erken devirde (~1.000 puan) 4 sa 26 dk, 80 yaşta devirde (~2.500 puan) 3 sa 56 dk oyunda (önce 40 dk; 1. nesil 9 sa 11 dk). Casual 3 sa, reklam izleyen 3 sa 2 dk, reklam + fular + yakut 1 sa 44 dk – 2 sa. Başlangıç çarpanına göre süre: ×1 9 sa 11 dk, ×1,5 6 sa 16 dk, ×2 4 sa 52 dk, ×3 3 sa 28 dk, ×5 2 sa 18 dk. Simülatör: `npm run sim -- --days 60 --retire-at-top` (erken devir), `startLegacyPoints` seçeneği.
+- **Açık (2. nesil içeriğiyle):** 2. nesil yalnız ~260 puan bırakıyor (küpkök bütün nesillerin toplamına bakıyor), 3. nesil 2.'den hızlı değil. Yeni şehirle puan her neslin kendi şehrine göre hesaplanacak.
+- **Kararlaşan, henüz yapılmayan:** her nesil yeni şehirde (işletmeler, evler, fiyat, gelir ve eşikler aynı oranda büyür; hızı yadigârlar belirler; varis kiralık odadan ve dedenin Çiçek Tezgâhı'yla başlar, öneri). Varisler: 2. nesil kız torun (sabit), 3. nesil erkek (ilk kahramanın görselleri), sonra kadın-erkek sırayla; kahraman 60 yaştan sonra dede görünümünde, 2. nesilde rehber ([story-v2.md §6](./story-v2.md)). Görünür miras, yadigârlar ve 2. nesil içeriği birlikte yayınlanır.
 
 ### 4.6 Çevrimdışı kazanç
 
@@ -325,7 +326,7 @@ Engaged botun ilk günü (2026-10-13, tasmalardan önce; sıra aynı): şişeler
 
 ## 7. Faz 2'ye bırakılan tasarım kararları
 
-- **Nesil içeriği:** Her yeni nesil yeni bir şey açmalı. Seçenekler: yeni şehir ve yeni işletme kademeleri (40 işletme görselinin 30'u hâlâ kullanılmıyor), yadigarlar (miras puanıyla alınan kalıcı yetenekler), yeni sınıflar ("Old Money Dynasty" vb.).
+- **Nesil içeriği:** her nesil yeni şehirde (karar 2026-10-15, §4.5): yeni işletme kademeleri (40 işletme görselinin 30'u hâlâ kullanılmıyor), evler, görevler, torunun törenleri ve hayat anları. Yadigârlar oyunda (§4.5).
 - **Olay kartları:** büyük set, sınıfa göre değişen 60+ kart (ilk 10 kart oyunda, §4.7).
 - **Yatırımlar:** Kiradaki evler (§4.8) ve Rıza Amca'nın fırsatları (§4.13, yapıldı). Ayrı emlak listesi ve borsa yok.
 - **Lüks oyuncakların sahnede gösterimi:** Jet gökyüzünden geçer, yat sadece sahil evlerinde görünür.
@@ -348,7 +349,7 @@ Engaged botun ilk günü (2026-10-13, tasmalardan önce; sıra aynı): şişeler
 | Sınıf eşiği | Net servet | Nesil kazancı, harcayınca düşmez (§4.1) | Alışveriş yapan oyuncu sınıf kaybetmesin |
 | İlk "en zengin" | 2–3 hafta (2–4 nesil) | Tek ömürde, 14–21. gün (§5) | Simülasyon temposu; uzun vade için Faz 2'de nesil içeriği |
 | Konut | Tek ev kavramı | Kirala → satın al → kiraya ver; ev bonusu yaşanan evin kademesinden (§4.8) | Erken oyunda ev almak zor; kiralamak ilerleme hissi, satın almak kira geliri verir (karar 2026-10-07) |
-| Hanedan zamanlaması | Emeklilik → varis sık ve erken | Hikâye tek kahramanın hayatında biter; varis ömür sonunda (80 yaş) devralır (karar 2026-10-08, §4.9) | Hikâyenin sonu (Milyarder, En Zengin) erken emeklilikte hiç görülmüyordu |
+| Hanedan zamanlaması | Emeklilik → varis sık ve erken | Hikâye tek kahramanın hayatında biter; varis ömür sonunda (80 yaş) devralır (karar 2026-10-08, §4.9); En Zengin'den sonra "Şimdi devret" kalan yılları atlar (2026-10-15, §4.5) | Hikâyenin sonu (Milyarder, En Zengin) erken emeklilikte hiç görülmüyordu; zirveden sonra hedef kalmıyordu |
 | Sağlık / mutluluk | Tek "Yaşam Kalitesi" göstergesi, gelire çarpan | Tamamen kaldırılır | Statü eşyaları "hayatın iyileşiyor" hissini zaten veriyor; ayrı gösterge angarya riski (karar 2026-10-07) |
 | Dokunarak kazanma | "Dokun" düğmesi, ilk 30 sn şişe toplama | Ayrı düğme yok; şişe/kutu sahnede, her biri ~2,5 sn gelir, Orta Sınıf'ta biter ve yerini olay kartları alır; Şans ara sıra cüzdan getirir (§4.7) | Toplamaya değmesi için (kullanıcı); sahnede canlılık |
 | Monetizasyon | "Altın Kaşık" paketi, gem | Rahat Paket (reklamsız), Başlangıç Paketi (fular +%10), Şans'ın Yakut Tasması (kalıcı +%50; 2026-10-15'e kadar "Altın Tasma", ×2), lansmanda gem yok ([monetization-v2.md](./monetization-v2.md)) | "Altın Kaşık" sıfırdan yükselen kahramanın tonuyla çelişiyor; sadelik (karar 2026-10-08) |

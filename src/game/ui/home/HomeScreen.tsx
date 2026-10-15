@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AD_OFFLINE_MIN_SECONDS, AD_OFFLINE_MULTIPLIER } from '../../core/config/ads';
 import { isLifeOver, offlineCapHours } from '../../core/formulas';
-import { bestOwnedLifestyle, canBuyAnythingInShop, nextCareer, parkedVehicle } from '../../core/state';
+import { bestOwnedLifestyle, canBuyAnythingInShop, canHandOverEarly, nextCareer, parkedVehicle } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { initAds } from '../../runtime/ads';
 import { trackScreen } from '../../runtime/analytics';
@@ -31,6 +31,7 @@ import { burstCoins } from './coins';
 import { clearFocus, showFocus } from './focus';
 import { QuestPanel, type GoToQuest } from './QuestPanel';
 import { questTarget } from './questText';
+import { familyAttention, familyTabOpen } from '../family/family';
 import { RetirementPanel } from './RetirementPanel';
 import { IncomeSheet } from './IncomeSheet';
 import { RewardCard } from './RewardCard';
@@ -50,6 +51,8 @@ export function HomeScreen() {
   const { t, name, money, duration } = useT();
   const adText = useAdText();
   const [tab, setTab] = useState<TabId | null>(null);
+  // The family tab asks for a look once a session while the hand-over choice is open.
+  const [familySeen, setFamilySeen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [incomeOpen, setIncomeOpen] = useState(false);
   // The goal the player last tapped "Go" on; the strip in the open tab keeps showing it.
@@ -90,6 +93,7 @@ export function HomeScreen() {
     setRichOpen(false);
     setStoreOpen(false);
     setTab(next);
+    if (next === 'family') setFamilySeen(true);
   };
 
   const openAlbum = () => {
@@ -208,13 +212,17 @@ export function HomeScreen() {
               shop: canBuyAnythingInShop(game),
               // A deal is due, or the account just opened and was never used.
               invest: investTabOpen(state) && (investmentDue(state.invest, Date.now()) || state.invest.made === 0),
+              family: familyTabOpen(game) && (familyAttention(game) || (canHandOverEarly(game) && !familySeen)),
             }}
             top={sheetOpen ? undefined : <DreamsRow onGo={goToDream} />}
-            locked={
-              investTabOpen(state)
+            locked={{
+              ...(investTabOpen(state)
                 ? {}
-                : { invest: t('invest.locked', { class: name('wealthClass', WEALTH_CLASSES[INVEST_FROM_CLASS]) }) }
-            }
+                : { invest: t('invest.locked', { class: name('wealthClass', WEALTH_CLASSES[INVEST_FROM_CLASS]) }) }),
+              ...(familyTabOpen(game)
+                ? {}
+                : { family: t('family.locked', { class: name('wealthClass', WEALTH_CLASSES[WEALTH_CLASSES.length - 1]) }) }),
+            }}
           />
         </div>
       </div>
