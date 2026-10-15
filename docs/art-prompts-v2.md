@@ -548,3 +548,7 @@ Tasmalar artık gelir bonusu veriyor (deri %2, gümüş %4, altın %6; [game-des
 > Edit this EXACT sleeping Şans dog sprite. Preserve identity, face, closed eyes, coat, anatomy, curled sleeping pose, proportions, camera, lighting and alpha silhouette unchanged. Replace ONLY the brown leather collar with a polished brushed SILVER collar of linked flat silver plates, a small silver buckle and a small round silver tag, matching the game's silver stage. Leather completely removed. All else unchanged. Transparent alpha background, no floor/shadow, text, halo or extra objects. One sleeping quadruped dog.
 
 **İsteğe bağlı:** palto okşama pozunda (`hero-5-pet`, Milyoner) Şans deri tasmalı ve gümüş künyeli; gümüş tasma gelince bu poz da aynı düzenlemeyle yenilenebilir (referans `art/pilot/08-outfits/hero-5-pet-v2.png`, yalnız tasma).
+
+## 12. Fularlı Şans, her tasmayla (5 tasma × 3 poz = 15 görsel; bekliyor, 2026-10-15)
+
+Fular bugün yalnız oturan Şans'ın boynuna ayrı bir çıkartma olarak bindiriliyor ([discussion-notes.md §1](./discussion-notes.md)). Çözüm: her tasma (ip, deri, gümüş, altın, yakut) ve her poz (oturan, cüzdanlı, uyuyan) için fuların çizildiği ayrı bir görsel. GPT'nin görevi, tablosu ve komutları: [tamamlanan GPT görevi](./archive/gpt-sans-scarf-task.md). Teslimden sonra Claude kesecek, `public/assets/scene/sans-{sit,wallet,sleep}-{rope,leather,silver,gold,ruby}-scarf.webp` olarak ekleyecek ve `Scene.tsx`'teki bindirmeyi kaldıracak.
