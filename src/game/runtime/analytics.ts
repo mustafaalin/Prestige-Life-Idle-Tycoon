@@ -20,6 +20,8 @@ export type AnalyticsEvent =
   | 'event_card'
   | 'offline_claim'
   | 'daily_claim'
+  | 'invest_start'
+  | 'invest_collect'
   | 'retire'
   | 'ad_offer'
   | 'ad_watch'

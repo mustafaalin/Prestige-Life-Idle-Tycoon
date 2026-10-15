@@ -143,7 +143,11 @@ export function StoryDirector({
           at: Math.max(now, state.story.momShownAt) + MOM_MIN_GAP_MS,
         }
       : null;
-    void scheduleReminders({ lucky, mom: momReminder }, t('notify.channel'));
+    const deal = state.invest.active;
+    const invest = deal
+      ? { title: t('ceremony.cast.riza'), body: t('invest.notifyBody'), at: Math.max(now, deal.until) }
+      : null;
+    void scheduleReminders({ lucky, mom: momReminder, invest }, t('notify.channel'));
   }
 
   const finishCeremony = (classIndex: number, skipped: boolean, giftMultiplier?: number) => {

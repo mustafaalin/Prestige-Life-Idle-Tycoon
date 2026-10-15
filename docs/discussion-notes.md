@@ -42,7 +42,7 @@ Kararlaşanlar: varis 17 yaşında torun (kızının çocuğu), devir 80 yaşın
 
 Kurallar ve sayılar [game-design-v2.md §4–5](./game-design-v2.md). Çevrimdışı oran ve tavan kararlaştı (%50, geç oyunda 2 sa; 2026-10-13). Açıklar:
 
-- **Multimilyarder hedefi FAIL:** bağlı bot 7. gün 08:03'te (4 sa 20 dk oyun) varıyor, hedef 8. günden itibaren. Ucuz tezgâh, tören hediyesi, tasmalar ve günlük ödül (2026-10-15, ~10 saat) onu öne çekti. Seçenekler: (a) hedefin alt sınırını 7. gün sabahına çekmek (Claude'un önerisi; Milyarder'de de böyle yapıldı); (b) geç oyunu ~15–20 dakikalık oyun kadar yavaşlatmak. Tek bir geç işletmeyi %5–7 kısmak yetmedi.
+- **Multimilyarder hedefi FAIL:** bağlı bot 7. gün 08:00'de (4 sa 17 dk oyun) varıyor, hedef 8. günden itibaren. Ucuz tezgâh, tören hediyesi, tasmalar, günlük ödül ve yatırım (2026-10-15, ~10 saat) onu öne çekti. Seçenekler: (a) hedefin alt sınırını 7. gün sabahına çekmek (Claude'un önerisi; Milyarder'de de böyle yapıldı); (b) geç oyunu ~15–20 dakikalık oyun kadar yavaşlatmak. Tek bir geç işletmeyi %5–7 kısmak yetmedi.
 - **Faz 1 kapısı yeniden yazılmalı:** "ilk oturumda Orta Sınıf ≥ %60" güncel tempoda tutmuyor (botta Orta Sınıf 30. dk, 1. günün 2. oturumu; ilk oturumda Gündelikçi ve İşçi törenleri geliyor).
 - **Erken oyun telefonda bakılacak:** ucuz tezgâh, $1K yönetici, ilk yöneticiye kadar sık gelen Şans. Elle çalışan tezgâhın geliri üst barda görünmüyor (kullanıcı: yönetici atanınca görünsün). Hâlâ boş geliyorsa yeni bir uğraş.
 - **Çevrimdışı ödül erken sınıflarda:** kullanıcı erken oyunda fazla buluyor; erken sınıfların tavanları (10 dk → 1 sa) hiç denenmedi. Ölçüm: paranın ~%87'si çevrimdışı kartlardan geliyor; oran ve tavan payı pek oynatmıyor (%78–91), tempoyu ve "ne sıklıkla dönmeli" hissini belirliyor.

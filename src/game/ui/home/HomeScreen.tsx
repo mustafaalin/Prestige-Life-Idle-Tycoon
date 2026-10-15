@@ -21,6 +21,9 @@ import { AlbumSheet } from '../story/AlbumSheet';
 import { RICH_BUTTON_CLASS, RichListButton, RichListSheet } from '../richList/RichList';
 import { StoreButton, StoreSheet } from '../shop/StoreSheet';
 import { offersOpen } from '../../runtime/purchases';
+import { investmentDue, investTabOpen } from '../../runtime/investment';
+import { INVEST_FROM_CLASS } from '../../core/config/investments';
+import { WEALTH_CLASSES } from '../../core/config/classes';
 import { StoryDirector } from '../story/StoryDirector';
 import { BottomNav } from './BottomNav';
 import { CoinLayer } from './CoinLayer';
@@ -42,7 +45,7 @@ import { TopBar } from './TopBar';
 
 export function HomeScreen() {
   const { game, state, actions } = useGameV2();
-  const { t, money, duration } = useT();
+  const { t, name, money, duration } = useT();
   const adText = useAdText();
   const [tab, setTab] = useState<TabId | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -189,7 +192,17 @@ export function HomeScreen() {
           <BottomNav
             open={tab}
             onSelect={selectTab}
-            attention={{ career: promotion !== null && game.cash >= promotion.cost, shop: canBuyAnythingInShop(game) }}
+            attention={{
+              career: promotion !== null && game.cash >= promotion.cost,
+              shop: canBuyAnythingInShop(game),
+              // A deal is due, or the account just opened and was never used.
+              invest: investTabOpen(state) && (investmentDue(state.invest, Date.now()) || state.invest.made === 0),
+            }}
+            locked={
+              investTabOpen(state)
+                ? {}
+                : { invest: t('invest.locked', { class: name('wealthClass', WEALTH_CLASSES[INVEST_FROM_CLASS]) }) }
+            }
           />
         </div>
       </div>

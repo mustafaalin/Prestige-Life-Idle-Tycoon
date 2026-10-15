@@ -1,12 +1,14 @@
 import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import type { EventOutcome } from '../core/config/events';
-import { SECONDS_PER_YEAR } from '../core/config/life';
-import { fetchReward, storyGift } from '../core/formulas';
+import { SECONDS_PER_MONTH, SECONDS_PER_YEAR } from '../core/config/life';
+import { autoIncomePerSecond, fetchReward, storyGift } from '../core/formulas';
 import { earn, live } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { applyBoost, applyHelp } from './adRewards';
 import { claimDaily, offerDaily } from './daily';
+import { collectInvestment, startInvestment } from './investment';
+import type { InvestPlanId } from '../core/config/investments';
 import { ownedProducts, realStore } from './iap';
 import { applyPurchase, applyRevoke, openOffers, refundedToRevoke, storeOwnedToGrant } from './purchases';
 import {
@@ -74,6 +76,13 @@ export interface GameActions {
   claimDaily(multiplier?: number): number;
   /** End of life: hand the family over to the heir. */
   retire(): boolean;
+  /** Old Ray's deals (runtime/investment.ts). */
+  invest: {
+    /** Puts `stake` into a deal; false when not allowed (one at a time, at most the cap). */
+    start(planId: InvestPlanId, stake: number): boolean;
+    /** Collects a deal whose term is up; returns the gain (negative on a loss), or null if none was due. */
+    collect(): number | null;
+  };
   /** Rewards of watched ads (call only after showRewardedAd() returned 'rewarded'; adRewards.ts). */
   ads: {
     /** An hour of doubled income; false when the day's limit or the cap is reached. */
@@ -131,6 +140,8 @@ export interface GameActions {
     reset(): void;
     /** Offers the daily reward again today (the next day of the calendar). */
     dailyAgain(): void;
+    /** Ends the running investment's term now. */
+    investNow(): void;
   };
 }
 
@@ -369,6 +380,23 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         const { generation, classIndex } = state.game;
         return actTracked(retire, 'retire', () => ({ generation, class_index: classIndex }));
       },
+      invest: {
+        start: (planId, stake) =>
+          actTracked((s) => startInvestment(s, planId, stake, clock(), Math.random()), 'invest_start', () => ({
+            plan: planId,
+            months: Math.round(stake / Math.max(autoIncomePerSecond(state.game) * SECONDS_PER_MONTH, 1e-9)),
+          })),
+        collect: () => {
+          const active = state.invest.active;
+          if (!active) return null;
+          const gain = active.payout - active.stake;
+          const done = actTracked((s) => collectInvestment(s, clock()), 'invest_collect', () => ({
+            plan: active.planId,
+            won: gain >= 0,
+          }));
+          return done ? gain : null;
+        },
+      },
       ads: {
         boost: () => act((s) => applyBoost(s, clock())),
         help: (cost, amount) => (act((s) => applyHelp(s, clock(), cost, amount)) ? amount : 0),
@@ -445,6 +473,9 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         },
         dailyAgain: () => {
           act((s) => offerDaily({ ...s, daily: { ...s.daily, claimedDay: '', offer: null } }, clock()));
+        },
+        investNow: () => {
+          act((s) => (s.invest.active ? { ...s, invest: { ...s.invest, active: { ...s.invest.active, until: clock() } } } : null));
         },
         reset: () => {
           clearSave();

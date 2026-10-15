@@ -21,6 +21,8 @@ export const ICONS = {
   vehicle: `${DIR}/vehicle.webp`,
   outfit: `${DIR}/outfit.webp`,
   luxury: `${DIR}/luxury.webp`,
+  /** Old Ray's deals (the investment account): a savings pot with a rising arrow. */
+  invest: `${DIR}/invest.webp`,
   /** Family legacy points; never the status star. */
   legacy: `${DIR}/legacy-points.webp`,
 };

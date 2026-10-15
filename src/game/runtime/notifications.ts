@@ -13,6 +13,7 @@ const PREF_KEY = 'prestige_life_v2_notifications';
 const CHANNEL_ID = 'story';
 const LUCKY_ID = 101;
 const MOM_ID = 102;
+const INVEST_ID = 103;
 const DEV_TEST_ID = 199;
 
 /** Local hours a reminder may arrive in: from 10:00 up to (not including) 21:00. */
@@ -75,7 +76,7 @@ export function setNotificationsEnabled(value: boolean) {
 
 export const notificationsSupported = native;
 
-const KIND_BY_ID: Record<number, string> = { [LUCKY_ID]: 'lucky', [MOM_ID]: 'mom', [DEV_TEST_ID]: 'dev_test' };
+const KIND_BY_ID: Record<number, string> = { [LUCKY_ID]: 'lucky', [MOM_ID]: 'mom', [INVEST_ID]: 'invest', [DEV_TEST_ID]: 'dev_test' };
 
 /** Counts taps on our reminders (they open the app; nothing else to do). Returns the stop function. */
 export function installNotificationTracking(): () => void {
@@ -124,17 +125,23 @@ export function intoDaytime(at: number): number {
 export async function cancelReminders() {
   if (!native) return;
   try {
-    await LocalNotifications.cancel({ notifications: [{ id: LUCKY_ID }, { id: MOM_ID }] });
+    await LocalNotifications.cancel({ notifications: [{ id: LUCKY_ID }, { id: MOM_ID }, { id: INVEST_ID }] });
   } catch {
     // Nothing scheduled.
   }
 }
 
 /** Replaces any scheduled reminders. Mom's wins when both would land on the same day. */
+/**
+ * `invest`: Old Ray's deal is due. It takes Lucky's place (both say "come back and collect"), so the
+ * one-a-day rule stays.
+ */
 export async function scheduleReminders(
-  { lucky, mom }: { lucky: Reminder | null; mom: Reminder | null },
+  { lucky: luckyReminder, mom, invest }: { lucky: Reminder | null; mom: Reminder | null; invest?: Reminder | null },
   channelName: string,
 ) {
+  const lucky = invest ?? luckyReminder;
+  const luckyId = invest ? INVEST_ID : LUCKY_ID;
   if (!native || !notificationsEnabled()) return;
   try {
     await cancelReminders();
@@ -146,7 +153,7 @@ export async function scheduleReminders(
     if (luckyAt !== null && momAt !== null && Math.abs(momAt - luckyAt) < MIN_SEPARATION_MS) luckyAt = null;
 
     const notifications = [];
-    if (lucky && luckyAt !== null) notifications.push(toNotification(LUCKY_ID, lucky, luckyAt));
+    if (lucky && luckyAt !== null) notifications.push(toNotification(luckyId, lucky, luckyAt));
     if (mom && momAt !== null) notifications.push(toNotification(MOM_ID, mom, momAt));
     if (notifications.length > 0) await LocalNotifications.schedule({ notifications });
   } catch {

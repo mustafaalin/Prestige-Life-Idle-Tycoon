@@ -43,6 +43,8 @@ import {
   HELP_MAX_SHARE,
 } from '../core/config/ads';
 import { STORY_GIFT_FROM_CLASS } from '../core/config/economy';
+import { SECONDS_PER_MONTH } from '../core/config/life';
+import { expectedGain, INVEST_CAP_MONTHS, INVEST_FROM_CLASS, INVEST_PLANS } from '../core/config/investments';
 import { dailyMonths } from '../core/config/daily';
 import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
 import { LIFE_MOMENTS, storyRuns } from '../runtime/story';
@@ -167,6 +169,9 @@ export interface SimResult {
   dailyPaid: number;
   /** Each daily claim: calendar day, money paid, class at the time. */
   dailyClaims: { day: number; amount: number; className: string }[];
+  /** Old Ray's deals: return paid and deals made. */
+  investProfit: number;
+  investCount: number;
 }
 
 interface Candidate {
@@ -501,19 +506,60 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     }
   };
 
+  /**
+   * Old Ray's deals (runtime/investment.ts): when a session ends, the bot puts its savings (up to the
+   * cap) into the longest deal that is due by the next session; the bold deal pays its average. The
+   * stake and return come back at the first session after the term.
+   */
+  const investing = { stake: 0, rate: 0, until: 0, profit: 0, count: 0 };
+  const collectInvestment = () => {
+    if (investing.stake <= 0 || time.clock < investing.until) return;
+    const profit = investing.stake * investing.rate;
+    state = { ...state, cash: state.cash + investing.stake };
+    investing.profit += profit;
+    investing.stake = 0;
+    earnTracked(profit);
+  };
+  const invest = (gapSeconds: number) => {
+    if (investing.stake > 0 || state.classIndex < INVEST_FROM_CLASS) return;
+    const plan = [...INVEST_PLANS].sort((a, b) => b.hours - a.hours).find((entry) => entry.hours * 3600 <= gapSeconds);
+    const stake = Math.min(state.cash, autoIncomePerSecond(state) * SECONDS_PER_MONTH * INVEST_CAP_MONTHS);
+    if (!plan || stake <= 0) return;
+    state = { ...state, cash: state.cash - stake };
+    Object.assign(investing, { stake, rate: expectedGain(plan), until: time.clock + plan.hours * 3600, count: investing.count + 1 });
+  };
+  const schedule: { start: number; minutes: number; day: number }[] = [];
   for (let day = 1; day <= days; day += 1) {
     for (const session of profile.sessionsForDay(day)) {
-      const start = (day - 1) * 86400 + session.startHour * 3600;
+      schedule.push({ start: (day - 1) * 86400 + session.startHour * 3600, minutes: session.minutes, day });
+    }
+  }
+
+  for (const [index, { start, minutes, day }] of schedule.entries()) {
+    {
+      const session = { minutes };
       // Offline earnings arrive when the player returns, so milestones they cause belong to this session.
       comeBack(start, day);
+      collectInvestment();
       // The day's reward is fixed when the day's first session opens (before any purchase).
       claimDaily();
       playSession(session.minutes * 60);
       log('session', sessionSummary(state));
+      const next = schedule[index + 1];
+      if (next) invest(next.start - time.clock);
     }
   }
 
-  return { profile: profile.name, days, events, finalState: state, dailyPaid: daily.paid, dailyClaims: daily.claims };
+  return {
+    profile: profile.name,
+    days,
+    events,
+    finalState: state,
+    dailyPaid: daily.paid,
+    dailyClaims: daily.claims,
+    investProfit: investing.profit,
+    investCount: investing.count,
+  };
 }
 
 // ── Player profiles ──────────────────────────────────────────────────────────

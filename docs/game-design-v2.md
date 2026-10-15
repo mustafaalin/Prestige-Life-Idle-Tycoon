@@ -257,6 +257,18 @@ Oyuncuya her gün geri gelmesi için bir sebep verir. Tasarım benzer oyunlara b
 - **Reklamla ×2:** kartta, Rahat Paket'le reklamsız (monetization-v2 §4, yer 6).
 - **Simülatörde (2026-10-15):** bağlı oyuncunun parasının ~%6'sı, hafif oyuncunun ~%11'i. En Zengin: bağlı 15. gün 21:00 → 14. gün 23:00; hafif 31. gün → 27. gün. Multimilyarder 7. gün 18:04 → 08:03 (zaten hedefin altındaydı, discussion-notes §4). `npm run sim -- --daily-claims` ilk günlerin tutarlarını gösterir.
 
+### 4.13 Yatırım: Rıza Amca'nın fırsatları (`config/investments.ts`, `runtime/investment.ts`, karar 2026-10-15)
+
+Bir randevu mekaniği: oyuncu birikimini bir vadeye koyar, vadesi dolunca geri gelip toplar. Gerekçe: 3. günden itibaren oturumlar çoğunlukla büyük bir alım için birikimle bitiyor (oturum sonunda cepte 20–190 aylık gelir); o para bir sonraki girişe kadar boş yatıyordu.
+
+- **Üç vade:** Güvenli 1 sa +%5; Dengeli 4 sa +%20; Cesur 8 sa (gece için): %60 ihtimalle +%70, %40 ihtimalle −%20 (ortalama +%34). Cesur vadenin sonucu para yatırılırken çekilir ve kayda yazılır; uygulamayı kapatıp açmak sonucu değiştirmez. Vade dolana kadar ekranda iki olası tutar da yazar.
+- **Tavan:** en fazla 5 yıllık gelir (60 aylık gelir), cüzdandan fazlası değil. Tavansız denemede birikim her oturumda faizle katlanıyor, yatırım paranın %23–83'ünü getiriyordu.
+- **Tutar:** %25 / %50 / Hepsi. Aynı anda tek yatırım.
+- **Para:** yatırılan tutar cüzdandan çıkar ve vadede geri gelir; yalnız kazanç yeni kazanç sayılır (sınıf, Zenginler Listesi). Kayıp, geri gelen tutardan düşer.
+- **Açılış:** Orta Sınıf. Alt menüdeki "Yatırım" düğmesi oyunun başından görünür, gri ve kilitli; dokununca "Orta Sınıf olunca açılır" der (kullanıcı 2026-10-15: yeni ekranlar alt menüye, sahnenin ortasına değil). Açıldığında ve vade dolunca düğmede "!" çıkar. Varis Orta Sınıf'tan önce de eski yatırımını toplayabilir.
+- **Bildirim:** vade dolunca "Yatırımın vadesi doldu" (günde tek bildirim kuralı; Şans'ın hatırlatmasının yerini alır).
+- **Simülatörde (2026-10-15):** bot her oturumun sonunda birikimini bir sonraki girişe kadar dolan en uzun vadeye koyar (en iyi oyuncu; gerçek oyuncu daha az yatırır). Bağlı oyuncunun parasının ~%8'i, hafif oyuncunun ~%13'ü. En Zengin: bağlı 14. gün 23:00 → 08:00; hafif 27. gün → 25. gün.
+
 ## 5. Tempo hedefleri ve simülasyon sonuçları
 
 `npm run sim` iki oyuncu profilini 45 gün oynatır:
@@ -268,7 +280,7 @@ Oyuncuya her gün geri gelmesi için bir sebep verir. Tasarım benzer oyunlara b
 
 Bot her an en kısa sürede kendini ödeyen alımı yapar, yani optimal oynar. Gerçek oyuncuların ~1,3–1,8 kat yavaş olduğu tahmin, ölçülmüş değil. Bot yöneticisiz işletmeleri %60 verimle çalıştırıyor sayar; gerçek oyunda sadece başlatılan döngü ödenir (sınırlar: discussion-notes §5). Toplama, Şans'ın bulduğu ve olay kartları simülatörde modelli (§4.7).
 
-Güncel sonuç (2026-10-15, günlük ödülle; hedefler `src/game/sim/report.ts`):
+Güncel sonuç (2026-10-15, günlük ödül ve yatırımla; hedefler `src/game/sim/report.ts`):
 
 | Kilometre taşı | Hedef (engaged bot) | Engaged bot | Casual bot |
 | --- | --- | --- | --- |
@@ -280,8 +292,8 @@ Güncel sonuç (2026-10-15, günlük ödülle; hedefler `src/game/sim/report.ts`
 | Orta Sınıf | 25–50 dk oyun | 30 dk, 1. gün 2. oturum (18 yaş) | 25 dk, 2. gün |
 | Milyoner | 35 dk – 1 sa 15 dk oyun | 40 dk, 1. gün son oturum (19 yaş) | 35 dk, 2. gün |
 | İlk milyarder | 2. gün 20:00 – 7. gün (alt sınır 2026-10-15'te 3. günden indi: gümüş tasma) | 2. gün 23:00, 1 sa 22 dk (22 yaş) | 4. gün |
-| İlk multimilyarder | 8–14. gün | **7. gün 08:03, 4 sa 20 dk (33 yaş): hedefin altında, simülatör bu satırda FAIL veriyor** (karar bekliyor, [discussion-notes.md §4](./discussion-notes.md)) | 13. gün |
-| İlk "en zengin" | 14–21. gün | 14. gün 23:00, 9 sa 46 dk (53 yaş) | 27. gün (42 yaş) |
+| İlk multimilyarder | 8–14. gün | **7. gün 08:00, 4 sa 17 dk (33 yaş): hedefin altında, simülatör bu satırda FAIL veriyor** (karar bekliyor, [discussion-notes.md §4](./discussion-notes.md)) | 13. gün |
+| İlk "en zengin" | 14–21. gün | 14. gün 08:00, 9 sa 11 dk (51 yaş) | 25. gün (40 yaş) |
 | İlk ömür sonu (80 yaş) | 21–37. gün | 25. gün (16 sa 48 dk oyun) | 45 günde gelmiyor |
 
 **His kontrolleri (`checkFeel`):** Tempo hedefleri tutarken işletmeler yan gelire düşebiliyor (eski bir ayarda Gündelikçi anında işletme payı %3'tü). Simülatör şunları da bekler: her işletmenin ilk biriminin turu ≥ $1; işletmelerin gelirdeki payı (toplama hariç) Gündelikçi anında, ilk oturumun sonunda ve 1. nesil oturumlarının ortancasında ≥ %50. Şu an: tur en az $1, pay %84 / %91 / %98. `npm run sim -- --purchases --timeline` her alımı zaman çizelgesinde gösterir.
@@ -305,7 +317,7 @@ Engaged botun ilk günü (2026-10-13, tasmalardan önce; sıra aynı): şişeler
 
 - **Nesil içeriği:** Her yeni nesil yeni bir şey açmalı. Seçenekler: yeni şehir ve yeni işletme kademeleri (40 işletme görselinin 30'u hâlâ kullanılmıyor), yadigarlar (miras puanıyla alınan kalıcı yetenekler), yeni sınıflar ("Old Money Dynasty" vb.).
 - **Olay kartları:** büyük set, sınıfa göre değişen 60+ kart (ilk 10 kart oyunda, §4.7).
-- **Yatırımlar:** Kiradaki evler (§4.8) ve tek bir "Yatırım Hesabı": güvenli / orta / riskli vadeler (risk anları). Ayrı emlak listesi ve borsa yok.
+- **Yatırımlar:** Kiradaki evler (§4.8) ve Rıza Amca'nın fırsatları (§4.13, yapıldı). Ayrı emlak listesi ve borsa yok.
 - **Lüks oyuncakların sahnede gösterimi:** Jet gökyüzünden geçer, yat sadece sahil evlerinde görünür.
 - **Günlük döngü:** Günlük ödül yapıldı (§4.12); günlük görevler sonra.
 

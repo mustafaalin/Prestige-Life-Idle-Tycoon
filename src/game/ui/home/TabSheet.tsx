@@ -3,6 +3,7 @@ import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
 import { BusinessesScreen } from '../businesses/BusinessesScreen';
 import { CareerScreen } from '../career/CareerScreen';
+import { InvestScreen } from '../invest/InvestScreen';
 import { useLook } from '../look';
 import { ShopScreen } from '../shop/ShopScreen';
 import { QuestStrip, type GoToQuest } from './QuestPanel';
@@ -53,6 +54,7 @@ export function TabSheet({
         {tab === 'businesses' && <BusinessesScreen />}
         {tab === 'career' && <CareerScreen />}
         {tab === 'shop' && <ShopScreen onOpenStore={onOpenStore} />}
+        {tab === 'invest' && <InvestScreen />}
       </div>
     </div>
   );

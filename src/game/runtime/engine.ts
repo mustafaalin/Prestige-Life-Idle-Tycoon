@@ -27,6 +27,7 @@ import {
 import type { GameStateV2 } from '../core/types';
 import { boostFactor, boostShare, createAdProgress, type AdProgress } from './adRewards';
 import { createDailyProgress, type DailyProgress } from './daily';
+import { createInvestProgress, type InvestProgress } from './investment';
 import { createPurchaseProgress, type PurchaseProgress } from './purchases';
 import { createStoryProgress, type StoryProgress } from './story';
 
@@ -61,6 +62,8 @@ export interface RuntimeState {
   purchases: PurchaseProgress;
   /** The daily reward's calendar and today's offer (runtime/daily.ts). */
   daily: DailyProgress;
+  /** Old Ray's deals: the running investment (runtime/investment.ts). */
+  invest: InvestProgress;
 }
 
 export interface Payout {
@@ -91,6 +94,7 @@ export function createRuntimeState(now: number, game: GameStateV2 = createInitia
     ads: createAdProgress(),
     purchases: createPurchaseProgress(),
     daily: createDailyProgress(),
+    invest: createInvestProgress(),
   };
 }
 

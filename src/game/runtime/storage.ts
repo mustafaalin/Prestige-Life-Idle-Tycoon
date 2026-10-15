@@ -13,6 +13,8 @@ import type { GameStateV2 } from '../core/types';
 import { createAdProgress, type AdProgress } from './adRewards';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
 import { createDailyProgress, type DailyProgress } from './daily';
+import { createInvestProgress, type InvestProgress } from './investment';
+import { investPlan } from '../core/config/investments';
 import { createPurchaseProgress, withAccessories, type PurchaseProgress } from './purchases';
 import { createStoryProgress, HERO_NAME_MAX, LIFE_MOMENT_IDS, MOM_MESSAGES, type StoryProgress } from './story';
 
@@ -202,6 +204,28 @@ function normalizeDaily(raw: unknown): DailyProgress {
   };
 }
 
+/** Saves from before the investment account (2026-10-15) have none running. A deal is never dropped: its money is the player's. */
+function normalizeInvest(raw: unknown): InvestProgress {
+  const base = createInvestProgress();
+  if (!isRecord(raw)) return base;
+  const active = isRecord(raw.active) ? raw.active : null;
+  const plan = active && typeof active.planId === 'string' ? investPlan(active.planId) : undefined;
+  const stake = active ? finite(active.stake, 0) : 0;
+  return {
+    active:
+      active && plan && stake > 0
+        ? {
+            planId: plan.id,
+            stake,
+            payout: finite(active.payout, stake),
+            startedAt: finite(active.startedAt, 0),
+            until: finite(active.until, 0),
+          }
+        : null,
+    made: Math.floor(finite(raw.made, 0)),
+  };
+}
+
 const native = Capacitor.isNativePlatform();
 
 function savedAtOf(text: string | null) {
@@ -279,6 +303,7 @@ export function parseRuntime(text: string | null, now: number): RuntimeState {
       ads: normalizeAds(runtime.ads),
       purchases,
       daily: normalizeDaily(runtime.daily),
+      invest: normalizeInvest(runtime.invest),
     };
   } catch {
     keepUnreadable(text);

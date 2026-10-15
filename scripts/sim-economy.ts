@@ -82,6 +82,7 @@ for (const profile of PROFILES) {
     if (args.includes('--daily-claims')) {
       console.log(result.dailyClaims.slice(0, 16).map((c) => `D${c.day} ${formatMoney(c.amount)} (${c.className})`).join(' · '));
     }
+    console.log(`Old Ray's deals ${result.investCount}, profit ${formatMoney(result.investProfit)} (${((result.investProfit / Math.max(total, 1)) * 100).toFixed(1)}% of all money earned)`);
     console.log(`daily reward paid ${formatMoney(result.dailyPaid)} (${((result.dailyPaid / Math.max(total, 1)) * 100).toFixed(1)}% of all money earned)`);
   }
   const final = result.finalState;
