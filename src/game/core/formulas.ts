@@ -211,6 +211,37 @@ export function autoIncomePerSecond(state: GameStateV2) {
   return incomePerSecond(state, 'idle');
 }
 
+/**
+ * Where the auto income comes from (the top bar's income breakdown). The sources are per second after
+ * every multiplier, so they add up to autoIncomePerSecond; the bonuses are fractions (0.1 = +10%).
+ * `unmanaged`: some owned business has no manager, so it earns only while the player plays.
+ */
+export function incomeBreakdown(state: GameStateV2) {
+  const multiplier = globalMultiplier(state);
+  let businesses = 0;
+  let unmanaged = false;
+  for (const def of BUSINESSES) {
+    const business = state.businesses[def.id];
+    if (!business || business.owned <= 0) continue;
+    if (!business.managed) unmanaged = true;
+    else businesses += businessBaseIncomePerSecond(def, business.owned) * upgradeMultiplier(state, def.id);
+  }
+  const home = homeBonus(state);
+  const collar = collarAt(state.classIndex)?.statusBonus ?? 0;
+  return {
+    businesses: businesses * multiplier,
+    salary: salaryPerSecond(state) * multiplier,
+    rent: rentPerSecond(state) * multiplier,
+    career: careerBonus(state),
+    home,
+    collar,
+    items: statusBonus(state) - home - collar,
+    legacy: legacyMultiplier(state.legacyPoints) - 1,
+    accessory: state.accessoryMultiplier - 1,
+    unmanaged,
+  };
+}
+
 /** The gift that closes a ceremony or a life moment (config/economy.ts STORY_GIFT_SECONDS). */
 export function storyGift(state: GameStateV2) {
   return incomePerSecond(state, 'active') * STORY_GIFT_SECONDS;
@@ -253,6 +284,7 @@ export function eventCardsFor(state: GameStateV2, classIndex = state.classIndex)
   );
 }
 
+/** What an outcome pays (negative: what a failed bold answer costs, before the zero-cash floor). */
 export function eventReward(state: GameStateV2, outcome: EventOutcome) {
   return incomePerSecond(state, 'active') * EVENT_REWARD_SECONDS[outcome];
 }

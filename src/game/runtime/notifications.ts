@@ -160,6 +160,9 @@ function toNotification(id: number, reminder: Reminder, at: number) {
     title: reminder.title,
     body: reminder.body,
     channelId: CHANNEL_ID,
+    // Inexact on purpose: the plugin's default (exact) opens Android's "Alarms & reminders" settings
+    // on every schedule, since the exact-alarm permission is removed from the manifest (AAB 28 bug).
+    isExactNotification: false,
     schedule: { at: new Date(at), allowWhileIdle: true },
   };
 }

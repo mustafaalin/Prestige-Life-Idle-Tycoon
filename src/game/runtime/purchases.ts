@@ -133,20 +133,33 @@ export function openOffers<T extends PurchaseContext>(state: T, now: number): T 
  * A purchase the store confirmed: its rewards (boost, income), and owned for good unless it is a
  * consumable. A product already owned gives nothing again.
  */
+function ownedWith(purchases: PurchaseProgress, product: ProductDef, productId: string): PurchaseProgress {
+  const owned = product.kind === 'consumable' ? purchases.owned : [...purchases.owned, productId];
+  return { ...purchases, owned };
+}
+
+/**
+ * The cash a product pays (its hours of income): the income while playing, hand-run businesses
+ * included (right after the first ceremony most players have no manager yet, and the managed income
+ * alone was close to $0, 2026-10-14), with the product's own accessory bonus already counted.
+ */
+export function purchaseCash(game: GameStateV2, purchases: PurchaseProgress, product: ProductDef) {
+  if (product.incomeSeconds <= 0) return 0;
+  const withBonus = withAccessories(game, ownedWith(purchases, product, product.id));
+  return incomePerSecond(withBonus, 'active') * product.incomeSeconds;
+}
+
 export function applyPurchase<T extends PurchaseContext>(state: T, productId: string, now: number): T {
   const product = productById(productId);
   // Either price of a product gives it once: the other id later (a restore) gives nothing again.
   if (!product || owns(state.purchases, product)) return state;
-  const owned = product.kind === 'consumable' ? state.purchases.owned : [...state.purchases.owned, productId];
-  const purchases = { ...state.purchases, owned };
+  const purchases = ownedWith(state.purchases, product, productId);
   const boostFrom = Math.max(state.ads.boostUntil, now);
-  // The accessory's bonus first, so the hour of income below already counts it.
   const game = withAccessories(state.game, purchases);
+  const cash = purchaseCash(state.game, state.purchases, product);
   return {
     ...state,
-    // The income while playing, hand-run businesses included: right after the first ceremony most
-    // players have no manager yet, and the managed income alone was close to $0 (2026-10-14).
-    game: product.incomeSeconds > 0 ? earn(game, incomePerSecond(game, 'active') * product.incomeSeconds) : game,
+    game: cash > 0 ? earn(game, cash) : game,
     ads: product.boostSeconds > 0 ? { ...state.ads, boostUntil: boostFrom + product.boostSeconds * 1000 } : state.ads,
     purchases,
   };

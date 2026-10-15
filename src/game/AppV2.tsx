@@ -10,6 +10,7 @@ import { installNotificationTracking, loadNotificationsPref } from './runtime/no
 import { GameV2Provider } from './runtime/GameV2Provider';
 import { readSave } from './runtime/storage';
 import { DevMenu } from './ui/DevMenu';
+import { ExitHint } from './ui/home/ExitHint';
 import { HomeScreen } from './ui/home/HomeScreen';
 import { MockAdOverlay } from './ui/ads/MockAdOverlay';
 import { Prologue } from './ui/story/Prologue';
@@ -65,6 +66,7 @@ export default function AppV2() {
         </GameV2Provider>
       )}
       <MockAdOverlay />
+      <ExitHint />
     </I18nProvider>
   );
 }

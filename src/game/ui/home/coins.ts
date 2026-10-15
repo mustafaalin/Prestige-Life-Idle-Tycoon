@@ -6,6 +6,8 @@ export interface CoinBurst {
   x: number;
   y: number;
   count: number;
+  /** The amount, shown where the coins start for a moment before they fly (a big one-off payment). */
+  label?: string;
 }
 
 const burstListeners = new Set<(burst: CoinBurst) => void>();
@@ -50,5 +52,25 @@ export function onHeldBalance(listener: () => void) {
   heldListeners.add(listener);
   return () => {
     heldListeners.delete(listener);
+  };
+}
+
+// Money leaving the wallet (a bold event answer that failed): coins tumble out of the wallet with the
+// amount in red under it, and the balance flashes. The other side of a burst.
+export interface CoinSpill {
+  count: number;
+  label: string;
+}
+
+const spillListeners = new Set<(spill: CoinSpill) => void>();
+
+export function spillCoins(spill: CoinSpill) {
+  spillListeners.forEach((listener) => listener(spill));
+}
+
+export function onCoinSpill(listener: (spill: CoinSpill) => void) {
+  spillListeners.add(listener);
+  return () => {
+    spillListeners.delete(listener);
   };
 }

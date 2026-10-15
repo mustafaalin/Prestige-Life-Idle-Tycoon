@@ -223,20 +223,20 @@ Geri dönüşler: babanın deniz sözü (tekne → yat), önsözün yağmuru ve 
 
 ### 4d. Olay kartları (karar 2026-10-12; oyunda)
 
-Yerden toplama Orta Sınıf'ta bitince kahramanı tanıdıkları arar (game-design §4.7): bir fırsat, iki cevap (sağlamcı / cesur), cesur cevabın tutan ve tutmayan birer sonuç cümlesi. Mizah burada (§2); hiçbir kartın kalıcı sonucu yok, kimse zarar görmez. Tetik kesin: Orta Sınıf töreni; yönetici kartları o yönetici işe alındıysa, Bülent Bey Milyarder töreninden sonra. Yeni görsel yok (ifade portreleri ve yönetici portreleri). Metinler `events.cards.*`; İngilizcesi aynı dosyalarda.
+Yerden toplama Orta Sınıf'ta bitince kahramanı tanıdıkları arar (game-design §4.7): bir fırsat, iki cevap (sağlamcı / cesur), cesur cevabın tutan ve tutmayan birer sonuç cümlesi. Tutmayan cevap biraz para kaybettirir (2026-10-15), bu yüzden kayıp cümlesi paranın nereye gittiğini söyler (kapora, tezgâh parası, depo kirası...). Mizah burada (§2); hiçbir kartın kalıcı sonucu yok, kimse zarar görmez. Tetik kesin: Orta Sınıf töreni; yönetici kartları o yönetici işe alındıysa, Bülent Bey Milyarder töreninden sonra. Yeni görsel yok (ifade portreleri ve yönetici portreleri). Metinler `events.cards.*`; İngilizcesi aynı dosyalarda.
 
 | Kim | Fırsat | Sağlamcı / Cesur | Tutarsa / tutmazsa |
 | --- | --- | --- | --- |
-| Rıza Amca | *"Yarına üç yüz gül isteyen bir düğün var evlat. Yetiştiremezsek rezil oluruz."* | Elimizdekini verelim. / Yetiştiririz, Rıza Amca. | *"Üç yüz gül, bir de bahşiş. Gelin halay bile çekti."* / *"Yüz seksende kaldık. Gelin yine de gülümsedi."* |
-| Nevin Hanım | *"Kurabiyelerimi kermeste satalım diyorlar. Sen ne dersin evladım?"* | Bir tepsi yeter. / Bütün fırını dolduralım! | *"Öğlene kalmadan bitti. Tarifi soranı kovaladım."* / *"Yağmur yağdı. Kurabiyeleri komşulara dağıttık."* |
+| Rıza Amca | *"Yarına üç yüz gül isteyen bir düğün var evlat. Yetiştiremezsek rezil oluruz."* | Elimizdekini verelim. / Yetiştiririz, Rıza Amca. | *"Üç yüz gül, bir de bahşiş. Gelin halay bile çekti."* / *"Yüz seksende kaldık, kaporayı geri verdik. Gelin yine de gülümsedi."* |
+| Nevin Hanım | *"Kurabiyelerimi kermeste satalım diyorlar. Sen ne dersin evladım?"* | Bir tepsi yeter. / Bütün fırını dolduralım! | *"Öğlene kalmadan bitti. Tarifi soranı kovaladım."* / *"Yağmur yağdı, tezgâh parası boşa gitti. Kurabiyeleri komşulara dağıttık."* |
 | Kuzen | *"Kuzen! Bu coin kesin uçacak. Adı bile ErikCoin!"* | Ben almayayım, kuzen. / Azıcık koy bakalım. | *"Uçtu! Kuzen bile şaşırdı."* / *"Uçmadı. Kuzen “uzun vade” diyor."* |
-| Selin | *"Hafta sonu parkta festival var. Arabayı götüreyim mi? Yağmur da diyorlar gerçi."* | Yerinde kal, Selin. / Götür, şemsiyeyi de al. | *"Kuyruk parkın kapısına kadar uzadı!"* / *"Üç kahve sattım. İkisini ben içtim."* |
-| Hüseyin Usta | *"Erikli bir çörek denedim. Ya çok tutar ya hiç tutmaz."* | Simitle devam, usta. / Vitrine koy gitsin. | *"Sabah yedide bitti. Annen de bir tepsi istedi."* / *"Tutmadı. Şans beğendi ama."* |
+| Selin | *"Hafta sonu parkta festival var. Arabayı götüreyim mi? Yağmur da diyorlar gerçi."* | Yerinde kal, Selin. / Götür, şemsiyeyi de al. | *"Kuyruk parkın kapısına kadar uzadı!"* / *"Üç kahve sattım, ikisini ben içtim. Stant parası cepten."* |
+| Hüseyin Usta | *"Erikli bir çörek denedim. Ya çok tutar ya hiç tutmaz."* | Simitle devam, usta. / Vitrine koy gitsin. | *"Sabah yedide bitti. Annen de bir tepsi istedi."* / *"Tutmadı, bir kasa erik gitti. Şans beğendi ama."* |
 | Kemal | *"Abi, bir film ekibi geldi! Arabaları yıkarken çekim yapacaklarmış."* | Biz işimize bakalım. / Çeksinler, köpüğü bol tut! | *"Filmde üç saniye görünüyoruz. Kuyruk var!"* / *"Sahneyi kesmişler. Köpük parası bize kaldı."* |
-| Ayten Abla | *"Annen aradı. Komşunun oğlu iş arıyormuş, depoyu ona emanet edelim mi?"* | Önce kasada başlasın. / Depo ona emanet. | *"Çocuk rafları bir günde dizdi. Annen haklıymış."* / *"Konserveleri alfabeye göre dizmiş. Öğrenecek."* |
-| Derya | *"Bir ünlü geliyor! Salonu kapatıp yalnızca ona mı açalım?"* | Kapımız herkese açık. / Kapat, kırmızı halıyı ser! | *"Fotoğrafımızı paylaştı. Telefon susmuyor!"* / *"Gelmedi. Boş salonda kendi saçımı yaptım."* |
-| Burak | *"Depoya yanlışlıkla 400 koli plastik ördek gelmiş. İade mi edelim, satalım mı?"* | İade et, Burak. / Sat gitsin! | *"Ördekler kapış kapış gitti. Nedenini sorma."* / *"399 koli duruyor. Bir koliyi Şans aldı."* |
-| Bülent Bey | *"Menüye “Patronun Pastası” koymak istiyorum. Doğum günlerinde ikram."* | Menü aynı kalsın. / Koyun. İlk pasta benden. | *"Herkes annesini getiriyor. Rezervasyon doldu."* / *"Pasta biraz yanmış. Yine de mum üflediler."* |
+| Ayten Abla | *"Annen aradı. Komşunun oğlu iş arıyormuş, depoyu ona emanet edelim mi?"* | Önce kasada başlasın. / Depo ona emanet. | *"Çocuk rafları bir günde dizdi. Annen haklıymış."* / *"Konserveleri alfabeye göre dizerken yarısını ezmiş. Öğrenecek."* |
+| Derya | *"Bir ünlü geliyor! Salonu kapatıp yalnızca ona mı açalım?"* | Kapımız herkese açık. / Kapat, kırmızı halıyı ser! | *"Fotoğrafımızı paylaştı. Telefon susmuyor!"* / *"Gelmedi. Bütün gün kapalıydık, ben de kendi saçımı yaptım."* |
+| Burak | *"Depoya yanlışlıkla 400 koli plastik ördek gelmiş. İade mi edelim, satalım mı?"* | İade et, Burak. / Sat gitsin! | *"Ördekler kapış kapış gitti. Nedenini sorma."* / *"399 koli duruyor, depo kirası bizden. Bir koliyi Şans aldı."* |
+| Bülent Bey | *"Menüye “Patronun Pastası” koymak istiyorum. Doğum günlerinde ikram."* | Menü aynı kalsın. / Koyun. İlk pasta benden. | *"Herkes annesini getiriyor. Rezervasyon doldu."* / *"Pastalar yanmış, hepsini yeniden yaptık. Yine de mum üflediler."* |
 
 Geri dönüşler: erik (ağaç, reçel), annenin "komşunun oğlu"su, önsözdeki doğum günü pastası.
 

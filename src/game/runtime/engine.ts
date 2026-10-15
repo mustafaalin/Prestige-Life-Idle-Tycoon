@@ -181,10 +181,12 @@ export function tap(state: RuntimeState): RuntimeState {
  * An event card was answered (config/events.ts; the card rolled the bold answer). It pays at once and
  * the time is kept, so closing the game on a bad result neither loses the reward nor rolls again.
  */
+/** A failed bold answer takes money from cash only (never below zero); earnings and class stay. */
 export function answerEvent(state: RuntimeState, outcome: EventOutcome, now: number): RuntimeState {
+  const amount = eventReward(state.game, outcome);
   return {
     ...state,
-    game: earn(state.game, eventReward(state.game, outcome)),
+    game: amount >= 0 ? earn(state.game, amount) : { ...state.game, cash: Math.max(0, state.game.cash + amount) },
     story: { ...state.story, eventAnsweredAt: now },
   };
 }

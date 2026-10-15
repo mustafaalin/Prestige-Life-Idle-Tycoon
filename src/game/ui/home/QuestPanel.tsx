@@ -1,4 +1,4 @@
-import { ArrowBigUpDash, ChevronDown, ChevronRight, ChevronUp } from 'lucide-react';
+import { ArrowBigUpDash, ChevronRight, ChevronUp } from 'lucide-react';
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { questReward } from '../../core/formulas';
 import { activeQuests, isQuestComplete, questProgress } from '../../core/state';
@@ -7,16 +7,18 @@ import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { useGuideTarget } from '../guide/guideSteps';
+import { AlertBadge } from '../kit';
 import { burstCoins } from './coins';
 import { PointingHand } from './Focusable';
 import { questTarget, questText, questVisual, questWhere } from './questText';
 import type { TabId } from './tabs';
 
-// Goals (plan 1.12/2.7). On the home scene: a card with the next goal (a finished one jumps to the top
-// with a Claim button); "All" shows the three on screen. Inside a tab: a thin strip with one goal, so
-// the player still sees it while doing it. Each goal shows its picture, where it's done, and "Go".
-// The card sits over the home's face (2026-10-15): one row without a header, see-through glass, and the
-// open list folds back by itself after a few seconds or at a tap anywhere else.
+// Goals (plan 1.12/2.7). On the home scene: a small round badge with the next goal's picture in a
+// progress ring (a finished one jumps first, rings green with a "!" and a Claim button beside it); a tap
+// opens the card with every goal on screen, which folds back after a few seconds or at a tap anywhere
+// else. Inside a tab: a thin strip with one goal, so the player still sees it while doing it. Each goal
+// shows its picture, where it's done, and "Go". The badge replaced a one-row card that still covered
+// the home's face (phone test, 2026-10-15).
 
 export type GoToQuest = (quest: QuestDef) => void;
 
@@ -28,6 +30,19 @@ function orderedQuests(game: GameStateV2) {
   return [...activeQuests(game)].sort(
     (a, b) => Number(isQuestComplete(game, b)) - Number(isQuestComplete(game, a)),
   );
+}
+
+/** Claims a finished goal, with coins bursting from the tapped button. */
+function useClaimQuest() {
+  const { actions } = useGameV2();
+  return (quest: QuestDef, event: MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const amount = actions.claimQuest(quest.id);
+    if (amount <= 0) return;
+    playSfx('coin');
+    haptic('medium');
+    burstCoins({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, count: 8 });
+  };
 }
 
 export function QuestPanel({ onGo }: { onGo: GoToQuest }) {
@@ -51,7 +66,6 @@ export function QuestPanel({ onGo }: { onGo: GoToQuest }) {
 
   const quests = orderedQuests(game);
   if (quests.length === 0) return null;
-  const shown = expanded ? quests : quests.slice(0, 1);
   const go: GoToQuest = (quest) => {
     setExpanded(false);
     onGo(quest);
@@ -63,24 +77,94 @@ export function QuestPanel({ onGo }: { onGo: GoToQuest }) {
       aria-label={t('quests.title')}
       className="pointer-events-auto absolute left-3 top-2 w-[min(270px,calc(100%-24px))]"
     >
-      <div className="rounded-2xl bg-white/80 backdrop-blur-sm border-2 border-white/90 shadow-lg px-2 py-1.5">
-        <ul className="flex flex-col gap-2">
-          {shown.map((quest) => (
-            <QuestRow key={quest.id} quest={quest} onGo={go} />
-          ))}
-        </ul>
-      </div>
-      {quests.length > 1 && (
-        <button
-          type="button"
-          onClick={() => setExpanded(!expanded)}
-          className="relative v2-hit ml-3 -mt-0.5 flex items-center gap-0.5 rounded-b-xl bg-white/80 backdrop-blur-sm border-2 border-t-0 border-white/90 px-2 pb-0.5 text-[10px] font-black text-indigo-600 shadow transition-all active:scale-95"
-        >
-          {expanded ? t('quests.less') : `${t('quests.all')} (${quests.length})`}
-          {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-        </button>
+      {expanded ? (
+        <div className="v2-pop-in rounded-2xl bg-white/90 backdrop-blur-sm border-2 border-white shadow-lg px-2 py-1.5">
+          <ul className="flex flex-col gap-2">
+            {quests.map((quest) => (
+              <QuestRow key={quest.id} quest={quest} onGo={go} />
+            ))}
+          </ul>
+          <button
+            type="button"
+            onClick={() => setExpanded(false)}
+            className="relative v2-hit mx-auto mt-1 flex items-center gap-0.5 px-2 text-[10px] font-black text-indigo-600 transition-all active:scale-95"
+          >
+            {t('quests.less')}
+            <ChevronUp className="w-3 h-3" />
+          </button>
+        </div>
+      ) : (
+        <QuestBadge
+          quest={quests[0]}
+          onOpen={() => {
+            playSfx('click');
+            haptic('light');
+            setExpanded(true);
+          }}
+        />
       )}
     </section>
+  );
+}
+
+/** The folded goal: its picture in a progress ring; a finished one also gets a Claim button. */
+function QuestBadge({ quest, onOpen }: { quest: QuestDef; onOpen: () => void }) {
+  const { game } = useGameV2();
+  const translator = useT();
+  const { t, money } = translator;
+  const claim = useClaimQuest();
+  const guided = useGuideTarget()?.key === `quest:${quest.id}:claim`;
+  const { current, target } = questProgress(game, quest.goal);
+  const done = current >= target;
+  const share = Math.min(1, current / Math.max(target, 1));
+  const visual = questVisual(quest);
+  const radius = 26;
+  const length = 2 * Math.PI * radius;
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`${t('quests.title')}: ${questText(quest, translator)}`}
+        className="relative v2-hit shrink-0 w-[60px] h-[60px] transition-all active:scale-90"
+      >
+        <svg viewBox="0 0 60 60" className="absolute inset-0 w-full h-full -rotate-90 drop-shadow-md">
+          <circle cx="30" cy="30" r={radius} fill="rgba(255,255,255,0.9)" stroke="rgba(30,27,75,0.25)" strokeWidth="5" />
+          <circle
+            cx="30"
+            cy="30"
+            r={radius}
+            fill="none"
+            stroke={done ? '#22c55e' : '#f59e0b'}
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeDasharray={length}
+            strokeDashoffset={length * (1 - share)}
+            className="transition-all duration-300"
+          />
+        </svg>
+        <span className="absolute inset-[8px] rounded-full overflow-hidden bg-gradient-to-b from-sky-100 to-indigo-100 flex items-center justify-center">
+          <img
+            src={visual.image}
+            alt=""
+            draggable={false}
+            className={visual.cover || visual.round ? 'w-full h-full object-cover' : 'w-[80%] h-[80%] object-contain'}
+          />
+        </span>
+        {done && <AlertBadge small className="-top-0.5 -right-0.5" />}
+      </button>
+      {done && (
+        <button
+          type="button"
+          onClick={(event) => claim(quest, event)}
+          className="relative v2-hit shrink-0 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-3 py-1.5 v2-display text-[13px] text-white v2-shadow transition-all active:scale-95"
+        >
+          {t('quests.claim')} <span className="tabular-nums">+{money(questReward(game, quest))}</span>
+          {guided && <PointingHand className="-bottom-6 -right-1" />}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -108,7 +192,7 @@ export function QuestStrip({ tab, pinnedId, onGo }: { tab: TabId; pinnedId: stri
 }
 
 function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; compact?: boolean }) {
-  const { game, actions } = useGameV2();
+  const { game } = useGameV2();
   const translator = useT();
   const { t, money } = translator;
 
@@ -119,14 +203,8 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
   const where = questWhere(quest, translator);
   const guided = useGuideTarget()?.key === `quest:${quest.id}:claim`;
 
-  const claim = (event: MouseEvent) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const amount = actions.claimQuest(quest.id);
-    if (amount <= 0) return;
-    playSfx('coin');
-    haptic('medium');
-    burstCoins({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, count: 8 });
-  };
+  const claimQuest = useClaimQuest();
+  const claim = (event: MouseEvent) => claimQuest(quest, event);
 
   return (
     <li className="flex items-center gap-2">

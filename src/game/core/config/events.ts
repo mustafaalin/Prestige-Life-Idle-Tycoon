@@ -2,8 +2,8 @@ import { COLLECT_END_CLASS } from './scene';
 
 // Event cards (game-design §4.7): from Middle Class on, when nothing lies on the ground any more,
 // someone the hero knows calls now and then with a small opportunity. Two answers: the safe one pays
-// a sure amount, the bold one pays more or next to nothing, at odds shown on the card. No branches,
-// no lasting effects, no penalties. Who speaks and with which face: ui/events/eventScript.ts; text in
+// a sure amount, the bold one pays a lot more or costs a little, at odds shown on the card. No
+// branches, no lasting effects. Who speaks and with which face: ui/events/eventScript.ts; text in
 // i18n `events.cards.<id>`. Checked by `npm run sim`.
 
 export interface EventCardDef {
@@ -38,9 +38,12 @@ export const EVENT_FIRST_MAX_SECONDS = 90;
 export const EVENT_MIN_SECONDS = 240;
 export const EVENT_MAX_SECONDS = 360;
 
-/** What each outcome pays, in seconds of active income. The bold answer pays only a little more on
- * average (55 s against 45), so always answering bold is not the obvious play (2026-10-12). */
-export const EVENT_REWARD_SECONDS = { safe: 45, win: 100, lose: 10 };
+/** What each outcome pays, in seconds of active income; a bold answer that fails costs money (never
+ * below zero cash). The bold answer pays only a little more on average (55 s against 45), so always
+ * answering bold is not the obvious play (2026-10-12). Since 2026-10-15 a failure loses 20 s instead of
+ * paying 10 s (user: the risk should be real): with losses felt about twice as much as gains, the
+ * bold answer still feels like the safe one (45 s), so the choice stays open. */
+export const EVENT_REWARD_SECONDS = { safe: 45, win: 130, lose: -20 };
 /** The bold answer works out this often (shown on the card). */
 export const EVENT_BOLD_CHANCE = 0.5;
 

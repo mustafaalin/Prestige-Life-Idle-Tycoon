@@ -26,7 +26,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 
 - **Ekonomi:** 10 işletme (+ yükseltmeler, yöneticiler), 12 basamak kariyer, 8 sınıf, 12 ev (kirala → satın al → kiraya ver), 12 araç (ev–araç zinciri), 7 kıyafet, 4 lüks, Şans'ın tasmaları (deri %2, gümüş %4, altın %6), yaş ve ömür (17 → 80, ~17 saatlik oyun), miras, hedefler, Zenginler Listesi. `npm run sim` tempo ve his hedefleri.
 - **Hikâye:** önsöz (6 kare), 7 sınıf töreni (hepsinin kendi karesi), tasma kartı, annenin 11 mesajı, yaşa bağlı 3 hayat anı, 4 lüks anı, 10 olay kartı, Zenginler Listesi'nin 6 kartı, aile albümü, emeklilik paneli. Kapanış kartında ve hayat anlarında hediye (10 dk gelir, reklamla ×2).
-- **Ana ekran:** oturulan ev ve önünde araç, kahraman (kıyafetine göre pozlar), Şans (cüzdan getirir, tasması sınıfı izler), yerden toplama (Orta Sınıf'ta biter), ince hedef kartı (8 sn sonra kendiliğinden kapanır), solda albüm / Zenginler Listesi / Mağaza, sağda ×2 hızlandırıcı. Rıza Amca rehberi.
+- **Ana ekran:** oturulan ev ve önünde araç, kahraman (kıyafetine göre pozlar), Şans (cüzdan getirir, tasması sınıfı izler), yerden toplama (Orta Sınıf'ta biter), solda üstte yuvarlak hedef rozeti (ilerleme halkası; biten hedefte yeşil halka, "!" ve yanında "Topla"; dokununca tüm hedefler açılır, 8 sn sonra kapanır), üst bardaki paraya dokununca gelir dökümü (`ui/home/IncomeSheet.tsx`, `incomeBreakdown()`), solda albüm / Zenginler Listesi / Mağaza, sağda ×2 hızlandırıcı. Rıza Amca rehberi.
 - **Para:** 5 ödüllü reklam yeri (çevrimdışı +%30, Şans ×2, 1 saatlik ×2, biraz yardım, hediye ×2); Mağaza ve 3 ürün (Rahat Paket $7,99; Başlangıç Paketi $2,99, ilk 3 gün hoş geldin fiyatı $1,49); geri yükleme; Play puanlama penceresi (Milyoner'den sonra).
 - **Altyapı:** kayıt Preferences'ta, Android geri tuşu, güvenli alanlar, yerel bildirimler, Firebase Analytics, TR + EN.
 
@@ -36,7 +36,9 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 - **Fular kalıcı +%10**, ücretli aksesuarlar ayrı çarpan (`GameStateV2.accessoryMultiplier`, satın almalardan her açılışta hesaplanır).
 - **Yakut Tasma +%50** (kalıcı ×2'nin yerine; altın tasma artık bedava): ürün 2. adımda.
 - **Başlangıç Paketi:** ilk 3 gün $1,49 (`v2_starter_pack_welcome`), sonra $2,99 ve hep satışta; "%50 indirim" yerine "Hoş geldin fiyatı · Sonra $2,99".
-- **Hedef kartı inceldi:** evi kapatıyordu.
+- **Hedef kartı yuvarlak rozete döndü:** ince kart da evi kapatıyordu.
+- **Gelir dökümü:** aylık gelire dokununca kaynaklar (yöneticili işletmeler, maaş, kira) ve bonuslar (kariyer, ev, tasma, araç/kıyafet/lüks, aile itibarı, fular, ×2) görünür.
+- **Olay kartında gerçek risk:** tutmayan cesur cevap 20 sn'lik geliri alır (+130 / −20, ortalama aynı; game-design §4.7); kayıp düğmede kırmızı yazar, kapanınca paralar cüzdandan dökülür. Kayıp cümleleri paranın nereye gittiğini söyler. Arama düğmesi telefon gibi titrer.
 - **Tekne anı yeni kare:** mağazadaki sürat teknesinin aynısı.
 - **Simülatör:** "fular" ve "reklam + fular + yakut" profilleri; Milyarder hedefinin alt sınırı 2. gün 20:00 (gümüş tasma yüzünden; kullanıcı kabul etti).
 - **Belgeler toparlandı:** bitmiş teslimler `archive/`'e taşındı, eskimiş yerler güncellendi, açık konular [discussion-notes.md](./discussion-notes.md)'de.
@@ -72,11 +74,11 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
 
 1. **Satın alma ve puanlama** (yalnız Play sürümü): üç ürün, geri yükleme, Rahat Paket sonrası "Hemen al" düğmeleri, Başlangıç Paketi'nin hoş geldin fiyatı ve yerel para birimi, Milyoner sonrası puanlama penceresi.
 2. **Törenler** (DEV → "Töreni oynat" 1–7): kareler balonun altında kalıyor mu, kahramanın yüzü kıyafetle uyuşuyor mu, kapanış kartı, 3 / 4 / 5'te tasma kartı, hediye ve "Reklam izle ×2". Tören bitince sahne değişiyor mu.
-3. **Sahne:** ev 7 ve ev 10'da araçların boyu, yedi kıyafetin pozları, tasmalar (gerçek sınıf atlamayla), fular (oturan Şans'ta), hedef kartı evi kapatıyor mu, sol ve sağ düğmeler kahramanı ya da evi kapatıyor mu.
+3. **Sahne:** ev 7 ve ev 10'da araçların boyu, yedi kıyafetin pozları, tasmalar (gerçek sınıf atlamayla), fular (oturan Şans'ta), hedef rozeti ve gelir dökümü, sol ve sağ düğmeler kahramanı ya da evi kapatıyor mu.
 4. **Ekranlar:** İşletmeler (A görünümü; DEV'den Eski / A / B, sonra B ve seçici kaldırılabilir), rehberin eli ilk dakikalarda doğru düğmede mi, Kariyer, Alışveriş, Lüks resimlerinde gri kenar kalıntısı.
 5. **Albüm, hayat anları, emeklilik, Zenginler Listesi:** DEV → "Hayat anını oynat", "Kahramanı yaşlandır +40" iki kez (emeklilik paneli ve devir), liste kartları.
 6. **Çevrimdışı ve reklam** (DEV'de Google'ın test reklamı): uyuyan Şans kartı, "+%30", ×2 hızlandırıcı, Şans ×2, "biraz yardım".
-7. **Olay kartları:** çağrı düğmesinin yeri, iki cevap, kapat-aç sonrası ödül bakiyede mi.
+7. **Olay kartları:** çağrı düğmesinin titremesi, iki cevap, kayıpta paraların dökülmesi ve bakiyenin düşmesi, kapat-aç sonrası ödül ya da kayıp bakiyede mi.
 8. **Bildirim ve annenin mesajı:** DEV → "Deneme bildirimi (5 sn)", Ayarlar'daki anahtar.
 9. **Erken oyun (yeni kayıtla):** tezgâha ve ilk yöneticiye kadar boşluk var mı, Şans sık geliyor mu, hedef sırası ve rehber.
 10. **Genel:** Android geri tuşu, güvenli alanlar, akıcılık, Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.prestigelife.idletycoon.dev`; Play sürümünde `.dev` olmadan).

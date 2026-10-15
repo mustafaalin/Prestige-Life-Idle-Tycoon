@@ -7,7 +7,15 @@ import { track } from '../../runtime/analytics';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { buyProduct, storeAvailable } from '../../runtime/iap';
-import { limitedOfferOn, offerSecondsLeft, owns, saleId, storeProducts, welcomeSecondsLeft } from '../../runtime/purchases';
+import {
+  limitedOfferOn,
+  offerSecondsLeft,
+  owns,
+  purchaseCash,
+  saleId,
+  storeProducts,
+  welcomeSecondsLeft,
+} from '../../runtime/purchases';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { burstCoins } from '../home/coins';
 import { SectionLabel } from '../kit';
@@ -242,7 +250,12 @@ function StarterReceipt({ onDismiss }: { onDismiss: () => void }) {
 
 export function StoreSheet({ onClose }: { onClose: () => void }) {
   const { state, actions } = useGameV2();
-  const { t } = useT();
+  const { t, money } = useT();
+  // The store's purchase dialog takes a while; the paid amount is read from the state after it.
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  });
   const now = useNow();
   const price = usePrices();
   const { status: restore, restore: restorePurchases } = useRestore();
@@ -272,11 +285,20 @@ export function StoreSheet({ onClose }: { onClose: () => void }) {
     const outcome = await buyProduct(id);
     setBusy(null);
     if (outcome === 'purchased') {
+      // Read before the purchase lands: the same amount applyPurchase pays.
+      const cash = purchaseCash(stateRef.current.game, stateRef.current.purchases, product);
       actions.purchases.apply(id);
       playSfx('purchase');
       haptic('medium');
       const rect = body.current?.getBoundingClientRect();
-      if (rect) burstCoins({ x: rect.left + rect.width / 2, y: rect.top + 80, count: 14 });
+      if (rect) {
+        burstCoins({
+          x: rect.left + rect.width / 2,
+          y: rect.top + 120,
+          count: 14,
+          label: cash > 0 ? `+${money(cash)}` : undefined,
+        });
+      }
       setReceipt(product === PRODUCTS.starter ? 'starter' : 'comfort');
     } else if (outcome === 'unavailable') {
       setFailed(product.id);
@@ -362,12 +384,12 @@ export function StoreSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-/** In the shop tab: the special offers live in the Store; a strip points there. */
+/** In the shop tab: the special offers live in the Store; a strip points there while one is for sale. */
 export function StoreStrip({ onOpen }: { onOpen: () => void }) {
   const { state } = useGameV2();
   const { t } = useT();
   const now = useNow();
-  if (storeProducts(state, now).length === 0) return null;
+  if (storeProducts(state, now).every((product) => owns(state.purchases, product))) return null;
   return (
     <button
       type="button"

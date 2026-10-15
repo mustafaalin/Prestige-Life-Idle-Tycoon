@@ -2,7 +2,7 @@ import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import type { EventOutcome } from '../core/config/events';
 import { SECONDS_PER_YEAR } from '../core/config/life';
-import { eventReward, fetchReward, storyGift } from '../core/formulas';
+import { fetchReward, storyGift } from '../core/formulas';
 import { earn, live } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { applyBoost, applyHelp } from './adRewards';
@@ -55,7 +55,7 @@ export interface GameActions {
   tap(): void;
   /** Pays for what Şans found (`multiplier` is 2 after a rewarded ad); returns the amount for the flying number. */
   claimFind(multiplier?: number): number;
-  /** Pays an event card the moment it is answered (the card rolled the bold answer); returns the amount. */
+  /** Settles an event card the moment it is answered (the card rolled the bold answer); returns the change in cash (negative on a loss). */
   answerEvent(cardId: string, outcome: EventOutcome): number;
   buyBusiness(businessId: string, count: number): boolean;
   hireManager(businessId: string): boolean;
@@ -311,9 +311,9 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         return amount;
       },
       answerEvent: (cardId, outcome) => {
-        const amount = eventReward(state.game, outcome);
+        const before = state.game.cash;
         actTracked((s) => answerEvent(s, outcome, clock()), 'event_card', () => ({ card_id: cardId, outcome }));
-        return amount;
+        return state.game.cash - before;
       },
       buyBusiness: (businessId, count) =>
         actTracked((s) => buyBusinessUnits(s, businessId, count), 'business_buy', () => ({

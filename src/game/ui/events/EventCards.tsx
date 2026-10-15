@@ -16,13 +16,14 @@ import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { pendingCeremony, sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { burstCoins, holdBalance } from '../home/coins';
+import { burstCoins, holdBalance, spillCoins } from '../home/coins';
 import { GameButton } from '../kit';
 import { eventKey, eventSpeaker, onEventCardRequest } from './eventScript';
 
 // Event cards (game-design §4.7): from Middle Class on, someone the hero knows calls every few
 // minutes. The call waits on the home scene until it is answered; the card asks one thing and has a
-// safe and a bold answer. The timers live here and start over with each session, like Şans's finds;
+// safe and a bold answer; a bold one that fails costs money, and the button says how much before the
+// player chooses. The timers live here and start over with each session, like Şans's finds;
 // only the time of the last answer is saved, so reopening the game does not bring a call sooner.
 
 const random = (min: number, max: number) => min + Math.random() * (max - min);
@@ -122,7 +123,7 @@ export function EventCards({ tabOpen, onOpenChange }: EventCardsProps) {
         }}
         className="pointer-events-auto v2-pop-in transition-transform active:scale-95"
       >
-        <span className="v2-bob flex items-center gap-2 rounded-full bg-gradient-to-b from-violet-400 to-indigo-600 border-2 border-white v2-glossy pl-1 pr-3.5 py-1 shadow-xl">
+        <span className="v2-ring flex items-center gap-2 rounded-full bg-gradient-to-b from-violet-400 to-indigo-600 border-2 border-white v2-glossy pl-1 pr-3.5 py-1 shadow-xl">
           <span className="relative">
             <span className="v2-pulse-ring absolute left-1/2 top-1/2 w-full aspect-square rounded-full border-4 border-violet-300" />
             <img
@@ -153,7 +154,8 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
   const { game, actions } = useGameV2();
   const { t, money } = useT();
   const [outcome, setOutcome] = useState<EventOutcome | null>(null);
-  // Paid the moment the card is answered; the top bar shows it once "Collect" is tapped.
+  // Settled the moment the card is answered (negative: a loss); the top bar shows it once the card is
+  // closed, so the coins and the red amount land where the player is looking.
   const [amount, setAmount] = useState(0);
   useEffect(() => () => holdBalance(0), []);
   const amountRef = useRef<HTMLParagraphElement>(null);
@@ -162,7 +164,7 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
   const answer = (bold: boolean) => {
     const result: EventOutcome = !bold ? 'safe' : Math.random() < EVENT_BOLD_CHANCE ? 'win' : 'lose';
     playSfx(result === 'lose' ? 'click' : 'levelUp');
-    haptic(result === 'lose' ? 'light' : 'medium');
+    haptic('medium');
     const paid = actions.answerEvent(cardId, result);
     holdBalance(paid);
     setAmount(paid);
@@ -173,18 +175,21 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
   const collect = () => {
     if (!outcome) return;
     holdBalance(0);
+    if (amount < 0) {
+      // A loss: no coin sound; the coins leave the wallet instead of arriving.
+      playSfx('click');
+      haptic('light');
+      spillCoins({ count: 6, label: `−${money(-amount)}` });
+      onDone();
+      return;
+    }
     playSfx('coin');
     haptic('medium');
     const rect = amountRef.current?.getBoundingClientRect();
-    if (rect) {
-      burstCoins({
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-        count: outcome === 'lose' ? 3 : 12,
-      });
-    }
+    if (rect) burstCoins({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, count: 12 });
     onDone();
   };
+  const lost = outcome === 'lose';
 
   // Android back: let the call wait, or collect once it is answered.
   useBackButton(true, 70, outcome ? collect : onLater);
@@ -198,7 +203,7 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
   // Portaled to <body>, like the reward card, so it covers the bars as well.
   return createPortal(
     <div className="fixed inset-0 z-[70] bg-black/35 flex items-center justify-center px-6">
-      <div className="v2-pop-in w-full max-w-[340px] rounded-[28px] bg-white shadow-2xl overflow-hidden">
+      <div key={lost ? 'lost' : 'card'} className={`${lost ? 'v2-flinch' : 'v2-pop-in'} w-full max-w-[340px] rounded-[28px] bg-white shadow-2xl overflow-hidden`}>
         <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-violet-500 to-indigo-500">
           <img
             key={speaker.portrait}
@@ -231,12 +236,17 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
               </GameButton>
               <GameButton tone="gold" onClick={() => answer(true)} className="w-full px-3 py-2.5 text-center">
                 <span className="block v2-display text-[16px] v2-shadow [text-wrap:balance]">{t(eventKey(cardId, 'bold'))}</span>
-                <span className="block text-[11px] font-black text-white/90 tabular-nums [text-wrap:balance]">
-                  {t('events.chance', {
-                    chance: Math.round(EVENT_BOLD_CHANCE * 100),
-                    win: money(eventReward(game, 'win')),
-                    lose: money(eventReward(game, 'lose')),
-                  })}
+                {/* The stake is spelled out before the choice: the win, and the loss in red. */}
+                <span className="mt-0.5 flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-[11px] font-black text-white/90 tabular-nums">
+                  <span>
+                    {t('events.chance', {
+                      chance: Math.round(EVENT_BOLD_CHANCE * 100),
+                      win: money(eventReward(game, 'win')),
+                    })}
+                  </span>
+                  <span className="rounded-full bg-rose-600/90 px-2 py-px text-white">
+                    {t('events.risk', { lose: money(-eventReward(game, 'lose')) })}
+                  </span>
                 </span>
               </GameButton>
             </div>
@@ -246,14 +256,20 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
               <p
                 ref={amountRef}
                 className={`v2-display v2-outline text-[40px] leading-tight tabular-nums my-1 ${
-                  outcome === 'lose' ? 'text-slate-300' : 'text-emerald-400'
+                  lost ? 'text-rose-400' : 'text-emerald-400'
                 }`}
               >
-                +{money(amount)}
+                {lost ? `−${money(Math.abs(amount))}` : `+${money(amount)}`}
               </p>
-              <GameButton tone="buy" onClick={collect} className="w-full mt-2 py-3 v2-display text-lg v2-shadow">
-                {t('common.collect')}
-              </GameButton>
+              {lost ? (
+                <GameButton tone="soft" onClick={collect} className="w-full mt-2 py-3 v2-display text-lg">
+                  {t('events.loseOk')}
+                </GameButton>
+              ) : (
+                <GameButton tone="buy" onClick={collect} className="w-full mt-2 py-3 v2-display text-lg v2-shadow">
+                  {t('common.collect')}
+                </GameButton>
+              )}
             </div>
           )}
         </div>

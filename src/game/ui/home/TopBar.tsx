@@ -1,4 +1,4 @@
-import { Settings } from 'lucide-react';
+import { ChevronRight, Settings } from 'lucide-react';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { autoIncomePerSecond, classProgress, heroAge } from '../../core/formulas';
@@ -6,12 +6,12 @@ import { useT } from '../../i18n/useT';
 import { boostFactor } from '../../runtime/adRewards';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { ICONS } from '../icons';
-import { heldBalance, onHeldBalance, onWalletHit } from './coins';
+import { heldBalance, onCoinSpill, onHeldBalance, onWalletHit } from './coins';
 
 // Top bar over the scene: money (the target collected bottles fly to), auto income, wealth class,
-// age and progress to the next class.
+// age and progress to the next class. A tap on the money opens the income breakdown (IncomeSheet).
 
-export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
+export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () => void; onOpenIncome: () => void }) {
   const { game, state } = useGameV2();
   const { t, name, money, perMonth } = useT();
   // A watched ad's income boost shows in the income line.
@@ -19,6 +19,14 @@ export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
   // Each arriving coin bumps the wallet (the key restarts the animation).
   const [bump, setBump] = useState(0);
   useEffect(() => onWalletHit(() => setBump((count) => count + 1)), []);
+  // Money leaving the wallet: the balance flashes red and shakes (the key restarts it).
+  const [hurt, setHurt] = useState(0);
+  useEffect(() => onCoinSpill(() => setHurt((count) => count + 1)), []);
+  useEffect(() => {
+    if (!hurt) return;
+    const timer = window.setTimeout(() => setHurt(0), 700);
+    return () => window.clearTimeout(timer);
+  }, [hurt]);
   // An answered event card's reward joins the balance when it is collected.
   const held = useSyncExternalStore(onHeldBalance, heldBalance);
 
@@ -30,7 +38,12 @@ export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
     <header className="px-3 pt-[calc(var(--safe-top)+8px)]">
       <div className="rounded-[22px] bg-gradient-to-b from-[#2b3f87]/95 to-[#1b2758]/95 border-2 border-white/20 shadow-xl px-2.5 pt-2 pb-2.5">
         <div className="flex items-center gap-2">
-          <div className="flex-1 min-w-0 flex items-center gap-2 rounded-2xl bg-black/25 pl-1.5 pr-3 py-1">
+          <button
+            type="button"
+            onClick={onOpenIncome}
+            aria-label={t('income.open')}
+            className="flex-1 min-w-0 flex items-center gap-2 rounded-2xl bg-black/25 pl-1.5 pr-2 py-1 text-left transition-all active:scale-[0.98]"
+          >
             <img
               key={bump}
               data-wallet-icon
@@ -40,7 +53,12 @@ export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
               className={`shrink-0 w-11 drop-shadow-md ${bump ? 'v2-bump' : ''}`}
             />
             <div className="min-w-0">
-              <p className="v2-display v2-outline text-[26px] leading-none text-white tabular-nums truncate">
+              <p
+                key={hurt}
+                className={`v2-display v2-outline text-[26px] leading-none tabular-nums truncate transition-colors duration-500 ${
+                  hurt ? 'v2-hurt text-rose-400' : 'text-white'
+                }`}
+              >
                 {money(Math.max(0, game.cash - held))}
               </p>
               <p
@@ -50,7 +68,8 @@ export function TopBar({ onOpenSettings }: { onOpenSettings: () => void }) {
                 {boost > 1 && ` ×${boost}`}
               </p>
             </div>
-          </div>
+            <ChevronRight className="ml-auto shrink-0 w-4 h-4 text-white/50" />
+          </button>
           <div className="shrink-0 flex flex-col items-end gap-1">
             <span className="flex items-center gap-1 rounded-full bg-gradient-to-b from-amber-300 to-orange-500 border border-white/60 v2-glossy pl-1 pr-2.5 py-0.5">
               <img

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AD_OFFLINE_MIN_SECONDS, AD_OFFLINE_MULTIPLIER } from '../../core/config/ads';
 import { isLifeOver, offlineCapHours } from '../../core/formulas';
-import { canBuyAnythingInShop, nextCareer } from '../../core/state';
+import { bestOwnedLifestyle, canBuyAnythingInShop, nextCareer, parkedVehicle } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { initAds } from '../../runtime/ads';
 import { trackScreen } from '../../runtime/analytics';
@@ -29,6 +29,7 @@ import { clearFocus, showFocus } from './focus';
 import { QuestPanel, type GoToQuest } from './QuestPanel';
 import { questTarget } from './questText';
 import { RetirementPanel } from './RetirementPanel';
+import { IncomeSheet } from './IncomeSheet';
 import { RewardCard } from './RewardCard';
 import { SettingsSheet } from './SettingsSheet';
 import type { TabId } from './tabs';
@@ -45,6 +46,7 @@ export function HomeScreen() {
   const adText = useAdText();
   const [tab, setTab] = useState<TabId | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [incomeOpen, setIncomeOpen] = useState(false);
   // The goal the player last tapped "Go" on; the strip in the open tab keeps showing it.
   const [pinnedQuest, setPinnedQuest] = useState<string | null>(null);
   // An event card is on screen: story moments wait for the home scene, as they do for a tab.
@@ -102,6 +104,24 @@ export function HomeScreen() {
     setStoreOpen(true);
   };
 
+  // A purchase that changes the scene (a move, a new vehicle out front, a new outfit) closes the shop,
+  // so the player sees the hero cheer and the vehicle drive in (phone test, 2026-10-15).
+  const sceneKey = [game.home, parkedVehicle(game)?.id, bestOwnedLifestyle(game, 'outfit')?.id].join('|');
+  const lastSceneKey = useRef(sceneKey);
+  useEffect(() => {
+    if (sceneKey === lastSceneKey.current) return;
+    lastSceneKey.current = sceneKey;
+    if (tab !== 'shop') return;
+    clearFocus();
+    setTab(null);
+  }, [sceneKey, tab]);
+
+  const openIncome = () => {
+    playSfx('click');
+    haptic('light');
+    setIncomeOpen(true);
+  };
+
   useEffect(() => preloadSfx(), []);
   useEffect(
     () => trackScreen(albumOpen ? 'album' : richOpen ? 'rich_list' : storeOpen ? 'store' : (tab ?? 'home')),
@@ -125,7 +145,7 @@ export function HomeScreen() {
 
       <div className="absolute inset-0 flex flex-col pointer-events-none">
         <div className="pointer-events-auto">
-          <TopBar onOpenSettings={() => setSettingsOpen(true)} />
+          <TopBar onOpenSettings={() => setSettingsOpen(true)} onOpenIncome={openIncome} />
         </div>
         <main className="relative flex-1">
           {albumOpen ? (
@@ -210,6 +230,7 @@ export function HomeScreen() {
       )}
 
       {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
+      {incomeOpen && <IncomeSheet onClose={() => setIncomeOpen(false)} />}
 
       <StoryDirector tabOpen={sheetOpen || eventOpen} hold={albumPlaying} onOpenRichList={openRichList} onOpenStore={openStore} />
 

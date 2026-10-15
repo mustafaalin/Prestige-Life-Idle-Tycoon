@@ -1,6 +1,7 @@
 import { useT } from '../../i18n/useT';
 import { playSfx } from '../../runtime/feedback';
 import { useGuideTarget } from '../guide/guideSteps';
+import { AlertBadge } from '../kit';
 import { PointingHand } from './Focusable';
 import { TABS, type TabId } from './tabs';
 
@@ -45,9 +46,7 @@ export function BottomNav({ open, onSelect, attention }: BottomNavProps) {
                 {t(label)}
               </span>
               {attention[id] && !selected && (
-                <span className="absolute -top-2.5 -right-1.5 w-6 h-6 rounded-full bg-gradient-to-b from-rose-400 to-rose-600 border-2 border-white flex items-center justify-center v2-display text-[13px] text-white shadow">
-                  !
-                </span>
+                <AlertBadge className="-top-2.5 -right-1.5" />
               )}
               {guideTab === id && !selected && (
                 <>

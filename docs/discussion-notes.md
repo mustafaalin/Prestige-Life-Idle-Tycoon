@@ -2,13 +2,14 @@
 
 Kararı henüz verilmemiş konular ve Claude'un önerileri. **Karar verilince ilgili belgeye (plan, hikâye, tasarım, monetizasyon) taşınır ve buradan silinir**; burada yalnızca açık konular durur.
 
-Son güncelleme: 2026-10-15 (belgeler toparlandı; çözülen maddeler taşındı; zirve sonrası adayları §2)
+Son güncelleme: 2026-10-15 (AAB 28 telefon testi bulguları §9; okşama pozunda tasma §1)
 
 ## 1. Görsel
 
 Yaklaşım (görsel roman) ve stil (yarı 3D) kararlaştı: [story-v2.md §8](./story-v2.md). Açık kalanlar:
 
 - **Fular bütün pozlarda görünmüyor (GPT görsel incelemesi, 2026-10-14; kodla doğrulandı):** ücretli kırmızı fular yalnız oturan Şans'ın üstüne çiziliyor (`Scene.tsx` `hasScarf`). Cüzdanlı Şans, uyuyan Şans (çevrimdışı kartı) ve kahramanın okşama pozlarında yok; satın alınan aksesuar kayboluyor. Öneri: önce aynı fular görselini poz başına boyun noktasına yerleştirmeyi denemek (yeni üretim yok); boyun açısı uymazsa 2–3 açı varyantı. Yakut tasma gelince aynı soru onun için de geçerli.
+- **Okşama pozunda Şans hep ip tasmalı (AAB 28 telefon testi):** `hero-*-pet-sans.webp` kahramanla Şans'ı tek resimde çiziyor; fular da sınıf tasmaları (deri, gümüş, altın) da okşarken kayboluyor, ip tasma geri geliyor. Kullanıcı fularlı Şans'a dokununca fark etti. Bir üstteki maddeyle aynı iş: boyun noktasına bindirme ya da poz başına tasma varyantı.
 - **İki çizim dili:** önsöz, sokak kahramanı, ana kadro portreleri ve fal.ai'nin lüks anı kareleri çizgili ve düz boyalı; evler, kıyafetler, tören kareleri ve mağaza parlak 3D. En görünür yer önsöz (ilk 40 saniye) ile ana ekranın farkı. Önsözün 3D denemesi hazır (`art/pilot/04-prologue/prologue-4-door-3d.png`, karşılaştırma `art/pilot/reviews/prologue-door-style-comparison.jpg`); kullanıcının kararı bekleniyor. Uygunsa kalan beş kare, sonra sokak kahramanı.
 - **Lükslerin kesim kalıntıları:** sürat teknesi ve yatın sol altında gri gölge, jetin ve helikopterin bazı kenarlarında açık gri. Yeni tasarım değil, kesim temizliği; beyaz gövdeler delinmeden.
 - **Lüks oyuncaklar sahnede (plan 2.6):** jet ve helikopter ara sıra geçer, yat sahil evinde, tekne göl evinde. Mağaza görselleri 3/4 açıyla çizildi; önce yerleşim denemesi, gerekirse uçuş ve su üstü açıları.
@@ -79,3 +80,9 @@ Fakirlikten zenginliğe geçiş ilk ~2 saate sıkışıyor. O günden beri iyile
 - **Zenginler Listesi:** benzetme isimlerin hukuki riski (Claude'un notu: Hindistan'daki "Selmon Bhoi" davası; portre, şirket adı ve logo yok, ton alaycı değil; kullanıcı benzetme isimleri seçti). Düğmenin yeri ve kartın sıklığı telefonda bakılacak.
 - **Başarımlar:** Google Play Games başarımları olarak yapılacak (kullanıcı, 2026-10-15; sonra), plan 2.13. Liderlik tablosu sonra.
 - **Fiyat A/B testleri:** Başlangıç Paketi'nin normal fiyatı ($2,99) ve hoş geldin fiyatı ($1,49) ileride Remote Config ile denenebilir (Faz 3).
+
+## 9. AAB 28 telefon testinden (kullanıcı, 2026-10-15)
+
+- **Açıklama metinleri çok (kullanıcı: "azaltalım", yerlerini kendisi gösterecek):** kartların ve düğmelerin altındaki küçük açıklamalar. Kullanıcı yerleri söyleyince tek tek kısaltılacak ya da kaldırılacak.
+- **Çevrimdışı kartı ve Rahat Paket:** kart 10 dakikadan kısa ayrılıkta ek teklif göstermiyor (`AD_OFFLINE_MIN_SECONDS`), bu yüzden testte yalnız "Topla" vardı. Kullanıcı, paket sahibine "+%30 senin" gibi bir şeyin açıkça söylenmesini istiyor; 10 dakika eşiği ve "Hemen al +%30" metni yeniden ele alınacak.
+

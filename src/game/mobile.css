@@ -81,11 +81,18 @@
 }
 .v2-pop-in { animation: v2-pop-in 260ms ease-out both; }
 .v2-bob { animation: v2-bob 1.8s ease-in-out infinite; }
+/* An incoming call: short buzzes with a pause, like a phone vibrating on a table. */
+@keyframes v2-ring {
+  0%, 44%, 100% { transform: none; }
+  4%, 12%, 20%, 28%, 36% { transform: translateX(-2px) rotate(-2.5deg); }
+  8%, 16%, 24%, 32%, 40% { transform: translateX(2px) rotate(2.5deg); }
+}
+.v2-ring { animation: v2-ring 1.5s linear infinite; }
 .v2-float-up { animation: v2-float-up 900ms ease-out forwards; }
 .v2-pulse-ring { animation: v2-pulse-ring 1.1s ease-out infinite; }
 .v2-sheet-in { animation: v2-sheet-in 220ms ease-out both; }
 @media (prefers-reduced-motion: reduce) {
-  .v2-bob, .v2-pulse-ring { animation: none; }
+  .v2-bob, .v2-ring, .v2-pulse-ring { animation: none; }
 }
 @keyframes v2-run-in {
   from { transform: translateX(70vw); }
@@ -124,12 +131,57 @@
 }
 .v2-coin-x { animation: v2-coin-x var(--dur) linear var(--delay) both; }
 .v2-coin-y { animation: v2-coin-y var(--dur) linear var(--delay) both; }
+/* A burst's amount (CoinLayer): pops in, holds while the coins leave, then rises and fades. */
+@keyframes v2-coin-label {
+  0% { transform: scale(0.4); opacity: 0; }
+  15% { transform: scale(1.15); opacity: 1; }
+  25% { transform: scale(1); }
+  70% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-36px); opacity: 0; }
+}
+.v2-coin-label { animation: v2-coin-label 1300ms ease-out both; }
 @keyframes v2-bump {
   0% { transform: scale(1); }
   40% { transform: scale(1.18); }
   100% { transform: scale(1); }
 }
 .v2-bump { animation: v2-bump 260ms ease-out; }
+/* Money leaving the wallet (CoinLayer spill): coins hop out and tumble down, fading; the red amount
+   drops below the wallet; the balance flashes red and shakes (TopBar). */
+@keyframes v2-coin-fall {
+  0% { transform: translate(0, 0) scale(0.6) rotate(0deg); opacity: 0; }
+  12% { opacity: 1; }
+  30% { transform: translate(calc(var(--sx) * 0.5), var(--sy)) scale(1) rotate(90deg); opacity: 1; }
+  100% { transform: translate(var(--sx), var(--dy)) scale(0.8) rotate(260deg); opacity: 0; }
+}
+.v2-coin-fall { animation: v2-coin-fall var(--dur) cubic-bezier(0.3, 0, 0.7, 1) var(--delay) both; }
+@keyframes v2-loss-label {
+  0% { transform: translateY(-6px) scale(0.5); opacity: 0; }
+  15% { transform: translateY(0) scale(1.15); opacity: 1; }
+  25% { transform: scale(1); }
+  75% { transform: translateY(6px); opacity: 1; }
+  100% { transform: translateY(28px); opacity: 0; }
+}
+.v2-loss-label { animation: v2-loss-label 1500ms ease-out both; }
+@keyframes v2-hurt {
+  0%, 100% { transform: none; }
+  15%, 55% { transform: translateX(-3px); }
+  35%, 75% { transform: translateX(3px); }
+}
+.v2-hurt { animation: v2-hurt 420ms ease-in-out; }
+/* A failed bold answer: the event card flinches once. */
+@keyframes v2-flinch {
+  0%, 100% { transform: none; }
+  20% { transform: translateX(-6px) rotate(-1deg); }
+  40% { transform: translateX(5px) rotate(0.8deg); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+.v2-flinch { animation: v2-flinch 450ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .v2-coin-fall, .v2-hurt, .v2-flinch { animation: none; }
+  .v2-coin-fall { opacity: 0; }
+}
 /* Sunburst behind reward art. */
 @keyframes v2-spin {
   from { transform: translate(-50%, -50%) rotate(0deg); }
@@ -300,4 +352,14 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .v2-iap-card, .v2-iap-lid, .v2-iap-float { animation: none; }
+}
+
+/* The "!" badge (kit AlertBadge): a soft blink so a tab with something to buy catches the eye. */
+@keyframes v2-alert {
+  0%, 100% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.55); }
+  50% { transform: scale(1.2); filter: brightness(1.15); box-shadow: 0 0 0 6px rgba(244, 63, 94, 0); }
+}
+.v2-alert { animation: v2-alert 1.1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .v2-alert { animation: none; }
 }

@@ -79,7 +79,7 @@ function BoostCard({ onClose }: { onClose: () => void }) {
             {adsLeft <= 0
               ? t('ads.boostNone')
               : !boostHasRoom(state.ads, now)
-                ? t('ads.boostFull', { duration: duration(BOOST_MAX_SECONDS) })
+                ? t('ads.boostFull', { duration: duration(BOOST_MAX_SECONDS - BOOST_SECONDS) })
                 : t('ads.boostLeft', { count: adsLeft })}
           </p>
           {canBoost(state, now) && (

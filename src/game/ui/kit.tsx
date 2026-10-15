@@ -102,6 +102,20 @@ export function Chip({ tone = 'manager', children }: { tone?: Tone; children: Re
   );
 }
 
+/** The blinking "!" on a tab or button with something the player can do right now. */
+export function AlertBadge({ small = false, className = '' }: { small?: boolean; className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`v2-alert absolute rounded-full bg-gradient-to-b from-rose-400 to-rose-600 border-2 border-white flex items-center justify-center v2-display text-white shadow ${
+        small ? 'w-[18px] h-[18px] text-[11px]' : 'w-6 h-6 text-[13px]'
+      } ${className}`}
+    >
+      !
+    </span>
+  );
+}
+
 /** Segmented control (buy amount, shop categories). */
 export function Segmented<T extends string | number>({
   options,
@@ -112,7 +126,7 @@ export function Segmented<T extends string | number>({
   options: { value: T; label: ReactNode }[];
   value: T;
   onChange: (value: T) => void;
-  /** Options with something to do get a red dot. */
+  /** Options with something to do get a blinking "!". */
   dot?: (value: T) => boolean;
 }) {
   return (
@@ -132,7 +146,7 @@ export function Segmented<T extends string | number>({
           >
             {option.label}
             {dot?.(option.value) && !selected && (
-              <span className="absolute top-0.5 right-1 w-2.5 h-2.5 rounded-full bg-rose-500 border border-white" />
+              <AlertBadge small className="-top-1.5 -right-1" />
             )}
           </button>
         );
