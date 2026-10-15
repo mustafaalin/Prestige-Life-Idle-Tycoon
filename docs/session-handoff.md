@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-15 · Dal: `v2-rebuild` · Son sürüm: **AAB 28** (`versionCode` 28, `versionName` 2.0)
+Son güncelleme: 2026-10-15 · Dal: `v2-rebuild` · Son sürüm: **AAB 29** (`versionCode` 29, `versionName` 2.0)
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve Faz 2.11'de kaldırılacak. Bu belge günlük tutmaz: her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**. Kararların gerekçesi ve sayılar ilgili belgededir; burada yalnızca özet ve yapılacaklar durur.
 
@@ -42,13 +42,13 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 - **Tekne anı yeni kare:** mağazadaki sürat teknesinin aynısı.
 - **Simülatör:** "fular" ve "reklam + fular + yakut" profilleri; Milyarder hedefinin alt sınırı 2. gün 20:00 (gümüş tasma yüzünden; kullanıcı kabul etti).
 - **Belgeler toparlandı:** bitmiş teslimler `archive/`'e taşındı, eskimiş yerler güncellendi, açık konular [discussion-notes.md](./discussion-notes.md)'de.
-- **AAB 28 derlendi:** `~/Downloads/prestige-life-v2-28.aab` (41 MB, imzası doğrulandı, DEV menüsü ve test reklamı kapalı). Telefona kurulup denenmedi.
+- **AAB 29 derlendi:** `~/Downloads/prestige-life-v2-29.aab` (41 MB, imzası doğrulandı, DEV menüsü ve test reklamı kapalı). AAB 28'in telefon testindeki düzeltmeler ve yukarıdakiler içinde. Telefona kurulup denenmedi.
 
 ## Sıradaki
 
-1. **AAB 28'i dahili teste yükle ve telefonda dene (kullanıcı).** Lisans hesabıyla üç ürün: ödüller geliyor mu, RevenueCat → Customers, Firebase Realtime'da `purchase` ve `purchase_applied`. Puanlama penceresi Milyoner'e ulaşmış kayıtta, ikinci oturumda. Sonra "Telefonda test listesi".
+1. **AAB 29'u dahili teste yükle ve telefonda dene (kullanıcı).** Lisans hesabıyla üç ürün: ödüller geliyor mu, RevenueCat → Customers, Firebase Realtime'da `purchase` ve `purchase_applied`. Puanlama penceresi Milyoner'e ulaşmış kayıtta, ikinci oturumda. Sonra "Telefonda test listesi".
 2. **Kapalı test:** sorun yoksa aynı sürüm kapalı test kanalına. 14 gün ~2026-10-20'de doluyor; testçiler listede kalmalı, sonra Play'den yayın erişimi başvurusu.
-3. **Telefondan gelen bulguları düzeltmek**, gerekiyorsa AAB 29.
+3. **Telefondan gelen bulguları düzeltmek**, gerekiyorsa AAB 30.
 4. **Faz 2'ye geçiş:** öncelik zirve sonrası (plan 2.12; adaylar [discussion-notes §2](./discussion-notes.md)) ve günlük ödül (2.7). Sonra Yakut Tasma ve Gece Vardiyası (IAP 2. adım), Remote Config (2.10).
 5. **Faz 1'in küçük kalanları:** oyun testi paketi (1.15: anket, test notları), hayaller panosu (1.8), fuların bütün pozlarda görünmesi ([discussion-notes §1](./discussion-notes.md)).
 
@@ -57,7 +57,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 ## Kullanıcının yapacakları
 
 - **Play Console:**
-  - AAB 28 → dahili test, sonra kapalı test.
+  - AAB 29 → dahili test, sonra kapalı test.
   - Başlangıç Paketi açıklamasına fuların bonusu (metin [monetization-v2.md §8](./monetization-v2.md) "Mağaza kurulumu").
   - Veri güvenliği beyanı v2'ye göre (cevaplar [monetization-v2.md §7](./monetization-v2.md)).
   - Lisans testi: Ayarlar → Lisans testi'nde telefonun Google hesabı (geliştirici hesabıysa zaten testçi).
