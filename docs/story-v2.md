@@ -261,6 +261,10 @@ Faz 1'de pano sadece statü eşyalarını gösterir (sıradaki ev, araç, kıyaf
 
 - Varis ömrün sonunda (80 yaş; 2026-10-11'de 97'den indi) devralır, erken değil ([game-design-v2.md §4.9](./game-design-v2.md)). Varis, kahramanın kızının çocuğu: kahraman 63 yaşındayken doğar, devirde 17 yaşındadır (§4c). Dede ona Rıza'nın kendisine öğrettiği gibi ilk işini öğretir.
 - Torun kahraman kadar sıfırdan değil, biraz alttan başlar (yön kararı 2026-10-11; nereden ve neyle başladığı açık: [discussion-notes.md §3](./discussion-notes.md)).
+- **Varislerin cinsiyeti (karar 2026-10-15, kullanıcı):** 2. nesil **kız torun** (sabit, seçim yok); 3. nesil **erkek**, ilk kahramanın görselleri (kıyafetler, pozlar, portreler) yeniden kullanılır; sonra kadın, erkek, kadın, erkek diye sürer. Kızın adı gibi torunun adını da oyuncu koyar (varsayılan önerisi **Ada**, EN de Ada).
+- **Dede görünümü (karar 2026-10-15, kullanıcı):** kahraman 60 yaştan sonra tek bir dede görünümüne geçer (kır saç, gözlük, yelek, babadan kalan saat): 3 sahne pozu (duruş, sevinç, Şans'ı sevme) + 4 portre. Kıyafetlerin gelir bonusu sürer, görünüm yaşa bağlı. 2. nesilde aynı dede torunun rehberi (Rıza Amca'nın kahramana yaptığını yapar). Torunla aynı üretim turunda üretilir. Ayrıca gerekli: yetişkin kızın (torunun annesi) kılavuz görseli; yaşlı Defne konuşacaksa 4 portre.
+- **Erken devir (karar 2026-10-15, kullanıcı):** En Zengin'den sonra "Şimdi devret" kalan yılları atlar: "Yıllar geçti…", sonra torunun doğumu (63), dede ve torun (70), devir (80) art arda. Devir hep 80 yaşta ([game-design-v2.md §4.5](./game-design-v2.md)).
+- **2. nesil yeni şehirde (karar 2026-10-15, kullanıcı):** torun dedesinin adıyla değil kendi adıyla yükselmek ister; yeni işletmeler, evler, görevler, kısa ve dedeli törenler, torunun kendi hayat anları.
 - Emeklilik = servetini vakfa bağışlamak; çocuğuna para değil adını bırakır. Miras puanı arayüzde **"Aile İtibarı"** (Family Legacy): her puan +%1 gelir.
 - Ölüm hiç gösterilmez; anne, Rıza ve Şans'ın varlığı fotoğraflar ve bıraktıkları eserlerle sürer.
 - Açık sorular: [discussion-notes.md §3](./discussion-notes.md).

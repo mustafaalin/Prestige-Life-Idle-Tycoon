@@ -43,7 +43,7 @@ import {
   HELP_MAX_SHARE,
 } from '../core/config/ads';
 import { STORY_GIFT_FROM_CLASS } from '../core/config/economy';
-import { SECONDS_PER_MONTH } from '../core/config/life';
+import { LIFE_SECONDS, SECONDS_PER_MONTH } from '../core/config/life';
 import { expectedGain, INVEST_CAP_MONTHS, INVEST_FROM_CLASS, INVEST_PLANS } from '../core/config/investments';
 import { dailyMonths } from '../core/config/daily';
 import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
@@ -272,10 +272,15 @@ interface Clock {
 export interface SimOptions {
   /** Overrides OFFLINE_CAP_HOURS, to compare offline caps. */
   offlineCapHours?: number;
+  /** Trial (plan 2.12): hand over as soon as the top class is reached, without waiting for 80. */
+  retireAtTop?: boolean;
+  /** Trial (plan 2.12): the first life starts with this family legacy, to see how an income bonus shortens a life. */
+  startLegacyPoints?: number;
 }
 
 export function simulate(profile: PlayerProfile, days: number, options: SimOptions = {}): SimResult {
   let state = createInitialState();
+  if (options.startLegacyPoints) state = { ...state, legacyPoints: options.startLegacyPoints };
   const events: SimEvent[] = [];
   const time: Clock = { clock: 0, activeTotal: 0, activeGeneration: 0 };
 
@@ -450,7 +455,10 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
   };
 
   const maybeRetire = () => {
-    if (!canRetire(state)) return;
+    const early = options.retireAtTop === true && state.classIndex === WEALTH_CLASSES.length - 1;
+    if (!canRetire(state) && !early) return;
+    // The trial's early hand-over: the life is treated as complete.
+    if (early && !canRetire(state)) state = { ...state, lifeSeconds: LIFE_SECONDS };
     log('retire', `Life ends, gen ${state.generation} (+${pendingLegacyPoints(state)} legacy)`);
     const next = retire(state);
     if (next) {

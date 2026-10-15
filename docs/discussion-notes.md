@@ -13,30 +13,41 @@ Yaklaşım (görsel roman) ve stil (yarı 3D) kararlaştı: [story-v2.md §8](./
 - **İki çizim dili:** önsöz, sokak kahramanı, ana kadro portreleri ve fal.ai'nin lüks anı kareleri çizgili ve düz boyalı; evler, kıyafetler, tören kareleri ve mağaza parlak 3D. En görünür yer önsöz (ilk 40 saniye) ile ana ekranın farkı. Önsözün 3D denemesi hazır (`art/pilot/04-prologue/prologue-4-door-3d.png`, karşılaştırma `art/pilot/reviews/prologue-door-style-comparison.jpg`); kullanıcının kararı bekleniyor. Uygunsa kalan beş kare, sonra sokak kahramanı.
 - **Lükslerin kesim kalıntıları:** sürat teknesi ve yatın sol altında gri gölge, jetin ve helikopterin bazı kenarlarında açık gri. Yeni tasarım değil, kesim temizliği; beyaz gövdeler delinmeden.
 - **Lüks oyuncaklar sahnede (plan 2.6):** jet ve helikopter ara sıra geçer, yat sahil evinde, tekne göl evinde. Mağaza görselleri 3/4 açıyla çizildi; önce yerleşim denemesi, gerekirse uçuş ve su üstü açıları.
-- **Kahraman yaşlanmıyor (kullanıcı: şimdilik kalsın):** 31'inde baba, 59'unda En Zengin olan kahraman 23'lük görünüyor. Seçenekler: 3 görünüm (genç, yetişkin, kır saçlı) ya da yalnız portreler yaşlanır. Yedi kıyafet ve bütün kareler genç yüzle üretildi; yaşlanan görünüm onların da yeniden üretilmesi demek. Yaş temposu (§2) değişirse sorun küçülür.
+- **Kahraman yaşlanmıyor:** 60 yaştan sonrası için dede görünümü kararlaştı (2026-10-15, §3). 31'inde baba, 59'unda En Zengin olan kahramanın 23'lük görünmesi şimdilik kalıyor; yaş temposu (§2) değişirse sorun küçülür.
 - **Oyun testinden sonra:** annenin mesajında telefona bakan kahraman pozu (kıyafet başına bir görsel); apartman evlerinde iç mekân (şimdilik dış mekân, çünkü araç görünmeli). Önerilmeyen: araca yaslanma gibi araca bağlı pozlar (12 aracın boyu farklı).
 - **Özel anlar için video (isteğe bağlı):** 2–3 büyük anda kısa yapay zekâ videosu (Higgsfield MCP: `claude mcp add --transport http higgsfield https://mcp.higgsfield.ai/mcp`; yedek fal.ai). Her üretimden önce maliyet söylenir. İskeletli 2D (Spine / Rive) ancak oyun testi "karakter hareketi şart" derse.
 - **Remotion (React ile video):** mağaza tanıtım videosu ve reklamlar (TR/EN, dikey/yatay) için yayından önce repoda ayrı bir `video/` klasöründe kurulsun; oyun içinde gerek yok.
 
 ## 2. Zirveden sonrası (plan 2.12, Faz 2; kullanıcı 2026-10-15)
 
-En Zengin'den ömür sonuna (80 yaş) kadar yeni hedef yok: reklamsız bağlı oyuncuda ~6,5 saat oyun (En Zengin 10 sa 21 dk, ömür 16 sa 48 dk), reklam + fular + yakut oyuncusunda ~12 saat (En Zengin 4 sa 28 dk, jet 6 sa 2 dk). Ödeyen oyuncu, en değerli oyuncu, oyunu en erken bitiriyor. Kullanıcı yakutu %50'de tuttu; çözüm içerik. Adaylar (karar yok):
+En Zengin'den ömür sonuna (80 yaş) kadar yeni hedef yok: reklamsız bağlı oyuncuda ~6,5 saat oyun (En Zengin 10 sa 21 dk, ömür 16 sa 48 dk), reklam + fular + yakut oyuncusunda ~12 saat (En Zengin 4 sa 28 dk, jet 6 sa 2 dk). Ödeyen oyuncu, en değerli oyuncu, oyunu en erken bitiriyor. Kullanıcı yakutu %50'de tuttu; çözüm içerik.
 
-- **Erken emeklilik:** En Zengin töreninden sonra "Devret" açılır, ömür sonu beklenmez. Kullanıcı "olabilir" dedi (2026-10-15); bugünkü kural (game-design §4.9: devir yalnız ömür sonunda; 2026-10-08'de "erken devir olmasın" denmişti) değişir. Miras puanı kazanılan paraya bağlı, erken devreden daha az puan alır: bir "erken devir" payı ya da puanın zirveye göre hesaplanması gerekir.
-- **Servet yadigâra:** En Zengin'den sonra kazanılan para varise kalacak yadigârlara (plan 2.2) harcanır; boş saatler bir sonraki hayatı güçlendirir, ödeyenin hızı da oraya taşınır.
+**Kararlaşanlar (kullanıcı 2026-10-15; araştırma ve simülatör ölçümü: AdCap, Cookie Clicker, Egg, Inc., BitLife):**
+
+- **1. Görünür miras ve seçim:** En Zengin'den sonra ekranda canlı "Varisine bırakacağın" sayacı (puan ve gelir etkisi); "Şimdi devret" ya da "Kal, biriktir". Bugünkü kural (game-design §4.9: devir yalnız ömür sonunda) değişir. Ölçüm: zirve sonrası ~7,5 saat toplam kazancı ~14 kat, miras puanını ~2,5 kat artırıyor ama oyuncu bunu görmüyor.
+- **2. Yadigâr mağazası (plan 2.2):** miras puanı otomatik +%1 yerine kalıcı aile yadigârlarına harcanır; her yadigârın sınırı var, böylece varisin hızı da sınırlanır. Miras formülü aynı işte yeniden ayarlanır: varis zirveye dakikalarda değil birkaç saatte varsın (bugün 2. nesil 40 dk, 3. nesil 6,5 dk; erken devirde her nesil ~50 dk).
+- **3. 2. nesil yeni şehirde (plan 2.3):** yeni işletmeler (kullanılmayan görsellerden), yeni evler, sınıf eşikleri ve fiyatlar şehirle yükselir; görevler, törenler ve hayat anları torunun.
+- **Yayın:** 1, 2 ve 3 birlikte yayınlanır (erken devir tek başına aynı merdiveni ~1 saatte tekrar tırmandırıyor). 1 ve 2 önce yapılıp test edilir.
+- **Erken devir, yıllar atlanır (kullanıcı onayladı):** "Şimdi devret" kalan yılları atlar; "Yıllar geçti…", sonra torunun doğumu (63), dede ve torun (70), devir (80) art arda. Neden: En Zengin 55–57 yaşta, torun 63'te doğuyor.
+- Bütün kararların toplu hâli: [game-design-v2.md §4.5](./game-design-v2.md) (kurallar, ölçüm) ve [story-v2.md §6](./story-v2.md) (varisler, dede). Açık: yadigâr listesinin onayı (öneri §4.5'te).
+
+Kalan adaylar (sonra):
+
 - **Vakıf zinciri:** annenin ve Rıza Amca'nın hikâyesine bağlı büyük hayaller (mahalle kütüphanesi, babanın adına burs, Rıza'nın atölyesi), her biri bir hayat anı. En duygusal, en pahalı (yazı ve kare). Hikâyenin "4. perde"si ([story-v2.md §7](./story-v2.md)).
 - **Yaş temposu:** zirveye kadar yıllar yavaş (zirve ~40 yaş), sonra hızlı. İçerik eklemeden boş saatleri kısaltır; annenin (En Zengin'de ~87) ve Rıza'nın yaşını makul yapar; En Zengin karesinde ailenin yokluğu da daha az göze batar.
-- **Claude'un önerisi:** erken emeklilik + servet yadigâra birlikte ("Şimdi devret" ya da "Kal, varisine biriktir"); ikisi de mevcut miras sistemine oturur, yeni hikâye yazmayı gerektirmez. Vakıf zinciri sonra hikâye katmanı olarak.
 - **Aynı yerde duran küçük sorular:** annenin mesajları En Zengin'den sonra biter mi (kanal Defne ve kızına geçebilir); Şans'ın yerini yavrusu alır mı; "65 yaşındasın" gibi ömür sonu hatırlatması (zirveye varamamış oyuncunun "sonu göremedim" hissi).
 
 ## 3. Hanedan (plan 2.1; [story-v2.md §6](./story-v2.md))
 
-Kararlaşanlar: varis 17 yaşında torun (kızının çocuğu), devir 80 yaşında, ölüm gösterilmez, eş Defne. Açıklar:
+Kararlaşanlar: varis 17 yaşında torun (kızının çocuğu), devir 80 yaşında, ölüm gösterilmez, eş Defne. 2026-10-15: 2. nesil yeni şehirde (§2); kahramanın dede görünümü (aşağıda). Açıklar:
 
-1. **Torunun cinsiyeti.** Öneri: oyuncu seçsin (tek seçim); bütçe kısıtlıysa sabit.
-2. **2. neslin başlangıcı:** sıfırdan değil, biraz alttan (yön kararı 2026-10-11). Öneri: küçük yurt odası ya da kiralık oda ve dedesinin ilk tezgâhı; "para yok ama ad var" Aile İtibarı'yla örtüşür. Evler varise kalsın mı?
-3. **2. nesil kıyafet ve poz seti:** aynı sayıda yeni set; babadan kalan bir yadigâr (saat ya da Şans'ın tasması) hep görünsün.
-4. **Varis çok hızlı:** 1. ömür ~1.800 miras puanı (×19 gelir) bırakıyor, reklam izleyende ~3.800; 2. nesil dakikalar içinde Milyoner ve üstü. Miras formülü ve nesil içeriğiyle (2.3) birlikte.
+1. **Varislerin cinsiyeti kararlaştı (2026-10-15):** 2. nesil kız torun (sabit), 3. nesil erkek (ilk kahramanın görselleri), sonra sırayla ([story-v2.md §6](./story-v2.md)). Torunun varsayılan adı önerisi Ada.
+2. **2. neslin başlangıcı:** biraz alttan (yön kararı 2026-10-11). Öneri: yeni şehirde kiralık oda ve dedenin Çiçek Tezgâhı yadigâr olarak.
+3. **2. nesil kıyafet ve poz seti:** aynı sayıda yeni set; dededen kalan bir yadigâr (babanın saati) hep görünsün. Torunun yanında Şans'ın yavrusu (öneri).
+4. **Rehber:** dede, toruna Rıza Amca'nın rolünü üstlenir (rehber balonları, olay kartları); annenin mesaj kanalı kızına ve dedeye geçer (öneri).
+5. **Varis çok hızlı:** §2'deki yadigâr ve formül işiyle çözülecek.
+
+**Kahramanın dede görünümü (karar 2026-10-15, kullanıcı: B):** 60 yaştan sonra kahraman tek bir dede görünümüne geçer (kır saç, gözlük, yelek, babadan kalan saat): 3 sahne pozu (duruş, sevinç, Şans'ı sevme) + 4 portre. Kıyafetlerin gelir bonusu sürer, görünüm yaşa bağlı. Aynı dede 2. nesilde rehber. Torunla aynı üretim turunda yapılır (yüz tutarlılığı). Ayrıca gereken: yetişkin kızın kılavuz görseli (hiç tasarlanmadı); yaşlı Defne konuşacaksa 4 portre. 31 yaşındaki babanın 20'lik görünmesi şimdilik kalır (yetişkin dönemi her kıyafetin yeniden üretimi demek).
 
 ## 4. Ekonomi
 

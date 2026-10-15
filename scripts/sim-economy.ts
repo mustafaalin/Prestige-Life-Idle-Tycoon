@@ -23,6 +23,8 @@ const numberArg = (flag: string) => {
   return index >= 0 ? Number(args[index + 1]) : undefined;
 };
 const offlineCapHours = numberArg('--offline-cap');
+// --retire-at-top  trial: hand over at the top class instead of at 80 (plan 2.12)
+const retireAtTop = args.includes('--retire-at-top');
 
 
 if (args.includes('--config')) {
@@ -43,7 +45,7 @@ let failures = 0;
 
 for (const profile of PROFILES) {
   const started = Date.now();
-  const result = simulate(profile, days, { offlineCapHours });
+  const result = simulate(profile, days, { offlineCapHours, retireAtTop });
   const variant = offlineCapHours !== undefined ? `, offline cap ${offlineCapHours}h` : '';
   console.log(`\n=== ${profile.name} player, ${days} days${variant} (${Date.now() - started} ms) ===`);
 

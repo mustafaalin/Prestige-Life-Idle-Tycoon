@@ -10,7 +10,7 @@ Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-
 
 - AdVenture Capitalist tarzı üstel idle ekonomi (sayılar her zaman akar, büyük basamaklar "vay" anıdır)
 - 7 basamaklı, törenli sınıf merdiveni (her basamakta sahne, ev, araç, kıyafet değişir)
-- Bir ömür: kahraman 17 yaşında başlar, yaş sadece oyun açıkken ilerler (1 dk ≈ 3 hafta; 2026-10-09). 80 yaşında emekli olur ve torunu miras çarpanıyla devralır; erken emeklilik yok (§4.9; zirveden sonrası için Faz 2'de yeniden konuşulacak, [discussion-notes.md §2](./discussion-notes.md))
+- Bir ömür: kahraman 17 yaşında başlar, yaş sadece oyun açıkken ilerler (1 dk ≈ 3 hafta; 2026-10-09). 80 yaşında emekli olur ve torunu miras çarpanıyla devralır; bugün erken emeklilik yok (§4.9). Karar 2026-10-15 (henüz oyunda değil): En Zengin'den sonra "Şimdi devret" kalan yılları atlar, devir yine 80'de; miras yadigârlara harcanır (§4.5)
 - Tanıdıklardan gelen olay kartları: bir fırsat, iki cevap (§4.7; ilk 10 kart oyunda, büyük set Faz 2)
 
 Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Şans, Rıza Amca, annesine verilen söz).
@@ -154,11 +154,21 @@ En iyi evde (kendi evin) yaşanıp tüm eşyalar alındığında statü toplamı
 
 ### 4.5 Hanedan / miras (`config/economy.ts`)
 
-- Emeklilik sadece ömrün sonunda (80 yaş, §4.9); oyuncu erken emekli olamaz (zirve sonrası için Faz 2 adayı, discussion-notes §2)
+- Bugün: emeklilik sadece ömrün sonunda (80 yaş, §4.9); oyuncu erken emekli olamaz (değişecek, aşağıdaki karar)
 - Ailenin toplam miras puanı: `floor(10 × (toplamKazanç / 1M)^(1/3))`
 - Emeklilikte kazanılan = toplam puan − eldeki puan
 - Her puan: tüm gelire +%1
 - Küpkök bilinçli seçildi: mirası ikiye katlamak 8 kat kazanç ister ve resetler kartopu yapmaz (bkz. §6)
+
+**Kararlaşan yeni hanedan (kullanıcı 2026-10-15, plan 2.12; henüz oyunda değil, yukarıdaki kuralların yerini alacak):**
+
+- **Görünür miras:** En Zengin'den sonra ekranda canlı "Varisine bırakacağın" sayacı (puan ve gelir etkisi) ve iki düğme: "Şimdi devret" / "Kal, biriktir".
+- **Erken devir, yıllar atlanır:** "Şimdi devret" ömrün kalan yıllarını atlar: "Yıllar geçti…" geçişi, sonra torunun doğumu (63), dede ve torun (70), devir (80) art arda oynar. Hikâye değişmez, devir hep 80 yaşta; miras puanı o ana kadarki kazançtan. "Kal, biriktir" diyen daha çok puan bırakır (ölçüm: zirve sonrası ~7,5 saat kazancı ~14 kat, puanı ~2,5 kat artırıyor).
+- **Yadigâr mağazası (plan 2.2):** puan otomatik +%1 değil, kalıcı aile yadigârlarına harcanan para birimi. Öneri (onay bekliyor): babanın saati (gelir +%20/seviye, 2. nesilde 5 seviye = en fazla ×2), annenin erik reçeli (başlangıç parası), Rıza Amca'nın defteri (yönetici indirimi), Şans'ın tasması (Şans daha sık/çok bulur), aile albümü (tören hediyesi). Seviye fiyatları katlanır (ör. 100, 200, 400, 800, 1.600); harcanmayan puan sonraki nesle kalır, sınırlar her nesil biraz yükselir. Çevrimdışı tavanı yadigâr değil (Gece Vardiyası ürünüyle çakışır). Eski kayıtların puanı silinmez, harcanabilir puana dönüşür.
+- **Varisin hızı:** hedef, varis En Zengin'e 1. neslin ~üçte biri sürede (bağlı oyuncu ~3–4 saat oyun). Ölçüm (2026-10-15, başlangıç gelir çarpanı → bağlı oyuncunun En Zengin süresi): ×1 9 sa 11 dk, ×1,5 6 sa 16 dk, ×2 4 sa 52 dk, ×3 3 sa 28 dk, ×5 2 sa 18 dk, ×26 (bugün 80 yaşta kalan) 47 dk. Yani yadigârların toplam gelir etkisi 2. nesilde en fazla ×2–3. Simülatör seçenekleri: `retireAtTop`, `startLegacyPoints` (`sim/simulator.ts`).
+- **Yeni şehir (plan 2.3):** her nesil yeni şehirde; işletmeler (kullanılmayan görsellerden), evler, fiyat, gelir ve sınıf eşikleri şehirle aynı oranda büyür, hızı yadigârlar belirler. Miras puanı her neslin kendi şehrine göre hesaplanmalı (büyük rakamlar puanı patlatmasın). Varis kiralık odadan ve dedenin Çiçek Tezgâhı'yla (yadigâr) başlar (öneri).
+- **Varisler ve görünüm:** 2. nesil kız torun (sabit), 3. nesil erkek (ilk kahramanın görselleri yeniden kullanılır), sonra kadın-erkek sırayla. Kahraman 60 yaştan sonra dede görünümüne geçer; aynı dede 2. nesilde rehber. Ayrıntı [story-v2.md §6](./story-v2.md).
+- **Yayın:** görünür miras, yadigârlar ve 2. nesil içeriği birlikte yayınlanır.
 
 ### 4.6 Çevrimdışı kazanç
 
