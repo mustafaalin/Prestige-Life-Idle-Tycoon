@@ -2,7 +2,7 @@
 
 Son güncelleme: 2026-10-16 · İlgili: [story-v2.md §4c, §6, §8](./story-v2.md), [game-design-v2.md §4.5](./game-design-v2.md), [art-brief-v2.md](./art-brief-v2.md) (genel kurallar, ekran haritası), [discussion-notes.md §3](./discussion-notes.md)
 
-**Üretim durumu (2026-10-16):** K1 dede onaylandı. Kullanıcının sıradaki görsele geçme talebiyle K2 yaşlı Defne tamamlanmış kabul edildi. K3 `art/pilot/16-dynasty/elif-sheet.png` ve `elif-sheet-prompt.txt` üretildi (1536×1024); eller yakın planda, aile benzerliği ve dört ifadenin tutarlılığı görsel olarak kontrol edildi. §0.1 gereği K3 kullanıcı değerlendirmesinde. K4 Ada, dede pozları, hikâye kareleri ve ikonlar henüz üretilmedi. Runtime entegrasyonu yapılmadı.
+**Üretim durumu (2026-10-16):** K1 dede onaylandı. Kullanıcının sıradaki görsele geçme talebiyle K2 yaşlı Defne tamamlanmış kabul edildi. K3 `art/pilot/16-dynasty/elif-sheet.png` ve `elif-sheet-prompt.txt` üretildi (1536×1024); eller yakın planda, aile benzerliği ve dört ifadenin tutarlılığı görsel olarak kontrol edildi. K3 onaylandı (2026-10-16). K4 Ada, dede pozları, hikâye kareleri ve ikonlar henüz üretilmedi. Runtime entegrasyonu yapılmadı.
 
 Bu belge GPT'ye (VS Code'da) verilir. Devrin hikâye anları ve Aile sekmesi için gereken **14 görselin** sırasını, referanslarını, kayıt yerini ve doğrudan yapıştırılacak İngilizce komutlarını içerir. Oyuna bağlama (kesim, webp, kod) Claude'un işidir (§6).
 
