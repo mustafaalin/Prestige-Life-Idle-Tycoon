@@ -4,6 +4,7 @@ import { BUSINESSES } from '../../core/config/businesses';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { businessOpenClass } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
+import { useMusic } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { ImageTile, Segmented, SectionLabel } from '../kit';
 import { BusinessCard, type BuyMode } from './BusinessCard';
@@ -17,6 +18,7 @@ const BUY_MODES: BuyMode[] = [1, 10, 'max'];
  * then the next line is only the teaser, with the class that opens it.
  */
 export function BusinessesScreen() {
+  useMusic('calm');
   const { game } = useGameV2();
   const { t, name, money } = useT();
   const [buyMode, setBuyMode] = useState<BuyMode>(1);

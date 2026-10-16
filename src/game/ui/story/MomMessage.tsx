@@ -1,5 +1,5 @@
 import { Heart, Phone } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
@@ -18,6 +18,7 @@ const HEART_MS = 650;
 export function MomMessage({ messageId, onClose }: { messageId: string; onClose: () => void }) {
   const { t } = useT();
   const [sent, setSent] = useState(false);
+  useEffect(() => playSfx('message'), []);
 
   const send = () => {
     if (sent) return;

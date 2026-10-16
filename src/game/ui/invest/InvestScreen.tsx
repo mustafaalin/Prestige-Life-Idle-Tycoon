@@ -2,7 +2,7 @@ import { Clock, Flame, Scale, ShieldCheck, type LucideIcon } from 'lucide-react'
 import { useState } from 'react';
 import { INVEST_PLANS, investPlan, type InvestPlan, type InvestPlanId } from '../../core/config/investments';
 import { useT } from '../../i18n/useT';
-import { haptic, playSfx } from '../../runtime/feedback';
+import { haptic, playSfx, useMusic } from '../../runtime/feedback';
 import { investAvailable, investCap, investmentDue, type Investment } from '../../runtime/investment';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { payout } from '../home/coins';
@@ -26,6 +26,7 @@ const PLAN_LOOK: Record<InvestPlanId, { icon: LucideIcon; tile: string; tone: 'b
 const percent = (fraction: number) => Math.round(Math.abs(fraction) * 100);
 
 export function InvestScreen() {
+  useMusic('calm');
   const { state } = useGameV2();
   const { t } = useT();
   // What the last collected deal did, until a new one goes in.
@@ -95,7 +96,7 @@ function ActiveDeal({ deal, due, onCollected }: { deal: Investment; due: boolean
   const collect = () => {
     const gain = actions.invest.collect();
     if (gain === null) return;
-    playSfx(gain >= 0 ? 'levelUp' : 'coin');
+    playSfx(gain >= 0 ? 'payout' : 'loss');
     haptic('medium');
     // What comes back: the stake and the gain, or what is left of the stake.
     payout({ amount: deal.payout, label: `+${money(deal.payout)}`, count: gain >= 0 ? 16 : 8 });

@@ -812,6 +812,8 @@ export const tr: Messages = {
     privacyBody: 'Reklam ve veri tercihlerini değiştir.',
     notifications: 'Bildirimler',
     notificationsBody: 'Annenin mesajları ve kasan dolunca Şans.',
+    sound: 'Ses efektleri',
+    music: 'Müzik',
   },
   dev: {
     open: 'DEV',

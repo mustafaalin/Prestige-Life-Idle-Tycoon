@@ -6,6 +6,7 @@ import {
 } from '@capacitor-community/admob';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import { track } from './analytics';
+import { holdMusic } from './feedback';
 
 // Rewarded ads for v2 (docs/monetization-v2.md). One entry point: showRewardedAd(placement).
 // Native: AdMob with Google's consent flow (UMP for the EEA/UK/Switzerland first, then iOS ATT the
@@ -205,11 +206,13 @@ export function finishMockAd(outcome: AdOutcome) {
 export async function showRewardedAd(placement: AdPlacement): Promise<AdOutcome> {
   if (busy) return 'unavailable';
   busy = true;
+  holdMusic('ad', true);
   try {
     const outcome = native ? await showNative() : await showMock(placement);
     track('ad_watch', { placement, outcome });
     return outcome;
   } finally {
     busy = false;
+    holdMusic('ad', false);
   }
 }

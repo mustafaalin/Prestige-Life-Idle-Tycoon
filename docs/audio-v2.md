@@ -2,12 +2,11 @@
 
 Son güncelleme: 2026-10-17 · Kod: `src/game/runtime/feedback.ts` · Plan: [rebuild-plan.md](./rebuild-plan.md) 1.11 · İlgili: [discussion-notes.md §6](./discussion-notes.md) ("eksik his parçaları")
 
-## 1. Bugün oyunda olan
+## 1. Durum (2026-10-17)
 
-- **4 ses efekti, hepsi v1'den:** `coin` (toplama, ödül), `purchase` (alım), `levelUp` (yükseltme, iş, yönetici, tören), `click` (düğmeler). 21 ekranda çağrılıyor. `gem_collect.mp3` duruyor ama kullanılmıyor.
-- **Müzik yok.** `public/assets/audio/music/main_theme.mp3` (3,6 MB, v1) hiçbir yere bağlı değil.
-- **Ayarlarda ses ve müzik düğmesi yok** (yalnız bildirim anahtarı).
-- Tören, hikâye balonu, olay kartı, annenin mesajı, Şans, yeni araç, reklam ödülü ve kayıp anlarında ses yok; çoğu `levelUp` ya da `click` ile geçiştiriliyor.
+- **Oyunda:** 13 yeni efekt (ElevenLabs Sound Effects v2, kullanıcı seçti; kaynaklar `art/audio/sfx-2026-10-17/`, komutlar yanında `prompts.txt`, dinleme sayfası `art/audio/listen.html`), 4 müzik, Ayarlar'da "Ses efektleri" ve "Müzik" anahtarları. Oyundaki dosyalar `public/assets/audio/sfx/v2/` (sessizlik kırpıldı, −16 LUFS, mono 96 kbps) ve `public/assets/audio/music/v2/`.
+- **Bekleyen:** `purchase`. İlk iki deneme "para eksiliyor" hissini vermedi (kullanıcı); üç yeni deneme (`purchase-c/d/e`: kasa çekmecesi, banknot sayma, paralar uçup gidiyor) dinleme sayfasında. Seçilene kadar v1'in `purchase_success.mp3`'ü çalar.
+- Seçilenler: click-a, coin-b, levelup-a, payout-a, fanfare-b, page-a, ring-a, message-b, bark-b, arrive-a, reward-b, loss-b, unlock-b.
 
 ## 2. Ses efektleri (14; öneri)
 
@@ -32,22 +31,20 @@ Son güncelleme: 2026-10-17 · Kod: `src/game/runtime/feedback.ts` · Plan: [reb
 
 Kural (CLAUDE.md): anlamlı her oyuncu eylemi ses çalar; kilitli ve beklemedeki düğme çalmaz. Aynı ses 70 ms içinde ikinci kez çalmaz (var).
 
-## 3. Müzik (3 parça; öneri)
+## 3. Müzik (oyunda, 2026-10-17)
 
-| # | Parça | Nerede | Tarif |
+Kaynak: ElevenLabs Music v2.5, 2026-10-15'te üretilen 40 sn'lik 8 parça (`art/audio/music-2026-10-15/`); kullanıcı dördünü seçti. Hepsi −18 LUFS'e eşitlendi; sonu sıfıra kadar kısılır (ukulelede son 4 sn, çünkü birden kesiliyordu), ardından 0,5 sn sessizlik, sonra döngü baştan.
+
+| Parça | Dosya | Nerede | Kaynak |
 | --- | --- | --- | --- |
-| M1 | Ana ekran | Ana ekran, menüler | Sıcak, hafif, umutlu; akustik gitar ya da ukulele, yumuşak piyano, hafif vurmalı. 85–95 BPM, sözsüz, dikkat çekmeyen. 60–90 sn, kusursuz döngü |
-| M2 | Hikâye | Önsöz, sınıf törenleri, hayat anları, devir | Duygusal, yumuşak piyano ve yaylılar; M1'in ana ezgisinin yavaş hâli (aynı motif aileyi bağlar). 60 sn döngü |
-| M3 | Lumen | 2. neslin ana ekranı | M1'in motifi, aynı çalgılar + hafif synth pad; "aynı aile, yeni şehir". 2. nesille gelir |
+| Ana ekran | `home.mp3` | Ana ekran | 3 ukulele + ıslık |
+| Sakin | `calm.mp3` | İşletmeler ve Yatırım ekranları (kullanıcı: daha yavaş orkestral, sayfaya geçince değişsin) | 1 orkestral ana tema |
+| Hikâye | `story.mp3` | Önsöz, sınıf törenleri, hayat anları, "Yıllar geçti", albüm | 2 piyano motifi |
+| Olay kartı | `event.mp3` | Açık olay kartı | 5 komik pizzicato |
 
-İsteğe bağlı (sonra): önsözün ilk karesinde yağmur ambiyansı (discussion-notes §6 "yağmur ve ortam sesi").
+Kullanılmayan: 4 gitar + piyano (hikâye yedeği), 6 caz (olay kartı yedeği), 7 ve 8 (tanıtım videosu için).
 
-**Kurallar:**
-- Müzik sesi efektlerin altında (~%35); tören ve hayat anında M1 yumuşakça M2'ye geçer, bitince döner (0,8 sn geçiş).
-- Uygulama arka plana gidince müzik durur, dönünce kaldığı yerden devam eder; reklam oynarken de durur.
-- Android WebView sesi ilk dokunuştan önce başlatmaz: müzik ilk dokunuşta başlar.
-- **Ayarlar:** iki anahtar, "Ses efektleri" ve "Müzik", varsayılan açık; cihazda saklanır (oyun kaydında değil).
-- Dosyalar: efektler mp3, her biri ≤ 40 KB; müzik mp3 128 kbps, parça başı ≤ 1,5 MB (APK boyutu).
+**Kurallar (kod `runtime/feedback.ts`):** ekran istediği parçayı `useMusic(track)` ile ister; öncelik hikâye > olay kartı > sakin > ana ekran. Parça değişirken 0,8 sn geçiş; hikâye her seferinde baştan, diğerleri kaldığı yerden. Müzik %35 seste; ilk dokunuşta başlar (WebView kuralı), uygulama arka plandayken ve ödüllü reklam oynarken durur. Anahtarlar cihazda saklanır (`localStorage`), oyun kaydında değil. Lumen müziği (M3) 2. nesille gelir; önsözün yağmur ambiyansı isteğe bağlı.
 
 ## 4. Nereden (araştırma 2026-10-17)
 
@@ -64,9 +61,6 @@ Kural (CLAUDE.md): anlamlı her oyuncu eylemi ses çalar; kilitli ve beklemedeki
 
 Kaynaklar: [Pixabay lisansı (SSS)](https://pixabay.com/service/faq/), [Pixabay kullanım şartları](https://pixabay.com/service/terms/), [Kenney UI Audio (Godot)](https://godotengine.org/asset-library/asset/795), [Kenney arayüz sesleri (OpenGameArt)](https://opengameart.org/content/interface-sounds), [Eleven Music lisansı (Tom's Guide)](https://tomsguide.com/ai/elevenlabs-reveals-ai-music-generator-and-it-has-full-commercial-rights), [Suno ve Udio lisansları 2026](https://blog.dubspot.com/ai-music-licensing-explained-2026), fiyatlar fal.ai'nin kendi fiyat listesinden (2026-10-17).
 
-## 5. Kod (Claude; kaynak seçilince)
+## 5. Efektlerin yerleri (oyunda)
 
-- `feedback.ts`: yeni efekt anahtarları, `musicPlay('home' | 'story')`, geçiş, arka planda durma, ses anahtarları.
-- `SettingsSheet.tsx`: iki anahtar (TR + EN).
-- Çağrı yerleri: tablodaki "Nerede" sütunu.
-- DEV menüsü: "Sesleri dinle" (her efekt ve parça bir düğme).
+`click` düğmeler · `coin` şişe/para toplama · `purchase` her ilerleme (sahne) · `levelUp` yükseltme, yönetici, kariyer · `payout` ödül kartları, görev, günlük ödül, çevrimdışı, Şans'ın cüzdanı, tören hediyesi, yatırım kazancı · `fanfare` sınıf töreni başlığı · `page` hikâye balonu ve önsöz ilerlerken, hayat anının açılışı · `ring` olay kartının arama düğmesi belirince · `message` annenin mesajı · `bark` Şans cüzdanla gelince ve okşanınca · `arrive` yeni araç · `reward` reklam ödülleri, ×2 · `loss` olay kartı ve yatırım kaybı · `unlock` yadigâr alımı.

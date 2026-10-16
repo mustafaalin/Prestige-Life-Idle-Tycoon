@@ -44,7 +44,7 @@ export function DailyCard({ offer, onCollected }: { offer: DailyOffer; onCollect
   const collect = (multiplier: number) => {
     const amount = actions.claimDaily(multiplier);
     if (amount <= 0) return;
-    playSfx(multiplier > 1 ? 'levelUp' : 'coin');
+    playSfx(multiplier > 1 ? 'reward' : 'payout');
     haptic('medium');
     payout({ amount, label: `+${money(amount)}`, count: multiplier > 1 ? 18 : 12 });
     onCollected();

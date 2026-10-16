@@ -239,7 +239,7 @@ export function HomeScreen() {
           onCollect={() => {
             const amount = state.offline?.amount ?? 0;
             if (!actions.claimOffline()) return;
-            playSfx('coin');
+            playSfx('payout');
             haptic('medium');
             payout({ amount, label: `+${money(amount)}`, count: 12 });
           }}
@@ -254,7 +254,7 @@ export function HomeScreen() {
                   onReward: () => {
                     const amount = (state.offline?.amount ?? 0) * AD_OFFLINE_MULTIPLIER;
                     if (!actions.claimOffline(AD_OFFLINE_MULTIPLIER)) return;
-                    playSfx('levelUp');
+                    playSfx('reward');
                     haptic('medium');
                     payout({ amount, label: `+${money(amount)}`, count: 18 });
                   },

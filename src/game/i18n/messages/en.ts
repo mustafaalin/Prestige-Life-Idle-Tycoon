@@ -813,6 +813,8 @@ export const en = {
     privacyBody: 'Change your ad and data choices.',
     notifications: 'Notifications',
     notificationsBody: 'Messages from Mom, and Lucky when your earnings are full.',
+    sound: 'Sound effects',
+    music: 'Music',
   },
   dev: {
     open: 'DEV',

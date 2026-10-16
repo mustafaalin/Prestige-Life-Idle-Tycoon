@@ -13,7 +13,7 @@ import {
 import { eventCardsFor, eventReward, isLifeOver } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
-import { haptic, playSfx } from '../../runtime/feedback';
+import { haptic, playSfx, useMusic } from '../../runtime/feedback';
 import { pendingCeremony, sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { holdBalance, payout, spillCoins } from '../home/coins';
@@ -92,6 +92,11 @@ export function EventCards({ tabOpen, onOpenChange }: EventCardsProps) {
 
   // A ceremony, the offline card or the end of life come first; the caller waits behind them.
   const quiet = pendingCeremony(game, state.story) !== null || state.offline !== null || isLifeOver(game);
+  const showsCall = calling !== null && !quiet && !open && !tabOpen;
+  // The phone rings once when the call button appears.
+  useEffect(() => {
+    if (showsCall) playSfx('ring');
+  }, [showsCall, calling]);
   if (!calling || (quiet && !answered)) return null;
 
   if (open) {
@@ -158,6 +163,7 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
   // closed, so the coins and the red amount land where the player is looking.
   const [amount, setAmount] = useState(0);
   useEffect(() => () => holdBalance(0), []);
+  useMusic('event');
   const speaker = eventSpeaker(cardId, outcome ?? 'ask');
 
   const answer = (bold: boolean) => {
@@ -175,14 +181,14 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
     if (!outcome) return;
     holdBalance(0);
     if (amount < 0) {
-      // A loss: no coin sound; the coins leave the wallet instead of arriving.
-      playSfx('click');
+      // A loss: the coins leave the wallet instead of arriving.
+      playSfx('loss');
       haptic('light');
       spillCoins({ count: 6, label: `−${money(-amount)}` });
       onDone();
       return;
     }
-    playSfx('coin');
+    playSfx('payout');
     haptic('medium');
     payout({ amount, label: `+${money(amount)}`, count: 12 });
     onDone();

@@ -243,6 +243,7 @@ export function Scene() {
     const def = VEHICLES.find((item) => item.id === vehicle?.id);
     if (!def) return;
     setArrivedVehicle(def.id);
+    playSfx('arrive');
     announce('vehicle', t('scene.newVehicle', { vehicle: name('lifestyle', def) }));
   }, [vehicle?.id, announce, t, name]);
 
@@ -290,6 +291,7 @@ export function Scene() {
   const petSans = (event: MouseEvent) => {
     event.stopPropagation();
     haptic('light');
+    playSfx('bark');
     flashPose('pet', 1700);
     float({ x: fit.x(stage.sans.x + home.castX), y: fit.y(stage.sans.y - stage.sans.height) });
   };
@@ -298,6 +300,10 @@ export function Scene() {
   const [findRound, setFindRound] = useState(0);
   const wait = fetchSeconds(game);
 
+  // Şans comes back with a wallet: one bark.
+  useEffect(() => {
+    if (finding) playSfx('bark');
+  }, [finding]);
   useEffect(() => {
     if (finding) {
       // Şans waits with the find, then gives up.
@@ -330,7 +336,7 @@ export function Scene() {
 
   const collectFind = (multiplier = 1) => {
     const amount = actions.claimFind(multiplier);
-    playSfx('levelUp');
+    playSfx(multiplier > 1 ? 'reward' : 'payout');
     haptic('medium');
     flashPose('joy', 1800);
     setFindOffer(null);

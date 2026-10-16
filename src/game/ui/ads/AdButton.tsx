@@ -122,7 +122,7 @@ function HelpOffer({ cost, className }: { cost: number; className: string }) {
       onReward={() => {
         const paid = actions.ads.help(cost, amount);
         if (paid <= 0) return;
-        playSfx('coin');
+        playSfx('reward');
         haptic('medium');
         payout({ amount: paid, label: `+${money(paid)}`, count: 10 });
       }}

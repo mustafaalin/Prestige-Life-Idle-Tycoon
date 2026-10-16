@@ -2,6 +2,7 @@ import { ChevronRight, Phone } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useT } from '../../i18n/useT';
 import { track } from '../../runtime/analytics';
+import { playSfx, useMusic } from '../../runtime/feedback';
 import { useCoverFit } from '../scene/coverFit';
 import { PROLOGUE, type Speaker } from './prologueScript';
 
@@ -32,6 +33,7 @@ export function Prologue({ onDone }: { onDone: () => void }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const stage = useCoverFit(stageRef);
   const lastStep = useRef(0);
+  useMusic('story');
 
   useEffect(() => {
     for (const panel of PROLOGUE) new Image().src = panel.image;
@@ -56,8 +58,10 @@ export function Prologue({ onDone }: { onDone: () => void }) {
     if (ending || now - lastStep.current < TAP_GUARD_MS) return;
     lastStep.current = now;
     if (lineIndex + 1 < panel.lines.length) {
+      playSfx('page');
       setLineIndex(lineIndex + 1);
     } else if (panelIndex + 1 < PROLOGUE.length) {
+      playSfx('page');
       setPanelIndex(panelIndex + 1);
       setLineIndex(0);
     } else {

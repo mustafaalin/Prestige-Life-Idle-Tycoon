@@ -129,7 +129,7 @@ function HeirloomCard({ def, available }: { def: HeirloomDef; available: number 
 
   const buy = () => {
     if (!actions.buyHeirloom(def.id)) return;
-    playSfx('purchase');
+    playSfx('unlock');
     haptic('medium');
   };
 

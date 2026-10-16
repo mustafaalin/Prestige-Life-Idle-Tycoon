@@ -39,7 +39,7 @@ function useClaimQuest() {
   return (quest: QuestDef) => {
     const amount = actions.claimQuest(quest.id);
     if (amount <= 0) return;
-    playSfx('coin');
+    playSfx('payout');
     haptic('medium');
     payout({ amount, label: `+${money(amount)}`, count: 8 });
   };

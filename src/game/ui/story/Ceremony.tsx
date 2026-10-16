@@ -12,7 +12,7 @@ import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
 import { adsUnlocked } from '../../runtime/adRewards';
 import { useBackButton } from '../../runtime/backButton';
-import { haptic, playSfx } from '../../runtime/feedback';
+import { haptic, playSfx, useMusic, type Sfx } from '../../runtime/feedback';
 import type { LifeMomentId } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { AdButton } from '../ads/AdButton';
@@ -140,6 +140,7 @@ export function LifeMoment({ id, gift, onDone }: { id: LifeMomentId; gift: boole
     <StoryPlayer
       shots={shotsFor(LIFE_SCRIPT[id], state.story.lifeSeen)}
       heroOutfit={LIFE_OUTFIT[id]}
+      opening="page"
       pill={lifeMomentLabel(id, i18n)}
       heading={heading}
       gift={gift}
@@ -161,6 +162,7 @@ export function StoryReplay({ entry, onDone }: { entry: AlbumEntry; onDone: (ski
     <StoryPlayer
       shots={shotsFor(albumShots(entry), state.story.lifeSeen)}
       heroOutfit={albumOutfit(entry)}
+      opening={entry.kind === 'ceremony' ? 'fanfare' : 'page'}
       pill={entry.kind === 'ceremony' ? t('album.title') : lifeMomentLabel(entry.id, i18n)}
       heading={
         entry.kind === 'ceremony'
@@ -185,10 +187,12 @@ interface StoryPlayerProps {
   interlude?: (next: () => void) => ReactNode;
   /** The closing card; without one the last line (or Skip) ends the moment. */
   summary?: (close: (giftMultiplier?: number) => void) => ReactNode;
+  /** The sound under the title: the class ceremony's fanfare, a gentler page for a life moment. */
+  opening?: Sfx;
   onDone: StoryDone;
 }
 
-function StoryPlayer({ shots, heroOutfit, pill, heading, gift = false, interlude, summary, onDone }: StoryPlayerProps) {
+function StoryPlayer({ shots, heroOutfit, pill, heading, gift = false, interlude, summary, opening = 'fanfare', onDone }: StoryPlayerProps) {
   const { t } = useT();
   const [phase, setPhase] = useState<Phase>('title');
   const [shotIndex, setShotIndex] = useState(0);
@@ -200,10 +204,11 @@ function StoryPlayer({ shots, heroOutfit, pill, heading, gift = false, interlude
     for (const shot of shots) if (shot.image) new Image().src = shot.image.src;
   }, [shots]);
 
+  useMusic('story');
   useEffect(() => {
-    playSfx('levelUp');
+    playSfx(opening);
     haptic('medium');
-  }, []);
+  }, [opening]);
 
   const toEnd = (bySkip: boolean) => {
     if (!summary) {
@@ -236,8 +241,10 @@ function StoryPlayer({ shots, heroOutfit, pill, heading, gift = false, interlude
     }
     const shot = shots[shotIndex];
     if (lineIndex + 1 < shot.lines.length) {
+      playSfx('page');
       setLineIndex(lineIndex + 1);
     } else if (shotIndex + 1 < shots.length) {
+      playSfx('page');
       setShotIndex(shotIndex + 1);
       setLineIndex(0);
     } else {
@@ -683,7 +690,7 @@ function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void 
   const amount = storyGift(game);
 
   const collect = (multiplier: number) => {
-    playSfx('coin');
+    playSfx('payout');
     haptic('medium');
     // Paid by onCollect in this same tap (story.ceremonySeen / lifeSeen).
     payout({ amount: amount * multiplier, label: `+${money(amount * multiplier)}`, count: multiplier > 1 ? 18 : 12 });

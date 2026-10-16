@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
-import { haptic, playSfx } from '../../runtime/feedback';
+import { haptic, playSfx, useMusic } from '../../runtime/feedback';
 
 // "Hand over now" (story-v2.md §6): the skipped years pass on a dark screen while the age counts up
 // to the end of life; then the last life moments play one after another (StoryDirector).
@@ -15,6 +15,7 @@ export function YearsPassed({ from, to, onDone }: { from: number; to: number; on
   const { t } = useT();
   const [age, setAge] = useState(from);
   const done = useRef(false);
+  useMusic('story');
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
 

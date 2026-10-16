@@ -88,7 +88,7 @@ function BoostCard({ onClose }: { onClose: () => void }) {
               className="mb-2"
               onReward={() => {
                 if (!actions.ads.boost()) return;
-                playSfx('levelUp');
+                playSfx('reward');
                 haptic('medium');
               }}
             >
