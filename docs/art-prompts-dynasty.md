@@ -2,9 +2,9 @@
 
 Son güncelleme: 2026-10-16 · İlgili: [story-v2.md §4c, §6, §8](./story-v2.md), [game-design-v2.md §4.5](./game-design-v2.md), [art-brief-v2.md](./art-brief-v2.md) (genel kurallar, ekran haritası), [discussion-notes.md §3](./discussion-notes.md)
 
-**Üretim durumu (2026-10-16):** Dede, yaşlı Defne, Elif ve P1 dede bekleme pozu hazır. Kullanıcı düzeltmesiyle Ada iki ayrı kılavuz olarak yeniden üretildi: K4a `ada-17-sheet.png`, K4b `ada-7-sheet.png`. Her biri üç görünüm ve dört ifade içerir; ilk birleşik sayfa artık yeni sahne referansı değildir. P2 sevinç, P3 okşama, üç hikâye karesi ve dört ikon henüz üretilmedi. Runtime entegrasyonu yapılmadı.
+**Üretim durumu (2026-10-16): Tamam.** Beş ayrı kılavuz (Ada 7/17 ayrı), üç dede pozu, üç hayat anı ve dört yadigâr ikonu: toplam 15 seçili PNG ve yanlarında kullanılan `-prompt.txt` dosyaları hazır. Dosya listesi, doğal boyutlar ve entegrasyon notları: [dynasty-art-handoff.md](./dynasty-art-handoff.md). Kılavuzlar 1536×1024; ayakta pozlar 887×1774, P3 1024×1536; hikâye kareleri 941×1672; ikonlar gerçek alfa kanallı 1254×1254. P3'te eğilmiş karakter yaklaşık 1380 px yüksekliğinde; 1500 px hedefinin altında, yapay büyütme yapılmadı. Eller yakın planda ve ikonlar 56 px'te kontrol edildi. Runtime entegrasyonu bu üretim kapsamında yapılmadı.
 
-Bu belge GPT'ye (VS Code'da) verilir. Devrin hikâye anları ve Aile sekmesi için gereken **14 görselin** sırasını, referanslarını, kayıt yerini ve doğrudan yapıştırılacak İngilizce komutlarını içerir. Oyuna bağlama (kesim, webp, kod) Claude'un işidir (§6).
+Bu belge GPT'ye (VS Code'da) verilir. Devrin hikâye anları ve Aile sekmesi için gereken **15 görselin** (Ada yaşları ayrıldıktan sonraki toplam) sırasını, referanslarını, kayıt yerini ve doğrudan yapıştırılacak İngilizce komutlarını içerir. Oyuna bağlama (kesim, webp, kod) Claude'un işidir (§6).
 
 ## 0. GPT için çalışma kuralları
 

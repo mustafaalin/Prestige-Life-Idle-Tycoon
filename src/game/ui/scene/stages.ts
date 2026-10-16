@@ -190,8 +190,42 @@ const LOOKS: ClassLook[] = LOOK_ART.reduce<ClassLook[]>((looks, art, index) => {
   return looks;
 }, []);
 
-export function classLook(classIndex: number): ClassLook {
-  return LOOKS[Math.min(Math.max(classIndex, 0), LOOKS.length - 1)];
+/**
+ * The Starter Pack's red scarf (runtime/purchases.ts hasScarf): every sitting, wallet and sleeping
+ * picture has a twin drawn with the scarf tied on (GPT 2026-10-15; docs/archive/sans-scarf-handoff.md), same
+ * pose and scale, so only the file and its width change. Key: the plain picture.
+ */
+const SCARF_TWINS: Record<string, { src: string; aspect?: number }> = {
+  'sans-sit.webp': { src: 'sans-sit-rope-scarf.webp', aspect: 0.631 },
+  'sans-sit-leather.webp': { src: 'sans-sit-leather-scarf.webp', aspect: 0.645 },
+  'sans-sit-silver.webp': { src: 'sans-sit-silver-scarf.webp', aspect: 0.638 },
+  'sans-sit-gold.webp': { src: 'sans-sit-gold-scarf.webp', aspect: 0.631 },
+  'sans-wallet.webp': { src: 'sans-wallet-rope-scarf.webp', aspect: 0.931 },
+  'sans-wallet-leather.webp': { src: 'sans-wallet-leather-scarf.webp', aspect: 0.914 },
+  'sans-wallet-silver.webp': { src: 'sans-wallet-silver-scarf.webp', aspect: 0.898 },
+  'sans-wallet-gold.webp': { src: 'sans-wallet-gold-scarf.webp', aspect: 0.888 },
+  'sans-sleep.webp': { src: 'sans-sleep-rope-scarf.webp' },
+  'sans-sleep-leather.webp': { src: 'sans-sleep-leather-scarf.webp' },
+  'sans-sleep-silver.webp': { src: 'sans-sleep-silver-scarf.webp' },
+  'sans-sleep-gold.webp': { src: 'sans-sleep-gold-scarf.webp' },
+};
+
+function scarfTwin<T extends { src: string; aspect: number }>(art: T): T {
+  const twin = SCARF_TWINS[art.src.slice(DIR.length + 1)];
+  return twin ? { ...art, src: `${DIR}/${twin.src}`, aspect: twin.aspect ?? art.aspect } : art;
+}
+
+/** A class's look; `scarf`: Şans wears the Starter Pack's scarf. */
+export function classLook(classIndex: number, scarf = false): ClassLook {
+  const look = LOOKS[Math.min(Math.max(classIndex, 0), LOOKS.length - 1)];
+  if (!scarf) return look;
+  const sleep = SCARF_TWINS[look.sleep.slice(DIR.length + 1)];
+  return {
+    ...look,
+    sans: scarfTwin(look.sans),
+    find: scarfTwin(look.find),
+    sleep: sleep ? `${DIR}/${sleep.src}` : look.sleep,
+  };
 }
 
 /** Every picture of a look, so the next one can be loaded before the ceremony reveals it. */

@@ -2,7 +2,7 @@
 
 Tarih: 2026-10-15 · Durum: **pilot onaylandı (2026-10-15), kalan 14 görsel üretiliyor (1/15)** · Bağlam: [discussion-notes.md §1](../discussion-notes.md), [art-prompts-v2.md §11–12](../art-prompts-v2.md)
 
-Pilot kullanıcı tarafından onaylandı; kalan 14 görsel de üretildi. Tüm 15 PNG ve prompt eşleri `art/pilot/05-scene/` altında. Görseller açık/koyu zeminde karşılaştırıldı, alfa ve en-boy oranları kontrol edildi. Kod, kesim ve WebP dönüşümü yapılmadı. Güncel teslim listesi: [sans-scarf-handoff.md](../sans-scarf-handoff.md).
+Pilot kullanıcı tarafından onaylandı; kalan 14 görsel de üretildi. Tüm 15 PNG ve prompt eşleri `art/pilot/05-scene/` altında. Görseller açık/koyu zeminde karşılaştırıldı, alfa ve en-boy oranları kontrol edildi. Kod, kesim ve WebP dönüşümü yapılmadı. Güncel teslim listesi: [sans-scarf-handoff.md](./sans-scarf-handoff.md).
 
 Bu belge GPT için yazıldı; GPT buradan okuyup görselleri üretir. İş bitince belge `archive/` altına taşınır.
 

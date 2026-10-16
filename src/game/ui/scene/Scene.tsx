@@ -49,8 +49,6 @@ import {
 type NewsKind = 'home' | 'vehicle' | 'outfit';
 
 /** A stronger moment is not cut short by a weaker one. */
-/** The Starter Pack's scarf (runtime/purchases.ts hasScarf), drawn over the sitting dog. */
-const SCARF_SRC = '/assets/scene/sans-scarf.webp';
 
 const POSE_RANK: Record<Pose, number> = { idle: 0, collect: 1, pet: 2, joy: 3 };
 const POSE_LIST = Object.keys(POSE_RANK) as Pose[];
@@ -123,7 +121,8 @@ function startingItems(): Item[] {
 export function Scene() {
   const { game, state, actions } = useGameV2();
   const shownClass = sceneClass(game, state.story);
-  const stage = classLook(shownClass);
+  const scarf = hasScarf(state.purchases);
+  const stage = classLook(shownClass, scarf);
   const wornOutfit = OUTFITS.findIndex((outfit) => outfit.id === bestOwnedLifestyle(game, 'outfit')?.id);
   const itemArt = (item: Item) => stage.items[item.art % stage.items.length];
   // From Middle Class on the ground is empty; it empties when the ceremony ends, with the rest of the look.
@@ -136,9 +135,9 @@ export function Scene() {
   // The next look and place load while the ceremony plays, so they are there the moment it ends.
   useEffect(() => {
     if (game.classIndex > shownClass) {
-      for (const src of lookImages(classLook(game.classIndex), heroLook(wornOutfit))) new Image().src = src;
+      for (const src of lookImages(classLook(game.classIndex, scarf), heroLook(wornOutfit))) new Image().src = src;
     }
-  }, [game.classIndex, shownClass, wornOutfit]);
+  }, [game.classIndex, shownClass, wornOutfit, scarf]);
   useEffect(() => {
     new Image().src = homeArt(game.home).background;
   }, [game.home]);
@@ -437,16 +436,6 @@ export function Scene() {
                 className="w-full h-full"
                 style={{ filter: light }}
               />
-              {/* The Starter Pack's red scarf, on his neck in all three sitting pictures (same spot). */}
-              {hasScarf(state.purchases) && (
-                <img
-                  src={SCARF_SRC}
-                  alt=""
-                  draggable={false}
-                  className="absolute"
-                  style={{ left: '46.5%', top: '46.2%', width: '38.4%', filter: light }}
-                />
-              )}
             </button>
           )}
 

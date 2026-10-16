@@ -8,6 +8,7 @@ import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
 import type { DailyOffer } from '../../runtime/daily';
 import { haptic, playSfx } from '../../runtime/feedback';
+import { hasScarf } from '../../runtime/purchases';
 import { sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { AdButton } from '../ads/AdButton';
@@ -38,7 +39,7 @@ export function DailyCard({ offer, onCollected }: { offer: DailyOffer; onCollect
   const adText = useAdText();
   const { week, days, dayIndex } = dailyWeek(state.daily.claimed);
   const monthly = autoIncomePerSecond(game) * SECONDS_PER_MONTH;
-  const wallet = classLook(sceneClass(game, state.story)).find.src;
+  const wallet = classLook(sceneClass(game, state.story), hasScarf(state.purchases)).find.src;
 
   const collect = (multiplier: number) => {
     const amount = actions.claimDaily(multiplier);

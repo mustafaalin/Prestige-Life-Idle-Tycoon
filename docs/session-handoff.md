@@ -15,7 +15,8 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak ye
 | [discussion-notes.md](./discussion-notes.md) | Kararı bekleyen konular | Yalnızca açık konular |
 | [art-brief-v2.md](./art-brief-v2.md) | Görsel listesi, boyutlar, oyuna bağlama | |
 | [art-prompts-v2.md](./art-prompts-v2.md) | GPT'ye yapıştırılacak hazır komutlar | Yeniden üretim için duruyor |
-| [art-prompts-lumen.md](./art-prompts-lumen.md) | 2. neslin şehri Lumen: deneme ev karesi | İki fütürizm düzeyi (A/B); seçilince yeniden yazılır |
+| [art-prompts-burak.md](./art-prompts-burak.md) | Burak hattının görselleri: kılavuz, ortaklık ve kazık kareleri | Anahtar karesi yetişkin Ada'yı bekliyor |
+| [art-prompts-lumen.md](./art-prompts-lumen.md) | 2. neslin şehri Lumen: deneme ev karesi | Stil A seçildi (2026-10-16); Lumen görsellerinin stil cümlesi |
 | [mobile-ad-integration.md](./mobile-ad-integration.md) | v2 reklam altyapısı | |
 | [report-v2.md](./report-v2.md) | **Neden?** | Değişmez; tasarım belgesiyle çelişirse tasarım geçerli |
 | [archive/](./archive/) | Bitmiş teslimler ve incelemeler | Yalnızca geçmiş için |

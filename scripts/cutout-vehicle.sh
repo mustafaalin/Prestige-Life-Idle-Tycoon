@@ -3,8 +3,8 @@
 # The background goes (flood fill from the corners, low tolerance so beige paint survives); the soft grey
 # contact shadow under the wheels turns into a translucent black one, so it darkens any ground instead of
 # leaving a light smear. --spokes also clears grey enclosed by wheels and frames (bikes, scooters).
-# White or cream bodies (boats, jets): FUZZ=3.5 PALE=1, or the flood fill eats the shaded hull and the
-# shadow rule takes the pale underside for ground (the four luxury toys, 2026-10-13).
+# White or cream bodies: FUZZ=3.5 PALE=1, or the flood fill eats the shaded hull and the
+# shadow rule takes the pale underside for ground. The four luxury toys use cutout-pale.sh (2026-10-16).
 IN=$1; OUT=$2
 FUZZ=${FUZZ:-7}
 W=$(magick identify -format '%w' $IN); H=$(magick identify -format '%h' $IN)

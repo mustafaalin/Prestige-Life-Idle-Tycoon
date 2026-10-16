@@ -20,7 +20,7 @@ import { ALBUM, albumSeen } from '../story/album';
 import { AlbumSheet } from '../story/AlbumSheet';
 import { RICH_BUTTON_CLASS, RichListButton, RichListSheet } from '../richList/RichList';
 import { StoreButton, StoreSheet } from '../shop/StoreSheet';
-import { offersOpen } from '../../runtime/purchases';
+import { hasScarf, offersOpen } from '../../runtime/purchases';
 import { investmentDue, investTabOpen } from '../../runtime/investment';
 import { INVEST_FROM_CLASS } from '../../core/config/investments';
 import { WEALTH_CLASSES } from '../../core/config/classes';
@@ -231,7 +231,7 @@ export function HomeScreen() {
 
       {state.offline && (
         <RewardCard
-          image={classLook(sceneClass(game, state.story)).sleep}
+          image={classLook(sceneClass(game, state.story), hasScarf(state.purchases)).sleep}
           title={t('offline.title')}
           body={t('offline.body', { duration: duration(state.offline.awaySeconds) })}
           amount={`+${money(state.offline.amount)}`}
