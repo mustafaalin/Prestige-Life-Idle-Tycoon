@@ -283,7 +283,7 @@ Faz 1'de pano sadece statü eşyalarını gösterir (sıradaki ev, araç, kıyaf
 
 ### 6a. Burak hattı (karar 2026-10-16, kullanıcı; metinler taslak, oyunda değil)
 
-**Kim:** Burak, Lojistik Deposu'nun düzen takıntılı şefi (portresi oyunda, ~30 yaş görünüyor, kahramandan ~5 yaş büyük). İşe alınırken *"Forklift ehliyetim var, hayallerim de büyük."* der; o cümle ilk ipucudur. Çalışarak zenginleşir, kahramanın lojistik ortağı olur, ömrün sonunda bütün şirketlere el koyar. Neden o: oyuncu onu tanıyor (ördek kartı), lojistik bütün işletmelerin ortak damarı, yeni karakter maliyeti yok. Simülatörde iki profil de onu Milyarder ile Multimilyarder arasında işe alıyor (bağlı 4. gün, gündelik 6. gün); işe alınmamışsa ortaklık anı onu tanıtır.
+**Kim:** Burak, Lojistik Deposu'nun düzen takıntılı şefi (portresi oyunda). Yaşı hiçbir metinde söylenmez (karar 2026-10-16, kullanıcı: "yaş söylemek zorunda değiliz"); hikâye sade kalır, oğul ya da yeni karakter yok. Acıyı tanıdıklık verir: oyuncu onu olay kartlarında sık görür. İşe alınırken *"Forklift ehliyetim var, hayallerim de büyük."* der; o cümle ilk ipucudur. Çalışarak zenginleşir, kahramanın lojistik ortağı olur, ömrün sonunda bütün şirketlere el koyar. Neden o: oyuncu onu tanıyor (ördek kartı), lojistik bütün işletmelerin ortak damarı, yeni karakter maliyeti yok. Simülatörde iki profil de onu Milyarder ile Multimilyarder arasında işe alıyor (bağlı 4. gün, gündelik 6. gün); işe alınmamışsa ortaklık anı onu tanıtır.
 
 **Kullanıcının kararı:** 2. nesil hikâyesi intikam. Varis döneminde Zenginler Listesi'nin 1. sırasında Burak durur ($950B'den başlar); torunun bütün hedefi onu geçmektir.
 
@@ -326,7 +326,7 @@ Geri dönüşler: otogar (önsöz, devir), Rıza'nın "Önce çiçekleri dizecek
 
 **Mekaniğe etkisi:** devirde süren yatırım ve bekleyen günlük ödül varise geçmez (oyunda, 2026-10-16: yatırım dedeye ödenir, teklif silinir). Yeni hayat anı (`partner`, 45) ve kazık anı (`betrayal`, 80) `LIFE_MOMENTS`'e kayıt kimliği olarak eklenir; eski kayıtlar için varsayılan "görülmedi" (ortaklık anı 45'i geçmiş oyuncuya sırası gelince oynar).
 
-**Görsel ihtiyacı (GPT, art-prompts-dynasty sırasına):** takım elbiseli, yaşlanan Burak kılavuzu + 4 portre (mevcut yönetici portresi referans); kareler: el sıkışma (45), gazete (80), anahtar (2. neslin sonu). Burak'ın 2. nesilde yaşı: ~85–100 (açık soru, discussion-notes §3).
+**Görsel ihtiyacı (GPT, art-prompts-dynasty sırasına):** takım elbiseli, yaşlanan Burak kılavuzu + 4 portre (mevcut yönetici portresi referans); kareler: el sıkışma (45), gazete (80), anahtar (2. neslin sonu). 2. nesilde Burak orta yaşlı görünür (kır düşmüş saç, takım elbise; 40'lı–50'li yaşlar gibi); yaşı söylenmez, kimse sormaz.
 
 ## 7. Sonra: testten sonra ya da Faz 2 (fikir havuzu)
 
