@@ -9,6 +9,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { GameButton } from '../kit';
 import { AdButton } from './AdButton';
 import { useAdFree, useAdText } from './useAdText';
+import { portalRoot } from '../stage';
 
 // The income boost (monetization-v2 §4 #3): a button on the home scene opens a small card; one ad
 // doubles all earnings for an hour of real time. While it runs, the button shows the time left.
@@ -101,6 +102,6 @@ function BoostCard({ onClose }: { onClose: () => void }) {
         </div>
       </div>
     </div>,
-    document.body,
+    portalRoot(),
   );
 }

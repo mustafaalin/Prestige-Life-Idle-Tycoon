@@ -67,6 +67,9 @@ const SPOTS: [number, number][] = [
   [0.85, 0.8],
 ];
 
+/** An item's tap box is 64 px; its centre stays this far from the screen's edges. */
+const ITEM_EDGE = 40;
+
 const ITEM_FILTER = 'drop-shadow(0 0 6px rgba(255,230,150,0.85)) brightness(1.05)';
 
 interface Item {
@@ -279,9 +282,7 @@ export function Scene() {
     flashPose('collect', 650);
     setItems((current) => current.filter((other) => other.id !== item.id));
 
-    const [sx, sy] = SPOTS[item.spot];
-    const x = fit.x(sx);
-    const y = fit.y(sy);
+    const { x, y } = itemPoint(item);
     const root = rootRef.current?.getBoundingClientRect();
     if (root) burstCoins({ x: root.left + x, y: root.top + y, count: 2 });
     float({ x, y: y - 24, text: `+${money(value)}` });
@@ -341,6 +342,13 @@ export function Scene() {
     flashPose('joy', 1800);
     setFindOffer(null);
     payout({ amount, label: `+${money(amount)}`, count: multiplier > 1 ? 18 : 12 });
+  };
+
+  // Where an item lies on screen. Very tall, narrow phones crop the picture's sides past the spots'
+  // margin, so an item never sits closer than its own half width to the screen's edge.
+  const itemPoint = (item: Item) => {
+    const [sx, sy] = SPOTS[item.spot];
+    return { x: Math.min(Math.max(fit.x(sx), ITEM_EDGE), fit.width - ITEM_EDGE), y: fit.y(sy) };
   };
 
   // A bottle near the middle (on screen also on wide phones) and not down by the menu, where the hand
@@ -468,7 +476,7 @@ export function Scene() {
           )}
 
           {collecting && items.map((item) => {
-            const [sx, sy] = SPOTS[item.spot];
+            const { x, y } = itemPoint(item);
             const art = itemArt(item);
             const width = pictureWidth * art.width;
             return (
@@ -477,7 +485,7 @@ export function Scene() {
                 type="button"
                 onClick={(event) => collect(item, event)}
                 className="absolute flex items-center justify-center"
-                style={{ left: fit.x(sx) - 32, top: fit.y(sy) - 32, width: 64, height: 64 }}
+                style={{ left: x - 32, top: y - 32, width: 64, height: 64 }}
               >
                 <span className="v2-pop-in block">
                   <img

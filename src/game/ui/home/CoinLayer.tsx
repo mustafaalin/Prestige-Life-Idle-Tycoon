@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { ICONS } from '../icons';
 import { emitWalletHit, onCoinBurst, onCoinSpill } from './coins';
+import { toStage } from '../stage';
 
 // Draws coin bursts: each coin pops out a little, then curves into the wallet in the top bar.
 // Every arrival bumps the balance (TopBar listens to emitWalletHit). A burst with a label shows the
@@ -61,11 +62,14 @@ export function CoinLayer() {
 
   useEffect(() => {
     const pending = timers.current;
-    const stop = onCoinBurst(({ x, y, count, label, flyLabel, onHit }) => {
+    // Points come in screen coordinates; the layer is drawn in the game's column (ui/stage.ts).
+    const stop = onCoinBurst(({ x: screenX, y: screenY, count, label, flyLabel, onHit }) => {
       const wallet = document.querySelector('[data-wallet-icon]')?.getBoundingClientRect();
       if (!wallet) return;
-      const targetX = wallet.left + wallet.width / 2;
-      const targetY = wallet.top + wallet.height / 2;
+      const { x, y } = toStage(screenX, screenY);
+      const target = toStage(wallet.left + wallet.width / 2, wallet.top + wallet.height / 2);
+      const targetX = target.x;
+      const targetY = target.y;
       const burst: Coin[] = Array.from({ length: count }, (_, index) => ({
         id: nextId.current++,
         x,
@@ -104,8 +108,7 @@ export function CoinLayer() {
     const stopSpill = onCoinSpill(({ count, label }) => {
       const wallet = document.querySelector('[data-wallet-icon]')?.getBoundingClientRect();
       if (!wallet) return;
-      const x = wallet.left + wallet.width / 2;
-      const y = wallet.top + wallet.height / 2;
+      const { x, y } = toStage(wallet.left + wallet.width / 2, wallet.top + wallet.height / 2);
       const spill: FallingCoin[] = Array.from({ length: count }, (_, index) => ({
         id: nextId.current++,
         x,
@@ -116,7 +119,7 @@ export function CoinLayer() {
         delay: index * 70,
         duration: 800 + Math.random() * 250,
       }));
-      const shown: Label = { id: nextId.current++, x: x + 36, y: wallet.bottom + 22, text: label, loss: true };
+      const shown: Label = { id: nextId.current++, x: x + 36, y: y + wallet.height / 2 + 22, text: label, loss: true };
       setFalling((list) => [...list, ...spill]);
       setLabels((list) => [...list, shown]);
       const timer = window.setTimeout(() => {

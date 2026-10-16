@@ -4,6 +4,7 @@ import { useT } from '../../i18n/useT';
 import type { AdPlacement } from '../../runtime/ads';
 import { useBackButton } from '../../runtime/backButton';
 import { AdButton } from '../ads/AdButton';
+import { portalRoot } from '../stage';
 
 // A moment the player confirms with one tap: a reward (Şans's find, offline earnings; the amount is
 // large enough to read, then coins fly from it into the wallet) or a new manager joining. A reward may
@@ -97,6 +98,6 @@ export function RewardCard({
         </div>
       </div>
     </div>,
-    document.body,
+    portalRoot(),
   );
 }

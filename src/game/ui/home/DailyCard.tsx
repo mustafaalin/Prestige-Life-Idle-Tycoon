@@ -15,6 +15,7 @@ import { AdButton } from '../ads/AdButton';
 import { useAdText } from '../ads/useAdText';
 import { classLook } from '../scene/stages';
 import { payout } from './coins';
+import { portalRoot } from '../stage';
 
 // The daily reward (runtime/daily.ts): the week's seven days as a calendar, today's amount in big
 // figures and how it was worked out ("your monthly income × 15"). Days ahead show their multiplier,
@@ -112,7 +113,7 @@ export function DailyCard({ offer, onCollected }: { offer: DailyOffer; onCollect
         </div>
       </div>
     </div>,
-    document.body,
+    portalRoot(),
   );
 }
 

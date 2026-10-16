@@ -11,6 +11,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { ICONS } from '../icons';
 import { ALBUM, albumCover, albumKey, albumSeen, lifeMomentLabel, type AlbumEntry } from './album';
 import { StoryReplay } from './Ceremony';
+import { portalRoot } from '../stage';
 
 // The family album (story-v2.md §7): one page with every story moment, the ones lived as pictures,
 // the rest locked. Tapping a picture plays that moment again; nothing is saved, paid or stopped by it.
@@ -131,7 +132,7 @@ export function AlbumSheet({ onClose, onReplay }: { onClose: () => void; onRepla
               play(null);
             }}
           />,
-          document.body,
+          portalRoot(),
         )}
     </div>
   );

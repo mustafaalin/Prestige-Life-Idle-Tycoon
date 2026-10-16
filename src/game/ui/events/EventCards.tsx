@@ -19,6 +19,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { holdBalance, payout, spillCoins } from '../home/coins';
 import { GameButton } from '../kit';
 import { eventKey, eventSpeaker, onEventCardRequest } from './eventScript';
+import { portalRoot } from '../stage';
 
 // Event cards (game-design §4.7): from Middle Class on, someone the hero knows calls every few
 // minutes. The call waits on the home scene until it is answered; the card asks one thing and has a
@@ -278,6 +279,6 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
         </div>
       </div>
     </div>,
-    document.body,
+    portalRoot(),
   );
 }

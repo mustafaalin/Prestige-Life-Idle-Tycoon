@@ -13,7 +13,7 @@ import { useAdsUnlocked } from '../ads/useAdsUnlocked';
 import { useAdText } from '../ads/useAdText';
 import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
-import { classLook } from '../scene/stages';
+import { classLook, homeArt } from '../scene/stages';
 import { Guide } from '../guide/Guide';
 import { ICONS } from '../icons';
 import { ALBUM, albumSeen } from '../story/album';
@@ -141,6 +141,11 @@ export function HomeScreen() {
   };
 
   useEffect(() => preloadSfx(), []);
+  // Beside the game's column on wide screens: the home you live in, blurred (mobile.css .v2-backdrop).
+  const backdrop = homeArt(game.home).background;
+  useEffect(() => {
+    document.documentElement.style.setProperty('--v2-backdrop', `url("${backdrop}")`);
+  }, [backdrop]);
   useEffect(
     () => trackScreen(albumOpen ? 'album' : richOpen ? 'rich_list' : storeOpen ? 'store' : (tab ?? 'home')),
     [tab, albumOpen, richOpen, storeOpen],

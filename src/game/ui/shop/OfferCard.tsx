@@ -7,6 +7,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { STORE_ART } from './storeArt';
 import { BuyButton, StarterRewards } from './StoreParts';
 import { usePrices } from './usePrices';
+import { portalRoot } from '../stage';
 
 // The welcome offer (decided 2026-10-14; look: docs/iap-store-design-handoff.md): once, at a quiet
 // moment after the first ceremony, it points at the limited offer. It is a paid pack, so the card says
@@ -69,6 +70,6 @@ export function OfferCard({ onLook, onLater }: { onLook: () => void; onLater: ()
         </button>
       </section>
     </div>,
-    document.body,
+    portalRoot(),
   );
 }

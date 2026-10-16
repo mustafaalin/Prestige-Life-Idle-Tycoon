@@ -6,6 +6,7 @@ import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { GameButton } from '../kit';
 import { portraitOf } from './ceremonyScript';
+import { portalRoot } from '../stage';
 
 // Mom's message on a return session (story-v2.md §4): a phone-style card with her portrait. The only
 // answer is a heart; it floats up and the card closes. Also the opt-in card for reminders.
@@ -64,7 +65,7 @@ export function MomMessage({ messageId, onClose }: { messageId: string; onClose:
         </div>
       </div>
     </div>,
-    document.body,
+    portalRoot(),
   );
 }
 
@@ -95,6 +96,6 @@ export function NotifyPrompt({ onAnswer }: { onAnswer: (yes: boolean) => void })
         </button>
       </div>
     </div>,
-    document.body,
+    portalRoot(),
   );
 }

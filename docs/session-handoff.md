@@ -38,6 +38,8 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 
 ## Son oturum (2026-10-16 → 17)
 
+- **Ekran düzeni ve yön (2026-10-17):** oyun yalnız dikey. Android: `screenOrientation="portrait"` + `appCategory="game"` (Android 16+ büyük ekranlarda yön kilidini yok sayar, oyunlar muaf) + API 36 için `PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY`; iOS: iPhone ve iPad yalnız dikey, `UIRequiresFullScreen`. Kilitler ileride kalkabileceği için (API 37, iPadOS 26 sonrası) oyun her durumda dikey bir sütunda çizilir: telefonda tam genişlik, tablet, katlanır ve masaüstünde en çok yüksekliğin 0,6'sı kadar genişlikte ortada, yanlarda oturulan evin bulanık hâli (`mobile.css` `.v2-stage`, `--stage-w`; bütün açılır kartlar `ui/stage.ts` `portalRoot()` ile sütunun içine). Kısa yatay pencerede "telefonunu dik tut" uyarısı. 13 ekran boyutunda ölçüldü (320×568 → 1024×1366, yatay tablet ve telefon): kesilen yazı ya da taşan öğe yok. Düzeltilenler: alt menü yazıları 360 px telefonlarda kesiliyordu (yazı boyu sütunla ölçeklenir), çok uzun telefonlarda kenardaki şişeler ekran dışına düşüyordu (artık ekran içinde tutulur). Telefonda ve gerçek tablette denenmedi.
+
 - **Lumen oyunda (2026-10-17):** çift nesiller Lumen'de oynar. Lumen aynı kimliklerin üstünde bir kaplama (`runtime/city.ts`): işletme, ev, araç ve lüksün kimliği, fiyatı ve kayıttaki yeri aynı; adı (TR/EN), resmi, yöneticisi (yeni 10 kişi, sözleriyle), yükseltme adları ve sahne yerleşimi şehre göre. Kayıt değişmedi. DEV → "Şehir (önizleme)" ile her iki şehre bakılır. Eksikler: Ada'nın görselleri (Lumen'de hâlâ ilk kahraman görünüyor), Lumen'in olay kartları (şimdilik eski şehrin kişileri arıyor), Lumen ev yerleşimlerinin telefonda ayarı, pikabın yeniden üretimi.
 
 - **Ses ve müzik (2026-10-17):** 14 yeni efekt (ElevenLabs) ve 4 müzik (ana ekran, işletme/yatırım, hikâye, olay kartı) oyunda; Ayarlar'da iki anahtar. Ayrıntı [audio-v2.md](./audio-v2.md). Tarayıcıda müzik geçişleri denendi, telefonda denenmedi.
@@ -121,6 +123,8 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
 - **Şema:** `SAVE_SCHEMA` yalnızca `migrate()`'e adım eklenerek artırılır; okunamayan kayıt `prestige_life_v2_unreadable`'a yedeklenir.
 - **Kayıt anahtarı** `prestige_life_v2` ve uygulama kimliği değişmez.
 - **Denetim:** kaydı etkileyen her değişiklikte eski bir kayıtla açılış denenir (DEV kaydı ya da betikle `parseRuntime`).
+
+**Ekran kuralı (2026-10-17):** yeni bir açılır kart `createPortal(..., portalRoot())` kullanır (`document.body` değil); ekrandan ölçülen nokta (getBoundingClientRect) sütuna `toStage()` ile çevrilir; `vw` yerine `var(--stage-w)`.
 
 **Bilinen küçük sorunlar:** listedekiler 2026-10-16'da düzeltildi; "OTOMATİK" rozeti ile 320 px üst bar telefonda bir kez görülmeli.
 

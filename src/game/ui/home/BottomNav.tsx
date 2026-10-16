@@ -85,13 +85,13 @@ export function BottomNav({ open, onSelect, attention, locked = {}, top }: Botto
                   </span>
                 )}
                 {hint === id && lockedHint !== undefined && (
-                  <span className="v2-pop-in absolute bottom-full right-0 mb-8 w-max max-w-[60vw] rounded-xl bg-white px-2.5 py-1.5 shadow-xl v2-display text-[12px] text-indigo-950 pointer-events-none">
+                  <span className="v2-pop-in absolute bottom-full right-0 mb-8 w-max max-w-[15rem] rounded-xl bg-white px-2.5 py-1.5 shadow-xl v2-display text-[12px] text-indigo-950 pointer-events-none">
                     {lockedHint}
                   </span>
                 )}
                 <span
-                  className={`absolute inset-x-0 bottom-1 truncate px-0.5 v2-display text-white v2-outline-thin ${
-                    TABS.length > 4 ? 'text-[11px] tracking-tight' : 'text-[13px]'
+                  className={`v2-nav-label absolute inset-x-0 bottom-1 truncate px-0.5 v2-display text-white v2-outline-thin ${
+                    TABS.length > 4 ? 'tracking-tight' : 'text-[13px]'
                   }`}
                 >
                   {t(label)}

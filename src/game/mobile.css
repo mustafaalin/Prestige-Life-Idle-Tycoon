@@ -5,6 +5,59 @@
   --safe-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
   --safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   --safe-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+  /* The game's width: the whole screen on phones; on tablets, foldables and desktop windows a portrait
+     column at most 0.6 × the height (the 9:16 art then loses at most ~3% at the top and bottom). */
+  --stage-w: min(100vw, calc(100dvh * 0.6));
+}
+
+/* The portrait column every screen, sheet and card is drawn in (AppV2). `transform` makes it the
+   containing block of its position: fixed children, so overlays stay inside it. */
+html,
+body {
+  background: #120d2a;
+}
+.v2-stage {
+  position: relative;
+  width: var(--stage-w);
+  height: 100dvh;
+  margin: 0 auto;
+  overflow: hidden;
+  transform: translateZ(0);
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.55);
+}
+/* Beside the column: the current home, blurred and darkened (HomeScreen sets --v2-backdrop). */
+.v2-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--v2-backdrop, none) center / cover no-repeat, linear-gradient(160deg, #2b1f5c, #120d2a);
+  filter: blur(28px) brightness(0.45) saturate(1.1);
+  transform: scale(1.15);
+}
+/* Bottom menu labels: five buttons share the column, so the text follows its width (9–12 px);
+   "İşletmeler" fits a 320 px phone. */
+.v2-nav-label {
+  font-size: clamp(9px, calc(var(--stage-w) * 0.028), 12px);
+}
+
+/* A phone held sideways (the apps lock portrait; this covers browsers): ask to turn it upright. */
+.v2-rotate {
+  display: none;
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .v2-rotate {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: #120d2a;
+    color: white;
+    text-align: center;
+    padding: 24px;
+  }
 }
 
 /* Story panels (prologue, ceremonies): slow camera push on the panel, lines rise in. */
@@ -95,19 +148,19 @@
   .v2-bob, .v2-ring, .v2-pulse-ring { animation: none; }
 }
 @keyframes v2-run-in {
-  from { transform: translateX(70vw); }
+  from { transform: translateX(calc(var(--stage-w) * 0.7)); }
   to { transform: none; }
 }
 .v2-run-in { animation: v2-run-in 900ms cubic-bezier(0.2, 0.8, 0.3, 1) both; }
 /* A new vehicle drives in from the left, facing right. `translate` leaves the inline transform alone (older art is mirrored there). */
 @keyframes v2-drive-in {
-  from { translate: -80vw 0; }
+  from { translate: calc(var(--stage-w) * -0.8) 0; }
   to { translate: 0 0; }
 }
 .v2-drive-in { animation: v2-drive-in 1100ms cubic-bezier(0.2, 0.8, 0.3, 1) both; }
 /* Where it parks facing left, it comes from the right. */
 @keyframes v2-drive-in-left {
-  from { translate: 80vw 0; }
+  from { translate: calc(var(--stage-w) * 0.8) 0; }
   to { translate: 0 0; }
 }
 .v2-drive-in-left { animation: v2-drive-in-left 1100ms cubic-bezier(0.2, 0.8, 0.3, 1) both; }

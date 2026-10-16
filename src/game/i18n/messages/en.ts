@@ -7,6 +7,7 @@ export const en = {
     close: 'Close',
     affordIn: 'Affordable in ~{duration}',
     exitHint: 'Press back again to exit',
+    rotate: 'Hold your phone upright to play.',
   },
   hud: {
     perMonth: '{amount}/mo',

@@ -10,6 +10,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { managerPortrait } from '../businesses/managers';
 import { GameButton } from '../kit';
 import { portraitOf } from '../story/ceremonyScript';
+import { portalRoot } from '../stage';
 
 // The Rich List (discussion-notes §10): a button on the home scene with the hero's place, a sheet with
 // the named top 20, and the short card a new place brings. Fictional; the rank follows this life's
@@ -216,6 +217,6 @@ export function RichMoment({
         </div>
       </div>
     </div>,
-    document.body,
+    portalRoot(),
   );
 }

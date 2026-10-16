@@ -4,6 +4,7 @@ import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { HERO_NAME_MAX } from '../../runtime/story';
 import { GameButton } from '../kit';
+import { portalRoot } from '../stage';
 
 // A character asks for a name (the hero's after the first business, his daughter's when she is born):
 // the default is filled in, so one tap keeps it.
@@ -78,6 +79,6 @@ export function NameSheet({ speaker, portrait, tone, question, label, defaultNam
         </GameButton>
       </form>
     </div>,
-    document.body,
+    portalRoot(),
   );
 }

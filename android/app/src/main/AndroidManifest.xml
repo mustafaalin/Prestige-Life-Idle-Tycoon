@@ -8,11 +8,18 @@
 
     <application
         android:allowBackup="true"
+        android:appCategory="game"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!-- Portrait only, also on tablets: games (appCategory) keep their orientation on Android 16+
+             large screens; this opt-out covers API 36 too. The web layout letterboxes anyway. -->
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+            android:value="true" />
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

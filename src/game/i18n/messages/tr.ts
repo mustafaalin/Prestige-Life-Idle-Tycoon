@@ -5,6 +5,7 @@ export const tr: Messages = {
     collect: 'Topla',
     close: 'Kapat',
     affordIn: '~{duration} sonra alabilirsin',
+    rotate: 'Oynamak için telefonunu dik tut.',
     exitHint: 'Çıkmak için bir kez daha geri bas',
   },
   hud: {

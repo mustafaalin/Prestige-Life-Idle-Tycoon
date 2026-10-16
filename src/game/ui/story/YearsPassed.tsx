@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx, useMusic } from '../../runtime/feedback';
+import { portalRoot } from '../stage';
 
 // "Hand over now" (story-v2.md §6): the skipped years pass on a dark screen while the age counts up
 // to the end of life; then the last life moments play one after another (StoryDirector).
@@ -57,6 +58,6 @@ export function YearsPassed({ from, to, onDone }: { from: number; to: number; on
         {t('hud.ageShort', { age })}
       </p>
     </div>,
-    document.body,
+    portalRoot(),
   );
 }
