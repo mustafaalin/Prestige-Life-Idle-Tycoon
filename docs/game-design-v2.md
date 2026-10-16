@@ -164,7 +164,7 @@ En iyi evde (kendi evin) yaşanıp tüm eşyalar alındığında statü toplamı
 | Annenin erik reçeli | Başlangıç parası $1K, $10K, $100K... (yaşarken alınırsa fark hemen gelir) | 150 | 3 (6) |
 | Rıza Amca'nın defteri | Yöneticiler %10 ucuz (en çok %50) | 150 | 3 (5) |
 | Şans'ın tasması | Şans'ın bulduğu +%25 | 150 | 3 (6) |
-| Aile albümü | Tören ve hayat anı hediyesi +%25 (varisin törenleri 2. nesil içeriğiyle gelecek; o zamana kadar etkisiz) | 150 | 3 (6) |
+| Aile albümü | Tören ve hayat anı hediyesi +%25. Varisin törenleri 2. nesil içeriğiyle gelene kadar satılmaz ("Torununun törenleriyle açılır", `comingSoon`; alınmış seviyeler kalır) | 150 | 3 (6) |
 
 - **Erken devir (oyunda):** En Zengin'den sonra Aile sekmesi açılır (önce kilitli: "Dünyanın En Zengini olunca açılır"): canlı "Varisine bırakacağın +N itibar puanı", "Kal, biriktir" (sekmeyi kapatır) ve "Şimdi devret" (onay: "Kalan yıllar atlanır; 80 yaşında torununa devredersin"). Devret kalan yılları atlar (`handOverEarly`: ömür 80'de biter), ardından ömür sonu paneli. Hikâye anları (torunun doğumu 63, dede ve torun 70, devir 80) görsellerle gelecek. Sekmede "!": alınabilir yadigâr varsa, ya da devir seçimi açıkken oturumda bir kez. Analitik `hand_over_early`, `heirloom_buy`.
 - **Varisin hızı (simülatör 2026-10-16, bot puanını hemen harcar: önce saat, sonra en ucuzu):** bağlı oyuncunun 2. nesli En Zengin'e erken devirde (~1.000 puan) 4 sa 26 dk, 80 yaşta devirde (~2.500 puan) 3 sa 56 dk oyunda (önce 40 dk; 1. nesil 9 sa 11 dk). Casual 3 sa, reklam izleyen 3 sa 2 dk, reklam + fular + yakut 1 sa 44 dk – 2 sa. Başlangıç çarpanına göre süre: ×1 9 sa 11 dk, ×1,5 6 sa 16 dk, ×2 4 sa 52 dk, ×3 3 sa 28 dk, ×5 2 sa 18 dk. Simülatör: `npm run sim -- --days 60 --retire-at-top` (erken devir), `startLegacyPoints` seçeneği.
@@ -265,6 +265,7 @@ Oyuncuya her gün geri gelmesi için bir sebep verir. Tasarım benzer oyunlara b
 - **Sonraki günler:** kartta dolar değil çarpan yazar; tutar o günün ilk açılışında belli olur.
 - **Gün kaçırmak:** ceza yok, takvim kaldığı yerden devam eder (Egg, Inc. gibi). Sayaç ömürler boyunca sürer, varise geçer.
 - **Ne zaman başlar:** reklamlarla aynı anda (bir yönetici ve çevrimdışı kartının bir kez toplanması). İlk ödül ilk dönüşte gelir, rehberin ortasında değil. Gün telefonun takvimine göre değişir.
+- **Devirde:** bekleyen teklif silinir (tutarı eski neslin gelirinden; 2026-10-16), varisin teklifi kendi geliriyle gelir. Sayaç sürer.
 - **Sıra:** çevrimdışı kartı → tören ve hayat anları → günlük ödül → diğer kartlar. Toplandıktan sonra sonraki kart 2 dk bekler.
 - **Reklamla ×2:** kartta, Rahat Paket'le reklamsız (monetization-v2 §4, yer 6).
 - **Simülatörde (2026-10-15):** bağlı oyuncunun parasının ~%6'sı, hafif oyuncunun ~%11'i. En Zengin: bağlı 15. gün 21:00 → 14. gün 23:00; hafif 31. gün → 27. gün. Multimilyarder 7. gün 18:04 → 08:03 (zaten hedefin altındaydı, discussion-notes §4). `npm run sim -- --daily-claims` ilk günlerin tutarlarını gösterir.
@@ -277,7 +278,7 @@ Bir randevu mekaniği: oyuncu birikimini bir vadeye koyar, vadesi dolunca geri g
 - **Tavan:** en fazla 5 yıllık gelir (60 aylık gelir), cüzdandan fazlası değil. Tavansız denemede birikim her oturumda faizle katlanıyor, yatırım paranın %23–83'ünü getiriyordu.
 - **Tutar:** %25 / %50 / Hepsi. Aynı anda tek yatırım.
 - **Para:** yatırılan tutar cüzdandan çıkar ve vadede geri gelir; yalnız kazanç yeni kazanç sayılır (sınıf, Zenginler Listesi). Kayıp, geri gelen tutardan düşer.
-- **Açılış:** Orta Sınıf. Alt menüdeki "Yatırım" düğmesi oyunun başından görünür, gri ve kilitli; dokununca "Orta Sınıf olunca açılır" der (kullanıcı 2026-10-15: yeni ekranlar alt menüye, sahnenin ortasına değil). Açıldığında ve vade dolunca düğmede "!" çıkar. Varis Orta Sınıf'tan önce de eski yatırımını toplayabilir.
+- **Açılış:** Orta Sınıf. Alt menüdeki "Yatırım" düğmesi oyunun başından görünür, gri ve kilitli; dokununca "Orta Sınıf olunca açılır" der (kullanıcı 2026-10-15: yeni ekranlar alt menüye, sahnenin ortasına değil). Açıldığında ve vade dolunca düğmede "!" çıkar. Devirde süren yatırım dedeye ödenir, kazancı mirasa sayılır; varise geçmez (2026-10-16; önceden geçiyordu ve torun ~$1,4T ile başlayabiliyordu). Eski bir kayıtta süren yatırımı olan varis onu Orta Sınıf'tan önce de toplayabilir.
 - **Bildirim:** vade dolunca "Yatırımın vadesi doldu" (günde tek bildirim kuralı; Şans'ın hatırlatmasının yerini alır).
 - **Simülatörde (2026-10-15):** bot her oturumun sonunda birikimini bir sonraki girişe kadar dolan en uzun vadeye koyar (en iyi oyuncu; gerçek oyuncu daha az yatırır). Bağlı oyuncunun parasının ~%8'i, hafif oyuncunun ~%13'ü. En Zengin: bağlı 14. gün 23:00 → 08:00; hafif 27. gün → 25. gün.
 

@@ -2,7 +2,7 @@
 
 Kararı henüz verilmemiş konular ve Claude'un önerileri. **Karar verilince ilgili belgeye (plan, hikâye, tasarım, monetizasyon) taşınır ve buradan silinir**; burada yalnızca açık konular durur.
 
-Son güncelleme: 2026-10-16 (oyunun baştan sona incelemesi: devir hataları §4, hanedan matematiği §3, hikâye §7; Burak hattı kararı story-v2 §6a)
+Son güncelleme: 2026-10-16 (oyunun baştan sona incelemesi: hanedan matematiği §3, hikâye §7; Burak hattı kararı story-v2 §6a)
 
 ## 1. Görsel
 
@@ -62,8 +62,6 @@ Kurallar ve sayılar [game-design-v2.md §4–5](./game-design-v2.md). Çevrimd�
 - **Erken oyun telefonda bakılacak:** ucuz tezgâh, $1K yönetici, ilk yöneticiye kadar sık gelen Şans. Elle çalışan tezgâhın geliri üst barda görünmüyor (kullanıcı: yönetici atanınca görünsün). Hâlâ boş geliyorsa yeni bir uğraş.
 - **Çevrimdışı ödül erken sınıflarda:** kullanıcı erken oyunda fazla buluyor; erken sınıfların tavanları (10 dk → 1 sa) hiç denenmedi. Ölçüm: paranın ~%87'si çevrimdışı kartlardan geliyor; oran ve tavan payı pek oynatmıyor (%78–91), tempoyu ve "ne sıklıkla dönmeli" hissini belirliyor.
 - **Kariyer / işletme dengesi:** ilk 4 dk gelir tamamen maaş, sonra hızla işletmelere geçiyor (ömür boyunca ortanca %95). "Başta kariyer" daha uzun sürsün mü?
-- **Devirde varise geçen para (hata, inceleme 2026-10-16; düzeltilecek):** devir yalnız oyun durumunu sıfırlıyor (`runtime/engine.ts` `retire`). Süren yatırım varise kalıyor: 1. neslin sonunda tavandan Cesur vadeyle torun ~$1,4T toplar ve kazancı sayıldığı için sokaktan Multimilyarder olur. Bekleyen günlük ödül teklifi de kalıyor: 50 aylık ödül reklamla $1,4T, torun doğrudan En Zengin. Öneri: devirde yatırım dedeye ödenir (mirasa sayılır), teklif silinir ve varisin geliriyle yeniden hesaplanır.
-- **Aile albümü yadigârı etkisiz (inceleme):** etkisi tören hediyesine bağlı, 2. nesilde tören yok; ekranda yazmıyor. Öneri: 2. nesil törenleri gelene kadar kilitli ("Torununun törenleriyle açılır"). `LEGACY_BONUS_PER_POINT` artık kullanılmıyor, silinecek.
 - **"Biraz yardım" düğmesinin yazısı:** kullanıcı ilk bakışta anlamadı. Fikir: "Reklam izle, hemen al: +$X" (`ads.help`).
 - **Yöneticisiz işletmeye dokunma:** AdCap modeli ("Çalıştır" → tek döngü). "Dokundukça hızlanır" alternatifi oyun testinden sonra.
 

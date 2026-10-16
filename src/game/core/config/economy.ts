@@ -32,8 +32,6 @@ export const LEGACY_SCALE = 10;
 export const LEGACY_BASE = 1e6;
 /** Cube root: doubling the family legacy takes 8× the lifetime earnings, which keeps resets from snowballing. */
 export const LEGACY_EXPONENT = 1 / 3;
-/** Income bonus per legacy point (0.02 = +2%). */
-export const LEGACY_BONUS_PER_POINT = 0.01;
 
 export const STARTING_CASH = 0;
 

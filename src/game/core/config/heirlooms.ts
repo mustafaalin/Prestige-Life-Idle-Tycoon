@@ -18,6 +18,8 @@ export interface HeirloomDef {
   maxLevel: number;
   /** What one level does (its meaning is the heirloom's: see the effects below). */
   perLevel: number;
+  /** Not for sale yet: what it improves has not come to the heirs (levels already bought are kept). */
+  comingSoon?: boolean;
 }
 
 export const HEIRLOOMS: HeirloomDef[] = [
@@ -30,8 +32,9 @@ export const HEIRLOOMS: HeirloomDef[] = [
   { id: 'notebook', firstCost: 150, firstCap: 3, capGrowth: 1, maxLevel: 5, perLevel: 0.1 },
   // Şans's collar, passed to his pup: his finds pay 25% more a level.
   { id: 'collar', firstCost: 150, firstCap: 3, capGrowth: 1, maxLevel: 6, perLevel: 0.25 },
-  // The family album: the gifts that close ceremonies and life moments are 25% bigger a level.
-  { id: 'album', firstCost: 150, firstCap: 3, capGrowth: 1, maxLevel: 6, perLevel: 0.25 },
+  // The family album: the gifts that close ceremonies and life moments are 25% bigger a level. Heirs
+  // have no ceremonies until the second generation's story comes, so it waits until then.
+  { id: 'album', firstCost: 150, firstCap: 3, capGrowth: 1, maxLevel: 6, perLevel: 0.25, comingSoon: true },
 ];
 
 /** The heir's starting cash at jam level 1 ($1K); each level ×10. */

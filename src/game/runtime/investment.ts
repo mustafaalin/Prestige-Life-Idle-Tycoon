@@ -40,7 +40,10 @@ export function investUnlocked(game: GameStateV2) {
   return game.classIndex >= INVEST_FROM_CLASS;
 }
 
-/** The tab opens when the account is unlocked, or an heir still has a deal running from before. */
+/**
+ * The tab opens when the account is unlocked, or an heir still has a deal running: since 2026-10-16 a deal
+ * is paid out at the hand-over (engine.ts retire), but an heir from an older save may still have one.
+ */
 export function investTabOpen({ game, invest }: InvestContext) {
   return investUnlocked(game) || invest.active !== null;
 }

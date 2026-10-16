@@ -267,10 +267,26 @@ export function buyHeirloom(state: RuntimeState, id: string) {
   return withGame(state, coreBuyHeirloom(state.game, id));
 }
 
-/** End of life: the heir takes over with the family legacy; production starts from scratch. */
+/**
+ * End of life: the heir takes over with the family legacy; production starts from scratch. Nothing of the
+ * old fortune passes on (story-v2.md §6a): a running deal is paid out now, so its gain counts toward the
+ * legacy, and a waiting daily reward worked out from the old income is dropped (the heir's own comes
+ * with their income).
+ */
 export function retire(state: RuntimeState): RuntimeState | null {
-  const game = coreRetire(state.game);
-  return game ? { ...state, game, cycles: emptyCycles(), offline: null } : null;
+  const deal = state.invest.active;
+  const settled = deal ? earn(state.game, deal.payout - deal.stake) : state.game;
+  const game = coreRetire(settled);
+  return game
+    ? {
+        ...state,
+        game,
+        cycles: emptyCycles(),
+        offline: null,
+        invest: { ...state.invest, active: null },
+        daily: { ...state.daily, offer: null },
+      }
+    : null;
 }
 
 /** Collects pending offline earnings; `multiplier` is 2 after a rewarded ad. */

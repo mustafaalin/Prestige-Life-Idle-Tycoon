@@ -325,6 +325,7 @@ export const tr: Messages = {
     level: '{level}/{cap}',
     none: 'Henüz yok',
     maxed: 'Bu nesil için en üst seviye',
+    comingSoon: 'Torununun törenleriyle açılır',
     buy: '{points} puan',
     items: {
       watch: { name: "Mehmet'in saati", body: 'Babadan kalan saat. Ailenin bütün geliri artar.' },

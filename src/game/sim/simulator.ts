@@ -465,6 +465,13 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     // "Hand over now" at the top class skips the remaining years.
     if (options.retireAtTop === true && canHandOverEarly(state)) state = handOverEarly(state) ?? state;
     if (!canRetire(state)) return;
+    // A running deal is paid out to the life that ends (runtime/engine.ts retire).
+    if (investing.stake > 0) {
+      const profit = investing.stake * investing.rate;
+      investing.profit += profit;
+      investing.stake = 0;
+      earnTracked(profit);
+    }
     log('retire', `Life ends, gen ${state.generation} (+${pendingLegacyPoints(state)} legacy)`);
     const next = retire(state);
     if (next) {

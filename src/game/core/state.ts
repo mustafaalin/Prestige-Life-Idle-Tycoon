@@ -451,7 +451,7 @@ export function retire(state: GameStateV2): GameStateV2 | null {
 /** Buys the next level of a family heirloom with legacy points. */
 export function buyHeirloom(state: GameStateV2, id: string): GameStateV2 | null {
   const def = heirloomDef(id);
-  if (!def) return null;
+  if (!def || def.comingSoon) return null;
   const level = heirloomLevel(state, def.id);
   if (level >= heirloomCap(def, state.generation) || heirloomPrice(def, level) > legacyAvailable(state)) return null;
   // Bought during a life, the jam's cash comes at once (what the heir would have started with).

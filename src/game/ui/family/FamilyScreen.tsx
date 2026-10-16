@@ -154,10 +154,12 @@ function HeirloomCard({ def, available }: { def: HeirloomDef; available: number 
       </div>
       <p className="v2-display text-[14px] text-emerald-600 tabular-nums">
         {level > 0 ? effect(level) : t('family.none')}
-        {!maxed && <span className="text-slate-400"> → {effect(level + 1)}</span>}
+        {!maxed && !def.comingSoon && <span className="text-slate-400"> → {effect(level + 1)}</span>}
       </p>
-      {maxed ? (
-        <p className="text-[11px] font-black text-center text-slate-400">{t('family.maxed')}</p>
+      {def.comingSoon || maxed ? (
+        <p className="text-[11px] font-black text-center text-slate-400">
+          {t(def.comingSoon ? 'family.comingSoon' : 'family.maxed')}
+        </p>
       ) : (
         <GameButton
           tone="gold"

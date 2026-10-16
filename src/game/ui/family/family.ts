@@ -14,6 +14,7 @@ export function familyTabOpen(game: GameStateV2) {
 export function familyAttention(game: GameStateV2) {
   const available = legacyAvailable(game);
   return HEIRLOOMS.some((def) => {
+    if (def.comingSoon) return false;
     const level = heirloomLevel(game, def.id);
     return level < heirloomCap(def, game.generation) && heirloomPrice(def, level) <= available;
   });

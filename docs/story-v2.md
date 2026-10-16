@@ -323,7 +323,7 @@ Geri dönüşler: "Sen bana yetersin" (önsöz) dedenin ağzından "biz kaldık"
 
 Geri dönüşler: otogar (önsöz, devir), Rıza'nın "Önce çiçekleri dizeceksin" dersi (rehber, 70 yaş), tezgâh (kazıkta "değersiz" bulunan).
 
-**Mekaniğe etkisi:** devirde süren yatırım ve bekleyen günlük ödül varise geçmez (bugün geçiyor, hata; [discussion-notes.md §4](./discussion-notes.md)). Yeni hayat anı (`partner`, 45) ve kazık anı (`betrayal`, 80) `LIFE_MOMENTS`'e kayıt kimliği olarak eklenir; eski kayıtlar için varsayılan "görülmedi" (ortaklık anı 45'i geçmiş oyuncuya sırası gelince oynar).
+**Mekaniğe etkisi:** devirde süren yatırım ve bekleyen günlük ödül varise geçmez (oyunda, 2026-10-16: yatırım dedeye ödenir, teklif silinir). Yeni hayat anı (`partner`, 45) ve kazık anı (`betrayal`, 80) `LIFE_MOMENTS`'e kayıt kimliği olarak eklenir; eski kayıtlar için varsayılan "görülmedi" (ortaklık anı 45'i geçmiş oyuncuya sırası gelince oynar).
 
 **Görsel ihtiyacı (GPT, art-prompts-dynasty sırasına):** takım elbiseli, yaşlanan Burak kılavuzu + 4 portre (mevcut yönetici portresi referans); kareler: el sıkışma (45), gazete (80), anahtar (2. neslin sonu). Burak'ın 2. nesilde yaşı: ~85–100 (açık soru, discussion-notes §3).
 

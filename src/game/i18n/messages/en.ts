@@ -326,6 +326,7 @@ export const en = {
     level: '{level}/{cap}',
     none: 'Not yet',
     maxed: 'Highest level for this generation',
+    comingSoon: "Opens with your grandchild's ceremonies",
     buy: '{points} points',
     items: {
       watch: { name: "Mehmet's watch", body: "Grandfather's watch. All family income grows." },
