@@ -24,11 +24,11 @@ export type Sfx =
 
 const SFX = '/assets/audio/sfx/v2';
 
-/** ElevenLabs, chosen by the user 2026-10-17 (art/audio/sfx-2026-10-17); purchase waits for a new take. */
+/** ElevenLabs, chosen by the user 2026-10-17 (art/audio/sfx-2026-10-17). */
 const SFX_FILES: Record<Sfx, string> = {
   click: `${SFX}/click.mp3`,
   coin: `${SFX}/coin.mp3`,
-  purchase: '/assets/audio/sfx/purchase_success.mp3',
+  purchase: `${SFX}/purchase.mp3`,
   levelUp: `${SFX}/levelup.mp3`,
   payout: `${SFX}/payout.mp3`,
   fanfare: `${SFX}/fanfare.mp3`,

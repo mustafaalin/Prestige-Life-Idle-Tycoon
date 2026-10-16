@@ -4,9 +4,9 @@ Son güncelleme: 2026-10-17 · Kod: `src/game/runtime/feedback.ts` · Plan: [reb
 
 ## 1. Durum (2026-10-17)
 
-- **Oyunda:** 13 yeni efekt (ElevenLabs Sound Effects v2, kullanıcı seçti; kaynaklar `art/audio/sfx-2026-10-17/`, komutlar yanında `prompts.txt`, dinleme sayfası `art/audio/listen.html`), 4 müzik, Ayarlar'da "Ses efektleri" ve "Müzik" anahtarları. Oyundaki dosyalar `public/assets/audio/sfx/v2/` (sessizlik kırpıldı, −16 LUFS, mono 96 kbps) ve `public/assets/audio/music/v2/`.
-- **Bekleyen:** `purchase`. İlk iki deneme "para eksiliyor" hissini vermedi (kullanıcı); üç yeni deneme (`purchase-c/d/e`: kasa çekmecesi, banknot sayma, paralar uçup gidiyor) dinleme sayfasında. Seçilene kadar v1'in `purchase_success.mp3`'ü çalar.
-- Seçilenler: click-a, coin-b, levelup-a, payout-a, fanfare-b, page-a, ring-a, message-b, bark-b, arrive-a, reward-b, loss-b, unlock-b.
+- **Oyunda:** 14 yeni efekt (ElevenLabs Sound Effects v2, kullanıcı seçti; kaynaklar `art/audio/sfx-2026-10-17/`, komutlar yanında `prompts.txt`, dinleme sayfası `art/audio/listen.html`), 4 müzik, Ayarlar'da "Ses efektleri" ve "Müzik" anahtarları. Oyundaki dosyalar `public/assets/audio/sfx/v2/` (sessizlik kırpıldı, −16 LUFS, mono 96 kbps) ve `public/assets/audio/music/v2/`.
+- `purchase` (2026-10-17): ilk iki deneme "para eksiliyor" hissini vermedi; üç yeni denemeden **c** (paralar kasa çekmecesine düşüyor) seçildi.
+- Seçilenler: purchase-c, click-a, coin-b, levelup-a, payout-a, fanfare-b, page-a, ring-a, message-b, bark-b, arrive-a, reward-b, loss-b, unlock-b.
 
 ## 2. Ses efektleri (14; öneri)
 
