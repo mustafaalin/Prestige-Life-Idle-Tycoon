@@ -52,7 +52,7 @@ Kullanıcının isteği: "Ödüllü reklam için detaylı düşün; oyun tasarı
 
 ## 4. Reklam yerleri (ödüllü video)
 
-Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahipleri aynı ödülü reklamsız alır.
+Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahipleri aynı ödülü reklamsız alır. Reklam düğmesi bir bakışta reklam olduğu anlaşılsın diye (kullanıcı 2026-10-16) turuncu düğmenin sol kenarından taşan ödüllü video ikonu (oynat işaretli bilet ve hediye, `ICONS.adReward`) ve birkaç saniyede bir üstünden geçen ışık taşır (`ui/ads/AdButton.tsx`); reklamsız paket sahibinde ikon yerine hediye işareti, ışık yok.
 
 | # | Yer | Ne zaman | Ödül | Sınır | Durum |
 | --- | --- | --- | --- | --- | --- |

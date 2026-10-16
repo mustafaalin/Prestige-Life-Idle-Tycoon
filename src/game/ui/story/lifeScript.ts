@@ -7,10 +7,7 @@ import { GRANDPA_LOOK, type CeremonyShot, type StoryImage } from './ceremonyScri
 // (art/pilot/10-life/).
 
 const IMAGES = '/assets/story/life';
-/** Frames still being drawn (docs/art-prompts-dynasty.md S1–S3): the moment plays over the dimmed scene until then. */
-const PANELS_TO_COME = new Set(['grandchild', 'grandpa', 'handover']);
-const picture = (name: string): StoryImage | undefined =>
-  PANELS_TO_COME.has(name) ? undefined : { src: `${IMAGES}/${name}.webp`, fit: 'panel' };
+const picture = (name: string): StoryImage => ({ src: `${IMAGES}/${name}.webp`, fit: 'panel' });
 
 /** What the hero wears in each picture (index = OUTFITS); his portrait in the bubble follows it. */
 const SMART = outfitIndex('outfit-smart');
@@ -134,7 +131,7 @@ export const LIFE_SCRIPT: Record<LifeMomentId, CeremonyShot[]> = {
       image: picture('grandpa'),
       lines: [
         { text: 'moments.grandpa.corner' },
-        { speaker: 'ada', text: 'moments.grandpa.ada' },
+        { speaker: 'adaChild', face: 'smile', text: 'moments.grandpa.ada' },
         { speaker: 'hero', face: 'happy', text: 'moments.grandpa.hero' },
         { speaker: 'hero', face: 'soft', text: 'moments.grandpa.hero2' },
       ],

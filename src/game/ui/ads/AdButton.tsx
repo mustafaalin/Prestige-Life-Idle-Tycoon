@@ -1,4 +1,4 @@
-import { Gift, Play } from 'lucide-react';
+import { Gift } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useT } from '../../i18n/useT';
 import { showRewardedAd, type AdPlacement } from '../../runtime/ads';
@@ -6,12 +6,15 @@ import { canHelp, helpMissing } from '../../runtime/adRewards';
 import { track } from '../../runtime/analytics';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { burstCoins } from '../home/coins';
+import { payout } from '../home/coins';
+import { ICONS } from '../icons';
 import { GameButton } from '../kit';
 import { useAdFree, useAdText } from './useAdText';
 
 // "Watch an ad" offers (docs/monetization-v2.md §4). The button always says what the ad gives, the
-// reward comes only after an ad watched to the end, and when no ad can be shown it says so.
+// reward comes only after an ad watched to the end, and when no ad can be shown it says so. It must
+// read as an ad at a glance (user 2026-10-16): the rewarded-video ticket sticks out of its left edge
+// and a light sweeps across it now and then.
 
 interface AdButtonProps {
   placement: AdPlacement;
@@ -62,16 +65,28 @@ export function AdButton({ placement, children, onReward, className = '' }: AdBu
 
   return (
     <div className={className}>
-      <GameButton
-        ref={ref}
-        tone="ad"
-        onClick={watch}
-        disabled={busy}
-        className="w-full min-h-11 py-2 px-3 flex items-center justify-center gap-1.5"
-      >
-        {free ? <Gift className="shrink-0 w-4 h-4" /> : <Play className="shrink-0 w-4 h-4 fill-white" />}
-        <span className="v2-display text-[14px] leading-tight v2-shadow">{children}</span>
-      </GameButton>
+      <div className="relative">
+        <GameButton
+          ref={ref}
+          tone="ad"
+          onClick={watch}
+          disabled={busy}
+          className={`relative overflow-hidden w-full min-h-11 py-2 flex items-center justify-center gap-1.5 ${
+            free ? 'px-3' : 'pl-12 pr-3 v2-ad-shine'
+          }`}
+        >
+          {free && <Gift className="shrink-0 w-4 h-4" />}
+          <span className="v2-display text-[14px] leading-tight v2-shadow">{children}</span>
+        </GameButton>
+        {!free && (
+          <img
+            src={ICONS.adReward}
+            alt=""
+            draggable={false}
+            className={`v2-ad-ticket pointer-events-none absolute -left-2 top-1/2 w-12 h-12 object-contain drop-shadow-md ${busy ? 'opacity-50' : ''}`}
+          />
+        )}
+      </div>
       {unavailable && (
         <p className="mt-1 text-[11px] font-bold text-slate-500 text-center">{t('ads.unavailable')}</p>
       )}
@@ -104,11 +119,12 @@ function HelpOffer({ cost, className }: { cost: number; className: string }) {
     <AdButton
       placement="dream_help"
       className={className}
-      onReward={(from) => {
-        if (actions.ads.help(cost, amount) <= 0) return;
+      onReward={() => {
+        const paid = actions.ads.help(cost, amount);
+        if (paid <= 0) return;
         playSfx('coin');
         haptic('medium');
-        burstCoins({ ...from, count: 10 });
+        payout({ amount: paid, label: `+${money(paid)}`, count: 10 });
       }}
     >
       {adText('ads.help', { amount: money(amount) })}

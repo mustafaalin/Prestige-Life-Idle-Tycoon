@@ -195,6 +195,8 @@ Ayrı bir "dokun" düğmesi yok; elle kazanç ana sahnede üç şeyden gelir (`c
 
 **Şans'ın bulduğu (karar 2026-10-08):** Oyun açıkken 5–10 dakikada bir Şans ağzında bir cüzdanla gelir, 12 sn bekler. **İlk yönetici işe alınana kadar çok daha sık gelir: 1,5–2,5 dakikada bir** (karar 2026-10-13, kullanıcı; `FETCH_EARLY_*`, `fetchSeconds`): o dakikalarda kendiliğinden kazanan bir şey yok ve yapacak şey az. Dokununca ödül kartı açılır: cüzdan sahibine verilir, teşekkür ödülü 15 şişe değerinde (`FETCH_BOTTLES`, ~37 sn gelir). "Topla" ile alınır, paralar bakiyeye uçar. Şans'a dokunmak para vermez (okşama pozu, kalp). Simülatörde yakalama oranı bağlı oyuncuda %80, gündelik oyuncuda %50.
 
+**Toplanan ödülün gösterimi (karar 2026-10-16, kullanıcı):** bir kartla ya da düğmeyle toplanan her tek seferlik ödeme (çevrimdışı kazanç, Şans'ın cüzdanı, günlük ödül, hedef, tören ve hayat anı hediyesi, reklamla yardım, olay kartı, yatırım, Başlangıç Paketi) aynı akışla gelir: kart kapanır, tutar ekranın ortasında ~0,6 sn durur, sonra paralarla birlikte bakiyeye uçar; bakiye bu sürede eski değerinde bekler ve paralar indikçe sayarak artar (`ui/home/coins.ts` `payout`, `CoinLayer`, `TopBar`). Yerden toplanan şişeler ayrı: küçük tutar yerinde süzülür.
+
 **Olay kartları (karar 2026-10-12, kullanıcı):** Orta Sınıf töreninden sonra kahramanın tanıdığı biri arar; kart tek bir fırsat sorar, iki cevabı vardır:
 
 | Cevap | Ödül (aktif gelirin saniyesi) |

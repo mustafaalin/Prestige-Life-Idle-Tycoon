@@ -1,11 +1,11 @@
 import { Clock, Flame, Scale, ShieldCheck, type LucideIcon } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { INVEST_PLANS, investPlan, type InvestPlan, type InvestPlanId } from '../../core/config/investments';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { investAvailable, investCap, investmentDue, type Investment } from '../../runtime/investment';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { burstCoins } from '../home/coins';
+import { payout } from '../home/coins';
 import { Chip, GameButton, GlossyBar, Panel, SectionLabel } from '../kit';
 
 // Old Ray's deals (runtime/investment.ts, game-design-v2.md §4.13): Ray says one line, then either the
@@ -87,19 +87,18 @@ function ResultBanner({ gain }: { gain: number }) {
 function ActiveDeal({ deal, due, onCollected }: { deal: Investment; due: boolean; onCollected: (gain: number) => void }) {
   const { actions } = useGameV2();
   const { t, money, duration } = useT();
-  const buttonRef = useRef<HTMLButtonElement>(null);
   const plan = investPlan(deal.planId)!;
   const look = PLAN_LOOK[plan.id];
   const total = deal.until - deal.startedAt;
   const left = Math.max(0, deal.until - Date.now());
 
   const collect = () => {
-    const rect = buttonRef.current?.getBoundingClientRect();
     const gain = actions.invest.collect();
     if (gain === null) return;
     playSfx(gain >= 0 ? 'levelUp' : 'coin');
     haptic('medium');
-    if (rect) burstCoins({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, count: gain >= 0 ? 16 : 8 });
+    // What comes back: the stake and the gain, or what is left of the stake.
+    payout({ amount: deal.payout, label: `+${money(deal.payout)}`, count: gain >= 0 ? 16 : 8 });
     onCollected(gain);
   };
 
@@ -129,7 +128,6 @@ function ActiveDeal({ deal, due, onCollected }: { deal: Investment; due: boolean
         />
         <p className="v2-display text-[16px] text-emerald-600 tabular-nums">{expect}</p>
         <GameButton
-          ref={buttonRef}
           onClick={collect}
           disabled={!due}
           className={`w-full py-3 v2-display text-[17px] v2-shadow ${due ? 'v2-bob' : ''}`}

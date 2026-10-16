@@ -23,6 +23,13 @@ export const ICONS = {
   luxury: `${DIR}/luxury.webp`,
   /** Old Ray's deals (the investment account): a savings pot with a rising arrow. */
   invest: `${DIR}/invest.webp`,
+  /** A rewarded video: on every "watch an ad" button. */
+  adReward: `${DIR}/ad-reward.webp`,
   /** Family legacy points; never the status star. */
   legacy: `${DIR}/legacy-points.webp`,
+  /** The family heirlooms (the album's is `album`). */
+  heirloomWatch: `${DIR}/heirloom-watch.webp`,
+  heirloomJam: `${DIR}/heirloom-jam.webp`,
+  heirloomNotebook: `${DIR}/heirloom-notebook.webp`,
+  heirloomCollar: `${DIR}/heirloom-collar.webp`,
 };

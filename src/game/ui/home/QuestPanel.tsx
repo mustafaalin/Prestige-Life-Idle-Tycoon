@@ -1,5 +1,5 @@
 import { ArrowBigUpDash, ChevronRight, ChevronUp } from 'lucide-react';
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { questReward } from '../../core/formulas';
 import { activeQuests, isQuestComplete, questProgress } from '../../core/state';
 import type { GameStateV2, QuestDef } from '../../core/types';
@@ -8,7 +8,7 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { useGuideTarget } from '../guide/guideSteps';
 import { AlertBadge } from '../kit';
-import { burstCoins } from './coins';
+import { payout } from './coins';
 import { PointingHand } from './Focusable';
 import { questTarget, questText, questVisual, questWhere } from './questText';
 import type { TabId } from './tabs';
@@ -32,16 +32,16 @@ function orderedQuests(game: GameStateV2) {
   );
 }
 
-/** Claims a finished goal, with coins bursting from the tapped button. */
+/** Claims a finished goal; its reward shows in the middle of the screen and flies into the wallet. */
 function useClaimQuest() {
   const { actions } = useGameV2();
-  return (quest: QuestDef, event: MouseEvent) => {
-    const rect = event.currentTarget.getBoundingClientRect();
+  const { money } = useT();
+  return (quest: QuestDef) => {
     const amount = actions.claimQuest(quest.id);
     if (amount <= 0) return;
     playSfx('coin');
     haptic('medium');
-    burstCoins({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, count: 8 });
+    payout({ amount, label: `+${money(amount)}`, count: 8 });
   };
 }
 
@@ -157,7 +157,7 @@ function QuestBadge({ quest, onOpen }: { quest: QuestDef; onOpen: () => void }) 
       {done && (
         <button
           type="button"
-          onClick={(event) => claim(quest, event)}
+          onClick={() => claim(quest)}
           className="relative v2-hit shrink-0 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-3 py-1.5 v2-display text-[13px] text-white v2-shadow transition-all active:scale-95"
         >
           {t('quests.claim')} <span className="tabular-nums">+{money(questReward(game, quest))}</span>
@@ -204,7 +204,7 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
   const guided = useGuideTarget()?.key === `quest:${quest.id}:claim`;
 
   const claimQuest = useClaimQuest();
-  const claim = (event: MouseEvent) => claimQuest(quest, event);
+  const claim = () => claimQuest(quest);
 
   return (
     <li className="flex items-center gap-2">

@@ -121,17 +121,21 @@ const TENT_LOOK: HeroLook = {
 
 /**
  * The first hero from 60 on (story-v2.md §6): one grandfather look whatever he wears (the outfit's
- * bonus stays). Null until its poses are in (docs/art-prompts-dynasty.md P1–P3); he keeps his outfit.
+ * bonus stays). He pets Şans standing, slightly bent, so that picture is taller than the others' crouch.
  */
-const GRANDPA_ART = null as HeroArt | null;
-const GRANDPA_LOOK: HeroLook | null = GRANDPA_ART ? { ...GRANDPA_ART, collect: GRANDPA_ART.collect ?? GRANDPA_ART.idle } : null;
+const GRANDPA_ART: HeroArt = {
+  idle: { src: `${DIR}/hero-grandpa-idle.webp`, height: 0.42, aspect: 0.289, x: 0.4 },
+  joy: { src: `${DIR}/hero-grandpa-joy.webp`, height: 0.405, aspect: 0.394, x: 0.4 },
+  pet: { src: `${DIR}/hero-grandpa-pet-sans.webp`, height: 0.358, aspect: 0.652, x: 0.47, flip: true },
+};
+const GRANDPA_LOOK: HeroLook = { ...GRANDPA_ART, collect: GRANDPA_ART.idle };
 
 /**
  * The hero in an outfit; `houseId` is where he lives (left out: any home but the tent). `grandpa`:
  * the first hero is 60 or older.
  */
 export function heroLook(outfitIndex: number, houseId?: string, grandpa = false): HeroLook {
-  if (grandpa && GRANDPA_LOOK) return GRANDPA_LOOK;
+  if (grandpa) return GRANDPA_LOOK;
   const look = HERO_LOOKS[Math.min(Math.max(outfitIndex, 0), HERO_LOOKS.length - 1)];
   return look === HERO_LOOKS[0] && houseId === HOUSES[0].id ? TENT_LOOK : look;
 }

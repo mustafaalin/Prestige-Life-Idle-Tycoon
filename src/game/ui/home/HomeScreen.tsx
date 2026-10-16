@@ -27,7 +27,7 @@ import { WEALTH_CLASSES } from '../../core/config/classes';
 import { StoryDirector } from '../story/StoryDirector';
 import { BottomNav } from './BottomNav';
 import { CoinLayer } from './CoinLayer';
-import { burstCoins } from './coins';
+import { payout } from './coins';
 import { clearFocus, showFocus } from './focus';
 import { QuestPanel, type GoToQuest } from './QuestPanel';
 import { questTarget } from './questText';
@@ -236,11 +236,12 @@ export function HomeScreen() {
           body={t('offline.body', { duration: duration(state.offline.awaySeconds) })}
           amount={`+${money(state.offline.amount)}`}
           note={t('offline.cap', { duration: duration(offlineCapHours(game) * 3600) })}
-          onCollect={(from) => {
-            actions.claimOffline();
+          onCollect={() => {
+            const amount = state.offline?.amount ?? 0;
+            if (!actions.claimOffline()) return;
             playSfx('coin');
             haptic('medium');
-            burstCoins({ ...from, count: 12 });
+            payout({ amount, label: `+${money(amount)}`, count: 12 });
           }}
           ad={
             adsOpen && state.offline.awaySeconds >= AD_OFFLINE_MIN_SECONDS
@@ -250,11 +251,12 @@ export function HomeScreen() {
                     amount: money(state.offline.amount * AD_OFFLINE_MULTIPLIER),
                     percent: Math.round((AD_OFFLINE_MULTIPLIER - 1) * 100),
                   }),
-                  onReward: (from) => {
-                    actions.claimOffline(AD_OFFLINE_MULTIPLIER);
+                  onReward: () => {
+                    const amount = (state.offline?.amount ?? 0) * AD_OFFLINE_MULTIPLIER;
+                    if (!actions.claimOffline(AD_OFFLINE_MULTIPLIER)) return;
                     playSfx('levelUp');
                     haptic('medium');
-                    burstCoins({ ...from, count: 18 });
+                    payout({ amount, label: `+${money(amount)}`, count: 18 });
                   },
                 }
               : undefined

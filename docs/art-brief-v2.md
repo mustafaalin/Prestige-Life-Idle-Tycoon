@@ -167,7 +167,7 @@ Yeni ikon komutu (özet): *"ONE high-resolution square game business icon for {i
 
 ## 5. Bekleyenler
 
-Bu brifteki görsellerin hepsi oyunda. Devrin görselleri (dede, yaşlı Defne, Elif, Ada, üç hikâye karesi, yadigâr ikonları) ayrı belgede: [art-prompts-dynasty.md](./art-prompts-dynasty.md). Açık kalanlar ([discussion-notes.md §1](./discussion-notes.md)): fuların öbür pozlarda görünmesi, önsözün stil kararı (3D denemesi hazır), lüks görsellerinin kesim kalıntıları, lükslerin sahnede gösterimi (plan 2.6).
+Bu brifteki görsellerin hepsi oyunda. Devrin 15 görseli de oyunda (2026-10-16; beş kılavuzdan 20 portre, üç dede pozu, üç hikâye karesi, dört yadigâr ikonu; [story-v2.md §8](./story-v2.md)); komutlar: [art-prompts-dynasty.md](./art-prompts-dynasty.md). Reklam butonlarının ikonu `ad-reward` (önceden üretilmişti) 2026-10-16'da bağlandı. Yeni görsel gerekince önce GPT, sonra fal.ai. Açık kalanlar ([discussion-notes.md §1](./discussion-notes.md)): fuların öbür pozlarda görünmesi, önsözün stil kararı (3D denemesi hazır), lüks görsellerinin kesim kalıntıları, lükslerin sahnede gösterimi (plan 2.6).
 
 GPT'nin aracı ~1,57 MP veriyor: arka plan 941×1672 (1080 genişliğe büyütülüyor, telefonda kabul edilebilir), pozlar 1000 px yüksekliğe yetiyor.
 

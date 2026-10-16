@@ -16,7 +16,7 @@ import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { pendingCeremony, sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { burstCoins, holdBalance, spillCoins } from '../home/coins';
+import { holdBalance, payout, spillCoins } from '../home/coins';
 import { GameButton } from '../kit';
 import { eventKey, eventSpeaker, onEventCardRequest } from './eventScript';
 
@@ -158,7 +158,6 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
   // closed, so the coins and the red amount land where the player is looking.
   const [amount, setAmount] = useState(0);
   useEffect(() => () => holdBalance(0), []);
-  const amountRef = useRef<HTMLParagraphElement>(null);
   const speaker = eventSpeaker(cardId, outcome ?? 'ask');
 
   const answer = (bold: boolean) => {
@@ -185,8 +184,7 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
     }
     playSfx('coin');
     haptic('medium');
-    const rect = amountRef.current?.getBoundingClientRect();
-    if (rect) burstCoins({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, count: 12 });
+    payout({ amount, label: `+${money(amount)}`, count: 12 });
     onDone();
   };
   const lost = outcome === 'lose';
@@ -254,7 +252,6 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
             <div className="mt-3 text-center">
               <h2 className="v2-display text-xl text-slate-900">{titles[outcome]}</h2>
               <p
-                ref={amountRef}
                 className={`v2-display v2-outline text-[40px] leading-tight tabular-nums my-1 ${
                   lost ? 'text-rose-400' : 'text-emerald-400'
                 }`}

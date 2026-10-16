@@ -1,5 +1,5 @@
 import { ChevronRight, Settings } from 'lucide-react';
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { autoIncomePerSecond, classProgress, heroAge } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
@@ -27,8 +27,9 @@ export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () =>
     const timer = window.setTimeout(() => setHurt(0), 700);
     return () => window.clearTimeout(timer);
   }, [hurt]);
-  // An answered event card's reward joins the balance when it is collected.
+  // A payout joins the balance as its coins land (an answered event card's reward once collected).
   const held = useSyncExternalStore(onHeldBalance, heldBalance);
+  const balance = useRollingBalance(Math.max(0, game.cash - held), held);
 
   const current = WEALTH_CLASSES[game.classIndex];
   const next = WEALTH_CLASSES[game.classIndex + 1];
@@ -59,7 +60,7 @@ export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () =>
                   hurt ? 'v2-hurt text-rose-400' : 'text-white'
                 }`}
               >
-                {money(Math.max(0, game.cash - held))}
+                {money(balance)}
               </p>
               <p
                 className={`v2-display text-[12px] leading-tight v2-shadow tabular-nums truncate ${boost > 1 ? 'text-amber-300' : 'text-emerald-300'}`}
@@ -115,4 +116,43 @@ export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () =>
       </div>
     </header>
   );
+}
+
+/** How long the balance takes to count up to a landed payment. */
+const ROLL_MS = 450;
+
+/**
+ * The balance shown: it counts up when held money is released (a payout's coins landing) and keeps
+ * rolling to the latest value while it does; otherwise (income ticks, spending) it is the value itself.
+ */
+function useRollingBalance(target: number, held: number) {
+  const [shown, setShown] = useState(target);
+  const shownRef = useRef(target);
+  const heldRef = useRef(held);
+  const rolling = useRef(false);
+
+  useEffect(() => {
+    const released = held < heldRef.current;
+    heldRef.current = held;
+    if (target <= shownRef.current || (!released && !rolling.current)) {
+      shownRef.current = target;
+      setShown(target);
+      return;
+    }
+    const from = shownRef.current;
+    const start = performance.now();
+    let frame = 0;
+    rolling.current = true;
+    const step = (now: number) => {
+      const progress = Math.min(1, (now - start) / ROLL_MS);
+      shownRef.current = from + (target - from) * (1 - (1 - progress) ** 3);
+      setShown(shownRef.current);
+      if (progress < 1) frame = requestAnimationFrame(step);
+      else rolling.current = false;
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [target, held]);
+
+  return shown;
 }

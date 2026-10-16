@@ -5,7 +5,7 @@ import type { MessageKey } from '../../i18n/translate';
 // beats in visual-novel style (portrait + bubble), then the before/now card. Each ceremony answers
 // what the one before planted, and some plant the next. Index = wealth class (WEALTH_CLASSES).
 
-export type CastId = 'hero' | 'mom' | 'riza' | 'bryce' | 'staff' | 'nevin' | 'defne' | 'defneOld' | 'elif' | 'ada';
+export type CastId = 'hero' | 'mom' | 'riza' | 'bryce' | 'staff' | 'nevin' | 'defne' | 'defneOld' | 'elif' | 'ada' | 'adaChild';
 
 export const FACES = {
   hero: ['worried', 'soft', 'determined', 'happy'],
@@ -17,6 +17,8 @@ export const FACES = {
   defneOld: ['smile', 'shy', 'surprised', 'laugh'],
   elif: ['smile', 'teary', 'surprised', 'laugh'],
   ada: ['smile', 'determined', 'surprised', 'laugh'],
+  /** Ada at 7 (the grandfather's moment); `ada` is her at 17. */
+  adaChild: ['smile', 'determined', 'surprised', 'laugh'],
 } as const;
 
 type Face<C extends CastId> = C extends keyof typeof FACES ? (typeof FACES)[C][number] : never;
@@ -155,12 +157,7 @@ const HERO_PORTRAITS = ['hero', 'hero-work', 'hero-smart', 'hero-coat', 'hero-su
 /** Pass as `heroOutfit` for a moment after 60: the hero speaks with the grandfather's face. */
 export const GRANDPA_LOOK = HERO_PORTRAITS.indexOf('grandpa');
 
-/**
- * Portrait sets still being drawn (docs/art-prompts-dynasty.md): their cast speak with a name tag
- * only, the grandfather with the tuxedo's face. Remove a set here when its files are in.
- */
-const PORTRAITS_TO_COME = new Set(['grandpa', 'defne-old', 'elif', 'ada']);
-const PORTRAIT_SET: Partial<Record<CastId, string>> = { bryce: 'bulent', defneOld: 'defne-old' };
+const PORTRAIT_SET: Partial<Record<CastId, string>> = { bryce: 'bulent', defneOld: 'defne-old', adaChild: 'ada-child' };
 
 /**
  * The outfit the hero wears in each class's ceremony: the one its story frames were drawn with. The
@@ -187,10 +184,6 @@ export const ceremonyOutfit = (classIndex: number) =>
  */
 export function portraitOf(speaker: CastId, face: string | undefined, heroOutfit = 0): string | null {
   if (!(speaker in FACES) || !face) return null;
-  let set = speaker === 'hero' ? HERO_PORTRAITS[Math.min(Math.max(heroOutfit, 0), HERO_PORTRAITS.length - 1)] : (PORTRAIT_SET[speaker] ?? speaker);
-  if (PORTRAITS_TO_COME.has(set)) {
-    if (set !== 'grandpa') return null;
-    set = 'hero-tux';
-  }
+  const set = speaker === 'hero' ? HERO_PORTRAITS[Math.min(Math.max(heroOutfit, 0), HERO_PORTRAITS.length - 1)] : (PORTRAIT_SET[speaker] ?? speaker);
   return `/assets/story/portraits/${set}-${face}.webp`;
 }

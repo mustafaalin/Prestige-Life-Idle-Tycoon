@@ -1,5 +1,7 @@
 // Coins flying into the wallet in the top bar. Anything that pays can ask for a burst from a point
-// on screen; the top bar listens for arrivals to bump the balance.
+// on screen; the top bar listens for arrivals to bump the balance. A collected one-off payment goes
+// through `payout`: its amount shows in the middle of the screen, then flies into the wallet, and the
+// balance waits for it.
 
 export interface CoinBurst {
   /** Viewport px the coins start from. */
@@ -8,10 +10,14 @@ export interface CoinBurst {
   count: number;
   /** The amount, shown where the coins start for a moment before they fly (a big one-off payment). */
   label?: string;
+  /** The label flies into the wallet with the coins instead of fading where it showed. */
+  flyLabel?: boolean;
+  /** Called as each coin reaches the wallet. */
+  onHit?: () => void;
 }
 
-/** About how long the biggest burst takes to reach the wallet; a card opened sooner would have coins flying over it. */
-export const COINS_LAND_MS = 1600;
+/** About how long the biggest payout takes to reach the wallet; a card opened sooner would have coins flying over it. */
+export const COINS_LAND_MS = 2400;
 
 const burstListeners = new Set<(burst: CoinBurst) => void>();
 const hitListeners = new Set<() => void>();
@@ -39,23 +45,66 @@ export function onWalletHit(listener: () => void) {
   };
 }
 
-// A reward that is already paid but not collected yet (an answered event card): the balance in the
-// top bar shows without it until the player taps "Collect".
+// Money already paid that the balance does not show yet: an answered event card's reward until
+// "Collect", and payouts whose coins are still flying. The top bar shows the balance without it.
 let held = 0;
+let flying = 0;
 const heldListeners = new Set<() => void>();
+const notifyHeld = () => heldListeners.forEach((listener) => listener());
 
 export function holdBalance(amount: number) {
   held = amount;
-  heldListeners.forEach((listener) => listener());
+  notifyHeld();
 }
 
-export const heldBalance = () => held;
+export const heldBalance = () => held + flying;
 
 export function onHeldBalance(listener: () => void) {
   heldListeners.add(listener);
   return () => {
     heldListeners.delete(listener);
   };
+}
+
+/** How long a payout's amount waits for the card under it to close before it shows. */
+const PAYOUT_START_MS = 120;
+/** If the coins never land (no wallet on screen), the balance still gets the money by then. */
+const PAYOUT_SAFETY_MS = 4000;
+
+/**
+ * A collected one-off payment (offline earnings, Şans's wallet, the day's reward, a goal, a gift, an
+ * ad's reward, an event card, a deal; user 2026-10-16): the card closes, the amount shows in the
+ * middle of the screen for a moment, then flies with the coins into the wallet. The balance waits and
+ * counts up as the coins land. Call it in the same handler as the action that paid, so the balance
+ * never shows the money early.
+ */
+export function payout({ amount, label, count }: { amount: number; label: string; count: number }) {
+  if (amount <= 0) return;
+  flying += amount;
+  notifyHeld();
+  let left = amount;
+  let coinsLeft = count;
+  const release = (share: number) => {
+    const part = Math.min(share, left);
+    if (part <= 0) return;
+    left -= part;
+    flying = Math.max(0, flying - part);
+    notifyHeld();
+  };
+  window.setTimeout(() => {
+    burstCoins({
+      x: window.innerWidth / 2,
+      y: window.innerHeight * 0.42,
+      count,
+      label,
+      flyLabel: true,
+      onHit: () => {
+        coinsLeft -= 1;
+        release(coinsLeft <= 0 ? left : amount / count);
+      },
+    });
+  }, PAYOUT_START_MS);
+  window.setTimeout(() => release(left), PAYOUT_SAFETY_MS);
 }
 
 // Money leaving the wallet (a bold event answer that failed): coins tumble out of the wallet with the

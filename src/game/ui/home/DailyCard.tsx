@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react';
-import { useRef, type CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { dailyWeek } from '../../core/config/daily';
 import { autoIncomePerSecond } from '../../core/formulas';
@@ -13,7 +13,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { AdButton } from '../ads/AdButton';
 import { useAdText } from '../ads/useAdText';
 import { classLook } from '../scene/stages';
-import { burstCoins } from './coins';
+import { payout } from './coins';
 
 // The daily reward (runtime/daily.ts): the week's seven days as a calendar, today's amount in big
 // figures and how it was worked out ("your monthly income × 15"). Days ahead show their multiplier,
@@ -36,21 +36,16 @@ export function DailyCard({ offer, onCollected }: { offer: DailyOffer; onCollect
   const { game, state, actions } = useGameV2();
   const { t, money } = useT();
   const adText = useAdText();
-  const amountRef = useRef<HTMLParagraphElement>(null);
   const { week, days, dayIndex } = dailyWeek(state.daily.claimed);
   const monthly = autoIncomePerSecond(game) * SECONDS_PER_MONTH;
   const wallet = classLook(sceneClass(game, state.story)).find.src;
 
-  const amountPlace = () => {
-    const rect = amountRef.current?.getBoundingClientRect();
-    return rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : { x: 0, y: 0 };
-  };
-
-  const collect = (multiplier: number, from = amountPlace()) => {
-    if (actions.claimDaily(multiplier) <= 0) return;
+  const collect = (multiplier: number) => {
+    const amount = actions.claimDaily(multiplier);
+    if (amount <= 0) return;
     playSfx(multiplier > 1 ? 'levelUp' : 'coin');
     haptic('medium');
-    burstCoins({ ...from, count: multiplier > 1 ? 18 : 12 });
+    payout({ amount, label: `+${money(amount)}`, count: multiplier > 1 ? 18 : 12 });
     onCollected();
   };
 
@@ -95,7 +90,6 @@ export function DailyCard({ offer, onCollected }: { offer: DailyOffer; onCollect
         <div className="px-5 pt-3 pb-5 text-center">
           <p className="v2-display text-[12px] uppercase tracking-wide text-indigo-900/50">{t('daily.todayReward')}</p>
           <p
-            ref={amountRef}
             className="v2-display v2-outline text-[40px] leading-tight text-emerald-400 tabular-nums"
           >
             +{money(offer.amount)}
@@ -103,7 +97,7 @@ export function DailyCard({ offer, onCollected }: { offer: DailyOffer; onCollect
           <p className="text-[12px] font-bold text-slate-500 mb-3">
             {t('daily.formula', { income: money(monthly), months: offer.months })}
           </p>
-          <AdButton placement="daily_x2" onReward={(from) => collect(2, from)} className="mb-2">
+          <AdButton placement="daily_x2" onReward={() => collect(2)} className="mb-2">
             {adText('ads.double', { amount: money(offer.amount * 2), factor: 2 })}
           </AdButton>
           <button

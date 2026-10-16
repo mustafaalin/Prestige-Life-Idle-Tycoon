@@ -17,7 +17,7 @@ import type { LifeMomentId } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { AdButton } from '../ads/AdButton';
 import { useAdText } from '../ads/useAdText';
-import { burstCoins } from '../home/coins';
+import { payout } from '../home/coins';
 import { managerKey, managerPortrait } from '../businesses/managers';
 import { GameButton } from '../kit';
 import { classLook } from '../scene/stages';
@@ -56,6 +56,7 @@ const TAG_STYLE: Record<CastId, string> = {
   defneOld: 'from-pink-500 to-rose-400',
   elif: 'from-lime-500 to-green-600',
   ada: 'from-orange-500 to-red-500',
+  adaChild: 'from-orange-500 to-red-500',
 };
 
 const CONFETTI_COLORS = ['#fbbf24', '#f472b6', '#34d399', '#60a5fa', '#a78bfa', '#fb7185'];
@@ -677,10 +678,11 @@ function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void 
   const adText = useAdText();
   const amount = storyGift(game);
 
-  const collect = (multiplier: number, from: { x: number; y: number }) => {
+  const collect = (multiplier: number) => {
     playSfx('coin');
     haptic('medium');
-    burstCoins({ ...from, count: multiplier > 1 ? 18 : 12 });
+    // Paid by onCollect in this same tap (story.ceremonySeen / lifeSeen).
+    payout({ amount: amount * multiplier, label: `+${money(amount * multiplier)}`, count: multiplier > 1 ? 18 : 12 });
     onCollect(multiplier);
   };
 
@@ -694,7 +696,7 @@ function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void 
         <span className="v2-display text-[20px] text-emerald-600 tabular-nums">+{money(amount)}</span>
       </div>
       {adsUnlocked(state) && (
-        <AdButton placement="story_gift_x2" className="mt-3" onReward={(from) => collect(AD_STORY_GIFT_MULTIPLIER, from)}>
+        <AdButton placement="story_gift_x2" className="mt-3" onReward={() => collect(AD_STORY_GIFT_MULTIPLIER)}>
           {adText('ads.double', { amount: money(amount * AD_STORY_GIFT_MULTIPLIER), factor: AD_STORY_GIFT_MULTIPLIER })}
         </AdButton>
       )}
@@ -702,8 +704,7 @@ function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void 
         tone="buy"
         onClick={(event) => {
           event.stopPropagation();
-          const rect = event.currentTarget.getBoundingClientRect();
-          collect(1, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+          collect(1);
         }}
         className="w-full mt-2.5 py-3 v2-display text-lg v2-shadow"
       >
@@ -747,7 +748,7 @@ function Dialogue({ line, heroOutfit, delay }: { line: Extract<CeremonyLine, { s
       ? t(`prologue.speaker.${line.speaker}`)
       : line.speaker === 'elif'
         ? state.story.daughterName || t('moments.defaultName')
-        : line.speaker === 'ada'
+        : line.speaker === 'ada' || line.speaker === 'adaChild'
           ? state.story.grandchildName || t('moments.grandchildDefault')
           : t(`ceremony.cast.${line.speaker === 'defneOld' ? 'defne' : line.speaker}`);
 

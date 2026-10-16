@@ -384,10 +384,10 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 | İşletme ikonları | 10 | **Oyunda** (2026-10-13, GPT; `public/assets/businesses/v2/`, [art-brief-v2.md](./art-brief-v2.md) 4.7) |
 | Hayat anları: çay bahçesi, bahçe düğünü, bebek | 3 | **Oyunda** (`public/assets/story/life/`) |
 | Lüks anları: tekne, yat, helikopter, jet | 4 | **Oyunda** (§4c) |
-| Devir: dede, yaşlı Defne, Elif ve ayrı Ada 7/17 kılavuzları | 5 sayfa | **Kaynak PNG hazır** (2026-10-16); portre kesimi ve entegrasyon Claude’da |
-| Devir: dede idle/joy/pet pozları | 3 | **Kaynak PNG hazır**; sahne kesimi/entegrasyon bekliyor |
-| Devir: torunun doğumu, çiçek tezgâhı, saat teslimi | 3 | **Kaynak PNG hazır**; `art/pilot/10-life/life-{grandchild,grandpa,handover}.png` |
-| Devir: saat, reçel, defter, tasma yadigâr ikonları | 4 | **Şeffaf PNG hazır**; [teslim belgesi](./dynasty-art-handoff.md), aile albümü mevcut ikon |
+| Devir: dede, yaşlı Defne, Elif ve ayrı Ada 7/17 kılavuzları + 4'er ifade portresi | 5 sayfa, 20 portre | **Oyunda** (2026-10-16; `public/assets/story/portraits/{grandpa,defne-old,elif,ada,ada-child}-*`; 70 yaş anında konuşan çocuk Ada `adaChild`) |
+| Devir: dede idle/joy/pet pozları | 3 | **Oyunda** (`hero-grandpa-*`, `stages.ts` `GRANDPA_ART`; açık krem gömlek için %3 tolerans, alt şerit kuralı yok) |
+| Devir: torunun doğumu, çiçek tezgâhı, saat teslimi | 3 | **Oyunda** (`public/assets/story/life/{grandchild,grandpa,handover}.webp`; kaynak 941 px, 1080'e büyütüldü) |
+| Devir: saat, reçel, defter, tasma yadigâr ikonları | 4 | **Oyunda** (Aile sekmesi; `public/assets/icons/v2/heirloom-*.webp`), aile albümü mevcut ikon |
 
 Kaynak dosyalar `art/pilot/` (git'te değil), oyundaki sıkıştırılmış hâlleri `public/assets/`. Harcama: plan 1.16.
 

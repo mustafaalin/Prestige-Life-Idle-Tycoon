@@ -17,7 +17,7 @@ import {
   welcomeSecondsLeft,
 } from '../../runtime/purchases';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { burstCoins } from '../home/coins';
+import { payout } from '../home/coins';
 import { SectionLabel } from '../kit';
 import { STORE_ART } from './storeArt';
 import { BuyButton, ComfortArt, StarterArt, StarterRewards } from './StoreParts';
@@ -290,15 +290,7 @@ export function StoreSheet({ onClose }: { onClose: () => void }) {
       actions.purchases.apply(id);
       playSfx('purchase');
       haptic('medium');
-      const rect = body.current?.getBoundingClientRect();
-      if (rect) {
-        burstCoins({
-          x: rect.left + rect.width / 2,
-          y: rect.top + 120,
-          count: 14,
-          label: cash > 0 ? `+${money(cash)}` : undefined,
-        });
-      }
+      payout({ amount: cash, label: `+${money(cash)}`, count: 14 });
       setReceipt(product === PRODUCTS.starter ? 'starter' : 'comfort');
     } else if (outcome === 'unavailable') {
       setFailed(product.id);

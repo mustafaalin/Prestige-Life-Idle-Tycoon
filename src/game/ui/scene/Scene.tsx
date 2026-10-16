@@ -21,7 +21,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { useAdsUnlocked } from '../ads/useAdsUnlocked';
 import { useAdText } from '../ads/useAdText';
 import { useGuideTarget } from '../guide/guideSteps';
-import { burstCoins } from '../home/coins';
+import { burstCoins, payout } from '../home/coins';
 import { PointingHand } from '../home/Focusable';
 import { RewardCard } from '../home/RewardCard';
 import { useCoverFit } from './coverFit';
@@ -329,13 +329,13 @@ export function Scene() {
     setFindOffer(fetchReward(game));
   };
 
-  const collectFind = (from: { x: number; y: number }, multiplier = 1) => {
-    actions.claimFind(multiplier);
+  const collectFind = (multiplier = 1) => {
+    const amount = actions.claimFind(multiplier);
     playSfx('levelUp');
     haptic('medium');
     flashPose('joy', 1800);
     setFindOffer(null);
-    burstCoins({ ...from, count: multiplier > 1 ? 18 : 12 });
+    payout({ amount, label: `+${money(amount)}`, count: multiplier > 1 ? 18 : 12 });
   };
 
   // A bottle near the middle (on screen also on wide phones) and not down by the menu, where the hand
@@ -539,13 +539,13 @@ export function Scene() {
           title={t('scene.findTitle')}
           body={t('scene.findBody')}
           amount={`+${money(findOffer)}`}
-          onCollect={collectFind}
+          onCollect={() => collectFind()}
           ad={
             adsOpen
               ? {
                   placement: 'find_x2',
                   label: adText('ads.double', { amount: money(findOffer * AD_FIND_MULTIPLIER), factor: AD_FIND_MULTIPLIER }),
-                  onReward: (from) => collectFind(from, AD_FIND_MULTIPLIER),
+                  onReward: () => collectFind(AD_FIND_MULTIPLIER),
                 }
               : undefined
           }

@@ -1,4 +1,3 @@
-import { Cherry, Images, NotebookPen, PawPrint, Watch, type LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { HEIRLOOMS, type HeirloomDef, type HeirloomId } from '../../core/config/heirlooms';
 import { RETIREMENT_AGE } from '../../core/config/life';
@@ -15,14 +14,13 @@ import { requestYearsPassed } from '../story/storyEvents';
 // now ("Hand over now" skips the remaining years; staying grows it), and the family heirlooms that
 // legacy points buy and every later heir keeps. Rules: core/state.ts (handOverEarly, buyHeirloom).
 
-const LOOK: Record<HeirloomId, { icon: LucideIcon; tile: string }> = {
-  watch: { icon: Watch, tile: 'from-amber-300 to-orange-500' },
-  jam: { icon: Cherry, tile: 'from-fuchsia-300 to-purple-600' },
-  notebook: { icon: NotebookPen, tile: 'from-sky-300 to-blue-500' },
-  collar: { icon: PawPrint, tile: 'from-rose-300 to-red-500' },
-  album: { icon: Images, tile: 'from-emerald-300 to-green-500' },
+const ICON: Record<HeirloomId, string> = {
+  watch: ICONS.heirloomWatch,
+  jam: ICONS.heirloomJam,
+  notebook: ICONS.heirloomNotebook,
+  collar: ICONS.heirloomCollar,
+  album: ICONS.album,
 };
-
 export function FamilyScreen({ onClose }: { onClose: () => void }) {
   const { game } = useGameV2();
   const { t } = useT();
@@ -119,7 +117,6 @@ function HandOver({ onClose }: { onClose: () => void }) {
 function HeirloomCard({ def, available }: { def: HeirloomDef; available: number }) {
   const { game, actions } = useGameV2();
   const { t, money } = useT();
-  const look = LOOK[def.id];
   const level = heirloomLevel(game, def.id);
   const cap = heirloomCap(def, game.generation);
   const price = heirloomPrice(def, level);
@@ -139,11 +136,7 @@ function HeirloomCard({ def, available }: { def: HeirloomDef; available: number 
   return (
     <Panel className="p-3 flex flex-col gap-2">
       <div className="flex items-center gap-3">
-        <span
-          className={`shrink-0 w-12 h-12 rounded-2xl border-2 border-white v2-glossy bg-gradient-to-b ${look.tile} flex items-center justify-center`}
-        >
-          <look.icon className="w-6 h-6 text-white drop-shadow" strokeWidth={2.5} />
-        </span>
+        <img src={ICON[def.id]} alt="" draggable={false} className="shrink-0 w-12 h-12 object-contain drop-shadow" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className="flex-1 min-w-0 v2-display text-[16px] leading-tight text-indigo-950">{t(`family.items.${def.id}.name`)}</p>
