@@ -43,7 +43,7 @@ Kararlaşanlar: varis 17 yaşında torun (kızının çocuğu), devir 80 yaşın
 
 1. **Varislerin cinsiyeti kararlaştı (2026-10-15):** 2. nesil kız torun (sabit), 3. nesil erkek (ilk kahramanın görselleri), sonra sırayla ([story-v2.md §6](./story-v2.md)). Torunun varsayılan adı önerisi Ada.
 2. **2. neslin başlangıcı ve şehri (2026-10-16):** karar: robot yöneticiler; 3. nesil eski şehre ve ilk kahramana döner, nesiller iki set arasında döner (story §6); v1 görseli kullanılmaz. Açık:
-   - **Ne kadar fütüristik?** Kullanıcı abartmaktan çekiniyor. Öneri: "bugünün modern şehri + birkaç gelecek dokunuşu" (yeşil kuleler, güneş camları, dronlar; neon ve uçan şehir yok), sıcak gün batımı ışığı, tezgâh eski bir köşede. Karar bir deneme ev karesine bakılarak verilir.
+   - **Ne kadar fütüristik?** Kullanıcı abartmaktan çekiniyor. Öneri: "bugünün modern şehri + birkaç gelecek dokunuşu" (yeşil kuleler, güneş camları, dronlar; neon ve uçan şehir yok), sıcak gün batımı ışığı, tezgâh eski bir köşede. Karar bir deneme ev karesine bakılarak verilir: iki komut (A öneri, B bir adım ileri) [art-prompts-lumen.md](./art-prompts-lumen.md).
    - Karar (2026-10-16, kullanıcı): rakamlar 1. nesille aynı; varis kapsül odada, 2 Çiçek Tezgâhı ve yöneticisiyle başlar.
    - Öneri listesi: işletmeler Çiçek Tezgâhı, Robot Barista, Telefon ve Robot Tamircisi, E-Scooter Kiralama, Dikey Tarla, Sanal Gerçeklik Salonu, Dron Kargo, Güneş Santrali, Biyoteknoloji Laboratuvarı, Yörünge Oteli; evler kapsül oda → kulenin tepesinde malikâne (12).
 3. **2. nesil kıyafet ve poz seti:** aynı sayıda yeni set; dededen kalan bir yadigâr (babanın saati) hep görünsün. Torunun yanında Şans'ın yavrusu (öneri).
