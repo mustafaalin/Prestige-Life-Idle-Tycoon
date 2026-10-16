@@ -26,6 +26,7 @@ import {
   CEREMONIES,
   ceremonyOutfit,
   portraitOf,
+  shotsFor,
   type CastId,
   type CeremonyLine,
   type CeremonyShot,
@@ -57,6 +58,7 @@ const TAG_STYLE: Record<CastId, string> = {
   elif: 'from-lime-500 to-green-600',
   ada: 'from-orange-500 to-red-500',
   adaChild: 'from-orange-500 to-red-500',
+  burak: 'from-slate-700 to-zinc-800',
 };
 
 const CONFETTI_COLORS = ['#fbbf24', '#f472b6', '#34d399', '#60a5fa', '#a78bfa', '#fb7185'];
@@ -132,10 +134,11 @@ export function Ceremony({ classIndex, before, now, gift, onDone }: CeremonyProp
 export function LifeMoment({ id, gift, onDone }: { id: LifeMomentId; gift: boolean; onDone: StoryDone }) {
   const i18n = useT();
   const { t } = i18n;
+  const { state } = useGameV2();
   const heading = t(`moments.${id}.title` as MessageKey);
   return (
     <StoryPlayer
-      shots={LIFE_SCRIPT[id]}
+      shots={shotsFor(LIFE_SCRIPT[id], state.story.lifeSeen)}
       heroOutfit={LIFE_OUTFIT[id]}
       pill={lifeMomentLabel(id, i18n)}
       heading={heading}
@@ -153,9 +156,10 @@ export function LifeMoment({ id, gift, onDone }: { id: LifeMomentId; gift: boole
 export function StoryReplay({ entry, onDone }: { entry: AlbumEntry; onDone: (skipped: boolean) => void }) {
   const i18n = useT();
   const { t, name } = i18n;
+  const { state } = useGameV2();
   return (
     <StoryPlayer
-      shots={albumShots(entry)}
+      shots={shotsFor(albumShots(entry), state.story.lifeSeen)}
       heroOutfit={albumOutfit(entry)}
       pill={entry.kind === 'ceremony' ? t('album.title') : lifeMomentLabel(entry.id, i18n)}
       heading={

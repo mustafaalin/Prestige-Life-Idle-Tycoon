@@ -29,11 +29,13 @@ export const ALBUM: AlbumEntry[] = [
   life('boat'),
   ceremony(6),
   life('yacht'),
+  life('partner'),
   ceremony(7),
   life('heli'),
   life('jet'),
   life('grandchild'),
   life('grandpa'),
+  life('betrayal'),
   life('handover'),
 ];
 

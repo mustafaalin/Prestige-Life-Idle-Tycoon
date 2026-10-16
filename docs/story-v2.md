@@ -289,7 +289,7 @@ Faz 1'de pano sadece statü eşyalarını gösterir (sıradaki ev, araç, kıyaf
 - Ölüm hiç gösterilmez; anne, Rıza ve Şans'ın varlığı fotoğraflar ve bıraktıkları eserlerle sürer. Yaşı çok ilerleyen yan karakterler (Rıza, Nevin Hanım) kahramanın 55 yaşından sonra kişi olarak görünmez (lüks anlarının metinleri buna göre düzeltilecek, [discussion-notes.md §7](./discussion-notes.md)).
 - Açık sorular: [discussion-notes.md §3](./discussion-notes.md).
 
-### 6a. Burak hattı (karar 2026-10-16, kullanıcı; metinler taslak, oyunda değil)
+### 6a. Burak hattı (karar 2026-10-16, kullanıcı; 1. nesil oyunda 2026-10-16, görselsiz; 2. nesil taslak)
 
 **Kapsam (karar 2026-10-16, kullanıcı):** Burak hattı yalnız ilk iki nesilde. 2. neslin sonundaki anahtar karesiyle kapanır; 3. nesilde ve sonrasında Burak, ailesi ya da torunu hikâyede yer almaz (Lojistik Deposu'nun yeri yeni bir yöneticiye geçer, §3).
 
@@ -333,6 +333,8 @@ Geri dönüşler: "Sen bana yetersin" (önsöz) dedenin ağzından "biz kaldık"
 | Anlatım: *"Burak Holding'in satış imzası otogarın karşısındaki binada atıldı."* · Burak: *"Her şeyi mi alıyorsun?"* · Ada: *"Hepsini. Bir tezgâh hariç. Anahtarı sende."* · Ada: *"Sıfırdan başlamak nasıl bir şey, sen de gör."* · Dede: *"Önce çiçekleri dizeceksin, Burak."* | Narration: *"Brad Holdings was signed over in the building across from the bus station."* · Brad: *"You're taking everything?"* · Ada: *"All of it. Except one flower stand. The key is yours."* · Ada: *"Now you'll see what starting from nothing feels like."* · Grandpa: *"First, you set out the flowers, Brad."* |
 
 Geri dönüşler: otogar (önsöz, devir), Rıza'nın "Önce çiçekleri dizeceksin" dersi (rehber, 70 yaş), tezgâh (kazıkta "değersiz" bulunan).
+
+**Oyunda (2026-10-16, 1. nesil; görseller gelene kadar Burak yalnız isim etiketiyle konuşur, kareler yok):** `LIFE_MOMENTS` `partner` (45, Multimilyarder töreninden sonra; tören 63'e kadar görülmezse an atlanır, devirden önce görülmemiş eski kayıtta geç oynar) ve `betrayal` (80, devirden hemen önce, hediyesiz, yalnız ortaklık görüldüyse); annenin `partner` mesajı (ortaklıktan sonra, kazığa kadar); 70 yaş anının iki gölge balonu ve devirdeki Ada yemini yalnız ilgili an görüldüyse oynar (`CeremonyLine.when`). Albümde ortaklık yat anından sonra, kazık devirden önce. Görseller gelince: `FACES.burak` + portreler, `lifeScript.ts`'te iki karenin `image`'ı.
 
 **Mekaniğe etkisi:** devirde süren yatırım ve bekleyen günlük ödül varise geçmez (oyunda, 2026-10-16: yatırım dedeye ödenir, teklif silinir). Yeni hayat anı (`partner`, 45) ve kazık anı (`betrayal`, 80) `LIFE_MOMENTS`'e kayıt kimliği olarak eklenir; eski kayıtlar için varsayılan "görülmedi" (ortaklık anı 45'i geçmiş oyuncuya sırası gelince oynar).
 

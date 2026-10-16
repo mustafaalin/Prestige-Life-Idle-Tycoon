@@ -492,6 +492,7 @@ export const tr: Messages = {
       staff: 'Personel',
       nevin: 'Nevin Hanım',
       defne: 'Defne',
+      burak: 'Burak',
     },
     c1: {
       hero: 'Merak etme anne, iyiyim. Bugün sıcak çorba içtim.',
@@ -595,12 +596,28 @@ export const tr: Messages = {
       hero: 'Erik reçelini getirdim. Annem hep "İlk kavanoz bebeğin hakkı" derdi.',
       defne: 'Bak, burnu sana çekmiş. Çilleri de bana.',
     },
+    partner: {
+      title: 'Ortaklık',
+      trucks: 'Burak artık ördek saymıyordu. Şehirdeki bütün kamyonlar onundu.',
+      burak: 'Abi, sevkiyatı tek elden yönetelim. Senin şirketlerin, benim kamyonlarım.',
+      hero: 'Ördekleri satan adama güvenmeyeceğim de kime güveneceğim?',
+      burak2: 'Ortaklığa, abi. Her şey yerli yerinde olacak.',
+    },
     grandpa: {
       title: 'Dede ve torun',
       corner: 'Çiçek tezgâhı hâlâ aynı köşedeydi.',
       ada: 'Dede, gülleri neden hep en öne koyuyoruz?',
       hero: 'Tezgâh kendi kendine satmaz. Önce çiçekleri dizeceksin.',
       hero2: 'Bunu bana Rıza Amca öğretmişti. Tam bu köşede.',
+      adaShadow: 'Dede, Burak Amca neden hep telefonda bağırıyor?',
+      heroShadow: 'Hesap yapıyor, kızım. Sen çiçeklerine bak.',
+    },
+    betrayal: {
+      title: 'Sabah gazetesi',
+      paper: "Gazete aynı sabah çıktı: 'Burak Holding, eski ortağının bütün şirketlerine el koydu.'",
+      defne: 'Her şeyi almış. Şirketleri, evi... Hepsini.',
+      hero: 'Saati almamış. Tezgâhları da. Değersiz bulmuş.',
+      hero2: 'Para gider, Defne. Saat kaldı, tezgâh kaldı, biz kaldık.',
     },
     handover: {
       title: 'Babamın saati',
@@ -608,6 +625,7 @@ export const tr: Messages = {
       ada: 'Dede, bana ilk işini öğretir misin? Ama başka bir şehirde. Kendi adımla.',
       hero: 'Bu saat babamındı. Artık senin.',
       hero2: 'Ben burada anneme bir söz vermiştim. Sen kimseye söz verme. Sadece başla.',
+      adaVow: "Ben verdim bile dede. Kendime: Burak'ı o listeden indireceğim.",
       ada2: 'Şans da geliyor mu?',
       hero3: 'Biletini benden önce almış.',
     },
@@ -692,6 +710,7 @@ export const tr: Messages = {
     workshop: 'Rıza Amca yıllar sonra kapımı çaldı. Babanla açamadıkları atölyeyi anlattı, gözleri doldu.',
     jam: 'Erik ağacı bu yıl çok verdi. Reçel yaptım, sana bir kavanoz ayırdım.',
     windows: 'Saray maray istemem, biliyorsun. ...Ama pencereleri büyük olsun, çiçeklerim güneş alsın.',
+    partner: "Burak'ı ortak yapmışsın. O çocuk ördekleri sayarken bile gülmüyordu oğlum.",
     chair: 'Rıza Amca bana bir sandalye yapmış. Bahçedekilerden çok daha rahat!',
   },
   notify: {

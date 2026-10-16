@@ -1,11 +1,25 @@
 import { outfitIndex } from '../../core/config/lifestyle';
 import type { MessageKey } from '../../i18n/translate';
+import type { LifeMomentId } from '../../runtime/story';
 
 // Class-up ceremonies (story-v2.md §4, plan 1.10): after the "new class" title, a few short story
 // beats in visual-novel style (portrait + bubble), then the before/now card. Each ceremony answers
 // what the one before planted, and some plant the next. Index = wealth class (WEALTH_CLASSES).
 
-export type CastId = 'hero' | 'mom' | 'riza' | 'bryce' | 'staff' | 'nevin' | 'defne' | 'defneOld' | 'elif' | 'ada' | 'adaChild';
+/** `burak` speaks with a name tag only until his portraits come (docs/art-prompts-burak.md). */
+export type CastId =
+  | 'hero'
+  | 'mom'
+  | 'riza'
+  | 'bryce'
+  | 'staff'
+  | 'nevin'
+  | 'defne'
+  | 'defneOld'
+  | 'elif'
+  | 'ada'
+  | 'adaChild'
+  | 'burak';
 
 export const FACES = {
   hero: ['worried', 'soft', 'determined', 'happy'],
@@ -23,10 +37,11 @@ export const FACES = {
 
 type Face<C extends CastId> = C extends keyof typeof FACES ? (typeof FACES)[C][number] : never;
 
+/** `when`: the line only plays once that life moment has (Brad's shadow, the heir's vow). */
 export type CeremonyLine =
-  | { [C in CastId]: { speaker: C; face?: Face<C>; phone?: boolean; text: MessageKey } }[CastId]
+  | { [C in CastId]: { speaker: C; face?: Face<C>; phone?: boolean; text: MessageKey; when?: LifeMomentId } }[CastId]
   /** Narration: no speaker, centered caption. */
-  | { speaker?: undefined; text: MessageKey };
+  | { speaker?: undefined; text: MessageKey; when?: LifeMomentId };
 
 export interface StoryImage {
   src: string;
@@ -150,6 +165,11 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
     },
   ],
 };
+
+/** The shots with the lines this story so far allows (`when`). */
+export function shotsFor(shots: CeremonyShot[], lifeSeen: string[]): CeremonyShot[] {
+  return shots.map((shot) => ({ ...shot, lines: shot.lines.filter((line) => !line.when || lifeSeen.includes(line.when)) }));
+}
 
 /** The hero's portraits by outfit (index = OUTFITS), then the grandfather's (GRANDPA_LOOK). */
 const HERO_PORTRAITS = ['hero', 'hero-work', 'hero-smart', 'hero-coat', 'hero-suit', 'hero-threepiece', 'hero-tux', 'grandpa'];

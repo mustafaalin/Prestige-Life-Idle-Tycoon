@@ -16,6 +16,8 @@ export const LIFE_OUTFIT: Record<LifeMomentId, number> = {
   date: SMART,
   wedding: SUIT,
   birth: SMART,
+  partner: SUIT,
+  betrayal: GRANDPA_LOOK,
   boat: SUIT,
   yacht: SUIT,
   heli: SUIT,
@@ -59,6 +61,30 @@ export const LIFE_SCRIPT: Record<LifeMomentId, CeremonyShot[]> = {
         { speaker: 'hero', face: 'happy', text: 'moments.birth.hero' },
         { speaker: 'mom', face: 'tears', phone: true, text: 'moments.birth.mom' },
         { speaker: 'hero', face: 'soft', text: 'moments.birth.hero2' },
+      ],
+    },
+  ],
+  // Brad (the warehouse manager of the duck card) owns every truck in the city now; the hero shakes
+  // on it. Mom's warning follows (runtime/story.ts MOM_MESSAGES). Picture: life-partner (pending).
+  partner: [
+    {
+      lines: [
+        { text: 'moments.partner.trucks' },
+        { speaker: 'burak', text: 'moments.partner.burak' },
+        { speaker: 'hero', face: 'happy', text: 'moments.partner.hero' },
+        { speaker: 'burak', text: 'moments.partner.burak2' },
+      ],
+    },
+  ],
+  // The morning of the hand-over: Brad takes everything but the watch and the stands, which he thought
+  // worthless; the prologue's "you're all I need" comes back as "we stayed". Picture: life-betrayal (pending).
+  betrayal: [
+    {
+      lines: [
+        { text: 'moments.betrayal.paper' },
+        { speaker: 'defneOld', face: 'surprised', text: 'moments.betrayal.defne' },
+        { speaker: 'hero', face: 'worried', text: 'moments.betrayal.hero' },
+        { speaker: 'hero', face: 'soft', text: 'moments.betrayal.hero2' },
       ],
     },
   ],
@@ -134,6 +160,9 @@ export const LIFE_SCRIPT: Record<LifeMomentId, CeremonyShot[]> = {
         { speaker: 'adaChild', face: 'smile', text: 'moments.grandpa.ada' },
         { speaker: 'hero', face: 'happy', text: 'moments.grandpa.hero' },
         { speaker: 'hero', face: 'soft', text: 'moments.grandpa.hero2' },
+        // Brad's shadow, once he is the partner.
+        { speaker: 'adaChild', face: 'surprised', text: 'moments.grandpa.adaShadow', when: 'partner' },
+        { speaker: 'hero', face: 'soft', text: 'moments.grandpa.heroShadow', when: 'partner' },
       ],
     },
   ],
@@ -147,6 +176,8 @@ export const LIFE_SCRIPT: Record<LifeMomentId, CeremonyShot[]> = {
         { speaker: 'ada', face: 'determined', text: 'moments.handover.ada' },
         { speaker: 'hero', face: 'soft', text: 'moments.handover.hero' },
         { speaker: 'hero', face: 'determined', text: 'moments.handover.hero2' },
+        // After the betrayal Ada makes the promise he told her not to make (story §6a).
+        { speaker: 'ada', face: 'determined', text: 'moments.handover.adaVow', when: 'betrayal' },
         { speaker: 'ada', face: 'laugh', text: 'moments.handover.ada2' },
         { speaker: 'hero', face: 'happy', text: 'moments.handover.hero3' },
       ],

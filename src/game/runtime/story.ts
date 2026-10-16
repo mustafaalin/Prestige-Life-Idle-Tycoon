@@ -45,6 +45,8 @@ export interface MomMessageDef {
    * played, ahead of the class's own messages, so a fast player cannot outrun it.
    */
   untilMoment?: LifeMomentId;
+  /** A message that answers a life moment: it shows once that moment has played, ahead of the class's own. */
+  afterMoment?: LifeMomentId;
 }
 
 /**
@@ -65,6 +67,8 @@ export const MOM_MESSAGES: MomMessageDef[] = [
   { id: 'jam', classIndex: 5 },
   { id: 'windows', classIndex: 6 },
   { id: 'chair', classIndex: 6 },
+  // Mom's warning about Brad (story §6a), after the partnership and before it turns.
+  { id: 'partner', classIndex: 6, afterMoment: 'partner', untilMoment: 'betrayal' },
 ];
 
 /** Mom writes at most once a day... */
@@ -110,7 +114,7 @@ export function pendingCeremony(game: GameStateV2, story: StoryProgress): number
   return story.ceremonySeen + 1;
 }
 
-export type AgeMomentId = 'date' | 'wedding' | 'birth' | 'grandchild' | 'grandpa' | 'handover';
+export type AgeMomentId = 'date' | 'wedding' | 'birth' | 'partner' | 'grandchild' | 'grandpa' | 'betrayal' | 'handover';
 export type LuxuryMomentId = 'boat' | 'yacht' | 'heli' | 'jet';
 export type LifeMomentId = AgeMomentId | LuxuryMomentId;
 
@@ -120,8 +124,16 @@ export interface LifeMomentDef {
   age: number;
   /** The class ceremony that has to be seen first: the moment builds on what it showed. */
   afterCeremony: number;
-  /** The moment closes with a gift (default). The hand-over does not: the life ends with it. */
+  /** The moment closes with a gift (default). The betrayal and the hand-over do not. */
   gift?: boolean;
+  /**
+   * The moment steps aside if its ceremony is still unseen when the next moment's age comes, and it
+   * still plays late for a save whose later moments came before it existed (the partnership, added
+   * 2026-10-16), but never after the hand-over. Any other moment never plays after a later one.
+   */
+  optional?: boolean;
+  /** The moment only plays after this one did. */
+  needs?: AgeMomentId;
 }
 
 /**
@@ -135,10 +147,30 @@ export const LIFE_MOMENTS: LifeMomentDef[] = [
   { id: 'date', age: 25, afterCeremony: 2 },
   { id: 'wedding', age: 28, afterCeremony: 3 },
   { id: 'birth', age: 31, afterCeremony: 3 },
+  // Brad's line (story §6a): the partnership once the hero owns a group of companies, the betrayal
+  // on the morning of the hand-over. The heir's story is getting it back.
+  { id: 'partner', age: 45, afterCeremony: 6, optional: true },
   { id: 'grandchild', age: 63, afterCeremony: 3 },
   { id: 'grandpa', age: 70, afterCeremony: 3 },
+  { id: 'betrayal', age: RETIREMENT_AGE, afterCeremony: 3, gift: false, needs: 'partner' },
   { id: 'handover', age: RETIREMENT_AGE, afterCeremony: 3, gift: false },
 ];
+
+/** The first age moment not seen that can still play (see `optional` and `needs`). */
+function nextAgeMoment(game: GameStateV2, story: StoryProgress): LifeMomentDef | undefined {
+  const age = heroAge(game).years;
+  const seen = (id: string) => story.lifeSeen.includes(id);
+  return LIFE_MOMENTS.find((moment, index) => {
+    if (seen(moment.id)) return false;
+    const later = LIFE_MOMENTS.slice(index + 1);
+    if (moment.needs && !seen(moment.needs)) return false;
+    if (moment.optional) {
+      if (later.length === 0 || seen(later[later.length - 1].id)) return false;
+      return story.ceremonySeen >= moment.afterCeremony || age < later[0].age;
+    }
+    return !later.some((entry) => seen(entry.id));
+  });
+}
 
 /**
  * Luxury moments (story §4c, 2026-10-14): the first time a luxury is bought, the family gets to use it.
@@ -178,7 +210,7 @@ export const LIFE_MOMENT_GAP_MS = 2 * 60 * 1000;
  */
 export function pendingLifeMoment(game: GameStateV2, story: StoryProgress): { id: LifeMomentId } | null {
   if (!storyRuns(game) || pendingCeremony(game, story) !== null) return null;
-  const next = LIFE_MOMENTS.find((moment) => !story.lifeSeen.includes(moment.id));
+  const next = nextAgeMoment(game, story);
   if (next && heroAge(game).years >= next.age && story.ceremonySeen >= next.afterCeremony) return next;
   const owned = LUXURY_MOMENTS.filter((moment) => game.lifestyleOwned.includes(moment.item));
   const newest = owned[owned.length - 1];
@@ -216,13 +248,15 @@ export function retirementWaits(game: GameStateV2, story: StoryProgress) {
 export function nextMomMessage(game: GameStateV2, story: StoryProgress): MomMessageDef | null {
   if (!storyRuns(game)) return null;
   const unseen = MOM_MESSAGES.filter((message) => !story.momSeen.includes(message.id));
+  const bound = (message: MomMessageDef) => message.untilMoment !== undefined || message.afterMoment !== undefined;
   const bridge = unseen.find(
     (message) =>
-      message.untilMoment !== undefined &&
+      bound(message) &&
       story.ceremonySeen >= message.classIndex &&
-      !story.lifeSeen.includes(message.untilMoment),
+      (!message.afterMoment || story.lifeSeen.includes(message.afterMoment)) &&
+      (!message.untilMoment || !story.lifeSeen.includes(message.untilMoment)),
   );
-  return bridge ?? unseen.find((message) => !message.untilMoment && message.classIndex === game.classIndex) ?? null;
+  return bridge ?? unseen.find((message) => !bound(message) && message.classIndex === game.classIndex) ?? null;
 }
 
 /** Mom's message for a player returning now after `awaySeconds`, or null. */

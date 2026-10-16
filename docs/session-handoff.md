@@ -37,6 +37,8 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 
 ## Son oturum (2026-10-16)
 
+- **Burak hattı (1. nesil) oyunda, görselsiz:** 45 yaşta ortaklık anı, annenin uyarısı, 70 yaş anında iki gölge balonu, 80'de devirden önce kazık anı, devirde Ada'nın yemini ([story-v2.md §6a](./story-v2.md)). Burak isim etiketiyle konuşur; kılavuz ve iki kare GPT'yi bekliyor ([art-prompts-burak.md](./art-prompts-burak.md)). Simülatör: hedefler aynı. DEV → "Hayat anını oynat" `partner` / `betrayal`.
+
 GPT devir görsellerini üretirken (komutlar [art-prompts-dynasty.md](./art-prompts-dynasty.md)) görselden bağımsız işler yapıldı. Tarayıcıda denendi, telefonda denenmedi.
 
 - **Devir hikâye anları:** 63 (torunun doğumu, adını Elif sorar, varsayılan Ada), 70 (dede ve torun, çiçek tezgâhı), 80 ("Babamın saati", otogar). Metinler [story-v2.md §4c](./story-v2.md). "Şimdi devret" Aile sekmesini kapatır, "Yıllar geçti…" ekranı yaşı 80'e sayar, sonra anlar arka arkaya oynar; emeklilik paneli anlar ve isim bitince açılır. Paneldeki yeni etiket: "Varisin: Ada". Kayıtta yeni alan `story.grandchildName` (varsayılan `''`).

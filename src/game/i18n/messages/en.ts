@@ -493,6 +493,7 @@ export const en = {
       staff: 'Staff',
       nevin: 'Mrs. Nora',
       defne: 'Daphne',
+      burak: 'Brad',
     },
     c1: {
       hero: "Don't worry, Mom, I'm okay. I had hot soup today.",
@@ -596,12 +597,28 @@ export const en = {
       hero: 'I brought the plum jam. Mom always said, "The first jar belongs to the baby."',
       defne: 'Look, she has your nose. And my freckles.',
     },
+    partner: {
+      title: 'The partnership',
+      trucks: "Brad wasn't counting rubber ducks anymore. Every truck in the city was his.",
+      burak: "Boss, let's run shipping from one desk. Your companies, my trucks.",
+      hero: "If I can't trust the guy who sold the ducks, who can I trust?",
+      burak2: 'To the partnership, boss. Everything in its place.',
+    },
     grandpa: {
       title: 'Grandpa and granddaughter',
       corner: 'The flower stand was still on the same corner.',
       ada: 'Grandpa, why do the roses always go in front?',
       hero: "A stand doesn't sell itself. First, you set out the flowers.",
       hero2: 'Old Ray taught me that. Right on this corner.',
+      adaShadow: 'Grandpa, why is Uncle Brad always yelling on the phone?',
+      heroShadow: "He's doing his sums, sweetheart. You mind your flowers.",
+    },
+    betrayal: {
+      title: 'The morning paper',
+      paper: "The paper came out that same morning: 'Brad Holdings seizes all of former partner's companies.'",
+      defne: 'He took everything. The companies, the house... All of it.',
+      hero: "He didn't take the watch. Or the stands. Thought they were worthless.",
+      hero2: 'Money comes and goes, Daphne. The watch stayed, the stands stayed, we stayed.',
     },
     handover: {
       title: "My father's watch",
@@ -609,6 +626,7 @@ export const en = {
       ada: 'Grandpa, will you teach me your first job? But in another city. Under my own name.',
       hero: "This watch was my father's. Now it's yours.",
       hero2: "I made my mother a promise right here. Don't promise anyone anything. Just start.",
+      adaVow: "Too late, Grandpa. I made one to myself: Brad is coming off that list.",
       ada2: 'Is Lucky coming too?',
       hero3: 'He got his ticket before I did.',
     },
@@ -693,6 +711,7 @@ export const en = {
     workshop: 'Old Ray knocked on my door after all these years. He talked about the workshop he and your dad never opened. His eyes filled up.',
     jam: 'The plum tree went wild this year. I made jam and saved you a jar.',
     windows: "I don't need a palace, you know that. ...But big windows would be nice, for my flowers.",
+    partner: "So Brad is your partner now. That boy didn't smile even while counting ducks, son.",
     chair: 'Old Ray made me a chair. Much comfier than the garden ones!',
   },
   notify: {
