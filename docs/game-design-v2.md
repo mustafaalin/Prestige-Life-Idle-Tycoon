@@ -1,6 +1,6 @@
 # Prestige Life v2 — Oyun Tasarım Belgesi
 
-Son güncelleme: 2026-10-15 · Durum: Faz 1 sürüyor; kurallar ve sayılar oyundaki hâliyle. Reklam/IAP kuralları: [monetization-v2.md](./monetization-v2.md)
+Son güncelleme: 2026-10-16 · Durum: Faz 1 sürüyor; kurallar ve sayılar oyundaki hâliyle. Reklam/IAP kuralları: [monetization-v2.md](./monetization-v2.md)
 
 Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-v2.md); rapordan sapmalar §9'da. Sayısal değerler kodda `src/game/core/config/` altında durur; buradaki tablolar `npm run sim -- --config` ve `npm run sim` çıktısından alınmıştır (2026-10-15). Değer değiştirince önce simülatörü çalıştır, sonra bu belgeyi güncelle.
 
@@ -30,7 +30,7 @@ Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Ş
 | Nakit ($) | Her şeyi satın alır | Evet |
 | Nesil kazancı | Sınıfı belirler; harcayınca düşmez | Evet |
 | Toplam kazanç | Miras puanını belirler | Hayır |
-| Miras puanı | Her puan tüm gelire +%1 | Hayır |
+| Miras puanı | Aile yadigârlarına harcanır (§4.5) | Hayır |
 | Yaş | Ömrün ne kadarının geçtiği; 80'de emeklilik | Evet (varis 17'den başlar) |
 
 ## 4. Sistemler
@@ -45,8 +45,8 @@ Hikaye, karakterler ve ton: [story-v2.md](./story-v2.md) (kahraman + köpeği Ş
 | 3 | Middle Class (Orta Sınıf) | 1M | 18 |
 | 4 | Millionaire (Milyoner) | 10M | 19 |
 | 5 | Billionaire | 1B | 22 |
-| 6 | Multibillionaire (Multimilyarder) | 100B | 34 |
-| 7 | Richest Person Alive | 1T | 55 |
+| 6 | Multibillionaire (Multimilyarder) | 100B | 33 |
+| 7 | Richest Person Alive | 1T | 51 |
 
 Multimilyarder, Milyarder ile En Zengin arasındaki uzun boşluğa bir hikâye anı koymak için var.
 
@@ -65,7 +65,7 @@ AdVenture Capitalist modeli: her işletme adet adet alınır, her birim bir üre
 - Yönetici: tek seferlik (ilk birimin 12 katı; Çiçek Tezgâhı'nda $1K), işletmeyi otomatik ve çevrimdışı çalıştırır. Her işletmenin kendi yönetici karakteri var (story-v2 §3)
 - **Tören hediyesi (2026-10-13):** Milyarder olunca ilk Otel Zinciri ve yöneticisi Bülent Bey bedava gelir (`CLASS_MANAGER_GIFT`; minibüs ve ilk ev gibi, sınıfa ulaşıldığı anda). Oteli önceden almış olana yalnızca yönetici verilir. Sebep: ilk otel bir Milyarder'in gelirine binde bir kadar ekliyor, bot ilk hayatta hiç almıyordu ve törende işe alınan Bülent Bey ekrana gelmiyordu. Tempoya etkisi yok denecek kadar az (En Zengin 6 dk erken). İşletme listesi sahip olunan her işletmeyi gösterir, hediye sıradaki alınacak işletmenin altında durur; törenin "Önce / Şimdi" kartında bir satırla duyurulur
 - **Son iki işletme alınmaya değer (2026-10-13, kullanıcı):** ilk adedin kendini ödeme süresi Otel Zinciri'nde 22 gün → 4 gün (`paybackMinutes` 32000 → 6000), Teknoloji Girişimi'nde 208 gün → 3,5 gün (300000 → 5000); fiyatlar aynı. Bot ilk hayatta ikisini de almıyordu. Şimdi bağlı bot otel almaya 6. günde (ömür sonunda 30 adet), girişime 14. günde (17 adet) başlıyor, Kuzen'i 19. günde işe alıyor; Fabrika ve Lojistik de alınmaya devam ediyor (31 ve 53 adet). Daha güçlü değerler denendi: otel 5000'de Multimilyarder hedefin altına düşüyor, girişim 3000–4000'de bot Fabrika'yı bırakıyor
-- Ekranda gelir aylık gösterilir: $/ay = $/sn × 60. Para yine saniye saniye artar; işletme kartındaki çubuk tur başına geliri gösterir
+- Ekranda gelir aylık gösterilir: $/ay = $/sn × 80 (bir oyun ayı 80 sn, §4.9). Para yine saniye saniye artar; işletme kartındaki çubuk tur başına geliri gösterir
 - Üst bar ve "~X sonra alabilirsin" tahminleri yalnızca otomatik geliri (yönetici, maaş, kira) kullanır; dokunarak çalıştırılan işletmeler sayılmaz
 
 **Ayar (2026-10-09, kullanıcıyla):** başta ana gelir iş, sonra ağırlık işletmelere geçer. Fiyat merdiveni $250'den başlar; her kademenin ilk birimi bir öncekinin 3–20 katı (adım büyüyerek), böylece yeni işletmeler ilk güne yığılmaz, günlere yayılır. Turlar kısa ve okunur (1–15 sn). Kademenin geliri `paybackMinutes` ile ayarlanır (ilk birimin kendini ödeme süresi). Her tur en az $1 öder; yavaşlık kazançtan değil fiyatlardan gelir (§6.6), simülatör bunu "his" kontrolleriyle bekler (§5).
@@ -169,6 +169,7 @@ En iyi evde (kendi evin) yaşanıp tüm eşyalar alındığında statü toplamı
 - **Erken devir (oyunda):** En Zengin'den sonra Aile sekmesi açılır (önce kilitli: "Dünyanın En Zengini olunca açılır"): canlı "Varisine bırakacağın +N itibar puanı", "Kal, biriktir" (sekmeyi kapatır) ve "Şimdi devret" (onay: "Kalan yıllar atlanır; 80 yaşında torununa devredersin"). Devret kalan yılları atlar (`handOverEarly`: ömür 80'de biter), ardından ömür sonu paneli. Hikâye anları (torunun doğumu 63, dede ve torun 70, devir 80) görsellerle gelecek. Sekmede "!": alınabilir yadigâr varsa, ya da devir seçimi açıkken oturumda bir kez. Analitik `hand_over_early`, `heirloom_buy`.
 - **Varisin hızı (simülatör 2026-10-16, bot puanını hemen harcar: önce saat, sonra en ucuzu):** bağlı oyuncunun 2. nesli En Zengin'e erken devirde (~1.000 puan) 4 sa 26 dk, 80 yaşta devirde (~2.500 puan) 3 sa 56 dk oyunda (önce 40 dk; 1. nesil 9 sa 11 dk). Casual 3 sa, reklam izleyen 3 sa 2 dk, reklam + fular + yakut 1 sa 44 dk – 2 sa. Başlangıç çarpanına göre süre: ×1 9 sa 11 dk, ×1,5 6 sa 16 dk, ×2 4 sa 52 dk, ×3 3 sa 28 dk, ×5 2 sa 18 dk. Simülatör: `npm run sim -- --days 60 --retire-at-top` (erken devir), `startLegacyPoints` seçeneği.
 - **Açık (2. nesil içeriğiyle):** 2. nesil yalnız ~260 puan bırakıyor (küpkök bütün nesillerin toplamına bakıyor), 3. nesil 2.'den hızlı değil. Yeni şehirle puan her neslin kendi şehrine göre hesaplanacak.
+- **Varis neden en dipten başlar (karar 2026-10-16):** dedenin servetini ortağı Burak kazıkla alır; yadigârlar ve birkaç Çiçek Tezgâhı kalır, 2. neslin hedefi Zenginler Listesi'nin 1. sırasındaki Burak'ı geçmek ([story-v2.md §6a](./story-v2.md)).
 - **Kararlaşan, henüz yapılmayan:** her nesil yeni şehirde (işletmeler, evler, fiyat, gelir ve eşikler aynı oranda büyür; hızı yadigârlar belirler; varis kiralık odadan ve dedenin Çiçek Tezgâhı'yla başlar, öneri). Varisler: 2. nesil kız torun (sabit), 3. nesil erkek (ilk kahramanın görselleri), sonra kadın-erkek sırayla; kahraman 60 yaştan sonra dede görünümünde, 2. nesilde rehber ([story-v2.md §6](./story-v2.md)). Görünür miras, yadigârlar ve 2. nesil içeriği birlikte yayınlanır.
 
 ### 4.6 Çevrimdışı kazanç
@@ -236,7 +237,7 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranı
 
 - Tam ekran hikâye anlarında (tören, hayat anı) yaş durur.
 - **Hayat anları (karar 2026-10-11):** yaş, hikâyenin ikinci saatidir. Belirli yaşlarda kahramanın hayatından tek karelik anlar oynar (buluşma, düğün, çocuğun doğumu...); sınıf törenleri paraya, hayat anları yaşa bağlıdır. Liste ve kurallar [story-v2.md §4c](./story-v2.md).
-- En Zengin'den sonraki yılları (59 → 80) hayat anları doldurur (torunun doğumu, devir; testten sonra). Engaged bot En Zengin'e 55, casual 45 yaşında ulaşıyor; ömür sonu engaged botta 25. gün (16 sa 48 dk oyun).
+- En Zengin'den sonraki yılları (59 → 80) hayat anları doldurur (torunun doğumu, devir; testten sonra). Engaged bot En Zengin'e 51, casual 40 yaşında ulaşıyor; ömür sonu engaged botta 25. gün (16 sa 48 dk oyun).
 
 ### 4.10 Hedefler (`config/quests.ts`)
 
@@ -311,7 +312,7 @@ Güncel sonuç (2026-10-15, günlük ödül ve yatırımla; hedefler `src/game/s
 
 Engaged botun ilk günü (2026-10-13, tasmalardan önce; sıra aynı): şişeler → el ilanı işi (10 sn) → Bulaşıkçı (1 dk 17 sn) → Çiçek Tezgâhı (2. dk) ve bisiklet (3. dk) → Gündelikçi (4,5. dk) → Rıza Amca yönetici (6,5. dk) → Tente ve skuter (10. dk) → Kahve Arabası (12,5. dk) → kiralık oda ve emektar sedan (14–16. dk) → İşçi töreni (25. dk); ilk oturum burada biter. Orta Sınıf 2. oturumda gelir. Sınıf çubuğu karekök ölçeğinde çizilir (`classProgress`): düz oranla dakikalarca %0'da durup sonra fırlıyordu.
 
-- Varis çok hızlı: 1. ömür ~1.800 miras puanı (×19 gelir; son işletmeler güçlenince 1.400'den çıktı) bırakıyor; 2. nesil Milyoner ve üstüne dakikalar içinde ulaşıyor. Faz 2.1'de miras formülü ve 2. nesil içeriğiyle birlikte ele alınacak.
+- Hanedan temposu (200 günlük simülatör, 2026-10-16): ömrünü dolduran 1. nesil 2.531, 2. nesil 6.647 puan bırakıyor; her nesil En Zengin'den sonra 7,6 → 13 → 14 saat hedefsiz oynuyor. Hep erken devreden aile 1.017, 261, 187, 154, 125 puan bırakıyor ve her nesil zirveye 4 sa 26 dk'da varıyor (hızlanmıyor). Açık: [discussion-notes.md §3](./discussion-notes.md).
 - İlerleme hissiyle ilgili açık gözlemler (ilk oturumda tek tören, 4. saatten sonra az değişim): [discussion-notes.md §6](./discussion-notes.md).
 
 ## 6. Simülasyondan öğrenilenler
@@ -345,7 +346,7 @@ Engaged botun ilk günü (2026-10-13, tasmalardan önce; sıra aynı): şişeler
 
 | Konu | Rapor | v2 kararı | Gerekçe |
 | --- | --- | --- | --- |
-| Miras formülü | Karekök: √(kazanç / sabit) | Küpkök, puan başı +%1 (§4.5) | Simülasyonda karekök kartopu yaptı (§6.5) |
+| Miras formülü | Karekök: √(kazanç / sabit) | Küpkök; puan yadigârlara harcanır (§4.5) | Simülasyonda karekök kartopu yaptı (§6.5); otomatik +%1 yerine sınırlı yadigârlar (2026-10-15) |
 | Sınıf eşiği | Net servet | Nesil kazancı, harcayınca düşmez (§4.1) | Alışveriş yapan oyuncu sınıf kaybetmesin |
 | İlk "en zengin" | 2–3 hafta (2–4 nesil) | Tek ömürde, 14–21. gün (§5) | Simülasyon temposu; uzun vade için Faz 2'de nesil içeriği |
 | Konut | Tek ev kavramı | Kirala → satın al → kiraya ver; ev bonusu yaşanan evin kademesinden (§4.8) | Erken oyunda ev almak zor; kiralamak ilerleme hissi, satın almak kira geliri verir (karar 2026-10-07) |

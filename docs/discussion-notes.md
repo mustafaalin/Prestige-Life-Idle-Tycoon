@@ -2,7 +2,7 @@
 
 Kararı henüz verilmemiş konular ve Claude'un önerileri. **Karar verilince ilgili belgeye (plan, hikâye, tasarım, monetizasyon) taşınır ve buradan silinir**; burada yalnızca açık konular durur.
 
-Son güncelleme: 2026-10-15 (AAB 28 telefon testi bulguları §9; okşama pozunda tasma §1)
+Son güncelleme: 2026-10-16 (oyunun baştan sona incelemesi: devir hataları §4, hanedan matematiği §3, hikâye §7; Burak hattı kararı story-v2 §6a)
 
 ## 1. Görsel
 
@@ -45,7 +45,11 @@ Kararlaşanlar: varis 17 yaşında torun (kızının çocuğu), devir 80 yaşın
 2. **2. neslin başlangıcı:** biraz alttan (yön kararı 2026-10-11). Öneri: yeni şehirde kiralık oda ve dedenin Çiçek Tezgâhı yadigâr olarak.
 3. **2. nesil kıyafet ve poz seti:** aynı sayıda yeni set; dededen kalan bir yadigâr (babanın saati) hep görünsün. Torunun yanında Şans'ın yavrusu (öneri).
 4. **Rehber:** dede, toruna Rıza Amca'nın rolünü üstlenir (rehber balonları, olay kartları); annenin mesaj kanalı kızına ve dedeye geçer (öneri).
-5. **Varis çok hızlı:** §2'deki yadigâr ve formül işiyle çözülecek.
+5. **Hanedan matematiği (inceleme 2026-10-16, 200 günlük simülatör; 2. nesil konuşmasının ilk maddesi):** yadigârlar varisi yavaşlattı ama döngü 3. nesilde duruyor.
+   - Hep erken devreden aile: puan 1.017 → 261 → 187 → 154 → 125, her nesil zirveye 4 sa 26 dk (hızlanma yok). Ömrünü dolduran: 2.531 → 6.647 puan, ama zirveden sonra 7,6 → 13 → 14 saat hedefsiz oyun. "Şimdi devret" ekonomide hep kaybettiriyor (saat başı puan: erken devir ~110, zirve sonrası ~200).
+   - Kök neden: puan ailenin bütün kazancının küpkökü (geçmiş büyüdükçe yeni neslin payı küçülür) ve yadigâr fiyatı her seviyede ×2, etkisi toplamalı (saat +%30). AdVenture Capitalist'te melekler harcanmaz ve her biri bütün kazanca kalıcı +%2 verir, tur tur hızlanır.
+   - Simülatörde denenecek öneriler: puan her neslin kendi kazancından (yeni şehir kararıyla uyumlu); yadigâr fiyatı ×1,5 ya da saat çarpanlı (seviye başına ×1,25); zirveden sonra yaş hızlanır (§2 adayı), böylece hem erken devir hem ömrü doldurmak oynanabilir seçenek olur.
+6. **Burak hattının açıkları (karar story-v2 §6a):** Burak'ın 2. nesildeki yaşı (portre ~30, kahramandan ~5 büyük; devirde ~85, 2. neslin sonunda ~100: kabul mü, yaşlı Burak görseli yeter mi); varisin başlangıç tezgâh sayısı (2–3); Burak'ın serveti yeni şehrin eşikleriyle nasıl büyür; Burak 2. nesilde olay kartı ya da anne mesajı kanalından da konuşur mu.
 
 **Kahramanın dede görünümü (karar 2026-10-15, kullanıcı: B):** 60 yaştan sonra kahraman tek bir dede görünümüne geçer (kır saç, gözlük, yelek, babadan kalan saat): 3 sahne pozu (duruş, sevinç, Şans'ı sevme) + 4 portre. Kıyafetlerin gelir bonusu sürer, görünüm yaşa bağlı. Aynı dede 2. nesilde rehber. Torunla aynı üretim turunda yapılır (yüz tutarlılığı). Ayrıca gereken: yetişkin kızın kılavuz görseli (hiç tasarlanmadı); yaşlı Defne konuşacaksa 4 portre. 31 yaşındaki babanın 20'lik görünmesi şimdilik kalır (yetişkin dönemi her kıyafetin yeniden üretimi demek).
 
@@ -58,6 +62,8 @@ Kurallar ve sayılar [game-design-v2.md §4–5](./game-design-v2.md). Çevrimd�
 - **Erken oyun telefonda bakılacak:** ucuz tezgâh, $1K yönetici, ilk yöneticiye kadar sık gelen Şans. Elle çalışan tezgâhın geliri üst barda görünmüyor (kullanıcı: yönetici atanınca görünsün). Hâlâ boş geliyorsa yeni bir uğraş.
 - **Çevrimdışı ödül erken sınıflarda:** kullanıcı erken oyunda fazla buluyor; erken sınıfların tavanları (10 dk → 1 sa) hiç denenmedi. Ölçüm: paranın ~%87'si çevrimdışı kartlardan geliyor; oran ve tavan payı pek oynatmıyor (%78–91), tempoyu ve "ne sıklıkla dönmeli" hissini belirliyor.
 - **Kariyer / işletme dengesi:** ilk 4 dk gelir tamamen maaş, sonra hızla işletmelere geçiyor (ömür boyunca ortanca %95). "Başta kariyer" daha uzun sürsün mü?
+- **Devirde varise geçen para (hata, inceleme 2026-10-16; düzeltilecek):** devir yalnız oyun durumunu sıfırlıyor (`runtime/engine.ts` `retire`). Süren yatırım varise kalıyor: 1. neslin sonunda tavandan Cesur vadeyle torun ~$1,4T toplar ve kazancı sayıldığı için sokaktan Multimilyarder olur. Bekleyen günlük ödül teklifi de kalıyor: 50 aylık ödül reklamla $1,4T, torun doğrudan En Zengin. Öneri: devirde yatırım dedeye ödenir (mirasa sayılır), teklif silinir ve varisin geliriyle yeniden hesaplanır.
+- **Aile albümü yadigârı etkisiz (inceleme):** etkisi tören hediyesine bağlı, 2. nesilde tören yok; ekranda yazmıyor. Öneri: 2. nesil törenleri gelene kadar kilitli ("Torununun törenleriyle açılır"). `LEGACY_BONUS_PER_POINT` artık kullanılmıyor, silinecek.
 - **"Biraz yardım" düğmesinin yazısı:** kullanıcı ilk bakışta anlamadı. Fikir: "Reklam izle, hemen al: +$X" (`ads.help`).
 - **Yöneticisiz işletmeye dokunma:** AdCap modeli ("Çalıştır" → tek döngü). "Dokundukça hızlanır" alternatifi oyun testinden sonra.
 
@@ -84,6 +90,9 @@ Fakirlikten zenginliğe geçiş ilk ~2 saate sıkışıyor. O günden beri iyile
 - **Hikâye ayrıntıları:** anne, eşinin en yakın arkadaşı Rıza'yı tanıyor olmalı; kahraman ona Rıza'dan hiç söz etmemiş gibi duruyor.
 - **Şans'ın getirdiği şey sınıfa göre değişsin mi** (mekanik aynı): sokakta cüzdan, ileride başka şeyler.
 - **Hayat anlarının izi ana ekranda:** Defne ve kızından mesajlar (öneri; [story-v2.md §7](./story-v2.md)).
+- **Lüks anlarında yan karakterlerin yaşı (inceleme 2026-10-16):** lüksler paraya, yaş zamana bağlı; bağlı botta helikopter ~59, jet ~70 yaşta. Helikopterde Rıza (~105) tezgâhta el sallıyor, jette Rıza (~115) ve Nevin Hanım (~120) uçakta. Öneri (yalnız metin): helikopterde *"Tezgâh hâlâ yerinde"*; jette kurabiyeleri Defne getirir (*"Babaannemin tarifi"*), Rıza'nın sorusunu Elif sorar (*"Nereye gidiyoruz baba?"*). Ayrıca 60 yaştan sonraki karelerde kahraman genç, sahnede dede.
+- **Babanın saati hikâyede hiç ortaya çıkmıyor:** devir ona dayanıyor ama kahramanın saati nereden bulduğu anlatılmıyor (takım elbiseden beri bileğinde). Öneri: Milyoner töreninde Rıza babayı tanıdığında tek balon: *"Mehmet bunu bana emanet etmişti. Sahibine döndü."* (takım elbise de Milyoner'de açılır).
+- **Olay kartları çok tekrar ediyor (inceleme):** Orta Sınıf'tan ömür sonuna ~190 çağrı, 10 kart: her kart ~20 kez. Büyük set (2.4) gelene kadar: hepsi görülmeden tekrar yok, günde en fazla ~6 kart.
 - **Olay kartları:** ödül sayıları ve sıklık (45 / 100 / 10 sn gelir, 4–6 dk) telefonda denenmedi; kötü sonuçta reklamla "ikinci şans" (monetizasyon #7).
 
 ## 8. Diğer

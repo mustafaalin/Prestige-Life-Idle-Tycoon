@@ -2,7 +2,7 @@
 
 Son güncelleme: 2026-10-16 · İlgili: [story-v2.md §4c, §6, §8](./story-v2.md), [game-design-v2.md §4.5](./game-design-v2.md), [art-brief-v2.md](./art-brief-v2.md) (genel kurallar, ekran haritası), [discussion-notes.md §3](./discussion-notes.md)
 
-**Üretim durumu (2026-10-16):** K1 dede onaylandı. Kullanıcının sıradaki görsele geçme talebiyle K2 yaşlı Defne tamamlanmış kabul edildi. K3 `art/pilot/16-dynasty/elif-sheet.png` ve `elif-sheet-prompt.txt` üretildi (1536×1024); eller yakın planda, aile benzerliği ve dört ifadenin tutarlılığı görsel olarak kontrol edildi. K3 onaylandı (2026-10-16). K4 Ada, dede pozları, hikâye kareleri ve ikonlar henüz üretilmedi. Runtime entegrasyonu yapılmadı.
+**Üretim durumu (2026-10-16):** Dede, yaşlı Defne, Elif ve P1 dede bekleme pozu hazır. Kullanıcı düzeltmesiyle Ada iki ayrı kılavuz olarak yeniden üretildi: K4a `ada-17-sheet.png`, K4b `ada-7-sheet.png`. Her biri üç görünüm ve dört ifade içerir; ilk birleşik sayfa artık yeni sahne referansı değildir. P2 sevinç, P3 okşama, üç hikâye karesi ve dört ikon henüz üretilmedi. Runtime entegrasyonu yapılmadı.
 
 Bu belge GPT'ye (VS Code'da) verilir. Devrin hikâye anları ve Aile sekmesi için gereken **14 görselin** sırasını, referanslarını, kayıt yerini ve doğrudan yapıştırılacak İngilizce komutlarını içerir. Oyuna bağlama (kesim, webp, kod) Claude'un işidir (§6).
 
@@ -43,7 +43,8 @@ Sayfa düzeni Defne kılavuzu (`art/pilot/03-cast/defne-sheet.png`) ile aynı: y
 | K1 | `art/pilot/16-dynasty/grandpa-sheet.png` | Dede (kahraman ~70) | happy, soft, determined, worried |
 | K2 | `art/pilot/16-dynasty/defne-old-sheet.png` | Yaşlı Defne (~70) | smile, shy, surprised, laugh |
 | K3 | `art/pilot/16-dynasty/elif-sheet.png` | Elif, kızı (~32) | smile, teary, surprised, laugh |
-| K4 | `art/pilot/16-dynasty/ada-sheet.png` | Ada, torun (17) + 7 yaşındaki hâli | smile, determined, surprised, laugh |
+| K4a | `art/pilot/16-dynasty/ada-17-sheet.png` | Ada, torun (17) | smile, determined, surprised, laugh |
+| K4b | `art/pilot/16-dynasty/ada-7-sheet.png` | Ada, çocukluk (7) | smile, determined, surprised, laugh |
 
 Portre ifadeleri koddaki ifade adlarıyla aynı seçildi. Dede kahramanın dört ifadesini, yaşlı Defne genç Defne'ninkileri kullanıyor, böylece konuşma satırları değişmeden çalışır.
 
@@ -77,17 +78,16 @@ Layout exactly like reference 2: landscape sheet on a plain light grey backgroun
 Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
 ```
 
-### K4 Ada kılavuzu (torun, 2. neslin kahramanı)
+### K4 Ada kılavuzları — yaşlar ayrı sayfalarda
 
-Ada 2. neslin oynanan kahramanı olacak. Bu sayfa onun **başlangıç görünümü**: biraz alttan, kiralık odadan başlıyor. Dedesinin 17 yaşındaki kapüşonlu ve sırt çantalı hâline gizli bir selam var, ama kopyası değil. Kıyafet setleri 2. nesil içeriğiyle ayrıca gelecek.
+**Kullanıcı düzeltmesi (2026-10-16):** 7 ve 17 yaş aynı kılavuzda bulunmayacak. İki ayrı kılavuz üretildi; her biri yalnızca kendi yaşının üç tam boy görünümünü (ön, dörtte üç, yan) ve dört ifade portresini (smile, determined, surprised, laugh) içerir. İki PNG de 1536×1024.
 
-Referanslar: K3 `elif-sheet.png` (annesi), `art/pilot/03-cast/defne-sheet.png` (anneannesi, düzen), `art/pilot/01-hero-sheet/A1-semi3d.png` (dedesinin 17 yaşı: boy oranı ve "sıfırdan başlayan genç" havası), `art/pilot/08-outfits/outfit-4-sheet.png` (saat).
+- **17 yaş:** `art/pilot/16-dynasty/ada-17-sheet.png`; komut: `ada-17-sheet-prompt.txt`. Yüksek dağınık at kuyruğu, çiller, petrol mavisi kot ceket, beyaz tişört, siyah kot, kırmızı ayakkabılar, tek omuzda koyu gri çanta. Altın kasa/krem kadran/kahverengi deri kayışlı Mehmet'in saati yalnızca sol bilekte.
+- **7 yaş:** `art/pilot/16-dynasty/ada-7-sheet.png`; komut: `ada-7-sheet-prompt.txt`. Çocuk oranları, iki kısa kuyruk, çiller, sarı tişört, mavi kot tulum, kırmızı ayakkabılar. Saat, takı ve sırt çantası yok.
 
-```
-Character sheet of a NEW character: Ada, a 17-year-old girl, granddaughter of the family in references 1-2 and the same age and body proportions as the young man in reference 3. She must clearly belong to this family: her mother's face shape and brown eyes, the family's light freckles, the family's dark-brown slightly tousled hair, here worn in a high messy ponytail with loose strands around the face. Expression: bright, stubborn, hungry to prove herself. Outfit: a faded teal denim jacket over a plain white t-shirt, black jeans, worn red canvas sneakers, a small dark-grey backpack on one shoulder. On her LEFT wrist the exact watch from reference 4 (gold case, cream dial, brown leather strap); it is a man's watch and sits a little loose on her thin wrist.
-Layout like reference 2, landscape sheet on a plain light grey background. Left side: three full-body views of 17-year-old Ada (front, three-quarter, side), neutral standing pose, arms relaxed, feet visible, exactly two arms and two hands each. Next to them, smaller and to scale, one front full-body view of Ada at 7 years old: same face, freckles and hair color, two short pigtails, a yellow t-shirt, denim overalls, red sneakers, no watch. Right side: a 2x2 grid of head-and-shoulders expression portraits of 17-year-old Ada with space around each: top-left smile, top-right determined (focused, chin up, half smile), bottom-left surprised, bottom-right laugh.
-Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
-```
+Mevcut Ada'nın kimliği ve yarı 3D dili korunarak iki sayfa yeniden üretildi. Referanslar: eski birleşik Ada sayfası (kimlik/kıyafet), Elif (aile benzerliği), Defne (sayfa düzeni). Eller yakın planda, yaş ayrımı, kıyafet ve saat sürekliliği görsel olarak kontrol edildi.
+
+Eski `ada-sheet.png` ve komutu ilk tasarım kaydı olarak korunuyor, yeni sahnelerde referans alınmayacak. Bundan sonra 7 yaş için K4b, 17 yaş için K4a kullanılır. Ada'nın başlangıç kahramanı ve konuşma portreleri 17 yaş sayfasından alınır. Runtime dosyalarına bu düzeltmede dokunulmadı.
 
 ## 3. Dede sahne pozları (3)
 
@@ -138,7 +138,7 @@ Art style (match the reference exactly): stylized semi-3D animated-film look, so
 
 ### S2 Dede ve torun
 
-Referanslar: `art/pilot/05-scene/alley-clean.png` (yer ve stil; tezgâh bu sokakta), K1 `grandpa-sheet.png`, K4 `ada-sheet.png` (7 yaşındaki hâli), `art/pilot/02-poses/sans-sheet.png`.
+Referanslar: `art/pilot/05-scene/alley-clean.png` (yer ve stil; tezgâh bu sokakta), K1 `grandpa-sheet.png`, K4b `ada-7-sheet.png` (yalnız 7 yaş), `art/pilot/02-poses/sans-sheet.png`.
 
 ```
 Create ONE finished 9:16 vertical cinematic story panel for a mobile game: a grandfather teaches his little granddaughter her first job. Reference 1 is the place and style: the same narrow city alley, but now clean, bright and cared for in fresh morning light, with potted plants and a tidy wall. Against the left wall stands a small, well-kept wooden flower stand painted in faded green, with zinc buckets full of roses, tulips and daisies, a hand-made wooden awning. No sign, no writing anywhere.
@@ -151,7 +151,7 @@ Art style (match the reference exactly): stylized semi-3D animated-film look, so
 
 ### S3 Devir
 
-Referanslar: `art/pilot/04-prologue/prologue-5-bus.png` (önsöz 5. kare: yer, gün batımı; çizim stili değil, önsözün stili henüz 2D), K1 `grandpa-sheet.png`, K4 `ada-sheet.png` (17 yaşındaki hâli), `art/pilot/02-poses/sans-sheet.png`, `art/pilot/10-life/life-birth.png` (yarı 3D stil).
+Referanslar: `art/pilot/04-prologue/prologue-5-bus.png` (önsöz 5. kare: yer, gün batımı; çizim stili değil, önsözün stili henüz 2D), K1 `grandpa-sheet.png`, K4a `ada-17-sheet.png` (yalnız 17 yaş), `art/pilot/02-poses/sans-sheet.png`, `art/pilot/10-life/life-birth.png` (yarı 3D stil).
 
 ```
 Create ONE finished 9:16 vertical cinematic story panel for a mobile game: an old man sends his granddaughter off to build her own life, at the same bus station where, sixty years ago, he said goodbye to his mother. Reference 1 gives ONLY the place, sunset light and mood (NOT its drawing style; render it in the semi-3D style of reference 5): the same bus station platform at golden sunset; a modern intercity coach waits behind them with its door open (no logo, no writing, no destination sign).
@@ -192,7 +192,7 @@ Görseller geldikten sonra Claude'un yapacakları:
 
 | Kaynak | Oyunda | İş |
 | --- | --- | --- |
-| K1–K4 portreleri | `public/assets/story/portraits/{grandpa,defne-old,elif,ada}-<ifade>.webp` | Kılavuzlardan yuvarlak kesim (Defne'ninki gibi) |
+| K1–K3 ve K4a portreleri | `public/assets/story/portraits/{grandpa,defne-old,elif,ada}-<ifade>.webp` | Kılavuzlardan yuvarlak kesim (Defne'ninki gibi) |
 | P1–P3 | `public/assets/scene/hero-grandpa-{idle,joy,pet-sans}.webp` | `scripts/cutout.sh` ile kesim; 60 yaştan sonra sahnede kıyafet pozunun yerine geçer, `stages.ts` |
 | S1–S3 | `public/assets/story/life/{grandchild,grandpa,handover}.webp` | 1080 px webp; `ui/story/lifeScript.ts`, metinler `moments.*` (TR + EN) |
 | I1–I4 + `family-album.png` | `public/assets/icons/v2/heirloom-*.webp` | Kesim kontrolü, 256 px webp; `ui/family/FamilyScreen.tsx` renkli kutuların yerine |
