@@ -98,8 +98,6 @@ Fakirlikten zenginliğe geçiş ilk ~2 saate sıkışıyor. O günden beri iyile
 - **Hikâye ayrıntıları:** anne, eşinin en yakın arkadaşı Rıza'yı tanıyor olmalı; kahraman ona Rıza'dan hiç söz etmemiş gibi duruyor.
 - **Şans'ın getirdiği şey sınıfa göre değişsin mi** (mekanik aynı): sokakta cüzdan, ileride başka şeyler.
 - **Hayat anlarının izi ana ekranda:** Defne ve kızından mesajlar (öneri; [story-v2.md §7](./story-v2.md)).
-- **Lüks anlarında yan karakterlerin yaşı (inceleme 2026-10-16):** lüksler paraya, yaş zamana bağlı; bağlı botta helikopter ~59, jet ~70 yaşta. Helikopterde Rıza (~105) tezgâhta el sallıyor, jette Rıza (~115) ve Nevin Hanım (~120) uçakta. Öneri (yalnız metin): helikopterde *"Tezgâh hâlâ yerinde"*; jette kurabiyeleri Defne getirir (*"Babaannemin tarifi"*), Rıza'nın sorusunu Elif sorar (*"Nereye gidiyoruz baba?"*). Ayrıca 60 yaştan sonraki karelerde kahraman genç, sahnede dede.
-- **Babanın saati hikâyede hiç ortaya çıkmıyor:** devir ona dayanıyor ama kahramanın saati nereden bulduğu anlatılmıyor (takım elbiseden beri bileğinde). Öneri: Milyoner töreninde Rıza babayı tanıdığında tek balon: *"Mehmet bunu bana emanet etmişti. Sahibine döndü."* (takım elbise de Milyoner'de açılır).
 - **Olay kartları çok tekrar ediyor (inceleme):** Orta Sınıf'tan ömür sonuna ~190 çağrı, 10 kart: her kart ~20 kez. Büyük set (2.4) gelene kadar: hepsi görülmeden tekrar yok, günde en fazla ~6 kart.
 - **Olay kartları:** ödül sayıları ve sıklık (45 / 100 / 10 sn gelir, 4–6 dk) telefonda denenmedi; kötü sonuçta reklamla "ikinci şans" (monetizasyon #7).
 

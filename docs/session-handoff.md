@@ -35,7 +35,9 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 - **Para:** 6 ödüllü reklam yeri (çevrimdışı +%30, Şans ×2, 1 saatlik ×2, biraz yardım, hediye ×2, günlük ödül ×2); Mağaza ve 3 ürün (Rahat Paket $7,99; Başlangıç Paketi $2,99, ilk 3 gün hoş geldin fiyatı $1,49); geri yükleme; Play puanlama penceresi (Milyoner'den sonra).
 - **Altyapı:** kayıt Preferences'ta, Android geri tuşu, güvenli alanlar, yerel bildirimler, Firebase Analytics, TR + EN.
 
-## Son oturum (2026-10-16)
+## Son oturum (2026-10-16 → 17)
+
+- **Hikâye düzeltmeleri (2026-10-17):** Milyoner töreninde Rıza saati verir ("Bu saat babanındı..."), devirdeki saat artık bir yerden geliyor. Lüks anlarında yaş: helikopterde "biri el sallıyor"; jette Rıza ve Nevin yerine Defne ve Elif konuşuyor, eski kare kaldırıldı, yeni karenin komutu [art-prompts-v2.md §13](./art-prompts-v2.md).
 
 - **Burak hattı (1. nesil) oyunda, görselsiz:** 45 yaşta ortaklık anı, annenin uyarısı, 70 yaş anında iki gölge balonu, 80'de devirden önce kazık anı, devirde Ada'nın yemini ([story-v2.md §6a](./story-v2.md)). Burak isim etiketiyle konuşur; kılavuz ve iki kare GPT'yi bekliyor ([art-prompts-burak.md](./art-prompts-burak.md)). Simülatör: hedefler aynı. DEV → "Hayat anını oynat" `partner` / `betrayal`.
 

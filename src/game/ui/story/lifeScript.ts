@@ -124,14 +124,16 @@ export const LIFE_SCRIPT: Record<LifeMomentId, CeremonyShot[]> = {
       ],
     },
   ],
-  // Everyone on board, to Mom's hometown: the aunt she stayed with after the prologue.
+  // Everyone on board, to Mom's hometown: the aunt's house she stayed in after the prologue. The jet
+  // comes late (~70 in the simulator), so Old Ray and Mrs. Nora are no longer on it (story §6): Defne
+  // brings her grandmother's cookies, Elif asks. The old frame showed them; it waits for a new one
+  // (art-prompts-v2.md §13) and the moment plays over the warm backdrop meanwhile.
   jet: [
     {
-      image: picture('jet'),
       lines: [
         { text: 'moments.jet.window' },
-        { speaker: 'nevin', face: 'laugh', text: 'moments.jet.nevin' },
-        { speaker: 'riza', face: 'warm', text: 'moments.jet.riza' },
+        { speaker: 'defne', face: 'laugh', text: 'moments.jet.defne' },
+        { speaker: 'elif', face: 'surprised', text: 'moments.jet.elif' },
         { speaker: 'hero', face: 'soft', text: 'moments.jet.hero' },
         { speaker: 'mom', face: 'tears', text: 'moments.jet.mom' },
       ],

@@ -123,6 +123,8 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
       lines: [
         { speaker: 'riza', face: 'concerned', text: 'ceremony.c4.riza' },
         { speaker: 'riza', face: 'serious', text: 'ceremony.c4.riza2' },
+        // Where the hero's watch comes from: the heirloom the hand-over gives the heir.
+        { speaker: 'riza', face: 'warm', text: 'ceremony.c4.watch' },
       ],
     },
   ],

@@ -15,7 +15,7 @@ Bu belge GPT'ye (VS Code'da) verilir. 2. neslin şehri Lumen'in **46 görselinin
 
 **Lumen'in stil cümlesi (karar 2026-10-16: A).** Lumen'deki her yer ve her eşya şu çizgide kalır; komutlarda gerektiği yerde geçiyor:
 
-> Lumen is a young modern coastal city that feels like a city of today, only a few years ahead: slim towers with trees growing on their balconies, faintly blue solar glass, now and then one small delivery drone far up in the sky. Everything at street level is ordinary and believable. NO neon, NO holograms, NO flying cars, NO floating buildings.
+> Lumen is a warm modern coastal city of today, only a few years ahead. Quiet future touches are integrated into ordinary life: solar roofs, occasional blue solar glass, energy-efficient materials and planted architecture. These are a palette of options, NOT landmarks required in every frame. Each neighborhood has its own landscape, skyline, paving and light. No recurring pair of towers. NO neon, NO holograms, NO flying cars, NO floating buildings.
 
 **Stil paragrafı (her komutun en sonuna aynen):**
 
@@ -46,7 +46,25 @@ Karar (2026-10-16, kullanıcı): Lumen'in yöneticileri de **insan**; robot yön
 
 ## 2. Evler (11 arka plan; ev 1 hazır)
 
-1. neslin ev kuralları aynen ([art-prompts-v2.md §1](./art-prompts-v2.md), [art-brief §3](./art-brief-v2.md)): ufuk %37, zemin çizgisi en çok %55, altı boş ve kuru; evi tanıtan şey %15–37 bandında; yakın evlerde (2–6) giriş sol üçte birde, uzak evlerde (7–12) ev ortanın biraz solunda. Ev zenginleştikçe uzaklaşır. Önünde duran araçlar 1. nesille aynı zincirde (§4 tablosu). Işık evden eve değişir ama hep sıcak; Lumen'in ufku (yeşil kuleler, güneş camı) her karede bir yerde görünür, en çok bir dron.
+**Çevre çeşitliliği düzeltmesi (2026-10-16):** İlk seride A referansındaki kule silueti tekrarlandı; seçili üretimler farklı mahallelerle sıfırdan yenilenir. Eski seri `-v1` olarak saklanır. A yalnız görsel dilin yönüdür, başka evlere taşınacak bir mekân şablonu değildir. Ev üretiminde önceki sahne görselleri eklenmez; kamera ve stil metinle sabitlenir. Aşağıdaki çevreler ilgili evin kendi komutuna ve ortak kuyruğuna eklenir; kule/şehir şartı içeren eski ifadelerin yerini alır. Her evin gerçek kullanılan ayrıntılı İngilizce komutu kaynak PNG yanındaki `-prompt.txt` dosyasındadır.
+
+| Ev | Ayrı çevre |
+| --- | --- |
+| 2 | Marina: alçak kayalık kıyı, sazlık ve eski depo çatıları; kule yok. |
+| 3 | İç avlu: yakın alçak yapılar ve gökyüzü; şehir silueti yok. |
+| 4 | Yaratıcı mahalle: tuğla atölyeler ve uzaktaki yuvarlak su deposu. |
+| 5 | Ağaçlı kent sokağı: sıra apartmanlar, güneşli sabah; kule yok. |
+| 6 | Site avlusu: park korusu ve kiremit çatılar, kule yok. |
+| 7 | Yeni gelişen mahalle: badem ağaçları, alçak tepeler. |
+| 8 | Aile mahallesi: meyve bahçeleri ve taş duvarlı sokaklar. |
+| 9 | Akdeniz yamacı: zeytinlikler ve uzaktaki taş mahalle. |
+| 10 | Tepedeki ev: çam sırtları, geniş körfez; kent çok küçük uzakta. |
+| 11 | Özel kıyı: açık deniz, kireçtaşı burunlar, kent silueti yok. |
+| 12 | Çatı tepesi: uzakta farklı yükseklikte yoğun şehir dokusu; ikiz kule yok. |
+
+Sabah istenen kareler açık mavi gökyüzü ve sıcak sabah ışığı kullanır; hepsi turuncu gün batımına çevrilmez. Alt %45 boş ve kuru kalır; zemin malzemeleri de evden eve değişir.
+
+1. neslin ev kuralları aynen ([art-prompts-v2.md §1](./art-prompts-v2.md), [art-brief §3](./art-brief-v2.md)): ufuk %37, zemin çizgisi en çok %55, altı boş ve kuru; evi tanıtan şey %15–37 bandında; yakın evlerde (2–6) giriş sol üçte birde, uzak evlerde (7–12) ev ortanın biraz solunda. Ev zenginleştikçe uzaklaşır. Önünde duran araçlar 1. nesille aynı zincirde (§4 tablosu). Işık evden eve değişir ama hep sıcak. **Kullanıcı düzeltmesi:** aynı yeşil kuleler ve aynı çevre tekrarlanmaz; kent silueti her karede görünmek zorunda değil. Her ev aşağıdaki ayrı mahalle/çevre tarifini kullanır. Hafif fütürizm çevredeki tek bir sessiz ayrıntıyla taşınabilir; dron da zorunlu değildir.
 
 **Kontrol et:** 1. neslin kontrol listesi ([art-prompts-v2.md §1](./art-prompts-v2.md)) + şehir hâlâ "bugün, biraz ileride" mi (neon, hologram, uçan araç yok), ev bir öncekinden belirgin biçimde daha iyi mi?
 
@@ -67,13 +85,13 @@ Karar (2026-10-16, kullanıcı): Lumen'in yöneticileri de **insan**; robot yön
 
 **Ortak kuyruk** (`{LIGHT}` ve `{FILE}` her evin satırından):
 
-> Lumen is a young modern coastal city that feels like a city of today, only a few years ahead: slim towers with trees growing on their balconies, faintly blue solar glass, now and then one small delivery drone far up in the sky. Everything at street level is ordinary and believable. References from the project: (1) `art/pilot/05-scene/lumen-home-1-a.png` — the first home in the same city: match its camera exactly (a standing adult's eye level, horizon at 37% from the top, looking straight ahead), its art style, level of detail and the look of the city; (2) `art/pilot/05-scene/home-2-flat.png` — the game's overall art style. Composition (important): the open ground fills the whole lower 45% of the image — the line where walls, steps, fences or planters meet the ground is no lower than 55% from the top, and from that line down to the bottom edge the ground is flat, dry and completely empty across the full width (two characters stand in the lower center, and a full-size car is parked behind them across the center and right, so leave about 7 metres of clear ground in front of the building). Whatever makes this home recognisable sits in the band between 15% and 37% from the top (above a standing person's eye level), because everything lower will be hidden. The ground is completely dry: no puddles, no wet reflections on the ground. Nothing important in the top 15% or the bottom 10% of the image. {LIGHT}. A frame from a 3D CG animated feature film, NO ink outlines, NO cel shading, NO flat 2D cartoon. NO neon, NO holograms, NO flying cars, NO floating buildings. NO people, NO animals, NO vehicles, NO boats, NO robots, NO bicycles, NO objects standing on the open ground, NO text, NO signs, NO logos. Save the image as `art/pilot/17-lumen/{FILE}`.
+> Lumen is a warm believable modern coastal city only a few years ahead, with quiet ordinary technology such as solar roofs, subtle blue solar glass and energy-efficient materials. Each home is in a DIFFERENT district with its own landscape, skyline, ground material and lighting as specified below. No repeated pair of green towers. Generate an entirely original scene from scratch. Do not attach earlier environment images as composition references: use the shared semi-3D style description and camera specification only, so their buildings, skyline and paving do not leak into the new scene. Camera: standing adult eye level1.6m, horizon at37%, looking straight ahead. Composition (important): the open ground fills the whole lower 45% of the image — the line where walls, steps, fences or planters meet the ground is no lower than 55% from the top, and from that line down to the bottom edge the ground is flat, dry and completely empty across the full width (two characters stand in the lower center, and a full-size car is parked behind them across the center and right, so leave about 7 metres of clear ground in front of the building). Whatever makes this home recognisable sits in the band between 15% and 37% from the top (above a standing person's eye level), because everything lower will be hidden. The ground is completely dry: no puddles, no wet reflections on the ground. Nothing important in the top 15% or the bottom 10% of the image. {LIGHT}. A frame from a 3D CG animated feature film, NO ink outlines, NO cel shading, NO flat 2D cartoon. NO neon, NO holograms, NO flying cars, NO floating buildings. NO people, NO animals, NO vehicles, NO boats, NO robots, NO bicycles, NO objects standing on the open ground, NO text, NO signs, NO logos. Save the image as `art/pilot/17-lumen/{FILE}`.
 
 ### Ev 2 · Eski Tekne Ev → `lumen-home-2-houseboat.png`
 
 1. neslin minibüsünün karşılığı: içinde yaşanan eski bir taşıt. Tekne evin kendisi; kuyruktaki "NO boats" başka tekneler içindir.
 
-> Create a NEW vertical 9:16 game background. Place: a quiet, forgotten corner of Lumen's marina, and an old houseboat moored there that someone has made into a tiny home: a faded pale-yellow wooden cabin on a flat hull, a round porthole window lit warmly, a small gangway with rope rails down to the quay, potted herbs and a string of small bulbs along the cabin roof. The houseboat lies at the back LEFT, beside the quay edge, filling roughly the left 40% of the image width; calm water only behind the quay edge, the marina's slim green towers far behind. The near ground is a wide, plain, dry concrete quay. Humble, a little makeshift, but cosy. Light: `Soft dusk light with the warm glow of the bulbs`. *(+ ortak kuyruk; NO other boats)*
+> Create a NEW vertical 9:16 game background. Place: a quiet, forgotten corner of Lumen's marina, and an old houseboat moored there that someone has made into a tiny home: a faded pale-yellow wooden cabin on a flat hull, a round porthole window lit warmly, a small gangway with rope rails down to the quay, potted herbs and a string of small bulbs along the cabin roof. The houseboat lies at the back LEFT, beside the quay edge, filling roughly the left 40% of the image width; calm water only behind the quay edge, low harbor sheds and rocky headlands far behind. The near ground is a wide, plain, dry concrete quay. Humble, a little makeshift, but cosy. Light: `Soft dusk light with the warm glow of the bulbs`. *(+ ortak kuyruk; NO other boats)*
 
 ### Ev 3 · Ortak Yaşam Odası → `lumen-home-3-coliving.png`
 
@@ -107,7 +125,7 @@ Karar (2026-10-16, kullanıcı): Lumen'in yöneticileri de **insan**; robot yön
 
 ### Ev 10 · Tepedeki Cam Ev → `lumen-home-10-hilltop.png`
 
-> Create a NEW vertical 9:16 game background. Place: a modern house of glass and warm wood on a green hilltop above Lumen, seen whole from its wide gravel forecourt about 25 metres away. A long wooden deck along the front, tall pines on one side; behind and to the right, far below the hill, the green towers of Lumen and the sea in the distance. Peaceful and exclusive, the city at her feet. The house sits slightly left of center. Light: `Golden late-afternoon light`. *(+ ortak kuyruk)*
+> Create a NEW vertical 9:16 game background. Place: a modern house of glass and warm wood on a green hilltop above Lumen, seen whole from its wide gravel forecourt about 25 metres away. A long wooden deck along the front, tall pines on one side; behind and to the right, far below the hill, a tiny distant shoreline city and the broad sea. Peaceful and exclusive, the city at her feet. The house sits slightly left of center. Light: `Golden late-afternoon light`. *(+ ortak kuyruk)*
 
 ### Ev 11 · Kıyı Malikânesi → `lumen-home-11-seafront.png`
 
@@ -117,7 +135,7 @@ Karar (2026-10-16, kullanıcı): Lumen'in yöneticileri de **insan**; robot yön
 
 Oyunun en büyük evi bu şehirde gökte: Lumen'in en uzun yeşil kulesinin tepesi.
 
-> Create a NEW vertical 9:16 game background. Place: a mansion on the very top of Lumen's tallest green tower, the biggest home in the game. The camera stands on a very wide, open rooftop forecourt of smooth light stone. At the far end, about 50 metres away, a grand glass-and-white-stone pavilion with tall glowing windows, a long reflecting pool in front of it close to the house, formal gardens of trimmed hedges and small trees on both sides. Beyond the rooftop edge, a low glass balustrade; past it only sky, the tops of the other green towers below, and the sea at the horizon. Grand and triumphant, still warm and inviting. The house sits slightly left of center. Light: `Golden early-evening light`. *(+ ortak kuyruk; the reflecting pool is far back, not on the open ground)*
+> Create a NEW vertical 9:16 game background. Place: a mansion on the very top of Lumen's tallest green tower, the biggest home in the game. The camera stands on a very wide, open rooftop forecourt of smooth light stone. At the far end, about 50 metres away, a grand glass-and-white-stone pavilion with tall glowing windows, a long reflecting pool in front of it close to the house, formal gardens of trimmed hedges and small trees on both sides. Beyond the rooftop edge, a low glass balustrade; past it only sky, a tiny irregular patchwork of varied city rooftops far below, and the sea at the horizon. Grand and triumphant, still warm and inviting. The house sits slightly left of center. Light: `Golden early-evening light`. *(+ ortak kuyruk; the reflecting pool is far back, not on the open ground)*
 
 ## 3. İşletmeler (9 ikon; Çiçek Tezgâhı 1. nesilden)
 
