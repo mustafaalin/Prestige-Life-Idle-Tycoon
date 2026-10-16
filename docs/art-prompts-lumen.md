@@ -4,7 +4,7 @@ Son güncelleme: 2026-10-16 · İlgili: [story-v2.md §6](./story-v2.md), [game-
 
 Bu belge GPT'ye (VS Code'da) verilir. 2. neslin şehri Lumen'in **46 görselinin** (yönetici 10, ev 11, işletme 9, araç 12, lüks 4) sırasını, referanslarını, kayıt yerini ve doğrudan yapıştırılacak İngilizce komutlarını içerir. Oyuna bağlama (kesim, webp, kod) Claude'un işidir (§7).
 
-**Durum:** yalnız ilk ev (kapsül oda) üretildi; geri kalanların hepsi bekliyor. Ev ve işletme adları öneri listesinden ([discussion-notes.md §3](./discussion-notes.md) madde 2, onay bekliyor); Yörünge Oteli'nin yerine Yapay Zekâ Kampüsü önerildi (§3). Liste değişirse yalnız o satırın komutu değişir.
+**Durum (2026-10-16):** Kullanıcı A hafif fütüristik stilini ve kalan 46 görselin üretimini onayladı; üretim sürüyor. Her görsel bağımsız tasarlanır, önceki varlıklardan mimari/nesne/kimlik kopyalanmaz. İlk ev (kapsül oda) hazır. Ev ve işletme adları öneri listesinden ([discussion-notes.md §3](./discussion-notes.md) madde 2, onay bekliyor); Yörünge Oteli'nin yerine Yapay Zekâ Kampüsü önerildi (§3). Liste değişirse yalnız o satırın komutu değişir.
 
 ## 0. GPT için çalışma kuralları
 
