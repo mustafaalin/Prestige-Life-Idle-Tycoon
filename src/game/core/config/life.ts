@@ -19,3 +19,9 @@ export const SECONDS_PER_YEAR = SECONDS_PER_MONTH * 12;
 export const LIFE_SECONDS = (RETIREMENT_AGE - START_AGE) * SECONDS_PER_YEAR;
 /** From this age the first hero looks like a grandfather on the scene and in the story (story-v2.md §6). */
 export const GRANDPA_AGE = 60;
+/**
+ * From the top class on, age runs this many times faster (2026-10-16, discussion-notes.md §3.5): once
+ * there is no class left to reach, the hero gets to 80 in about 2 hours of play instead of 7–14, so
+ * the wait for the hand-over stays short. The hero is ~51 at the last ceremony.
+ */
+export const TOP_CLASS_AGE_SPEED = 4;

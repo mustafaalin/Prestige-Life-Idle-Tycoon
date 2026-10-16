@@ -2,7 +2,7 @@ import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import type { EventOutcome } from '../core/config/events';
 import { SECONDS_PER_MONTH, SECONDS_PER_YEAR } from '../core/config/life';
-import { autoIncomePerSecond, fetchReward, heroAge, storyGift } from '../core/formulas';
+import { ageSpeed, autoIncomePerSecond, fetchReward, heroAge, storyGift } from '../core/formulas';
 import { earn, live } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { applyBoost, applyHelp } from './adRewards';
@@ -487,7 +487,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
           runResume();
         },
         age: (years) => {
-          act((s) => ({ ...s, game: live(s.game, years * SECONDS_PER_YEAR) }));
+          act((s) => ({ ...s, game: live(s.game, (years * SECONDS_PER_YEAR) / ageSpeed(s.game)) }));
         },
         dailyAgain: () => {
           act((s) => offerDaily({ ...s, daily: { ...s.daily, claimedDay: '', offer: null } }, clock()));

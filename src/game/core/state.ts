@@ -10,6 +10,7 @@ import { UPGRADES } from './config/upgrades';
 import { WEALTH_CLASSES } from './config/classes';
 import { heirloomDef } from './config/heirlooms';
 import {
+  ageSpeed,
   classIndexFor,
   costForUnits,
   heirloomCap,
@@ -67,10 +68,10 @@ export function createInitialState(
   };
 }
 
-/** Ages the hero by `seconds` of play; stops at the end of life. */
+/** Ages the hero by `seconds` of play (faster at the top class, formulas.ts ageSpeed); stops at the end of life. */
 export function live(state: GameStateV2, seconds: number): GameStateV2 {
   if (seconds <= 0 || state.lifeSeconds >= LIFE_SECONDS) return state;
-  return { ...state, lifeSeconds: Math.min(LIFE_SECONDS, state.lifeSeconds + seconds) };
+  return { ...state, lifeSeconds: Math.min(LIFE_SECONDS, state.lifeSeconds + seconds * ageSpeed(state)) };
 }
 
 /** Adds earned money. Earned money counts toward wealth class and legacy; spending never removes it. */

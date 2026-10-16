@@ -154,9 +154,9 @@ En iyi evde (kendi evin) yaşanıp tüm eşyalar alındığında statü toplamı
 
 ### 4.5 Hanedan / miras (`config/economy.ts`, `config/heirlooms.ts`; karar 2026-10-15, plan 2.12)
 
-- **Miras puanı:** ailenin toplam puanı `floor(10 × (toplamKazanç / 1M)^(1/3))`; devirde kazanılan = toplam − eldeki. Küpkök bilinçli: mirası ikiye katlamak 8 kat kazanç ister, resetler kartopu yapmaz (§6).
+- **Miras puanı (2026-10-16):** her nesil kendi kazancından puan bırakır: `floor(10 × (neslin kazancı / 1M)^(1/3))`; kayıtta ailenin toplam puanı durur. Küpkök bilinçli: bir neslin puanını ikiye katlamak 8 kat kazanç ister (§6). Önce puan ailenin bütün kazancından hesaplanıp eldeki düşülüyordu; geçmiş büyüdükçe her neslin payı küçülüyordu (discussion-notes §3.5). Yeni şehirde $1M o şehrin ölçeğiyle değişecek.
 - **Puan harcanır (oyunda, 2026-10-16):** puan artık otomatik +%1 değil; Aile sekmesinde (alt menüde 5. düğme) kalıcı yadigârlara harcanır, yadigârlar bütün nesillere kalır. Harcanan puan seviyelerden hesaplanır (ayrı alan yok); kayıtta `heirlooms` (yadigâr → seviye). Eski kayıtların puanı silinmez, harcanabilir olur (önceki +%1'ler düşer).
-- **Yadigârlar:** her seviye bir öncekinin iki katı; ilk varisin (2. nesil) sınırı, her nesil +1 seviye.
+- **Yadigârlar:** her seviye bir öncekinin 1,5 katı (`HEIRLOOM_PRICE_GROWTH`, 2026-10-16; önce 2 kat, etkiler toplamalı olduğu için sonraki nesiller hızlanmıyordu); ilk varisin (2. nesil) sınırı, her nesil +1 seviye. Eski kayıtlarda alınmış seviyelerin bedeli düştüğü için harcanabilir puan artar.
 
 | Yadigâr | Etki / seviye | İlk fiyat | 2. nesil sınırı (en çok) |
 | --- | --- | --- | --- |
@@ -167,8 +167,7 @@ En iyi evde (kendi evin) yaşanıp tüm eşyalar alındığında statü toplamı
 | Aile albümü | Tören ve hayat anı hediyesi +%25. Varisin törenleri 2. nesil içeriğiyle gelene kadar satılmaz ("Torununun törenleriyle açılır", `comingSoon`; alınmış seviyeler kalır) | 150 | 3 (6) |
 
 - **Erken devir (oyunda):** En Zengin'den sonra Aile sekmesi açılır (önce kilitli: "Dünyanın En Zengini olunca açılır"): canlı "Varisine bırakacağın +N itibar puanı", "Kal, biriktir" (sekmeyi kapatır) ve "Şimdi devret" (onay: "Kalan yıllar atlanır; 80 yaşında torununa devredersin"). Devret kalan yılları atlar (`handOverEarly`: ömür 80'de biter), ardından ömür sonu paneli. Hikâye anları (torunun doğumu 63, dede ve torun 70, devir 80) görsellerle gelecek. Sekmede "!": alınabilir yadigâr varsa, ya da devir seçimi açıkken oturumda bir kez. Analitik `hand_over_early`, `heirloom_buy`.
-- **Varisin hızı (simülatör 2026-10-16, bot puanını hemen harcar: önce saat, sonra en ucuzu):** bağlı oyuncunun 2. nesli En Zengin'e erken devirde (~1.000 puan) 4 sa 26 dk, 80 yaşta devirde (~2.500 puan) 3 sa 56 dk oyunda (önce 40 dk; 1. nesil 9 sa 11 dk). Casual 3 sa, reklam izleyen 3 sa 2 dk, reklam + fular + yakut 1 sa 44 dk – 2 sa. Başlangıç çarpanına göre süre: ×1 9 sa 11 dk, ×1,5 6 sa 16 dk, ×2 4 sa 52 dk, ×3 3 sa 28 dk, ×5 2 sa 18 dk. Simülatör: `npm run sim -- --days 60 --retire-at-top` (erken devir), `startLegacyPoints` seçeneği.
-- **Açık (2. nesil içeriğiyle):** 2. nesil yalnız ~260 puan bırakıyor (küpkök bütün nesillerin toplamına bakıyor), 3. nesil 2.'den hızlı değil. Yeni şehirle puan her neslin kendi şehrine göre hesaplanacak.
+- **Varisin hızı (simülatör 2026-10-16, bot puanını hemen harcar: önce saat, sonra en ucuzu):** bağlı oyuncu, 80 yaşta devrederek: 1. nesil 1.242 puan bırakır; 2. nesil En Zengin'e 4,0 sa, 5. nesil 2,7 sa, 8. nesil 2,4 sa oyunda varır; bir ömür 7,2 → 6,0 sa, bıraktığı puan 2.479 → 4.271. Hep erken devrederek her nesil ~1.000 puan, zirve 4,0 → 2,7 sa. Ömrü doldurmak saat başı daha çok puan verir (~460'a ~300), erken devir cezalandırılmaz (tablo discussion-notes §3.5). Aşağıdaki süreler paketten önceki 2. nesil ölçümüdür: Casual 3 sa, reklam izleyen 3 sa 2 dk, reklam + fular + yakut 1 sa 44 dk – 2 sa. Başlangıç çarpanına göre süre: ×1 9 sa 11 dk, ×1,5 6 sa 16 dk, ×2 4 sa 52 dk, ×3 3 sa 28 dk, ×5 2 sa 18 dk. Simülatör: `npm run sim -- --days 60 --retire-at-top` (erken devir), `startLegacyPoints` seçeneği.
 - **Varis neden en dipten başlar (karar 2026-10-16):** dedenin servetini ortağı Burak kazıkla alır; yadigârlar ve birkaç Çiçek Tezgâhı kalır, 2. neslin hedefi Zenginler Listesi'nin 1. sırasındaki Burak'ı geçmek ([story-v2.md §6a](./story-v2.md)).
 - **Kararlaşan, henüz yapılmayan:** her nesil yeni şehirde (işletmeler, evler, fiyat, gelir ve eşikler aynı oranda büyür; hızı yadigârlar belirler; varis kiralık odadan ve dedenin Çiçek Tezgâhı'yla başlar, öneri). Varisler: 2. nesil kız torun (sabit), 3. nesil erkek (ilk kahramanın görselleri), sonra kadın-erkek sırayla; kahraman 60 yaştan sonra dede görünümünde, 2. nesilde rehber ([story-v2.md §6](./story-v2.md)). Görünür miras, yadigârlar ve 2. nesil içeriği birlikte yayınlanır.
 
@@ -230,14 +229,14 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranı
 | --- | --- |
 | Başlangıç yaşı | 17 (varis de 17'den başlar) |
 | Emeklilik yaşı | 80 (63 yıl; 2026-10-11, önce 97). Varis torun kahraman 63 yaşındayken doğar, devirde 17 olur |
-| Oyun ayı | 80 saniye oyun = 1 ay; 16 dakika = 1 yaş; bir ömür ≈ 17 saat oyun (2026-10-09) |
+| Oyun ayı | 80 saniye oyun = 1 ay; 16 dakika = 1 yaş (2026-10-09). En Zengin'den sonra yaş 4 kat hızlı (`TOP_CLASS_AGE_SPEED`, 2026-10-16): 51'den 80'e ~2 saat; bir ömür ≈ 11 saat oyun |
 | Yaş ne zaman ilerler | Sadece oyun açıkken. Uzaktayken para birikir ama yaşlanmazsın. 10 sn'den uzun boşluk çevrimdışı sayılır |
 | Ömür sonu | "Bir ömür tamamlandı" paneli (hayattan kareler, işletme özeti, aile itibarı) → Emekli ol ve devret. Ölüm gösterilmez; vakıf töreni 2.1'de |
 | Gösterim | Üst barda "24 yaş" |
 
 - Tam ekran hikâye anlarında (tören, hayat anı) yaş durur.
 - **Hayat anları (karar 2026-10-11):** yaş, hikâyenin ikinci saatidir. Belirli yaşlarda kahramanın hayatından tek karelik anlar oynar (buluşma, düğün, çocuğun doğumu...); sınıf törenleri paraya, hayat anları yaşa bağlıdır. Liste ve kurallar [story-v2.md §4c](./story-v2.md).
-- En Zengin'den sonraki yılları (59 → 80) hayat anları doldurur (torunun doğumu, devir; testten sonra). Engaged bot En Zengin'e 51, casual 40 yaşında ulaşıyor; ömür sonu engaged botta 25. gün (16 sa 48 dk oyun).
+- En Zengin'den sonraki yılları hayat anları doldurur (torunun doğumu 63, dede ve torun 70, devir 80). Engaged bot En Zengin'e 51, casual 40 yaşında ulaşıyor; ömür sonu engaged botta 16. gün (11 sa 5 dk oyun), casual'da 35. gün (8 sa 49 dk). Yaşın hızlanmasından önce zirve sonrası 7,6–13,7 saat hedefsiz oyundu (discussion-notes §3.5).
 
 ### 4.10 Hedefler (`config/quests.ts`)
 
@@ -307,7 +306,7 @@ Güncel sonuç (2026-10-15, günlük ödül ve yatırımla; hedefler `src/game/s
 | İlk milyarder | 2. gün 20:00 – 7. gün (alt sınır 2026-10-15'te 3. günden indi: gümüş tasma) | 2. gün 23:00, 1 sa 22 dk (22 yaş) | 4. gün |
 | İlk multimilyarder | 8–14. gün | **7. gün 08:00, 4 sa 17 dk (33 yaş): hedefin altında, simülatör bu satırda FAIL veriyor** (karar bekliyor, [discussion-notes.md §4](./discussion-notes.md)) | 13. gün |
 | İlk "en zengin" | 14–21. gün | 14. gün 08:00, 9 sa 11 dk (51 yaş) | 25. gün (40 yaş) |
-| İlk ömür sonu (80 yaş) | 21–37. gün | 25. gün (16 sa 48 dk oyun) | 45 günde gelmiyor |
+| İlk ömür sonu (80 yaş) | 15–21. gün (2026-10-16; önce 21–37, yaş zirveden sonra hızlandı) | 16. gün (11 sa 5 dk oyun) | 35. gün (8 sa 49 dk) |
 
 **His kontrolleri (`checkFeel`):** Tempo hedefleri tutarken işletmeler yan gelire düşebiliyor (eski bir ayarda Gündelikçi anında işletme payı %3'tü). Simülatör şunları da bekler: her işletmenin ilk biriminin turu ≥ $1; işletmelerin gelirdeki payı (toplama hariç) Gündelikçi anında, ilk oturumun sonunda ve 1. nesil oturumlarının ortancasında ≥ %50. Şu an: tur en az $1, pay %84 / %91 / %98. `npm run sim -- --purchases --timeline` her alımı zaman çizelgesinde gösterir.
 

@@ -27,10 +27,10 @@ export const OFFLINE_CAP_HOURS_BY_CLASS = [1 / 6, 0.25, 0.5, 1, 2, 2, 2, 2];
 /** The longest cap (the late game). */
 export const OFFLINE_CAP_HOURS = Math.max(...OFFLINE_CAP_HOURS_BY_CLASS);
 
-/** Legacy points = floor(LEGACY_SCALE × (totalEarnings / LEGACY_BASE) ^ LEGACY_EXPONENT). */
+/** Legacy points a generation leaves = floor(LEGACY_SCALE × (its earnings / LEGACY_BASE) ^ LEGACY_EXPONENT). */
 export const LEGACY_SCALE = 10;
 export const LEGACY_BASE = 1e6;
-/** Cube root: doubling the family legacy takes 8× the lifetime earnings, which keeps resets from snowballing. */
+/** Cube root: doubling a generation's points takes 8× its earnings, which keeps resets from snowballing. */
 export const LEGACY_EXPONENT = 1 / 3;
 
 export const STARTING_CASH = 0;

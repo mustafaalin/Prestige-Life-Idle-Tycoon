@@ -1,4 +1,4 @@
-import { LIFE_SECONDS, SECONDS_PER_MONTH, SECONDS_PER_YEAR, START_AGE } from './config/life';
+import { LIFE_SECONDS, SECONDS_PER_MONTH, SECONDS_PER_YEAR, START_AGE, TOP_CLASS_AGE_SPEED } from './config/life';
 import { BUSINESSES } from './config/businesses';
 import { CAREERS } from './config/careers';
 import { WEALTH_CLASSES } from './config/classes';
@@ -15,7 +15,7 @@ import {
   TAP_BASE,
   TAP_INCOME_SECONDS,
 } from './config/economy';
-import { HEIRLOOMS, JAM_FIRST_CASH, NOTEBOOK_MIN_SHARE, heirloomDef, type HeirloomDef, type HeirloomId } from './config/heirlooms';
+import { HEIRLOOMS, HEIRLOOM_PRICE_GROWTH, JAM_FIRST_CASH, NOTEBOOK_MIN_SHARE, heirloomDef, type HeirloomDef, type HeirloomId } from './config/heirlooms';
 import {
   EVENT_BOLD_CHANCE,
   EVENT_CARDS,
@@ -139,7 +139,7 @@ export function heirloomCap(def: HeirloomDef, generation: number) {
 
 /** What the next level costs when `level` are owned. */
 export function heirloomPrice(def: HeirloomDef, level: number) {
-  return def.firstCost * 2 ** level;
+  return Math.round(def.firstCost * HEIRLOOM_PRICE_GROWTH ** level);
 }
 
 /** Legacy points spent on heirlooms so far (worked out from their levels). */
@@ -359,6 +359,11 @@ export function isLifeOver(state: GameStateV2) {
   return state.lifeSeconds >= LIFE_SECONDS;
 }
 
+/** How many seconds of life one second of play is: faster once the top class is reached. */
+export function ageSpeed(state: GameStateV2) {
+  return state.classIndex === WEALTH_CLASSES.length - 1 ? TOP_CLASS_AGE_SPEED : 1;
+}
+
 // ── Wealth class and legacy ───────────────────────────────────────────────────
 
 /**
@@ -381,18 +386,19 @@ export function classIndexFor(generationEarnings: number) {
   return index;
 }
 
-/** Legacy points a family has earned in total, from earnings across all generations. */
-export function legacyPointsFor(totalEarnings: number) {
-  if (totalEarnings <= 0) return 0;
-  return Math.floor(LEGACY_SCALE * (totalEarnings / LEGACY_BASE) ** LEGACY_EXPONENT);
+/** Legacy points a generation leaves, from what it earned. */
+export function legacyPointsFor(earnings: number) {
+  if (earnings <= 0) return 0;
+  return Math.floor(LEGACY_SCALE * (earnings / LEGACY_BASE) ** LEGACY_EXPONENT);
 }
 
 /**
- * Points gained by retiring now. Based on all-time earnings minus points already held, so
- * retiring again and again early gives little; each generation must out-earn the family history.
+ * Points gained by retiring now: from this generation's own earnings (2026-10-16; was all-time earnings
+ * minus points held, which shrank every generation's share). Handing over at the top gives about the
+ * same each time; living on to 80 gives more (discussion-notes.md §3.5).
  */
 export function pendingLegacyPoints(state: GameStateV2) {
-  return Math.max(0, legacyPointsFor(state.totalEarnings) - state.legacyPoints);
+  return legacyPointsFor(state.generationEarnings);
 }
 
 // ── Rich List ─────────────────────────────────────────────────────────────────

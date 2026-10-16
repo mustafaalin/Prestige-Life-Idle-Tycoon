@@ -180,6 +180,7 @@ Hikâyenin ikinci saati yaştır. Sınıf törenleri paraya bağlı olduğu içi
 - Kapanış kartı yok: son balon ya da "Geç" anı bitirir. Başlık "28 yaş · Düğün".
 - Aradaki yıllar görselleştirilmez.
 - Kahramanın kızı vardır (cinsiyet sabit, karar 2026-10-11); adını oyuncu verir (doğum anından sonra sorulur; varsayılan **Elif** / **Ella**, en fazla 16 karakter, tek dokunuşla geçilir).
+- En Zengin'den sonra yaş 4 kat hızlı akar (2026-10-16, game-design §4.9): 51'den 80'e ~2 saat oyun; aşağıdaki 63, 70 ve 80 süreleri buna göre.
 - Kahramanın görünümü şimdilik yaşlanmaz (karar 2026-10-11: sonra bakılacak; [discussion-notes.md §1](./discussion-notes.md)).
 
 | Yaş | Oyun süresi (engaged bot) | An | Ön koşul | Faz |
@@ -193,10 +194,10 @@ Hikâyenin ikinci saati yaştır. Sınıf törenleri paraya bağlı olduğu içi
 | 45 | ~7,5 sa | Burak'la ortaklık (§6a) | Multimilyarder töreni | Karar 2026-10-16, yapılmadı |
 | 49 | ~8,5 sa (13. gün) | Mezuniyet | Doğum | Testten sonra |
 | 51 | 9 sa 11 dk (14. gün) | En Zengin töreni (sınıf töreni, oyunda) | | 1 |
-| 63 | ~12 sa 15 dk (19. gün) | Torunu doğar; adını oyuncu verir (Elif sorar) | Doğum | Oyunda (2026-10-16) |
-| 70 | ~14 sa (22. gün) | Dede ve torun: çiçek tezgâhı | Torun | Oyunda (2026-10-16) |
-| 80 | 16 sa 48 dk (25. gün) | Kazık: Burak şirketlere el koyar (§6a); devir anından önce, hediye yok | Ortaklık | Karar 2026-10-16, yapılmadı |
-| 80 | 16 sa 48 dk (25. gün) | Torun 17 yaşında: *"Dede, bana ilk işini öğretir misin?"* → devir (§6); hediye yok, emeklilik paneli onu bekler | Torun | Oyunda (2026-10-16) |
+| 63 | ~10 sa (15. gün) | Torunu doğar; adını oyuncu verir (Elif sorar) | Doğum | Oyunda (2026-10-16) |
+| 70 | ~10,5 sa (15. gün) | Dede ve torun: çiçek tezgâhı | Torun | Oyunda (2026-10-16) |
+| 80 | 11 sa 5 dk (16. gün) | Kazık: Burak şirketlere el koyar (§6a); devir anından önce, hediye yok | Ortaklık | Karar 2026-10-16, yapılmadı |
+| 80 | 11 sa 5 dk (16. gün) | Torun 17 yaşında: *"Dede, bana ilk işini öğretir misin?"* → devir (§6); hediye yok, emeklilik paneli onu bekler | Torun | Oyunda (2026-10-16) |
 
 **Faz 1 metinleri (3 an, 11 balon + isim sorusu; oyunda, `moments.*`; senaryo `ui/story/lifeScript.ts`):**
 

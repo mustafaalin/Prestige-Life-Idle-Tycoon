@@ -38,8 +38,9 @@ export const PACING_TARGETS: PacingTarget[] = [
   { label: 'First Billionaire', find: firstClass('Billionaire'), measure: 'clock', min: DAY + 20 * 3600, max: 6 * DAY },
   { label: 'First Multibillionaire', find: firstClass('Multibillionaire'), measure: 'clock', min: 7 * DAY, max: 13 * DAY },
   { label: 'First Richest Person Alive', find: firstClass('Richest Person Alive'), measure: 'clock', min: 13 * DAY, max: 20 * DAY },
-  // Single life (§4.9): the first hand-over to the heir comes when the hero's life ends (~17 h played).
-  { label: `First life ends (age ${RETIREMENT_AGE})`, find: (e) => e.find((x) => x.kind === 'retire'), measure: 'clock', min: 20 * DAY, max: 36 * DAY },
+  // Single life (§4.9): the first hand-over comes when the hero's life ends (~11 h played). Age runs 4×
+  // after the top class (config/life.ts), so it is a day or three after Richest (2026-10-16; was D21–D37).
+  { label: `First life ends (age ${RETIREMENT_AGE})`, find: (e) => e.find((x) => x.kind === 'retire'), measure: 'clock', min: 14 * DAY, max: 20 * DAY },
 ];
 
 export function formatClock(seconds: number) {
