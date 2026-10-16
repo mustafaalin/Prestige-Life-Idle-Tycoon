@@ -105,7 +105,7 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
               type="button"
               onClick={talk}
               aria-label={managerName}
-              className="v2-hit absolute -left-1.5 -bottom-2.5 flex transition-all active:scale-95"
+              className="v2-hit absolute -left-2.5 -bottom-2.5 flex transition-all active:scale-95"
             >
               <Chip>
                 <img

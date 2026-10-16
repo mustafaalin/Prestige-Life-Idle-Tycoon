@@ -2,7 +2,7 @@
 
 Son güncelleme: 2026-10-16 · İlgili: [story-v2.md §4c, §6, §8](./story-v2.md), [game-design-v2.md §4.5](./game-design-v2.md), [art-brief-v2.md](./art-brief-v2.md) (genel kurallar, ekran haritası), [discussion-notes.md §3](./discussion-notes.md)
 
-**Üretim durumu (2026-10-16):** K1 `art/pilot/16-dynasty/grandpa-sheet.png` ve yanında `grandpa-sheet-prompt.txt` üretildi (1536×1024 PNG). Eller yakın planda, kimlik/saat ve portre yerleşimi görsel olarak kontrol edildi. §0.1 gereği K1 kullanıcı değerlendirmesinde; K2–K4, pozlar, hikâye kareleri ve ikonlar henüz üretilmedi. Runtime entegrasyonu yapılmadı.
+**Üretim durumu (2026-10-16):** K1 dede onaylandı. Kullanıcının sıradaki görsele geçme talebiyle K2 yaşlı Defne tamamlanmış kabul edildi. K3 `art/pilot/16-dynasty/elif-sheet.png` ve `elif-sheet-prompt.txt` üretildi (1536×1024); eller yakın planda, aile benzerliği ve dört ifadenin tutarlılığı görsel olarak kontrol edildi. §0.1 gereği K3 kullanıcı değerlendirmesinde. K4 Ada, dede pozları, hikâye kareleri ve ikonlar henüz üretilmedi. Runtime entegrasyonu yapılmadı.
 
 Bu belge GPT'ye (VS Code'da) verilir. Devrin hikâye anları ve Aile sekmesi için gereken **14 görselin** sırasını, referanslarını, kayıt yerini ve doğrudan yapıştırılacak İngilizce komutlarını içerir. Oyuna bağlama (kesim, webp, kod) Claude'un işidir (§6).
 
@@ -196,5 +196,7 @@ Görseller geldikten sonra Claude'un yapacakları:
 | P1–P3 | `public/assets/scene/hero-grandpa-{idle,joy,pet-sans}.webp` | `scripts/cutout.sh` ile kesim; 60 yaştan sonra sahnede kıyafet pozunun yerine geçer, `stages.ts` |
 | S1–S3 | `public/assets/story/life/{grandchild,grandpa,handover}.webp` | 1080 px webp; `ui/story/lifeScript.ts`, metinler `moments.*` (TR + EN) |
 | I1–I4 + `family-album.png` | `public/assets/icons/v2/heirloom-*.webp` | Kesim kontrolü, 256 px webp; `ui/family/FamilyScreen.tsx` renkli kutuların yerine |
+
+Kod hazır (2026-10-16), görseller gelince yalnızca bekleme listelerinden çıkarılır: portreler `ui/story/ceremonyScript.ts` `PORTRAITS_TO_COME` (o zamana kadar konuşan yalnızca adıyla, dede smokinli kahramanın yüzüyle), kareler `ui/story/lifeScript.ts` `PANELS_TO_COME`, dede pozları `ui/scene/stages.ts` `GRANDPA_ART` (şimdilik `null`; 60 yaştan sonra 1. nesilde kullanılır).
 
 Ayrıca: story §8 tablosu ve art-brief §5 güncellenir, `npm run backup`.

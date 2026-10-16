@@ -10,6 +10,9 @@ export interface CoinBurst {
   label?: string;
 }
 
+/** About how long the biggest burst takes to reach the wallet; a card opened sooner would have coins flying over it. */
+export const COINS_LAND_MS = 1600;
+
 const burstListeners = new Set<(burst: CoinBurst) => void>();
 const hitListeners = new Set<() => void>();
 

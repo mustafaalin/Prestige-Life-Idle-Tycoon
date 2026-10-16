@@ -31,6 +31,7 @@ export type AnalyticsEvent =
   | 'story_gift'
   | 'review_prompt'
   | 'daughter_named'
+  | 'grandchild_named'
   | 'notification_prompt'
   | 'notification_open'
   | 'tutorial_step'

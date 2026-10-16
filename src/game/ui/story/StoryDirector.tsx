@@ -1,5 +1,6 @@
 import { STORY_GIFT_FROM_CLASS } from '../../core/config/economy';
-import { useEffect, useState } from 'react';
+import { RETIREMENT_AGE } from '../../core/config/life';
+import { useEffect, useRef, useState } from 'react';
 import { isLifeOver, offlineCapHours, offlineEarnings } from '../../core/formulas';
 import { applyClassFloors, createInitialState } from '../../core/state';
 import { useT } from '../../i18n/useT';
@@ -12,12 +13,14 @@ import {
 } from '../../runtime/notifications';
 import {
   daughterNeedsName,
+  grandchildNeedsName,
   LIFE_MOMENT_GAP_MS,
   LIFE_MOMENTS,
   luxuryMomentsBelow,
   MOM_MESSAGES,
   MOM_MIN_GAP_MS,
   momMessageOnReturn,
+  nameNeeded,
   nextMomMessage,
   pendingCeremony,
   pendingLifeMoment,
@@ -25,9 +28,11 @@ import {
   type LifeMomentId,
 } from '../../runtime/story';
 import { useGameV2, useGameV2Events } from '../../runtime/useGameV2';
+import { adsUnlocked } from '../../runtime/adRewards';
 import { offerCardDue } from '../../runtime/purchases';
 import { requestReview, reviewDue } from '../../runtime/review';
 import { RichMoment } from '../richList/RichList';
+import { COINS_LAND_MS } from '../home/coins';
 import { DailyCard } from '../home/DailyCard';
 import { OfferCard } from '../shop/OfferCard';
 import { Ceremony, LifeMoment } from './Ceremony';
@@ -35,6 +40,7 @@ import { portraitOf } from './ceremonyScript';
 import { MomMessage, NotifyPrompt } from './MomMessage';
 import { NameSheet } from './NameSheet';
 import { onStoryRequest } from './storyEvents';
+import { YearsPassed } from './YearsPassed';
 
 // Decides which story moment is on screen (story-v2.md §4): a waiting class-up ceremony first, then a
 // life moment whose age has come (§4c), then (after the offline card) the day's reward, then Mom's
@@ -71,17 +77,37 @@ export function StoryDirector({
   // Away time of the latest return; the effect below reads it with fresh state.
   const [returned, setReturned] = useState<{ awaySeconds: number } | null>(null);
   const [devMomIndex, setDevMomIndex] = useState(0);
+  // "Hand over now": the age the hero had, while the skipped years pass on screen.
+  const [yearsFrom, setYearsFrom] = useState<number | null>(null);
+  // The offline card was just collected: its coins are still flying to the wallet, so the next card waits.
+  const [landing, setLanding] = useState(false);
+  const offlineOpen = state.offline !== null;
+  const wasOffline = useRef(offlineOpen);
+  useEffect(() => {
+    if (wasOffline.current && !offlineOpen) setLanding(true);
+    wasOffline.current = offlineOpen;
+  }, [offlineOpen]);
+  useEffect(() => {
+    if (!landing) return;
+    const timer = window.setTimeout(() => setLanding(false), COINS_LAND_MS);
+    return () => window.clearTimeout(timer);
+  }, [landing]);
 
   // `hold`: the family album is playing a moment again; a new one waits until it is over.
-  const ceremony = hold ? null : (replay ?? pendingCeremony(game, state.story));
-  // A life moment never cuts into a shop sheet, a card or the end of life: it waits for the home scene.
-  const lifeCanPlay =
-    ceremony === null && !quiet && !tabOpen && !state.offline && !mom && !askNotify && !isLifeOver(game);
+  const ceremony = hold || yearsFrom !== null ? null : (replay ?? pendingCeremony(game, state.story));
+  // At the end of life the last moments (grandchild, grandpa, hand-over) play one after another before
+  // the retirement panel; during a life one story beat at a time.
+  const ending = isLifeOver(game);
+  // A life moment never cuts into a shop sheet, a card or an open name question: it waits for the home scene.
+  const calm = ceremony === null && yearsFrom === null && !landing && !tabOpen && !state.offline && !mom && !askNotify;
+  const lifeCanPlay = calm && !nameNeeded(state.story) && (ending || !quiet);
   const life = hold ? null : (replayLife ?? (lifeCanPlay ? (pendingLifeMoment(game, state.story)?.id ?? null) : null));
   const playing = ceremony !== null || life !== null;
-  const rich = lifeCanPlay && life === null && !daughterNeedsName(state.story) ? pendingRichMoment(game, state.story) : null;
+  // The lighter cards wait for a quiet moment of a life still going.
+  const extrasCanPlay = lifeCanPlay && !quiet && !ending && life === null;
+  const rich = extrasCanPlay ? pendingRichMoment(game, state.story) : null;
   // The welcome card for the limited offer: once, at a quiet moment with nothing else on screen.
-  const offer = lifeCanPlay && life === null && rich === null && !daughterNeedsName(state.story) && offerCardDue(state, Date.now());
+  const offer = extrasCanPlay && rich === null && offerCardDue(state, Date.now());
 
   useEffect(() => {
     if (!playing) return;
@@ -120,6 +146,8 @@ export function StoryDirector({
           setReplay(request.classIndex);
         } else if (request.type === 'life') {
           setReplayLife(request.id);
+        } else if (request.type === 'years') {
+          setYearsFrom(request.fromAge);
         } else {
           setMom({ id: MOM_MESSAGES[devMomIndex % MOM_MESSAGES.length].id, dev: true });
           setDevMomIndex(devMomIndex + 1);
@@ -147,7 +175,22 @@ export function StoryDirector({
     const invest = deal
       ? { title: t('ceremony.cast.riza'), body: t('invest.notifyBody'), at: Math.max(now, deal.until) }
       : null;
-    void scheduleReminders({ lucky, mom: momReminder, invest }, t('notify.channel'));
+    // The day's reward: from tomorrow morning, once rewards are offered at all (runtime/daily.ts).
+    const tomorrow = new Date(now);
+    tomorrow.setHours(24, 0, 0, 0);
+    const daily = adsUnlocked(state)
+      ? { title: t('notify.dailyTitle'), body: t('notify.dailyBody'), at: tomorrow.getTime() }
+      : null;
+    // At the end of life only the heir writes: nothing else moves until the hand-over.
+    if (isLifeOver(game)) {
+      const heir = state.story.grandchildName || t('moments.grandchildDefault');
+      void scheduleReminders(
+        { retire: { title: t('life.title'), body: t('notify.retireBody', { name: heir }), at: now + 3 * 3600 * 1000 } },
+        t('notify.channel'),
+      );
+      return;
+    }
+    void scheduleReminders({ lucky, mom: momReminder, invest, daily }, t('notify.channel'));
   }
 
   const finishCeremony = (classIndex: number, skipped: boolean, giftMultiplier?: number) => {
@@ -178,6 +221,10 @@ export function StoryDirector({
 
   if (hold) return null;
 
+  if (yearsFrom !== null) {
+    return <YearsPassed from={yearsFrom} to={RETIREMENT_AGE} onDone={() => setYearsFrom(null)} />;
+  }
+
   if (ceremony !== null) {
     const step = replay !== null ? storyStep(ceremony) : { before: actions.story.classUpFrom(ceremony), now: game };
     return (
@@ -192,13 +239,14 @@ export function StoryDirector({
   }
 
   if (life !== null) {
-    // The moments told by age close with a gift; the luxury moments follow a purchase and do not.
-    const gift = replayLife === null && LIFE_MOMENTS.some((moment) => moment.id === life);
+    // The moments told by age close with a gift; the luxury moments follow a purchase and do not, and
+    // nothing does once the life is over (the money would only go to the heir's legacy by a hair).
+    const gift = replayLife === null && !ending && LIFE_MOMENTS.some((moment) => moment.id === life && moment.gift !== false);
     return <LifeMoment key={life} id={life} gift={gift} onDone={(skipped, giftMultiplier) => finishLife(life, skipped, giftMultiplier)} />;
   }
 
   // Right after the birth; also on the next opening if the app closed before she was named.
-  if (daughterNeedsName(state.story) && !state.offline) {
+  if (daughterNeedsName(state.story) && !state.offline && !landing) {
     return (
       <NameSheet
         speaker={t('ceremony.cast.defne')}
@@ -211,6 +259,25 @@ export function StoryDirector({
         onDone={(name) => {
           actions.story.setDaughterName(name);
           track('daughter_named', { is_default: name === t('moments.defaultName') });
+        }}
+      />
+    );
+  }
+
+  // The heir is named the same way, by her mother.
+  if (grandchildNeedsName(state.story) && !state.offline && !landing) {
+    return (
+      <NameSheet
+        speaker={state.story.daughterName || t('moments.defaultName')}
+        portrait={portraitOf('elif', 'smile')}
+        tone="emerald"
+        question={t('moments.grandchildAsk')}
+        label={t('moments.grandchildLabel')}
+        defaultName={t('moments.grandchildDefault')}
+        confirm={t('moments.nameOk')}
+        onDone={(name) => {
+          actions.story.setGrandchildName(name);
+          track('grandchild_named', { is_default: name === t('moments.grandchildDefault') });
         }}
       />
     );
@@ -230,7 +297,7 @@ export function StoryDirector({
   }
 
   // The day's reward: after the offline card and any story beat of this opening, before the lighter cards.
-  if (lifeCanPlay && life === null && state.daily.offer) {
+  if (extrasCanPlay && state.daily.offer) {
     return <DailyCard offer={state.daily.offer} onCollected={() => setQuiet(true)} />;
   }
 
@@ -254,7 +321,7 @@ export function StoryDirector({
     return <OfferCard onLook={() => done(true)} onLater={() => done(false)} />;
   }
 
-  if (mom && !state.offline) {
+  if (mom && !state.offline && !landing) {
     return (
       <MomMessage
         messageId={mom.id}

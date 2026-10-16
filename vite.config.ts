@@ -1,4 +1,4 @@
-import { rmSync } from 'node:fs';
+import { readdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -24,6 +24,9 @@ const V1_ONLY_ASSETS = [
   'outfits',
 ];
 
+/** Folders whose loose files are v1's; v2's own pictures sit in their `v2/` subfolder (~3.5 MB). */
+const V1_LOOSE_FILES = ['icons', 'vehicles'];
+
 /** Keeps v1's pictures out of the v2 build, so they are not shipped inside the app. */
 function dropV1Assets(): Plugin {
   let outDir = 'dist';
@@ -35,6 +38,12 @@ function dropV1Assets(): Plugin {
     },
     closeBundle() {
       for (const folder of V1_ONLY_ASSETS) rmSync(resolve(outDir, 'assets', folder), { recursive: true, force: true });
+      for (const folder of V1_LOOSE_FILES) {
+        const dir = resolve(outDir, 'assets', folder);
+        for (const entry of readdirSync(dir, { withFileTypes: true })) {
+          if (entry.isFile()) rmSync(resolve(dir, entry.name), { force: true });
+        }
+      }
     },
   };
 }

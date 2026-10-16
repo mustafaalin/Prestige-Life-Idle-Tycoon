@@ -119,8 +119,19 @@ const TENT_LOOK: HeroLook = {
   idle: { src: `${DIR}/hero-street-idle.webp`, height: 0.4, aspect: 0.34, x: 0.4 },
 };
 
-/** The hero in an outfit; `houseId` is where he lives (left out: any home but the tent). */
-export function heroLook(outfitIndex: number, houseId?: string): HeroLook {
+/**
+ * The first hero from 60 on (story-v2.md §6): one grandfather look whatever he wears (the outfit's
+ * bonus stays). Null until its poses are in (docs/art-prompts-dynasty.md P1–P3); he keeps his outfit.
+ */
+const GRANDPA_ART = null as HeroArt | null;
+const GRANDPA_LOOK: HeroLook | null = GRANDPA_ART ? { ...GRANDPA_ART, collect: GRANDPA_ART.collect ?? GRANDPA_ART.idle } : null;
+
+/**
+ * The hero in an outfit; `houseId` is where he lives (left out: any home but the tent). `grandpa`:
+ * the first hero is 60 or older.
+ */
+export function heroLook(outfitIndex: number, houseId?: string, grandpa = false): HeroLook {
+  if (grandpa && GRANDPA_LOOK) return GRANDPA_LOOK;
   const look = HERO_LOOKS[Math.min(Math.max(outfitIndex, 0), HERO_LOOKS.length - 1)];
   return look === HERO_LOOKS[0] && houseId === HOUSES[0].id ? TENT_LOOK : look;
 }

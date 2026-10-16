@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-15 · Dal: `v2-rebuild` · Son sürüm: **AAB 29** (`versionCode` 29, `versionName` 2.0)
+Son güncelleme: 2026-10-16 · Dal: `v2-rebuild` · Son sürüm: **AAB 29** (`versionCode` 29, `versionName` 2.0)
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve Faz 2.11'de kaldırılacak. Bu belge günlük tutmaz: her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**. Kararların gerekçesi ve sayılar ilgili belgededir; burada yalnızca özet ve yapılacaklar durur.
 
@@ -33,7 +33,17 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 - **Para:** 6 ödüllü reklam yeri (çevrimdışı +%30, Şans ×2, 1 saatlik ×2, biraz yardım, hediye ×2, günlük ödül ×2); Mağaza ve 3 ürün (Rahat Paket $7,99; Başlangıç Paketi $2,99, ilk 3 gün hoş geldin fiyatı $1,49); geri yükleme; Play puanlama penceresi (Milyoner'den sonra).
 - **Altyapı:** kayıt Preferences'ta, Android geri tuşu, güvenli alanlar, yerel bildirimler, Firebase Analytics, TR + EN.
 
-## Son oturum (2026-10-14 → 15)
+## Son oturum (2026-10-16)
+
+GPT devir görsellerini üretirken (komutlar [art-prompts-dynasty.md](./art-prompts-dynasty.md)) görselden bağımsız işler yapıldı. Tarayıcıda denendi, telefonda denenmedi.
+
+- **Devir hikâye anları:** 63 (torunun doğumu, adını Elif sorar, varsayılan Ada), 70 (dede ve torun, çiçek tezgâhı), 80 ("Babamın saati", otogar). Metinler [story-v2.md §4c](./story-v2.md). "Şimdi devret" Aile sekmesini kapatır, "Yıllar geçti…" ekranı yaşı 80'e sayar, sonra anlar arka arkaya oynar; emeklilik paneli anlar ve isim bitince açılır. Paneldeki yeni etiket: "Varisin: Ada". Kayıtta yeni alan `story.grandchildName` (varsayılan `''`).
+- **Görseller gelene kadar:** anlar sahnenin üstünde portresiz oynar, dede smokinli kahramanın yüzüyle konuşur. Görseller gelince bekleme listelerinden çıkarılacak ([art-prompts-dynasty.md §6](./art-prompts-dynasty.md)). Dede sahne görünümünün kodu hazır (60+, yalnız 1. nesil).
+- **Bildirimler (plan 2.8):** "Günlük ödül hazır" ve ömür sonunda varisin mesajı; günde bir kuralı öncelik sırasıyla.
+- **Küçük sorunlar:** 320 px'de para artık kısalmıyor (dar ekranda küçük yazı, uzun sınıf adı iki satır), çevrimdışı kartının paraları inmeden sıradaki kart açılmıyor, "OTOMATİK" rozeti 4 px sola alındı, v1'in `icons/` ve `vehicles/` PNG'leri v2 paketine girmiyor (`vite.config.ts`).
+- Simülatör: 63 ve 70 yaş hediyeleri miras puanını ~%1 artırdı; kaçan tek hedef öncekiyle aynı.
+
+## Önceki oturum (2026-10-14 → 15)
 
 - **Şans'ın tasmaları gelir veriyor:** deri / gümüş / altın %2 / %4 / %6, yalnız takılı olan; törende "Şans'ın yeni tasması!" kartı (önce / şimdi, +%0 → +%2). Gümüş tasma görselleri oyunda; yakut tasmanın üç görseli hazır (`public/assets/scene/sans-*-ruby.webp`).
 - **Fular kalıcı +%10**, ücretli aksesuarlar ayrı çarpan (`GameStateV2.accessoryMultiplier`, satın almalardan her açılışta hesaplanır).
@@ -52,7 +62,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 1. **AAB 29'u dahili teste yükle ve telefonda dene (kullanıcı).** Lisans hesabıyla üç ürün: ödüller geliyor mu, RevenueCat → Customers, Firebase Realtime'da `purchase` ve `purchase_applied`. Puanlama penceresi Milyoner'e ulaşmış kayıtta, ikinci oturumda. Sonra "Telefonda test listesi".
 2. **Kapalı test:** sorun yoksa aynı sürüm kapalı test kanalına. 14 gün ~2026-10-20'de doluyor; testçiler listede kalmalı, sonra Play'den yayın erişimi başvurusu.
 3. **Telefondan gelen bulguları düzeltmek**, gerekiyorsa AAB 30.
-4. **Faz 2:** günlük ödül (2.7) ve yatırım (2.5) yapıldı, telefonda denenmedi; sıradaki zirve sonrası ve yeni hanedan (plan 2.12; kararlar 2026-10-15: [game-design §4.5](./game-design-v2.md) ve [story-v2 §6](./story-v2.md)): görünür miras, "Şimdi devret" (yıllar atlanır, devir hep 80'de), yadigâr mağazası, 2. nesil kız torun yeni şehirde, 3. nesil erkek (ilk kahramanın görselleri), 60+ dede görünümü; hepsi birlikte yayınlanır. Yapıldı (2026-10-16): Aile sekmesi, "Şimdi devret", yadigârlar ([game-design §4.5](./game-design-v2.md)). Sıradaki: devir hikâye anları ve görselleri (torun, dede, yetişkin kız; fal.ai, önce maliyet), sonra 2. nesil yeni şehir (2.3). Sonra Yakut Tasma ve Gece Vardiyası (IAP 2. adım), Remote Config (2.10).
+4. **Faz 2:** günlük ödül (2.7) ve yatırım (2.5) yapıldı, telefonda denenmedi; sıradaki zirve sonrası ve yeni hanedan (plan 2.12; kararlar 2026-10-15: [game-design §4.5](./game-design-v2.md) ve [story-v2 §6](./story-v2.md)): görünür miras, "Şimdi devret" (yıllar atlanır, devir hep 80'de), yadigâr mağazası, 2. nesil kız torun yeni şehirde, 3. nesil erkek (ilk kahramanın görselleri), 60+ dede görünümü; hepsi birlikte yayınlanır. Yapıldı (2026-10-16): Aile sekmesi, "Şimdi devret", yadigârlar ([game-design §4.5](./game-design-v2.md)). Devir hikâye anları kodda (2026-10-16). Sıradaki: GPT'nin devir görsellerini bağlamak (art-prompts-dynasty §6), sonra 2. nesil yeni şehir (2.3; önce konuşulacak). Sonra Yakut Tasma ve Gece Vardiyası (IAP 2. adım), Remote Config (2.10).
 5. **Faz 1'in küçük kalanları:** oyun testi paketi (1.15: anket, test notları), fuların bütün pozlarda görünmesi ([discussion-notes §1](./discussion-notes.md)).
 
 **Sürüm derleme:** sürüm kodunu artır (`android/app/build.gradle`; Play'e yüklenmemiş bir kodu artırma), sonra `VITE_DEV_MENU=false VITE_ADMOB_TESTING=false npm run build:v2 && npx cap sync android`, ardından `android/`'da `./gradlew bundleRelease` (`JAVA_HOME` Android Studio'nun Java'sı). Ortam değişkenleri şart: `.env.v2` DEV menüsünü, `.env.local` test reklamını açık tutuyor. Çıktı `android/app/build/outputs/bundle/release/app-release.aab`; `~/Downloads/prestige-life-v2-<kod>.aab` adıyla kopyalanır.
@@ -85,6 +95,7 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
 7b. **Günlük ödül:** ertesi gün ilk açılışta çevrimdışı kartından sonra geliyor mu, küçük ekranda kart sığıyor mu, ×2 reklamı, uygulamayı kapatıp açınca tutar aynı mı (DEV → "Günlük ödülü tekrar ver").
 7c. **Yatırım:** alt menüde 4 düğme dar ekranda sığıyor mu, kilitli düğmenin baloncuğu, üç vade, kalan süre, vade dolunca bildirim ve "!", cesur vadenin kaybı (DEV → "Yatırımı hemen bitir").
 7d. **Hayaller panosu:** alt menü yükseldi; şişeler menünün altında kalıyor mu, kahramanın ayakları ve araç görünüyor mu (özellikle küçük ekranlarda), "Al!" ve kilit, dokununca doğru sekme.
+7e. **Devir:** DEV → "Hayat anını oynat" 63 / 70 / 80; En Zengin'de Aile → "Şimdi devret": "Yıllar geçti…", üç an, torunun adı, sonra emeklilik paneli ("Varisin: …").
 8. **Bildirim ve annenin mesajı:** DEV → "Deneme bildirimi (5 sn)", Ayarlar'daki anahtar.
 9. **Erken oyun (yeni kayıtla):** tezgâha ve ilk yöneticiye kadar boşluk var mı, Şans sık geliyor mu, hedef sırası ve rehber.
 10. **Genel:** Android geri tuşu, güvenli alanlar, akıcılık, Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.prestigelife.idletycoon.dev`; Play sürümünde `.dev` olmadan).
@@ -100,11 +111,7 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
 - **Kayıt anahtarı** `prestige_life_v2` ve uygulama kimliği değişmez.
 - **Denetim:** kaydı etkileyen her değişiklikte eski bir kayıtla açılış denenir (DEV kaydı ya da betikle `parseRuntime`).
 
-**Bilinen küçük sorunlar:**
-- 320 px'de üst bardaki para kısalıyor.
-- Uçan paralar, çevrimdışı kartından hemen sonra açılan hikâye kartının üstünden geçiyor.
-- Türkçede "OTOMATİK" rozeti üretim çubuğuna değiyor.
-- v2'nin kullanmadığı `vehicles/` PNG'leri ve `icons/` (~3,5 MB) pakette.
+**Bilinen küçük sorunlar:** listedekiler 2026-10-16'da düzeltildi; "OTOMATİK" rozeti ile 320 px üst bar telefonda bir kez görülmeli.
 
 ## Çalıştırma
 

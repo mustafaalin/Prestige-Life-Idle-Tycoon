@@ -165,6 +165,7 @@ function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
     heroName: typeof raw.heroName === 'string' ? raw.heroName.trim().slice(0, HERO_NAME_MAX) : '',
     lifeSeen: stringList(raw.lifeSeen).filter((id) => knownLifeMoments.has(id)),
     daughterName: typeof raw.daughterName === 'string' ? raw.daughterName.trim().slice(0, HERO_NAME_MAX) : '',
+    grandchildName: typeof raw.grandchildName === 'string' ? raw.grandchildName.trim().slice(0, HERO_NAME_MAX) : '',
     guideSeen: stringList(raw.guideSeen),
     guideDone: stringList(raw.guideDone),
     eventAnsweredAt: finite(raw.eventAnsweredAt, 0),

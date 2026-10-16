@@ -3,23 +3,24 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { Preferences } from '@capacitor/preferences';
 import { track } from './analytics';
 
-// Local notifications (docs/discussion-notes.md §8 → Faz 1, 2026-10-09): Mom's next message and
-// Lucky waiting when the offline earnings are full. No server: they are scheduled when the app goes
-// to the background and cancelled when it comes back. At most one a day, only in the daytime.
-// Web has none (every call is a no-op).
+// Local notifications (docs/discussion-notes.md §8 → Faz 1, 2026-10-09; plan 2.8): Mom's next message,
+// Lucky waiting when the offline earnings are full (or Old Ray's deal is due), the day's reward, and
+// at the end of life the heir. No server: they are scheduled when the app goes to the background and
+// cancelled when it comes back. At most one a day, only in the daytime. Web has none (every call is a no-op).
 
 const native = Capacitor.isNativePlatform();
 const PREF_KEY = 'prestige_life_v2_notifications';
 const CHANNEL_ID = 'story';
-const LUCKY_ID = 101;
-const MOM_ID = 102;
-const INVEST_ID = 103;
+export type ReminderKind = 'retire' | 'mom' | 'invest' | 'lucky' | 'daily';
+const REMINDER_IDS: Record<ReminderKind, number> = { lucky: 101, mom: 102, invest: 103, daily: 104, retire: 105 };
+/** When two would land on the same day, the earlier kind in this list is kept. */
+const PRIORITY: ReminderKind[] = ['retire', 'mom', 'invest', 'lucky', 'daily'];
 const DEV_TEST_ID = 199;
 
 /** Local hours a reminder may arrive in: from 10:00 up to (not including) 21:00. */
 const DAY_START_HOUR = 10;
 const DAY_END_HOUR = 21;
-/** Two reminders closer than this count as the same day; only Mom's is kept. */
+/** Two reminders closer than this count as the same day; only one is kept (PRIORITY). */
 const MIN_SEPARATION_MS = 12 * 60 * 60 * 1000;
 
 export interface Reminder {
@@ -76,7 +77,10 @@ export function setNotificationsEnabled(value: boolean) {
 
 export const notificationsSupported = native;
 
-const KIND_BY_ID: Record<number, string> = { [LUCKY_ID]: 'lucky', [MOM_ID]: 'mom', [INVEST_ID]: 'invest', [DEV_TEST_ID]: 'dev_test' };
+const KIND_BY_ID: Record<number, string> = {
+  ...Object.fromEntries(PRIORITY.map((kind) => [REMINDER_IDS[kind], kind])),
+  [DEV_TEST_ID]: 'dev_test',
+};
 
 /** Counts taps on our reminders (they open the app; nothing else to do). Returns the stop function. */
 export function installNotificationTracking(): () => void {
@@ -125,36 +129,36 @@ export function intoDaytime(at: number): number {
 export async function cancelReminders() {
   if (!native) return;
   try {
-    await LocalNotifications.cancel({ notifications: [{ id: LUCKY_ID }, { id: MOM_ID }, { id: INVEST_ID }] });
+    await LocalNotifications.cancel({ notifications: PRIORITY.map((kind) => ({ id: REMINDER_IDS[kind] })) });
   } catch {
     // Nothing scheduled.
   }
 }
 
-/** Replaces any scheduled reminders. Mom's wins when both would land on the same day. */
 /**
- * `invest`: Old Ray's deal is due. It takes Lucky's place (both say "come back and collect"), so the
- * one-a-day rule stays.
+ * The reminders to send, in the daytime and at most one a day: when two land within a day, the one
+ * earlier in PRIORITY is kept. Old Ray's deal takes Lucky's place (both say "come back and collect").
  */
-export async function scheduleReminders(
-  { lucky: luckyReminder, mom, invest }: { lucky: Reminder | null; mom: Reminder | null; invest?: Reminder | null },
-  channelName: string,
-) {
-  const lucky = invest ?? luckyReminder;
-  const luckyId = invest ? INVEST_ID : LUCKY_ID;
+export function pickReminders(reminders: Partial<Record<ReminderKind, Reminder | null>>) {
+  const picked: { kind: ReminderKind; reminder: Reminder; at: number }[] = [];
+  for (const kind of PRIORITY) {
+    const reminder = reminders[kind];
+    if (!reminder || (kind === 'lucky' && reminders.invest)) continue;
+    const at = intoDaytime(reminder.at);
+    if (picked.some((other) => Math.abs(other.at - at) < MIN_SEPARATION_MS)) continue;
+    picked.push({ kind, reminder, at });
+  }
+  return picked;
+}
+
+/** Replaces any scheduled reminders (pickReminders decides which go out). */
+export async function scheduleReminders(reminders: Partial<Record<ReminderKind, Reminder | null>>, channelName: string) {
   if (!native || !notificationsEnabled()) return;
   try {
     await cancelReminders();
     if ((await LocalNotifications.checkPermissions()).display !== 'granted') return;
     await ensureChannel(channelName);
-
-    const momAt = mom ? intoDaytime(mom.at) : null;
-    let luckyAt = lucky ? intoDaytime(lucky.at) : null;
-    if (luckyAt !== null && momAt !== null && Math.abs(momAt - luckyAt) < MIN_SEPARATION_MS) luckyAt = null;
-
-    const notifications = [];
-    if (lucky && luckyAt !== null) notifications.push(toNotification(luckyId, lucky, luckyAt));
-    if (mom && momAt !== null) notifications.push(toNotification(MOM_ID, mom, momAt));
+    const notifications = pickReminders(reminders).map(({ kind, reminder, at }) => toNotification(REMINDER_IDS[kind], reminder, at));
     if (notifications.length > 0) await LocalNotifications.schedule({ notifications });
   } catch {
     // Scheduling failed; the game works the same without reminders.

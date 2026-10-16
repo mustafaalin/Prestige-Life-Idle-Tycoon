@@ -192,9 +192,9 @@ Hikâyenin ikinci saati yaştır. Sınıf törenleri paraya bağlı olduğu içi
 | 44 | ~7 sa 10 dk (11. gün) | Kızı ilk parasını Çiçek Tezgâhı'nda kazanır | Doğum | Testten sonra |
 | 49 | ~8,5 sa (13. gün) | Mezuniyet | Doğum | Testten sonra |
 | 57 | 10 sa 42 dk (16. gün) | En Zengin töreni (sınıf töreni, oyunda) | | 1 |
-| 63 | ~12 sa 15 dk (19. gün) | Torunu doğar | Doğum | Testten sonra |
-| 70 | ~14 sa (22. gün) | Dede ve torun | Torun | Testten sonra |
-| 80 | 16 sa 48 dk (25. gün) | Torun 17 yaşında: *"Dede, bana ilk işini öğretir misin?"* → devir (§6) | Torun | Faz 2.1 |
+| 63 | ~12 sa 15 dk (19. gün) | Torunu doğar; adını oyuncu verir (Elif sorar) | Doğum | Oyunda (2026-10-16) |
+| 70 | ~14 sa (22. gün) | Dede ve torun: çiçek tezgâhı | Torun | Oyunda (2026-10-16) |
+| 80 | 16 sa 48 dk (25. gün) | Torun 17 yaşında: *"Dede, bana ilk işini öğretir misin?"* → devir (§6); hediye yok, emeklilik paneli onu bekler | Torun | Oyunda (2026-10-16) |
 
 **Faz 1 metinleri (3 an, 11 balon + isim sorusu; oyunda, `moments.*`; senaryo `ui/story/lifeScript.ts`):**
 
@@ -207,6 +207,16 @@ Hikâyenin ikinci saati yaştır. Sınıf törenleri paraya bağlı olduğu içi
 Geri dönüşler: kurabiye (İşçi töreni), iki sandalye ve erik reçeli (annenin mesajları), *"Sen bana yetersin"* (önsöz) artık kahramanın ağzından.
 
 **Köprü (2026-10-11):** tanışma (18–19 yaş) ile ilk buluşma (25) arasını iki şey bağlar. Annenin Defne mesajı sınıfa bağlı değil: İşçi töreninden ilk buluşmaya kadar, sınıfın kendi mesajlarından önce gelir (hızlı oyuncu kaçıramaz). Mesaj hiç gelmediyse ilk buluşmanın açılış cümlesi aradaki yılları tek başına taşır.
+
+**Devir anları (2026-10-16, oyunda; `LIFE_MOMENTS` 63 / 70 / 80, senaryo `lifeScript.ts`, metinler `moments.{grandchild,grandpa,handover}`):** 80 yaşta (doğal ya da "Şimdi devret" sonrası) kalan anlar arka arkaya oynar, araya 2 dakikalık bekleme girmez; isim sorusu açıkken sıradaki an bekler. Ömür bitmişse hediye yok. Emeklilik paneli bu anlar ve isim bitince açılır (`retirementWaits`). Kızın konuşma etiketi verilen adı, torununki kendi adını taşır. "Şimdi devret" önce "Yıllar geçti…" ekranını gösterir (yaş 80'e sayar). Görseller gelene kadar anlar sahnenin üstünde, portresiz oynar (`PANELS_TO_COME`, `PORTRAITS_TO_COME`; dede portresi yerine smokinli kahraman).
+
+| An | Türkçe | English |
+| --- | --- | --- |
+| Torunun doğumu (63) | Anlatım: *"Otuz iki yıl sonra aynı oda. Bu kez bebeği kızı tutuyordu."* · Elif: *"Baba... Dede oldun."* · Dede: *"Erik reçelini getirdim. Annem hep 'İlk kavanoz bebeğin hakkı' derdi."* · Defne: *"Bak, burnu sana çekmiş. Çilleri de bana."* → Elif: *"Adını sen koy baba. Benimkini de sen koymuştun."* (varsayılan Ada) | Narration: *"Thirty-two years later, the same room. This time his daughter held the baby."* · Ella: *"Dad... You're a grandpa."* · Grandpa: *"I brought the plum jam. Mom always said, 'The first jar belongs to the baby.'"* · Daphne: *"Look, she has your nose. And my freckles."* → Ella: *"You name her, Dad. You named me too."* |
+| Dede ve torun (70) | Anlatım: *"Çiçek tezgâhı hâlâ aynı köşedeydi."* · Ada (7, portresiz): *"Dede, gülleri neden hep en öne koyuyoruz?"* · Dede: *"Tezgâh kendi kendine satmaz. Önce çiçekleri dizeceksin."* · Dede: *"Bunu bana Rıza Amca öğretmişti. Tam bu köşede."* | Narration: *"The flower stand was still on the same corner."* · Ada: *"Grandpa, why do the roses always go in front?"* · Grandpa: *"A stand doesn't sell itself. First, you set out the flowers."* · Grandpa: *"Old Ray taught me that. Right on this corner."* |
+| Babamın saati (80) | Anlatım: *"Altmış üç yıl sonra, aynı peron."* · Ada: *"Dede, bana ilk işini öğretir misin? Ama başka bir şehirde. Kendi adımla."* · Dede: *"Bu saat babamındı. Artık senin."* · Dede: *"Ben burada anneme bir söz vermiştim. Sen kimseye söz verme. Sadece başla."* · Ada: *"Şans da geliyor mu?"* · Dede: *"Biletini benden önce almış."* | Narration: *"Sixty-three years later, the same platform."* · Ada: *"Grandpa, will you teach me your first job? But in another city. Under my own name."* · Grandpa: *"This watch was my father's. Now it's yours."* · Grandpa: *"I made my mother a promise right here. Don't promise anyone anything. Just start."* · Ada: *"Is Lucky coming too?"* · Grandpa: *"He got his ticket before I did."* |
+
+Geri dönüşler: doğum odası ve erik reçeli (kızın doğumu), Rıza'nın "Çiçekleri diz" dersi (rehber), otogar ve annene verilen söz (önsöz), babanın saati (ilk yadigâr).
 
 **Görseller (2026-10-11, fal.ai, 3 kare $0,45):** çay bahçesi, erik ağacının altında düğün, hastane odasında bebek; `public/assets/story/life/`, kaynak `art/pilot/10-life/`. Karelerde kahraman gömlekli ve takım elbiseli, yüzü aynı (yaşlanmıyor).
 

@@ -386,7 +386,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
         continue;
       }
       const moment = LIFE_MOMENTS.find(
-        (entry) => !giftsPaid.moments.has(entry.id) && heroAge(state).years >= entry.age && state.classIndex >= entry.afterCeremony,
+        (entry) => entry.gift !== false && !giftsPaid.moments.has(entry.id) && heroAge(state).years >= entry.age && state.classIndex >= entry.afterCeremony,
       );
       if (!moment) return;
       giftsPaid.moments.add(moment.id);

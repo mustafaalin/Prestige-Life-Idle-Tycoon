@@ -32,6 +32,9 @@ export const ALBUM: AlbumEntry[] = [
   ceremony(7),
   life('heli'),
   life('jet'),
+  life('grandchild'),
+  life('grandpa'),
+  life('handover'),
 ];
 
 export function albumKey(entry: AlbumEntry) {

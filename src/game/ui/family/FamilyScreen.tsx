@@ -2,13 +2,14 @@ import { Cherry, Images, NotebookPen, PawPrint, Watch, type LucideIcon } from 'l
 import { useState } from 'react';
 import { HEIRLOOMS, type HeirloomDef, type HeirloomId } from '../../core/config/heirlooms';
 import { RETIREMENT_AGE } from '../../core/config/life';
-import { heirloomCap, heirloomLevel, heirloomPrice, jamCash, legacyAvailable, pendingLegacyPoints } from '../../core/formulas';
+import { heirloomCap, heirloomLevel, heirloomPrice, heroAge, jamCash, legacyAvailable, pendingLegacyPoints } from '../../core/formulas';
 import { canHandOverEarly } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { ICONS } from '../icons';
 import { Chip, GameButton, Panel, SectionLabel } from '../kit';
+import { requestYearsPassed } from '../story/storyEvents';
 
 // The family tab (plan 2.12, game-design-v2.md §4.5): from the top class on, what the heir would get
 // now ("Hand over now" skips the remaining years; staying grows it), and the family heirlooms that
@@ -29,7 +30,7 @@ export function FamilyScreen({ onClose }: { onClose: () => void }) {
 
   return (
     <section className="flex flex-col gap-3">
-      {canHandOverEarly(game) && <HandOver onStay={onClose} />}
+      {canHandOverEarly(game) && <HandOver onClose={onClose} />}
 
       <Panel className="p-3 flex items-center gap-3">
         <img src={ICONS.legacy} alt="" draggable={false} className="shrink-0 w-14 h-14 object-contain drop-shadow" />
@@ -48,16 +49,20 @@ export function FamilyScreen({ onClose }: { onClose: () => void }) {
   );
 }
 
-function HandOver({ onStay }: { onStay: () => void }) {
+function HandOver({ onClose }: { onClose: () => void }) {
   const { game, actions } = useGameV2();
   const { t } = useT();
   const [confirming, setConfirming] = useState(false);
   const pending = pendingLegacyPoints(game);
 
   const handOver = () => {
+    const age = heroAge(game).years;
     if (!actions.handOverEarly()) return;
     playSfx('levelUp');
     haptic('medium');
+    // Back to the scene: the skipped years pass, then the last life moments play (StoryDirector).
+    onClose();
+    requestYearsPassed(age);
   };
 
   return (
@@ -88,7 +93,7 @@ function HandOver({ onStay }: { onStay: () => void }) {
               tone="soft"
               onClick={() => {
                 playSfx('click');
-                onStay();
+                onClose();
               }}
               className="flex-1 py-2.5 v2-display text-[15px]"
             >

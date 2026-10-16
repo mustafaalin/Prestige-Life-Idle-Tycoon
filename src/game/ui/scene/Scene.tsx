@@ -9,7 +9,8 @@ import {
 import { AD_FIND_MULTIPLIER } from '../../core/config/ads';
 import { HOUSES } from '../../core/config/housing';
 import { OUTFITS, VEHICLES } from '../../core/config/lifestyle';
-import { fetchReward, fetchSeconds, tapValue } from '../../core/formulas';
+import { GRANDPA_AGE } from '../../core/config/life';
+import { fetchReward, fetchSeconds, heroAge, tapValue } from '../../core/formulas';
 import { bestOwnedLifestyle, houseIndex, parkedVehicle } from '../../core/state';
 import type { GameStateV2 } from '../../core/types';
 import { useT } from '../../i18n/useT';
@@ -214,7 +215,9 @@ export function Scene() {
 
   // An outfit a ceremony gives is put on when the ceremony ends, like the new home.
   const [shownOutfit, setShownOutfit] = useState(wornOutfit);
-  const hero = heroLook(shownOutfit, shownHome);
+  // The first hero turns into the grandfather at 60 (story §6); an heir keeps their outfits.
+  const grandpa = game.generation === 1 && heroAge(game).years >= GRANDPA_AGE;
+  const hero = heroLook(shownOutfit, shownHome, grandpa);
   // An outfit without a collect pose stands in with its idle picture: each picture is drawn once.
   const heroPoses = POSE_LIST.filter(
     (key, index) => POSE_LIST.findIndex((other) => hero[other].src === hero[key].src) === index,

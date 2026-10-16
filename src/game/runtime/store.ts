@@ -129,6 +129,7 @@ export interface GameActions {
     /** Life moments seen (a luxury moment brings the ones below it); `giftMultiplier` as for ceremonies. */
     lifeSeen(momentIds: string[], giftMultiplier?: number): void;
     setDaughterName(name: string): void;
+    setGrandchildName(name: string): void;
     /** A Rich List card was shown; it settles the places below it too. */
     richSeen(milestoneId: string): void;
     /** Old Ray's guide (plan 1.12): a step's line was shown / a step was done. */
@@ -457,6 +458,8 @@ export function createGameStore(saveText: string | null, clock: () => number = D
           ),
         setDaughterName: (name) =>
           updateStory((story) => ({ ...story, daughterName: name.trim().slice(0, HERO_NAME_MAX) })),
+        setGrandchildName: (name) =>
+          updateStory((story) => ({ ...story, grandchildName: name.trim().slice(0, HERO_NAME_MAX) })),
         richSeen: (milestoneId) =>
           updateStory((story) => ({
             ...story,

@@ -1,5 +1,6 @@
 import { RICH_MILESTONES, type RichMilestoneDef } from '../core/config/richList';
-import { heroAge, richListRank } from '../core/formulas';
+import { heroAge, isLifeOver, richListRank } from '../core/formulas';
+import { RETIREMENT_AGE } from '../core/config/life';
 import type { GameStateV2 } from '../core/types';
 
 // Story progress (story-v2.md §4): which class-up ceremonies and life moments the player has seen and
@@ -21,6 +22,8 @@ export interface StoryProgress {
   lifeSeen: string[];
   /** The daughter's name, asked after she is born; '' = not asked yet. */
   daughterName: string;
+  /** The granddaughter's name (the heir), asked after she is born; '' = not asked yet. */
+  grandchildName: string;
   /** Old Ray's guide (plan 1.12): steps whose line was shown, and steps finished by an action. */
   guideSeen: string[];
   guideDone: string[];
@@ -78,6 +81,7 @@ export function createStoryProgress(classIndex = 0): StoryProgress {
     heroName: '',
     lifeSeen: [],
     daughterName: '',
+    grandchildName: '',
     guideSeen: [],
     guideDone: [],
     eventAnsweredAt: 0,
@@ -106,7 +110,7 @@ export function pendingCeremony(game: GameStateV2, story: StoryProgress): number
   return story.ceremonySeen + 1;
 }
 
-export type AgeMomentId = 'date' | 'wedding' | 'birth';
+export type AgeMomentId = 'date' | 'wedding' | 'birth' | 'grandchild' | 'grandpa' | 'handover';
 export type LuxuryMomentId = 'boat' | 'yacht' | 'heli' | 'jet';
 export type LifeMomentId = AgeMomentId | LuxuryMomentId;
 
@@ -116,17 +120,24 @@ export interface LifeMomentDef {
   age: number;
   /** The class ceremony that has to be seen first: the moment builds on what it showed. */
   afterCeremony: number;
+  /** The moment closes with a gift (default). The hand-over does not: the life ends with it. */
+  gift?: boolean;
 }
 
 /**
  * The hero's life, told by age (story §4c): class ceremonies follow money and crowd into the first
  * hours, age runs evenly through the whole life. In order; each one waits for the one before it.
  * The date needs Defne (Working Class ceremony), the wedding the old house's garden (Middle Class).
+ * The last three lead to the heir (story §6): the granddaughter is born, learns her first job, and at
+ * the end of life the hero hands over; the retirement panel waits for them.
  */
 export const LIFE_MOMENTS: LifeMomentDef[] = [
   { id: 'date', age: 25, afterCeremony: 2 },
   { id: 'wedding', age: 28, afterCeremony: 3 },
   { id: 'birth', age: 31, afterCeremony: 3 },
+  { id: 'grandchild', age: 63, afterCeremony: 3 },
+  { id: 'grandpa', age: 70, afterCeremony: 3 },
+  { id: 'handover', age: RETIREMENT_AGE, afterCeremony: 3, gift: false },
 ];
 
 /**
@@ -177,6 +188,28 @@ export function pendingLifeMoment(game: GameStateV2, story: StoryProgress): { id
 /** She was born but the app closed before the player named her: the question is still open. */
 export function daughterNeedsName(story: StoryProgress) {
   return story.lifeSeen.includes('birth') && !story.daughterName;
+}
+
+/** The same for the granddaughter. */
+export function grandchildNeedsName(story: StoryProgress) {
+  return story.lifeSeen.includes('grandchild') && !story.grandchildName;
+}
+
+/** A name question is open (daughter or granddaughter). */
+export function nameNeeded(story: StoryProgress) {
+  return daughterNeedsName(story) || grandchildNeedsName(story);
+}
+
+/**
+ * At the end of life the retirement panel waits while the story still has something to tell: a
+ * ceremony, the last life moments (after "Hand over now" they play one after another) or a name.
+ */
+export function retirementWaits(game: GameStateV2, story: StoryProgress) {
+  return (
+    storyRuns(game) &&
+    isLifeOver(game) &&
+    (pendingCeremony(game, story) !== null || pendingLifeMoment(game, story) !== null || nameNeeded(story))
+  );
 }
 
 /** The message Mom has for the current class that has not been shown yet. */

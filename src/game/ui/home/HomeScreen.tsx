@@ -6,7 +6,7 @@ import { useT } from '../../i18n/useT';
 import { initAds } from '../../runtime/ads';
 import { trackScreen } from '../../runtime/analytics';
 import { haptic, playSfx, preloadSfx } from '../../runtime/feedback';
-import { sceneClass, storyRuns } from '../../runtime/story';
+import { retirementWaits, sceneClass, storyRuns } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { BoostButton } from '../ads/Boost';
 import { useAdsUnlocked } from '../ads/useAdsUnlocked';
@@ -227,7 +227,7 @@ export function HomeScreen() {
         </div>
       </div>
 
-      {lifeOver && !state.offline && <RetirementPanel />}
+      {lifeOver && !state.offline && !retirementWaits(game, state.story) && <RetirementPanel />}
 
       {state.offline && (
         <RewardCard

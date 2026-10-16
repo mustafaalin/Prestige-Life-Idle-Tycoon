@@ -53,6 +53,9 @@ const TAG_STYLE: Record<CastId, string> = {
   staff: 'from-slate-500 to-slate-600',
   nevin: 'from-sky-500 to-cyan-500',
   defne: 'from-pink-500 to-rose-400',
+  defneOld: 'from-pink-500 to-rose-400',
+  elif: 'from-lime-500 to-green-600',
+  ada: 'from-orange-500 to-red-500',
 };
 
 const CONFETTI_COLORS = ['#fbbf24', '#f472b6', '#34d399', '#60a5fa', '#a78bfa', '#fb7185'];
@@ -711,11 +714,18 @@ function LifeGift({ heading, heroOutfit, onClose }: { heading: string; heroOutfi
 /** One spoken line: the speaker's portrait sits on the bubble's top edge, hero right, others left. */
 function Dialogue({ line, heroOutfit, delay }: { line: Extract<CeremonyLine, { speaker: CastId }>; heroOutfit: number; delay: string }) {
   const { t } = useT();
+  const { state } = useGameV2();
   const portrait = portraitOf(line.speaker, line.face, heroOutfit);
   const right = line.speaker === 'hero';
-  const label = line.speaker === 'hero' || line.speaker === 'mom'
-    ? t(`prologue.speaker.${line.speaker}`)
-    : t(`ceremony.cast.${line.speaker}`);
+  // The daughter and the granddaughter carry the names the player gave them.
+  const label =
+    line.speaker === 'hero' || line.speaker === 'mom'
+      ? t(`prologue.speaker.${line.speaker}`)
+      : line.speaker === 'elif'
+        ? state.story.daughterName || t('moments.defaultName')
+        : line.speaker === 'ada'
+          ? state.story.grandchildName || t('moments.grandchildDefault')
+          : t(`ceremony.cast.${line.speaker === 'defneOld' ? 'defne' : line.speaker}`);
 
   return (
     <div

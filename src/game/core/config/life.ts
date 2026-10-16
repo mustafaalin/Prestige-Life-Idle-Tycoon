@@ -17,3 +17,5 @@ export const SECONDS_PER_MONTH = 80;
 export const SECONDS_PER_YEAR = SECONDS_PER_MONTH * 12;
 /** Seconds of play in a whole life (63 years ≈ 17 hours). */
 export const LIFE_SECONDS = (RETIREMENT_AGE - START_AGE) * SECONDS_PER_YEAR;
+/** From this age the first hero looks like a grandfather on the scene and in the story (story-v2.md §6). */
+export const GRANDPA_AGE = 60;

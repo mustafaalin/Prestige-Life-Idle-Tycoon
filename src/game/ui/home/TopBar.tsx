@@ -42,7 +42,7 @@ export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () =>
             type="button"
             onClick={onOpenIncome}
             aria-label={t('income.open')}
-            className="flex-1 min-w-0 flex items-center gap-2 rounded-2xl bg-black/25 pl-1.5 pr-2 py-1 text-left transition-all active:scale-[0.98]"
+            className="flex-1 min-w-0 flex items-center gap-2 max-[380px]:gap-1 rounded-2xl bg-black/25 pl-1.5 pr-2 max-[380px]:pl-1 max-[380px]:pr-1.5 py-1 text-left transition-all active:scale-[0.98]"
           >
             <img
               key={bump}
@@ -50,12 +50,12 @@ export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () =>
               src={ICONS.money}
               alt=""
               draggable={false}
-              className={`shrink-0 w-11 drop-shadow-md ${bump ? 'v2-bump' : ''}`}
+              className={`shrink-0 w-11 max-[380px]:w-8 drop-shadow-md ${bump ? 'v2-bump' : ''}`}
             />
             <div className="min-w-0">
               <p
                 key={hurt}
-                className={`v2-display v2-outline text-[26px] leading-none tabular-nums truncate transition-colors duration-500 ${
+                className={`v2-display v2-outline text-[26px] max-[380px]:text-[21px] leading-none tabular-nums truncate transition-colors duration-500 ${
                   hurt ? 'v2-hurt text-rose-400' : 'text-white'
                 }`}
               >
@@ -68,17 +68,21 @@ export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () =>
                 {boost > 1 && ` ×${boost}`}
               </p>
             </div>
-            <ChevronRight className="ml-auto shrink-0 w-4 h-4 text-white/50" />
+            {/* Narrow phones (320 px) need the room for the money. */}
+            <ChevronRight className="ml-auto shrink-0 w-4 h-4 text-white/50 max-[380px]:hidden" />
           </button>
           <div className="shrink-0 flex flex-col items-end gap-1">
-            <span className="flex items-center gap-1 rounded-full bg-gradient-to-b from-amber-300 to-orange-500 border border-white/60 v2-glossy pl-1 pr-2.5 py-0.5">
+            {/* On narrow phones a long class name takes two lines, without its icon. */}
+            <span className="flex items-center gap-1 rounded-full max-[380px]:rounded-[12px] bg-gradient-to-b from-amber-300 to-orange-500 border border-white/60 v2-glossy pl-1 pr-2.5 max-[380px]:px-2 py-0.5">
               <img
                 src={ICONS.status}
                 alt=""
                 draggable={false}
-                className="w-5 h-5 object-contain"
+                className="w-5 h-5 object-contain max-[380px]:hidden"
               />
-              <span className="v2-display text-[12px] text-white v2-shadow">{name('wealthClass', current)}</span>
+              <span className="v2-display text-[12px] text-white v2-shadow max-[380px]:max-w-[88px] max-[380px]:text-center max-[380px]:leading-[1.1]">
+                {name('wealthClass', current)}
+              </span>
             </span>
             <div className="flex items-center gap-1">
               <span className="rounded-full bg-black/25 px-2.5 py-0.5 v2-display text-[12px] text-sky-100 tabular-nums">

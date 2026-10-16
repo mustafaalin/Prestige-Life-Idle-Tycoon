@@ -39,7 +39,7 @@ export function RetirementPanel() {
   const [retired, setRetired] = useState(false);
 
   const age = heroAge(game).years;
-  const { heroName, daughterName } = state.story;
+  const { heroName, daughterName, grandchildName } = state.story;
   const gained = pendingLegacyPoints(game);
   // Points the heir can spend: what is left unspent plus this life's.
   const total = legacyAvailable(game) + gained;
@@ -77,6 +77,11 @@ export function RetirementPanel() {
             {storyRuns(game) && daughterName && (
               <span className="min-w-0 rounded-full bg-pink-50 px-2.5 py-1 text-[11px] font-black text-pink-600 break-words">
                 {t('life.daughter', { name: daughterName })}
+              </span>
+            )}
+            {storyRuns(game) && grandchildName && (
+              <span className="min-w-0 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-black text-amber-600 break-words">
+                {t('life.heir', { name: grandchildName })}
               </span>
             )}
           </div>

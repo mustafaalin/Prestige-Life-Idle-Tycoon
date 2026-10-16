@@ -1,13 +1,16 @@
 import { outfitIndex } from '../../core/config/lifestyle';
 import type { LifeMomentId } from '../../runtime/story';
-import type { CeremonyShot, StoryImage } from './ceremonyScript';
+import { GRANDPA_LOOK, type CeremonyShot, type StoryImage } from './ceremonyScript';
 
 // Life moments (story-v2.md §4c): the hero's life told by age, each a single beat of a few lines,
 // and the first ride of each luxury, where the family gets to use it. Each has its own picture
 // (art/pilot/10-life/).
 
 const IMAGES = '/assets/story/life';
-const picture = (name: string): StoryImage => ({ src: `${IMAGES}/${name}.webp`, fit: 'panel' });
+/** Frames still being drawn (docs/art-prompts-dynasty.md S1–S3): the moment plays over the dimmed scene until then. */
+const PANELS_TO_COME = new Set(['grandchild', 'grandpa', 'handover']);
+const picture = (name: string): StoryImage | undefined =>
+  PANELS_TO_COME.has(name) ? undefined : { src: `${IMAGES}/${name}.webp`, fit: 'panel' };
 
 /** What the hero wears in each picture (index = OUTFITS); his portrait in the bubble follows it. */
 const SMART = outfitIndex('outfit-smart');
@@ -20,6 +23,9 @@ export const LIFE_OUTFIT: Record<LifeMomentId, number> = {
   yacht: SUIT,
   heli: SUIT,
   jet: SUIT,
+  grandchild: GRANDPA_LOOK,
+  grandpa: GRANDPA_LOOK,
+  handover: GRANDPA_LOOK,
 };
 
 export const LIFE_SCRIPT: Record<LifeMomentId, CeremonyShot[]> = {
@@ -105,6 +111,47 @@ export const LIFE_SCRIPT: Record<LifeMomentId, CeremonyShot[]> = {
         { speaker: 'riza', face: 'warm', text: 'moments.jet.riza' },
         { speaker: 'hero', face: 'soft', text: 'moments.jet.hero' },
         { speaker: 'mom', face: 'tears', text: 'moments.jet.mom' },
+      ],
+    },
+  ],
+  // The birth room again, thirty-two years on: the plum jam, and now his daughter holds the baby.
+  // The player names her next (the heir).
+  grandchild: [
+    {
+      image: picture('grandchild'),
+      lines: [
+        { text: 'moments.grandchild.room' },
+        { speaker: 'elif', face: 'teary', text: 'moments.grandchild.elif' },
+        { speaker: 'hero', face: 'soft', text: 'moments.grandchild.hero' },
+        { speaker: 'defneOld', face: 'laugh', text: 'moments.grandchild.defne' },
+      ],
+    },
+  ],
+  // The flower stand of his first job; Old Ray's first lesson ("set out the flowers"), now his to give.
+  // Ada is seven: no portrait, a name tag only.
+  grandpa: [
+    {
+      image: picture('grandpa'),
+      lines: [
+        { text: 'moments.grandpa.corner' },
+        { speaker: 'ada', text: 'moments.grandpa.ada' },
+        { speaker: 'hero', face: 'happy', text: 'moments.grandpa.hero' },
+        { speaker: 'hero', face: 'soft', text: 'moments.grandpa.hero2' },
+      ],
+    },
+  ],
+  // The bus station of the prologue: he gives Ada his father's watch (the first heirloom) and sends
+  // her off to rise under her own name. The retirement panel follows.
+  handover: [
+    {
+      image: picture('handover'),
+      lines: [
+        { text: 'moments.handover.platform' },
+        { speaker: 'ada', face: 'determined', text: 'moments.handover.ada' },
+        { speaker: 'hero', face: 'soft', text: 'moments.handover.hero' },
+        { speaker: 'hero', face: 'determined', text: 'moments.handover.hero2' },
+        { speaker: 'ada', face: 'laugh', text: 'moments.handover.ada2' },
+        { speaker: 'hero', face: 'happy', text: 'moments.handover.hero3' },
       ],
     },
   ],
