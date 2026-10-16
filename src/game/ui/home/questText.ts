@@ -1,3 +1,4 @@
+import { cityUpgrades } from '../../runtime/city';
 import { BUSINESSES } from '../../core/config/businesses';
 import { CAREERS } from '../../core/config/careers';
 import { WEALTH_CLASSES } from '../../core/config/classes';
@@ -18,7 +19,7 @@ const UPGRADE_BY_ID = new Map(UPGRADES.map((upgrade) => [upgrade.id, upgrade]));
 /** The first vehicle you can buy (the bike). */
 const FIRST_VEHICLE = LIFESTYLE_ITEMS.filter((item) => item.kind === 'vehicle')[0];
 
-export const upgradeNameKey = (upgradeId: string) => `upgrades.${upgradeId.replace(':', '.')}` as MessageKey;
+export const upgradeNameKey = (upgradeId: string) => `${cityUpgrades()}.${upgradeId.replace(':', '.')}` as MessageKey;
 
 type Words = Pick<Translator, 't' | 'name'>;
 

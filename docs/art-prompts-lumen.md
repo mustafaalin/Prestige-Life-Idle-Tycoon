@@ -1,10 +1,10 @@
 # Lumen görselleri (2. nesil)
 
-Son güncelleme: 2026-10-16 · İlgili: [story-v2.md §6](./story-v2.md), [game-design-v2.md](./game-design-v2.md) (2. nesil: 10 işletme, 10 yönetici, 12 ev, 12 araç, 4 lüks), [art-brief-v2.md §2–3](./art-brief-v2.md) (genel kurallar, ekran haritası), [art-prompts-v2.md](./art-prompts-v2.md) (1. neslin aynı türdeki komutları), [discussion-notes.md §3](./discussion-notes.md)
+Son güncelleme: 2026-10-17 · İlgili: [story-v2.md §6](./story-v2.md), [game-design-v2.md](./game-design-v2.md) (2. nesil: 10 işletme, 10 yönetici, 12 ev, 12 araç, 4 lüks), [art-brief-v2.md §2–3](./art-brief-v2.md) (genel kurallar, ekran haritası), [art-prompts-v2.md](./art-prompts-v2.md) (1. neslin aynı türdeki komutları), [discussion-notes.md §3](./discussion-notes.md)
 
 Bu belge GPT'ye (VS Code'da) verilir. 2. neslin şehri Lumen'in **46 görselinin** (yönetici 10, ev 11, işletme 9, araç 12, lüks 4) sırasını, referanslarını, kayıt yerini ve doğrudan yapıştırılacak İngilizce komutlarını içerir. Oyuna bağlama (kesim, webp, kod) Claude'un işidir (§7).
 
-**Durum (2026-10-16):** Kullanıcı A hafif fütüristik stilini ve kalan 46 görselin üretimini onayladı; üretim sürüyor. Her görsel bağımsız tasarlanır, önceki varlıklardan mimari/nesne/kimlik kopyalanmaz. İlk ev (kapsül oda) hazır. Ev ve işletme adları öneri listesinden ([discussion-notes.md §3](./discussion-notes.md) madde 2, onay bekliyor); Yörünge Oteli'nin yerine Yapay Zekâ Kampüsü önerildi (§3). Liste değişirse yalnız o satırın komutu değişir.
+**Durum (2026-10-17): 46/46 üretildi ve oyunda.** Kesim, webp ve şehir katmanı (`runtime/city.ts`) yapıldı; teslim notu [archive/lumen-art-handoff.md](./archive/lumen-art-handoff.md). **Yeniden üretilecek tek görsel: Elektrikli Pikap** (`lumen-vehicle-pickup.png`): neredeyse önden çizildiği için kasası görünmüyor ve Keşif Aracı'yla aynı renk ve silüette (ikisi de zeytin yeşili, kutu gibi); kural her basamakta farklı silüet ve renk. Yeni komutta: kasası açıkça görünsün (önden dörtte üç, biraz daha yandan), Lumen araçlarında olmayan bir renk (öneri: bordo). Evlerin yerleşimi ve araç boyları telefonda bakılacak.
 
 ## 0. GPT için çalışma kuralları
 
@@ -163,6 +163,8 @@ Oyunun en büyük evi bu şehirde gökte: Lumen'in en uzun yeşil kulesinin tepe
 
 ## 4. Araçlar (12 görsel)
 
+**Üretim notu (2026-10-17):** İlk elektrikli, şehir arabası, pikap, keşif aracı ve grand tourer önceki araç ayrıntılarına yaklaşan ilk denemelerinin yerine bağımsız tasarımlarla üretildi. Bu beş araçta ve dört lükste önceki nesne görselleri eklenmedi; stil ve kamera metinle tarif edildi. Pikap, keşif aracı ve grand tourer sahne oranı için daha önden bir açıya ayrıca düzeltildi. Nihai kullanılan komutlar kaynakların yanındadır; eski denemeler `-v1`/`-v2` olarak korunur.
+
 1. neslin araç kuralları aynen ([art-prompts-v2.md §2](./art-prompts-v2.md)): önden dörtte üç, önü sağa, ön yüz tam görünür; kamera 1,6 m, uzun objektif; düz açık gri zemin; tavanda yük ve anten yok. Başlıktaki oran, kesilmiş görselde **genişlik / yükseklik sınırıdır** (şerit 2,75 m ÷ gerçek boy); aşılırsa aynı komuta "more head-on" eklenir. Lumen'de arabaların hepsi elektrikli ama tanıdık: bugünün arabaları gibi tekerlekleri yerde, ızgarası kapalı ya da ince. Hangi evin önünde durdukları 1. nesille aynı:
 
 | Ev | Önünde görülen araçlar |
@@ -207,7 +209,7 @@ Oyunun en büyük evi bu şehirde gökte: Lumen'in en uzun yeşil kulesinin tepe
 
 **Ortak kuyruk:**
 
-> It belongs to Lumen, a modern city of today only a few years ahead: believable and quietly electric, NOT sci-fi, no neon, no glowing strips. References from the project: `art/pilot/14-luxury/speedboat.png` and `art/pilot/09-vehicles/vehicle-10.png` — match their facing direction, lighting, materials and art style (it is the same set of game props); `art/pilot/09-vehicles/vehicle-4.png` — the same camera and framing rules. A single prop on a plain flat light grey background (#d9d9d9), a soft contact shadow under it only. The whole object inside the frame with clear margins, nothing cropped. A 3D CG animated-film prop, NO ink outlines, NO cel shading, NO flat 2D cartoon, NOT a photo. No people, no water, no sky, no flags, no registration marks, no text, no logos. Save the image as `art/pilot/17-lumen/{FILE}`.
+> It belongs to Lumen, a modern city of today only a few years ahead: believable and quietly electric, NOT sci-fi, no neon, no glowing strips. References from the project: `art/pilot/14-luxury/speedboat.png` and `art/pilot/09-vehicles/vehicle-10-front-right-v1.png` — match their facing direction, lighting, materials and art style (it is the same set of game props); `art/pilot/09-vehicles/vehicle-4.png` — the same camera and framing rules. A single prop on a plain flat light grey background (#d9d9d9), a soft contact shadow under it only. The whole object inside the frame with clear margins, nothing cropped. A 3D CG animated-film prop, NO ink outlines, NO cel shading, NO flat 2D cartoon, NOT a photo. No people, no water, no sky, no flags, no registration marks, no text, no logos. Save the image as `art/pilot/17-lumen/{FILE}`.
 
 | # | Ad (TR / EN) | Dosya | Komut (kuyruktan önce) |
 | --- | --- | --- | --- |

@@ -23,7 +23,7 @@ type Speaker =
 const SPEAKERS: Record<string, Speaker> = {
   wedding: {
     cast: 'riza',
-    name: managerKey('flower-stand', 'name'),
+    name: managerKey('flower-stand', 'name', 'old'),
     ask: 'warm',
     win: 'laugh',
     lose: 'concerned',
@@ -44,7 +44,7 @@ const SPEAKERS: Record<string, Speaker> = {
   ducks: { manager: 'logistics-warehouse' },
   cake: {
     cast: 'bryce',
-    name: managerKey('hotel', 'name'),
+    name: managerKey('hotel', 'name', 'old'),
     ask: 'sly',
     win: 'smug',
     lose: 'shocked',
@@ -55,8 +55,8 @@ export function eventSpeaker(cardId: string, moment: 'ask' | EventOutcome): { na
   const speaker = SPEAKERS[cardId];
   if ('manager' in speaker) {
     return {
-      name: managerKey(speaker.manager, 'name'),
-      portrait: managerPortrait(speaker.manager),
+      name: managerKey(speaker.manager, 'name', 'old'),
+      portrait: managerPortrait(speaker.manager, 'old'),
     };
   }
   // The safe answer leaves the caller as they were.

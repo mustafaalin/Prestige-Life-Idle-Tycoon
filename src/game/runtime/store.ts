@@ -36,6 +36,7 @@ import {
   type RuntimeState,
 } from './engine';
 import { setPlayerProperties, track } from './analytics';
+import { applyCity, cityOf } from './city';
 import { clearSave, parseRuntime, saveRuntime } from './storage';
 import { HERO_NAME_MAX, richMomentsUpTo } from './story';
 
@@ -165,6 +166,7 @@ export interface GameStore {
 export function createGameStore(saveText: string | null, clock: () => number = Date.now): GameStore {
   // A save from before the store: the offers open now if the first class-up was already seen.
   let state = openOffers(parseRuntime(saveText, clock()), clock());
+  applyCity(cityOf(state.game.generation));
   let speed = 1;
   let paused = false;
   let lastSavedAt = clock();
@@ -182,6 +184,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
     const previousClass = state.game.classIndex;
     if (next.game.classIndex > previousClass) classUp = { classIndex: next.game.classIndex, before: state.game };
     state = next;
+    applyCity(cityOf(next.game.generation));
     if (save || clock() - lastSavedAt >= AUTOSAVE_MS) persist();
     listeners.forEach((listener) => listener());
 

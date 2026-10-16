@@ -2,6 +2,7 @@ import { SECONDS_PER_MONTH } from '../core/config/life';
 import { formatAmount, formatDuration, formatMoney } from '../core/format';
 import { LOCALES, type Locale } from './locales';
 import { en, type Messages } from './messages/en';
+import { cityName } from '../runtime/city';
 import type { ContentKind } from './types';
 
 type Plural = { one: string; other: string };
@@ -56,7 +57,7 @@ export function createTranslator(locale: Locale): Translator {
     t,
 
     name(kind, item) {
-      return def.content?.[kind][item.id] ?? item.name;
+      return cityName(locale, kind, item.id) ?? def.content?.[kind][item.id] ?? item.name;
     },
 
     money: (value) => formatMoney(value, def.numbers),

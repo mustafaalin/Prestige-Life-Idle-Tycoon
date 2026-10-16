@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { LOCALES, type Locale } from '../i18n/locales';
 import { useT } from '../i18n/useT';
 import { useBackButton } from '../runtime/backButton';
+import { cityPreview, setCityPreview, type City } from '../runtime/city';
 import { useGameV2 } from '../runtime/useGameV2';
 import { showRewardedAd } from '../runtime/ads';
 import { scheduleTestReminder } from '../runtime/notifications';
@@ -143,6 +144,19 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
             {(Object.keys(LOCALES) as Locale[]).map((code) => (
               <Chip key={code} active={locale === code} onClick={() => setLocale(code)}>
                 {LOCALES[code].nativeName}
+              </Chip>
+            ))}
+          </Row>
+
+          <Row label={t('dev.city')}>
+            {([null, 'old', 'lumen'] as (City | null)[]).map((value) => (
+              <Chip
+                key={value ?? 'real'}
+                active={cityPreview() === value}
+                // The next tick (runtime/store.ts commit) puts the city on screen.
+                onClick={() => setCityPreview(value)}
+              >
+                {t(`dev.cities.${value ?? 'real'}`)}
               </Chip>
             ))}
           </Row>

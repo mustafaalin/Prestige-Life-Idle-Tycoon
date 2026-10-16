@@ -165,7 +165,7 @@ export function RichMoment({
 
   const { speaker } = milestone;
   const portrait =
-    speaker === 'news' ? null : speaker === 'cousin' ? managerPortrait('tech-startup') : portraitOf(speaker, SPEAKER_FACE[speaker]);
+    speaker === 'news' ? null : speaker === 'cousin' ? managerPortrait('tech-startup', 'old') : portraitOf(speaker, SPEAKER_FACE[speaker]);
   const speakerName =
     speaker === 'news'
       ? t('richList.news')

@@ -1,5 +1,6 @@
 import { HOUSES } from '../../core/config/housing';
 import { VEHICLES } from '../../core/config/lifestyle';
+import { currentCity } from '../../runtime/city';
 
 // What the home scene shows (discussion-notes §7, decided 2026-10-10 and 2026-10-11):
 // - the place is the home you live in (its picture is the house's image in config/housing.ts);
@@ -306,6 +307,17 @@ const HOME_ART: Record<string, Partial<Omit<HomeArt, 'background'>>> = {
   'home-5': { castX: 0.07 },
 };
 
+/**
+ * Lumen's homes (runtime/city.ts; docs/lumen-art-handoff.md). Defaults until tuned on the phone; the
+ * near homes have their door in the left third like the old city's, so the hero steps right.
+ */
+const LUMEN_HOME_ART: Record<string, Partial<Omit<HomeArt, 'background'>>> = {
+  'home-2': { castX: 0.07 },
+  'home-3': { castX: 0.07 },
+  'home-4': { castX: 0.07 },
+  'home-5': { castX: 0.07 },
+};
+
 export function homeArt(houseId: string): HomeArt {
   const house = HOUSES.find((item) => item.id === houseId) ?? HOUSES[0];
   return {
@@ -313,7 +325,7 @@ export function homeArt(houseId: string): HomeArt {
     layout: DEFAULT_LAYOUT,
     light: DEFAULT_LIGHT,
     castX: 0,
-    ...HOME_ART[house.id],
+    ...(currentCity() === 'lumen' ? LUMEN_HOME_ART : HOME_ART)[house.id],
   };
 }
 
@@ -347,6 +359,21 @@ const VEHICLE_SHAPE: Record<string, VehicleShape> = {
   'vehicle-supercar': { metres: 1.15, aspect: 2.045 },
   'vehicle-grand': { metres: 1.55, aspect: 1.758 },
 };
+/** Lumen's vehicles (heights from docs/art-prompts-lumen.md §4, aspects of the cut files, 2026-10-17). */
+const LUMEN_VEHICLE_SHAPE: Record<string, VehicleShape> = {
+  'vehicle-bike': { metres: 1.1, aspect: 1.058, lane: 'near' },
+  'vehicle-scooter': { metres: 1.28, aspect: 0.916, lane: 'near' },
+  'vehicle-old-sedan': { metres: 1.45, aspect: 1.142 },
+  'vehicle-motorcycle': { metres: 1.2, aspect: 1.161, lane: 'near' },
+  'vehicle-hatchback': { metres: 1.6, aspect: 1.676 },
+  'vehicle-suv': { metres: 1.65, aspect: 1.61 },
+  'vehicle-pickup': { metres: 1.85, aspect: 1.331 },
+  'vehicle-executive': { metres: 1.45, aspect: 1.837 },
+  'vehicle-coupe': { metres: 1.28, aspect: 1.779 },
+  'vehicle-offroader': { metres: 1.9, aspect: 1.264 },
+  'vehicle-supercar': { metres: 1.12, aspect: 2.041 },
+  'vehicle-grand': { metres: 1.55, aspect: 1.552 },
+};
 const DEFAULT_SHAPE: VehicleShape = { metres: 1.45, aspect: 2 };
 
 export interface VehicleArt {
@@ -360,7 +387,7 @@ export interface VehicleArt {
 export function vehicleArt(id: string): VehicleArt | null {
   const vehicle = VEHICLES.find((item) => item.id === id);
   if (!vehicle) return null;
-  const shape = VEHICLE_SHAPE[id] ?? DEFAULT_SHAPE;
+  const shape = (currentCity() === 'lumen' ? LUMEN_VEHICLE_SHAPE : VEHICLE_SHAPE)[id] ?? DEFAULT_SHAPE;
   return { id, src: vehicle.image, metres: shape.metres, aspect: shape.aspect, lane: shape.lane ?? 'car' };
 }
 

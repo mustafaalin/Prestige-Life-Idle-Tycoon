@@ -16,7 +16,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak ye
 | [art-brief-v2.md](./art-brief-v2.md) | Görsel listesi, boyutlar, oyuna bağlama | |
 | [art-prompts-v2.md](./art-prompts-v2.md) | GPT'ye yapıştırılacak hazır komutlar | Yeniden üretim için duruyor |
 | [art-prompts-burak.md](./art-prompts-burak.md) | Burak hattının görselleri: kılavuz, ortaklık ve kazık kareleri | Anahtar karesi yetişkin Ada'yı bekliyor |
-| [art-prompts-lumen.md](./art-prompts-lumen.md) | 2. neslin şehri Lumen: yöneticiler, evler, işletmeler, araçlar, lüksler için GPT komutları | Stil A (2026-10-16); yalnız ilk ev üretildi |
+| [art-prompts-lumen.md](./art-prompts-lumen.md) | 2. neslin şehri Lumen: yöneticiler, evler, işletmeler, araçlar, lüksler için GPT komutları | 46 görsel oyunda (2026-10-17); pikap yeniden üretilecek |
 | [audio-v2.md](./audio-v2.md) | Ses efektleri ve müzik: liste, kurallar, kaynaklar | Oyunda (2026-10-17) |
 | [mobile-ad-integration.md](./mobile-ad-integration.md) | v2 reklam altyapısı | |
 | [report-v2.md](./report-v2.md) | **Neden?** | Değişmez; tasarım belgesiyle çelişirse tasarım geçerli |
@@ -37,6 +37,8 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 - **Altyapı:** kayıt Preferences'ta, Android geri tuşu, güvenli alanlar, yerel bildirimler, Firebase Analytics, TR + EN.
 
 ## Son oturum (2026-10-16 → 17)
+
+- **Lumen oyunda (2026-10-17):** çift nesiller Lumen'de oynar. Lumen aynı kimliklerin üstünde bir kaplama (`runtime/city.ts`): işletme, ev, araç ve lüksün kimliği, fiyatı ve kayıttaki yeri aynı; adı (TR/EN), resmi, yöneticisi (yeni 10 kişi, sözleriyle), yükseltme adları ve sahne yerleşimi şehre göre. Kayıt değişmedi. DEV → "Şehir (önizleme)" ile her iki şehre bakılır. Eksikler: Ada'nın görselleri (Lumen'de hâlâ ilk kahraman görünüyor), Lumen'in olay kartları (şimdilik eski şehrin kişileri arıyor), Lumen ev yerleşimlerinin telefonda ayarı, pikabın yeniden üretimi.
 
 - **Ses ve müzik (2026-10-17):** 14 yeni efekt (ElevenLabs) ve 4 müzik (ana ekran, işletme/yatırım, hikâye, olay kartı) oyunda; Ayarlar'da iki anahtar. Ayrıntı [audio-v2.md](./audio-v2.md). Tarayıcıda müzik geçişleri denendi, telefonda denenmedi.
 
