@@ -16,7 +16,7 @@ Son güncelleme: 2026-10-17 · Kod: `src/game/runtime/feedback.ts` · Plan: [reb
 | --- | --- | --- | --- |
 | 1 | `click` | Düğmeler, sekmeler | Yumuşak, tok bir tık; tahta ya da plastik oyuncak |
 | 2 | `coin` | Şişe/para toplama, para uçuşu | Tek parlak bozuk para şıngırtısı (sık çalar: hafif ve kısa) |
-| 3 | `purchase` | İşletme, eşya, ev alımı | Kasa "ka-çing"i, kısa |
+| 3 | `purchase` | İşletme, eşya, ev alımı | Paralar kasa çekmecesine düşer, çekmece kapanır (para eksiliyor hissi) |
 | 4 | `levelUp` | Yükseltme, kariyer, yönetici | Yükselen üç notalık parlak arpej |
 | 5 | `payout` | Ödül kartında "Topla", çevrimdışı kart, günlük ödül | Bir avuç paranın dökülmesi, 1 sn |
 | 6 | `fanfare` | Sınıf töreninin "yeni sınıf" başlığı (konfeti) | Kısa, sıcak bir kutlama: zil + yaylı/üflemeli, 2 sn |
