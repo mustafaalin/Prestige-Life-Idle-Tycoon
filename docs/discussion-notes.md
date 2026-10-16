@@ -48,7 +48,17 @@ Kararlaşanlar: varis 17 yaşında torun (kızının çocuğu), devir 80 yaşın
 5. **Hanedan matematiği (inceleme 2026-10-16, 200 günlük simülatör; 2. nesil konuşmasının ilk maddesi):** yadigârlar varisi yavaşlattı ama döngü 3. nesilde duruyor.
    - Hep erken devreden aile: puan 1.017 → 261 → 187 → 154 → 125, her nesil zirveye 4 sa 26 dk (hızlanma yok). Ömrünü dolduran: 2.531 → 6.647 puan, ama zirveden sonra 7,6 → 13 → 14 saat hedefsiz oyun. "Şimdi devret" ekonomide hep kaybettiriyor (saat başı puan: erken devir ~110, zirve sonrası ~200).
    - Kök neden: puan ailenin bütün kazancının küpkökü (geçmiş büyüdükçe yeni neslin payı küçülür) ve yadigâr fiyatı her seviyede ×2, etkisi toplamalı (saat +%30). AdVenture Capitalist'te melekler harcanmaz ve her biri bütün kazanca kalıcı +%2 verir, tur tur hızlanır.
-   - Simülatörde denenecek öneriler: puan her neslin kendi kazancından (yeni şehir kararıyla uyumlu); yadigâr fiyatı ×1,5 ya da saat çarpanlı (seviye başına ×1,25); zirveden sonra yaş hızlanır (§2 adayı), böylece hem erken devir hem ömrü doldurmak oynanabilir seçenek olur.
+   - **Deneme (2026-10-16, kopya simülatör, 240 gün, oyun kodu değişmedi):** üç değişiklik birlikte ("paket"): (1) puan her neslin kendi kazancından, `10 × (nesil kazancı / $1M)^(1/3)`; (2) yadigâr fiyatı her seviyede ×1,5 (×2 yerine); (3) En Zengin'den sonra yaş 4 kat hızlı akar.
+
+     | Bağlı oyuncu | Bugün, ömrü doldurur | Bugün, hep erken devreder | Paket, ömrü doldurur | Paket, hep erken devreder |
+     | --- | --- | --- | --- | --- |
+     | 1. nesil (zirve / ömür / puan) | 9,2 / 16,8 sa / 2.531 | 9,2 sa / 1.017 | 9,2 / 11,1 sa / 1.242 | 9,2 sa / 1.017 |
+     | 2. nesil | 3,9 / 16,8 sa / 6.647 | 4,4 sa / 261 | 4,0 / 7,2 sa / 2.479 | 4,0 sa / 1.011 |
+     | 3. nesil | 3,3 / 16,8 sa / 3.181 | 4,4 sa / 187 | 3,4 / 6,8 sa / 3.143 | 3,4 sa / 1.019 |
+     | 5. nesil | 3,1 / 16,8 sa / 1.846 | 4,3 sa / 125 | 2,7 / 6,3 sa / 3.782 | 2,9 sa / 1.020 |
+     | 8. nesil | 3,1 / 16,8 sa / 1.173 | 4,3 sa / 85 | 2,4 / 6,0 sa / 4.271 | 2,7 sa / 1.000 |
+
+     Paketle zirve sonrası boşluk 7,6–13,7 saatten ~3,5 saate iniyor; erken devir artık her nesil ~1.000 puan veriyor ve varisler yavaş yavaş hızlanıyor (4,0 → 2,7 sa). Ömrü doldurmak hâlâ saat başı daha çok puan veriyor (~460'a ~300), ama erken devir cezalandırılmıyor. Gündelik oyuncunun ilk ömrü 67 günden 35 güne, reklam + fular + yakut oyuncusununki 24 günden 11 güne iniyor (zirve sonrası 12,6 → 3,1 sa). Tek başına ×1,5 ya da tek başına yaş hızlanması yetmiyor (puan yine nesil nesil düşüyor). Etkiler: "İlk ömür sonu 21–37. gün" hedefi ~14–20. güne çekilmeli; eski kayıtlar güvenli (puan kayıtta toplam olarak durur; ×1,5'te alınmış seviyelerin bedeli düşer, oyuncu puan kazanır, kaybetmez). Yeni şehirde formüldeki $1M o şehrin ölçeğiyle değişir.
 6. **Burak hattının açıkları (karar story-v2 §6a):** Burak'ın 2. nesildeki yaşı (portre ~30, kahramandan ~5 büyük; devirde ~85, 2. neslin sonunda ~100: kabul mü, yaşlı Burak görseli yeter mi); varisin başlangıç tezgâh sayısı (2–3); Burak'ın serveti yeni şehrin eşikleriyle nasıl büyür; Burak 2. nesilde olay kartı ya da anne mesajı kanalından da konuşur mu.
 
 **Kahramanın dede görünümü (karar 2026-10-15, kullanıcı: B):** 60 yaştan sonra kahraman tek bir dede görünümüne geçer (kır saç, gözlük, yelek, babadan kalan saat): 3 sahne pozu (duruş, sevinç, Şans'ı sevme) + 4 portre. Kıyafetlerin gelir bonusu sürer, görünüm yaşa bağlı. Aynı dede 2. nesilde rehber. Torunla aynı üretim turunda yapılır (yüz tutarlılığı). Ayrıca gereken: yetişkin kızın kılavuz görseli (hiç tasarlanmadı); yaşlı Defne konuşacaksa 4 portre. 31 yaşındaki babanın 20'lik görünmesi şimdilik kalır (yetişkin dönemi her kıyafetin yeniden üretimi demek).
