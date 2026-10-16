@@ -17,6 +17,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak ye
 | [art-prompts-v2.md](./art-prompts-v2.md) | GPT'ye yapıştırılacak hazır komutlar | Yeniden üretim için duruyor |
 | [art-prompts-burak.md](./art-prompts-burak.md) | Burak hattının görselleri: kılavuz, ortaklık ve kazık kareleri | Anahtar karesi yetişkin Ada'yı bekliyor |
 | [art-prompts-lumen.md](./art-prompts-lumen.md) | 2. neslin şehri Lumen: yöneticiler, evler, işletmeler, araçlar, lüksler için GPT komutları | Stil A (2026-10-16); yalnız ilk ev üretildi |
+| [audio-v2.md](./audio-v2.md) | Ses efektleri ve müzik: liste, kurallar, kaynaklar | Kaynak seçimi bekliyor (2026-10-17) |
 | [mobile-ad-integration.md](./mobile-ad-integration.md) | v2 reklam altyapısı | |
 | [report-v2.md](./report-v2.md) | **Neden?** | Değişmez; tasarım belgesiyle çelişirse tasarım geçerli |
 | [archive/](./archive/) | Bitmiş teslimler ve incelemeler | Yalnızca geçmiş için |
