@@ -42,7 +42,10 @@ Kalan adaylar (sonra):
 Kararlaşanlar: varis 17 yaşında torun (kızının çocuğu), devir 80 yaşında, ölüm gösterilmez, eş Defne. 2026-10-15: 2. nesil yeni şehirde (§2); kahramanın dede görünümü (aşağıda). Açıklar:
 
 1. **Varislerin cinsiyeti kararlaştı (2026-10-15):** 2. nesil kız torun (sabit), 3. nesil erkek (ilk kahramanın görselleri), sonra sırayla ([story-v2.md §6](./story-v2.md)). Torunun varsayılan adı önerisi Ada.
-2. **2. neslin başlangıcı:** biraz alttan (yön kararı 2026-10-11). Öneri: yeni şehirde kiralık oda ve dedenin Çiçek Tezgâhı yadigâr olarak.
+2. **2. neslin başlangıcı ve şehri (2026-10-16):** karar: robot yöneticiler; 3. nesil eski şehre ve ilk kahramana döner, nesiller iki set arasında döner (story §6); v1 görseli kullanılmaz. Açık:
+   - **Ne kadar fütüristik?** Kullanıcı abartmaktan çekiniyor. Öneri: "bugünün modern şehri + birkaç gelecek dokunuşu" (yeşil kuleler, güneş camları, dronlar; neon ve uçan şehir yok), sıcak gün batımı ışığı, tezgâh eski bir köşede. Karar bir deneme ev karesine bakılarak verilir.
+   - Karar (2026-10-16, kullanıcı): rakamlar 1. nesille aynı; varis kapsül odada, 2 Çiçek Tezgâhı ve yöneticisiyle başlar.
+   - Öneri listesi: işletmeler Çiçek Tezgâhı, Robot Barista, Telefon ve Robot Tamircisi, E-Scooter Kiralama, Dikey Tarla, Sanal Gerçeklik Salonu, Dron Kargo, Güneş Santrali, Biyoteknoloji Laboratuvarı, Yörünge Oteli; evler kapsül oda → kulenin tepesinde malikâne (12).
 3. **2. nesil kıyafet ve poz seti:** aynı sayıda yeni set; dededen kalan bir yadigâr (babanın saati) hep görünsün. Torunun yanında Şans'ın yavrusu (öneri).
 4. **Rehber:** dede, toruna Rıza Amca'nın rolünü üstlenir (rehber balonları, olay kartları); annenin mesaj kanalı kızına ve dedeye geçer (öneri).
 5. **Hanedan matematiği (karar 2026-10-16, kullanıcı: paket uygun; oyunda, kurallar game-design §4.5, §4.9):** inceleme, 200 günlük simülatör: yadigârlar varisi yavaşlattı ama döngü 3. nesilde duruyordu.
@@ -59,7 +62,7 @@ Kararlaşanlar: varis 17 yaşında torun (kızının çocuğu), devir 80 yaşın
      | 8. nesil | 3,1 / 16,8 sa / 1.173 | 4,3 sa / 85 | 2,4 / 6,0 sa / 4.271 | 2,7 sa / 1.000 |
 
      Paketle zirve sonrası boşluk 7,6–13,7 saatten ~3,5 saate iniyor; erken devir artık her nesil ~1.000 puan veriyor ve varisler yavaş yavaş hızlanıyor (4,0 → 2,7 sa). Ömrü doldurmak hâlâ saat başı daha çok puan veriyor (~460'a ~300), ama erken devir cezalandırılmıyor. Gündelik oyuncunun ilk ömrü 67 günden 35 güne, reklam + fular + yakut oyuncusununki 24 günden 11 güne iniyor (zirve sonrası 12,6 → 3,1 sa). Tek başına ×1,5 ya da tek başına yaş hızlanması yetmiyor (puan yine nesil nesil düşüyor). Etkiler: "İlk ömür sonu" hedefi 21–37. günden 15–21. güne çekildi (simülatör: bağlı 16. gün, gündelik 35. gün); eski kayıtlar güvenli (puan kayıtta toplam olarak durur; ×1,5'te alınmış seviyelerin bedeli düşer, oyuncu puan kazanır, kaybetmez). Yeni şehirde formüldeki $1M o şehrin ölçeğiyle değişir.
-6. **Burak hattının açıkları (karar story-v2 §6a):** Burak'ın yaşı kapandı (2026-10-16, kullanıcı: yaş söylenmez, eski çalışan olarak kalır, 2. nesilde orta yaşlı çizilir); varisin başlangıç tezgâh sayısı (2–3); Burak'ın serveti yeni şehrin eşikleriyle nasıl büyür; Burak 2. nesilde olay kartı ya da anne mesajı kanalından da konuşur mu.
+6. **Burak hattının açıkları (karar story-v2 §6a):** Burak'ın yaşı kapandı (2026-10-16, kullanıcı: yaş söylenmez, eski çalışan olarak kalır, 2. nesilde orta yaşlı çizilir); tezgâh sayısı (2, yöneticili) ve Burak'ın serveti (rakamlar aynı, $950B) kapandı; Burak 2. nesilde olay kartı ya da anne mesajı kanalından da konuşur mu.
 
 **Kahramanın dede görünümü (karar 2026-10-15, kullanıcı: B):** 60 yaştan sonra kahraman tek bir dede görünümüne geçer (kır saç, gözlük, yelek, babadan kalan saat): 3 sahne pozu (duruş, sevinç, Şans'ı sevme) + 4 portre. Kıyafetlerin gelir bonusu sürer, görünüm yaşa bağlı. Aynı dede 2. nesilde rehber. Torunla aynı üretim turunda yapılır (yüz tutarlılığı). Ayrıca gereken: yetişkin kızın kılavuz görseli (hiç tasarlanmadı); yaşlı Defne konuşacaksa 4 portre. 31 yaşındaki babanın 20'lik görünmesi şimdilik kalır (yetişkin dönemi her kıyafetin yeniden üretimi demek).
 
@@ -67,7 +70,6 @@ Kararlaşanlar: varis 17 yaşında torun (kızının çocuğu), devir 80 yaşın
 
 Kurallar ve sayılar [game-design-v2.md §4–5](./game-design-v2.md). Çevrimdışı oran ve tavan kararlaştı (%50, geç oyunda 2 sa; 2026-10-13). Açıklar:
 
-- **Multimilyarder hedefi FAIL:** bağlı bot 7. gün 08:00'de (4 sa 17 dk oyun) varıyor, hedef 8. günden itibaren. Ucuz tezgâh, tören hediyesi, tasmalar, günlük ödül ve yatırım (2026-10-15, ~10 saat) onu öne çekti. Seçenekler: (a) hedefin alt sınırını 7. gün sabahına çekmek (Claude'un önerisi; Milyarder'de de böyle yapıldı); (b) geç oyunu ~15–20 dakikalık oyun kadar yavaşlatmak. Tek bir geç işletmeyi %5–7 kısmak yetmedi.
 - **Faz 1 kapısı yeniden yazılmalı:** "ilk oturumda Orta Sınıf ≥ %60" güncel tempoda tutmuyor (botta Orta Sınıf 30. dk, 1. günün 2. oturumu; ilk oturumda Gündelikçi ve İşçi törenleri geliyor).
 - **Erken oyun telefonda bakılacak:** ucuz tezgâh, $1K yönetici, ilk yöneticiye kadar sık gelen Şans. Elle çalışan tezgâhın geliri üst barda görünmüyor (kullanıcı: yönetici atanınca görünsün). Hâlâ boş geliyorsa yeni bir uğraş.
 - **Çevrimdışı ödül erken sınıflarda:** kullanıcı erken oyunda fazla buluyor; erken sınıfların tavanları (10 dk → 1 sa) hiç denenmedi. Ölçüm: paranın ~%87'si çevrimdışı kartlardan geliyor; oran ve tavan payı pek oynatmıyor (%78–91), tempoyu ve "ne sıklıkla dönmeli" hissini belirliyor.

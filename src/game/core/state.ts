@@ -11,6 +11,7 @@ import { WEALTH_CLASSES } from './config/classes';
 import { heirloomDef } from './config/heirlooms';
 import {
   ageSpeed,
+  businessUnitCap,
   classIndexFor,
   costForUnits,
   heirloomCap,
@@ -128,6 +129,7 @@ export function buyBusinessUnits(state: GameStateV2, businessId: string, count: 
   const def = BUSINESS_BY_ID.get(businessId);
   if (!def || count <= 0) return null;
   const current = state.businesses[businessId];
+  if (current.owned + count > businessUnitCap(state, def)) return null;
   const paid = spend(state, costForUnits(def, current.owned, count));
   if (!paid) return null;
   return {
@@ -394,7 +396,8 @@ export function activeQuests(state: GameStateV2): QuestDef[] {
     const target = PROFIT_MILESTONES.find(
       (count) => !state.questsDone.includes(`units:${def.id}:${count}`) && !WRITTEN_UNIT_GOALS.has(`${def.id}:${count}`),
     );
-    if (target === undefined) continue;
+    // A goal the class does not allow yet would sit on screen undoable (§4.2 caps).
+    if (target === undefined || target > businessUnitCap(state, def)) continue;
     const id = `units:${def.id}:${target}`;
     generated.push({
       quest: {

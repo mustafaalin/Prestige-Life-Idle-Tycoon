@@ -85,6 +85,13 @@ AdVenture Capitalist modeli: her işletme adet adet alınır, her birim bir üre
 | Hotel Chain | $1.3B | ×1.12 | 13 sn | $46.9K | 4 g 4 sa | $15.6B |
 | Tech Startup | $25.9B | ×1.12 | 15 sn | $1.30M | 3 g 11 sa | $311B |
 
+**İşletmeler sınıfla açılır ve sınıfla büyür (karar 2026-10-16, kullanıcı; `BUSINESS_OPEN_CLASS`, `BUSINESS_CAP_STEPS`, `formulas.ts` `businessCapAt`):** her işletme bir sınıfta açılır; açıldığı sınıfta en çok 10 adet, sonraki sınıfta 25, ondan sonrakinde 50, sonra sınırsız. 25 ve 50 kilometre taşı (kâr ×2) olduğu için bir sonraki ×2'yi tören açar. Açılış: Çiçek Tezgâhı Sokak, Kahve Arabası Gündelikçi, Fırın İşçi, Oto Yıkama ve Mini Market Orta Sınıf, Güzellik Salonu ve Lojistik Milyoner, Fabrika, Otel ve Teknoloji Milyarder (kullanıcı: Orta Sınıf'ta 2, Milyoner'de 2, Milyarder'de 3 işletme açılır). Kullanıcının amacı: işletmelerin ekonomideki ağırlığını biraz kırmak, parası olsa da fırını tezgâhla birlikte alamamak.
+
+- **Ölçüm (simülatör):** yalnız sınıf kilidi hiçbir şeyi değiştirmiyor; bot işletmeleri zaten bu sırayla alıyordu. Etkiyi adet sınırı yapıyor. İşletmenin gelirdeki payı pek düşmüyor (%97 → %96), çünkü ev, araç, kıyafet ve kariyer gelir değil çarpan. Sınırın asıl etkisi geç oyunu yavaşlatmak: En Zengin 14. günden 16. güne (51 → 55 yaş), ömür sonu 16. günden 18. güne, Multimilyarder 7. günden 8. güne (bilinen FAIL düzeldi, bütün hedefler tutuyor). İlk saat değişmedi. Varis En Zengin'e ~4 sa yerine ~4 sa 20 dk'da varıyor.
+- **Denenip bırakılanlar:** sınırın Orta Sınıf'a kadar 10'da kalması (kullanıcının örneği) ve son dört işletmenin bir sınıf geç açılması: En Zengin'e ilk ömürde hiç ulaşılmıyor ya da 63 yaşa kayıyor (torunun doğumuyla çakışıyor). İlk sınır 25 hiçbir şeyi değiştirmiyor.
+- **Ekranda:** açılmamış işletme listede kilitli kartta "{sınıf} olunca açılır"; sınırdaki işletmenin düğmesi "Sınırda", altında "{sınıf} olunca {N} adet" (ya da "sınırsız"); ×10 ve Maks sınırı aşmaz. Törenin kapanış kartında "Yeni işletme: ..." ve "İşletmelerinde sınır yükseldi" satırları.
+- **Kayıt:** sınırdan fazla adedi olan eski kayıt hepsini korur, yalnız sınıfı izin verene kadar yenisini alamaz. Üretilen kilometre taşı hedefleri sınırı aşmaz; "Oto Yıkama al" hedefi Orta Sınıf hedefinin arkasına alındı.
+
 **Yükseltmeler (`config/upgrades.ts`):** Her işletmeye sırayla alınan 3 tek seferlik yükseltme, her biri o işletmenin kârı ×2 (toplam ×8). 5 / 15 / 35 adette açılır; fiyat o adede ulaşmanın maliyetinin 2 / 6 / 20 katı (Çiçek Tezgâhı: Tente ~$1,79K, Renkli saksılar ~$51,9K, Çiçek kamyoneti ~$7,08M). Fiyat işletmenin kendi büyüklüğüne bağlı olduğu için geç işletmelerin yükseltmeleri de erişilebilir kalır. Adet, yükseltme ve yönetici arasında gerçek bir seçim yaratır. Adları i18n `upgrades`.
 
 ### 4.3 Kariyer (`config/careers.ts`)
@@ -169,7 +176,7 @@ En iyi evde (kendi evin) yaşanıp tüm eşyalar alındığında statü toplamı
 - **Erken devir (oyunda):** En Zengin'den sonra Aile sekmesi açılır (önce kilitli: "Dünyanın En Zengini olunca açılır"): canlı "Varisine bırakacağın +N itibar puanı", "Kal, biriktir" (sekmeyi kapatır) ve "Şimdi devret" (onay: "Kalan yıllar atlanır; 80 yaşında torununa devredersin"). Devret kalan yılları atlar (`handOverEarly`: ömür 80'de biter), ardından ömür sonu paneli. Hikâye anları (torunun doğumu 63, dede ve torun 70, devir 80) görsellerle gelecek. Sekmede "!": alınabilir yadigâr varsa, ya da devir seçimi açıkken oturumda bir kez. Analitik `hand_over_early`, `heirloom_buy`.
 - **Varisin hızı (simülatör 2026-10-16, bot puanını hemen harcar: önce saat, sonra en ucuzu):** bağlı oyuncu, 80 yaşta devrederek: 1. nesil 1.242 puan bırakır; 2. nesil En Zengin'e 4,0 sa, 5. nesil 2,7 sa, 8. nesil 2,4 sa oyunda varır; bir ömür 7,2 → 6,0 sa, bıraktığı puan 2.479 → 4.271. Hep erken devrederek her nesil ~1.000 puan, zirve 4,0 → 2,7 sa. Ömrü doldurmak saat başı daha çok puan verir (~460'a ~300), erken devir cezalandırılmaz (tablo discussion-notes §3.5). Aşağıdaki süreler paketten önceki 2. nesil ölçümüdür: Casual 3 sa, reklam izleyen 3 sa 2 dk, reklam + fular + yakut 1 sa 44 dk – 2 sa. Başlangıç çarpanına göre süre: ×1 9 sa 11 dk, ×1,5 6 sa 16 dk, ×2 4 sa 52 dk, ×3 3 sa 28 dk, ×5 2 sa 18 dk. Simülatör: `npm run sim -- --days 60 --retire-at-top` (erken devir), `startLegacyPoints` seçeneği.
 - **Varis neden en dipten başlar (karar 2026-10-16):** dedenin servetini ortağı Burak kazıkla alır; yadigârlar ve birkaç Çiçek Tezgâhı kalır, 2. neslin hedefi Zenginler Listesi'nin 1. sırasındaki Burak'ı geçmek ([story-v2.md §6a](./story-v2.md)).
-- **Kararlaşan, henüz yapılmayan:** her nesil yeni şehirde (işletmeler, evler, fiyat, gelir ve eşikler aynı oranda büyür; hızı yadigârlar belirler; varis kiralık odadan ve dedenin Çiçek Tezgâhı'yla başlar, öneri). Varisler: 2. nesil kız torun (sabit), 3. nesil erkek (ilk kahramanın görselleri), sonra kadın-erkek sırayla; kahraman 60 yaştan sonra dede görünümünde, 2. nesilde rehber ([story-v2.md §6](./story-v2.md)). Görünür miras, yadigârlar ve 2. nesil içeriği birlikte yayınlanır.
+- **Kararlaşan, henüz yapılmayan:** 2. nesil yeni şehirde (Lumen, öneri): 10 yeni işletme (ilki dedenin Çiçek Tezgâhı), robot yöneticiler, 12 ev, 12 araç, 4 lüks, hepsi yeni görsel. 3. nesil eski şehre ve ilk kahramanın görsellerine döner; nesiller iki set arasında döner (story §6). **Rakamlar her şehirde aynı** (karar 2026-10-16, kullanıcı: eşikler, fiyatlar, miras formülündeki $1M; Burak $950B, zirve $1T). **Varis 2 Çiçek Tezgâhı ve yöneticisiyle başlar** (karar 2026-10-16, kullanıcı). Varisler: 2. nesil kız torun (sabit), 3. nesil erkek (ilk kahramanın görselleri), sonra kadın-erkek sırayla; kahraman 60 yaştan sonra dede görünümünde, 2. nesilde rehber ([story-v2.md §6](./story-v2.md)). Görünür miras, yadigârlar ve 2. nesil içeriği birlikte yayınlanır.
 
 ### 4.6 Çevrimdışı kazanç
 
@@ -229,14 +236,14 @@ Tek ev kavramı (rapor §5). Oyuncu her zaman tek bir evde yaşar; **ana ekranı
 | --- | --- |
 | Başlangıç yaşı | 17 (varis de 17'den başlar) |
 | Emeklilik yaşı | 80 (63 yıl; 2026-10-11, önce 97). Varis torun kahraman 63 yaşındayken doğar, devirde 17 olur |
-| Oyun ayı | 80 saniye oyun = 1 ay; 16 dakika = 1 yaş (2026-10-09). En Zengin'den sonra yaş 4 kat hızlı (`TOP_CLASS_AGE_SPEED`, 2026-10-16): 51'den 80'e ~2 saat; bir ömür ≈ 11 saat oyun |
+| Oyun ayı | 80 saniye oyun = 1 ay; 16 dakika = 1 yaş (2026-10-09). En Zengin'den sonra yaş 4 kat hızlı (`TOP_CLASS_AGE_SPEED`, 2026-10-16): 55'ten 80'e ~1,5 saat; bir ömür ≈ 12 saat oyun |
 | Yaş ne zaman ilerler | Sadece oyun açıkken. Uzaktayken para birikir ama yaşlanmazsın. 10 sn'den uzun boşluk çevrimdışı sayılır |
 | Ömür sonu | "Bir ömür tamamlandı" paneli (hayattan kareler, işletme özeti, aile itibarı) → Emekli ol ve devret. Ölüm gösterilmez; vakıf töreni 2.1'de |
 | Gösterim | Üst barda "24 yaş" |
 
 - Tam ekran hikâye anlarında (tören, hayat anı) yaş durur.
 - **Hayat anları (karar 2026-10-11):** yaş, hikâyenin ikinci saatidir. Belirli yaşlarda kahramanın hayatından tek karelik anlar oynar (buluşma, düğün, çocuğun doğumu...); sınıf törenleri paraya, hayat anları yaşa bağlıdır. Liste ve kurallar [story-v2.md §4c](./story-v2.md).
-- En Zengin'den sonraki yılları hayat anları doldurur (torunun doğumu 63, dede ve torun 70, devir 80). Engaged bot En Zengin'e 51, casual 40 yaşında ulaşıyor; ömür sonu engaged botta 16. gün (11 sa 5 dk oyun), casual'da 35. gün (8 sa 49 dk). Yaşın hızlanmasından önce zirve sonrası 7,6–13,7 saat hedefsiz oyundu (discussion-notes §3.5).
+- En Zengin'den sonraki yılları hayat anları doldurur (torunun doğumu 63, dede ve torun 70, devir 80). Engaged bot En Zengin'e 55, casual 42 yaşında ulaşıyor; ömür sonu engaged botta 17. gün (11 sa 58 dk oyun), casual'da 37. gün (9 sa 23 dk) (2026-10-16, işletme sınırlarıyla; önce 51 yaş, 16. gün). Yaşın hızlanmasından önce zirve sonrası 7,6–13,7 saat hedefsiz oyundu (discussion-notes §3.5).
 
 ### 4.10 Hedefler (`config/quests.ts`)
 
@@ -292,7 +299,7 @@ Bir randevu mekaniği: oyuncu birikimini bir vadeye koyar, vadesi dolunca geri g
 
 Bot her an en kısa sürede kendini ödeyen alımı yapar, yani optimal oynar. Gerçek oyuncuların ~1,3–1,8 kat yavaş olduğu tahmin, ölçülmüş değil. Bot yöneticisiz işletmeleri %60 verimle çalıştırıyor sayar; gerçek oyunda sadece başlatılan döngü ödenir (sınırlar: discussion-notes §5). Toplama, Şans'ın bulduğu ve olay kartları simülatörde modelli (§4.7).
 
-Güncel sonuç (2026-10-15, günlük ödül ve yatırımla; hedefler `src/game/sim/report.ts`):
+Güncel sonuç (2026-10-16, işletme sınırlarıyla; hedefler `src/game/sim/report.ts`):
 
 | Kilometre taşı | Hedef (engaged bot) | Engaged bot | Casual bot |
 | --- | --- | --- | --- |
@@ -304,11 +311,11 @@ Güncel sonuç (2026-10-15, günlük ödül ve yatırımla; hedefler `src/game/s
 | Orta Sınıf | 25–50 dk oyun | 30 dk, 1. gün 2. oturum (18 yaş) | 25 dk, 2. gün |
 | Milyoner | 35 dk – 1 sa 15 dk oyun | 40 dk, 1. gün son oturum (19 yaş) | 35 dk, 2. gün |
 | İlk milyarder | 2. gün 20:00 – 7. gün (alt sınır 2026-10-15'te 3. günden indi: gümüş tasma) | 2. gün 23:00, 1 sa 22 dk (22 yaş) | 4. gün |
-| İlk multimilyarder | 8–14. gün | **7. gün 08:00, 4 sa 17 dk (33 yaş): hedefin altında, simülatör bu satırda FAIL veriyor** (karar bekliyor, [discussion-notes.md §4](./discussion-notes.md)) | 13. gün |
-| İlk "en zengin" | 14–21. gün | 14. gün 08:00, 9 sa 11 dk (51 yaş) | 25. gün (40 yaş) |
-| İlk ömür sonu (80 yaş) | 15–21. gün (2026-10-16; önce 21–37, yaş zirveden sonra hızlandı) | 16. gün (11 sa 5 dk oyun) | 35. gün (8 sa 49 dk) |
+| İlk multimilyarder | 8–14. gün | 8. gün 12:00, 5 sa 6 dk (36 yaş); işletme sınırlarından önce 7. gündü (FAIL) | 14. gün |
+| İlk "en zengin" | 14–21. gün | 15. gün 21:00, 10 sa 21 dk (55 yaş) | 28. gün (42 yaş) |
+| İlk ömür sonu (80 yaş) | 15–21. gün (2026-10-16; önce 21–37, yaş zirveden sonra hızlandı) | 17. gün (11 sa 58 dk oyun) | 37. gün (9 sa 23 dk) |
 
-**His kontrolleri (`checkFeel`):** Tempo hedefleri tutarken işletmeler yan gelire düşebiliyor (eski bir ayarda Gündelikçi anında işletme payı %3'tü). Simülatör şunları da bekler: her işletmenin ilk biriminin turu ≥ $1; işletmelerin gelirdeki payı (toplama hariç) Gündelikçi anında, ilk oturumun sonunda ve 1. nesil oturumlarının ortancasında ≥ %50. Şu an: tur en az $1, pay %84 / %91 / %98. `npm run sim -- --purchases --timeline` her alımı zaman çizelgesinde gösterir.
+**His kontrolleri (`checkFeel`):** Tempo hedefleri tutarken işletmeler yan gelire düşebiliyor (eski bir ayarda Gündelikçi anında işletme payı %3'tü). Simülatör şunları da bekler: her işletmenin ilk biriminin turu ≥ $1; işletmelerin gelirdeki payı (toplama hariç) Gündelikçi anında, ilk oturumun sonunda ve 1. nesil oturumlarının ortancasında ≥ %50. Şu an: tur en az $1, pay %84 / %91 / %96. `npm run sim -- --purchases --timeline` her alımı zaman çizelgesinde gösterir.
 
 Engaged botun ilk günü (2026-10-13, tasmalardan önce; sıra aynı): şişeler → el ilanı işi (10 sn) → Bulaşıkçı (1 dk 17 sn) → Çiçek Tezgâhı (2. dk) ve bisiklet (3. dk) → Gündelikçi (4,5. dk) → Rıza Amca yönetici (6,5. dk) → Tente ve skuter (10. dk) → Kahve Arabası (12,5. dk) → kiralık oda ve emektar sedan (14–16. dk) → İşçi töreni (25. dk); ilk oturum burada biter. Orta Sınıf 2. oturumda gelir. Sınıf çubuğu karekök ölçeğinde çizilir (`classProgress`): düz oranla dakikalarca %0'da durup sonra fırlıyordu.
 

@@ -1,5 +1,5 @@
 import { LIFE_SECONDS, SECONDS_PER_MONTH, SECONDS_PER_YEAR, START_AGE, TOP_CLASS_AGE_SPEED } from './config/life';
-import { BUSINESSES } from './config/businesses';
+import { BUSINESSES, BUSINESS_CAP_STEPS, BUSINESS_OPEN_CLASS } from './config/businesses';
 import { CAREERS } from './config/careers';
 import { WEALTH_CLASSES } from './config/classes';
 import {
@@ -46,6 +46,23 @@ const UPGRADE_BY_ID = new Map(UPGRADES.map((upgrade) => [upgrade.id, upgrade]));
 
 export function unitCost(def: BusinessDef, owned: number) {
   return def.baseCost * def.costGrowth ** owned;
+}
+
+/** The class a business line opens at (game-design-v2 §4.2). */
+export function businessOpenClass(def: BusinessDef) {
+  return BUSINESS_OPEN_CLASS[def.id] ?? 0;
+}
+
+/** How many units of a line a class allows: 0 before it opens, Infinity once the steps run out. */
+export function businessCapAt(def: BusinessDef, classIndex: number) {
+  const step = classIndex - businessOpenClass(def);
+  if (step < 0) return 0;
+  return BUSINESS_CAP_STEPS[step] ?? Infinity;
+}
+
+/** How many units of a line the player's class allows now. */
+export function businessUnitCap(state: GameStateV2, def: BusinessDef) {
+  return businessCapAt(def, state.classIndex);
 }
 
 /** Total price of buying `count` units when `owned` are already owned (geometric series). */

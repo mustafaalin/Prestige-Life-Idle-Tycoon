@@ -1,7 +1,8 @@
 import { ArrowBigUpDash, Lock, Play } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { PROFIT_MILESTONES } from '../../core/config/economy';
-import { costForUnits, cycleRevenue, globalMultiplier, maxAffordableUnits, nextMilestone } from '../../core/formulas';
+import { WEALTH_CLASSES } from '../../core/config/classes';
+import { businessCapAt, businessUnitCap, costForUnits, cycleRevenue, globalMultiplier, maxAffordableUnits, nextMilestone } from '../../core/formulas';
 import { canBuyUpgrade, nextUpgrade } from '../../core/state';
 import type { BusinessDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
@@ -20,10 +21,13 @@ import { managerKey, managerPortrait, type ManagerLine } from './managers';
 
 export type BuyMode = 1 | 10 | 'max';
 
-/** Units a buy button buys: the fixed amount, or as many as the player can afford (at least 1 to show a price). */
-function unitsToBuy(def: BusinessDef, owned: number, cash: number, mode: BuyMode) {
-  if (mode !== 'max') return mode;
-  let count = maxAffordableUnits(def, owned, cash);
+/**
+ * Units a buy button buys: the fixed amount, or as many as the player can afford (at least 1 to show
+ * a price), never past what the class allows (`room`, game-design-v2 §4.2).
+ */
+function unitsToBuy(def: BusinessDef, owned: number, cash: number, mode: BuyMode, room: number) {
+  if (mode !== 'max') return Math.max(1, Math.min(mode, room));
+  let count = Math.min(maxAffordableUnits(def, owned, cash), room);
   // The closed-form max can overshoot by one unit through float rounding.
   while (count > 1 && costForUnits(def, owned, count) > cash) count -= 1;
   return Math.max(1, count);
@@ -36,9 +40,14 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
   const cycle = state.cycles[def.id];
   const speed = actions.dev.getSpeed();
 
-  const count = unitsToBuy(def, owned, game.cash, buyMode);
+  // Each class lets a line grow further; at the cap the button waits for the next ceremony.
+  const room = businessUnitCap(game, def) - owned;
+  const atCap = room <= 0;
+  const nextClass = WEALTH_CLASSES[game.classIndex + 1];
+  const nextCap = nextClass ? businessCapAt(def, game.classIndex + 1) : null;
+  const count = unitsToBuy(def, owned, game.cash, buyMode, room);
   const cost = costForUnits(def, owned, count);
-  const canBuy = game.cash >= cost;
+  const canBuy = !atCap && game.cash >= cost;
   const canStart = owned > 0 && !managed && !cycle.running;
   const secondsLeft = (def.cycleSeconds * (1 - cycle.progress)) / Math.max(speed, 1e-9);
 
@@ -176,8 +185,14 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
             disabled={!canBuy}
             className="w-full h-full min-h-11 py-2 px-3 flex items-center justify-between gap-2"
           >
-            <span className="v2-display text-[14px] v2-shadow">{t('business.buy', { count })}</span>
-            <span className="v2-display text-[14px] v2-shadow tabular-nums">{money(cost)}</span>
+            {atCap ? (
+              <span className="flex-1 v2-display text-[14px] v2-shadow">{t('business.capFull')}</span>
+            ) : (
+              <>
+                <span className="v2-display text-[14px] v2-shadow">{t('business.buy', { count })}</span>
+                <span className="v2-display text-[14px] v2-shadow tabular-nums">{money(cost)}</span>
+              </>
+            )}
           </GameButton>
         </Focusable>
         {owned > 0 && !managed && (
@@ -202,6 +217,14 @@ export function BusinessCard({ def, buyMode }: { def: BusinessDef; buyMode: BuyM
           </Focusable>
         )}
       </div>
+      {atCap && nextClass && nextCap !== null && (
+        <p className="flex items-center gap-1 px-1 text-[11px] font-bold text-indigo-900/50">
+          <Lock className="w-3 h-3 shrink-0" />
+          {Number.isFinite(nextCap)
+            ? t('business.capReached', { class: name('wealthClass', nextClass), cap: nextCap })
+            : t('business.capUnlimited', { class: name('wealthClass', nextClass) })}
+        </p>
+      )}
       {owned > 0 && !managed && <HelpAd cost={def.managerCost} />}
 
       {owned > 0 && !managed && (

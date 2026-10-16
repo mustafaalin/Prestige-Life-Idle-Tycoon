@@ -18,6 +18,7 @@ import {
   costForUnits,
   autoIncomePerSecond,
   incomePerSecond,
+  businessUnitCap,
   nextMilestone,
   offlineEarnings,
   pendingLegacyPoints,
@@ -199,13 +200,16 @@ function candidates(state: GameStateV2): Candidate[] {
 
   for (const def of BUSINESSES) {
     const { owned, managed } = state.businesses[def.id];
-    list.push({
+    // Lines open with the classes, and each class lets a line grow further (game-design-v2 §4.2).
+    const cap = businessUnitCap(state, def);
+    if (owned < cap) list.push({
       label: `${def.name} #${owned + 1}`,
       kind: owned === 0 ? 'business' : 'purchase',
       cost: costForUnits(def, owned, 1),
       apply: (s) => buyBusinessUnits(s, def.id, 1),
     });
-    const milestone = nextMilestone(owned);
+    const next = nextMilestone(owned);
+    const milestone = next === null ? null : Math.min(next, cap);
     if (milestone !== null && milestone - owned > 1) {
       const count = milestone - owned;
       list.push({

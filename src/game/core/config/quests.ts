@@ -39,8 +39,9 @@ export const QUESTS: QuestDef[] = [
   quest('job-4', { type: 'career', index: 3 }, 3000),
   quest('bakery-manager', { type: 'manager', businessId: 'bakery' }, 5000),
   quest('home-flat-2', { type: 'home', index: 4 }, 5000),
-  quest('carwash-1', { type: 'units', businessId: 'car-wash', count: 1 }, 8000),
+  // The Car Wash opens at Middle Class (game-design-v2 §4.2), so the class goal comes first.
   quest('class-3', { type: 'class', index: 3 }, 20000),
+  quest('carwash-1', { type: 'units', businessId: 'car-wash', count: 1 }, 8000),
 ];
 
 /** Goals on screen at once. */

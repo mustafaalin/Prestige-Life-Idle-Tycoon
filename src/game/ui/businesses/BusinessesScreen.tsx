@@ -1,6 +1,8 @@
 import { Lock } from 'lucide-react';
 import { useState } from 'react';
 import { BUSINESSES } from '../../core/config/businesses';
+import { WEALTH_CLASSES } from '../../core/config/classes';
+import { businessOpenClass } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { ImageTile, Segmented, SectionLabel } from '../kit';
@@ -11,7 +13,8 @@ const BUY_MODES: BuyMode[] = [1, 10, 'max'];
 /**
  * Business list. Lines are revealed one at a time: everything owned (a ceremony's gift can be
  * further down the line), the next one to buy, and a locked teaser of the one after, so a new
- * player is never facing ten choices.
+ * player is never facing ten choices. A line opens with its class (game-design-v2 §4.2): until
+ * then the next line is only the teaser, with the class that opens it.
  */
 export function BusinessesScreen() {
   const { game } = useGameV2();
@@ -20,8 +23,12 @@ export function BusinessesScreen() {
 
   const firstUnowned = BUSINESSES.findIndex((def) => game.businesses[def.id].owned === 0);
   const owns = (def: (typeof BUSINESSES)[number]) => game.businesses[def.id].owned > 0;
-  const visible = firstUnowned < 0 ? BUSINESSES : BUSINESSES.filter((def, index) => index <= firstUnowned || owns(def));
-  const teaser = firstUnowned < 0 ? undefined : BUSINESSES.find((def, index) => index > firstUnowned && !owns(def));
+  const isOpen = (def: (typeof BUSINESSES)[number]) => businessOpenClass(def) <= game.classIndex;
+  // The next line gets a full card only once its class has opened it.
+  const nextShown = firstUnowned >= 0 && isOpen(BUSINESSES[firstUnowned]) ? firstUnowned : firstUnowned - 1;
+  const visible = firstUnowned < 0 ? BUSINESSES : BUSINESSES.filter((def, index) => index <= nextShown || owns(def));
+  const teaser = firstUnowned < 0 ? undefined : BUSINESSES.find((def, index) => index > nextShown && !owns(def));
+  const teaserClass = teaser && !isOpen(teaser) ? WEALTH_CLASSES[businessOpenClass(teaser)] : undefined;
 
   return (
     <section className="flex flex-col gap-3">
@@ -54,7 +61,9 @@ export function BusinessesScreen() {
             <p className="v2-display text-[16px] text-indigo-900/50 truncate">{name('business', teaser)}</p>
             <p className="text-[11px] font-bold text-indigo-900/40 flex items-center gap-1">
               <Lock className="w-3 h-3" />
-              {t('business.teaser', { price: money(teaser.baseCost) })}
+              {teaserClass
+                ? t('business.classLocked', { class: name('wealthClass', teaserClass) })
+                : t('business.teaser', { price: money(teaser.baseCost) })}
             </p>
           </div>
         </div>

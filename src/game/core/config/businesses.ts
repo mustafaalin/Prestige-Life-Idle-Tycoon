@@ -24,6 +24,29 @@ const FIRST_STAND = { cost: 120, managerCost: 1000 };
  */
 export const CLASS_MANAGER_GIFT = { classIndex: 5, businessId: 'hotel' };
 
+/**
+ * Businesses open with the classes (decided 2026-10-16, user): each line opens at a class, and how
+ * many units can be owned grows with every class after it: 10 at the opening class, 25 at the next,
+ * 50 at the one after, then no limit. 25 and 50 are profit milestones (×2), so a ceremony is what
+ * lets a line reach its next doubling. Owning more than the cap (older saves) is kept, never taken.
+ * Middle Class opens two lines, Millionaire two, Billionaire three (user). The bot bought lines in
+ * this order anyway; opening the last ones a class later stalled the late game (Richest at 63).
+ */
+export const BUSINESS_OPEN_CLASS: Record<string, number> = {
+  'flower-stand': 0,
+  'coffee-cart': 1,
+  bakery: 2,
+  'car-wash': 3,
+  'mini-market': 3,
+  'beauty-salon': 4,
+  'logistics-warehouse': 4,
+  factory: 5,
+  hotel: 5,
+  'tech-startup': 5,
+};
+/** Unit cap by classes since the line opened; past the end there is no limit. */
+export const BUSINESS_CAP_STEPS = [10, 25, 50];
+
 // Each tier's first unit costs `costStep` times the previous one (2026-10-09). Small steps early, so
 // the first businesses come quickly; bigger steps later, so new businesses keep arriving across the
 // days instead of all on the first one. Cycles are short and readable (1–15 s); they only change how

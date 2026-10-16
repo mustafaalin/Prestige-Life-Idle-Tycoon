@@ -180,7 +180,7 @@ Hikâyenin ikinci saati yaştır. Sınıf törenleri paraya bağlı olduğu içi
 - Kapanış kartı yok: son balon ya da "Geç" anı bitirir. Başlık "28 yaş · Düğün".
 - Aradaki yıllar görselleştirilmez.
 - Kahramanın kızı vardır (cinsiyet sabit, karar 2026-10-11); adını oyuncu verir (doğum anından sonra sorulur; varsayılan **Elif** / **Ella**, en fazla 16 karakter, tek dokunuşla geçilir).
-- En Zengin'den sonra yaş 4 kat hızlı akar (2026-10-16, game-design §4.9): 51'den 80'e ~2 saat oyun; aşağıdaki 63, 70 ve 80 süreleri buna göre.
+- En Zengin'den sonra yaş 4 kat hızlı akar (2026-10-16, game-design §4.9): zirveden (bağlı oyuncuda 55 yaş, işletme sınırlarıyla) 80'e ~1,5 saat oyun; aşağıdaki 63, 70 ve 80 süreleri buna göre.
 - Kahramanın görünümü şimdilik yaşlanmaz (karar 2026-10-11: sonra bakılacak; [discussion-notes.md §1](./discussion-notes.md)).
 
 | Yaş | Oyun süresi (engaged bot) | An | Ön koşul | Faz |
@@ -275,8 +275,9 @@ Faz 1'de pano sadece statü eşyalarını gösterir (sıradaki ev, araç, kıyaf
 - **Devir 80 yaşta.** Varis, kahramanın kızının çocuğu: kahraman 63 yaşındayken doğar, devirde 17 yaşındadır (§4c). En Zengin'den sonra "Şimdi devret" kalan yılları atlar ("Yıllar geçti…", sonra 63, 70 ve 80 yaş anları art arda; karar 2026-10-15). Devir hep 80 yaşta ([game-design-v2.md §4.5](./game-design-v2.md)).
 - **Varislerin cinsiyeti (karar 2026-10-15, kullanıcı):** 2. nesil **kız torun** (sabit, seçim yok); 3. nesil **erkek**, ilk kahramanın görselleri (kıyafetler, pozlar, portreler) yeniden kullanılır; sonra kadın, erkek diye sürer. Torunun adını oyuncu koyar (varsayılan **Ada**, EN de Ada).
 - **Dede görünümü (karar 2026-10-15, kullanıcı):** kahraman 60 yaştan sonra tek bir dede görünümüne geçer (kır saç, gözlük, yelek, babadan kalan saat): 3 sahne pozu + 4 portre. Kıyafetlerin gelir bonusu sürer, görünüm yaşa bağlı. 2. nesilde aynı dede torunun rehberi (Rıza Amca'nın kahramana yaptığını yapar). Yetişkin kız (Elif) ve yaşlı Defne kılavuzları hazır ([art-prompts-dynasty.md](./art-prompts-dynasty.md)).
-- **2. nesil yeni şehirde (karar 2026-10-15, kullanıcı):** torun dedesinin adıyla değil kendi adıyla yükselir; yeni işletmeler, evler, görevler, kısa ve dedeli törenler, torunun kendi hayat anları. Neden yeni şehir: eski şehirde aile adı artık Burak'ın (aşağıda).
+- **2. nesil yeni şehirde (karar 2026-10-15, kullanıcı):** torun dedesinin adıyla değil kendi adıyla yükselir; yeni işletmeler, evler, görevler, kısa ve dedeli törenler, torunun kendi hayat anları. Neden yeni şehir: eski şehirde aile adı artık Burak'ın (aşağıda). Şehir **Lumen** (öneri): kıyıda yeni kurulmuş modern bir şehir; ne kadar fütüristik olacağı açık ([discussion-notes.md §3](./discussion-notes.md)), yıl hiçbir yerde söylenmez. İşletme yöneticileri robot (karar 2026-10-16, kullanıcı): tek robot tasarımının 10 çeşidi; olay kartlarında insanlar konuşur. v1'in görselleri kullanılmaz, her şey yeni üretilir (kullanıcı 2026-10-16).
 - **Varis neden en dipten başlar (karar 2026-10-16, kullanıcı):** dedenin serveti miras kalmaz, ortağı Burak'ın kazığıyla gider (Burak hattı). Burak'ın değersiz bulup bıraktıkları kalır: babanın saati, erik reçeli, Rıza'nın defteri, Şans'ın tasması, aile albümü (yadigârlar) ve köşedeki birkaç Çiçek Tezgâhı (varisin başlangıcı, sayı 2. nesil ekonomisiyle). Miras puanı "itibar"dır: para alınabilir, itibar alınamaz. Eski "servetini vakfa bağışlar" fikri bunun yerine düştü.
+- **Döngü (karar 2026-10-16, kullanıcı):** 3. nesil ilk kahramanın görselleriyle eski şehirde başlar (Ada Burak Holding'i almıştır); yeni hikâye görseli yapılmaz. Nesiller iki set arasında döner: tek nesiller eski şehir ve ilk kahraman, çift nesiller Lumen ve Ada'nın görselleri.
 - **3. nesilden sonra:** her nesil yeniden soyulmaz. Ada bir gelenek kurar: *"Bizim ailede herkes bir tezgâhla başlar."* Sonraki varisler bu yüzden en dipten başlar (cümlenin yeri 2. neslin içeriğiyle).
 - Ölüm hiç gösterilmez; anne, Rıza ve Şans'ın varlığı fotoğraflar ve bıraktıkları eserlerle sürer. Yaşı çok ilerleyen yan karakterler (Rıza, Nevin Hanım) kahramanın 55 yaşından sonra kişi olarak görünmez (lüks anlarının metinleri buna göre düzeltilecek, [discussion-notes.md §7](./discussion-notes.md)).
 - Açık sorular: [discussion-notes.md §3](./discussion-notes.md).
@@ -383,6 +384,10 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 | İşletme ikonları | 10 | **Oyunda** (2026-10-13, GPT; `public/assets/businesses/v2/`, [art-brief-v2.md](./art-brief-v2.md) 4.7) |
 | Hayat anları: çay bahçesi, bahçe düğünü, bebek | 3 | **Oyunda** (`public/assets/story/life/`) |
 | Lüks anları: tekne, yat, helikopter, jet | 4 | **Oyunda** (§4c) |
+| Devir: dede, yaşlı Defne, Elif ve ayrı Ada 7/17 kılavuzları | 5 sayfa | **Kaynak PNG hazır** (2026-10-16); portre kesimi ve entegrasyon Claude’da |
+| Devir: dede idle/joy/pet pozları | 3 | **Kaynak PNG hazır**; sahne kesimi/entegrasyon bekliyor |
+| Devir: torunun doğumu, çiçek tezgâhı, saat teslimi | 3 | **Kaynak PNG hazır**; `art/pilot/10-life/life-{grandchild,grandpa,handover}.png` |
+| Devir: saat, reçel, defter, tasma yadigâr ikonları | 4 | **Şeffaf PNG hazır**; [teslim belgesi](./dynasty-art-handoff.md), aile albümü mevcut ikon |
 
 Kaynak dosyalar `art/pilot/` (git'te değil), oyundaki sıkıştırılmış hâlleri `public/assets/`. Harcama: plan 1.16.
 

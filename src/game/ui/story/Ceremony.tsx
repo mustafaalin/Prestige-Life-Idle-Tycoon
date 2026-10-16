@@ -5,7 +5,7 @@ import { WEALTH_CLASSES } from '../../core/config/classes';
 import { AD_STORY_GIFT_MULTIPLIER } from '../../core/config/ads';
 import { OFFLINE_CAP_HOURS_BY_CLASS } from '../../core/config/economy';
 import { COLLARS, type CollarDef } from '../../core/config/lifestyle';
-import { collarAt, storyGift } from '../../core/formulas';
+import { businessCapAt, businessOpenClass, collarAt, storyGift } from '../../core/formulas';
 import { bestOwnedLifestyle, currentHome, ownsHouse } from '../../core/state';
 import type { BusinessDef, GameStateV2, HouseDef, LifestyleDef } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
@@ -483,6 +483,11 @@ function ClassSummary({
   const { home, outfit, gift } = classChanges(classIndex, before, now);
   const giftIsMain = gift !== undefined && !home && !outfit;
   const collar = COLLARS.find((item) => item.fromClass === classIndex);
+  // Lines the class opens, and whether an owned line may now grow further (game-design-v2 §4.2).
+  const opened = BUSINESSES.filter((def) => businessOpenClass(def) === classIndex);
+  const capsUp = BUSINESSES.some(
+    (def) => now.businesses[def.id].owned > 0 && businessCapAt(def, classIndex) > businessCapAt(def, classIndex - 1),
+  );
 
   return (
     <div className="v2-pop-in relative w-full max-w-[340px] rounded-[28px] bg-white shadow-2xl overflow-hidden text-center">
@@ -548,6 +553,25 @@ function ClassSummary({
               {t('ceremony.collar.short', { percent: percent(collarAt(classIndex - 1)?.statusBonus ?? 0) })} →{' '}
               <span className="text-emerald-500">{t('ceremony.collar.short', { percent: percent(collar.statusBonus) })}</span>
             </span>
+          </div>
+        )}
+
+        {opened.length > 0 && (
+          <div className="mt-2 flex items-center gap-2.5 rounded-2xl bg-slate-50 pl-2 pr-3 py-1.5 text-left">
+            <div className="flex shrink-0 -space-x-2">
+              {opened.map((def) => (
+                <img key={def.id} src={def.image} alt="" draggable={false} className="w-9 h-9 object-contain" />
+              ))}
+            </div>
+            <span className="min-w-0 text-[11px] font-black text-slate-600">
+              {t('ceremony.businessOpen')}: {opened.map((def) => name('business', def)).join(', ')}
+            </span>
+          </div>
+        )}
+
+        {capsUp && (
+          <div className="mt-2 rounded-2xl bg-slate-50 px-3 py-2 text-left text-[11px] font-black text-slate-500">
+            {t('ceremony.businessCaps')}
           </div>
         )}
 
