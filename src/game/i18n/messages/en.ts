@@ -242,7 +242,7 @@ export const en = {
       line2: 'We added AI. Not sure what it does, but it\'s great.',
     },
   },
-  // What each business is called at each level (core/config/businesses.ts; docs/economy-rebuild.md §3).
+  // What each business is called at each level (core/config/businesses.ts; docs/game-design-v2.md §4.3).
   businessLevels: {
     'media': { '1': 'Local radio', '2': 'News desk', '3': 'Studio cameras', '4': 'Website', '5': 'Star presenter', '6': 'Ad sales team', '7': 'Streaming app', '8': 'TV channel', '9': 'Film studio', '10': 'Media group' },
     'construction': { '1': 'Building crew', '2': 'Own scaffolding', '3': 'Excavator', '4': 'Site office', '5': 'Engineering team', '6': 'City contracts', '7': 'Tower crane', '8': 'Construction company', '9': 'Housing projects', '10': 'Construction group' },

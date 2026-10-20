@@ -1,4 +1,4 @@
-// Family heirlooms (plan 2.2, decided 2026-10-15; game-design-v2.md §4.5). Legacy points are no longer
+// Family heirlooms (plan 2.2, decided 2026-10-15; game-design-v2.md §4.10). Legacy points are no longer
 // an automatic +1% each: they are spent here on lasting family heirlooms that every later heir keeps.
 // Each heirloom has levels with prices growing ×1.5 a level and a cap that rises a little each generation, so how
 // fast an heir climbs stays in hand (the second life should take about a third of the first; the

@@ -1,6 +1,6 @@
 import { WEALTH_CLASSES } from './classes';
 
-// The investment account, "Old Ray's deals" (plan 2.5, decided 2026-10-15; game-design-v2.md §4.13).
+// The investment account, "Old Ray's deals" (plan 2.5, decided 2026-10-15; game-design-v2.md §4.14).
 // The player puts savings in for a set time and collects stake and return when it is up. One at a
 // time. Rules: runtime/investment.ts. Checked by `npm run sim`.
 

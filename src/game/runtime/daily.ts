@@ -4,7 +4,7 @@ import { earn } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 import { adsUnlocked, dayKey, type AdProgress } from './adRewards';
 
-// The daily reward (config/daily.ts, game-design-v2.md §4.12). Pure rules, time comes in as an argument.
+// The daily reward (config/daily.ts, game-design-v2.md §4.13). Pure rules, time comes in as an argument.
 //
 // The amount is fixed when the day's reward is offered, at the first opening of the day before the
 // player buys anything, and stays the same until it is collected: collecting later never pays more.

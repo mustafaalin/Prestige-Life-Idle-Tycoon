@@ -192,7 +192,11 @@ export interface SimResult {
   /** Old Ray's deals: return paid and deals made. */
   investProfit: number;
   investCount: number;
+  /** All money earned, by where it came from (shares show which systems carry the economy). */
+  sources: Record<MoneySource, number>;
 }
+
+export type MoneySource = 'work' | 'bottles' | 'finds' | 'events' | 'quests' | 'gifts' | 'daily' | 'deals' | 'offline' | 'help';
 
 interface Candidate {
   label: string;
@@ -213,7 +217,7 @@ function candidates(state: GameStateV2): Candidate[] {
   for (const def of BUSINESSES) {
     const business = businessState(state, def.id);
     const opened = isOpened(business);
-    // A line opens with its class (economy-rebuild §3); later levels only cost money.
+    // A line opens with its class (docs/game-design-v2.md §4.3); later levels only cost money.
     const level = nextLevel(def, business);
     if (level && (opened || canOpenBusiness(state, def))) {
       list.push({
@@ -241,7 +245,7 @@ function candidates(state: GameStateV2): Candidate[] {
     }
   }
 
-  // Jobs (economy-rebuild §5): any better-paying job whose missing conditions are only items the bot
+  // Jobs (docs/game-design-v2.md §4.4): any better-paying job whose missing conditions are only items the bot
   // can buy now; the items are bought with it. Courses are started separately (maybeStudy).
   const salary = currentCareer(state)?.salaryPerSecond ?? 0;
   for (const career of CAREERS) {
@@ -330,6 +334,9 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
 
   /** Where the money came from: play time or time away. */
   const earned = { playing: 0, offline: 0 };
+  const sources: Record<MoneySource, number> = {
+    work: 0, bottles: 0, finds: 0, events: 0, quests: 0, gifts: 0, daily: 0, deals: 0, offline: 0, help: 0,
+  };
 
   const earnTracked = (amount: number, source: keyof typeof earned = 'playing') => {
     earned[source] += amount;
@@ -366,6 +373,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       if (away >= AD_OFFLINE_MIN_SECONDS && doubles()) amount *= AD_OFFLINE_MULTIPLIER;
       time.clock = start;
       earnTracked(amount, 'offline');
+      sources.offline += amount;
       if (amount > 0) watched.returned = true;
     }
     if (day !== watched.day) Object.assign(watched, { day, boosts: 0, helps: 0 });
@@ -390,6 +398,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     const missing = candidate.cost - state.cash;
     if (!helpOffered(candidate) || missing <= 0 || missing > helpCap(candidate)) return false;
     earnTracked(missing);
+    sources.help += missing;
     if (state.cash < candidate.cost) state = { ...state, cash: candidate.cost };
     watched.helps += 1;
     return true;
@@ -405,7 +414,11 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       const multiplier = doubles() ? AD_STORY_GIFT_MULTIPLIER : 1;
       if (giftsPaid.classes < state.classIndex) {
         giftsPaid.classes += 1;
-        if (giftsPaid.classes >= STORY_GIFT_FROM_CLASS) earnTracked(storyGift(state) * multiplier);
+        if (giftsPaid.classes >= STORY_GIFT_FROM_CLASS) {
+          const gift = storyGift(state) * multiplier;
+          sources.gifts += gift;
+          earnTracked(gift);
+        }
         continue;
       }
       const moment = LIFE_MOMENTS.find(
@@ -413,7 +426,9 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       );
       if (!moment) return;
       giftsPaid.moments.add(moment.id);
-      earnTracked(storyGift(state) * multiplier);
+      const gift = storyGift(state) * multiplier;
+      sources.gifts += gift;
+      earnTracked(gift);
     }
   };
 
@@ -437,11 +452,17 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
   /** Bottles a second: none once the ground is empty (Middle Class on). */
   const tapRate = () => (canCollect(state) ? profile.tapsPerSecond(time.activeGeneration) : 0);
 
-  const activeRate = () =>
-    incomePerSecond(state, 'active') * boost() +
-    tapRate() * tapValue(state) +
-    (profile.fetchCatchRate * fetchReward(state) * (doubles() ? AD_FIND_MULTIPLIER : 1)) / fetchAverageSeconds(state) +
-    (eventCardsFor(state).length > 0 ? (profile.eventAnswerRate * eventAverageReward(state)) / EVENT_AVERAGE_SECONDS : 0);
+  /** Money a second while playing, by source. */
+  const rateParts = () => ({
+    work: incomePerSecond(state, 'active') * boost(),
+    bottles: tapRate() * tapValue(state),
+    finds: (profile.fetchCatchRate * fetchReward(state) * (doubles() ? AD_FIND_MULTIPLIER : 1)) / fetchAverageSeconds(state),
+    events: eventCardsFor(state).length > 0 ? (profile.eventAnswerRate * eventAverageReward(state)) / EVENT_AVERAGE_SECONDS : 0,
+  });
+  const activeRate = () => {
+    const parts = rateParts();
+    return parts.work + parts.bottles + parts.finds + parts.events;
+  };
 
   const playFor = (seconds: number) => {
     // Income is piecewise constant between purchases, but taps change with generation time,
@@ -450,6 +471,11 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     while (left > 0) {
       const step = Math.min(left, 30);
       const amount = activeRate() * step;
+      const parts = rateParts();
+      sources.work += parts.work * step;
+      sources.bottles += parts.bottles * step;
+      sources.finds += parts.finds * step;
+      sources.events += parts.events * step;
       // Advance the clock first so milestones are logged at the end of the slice, never before it.
       time.clock += step;
       time.activeTotal += step;
@@ -479,6 +505,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       const before = state.classIndex;
       const next = claimQuest(state, done.id);
       if (!next) return;
+      sources.quests += next.generationEarnings - state.generationEarnings;
       state = next;
       for (let index = before + 1; index <= state.classIndex; index += 1) log('class', WEALTH_CLASSES[index].name);
     }
@@ -631,6 +658,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     dailyClaims: daily.claims,
     investProfit: investing.profit,
     investCount: investing.count,
+    sources: { ...sources, daily: daily.paid, deals: investing.profit },
   };
 }
 

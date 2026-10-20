@@ -20,7 +20,7 @@ export const FETCH_EARLY_MAX_SECONDS = 150;
 export const FETCH_WINDOW_SECONDS = 12;
 /**
  * What one bottle or can pays by class (Street, Day Laborer, Working Class: coins), decided 2026-10-20
- * (docs/economy-rebuild.md §4): fixed, so collecting matters early and fades as income grows. A
+ * (docs/game-design-v2.md §4.7): fixed, so collecting matters early and fades as income grows. A
  * Flower Stand run pays ~12 bottles.
  */
 export const BOTTLE_VALUE_BY_CLASS = [2, 3, 5];

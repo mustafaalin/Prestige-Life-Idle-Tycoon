@@ -1,7 +1,7 @@
 import type { CareerDef, CareerTrack, Requirement } from '../types';
 import { SECONDS_PER_MONTH } from './life';
 
-// Jobs (docs/economy-rebuild.md §5, decided 2026-10-20): many jobs in a few fields, one held at a
+// Jobs (docs/game-design-v2.md §4.4, decided 2026-10-20): many jobs in a few fields, one held at a
 // time. A job is never bought with big money: it opens when its conditions are met (months in an
 // earlier job, a course, an item, an address) and costs only a small fee. Salaries follow the in-game
 // calendar (one month = 80 s): what a job pays a month is close to real life. Jobs give no income

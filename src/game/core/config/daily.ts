@@ -1,4 +1,4 @@
-// The daily reward (plan 2.7, decided 2026-10-15; game-design-v2.md §4.12). Once a calendar day the
+// The daily reward (plan 2.7, decided 2026-10-15; game-design-v2.md §4.13). Once a calendar day the
 // player collects some months of income, shown as "monthly income ×N". Missing a day costs nothing:
 // the calendar goes on from where it stopped. Rules: runtime/daily.ts. Checked by `npm run sim`.
 

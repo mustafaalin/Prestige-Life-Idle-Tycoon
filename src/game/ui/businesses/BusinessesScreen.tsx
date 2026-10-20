@@ -11,7 +11,7 @@ import { BusinessCard } from './BusinessCard';
 /**
  * Business list. Lines are revealed one at a time: everything owned (a ceremony's gift can be
  * further down the line), the next one to buy, and a locked teaser of the one after, so a new
- * player is never facing ten choices. A line opens with its class (game-design-v2 §4.2): until
+ * player is never facing ten choices. A line opens with its class (game-design-v2 §4.3): until
  * then the next line is only the teaser, with the class that opens it.
  */
 export function BusinessesScreen() {

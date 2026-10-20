@@ -6,7 +6,7 @@ import type { ContentKind } from '../i18n/types';
 
 // The two cities the generations take turns in (story-v2.md §6, decided 2026-10-16): odd generations
 // live in the old city with the first hero's pictures, even ones in Lumen. The numbers are the same in
-// both (game-design §4.5), so Lumen is a skin over the same ids: a business, home, vehicle or luxury
+// both (game-design §4.10), so Lumen is a skin over the same ids: a business, home, vehicle or luxury
 // keeps its id, price and save entry, and only its name, picture and manager change. Art:
 // docs/lumen-art-handoff.md.
 

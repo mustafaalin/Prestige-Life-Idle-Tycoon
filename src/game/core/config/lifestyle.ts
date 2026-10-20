@@ -1,7 +1,7 @@
 import type { LifestyleDef } from '../types';
 
 // Personal items: vehicles, outfits and luxury toys (homes live in housing.ts). They are never an
-// expense. Since the economy rebuild (decided 2026-10-20, docs/economy-rebuild.md §5) they cost what
+// expense. Since the economy rebuild (decided 2026-10-20, docs/game-design-v2.md §4.5) they cost what
 // they cost in real life and give no income bonus: their worth is the life they show and, from plan
 // Faz E4, what they open (jobs, events, places). Only Şans's collars still add to income.
 
@@ -9,7 +9,7 @@ import type { LifestyleDef } from '../types';
 // 2026-10-11; there were 16, starting with a free wheelbarrow). A new life starts without one.
 // Art and prompts: docs/archive/art-prompts-v2-gen1.md §2.
 //
-// Homes and vehicles climb together (game-design §4.4, decided 2026-10-11): `home` is the home a
+// Homes and vehicles climb together (game-design §4.6, decided 2026-10-11): `home` is the home a
 // vehicle opens in (index into HOUSES), and the last vehicle of a home is needed to move on to the
 // next one. So each home has the car you came with and the one you buy there parked out front, never
 // a supercar by the tent. Only the bike stands by the tent and no car by the van (2026-10-12): the

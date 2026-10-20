@@ -2,7 +2,7 @@ import { LEGACY_BASE, LEGACY_EXPONENT, LEGACY_SCALE } from '../config/economy';
 import { HEIRLOOMS, HEIRLOOM_PRICE_GROWTH, JAM_FIRST_CASH, heirloomDef, type HeirloomDef, type HeirloomId } from '../config/heirlooms';
 import type { GameStateV2 } from '../types';
 
-// Family legacy points and heirlooms (game-design-v2 §4.5). Hidden at launch (docs/economy-rebuild.md
+// Family legacy points and heirlooms (game-design-v2 §4.10). Hidden at launch (docs/game-design-v2.md
 // §6), kept so saves and the generation-2 update can build on them.
 
 export function heirloomLevel(state: GameStateV2, id: HeirloomId) {

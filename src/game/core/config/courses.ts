@@ -1,6 +1,6 @@
 import type { CourseDef, Requirement } from '../types';
 
-// Courses (docs/economy-rebuild.md §5): taken one at a time alongside work, paid up front, finished
+// Courses (docs/game-design-v2.md §4.4): taken one at a time alongside work, paid up front, finished
 // after game months of play (like age: time away does not count). Each one opens jobs (careers.ts).
 // Ids are saved (finished and running courses): never rename one.
 

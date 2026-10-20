@@ -241,7 +241,7 @@ export const tr: Messages = {
       line2: 'Yapay zekâ ekledik. Ne yaptığını bilmiyoruz ama çok iyi.',
     },
   },
-  // What each business is called at each level (core/config/businesses.ts; docs/economy-rebuild.md §3).
+  // What each business is called at each level (core/config/businesses.ts; docs/game-design-v2.md §4.3).
   businessLevels: {
     'media': { '1': 'Yerel radyo', '2': 'Haber masası', '3': 'Stüdyo kameraları', '4': 'Haber sitesi', '5': 'Ünlü sunucu', '6': 'Reklam ekibi', '7': 'Yayın uygulaması', '8': 'TV kanalı', '9': 'Film stüdyosu', '10': 'Medya grubu' },
     'construction': { '1': 'Usta ekibi', '2': 'Kendi iskelen', '3': 'Ekskavatör', '4': 'Şantiye ofisi', '5': 'Mühendis ekibi', '6': 'Belediye ihaleleri', '7': 'Kule vinç', '8': 'İnşaat şirketi', '9': 'Konut projeleri', '10': 'İnşaat grubu' },

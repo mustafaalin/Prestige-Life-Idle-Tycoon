@@ -8,7 +8,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { payout } from '../home/coins';
 import { Chip, GameButton, GlossyBar, Panel, SectionLabel } from '../kit';
 
-// Old Ray's deals (runtime/investment.ts, game-design-v2.md §4.13): Ray says one line, then either the
+// Old Ray's deals (runtime/investment.ts, game-design-v2.md §4.14): Ray says one line, then either the
 // running deal (time left, what comes back, "Collect" when it is due) or a new one: how much to put
 // in, and the three deals with what each would bring back for that amount.
 

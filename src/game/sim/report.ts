@@ -28,7 +28,7 @@ const DAY = 86400;
 const HOUR = 3600;
 const lifeAge = (age: number) => (age - START_AGE) * SECONDS_PER_YEAR;
 
-// New targets with the economy rebuild (2026-10-21, docs/economy-rebuild.md §2): the in-game calendar
+// New targets with the economy rebuild (2026-10-21, docs/game-design-v2.md §4.2): the in-game calendar
 // is realistic, so the classes are pinned to the hero's age (16 minutes of play = 1 year). Millionaire
 // in the late twenties to mid thirties, Billionaire in the second half of life; the first life need not
 // reach the top two classes (decided 2026-10-20).

@@ -1,7 +1,7 @@
 import type { BusinessDef, BusinessLevelDef } from '../types';
 import { SECONDS_PER_MONTH } from './life';
 
-// Generation-1 business lines (docs/economy-rebuild.md §3). A business is opened once and grows by
+// Generation-1 business lines (docs/game-design-v2.md §4.3). A business is opened once and grows by
 // named levels (set it up → run it well → scale it), then by branches; nobody buys a 73rd flower
 // stand. Amounts follow the in-game calendar (one month = 80 s): what a line earns a month is close to
 // what such a business earns in real life, and bigger businesses take longer to pay back (§2).
@@ -16,7 +16,7 @@ const STAGE_BY_LEVEL = [0, 0, 0, 0, 0, 0, 0, 1, 1, 2];
 /**
  * The shape every line's ladder follows until each gets its own designed table (plan Faz E2): price
  * and money per run of each level as multiples of level 1. Taken from the Flower Stand draft
- * (economy-rebuild §3.2): cheap fast steps first, expensive big ones at the end.
+ * (docs/game-design-v2.md §4.3): cheap fast steps first, expensive big ones at the end.
  */
 const LADDER_COST = [1, 0.6, 1.2, 3, 6, 12, 20, 50, 80, 160];
 const LADDER_REVENUE = [1, 1.28, 1.6, 2.2, 3, 4, 5.2, 8, 10.4, 16];
@@ -77,7 +77,7 @@ function stageImages(id: string): string[] {
 }
 
 // openCost: opening the business · paybackMonths: game months level 1 takes to repay the opening
-// (bigger businesses repay slower, economy-rebuild §2) · openClass: the class the line opens at.
+// (bigger businesses repay slower, docs/game-design-v2.md §4.2) · openClass: the class the line opens at.
 // Fourteen lines (decided 2026-10-21); restaurant, real-estate-office, construction and media are new
 // and wait for their art and managers (plan Faz E3).
 const LINES: { id: string; name: string; openCost: number; paybackMonths: number; cycleSeconds: number; openClass: number }[] = [
@@ -97,7 +97,7 @@ const LINES: { id: string; name: string; openCost: number; paybackMonths: number
   { id: 'tech-startup', name: 'Tech Startup', openCost: 1e9, paybackMonths: 360, cycleSeconds: 15, openClass: 5 },
 ];
 
-/** The Flower Stand has its own designed table (economy-rebuild §3.2); the others follow its shape for now. */
+/** The Flower Stand has its own designed table (docs/game-design-v2.md §4.3); the others follow its shape for now. */
 const FLOWER_STAND_LEVELS: BusinessLevelDef[] = [
   { cost: 1000, revenue: 25, stage: 0 },
   { cost: 300, revenue: 32, stage: 0 },

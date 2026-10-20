@@ -10,7 +10,7 @@ import { ICONS } from '../icons';
 import { Chip, GameButton, Panel, SectionLabel } from '../kit';
 import { requestYearsPassed } from '../story/storyEvents';
 
-// The family tab (plan 2.12, game-design-v2.md §4.5): from the top class on, what the heir would get
+// The family tab (plan 2.12, game-design-v2.md §4.10): from the top class on, what the heir would get
 // now ("Hand over now" skips the remaining years; staying grows it), and the family heirlooms that
 // legacy points buy and every later heir keeps. Rules: core/state.ts (handOverEarly, buyHeirloom).
 

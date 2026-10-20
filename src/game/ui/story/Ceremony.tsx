@@ -495,7 +495,7 @@ function ClassSummary({
   const { home, outfit, gift } = classChanges(classIndex, before, now);
   const giftIsMain = gift !== undefined && !home && !outfit;
   const collar = COLLARS.find((item) => item.fromClass === classIndex);
-  // Lines the class opens, and whether an opened line may now have more branches (economy-rebuild §3).
+  // Lines the class opens, and whether an opened line may now have more branches (docs/game-design-v2.md §4.3).
   const opened = BUSINESSES.filter((def) => businessOpenClass(def) === classIndex);
   const capsUp = BUSINESSES.some(
     (def) => (now.businesses[def.id]?.level ?? 0) > 0 && branchCapAt(def, classIndex) > branchCapAt(def, classIndex - 1),

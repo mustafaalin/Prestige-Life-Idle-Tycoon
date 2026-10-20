@@ -4,7 +4,7 @@ import { allMet } from '../requirements';
 import type { BusinessDef, BusinessLevelDef, BusinessState, GameStateV2 } from '../types';
 import { heirloomEffect } from './legacy';
 
-// Business lines: levels, branches and what a run pays (docs/economy-rebuild.md §3). Pure reads of
+// Business lines: levels, branches and what a run pays (docs/game-design-v2.md §4.3). Pure reads of
 // config and state, before any global multiplier; state.ts holds the actions, income.ts the totals.
 
 const BUSINESS_BY_ID = new Map(BUSINESSES.map((def) => [def.id, def]));

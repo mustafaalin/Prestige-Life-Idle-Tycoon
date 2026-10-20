@@ -1,4 +1,4 @@
-// What this build ships (docs/economy-rebuild.md §6, decided 2026-10-21): the launch is generation 1.
+// What this build ships (docs/game-design-v2.md §4.10, decided 2026-10-21): the launch is generation 1.
 // Systems built for later generations stay in the code and the save, switched off here, so the
 // generation-2 update turns them on instead of rewriting them. Every screen, the story and the
 // simulator read these flags; nothing else decides what is in the game.

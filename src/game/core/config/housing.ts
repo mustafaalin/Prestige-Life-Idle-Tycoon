@@ -1,11 +1,11 @@
 import type { HouseDef } from '../types';
 import { SECONDS_PER_MONTH } from './life';
 
-// Homes: rent → buy → rent out (docs/game-design-v2.md §4.8). You always live in exactly one house,
+// Homes: rent → buy → rent out (docs/game-design-v2.md §4.6). You always live in exactly one house,
 // and the home scene shows it (with your best vehicle parked out front). Twelve homes, each its own
 // place on screen (decided 2026-10-10; there were 25, many of them looking alike).
 // Renting costs a one-time move-in fee and no recurring rent, so net income never goes negative.
-// Prices are real ones (2026-10-21, docs/economy-rebuild.md §5): buying costs 25 move-in fees, from a
+// Prices are real ones (2026-10-21, docs/game-design-v2.md §4.6): buying costs 25 move-in fees, from a
 // $300K first home to an $80M mansion. Homes give no income bonus any more; owned houses you moved
 // out of pay rent. You only ever move up: each home has its own vehicles parked out front.
 

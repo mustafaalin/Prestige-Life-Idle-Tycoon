@@ -22,7 +22,7 @@ import { Focusable } from '../home/Focusable';
 import { Chip, GameButton, ImageTile, Panel, SectionLabel } from '../kit';
 import { RequirementList } from './Requirements';
 
-// The job board (docs/economy-rebuild.md §5): the job held, the course running, the better jobs that
+// The job board (docs/game-design-v2.md §4.4): the job held, the course running, the better jobs that
 // are open now, the ones to aim for with what they still need, courses, and every job by field.
 
 /** Jobs to aim for at most, so the board stays short. */

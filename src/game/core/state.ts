@@ -156,7 +156,7 @@ function withBusiness(state: GameStateV2, businessId: string, business: Business
 }
 
 /**
- * Buys the next level of a business; at level 0 this opens it (docs/economy-rebuild.md §3). Opening
+ * Buys the next level of a business; at level 0 this opens it (docs/game-design-v2.md §4.3). Opening
  * waits for the line's conditions (its class); later levels only cost money.
  */
 export function levelUpBusiness(state: GameStateV2, businessId: string): GameStateV2 | null {
@@ -466,7 +466,7 @@ export function canRetire(state: GameStateV2) {
   return CONTENT.handover && isLifeOver(state);
 }
 
-/** From the top class on, the player may hand over without waiting for 80 (game-design-v2 §4.5). */
+/** From the top class on, the player may hand over without waiting for 80 (game-design-v2 §4.10). */
 export function canHandOverEarly(state: GameStateV2) {
   return CONTENT.legacy && CONTENT.handover && state.classIndex === WEALTH_CLASSES.length - 1 && !isLifeOver(state);
 }

@@ -2,7 +2,7 @@ import { HOUSES } from './config/housing';
 import { SECONDS_PER_MONTH } from './config/life';
 import type { GameStateV2, Requirement } from './types';
 
-// Conditions besides money (docs/economy-rebuild.md §7). One evaluator per kind: a new kind of
+// Conditions besides money (docs/game-design-v2.md §7). One evaluator per kind: a new kind of
 // condition is one more case here, and every business, job, item or card that uses it gets the same
 // check and the same "what is missing" answer.
 

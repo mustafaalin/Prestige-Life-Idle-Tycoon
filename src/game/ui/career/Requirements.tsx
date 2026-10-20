@@ -7,7 +7,7 @@ import type { FocusTarget } from '../home/focus';
 import { requirementTarget, requirementText } from './requirementText';
 
 // What a locked job (or course) still needs, one line per condition, each with "Go" to where it is
-// done (docs/economy-rebuild.md §5). Shared by every screen that shows conditions.
+// done (docs/game-design-v2.md §4.4). Shared by every screen that shows conditions.
 
 /** A job requirement's progress ("7/12") when some months are worked but not enough. */
 function progress(state: GameStateV2, requirement: Requirement, t: Translator['t']) {

@@ -33,7 +33,7 @@ export const STORAGE_KEY = 'prestige_life_v2';
 const BACKUP_KEY = 'prestige_life_v2_unreadable';
 /**
  * Where a schema-1 save is kept when the economy rebuild starts it fresh (2026-10-21, user: nobody
- * plays v2 yet, docs/economy-rebuild.md §1.9). A one-time step before launch, never again after it.
+ * plays v2 yet, docs/archive/economy-rebuild.md §1.9). A one-time step before launch, never again after it.
  */
 const PRE_REBUILD_KEY = 'prestige_life_v2_pre_rebuild';
 const SAVE_SCHEMA = 2;

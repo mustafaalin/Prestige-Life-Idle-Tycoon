@@ -1,7 +1,7 @@
 import { careersNeedingHome, careersNeedingItem } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
 
-/** "Opens: Bike Courier, Taxi Driver" under an item that some jobs need (docs/economy-rebuild.md §5). */
+/** "Opens: Bike Courier, Taxi Driver" under an item that some jobs need (docs/game-design-v2.md §4.5). */
 export function OpensJobs({ itemId, homeIndex }: { itemId?: string; homeIndex?: number }) {
   const { t, name } = useT();
   const careers = itemId !== undefined ? careersNeedingItem(itemId) : homeIndex !== undefined ? careersNeedingHome(homeIndex) : [];

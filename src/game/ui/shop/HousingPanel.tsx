@@ -19,7 +19,7 @@ import { Chip, GameButton, Panel, SectionLabel } from '../kit';
 import { OpensJobs } from './OpensJobs';
 import { Thumb } from './Thumb';
 
-// Homes tab: rent → buy → rent out (docs/game-design-v2.md §4.8). You live in one house; the next
+// Homes tab: rent → buy → rent out (docs/game-design-v2.md §4.6). You live in one house; the next
 // one up is the dream; houses you own and left pay rent, and there is no moving back into them.
 // Moving up needs the last vehicle of the home you live in (core/state.ts moveUpNeedsVehicle).
 

@@ -29,7 +29,7 @@ import { Chip, GameButton, ImageTile, Panel } from '../kit';
 import { CycleBar } from './CycleBar';
 import { managerKey, managerPortrait, type ManagerLine } from './managers';
 
-// One business line (docs/economy-rebuild.md §3): opened once, then grown level by level (stand →
+// One business line (docs/game-design-v2.md §4.3): opened once, then grown level by level (stand →
 // shop → store) and, at the top level, by branches on this same card. Without a manager each run
 // needs a tap on "Run" and counts nowhere in the monthly income; a manager runs every location,
 // also while the app is closed.

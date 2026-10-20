@@ -7,7 +7,7 @@ import { legacyMultiplier } from './legacy';
 import { currentCareer, salaryOf } from './career';
 import { collarAt, globalMultiplier, homeBonus, statusBonus } from './multipliers';
 
-// Where income comes from (docs/economy-rebuild.md §7). Each source says what it pays per second
+// Where income comes from (docs/game-design-v2.md §7). Each source says what it pays per second
 // before the global multiplier; totals, offline earnings and the income breakdown all add up the same
 // list, so a new source (investments, a pension...) is one more entry and nothing else changes.
 

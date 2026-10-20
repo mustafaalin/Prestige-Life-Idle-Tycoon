@@ -2,7 +2,7 @@
 // Shared by the game UI and the balance simulator (scripts/sim-economy.ts).
 
 /**
- * One step a business line grows by (docs/economy-rebuild.md §3). Level 1 opens the business; each
+ * One step a business line grows by (docs/game-design-v2.md §4.3). Level 1 opens the business; each
  * later level is bought once, in order, and raises what every location pays per run.
  */
 export interface BusinessLevelDef {
@@ -35,7 +35,7 @@ export interface BusinessDef {
 }
 
 /**
- * A condition something waits for besides money (docs/economy-rebuild.md §7). Businesses, jobs, items
+ * A condition something waits for besides money (docs/game-design-v2.md §7). Businesses, jobs, items
  * and event cards share these, so a locked card always says the same kind of thing and "Go" knows where to send.
  */
 export type Requirement =
@@ -67,7 +67,7 @@ export interface CareerDef {
   requires: Requirement[];
 }
 
-/** A course taken alongside work: costs money, takes game months of play, opens jobs (docs/economy-rebuild.md §5). */
+/** A course taken alongside work: costs money, takes game months of play, opens jobs (docs/game-design-v2.md §4.4). */
 export interface CourseDef {
   id: string;
   name: string;

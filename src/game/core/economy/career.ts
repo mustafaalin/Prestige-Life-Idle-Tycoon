@@ -4,7 +4,7 @@ import { SECONDS_PER_MONTH } from '../config/life';
 import { allMet } from '../requirements';
 import type { CareerDef, CourseDef, GameStateV2, Requirement } from '../types';
 
-// Jobs and courses (docs/economy-rebuild.md §5): pure reads; state.ts holds the actions.
+// Jobs and courses (docs/game-design-v2.md §4.4): pure reads; state.ts holds the actions.
 
 /** The job held now, or undefined. */
 export function currentCareer(state: GameStateV2): CareerDef | undefined {

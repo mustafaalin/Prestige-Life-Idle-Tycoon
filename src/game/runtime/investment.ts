@@ -4,7 +4,7 @@ import { autoIncomePerSecond } from '../core/formulas';
 import { earn } from '../core/state';
 import type { GameStateV2 } from '../core/types';
 
-// The investment account (config/investments.ts, game-design-v2.md §4.13). Pure rules; time and the
+// The investment account (config/investments.ts, game-design-v2.md §4.14). Pure rules; time and the
 // bold deal's roll come in as arguments.
 //
 // The stake leaves the wallet at once and comes back with the return when the term is up. The bold
