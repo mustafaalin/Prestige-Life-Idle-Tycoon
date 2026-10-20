@@ -16,6 +16,7 @@ Tarih: 2026-10-20, kararlar 2026-10-21 · Durum: **yön kararlaştı (kullanıc�
 10. **Kod:** kıdemli yazılımcı gibi, SOLID'e uygun (§7).
 11. **(2026-10-21, §8 cevapları)** Lansmanda kahraman 80'de kalır: "Torununun hikâyesi yakında" der, oyun ve para sürer, devir 2. nesil güncellemesiyle gelir. Burak hikâyesi şimdilik tamamen kalkar, Burak yalnız bir yönetici. Miras puanı, yadigârlar ve "Şimdi devret" lansmanda gizli. Gerçekçi takvim (§2) kabul.
 12. **(2026-10-21)** 1. nesilde **14 işletme**; kıyafetler **7**'de kalır.
+13. **(2026-10-21)** Çevrimdışı kazanç **%20**, tavan en çok **1 saat** (önce %50 ve 2 sa; §8c).
 
 ## 2. Ana ilke: gerçekçi takvim
 
@@ -102,8 +103,9 @@ Ekonomi saf TypeScript `core/`'da kalır (React yok); simülatör aynı çekirde
 
 ## 8. Kararı bekleyenler
 
-1. Dört yeni işletmenin listesi ve adları (aday: Restoran, İnşaat Şirketi, Gayrimenkul Ofisi, Medya Şirketi), yerleri merdivende; her biri bir yönetici karakteri, 3 aşama görseli (14 × 3 = ~32 yeni görsel GPT işi).
-2. Çiçek Tezgâhı taslağı (§3.2) ve şişe tablosu (§4): ilk his telefonda; kesin sayılar E2'de simülatörle.
+1. Dört yeni işletmenin adları ve yöneticileri (oyunda taslak olarak, §8c): Restoran (Şef Nazan), Emlak Ofisi (Cem), İnşaat Şirketi (Tekin Usta), Medya Şirketi (Pelin). Görselleri yok (işletme simgesi duruyor); 14 × 3 aşama görseli GPT işi (E3).
+2. Telefonda ilk his: Çiçek Tezgâhı tablosu, şişe, deneyimle açılan meslekler.
+3. Gece Vardiyası IAP'ı (çevrimdışı %50 → %100, tavan +2 sa) yeni %20'ye göre yeniden yazılmalı ([monetization-v2.md](./monetization-v2.md) §5).
 
 ## 8b. E1'de yapılanlar (2026-10-21)
 
@@ -118,11 +120,32 @@ Ekonomi saf TypeScript `core/`'da kalır (React yok); simülatör aynı çekirde
 - **Bugünkü ölçüm (E2'den önce, beklenen):** ekonomi çok hızlı. Bağlı bot: ilk işletme 7 dk 48 sn (hedef 2–6; ilk iş maaşı hâlâ $0,11/sn), Orta Sınıf 40 dk (19 yaş), Milyoner 47 dk, Milyarder 1 sa 15 dk (21 yaş), En Zengin 26 yaşta. Nedeni: meslekler ve eşyalar eski sayılarda (kariyer ve statü çarpanları), işletme merdiveni cömert. E2 bunları birlikte ayarlar.
 - **Kalan (E5'e taşındı):** içerik paketleri (`ContentPack`) ve lansman bayrakları, 2. nesil gizlenirken yapılır.
 
+## 8c. E2'de yapılanlar (2026-10-21)
+
+**Ölçümün ana bulgusu:** %50 çevrimdışı ve 2 saat tavanla paranın %76'sı oyun kapalıyken geliyordu. Yaş yalnız oyun açıkken aktığı için gerçekçi takvim fiilen 4 kat hızlı işliyordu; işletmeleri ne kadar yavaşlatsam Milyarder 35 yaşta kalıyordu. Kullanıcı %20 ve 1 saati seçti; şimdi paranın %42'si çevrimdışından.
+
+| Ayar | Önce | Şimdi |
+| --- | --- | --- |
+| Çevrimdışı oran / tavan | %50 / 10 dk → 2 sa | %20 / 10 dk, 15 dk, 30 dk, 30 dk, Milyoner'den 1 sa |
+| Gündelikçi eşiği | $1K | $2K (gerçek maaşla $1K ilk tezgâh çalışmadan geliyordu) |
+| Meslekler | satın alınır, +%5–25 gelir | önceki işte deneyimle açılır (3 → 60 ay, toplam ~21 yıl), küçük bedel ($20 → $60K), gerçek aylık maaş ($300 → $60K), bonus yok |
+| Eşyalar | geometrik fiyat, +%3,75–10 gelir | gerçek fiyat, bonus yok: bisiklet $150 → grand lüks $1,5M; kıyafet $60 → $15K; tekne $300K, yat $10M, helikopter $15M, jet $60M |
+| Evler | taşınma $1,2K → $20B, +%8 / kademe | taşınma $500 → $3,2M (satın alma ×25: ilk kendi ev $300K, büyük malikâne $80M), bonus yok; kira fiyatın 200 ayda geri dönüşü |
+| İşletmeler | 10 | 14 (yeni: Restoran, Emlak Ofisi, İnşaat, Medya); açılış $1K → $1B, ilk seviyenin geri dönüşü 1,25 → 360 ay |
+| Şube | son seviye fiyatı, ×1,15 | bütün seviyelerin toplamı (sıfırdan mağaza), ×1,4; sınır açılış sınıfında 1, sonra 2, 4, 8, 16, 32 |
+| Yönetici | açılışın 3 katı | 4 katı; Rıza Amca $5K |
+| Günlük ödül | ×5 → ×50 ay | ×2 → ×20 ay (2. haftadan ×6, 7. gün ×20) |
+| Yatırım tavanı | 60 aylık gelir | 24 aylık gelir |
+
+**Simülatör (bağlı oyuncu, bütün hedefler tutuyor):** ilk iş 20 sn, ilk işletme 3 dk 11 sn, Gündelikçi 4 dk 37 sn, ilk yönetici 9 dk, İşçi 33 dk, Orta Sınıf 1 sa 12 dk (21 yaş), Milyoner 2 sa 29 dk (26), Milyarder 13 sa 58 dk (69, 20. gün), Multimilyarder ve En Zengin 1. nesilde yok, ömür sonu 24. gün. Gündelik oyuncu: Milyoner 23, Milyarder 56 yaş (42. gün). Reklam izleyen: Milyoner 23, Milyarder 53 yaş. İşletmeler yaklaşık 1–2 saatte bir açılıyor (Fabrika 6 sa 44 dk); Fabrika'dan Medya'ya ~8,5 saat yeni işletme yok, Teknoloji 1. nesilde açılmıyor (torunla). Para: çevrimdışı %42, yatırım %9, günlük ödül %6.
+
+**Bilinen eksikler:** 13 işletmenin seviye tablosu hâlâ Çiçek Tezgâhı'nın biçiminden üretiliyor (her işletmeye kendi karakteri E3/E4'te); Çiçek Tezgâhı ilk saatlerde gelirin %60–85'i (ucuz şubeleri); Milyarder 69 yaşla aralığın üst ucunda.
+
 ## 9. Sıra (Faz E)
 
 1. **E0:** kararlar ve bu belge (2026-10-20/21).
 2. **E1 çekirdek (yapıldı 2026-10-21, §8b):** `core/economy/` bölünmesi, şart sistemi, işletme seviye/şube modeli, gelir kaynakları; simülatör yeni modele; yeni tempo hedefleri.
-3. **E2 sayılar:** Çiçek Tezgâhı'ndan başlayarak bütün işletmelerin seviye tabloları, şişe, Şans, çevrimdışı; `npm run sim` ile.
+3. **E2 sayılar (yapıldı 2026-10-21, §8c):** Çiçek Tezgâhı'ndan başlayarak bütün işletmelerin seviye tabloları, şişe, Şans, çevrimdışı; `npm run sim` ile.
 4. **E3 arayüz:** işletme kartı (seviye, aşama görseli, şube satırı), kariyer ekranı (şartlar + Git), mağaza (sabit fiyat, "neyi açar").
 5. **E4 meslekler ve eşyalar:** 60+ meslek tablosu, eşya listesi, kurslar.
 6. **E5 hanedan:** Burak hikâyesinin kaldırılması, 63/70 metinleri, gizlenen sistemler, 80'de "yakında" kartı, içerik paketleri ve lansman bayrakları.

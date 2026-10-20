@@ -174,7 +174,7 @@ Aynı formülleri hem oyun hem simülatör kullanır, bu yüzden simülasyon son
 
 - [x] **E0 Kararlar ve öneri belgesi (2026-10-20/21).** Kalan açık sorular economy-rebuild §8.
 - [x] **E1 Çekirdek (2026-10-21):** `core/economy/` bölünmesi, ortak şart sistemi, işletme seviye + şube modeli, gelir kaynakları, kart ekranı, kayıt şeması 2 (tek seferlik temiz başlangıç), simülatör ve yaşa bağlı tempo hedefleri ([economy-rebuild.md §8b](./economy-rebuild.md)). İçerik paketleri E5'e kaldı.
-- [ ] **E2 Sayılar:** 14 işletmenin seviye tabloları (4 yeni işletme: ad, yönetici, yer), meslek maaşları ve eşya fiyatları (gerçekçi takvim), şişe, Şans, çevrimdışı; yaşa bağlı hedefler tutana kadar `npm run sim`.
+- [x] **E2 Sayılar (2026-10-21):** 14 işletme (4 yeni, görselsiz), gerçek maaş ve eşya fiyatları, eşya/meslek bonusları sıfır, meslekler deneyimle açılıyor, çevrimdışı %20 / 1 sa, günlük ödül ve yatırım küçüldü; yaşa bağlı hedeflerin hepsi tutuyor ([economy-rebuild.md §8c](./economy-rebuild.md)). Kalan: her işletmeye kendi seviye tablosu.
 - [ ] **E3 Arayüz:** işletme kartı (seviye, aşama görseli, şube satırı), kariyer (şartlar + Git), mağaza (sabit fiyat, "neyi açar").
 - [ ] **E4 Meslekler ve eşyalar:** 60+ meslek, kurslar, genişleyen eşya listesi.
 - [ ] **E5 Hanedan ve lansman kapsamı:** içerik paketleri ve lansman bayrakları; Burak hikâyesinin kaldırılması (Burak yalnız yönetici), 63/70 metinleri, miras / yadigâr / erken devir / Aile sekmesi gizli, 80'de kahraman kalır ve "Torununun hikâyesi yakında" (karar 2026-10-21).
