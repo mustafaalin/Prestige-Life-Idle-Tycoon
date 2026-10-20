@@ -1,5 +1,6 @@
 import { BUSINESSES } from '../core/config/businesses';
-import { RETIREMENT_AGE } from '../core/config/life';
+import { BOTTLE_VALUE_BY_CLASS } from '../core/config/scene';
+import { RETIREMENT_AGE, SECONDS_PER_YEAR, START_AGE } from '../core/config/life';
 import { formatDuration, formatMoney } from '../core/format';
 import type { SimEvent, SimResult } from './simulator';
 
@@ -15,6 +16,8 @@ export interface PacingTarget {
   measure: 'active' | 'clock';
   min: number;
   max: number;
+  /** Not reaching it at all also passes (a class the first life need not reach). */
+  optional?: boolean;
 }
 
 const firstClass = (name: string, generation?: number) => (events: SimEvent[]) =>
@@ -22,25 +25,25 @@ const firstClass = (name: string, generation?: number) => (events: SimEvent[]) =
 
 const DAY = 86400;
 
+const HOUR = 3600;
+const lifeAge = (age: number) => (age - START_AGE) * SECONDS_PER_YEAR;
+
+// New targets with the economy rebuild (2026-10-21, docs/economy-rebuild.md §2): the in-game calendar
+// is realistic, so the classes are pinned to the hero's age (16 minutes of play = 1 year). Millionaire
+// in the late twenties to mid thirties, Billionaire in the second half of life; the first life need not
+// reach the top two classes (decided 2026-10-20).
 export const PACING_TARGETS: PacingTarget[] = [
-  // A job comes first, the Flower Stand ($120) is bought from savings (2026-10-09; price 2026-10-13).
   { label: 'First purchase', find: (e) => e.find((x) => x.kind === 'purchase'), measure: 'active', min: 0, max: 60 },
   { label: 'First business', find: (e) => e.find((x) => x.kind === 'business'), measure: 'active', min: 2 * 60, max: 6 * 60 },
-  // The stand's manager costs $1K and Day Laborer comes sooner since 2026-10-13 (a faster first ten minutes).
-  { label: 'First manager', find: (e) => e.find((x) => x.kind === 'manager'), measure: 'active', min: 5 * 60, max: 25 * 60 },
-  { label: 'Day Laborer (gen 1)', find: firstClass('Day Laborer', 1), measure: 'active', min: 4 * 60, max: 10 * 60 },
-  { label: 'Working Class (gen 1)', find: firstClass('Working Class', 1), measure: 'active', min: 18 * 60, max: 35 * 60 },
-  { label: 'Middle Class (gen 1)', find: firstClass('Middle Class', 1), measure: 'active', min: 25 * 60, max: 50 * 60 },
-  // Millionaire (10M) should land on a return session, after Middle Class's session.
-  { label: 'Millionaire (gen 1)', find: firstClass('Millionaire', 1), measure: 'active', min: 35 * 60, max: 75 * 60 },
-  // Classes spread over more days since 2026-10-09 (slower ageing, life.ts).
-  // Day 2 evening is fine (2026-10-15, user): Şans's silver collar (+4%) brings it to the 23:00 session.
-  { label: 'First Billionaire', find: firstClass('Billionaire'), measure: 'clock', min: DAY + 20 * 3600, max: 6 * DAY },
-  { label: 'First Multibillionaire', find: firstClass('Multibillionaire'), measure: 'clock', min: 7 * DAY, max: 13 * DAY },
-  { label: 'First Richest Person Alive', find: firstClass('Richest Person Alive'), measure: 'clock', min: 13 * DAY, max: 20 * DAY },
-  // Single life (§4.9): the first hand-over comes when the hero's life ends (~11 h played). Age runs 4×
-  // after the top class (config/life.ts), so it is a day or three after Richest (2026-10-16; was D21–D37).
-  { label: `First life ends (age ${RETIREMENT_AGE})`, find: (e) => e.find((x) => x.kind === 'retire'), measure: 'clock', min: 14 * DAY, max: 20 * DAY },
+  { label: 'First manager', find: (e) => e.find((x) => x.kind === 'manager'), measure: 'active', min: 8 * 60, max: 25 * 60 },
+  { label: 'Day Laborer (gen 1)', find: firstClass('Day Laborer', 1), measure: 'active', min: 4 * 60, max: 15 * 60 },
+  { label: 'Working Class (gen 1)', find: firstClass('Working Class', 1), measure: 'active', min: 20 * 60, max: HOUR },
+  { label: 'Middle Class (gen 1, age 21–26)', find: firstClass('Middle Class', 1), measure: 'active', min: lifeAge(21), max: lifeAge(26) },
+  { label: 'Millionaire (gen 1, age 26–35)', find: firstClass('Millionaire', 1), measure: 'active', min: lifeAge(26), max: lifeAge(35) },
+  { label: 'Billionaire (gen 1, age 50–72)', find: firstClass('Billionaire', 1), measure: 'active', min: lifeAge(50), max: lifeAge(72) },
+  { label: 'Multibillionaire (gen 1, not before 70)', find: firstClass('Multibillionaire', 1), measure: 'active', min: lifeAge(70), max: Infinity, optional: true },
+  { label: 'Richest (not in gen 1)', find: firstClass('Richest Person Alive', 1), measure: 'active', min: Infinity, max: Infinity, optional: true },
+  { label: `First life ends (age ${RETIREMENT_AGE})`, find: (e) => e.find((x) => x.kind === 'retire'), measure: 'clock', min: 18 * DAY, max: 30 * DAY },
 ];
 
 export function formatClock(seconds: number) {
@@ -59,11 +62,13 @@ export function checkTargets(result: SimResult) {
   return PACING_TARGETS.map((target) => {
     const event = target.find(result.events);
     const value = event ? (target.measure === 'active' ? event.activeTotal : event.clock) : Number.POSITIVE_INFINITY;
-    const pass = value >= target.min && value <= target.max;
-    const range =
-      target.measure === 'active'
-        ? `${formatDuration(target.min)}–${formatDuration(target.max)} played`
-        : `${formatClock(target.min)}–${formatClock(target.max)}`;
+    const pass = (event === undefined && target.optional === true) || (value >= target.min && value <= target.max);
+    const bound = (seconds: number) => (target.measure === 'active' ? formatDuration(seconds) : formatClock(seconds));
+    const range = !Number.isFinite(target.min)
+      ? 'never'
+      : !Number.isFinite(target.max)
+        ? `${bound(target.min)} or later${target.measure === 'active' ? ' played' : ''}`
+        : `${bound(target.min)}–${bound(target.max)}${target.measure === 'active' ? ' played' : ''}`;
     return { label: target.label, pass, got: event ? describe(event) : 'never', range };
   });
 }
@@ -71,15 +76,20 @@ export function checkTargets(result: SimResult) {
 // Feel checks (2026-10-08): pacing targets alone let businesses shrink to a side income while every
 // class still arrived on time (a Flower Stand run paid $0.01). These keep the core loop the core.
 
-/** Lowest acceptable money per run of a business's first unit, so "Run" always shows a real amount. */
-export const MIN_RUN_REVENUE = 1;
+/**
+ * A business's first run must pay at least this many bottles (decided 2026-10-20: one stand's "Run"
+ * must clearly beat a bottle; the Flower Stand pays ~12).
+ */
+export const MIN_RUN_BOTTLES = 5;
 /** Businesses should earn at least this share of income (bottles excluded) early in the first life. */
 export const MIN_BUSINESS_SHARE = 0.5;
 
 const percent = (share: number) => `${Math.round(share * 100)}%`;
 
 export function checkFeel(result: SimResult) {
-  const lowest = BUSINESSES.reduce((low, def) => (def.baseRevenue < low.baseRevenue ? def : low));
+  const firstRun = (def: (typeof BUSINESSES)[number]) => def.levels[0].revenue;
+  const lowest = BUSINESSES.reduce((low, def) => (firstRun(def) < firstRun(low) ? def : low));
+  const minRun = MIN_RUN_BOTTLES * BOTTLE_VALUE_BY_CLASS[0];
   const share = (event: SimEvent | undefined) => event?.businessShare ?? 0;
   const dayLaborer = firstClass('Day Laborer', 1)(result.events);
   const firstSession = result.events.find((event) => event.kind === 'session');
@@ -88,10 +98,10 @@ export function checkFeel(result: SimResult) {
   const median = sorted.length > 0 ? sorted[Math.floor(sorted.length / 2)] : 0;
   return [
     {
-      label: 'Every run pays a real amount',
-      pass: lowest.baseRevenue >= MIN_RUN_REVENUE,
-      got: `lowest ${formatMoney(lowest.baseRevenue)} (${lowest.name})`,
-      range: `>= ${formatMoney(MIN_RUN_REVENUE)} per run`,
+      label: 'A first run beats a bottle',
+      pass: firstRun(lowest) >= minRun,
+      got: `lowest ${formatMoney(firstRun(lowest))} (${lowest.name})`,
+      range: `>= ${formatMoney(minRun)} per run (${MIN_RUN_BOTTLES} bottles)`,
     },
     {
       label: 'Business share at Day Laborer',

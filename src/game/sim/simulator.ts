@@ -6,7 +6,11 @@ import { WEALTH_CLASSES } from '../core/config/classes';
 import { PRODUCTS, SPECIAL_SHOP_CEREMONY } from '../core/config/iap';
 import { RICH_MILESTONES } from '../core/config/richList';
 import {
-  businessBaseIncomePerSecond,
+  baseBusinessIncomePerSecond,
+  branchCost,
+  businessState,
+  canOpenBranch,
+  canOpenBusiness,
   careerBonus,
   globalMultiplier,
   heirloomLevel,
@@ -15,11 +19,11 @@ import {
   managerCost,
   salaryPerSecond,
   statusBonus,
-  costForUnits,
   autoIncomePerSecond,
   incomePerSecond,
-  businessUnitCap,
-  nextMilestone,
+  isOpened,
+  locations,
+  nextLevel,
   offlineEarnings,
   pendingLegacyPoints,
   canCollect,
@@ -57,11 +61,8 @@ import { HOUSES } from '../core/config/housing';
 import {
   LIFESTYLE_KINDS,
   activeQuests,
-  buyBusinessUnits,
   buyHome,
   buyLifestyle,
-  buyUpgrade,
-  canBuyUpgrade,
   buyHeirloom,
   canHandOverEarly,
   canRetire,
@@ -70,6 +71,8 @@ import {
   earn,
   hireManager,
   housePrice,
+  levelUpBusiness,
+  openBranch,
   isQuestComplete,
   lifestyleLocked,
   live,
@@ -77,7 +80,6 @@ import {
   nextCareer,
   nextHome,
   nextLifestyle,
-  nextUpgrade,
   ownsHouse,
   promote,
   rentHome,
@@ -141,7 +143,7 @@ export type SimEventKind =
   | 'career'
   | 'lifestyle'
   | 'home'
-  | 'upgrade'
+  | 'branch'
   | 'class'
   | 'rank'
   | 'retire'
@@ -199,36 +201,27 @@ function candidates(state: GameStateV2): Candidate[] {
   const list: Candidate[] = [];
 
   for (const def of BUSINESSES) {
-    const { owned, managed } = state.businesses[def.id];
-    // Lines open with the classes, and each class lets a line grow further (game-design-v2 §4.2).
-    const cap = businessUnitCap(state, def);
-    if (owned < cap) list.push({
-      label: `${def.name} #${owned + 1}`,
-      kind: owned === 0 ? 'business' : 'purchase',
-      cost: costForUnits(def, owned, 1),
-      apply: (s) => buyBusinessUnits(s, def.id, 1),
-    });
-    const next = nextMilestone(owned);
-    const milestone = next === null ? null : Math.min(next, cap);
-    if (milestone !== null && milestone - owned > 1) {
-      const count = milestone - owned;
+    const business = businessState(state, def.id);
+    const opened = isOpened(business);
+    // A line opens with its class (economy-rebuild §3); later levels only cost money.
+    const level = nextLevel(def, business);
+    if (level && (opened || canOpenBusiness(state, def))) {
       list.push({
-        label: `${def.name} → ${milestone}`,
-        kind: owned === 0 ? 'business' : 'purchase',
-        cost: costForUnits(def, owned, count),
-        apply: (s) => buyBusinessUnits(s, def.id, count),
+        label: opened ? `${def.name} level ${business.level + 1}` : `${def.name} opened`,
+        kind: opened ? 'purchase' : 'business',
+        cost: level.cost,
+        apply: (s) => levelUpBusiness(s, def.id),
       });
     }
-    const upgrade = nextUpgrade(state, def.id);
-    if (upgrade && canBuyUpgrade(state, upgrade)) {
+    if (canOpenBranch(state, def)) {
       list.push({
-        label: `Upgrade: ${upgrade.id}`,
-        kind: 'upgrade',
-        cost: upgrade.cost,
-        apply: (s) => buyUpgrade(s, upgrade.id),
+        label: `${def.name} branch ${business.branches + 1}`,
+        kind: 'branch',
+        cost: branchCost(def, business.branches),
+        apply: (s) => openBranch(s, def.id),
       });
     }
-    if (owned > 0 && !managed) {
+    if (opened && !business.managed) {
       list.push({
         label: `Manager: ${def.name}`,
         kind: 'manager',
@@ -684,18 +677,22 @@ export function businessShare(state: GameStateV2) {
 
 /** Exposed for reports: total base income of every business line (no multipliers). */
 export function businessBreakdown(state: GameStateV2) {
-  return BUSINESSES.map((def) => ({
-    name: def.name,
-    owned: state.businesses[def.id].owned,
-    managed: state.businesses[def.id].managed,
-    baseIncome: businessBaseIncomePerSecond(def, state.businesses[def.id].owned),
-  }));
+  return BUSINESSES.map((def) => {
+    const business = businessState(state, def.id);
+    return {
+      name: def.name,
+      level: business.level,
+      locations: locations(business),
+      managed: business.managed,
+      baseIncome: baseBusinessIncomePerSecond(def, business),
+    };
+  });
 }
 
 /** One-line diagnosis of where income comes from (used by `npm run sim -- --sessions`). */
 export function sessionSummary(state: GameStateV2) {
   const lines = businessBreakdown(state)
-    .filter((line) => line.owned > 0)
+    .filter((line) => line.level > 0)
     .map((line) => ({ ...line, share: line.baseIncome }))
     .sort((a, b) => b.share - a.share);
   const salary = salaryPerSecond(state);
@@ -703,7 +700,7 @@ export function sessionSummary(state: GameStateV2) {
   const total = lines.reduce((sum, line) => sum + line.share, salary + rent) || 1;
   const top = lines
     .slice(0, 3)
-    .map((line) => `${line.name} ${line.owned}${line.managed ? 'm' : ''} ${Math.round((line.share / total) * 100)}%`)
+    .map((line) => `${line.name} L${line.level}×${line.locations}${line.managed ? 'm' : ''} ${Math.round((line.share / total) * 100)}%`)
     .join(', ');
   return [
     `cash ${state.cash.toExponential(2)}`,

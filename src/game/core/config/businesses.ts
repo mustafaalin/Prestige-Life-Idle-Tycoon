@@ -1,99 +1,102 @@
-import type { BusinessDef } from '../types';
+import type { BusinessDef, BusinessLevelDef } from '../types';
+import { SECONDS_PER_MONTH } from './life';
 
-// Generation-1 business line (AdVenture Capitalist style generators).
-// Values are generated from a few tuning knobs so the whole curve moves together.
-// Change knobs here, then run `npm run sim` to check pacing (docs/game-design-v2.md §5).
-export const BUSINESS_TUNING = {
-  /** The price the tier ladder is built from: each tier's first unit is `costStep` times the one before. */
-  ladderBase: 250,
-  /** Manager price as a multiple of the tier's first unit price. */
-  managerCostMultiple: 12,
-};
-
-/**
- * The Flower Stand is cheaper than its place on the ladder and so is its manager (decided 2026-10-13,
- * after the first phone test): at $250 and $3K there was nothing to buy between the second job and
- * the stand, and the first manager took 19 minutes. The other tiers keep their ladder prices.
- */
-const FIRST_STAND = { cost: 120, managerCost: 1000 };
-
-/**
- * The Billionaire ceremony brings Mr. Bryce to work for the hero (story-v2 §4): the first Hotel Chain
- * and its manager come free with the class, like the van and the first home (decided 2026-10-13).
- * A first hotel adds next to nothing to a Billionaire's income, so nobody met him otherwise.
- */
-export const CLASS_MANAGER_GIFT = { classIndex: 5, businessId: 'hotel' };
-
-/**
- * Businesses open with the classes (decided 2026-10-16, user): each line opens at a class, and how
- * many units can be owned grows with every class after it: 10 at the opening class, 25 at the next,
- * 50 at the one after, then no limit. 25 and 50 are profit milestones (×2), so a ceremony is what
- * lets a line reach its next doubling. Owning more than the cap (older saves) is kept, never taken.
- * Middle Class opens two lines, Millionaire two, Billionaire three (user). The bot bought lines in
- * this order anyway; opening the last ones a class later stalled the late game (Richest at 63).
- */
-export const BUSINESS_OPEN_CLASS: Record<string, number> = {
-  'flower-stand': 0,
-  'coffee-cart': 1,
-  bakery: 2,
-  'car-wash': 3,
-  'mini-market': 3,
-  'beauty-salon': 4,
-  'logistics-warehouse': 4,
-  factory: 5,
-  hotel: 5,
-  'tech-startup': 5,
-};
-/** Unit cap by classes since the line opened; past the end there is no limit. */
-export const BUSINESS_CAP_STEPS = [10, 25, 50];
-
-// Each tier's first unit costs `costStep` times the previous one (2026-10-09). Small steps early, so
-// the first businesses come quickly; bigger steps later, so new businesses keep arriving across the
-// days instead of all on the first one. Cycles are short and readable (1–15 s); they only change how
-// often a run pays, not income per second.
+// Generation-1 business lines (docs/economy-rebuild.md §3). A business is opened once and grows by
+// named levels (set it up → run it well → scale it), then by branches; nobody buys a 73rd flower
+// stand. Amounts follow the in-game calendar (one month = 80 s): what a line earns a month is close to
+// what such a business earns in real life, and bigger businesses take longer to pay back (§2).
+// Every change here goes through `npm run sim`.
 //
-// paybackMinutes (how long the first unit takes to repay its price, before any bonus) sets each
-// tier's income and so the single-life pacing (game-design-v2 §5). Tuned with `npm run sim`.
-// The last two were 32000 and 300000 until 2026-10-13: a first hotel added a thousandth to a
-// Billionaire's income and the bot never bought either in a first life. At 6000 and 5000 hotels sell
-// from day 6 and the startup from day 14, with every pacing target where it was.
-const TIERS: {
-  id: string;
-  name: string;
-  image: string;
-  costStep: number;
-  cycleSeconds: number;
-  costGrowth: number;
-  paybackMinutes: number;
-}[] = [
-  { id: 'flower-stand', name: 'Flower Stand', image: '/assets/businesses/v2/flower-stand.webp', costStep: 1, cycleSeconds: 1, costGrowth: 1.2, paybackMinutes: 2 },
-  { id: 'coffee-cart', name: 'Coffee Cart', image: '/assets/businesses/v2/coffee-cart.webp', costStep: 3, cycleSeconds: 2, costGrowth: 1.2, paybackMinutes: 6 },
-  { id: 'bakery', name: 'Bakery', image: '/assets/businesses/v2/bakery.webp', costStep: 4, cycleSeconds: 3, costGrowth: 1.18, paybackMinutes: 15 },
-  { id: 'car-wash', name: 'Car Wash', image: '/assets/businesses/v2/car-wash.webp', costStep: 5, cycleSeconds: 4, costGrowth: 1.17, paybackMinutes: 30 },
-  { id: 'mini-market', name: 'Mini Market', image: '/assets/businesses/v2/mini-market.webp', costStep: 6, cycleSeconds: 5, costGrowth: 1.16, paybackMinutes: 90 },
-  { id: 'beauty-salon', name: 'Beauty Salon', image: '/assets/businesses/v2/beauty-salon.webp', costStep: 8, cycleSeconds: 7, costGrowth: 1.15, paybackMinutes: 150 },
-  { id: 'logistics-warehouse', name: 'Logistics Warehouse', image: '/assets/businesses/v2/logistics-warehouse.webp', costStep: 10, cycleSeconds: 9, costGrowth: 1.14, paybackMinutes: 750 },
-  { id: 'factory', name: 'Factory', image: '/assets/businesses/v2/factory.webp', costStep: 12, cycleSeconds: 11, costGrowth: 1.13, paybackMinutes: 4500 },
-  { id: 'hotel', name: 'Hotel Chain', image: '/assets/businesses/v2/hotel.webp', costStep: 15, cycleSeconds: 13, costGrowth: 1.12, paybackMinutes: 6000 },
-  { id: 'tech-startup', name: 'Tech Startup', image: '/assets/businesses/v2/tech-startup.webp', costStep: 20, cycleSeconds: 15, costGrowth: 1.12, paybackMinutes: 5000 },
-];
+// Saved state keeps each line by id with its level and branch count (runtime/storage.ts), so a line
+// may get more levels later, but its id and the meaning of a level number must never change.
+
+/** Look of a business by level: stand for the first seven levels, shop for 8–9, store from 10. */
+const STAGE_BY_LEVEL = [0, 0, 0, 0, 0, 0, 0, 1, 1, 2];
+
+/**
+ * The shape every line's ladder follows until each gets its own designed table (plan Faz E2): price
+ * and money per run of each level as multiples of level 1. Taken from the Flower Stand draft
+ * (economy-rebuild §3.2): cheap fast steps first, expensive big ones at the end.
+ */
+const LADDER_COST = [1, 0.6, 1.2, 3, 6, 12, 20, 50, 80, 160];
+const LADDER_REVENUE = [1, 1.28, 1.6, 2.2, 3, 4, 5.2, 8, 10.4, 16];
 
 /** Rounds to 3 significant digits so generated prices read like designed ones. */
 export function roundNice(value: number) {
+  if (value <= 0) return 0;
   const magnitude = 10 ** (Math.floor(Math.log10(value)) - 2);
   return Math.round(value / magnitude) * magnitude;
 }
 
-let tierCost = BUSINESS_TUNING.ladderBase;
+function ladder(openCost: number, firstMonthly: number, cycleSeconds: number): BusinessLevelDef[] {
+  const firstRevenue = (firstMonthly / SECONDS_PER_MONTH) * cycleSeconds;
+  return LADDER_COST.map((costShare, index) => ({
+    cost: roundNice(openCost * costShare),
+    revenue: roundNice(firstRevenue * LADDER_REVENUE[index]),
+    stage: STAGE_BY_LEVEL[index],
+  }));
+}
 
-export const BUSINESSES: BusinessDef[] = TIERS.map(({ paybackMinutes, costStep, ...tier }, index) => {
-  const t = BUSINESS_TUNING;
-  tierCost *= costStep;
-  const baseCost = index === 0 ? FIRST_STAND.cost : roundNice(tierCost);
+/** Each branch costs this much more than the one before (low on purpose: no runaway prices). */
+const BRANCH_COST_GROWTH = 1.15;
+/** Manager price as a multiple of opening the business. */
+const MANAGER_COST_MULTIPLE = 3;
+
+/**
+ * Branches allowed by classes since the line opened (the old unit caps, decided 2026-10-16): a
+ * ceremony lets a business spread further. Past the end there is no limit.
+ */
+export const BRANCH_CAP_STEPS = [2, 5, 10, 20];
+
+/**
+ * The Billionaire ceremony brings Mr. Bryce to work for the hero (story-v2 §4): the first hotel and
+ * its manager come free with the class, like the van and the first home (decided 2026-10-13).
+ */
+export const CLASS_MANAGER_GIFT = { classIndex: 5, businessId: 'hotel' };
+
+const ART = '/assets/businesses/v2';
+
+// openCost: opening the business · firstMonthly: what level 1 earns a month with a manager.
+// openClass: the class the line opens at (decided 2026-10-16: Middle Class opens two lines,
+// Millionaire two, Billionaire three).
+const LINES: { id: string; name: string; openCost: number; firstMonthly: number; cycleSeconds: number; openClass: number }[] = [
+  { id: 'flower-stand', name: 'Flower Stand', openCost: 500, firstMonthly: 400, cycleSeconds: 5, openClass: 0 },
+  { id: 'coffee-cart', name: 'Coffee Cart', openCost: 4e3, firstMonthly: 1.5e3, cycleSeconds: 6, openClass: 1 },
+  { id: 'bakery', name: 'Bakery', openCost: 3e4, firstMonthly: 5e3, cycleSeconds: 8, openClass: 2 },
+  { id: 'car-wash', name: 'Car Wash', openCost: 1.2e5, firstMonthly: 1.2e4, cycleSeconds: 9, openClass: 3 },
+  { id: 'mini-market', name: 'Mini Market', openCost: 5e5, firstMonthly: 3e4, cycleSeconds: 10, openClass: 3 },
+  { id: 'beauty-salon', name: 'Beauty Salon', openCost: 2e6, firstMonthly: 8e4, cycleSeconds: 11, openClass: 4 },
+  { id: 'logistics-warehouse', name: 'Logistics Warehouse', openCost: 1.5e7, firstMonthly: 4e5, cycleSeconds: 12, openClass: 4 },
+  { id: 'factory', name: 'Factory', openCost: 1e8, firstMonthly: 2e6, cycleSeconds: 13, openClass: 5 },
+  { id: 'hotel', name: 'Hotel Chain', openCost: 6e8, firstMonthly: 9e6, cycleSeconds: 14, openClass: 5 },
+  { id: 'tech-startup', name: 'Tech Startup', openCost: 4e9, firstMonthly: 5e7, cycleSeconds: 15, openClass: 5 },
+];
+
+/** The Flower Stand has its own designed table (economy-rebuild §3.2); the others follow its shape for now. */
+const FLOWER_STAND_LEVELS: BusinessLevelDef[] = [
+  { cost: 500, revenue: 25, stage: 0 },
+  { cost: 300, revenue: 32, stage: 0 },
+  { cost: 600, revenue: 40, stage: 0 },
+  { cost: 1500, revenue: 55, stage: 0 },
+  { cost: 3000, revenue: 75, stage: 0 },
+  { cost: 6000, revenue: 100, stage: 0 },
+  { cost: 10000, revenue: 130, stage: 0 },
+  { cost: 25000, revenue: 200, stage: 1 },
+  { cost: 40000, revenue: 260, stage: 1 },
+  { cost: 80000, revenue: 400, stage: 2 },
+];
+
+export const BUSINESSES: BusinessDef[] = LINES.map(({ openCost, firstMonthly, openClass, ...line }) => {
+  const levels = line.id === 'flower-stand' ? FLOWER_STAND_LEVELS : ladder(openCost, firstMonthly, line.cycleSeconds);
   return {
-    ...tier,
-    baseCost,
-    baseRevenue: roundNice((baseCost * tier.cycleSeconds) / (paybackMinutes * 60)),
-    managerCost: index === 0 ? FIRST_STAND.managerCost : roundNice(baseCost * t.managerCostMultiple),
+    ...line,
+    image: `${ART}/${line.id}.webp`,
+    // Shop and store art comes with plan Faz E3 (GPT); until then every stage shows the first look.
+    stageImages: [`${ART}/${line.id}.webp`],
+    levels,
+    branchCost: levels[levels.length - 1].cost,
+    branchCostGrowth: BRANCH_COST_GROWTH,
+    managerCost: roundNice(openCost * MANAGER_COST_MULTIPLE),
+    requires: openClass > 0 ? [{ type: 'class', index: openClass }] : [],
   };
 });

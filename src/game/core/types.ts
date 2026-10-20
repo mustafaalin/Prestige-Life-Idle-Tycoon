@@ -1,21 +1,49 @@
 // v2 economy core — pure data types, no React, no storage.
 // Shared by the game UI and the balance simulator (scripts/sim-economy.ts).
 
+/**
+ * One step a business line grows by (docs/economy-rebuild.md §3). Level 1 opens the business; each
+ * later level is bought once, in order, and raises what every location pays per run.
+ */
+export interface BusinessLevelDef {
+  /** Price of reaching this level (for level 1: opening the business). */
+  cost: number;
+  /** Money one location pays per run at this level, before multipliers. */
+  revenue: number;
+  /** Which look the business has from this level on (index into BusinessDef.stageImages). */
+  stage: number;
+}
+
 export interface BusinessDef {
   id: string;
   name: string;
+  /** The first look (a stand, a cart): shown before the line is opened and while no stage art exists. */
   image: string;
-  /** Price of the first unit. */
-  baseCost: number;
-  /** Each unit costs `costGrowth` × the previous one. */
-  costGrowth: number;
-  /** Seconds per production cycle (before speed milestones). */
+  /** Art per stage (stand → shop → store). Missing stages fall back to `image`. */
+  stageImages: string[];
+  /** Seconds per run. */
   cycleSeconds: number;
-  /** Money paid per owned unit per cycle (before multipliers). */
-  baseRevenue: number;
-  /** One-time price to hire a manager that runs cycles automatically. */
+  /** Levels in order; levels[0] is opening the business. */
+  levels: BusinessLevelDef[];
+  /** Price of the first branch; each next one costs `branchCostGrowth` times the one before. */
+  branchCost: number;
+  branchCostGrowth: number;
+  /** One-time price to hire a manager that runs every location automatically, also offline. */
   managerCost: number;
+  /** What has to be true before the business can be opened (its class, ...). */
+  requires: Requirement[];
 }
+
+/**
+ * A condition something waits for besides money (docs/economy-rebuild.md §7). Businesses, jobs, items
+ * and event cards share these, so a locked card always says the same kind of thing and "Go" knows where to send.
+ */
+export type Requirement =
+  | { type: 'class'; index: number }
+  /** Live in this home (index into HOUSES) or a better one. */
+  | { type: 'home'; index: number }
+  | { type: 'item'; itemId: string }
+  | { type: 'businessLevel'; businessId: string; level: number };
 
 export interface CareerDef {
   id: string;
@@ -68,29 +96,22 @@ export interface HouseDef {
 }
 
 export interface BusinessState {
-  owned: number;
+  /** 0 = not opened yet; otherwise 1..levels.length. */
+  level: number;
+  /** Locations besides the first one; opened once the last level is reached. */
+  branches: number;
   managed: boolean;
-}
-
-/** One-time upgrade of a single business line (AdVenture Capitalist cash upgrade). */
-export interface UpgradeDef {
-  /** `${businessId}:${n}`, n = 1..3. */
-  id: string;
-  businessId: string;
-  cost: number;
-  /** Units of the business needed before it can be bought. */
-  requiredOwned: number;
-  /** Multiplies that business's profit. */
-  multiplier: number;
 }
 
 /** What a goal asks for. Counts are totals in the current life. */
 export type QuestGoal =
   | { type: 'collect'; count: number }
   | { type: 'find'; count: number }
-  | { type: 'units'; businessId: string; count: number }
+  /** Reach this level of a business (level 1 = open it). */
+  | { type: 'level'; businessId: string; level: number }
+  /** Own this many branches of a business. */
+  | { type: 'branches'; businessId: string; count: number }
   | { type: 'manager'; businessId: string }
-  | { type: 'upgrade'; upgradeId: string }
   | { type: 'career'; index: number }
   | { type: 'home'; index: number }
   | { type: 'class'; index: number }
@@ -125,8 +146,6 @@ export interface GameStateV2 {
   classIndex: number;
   /** Seconds played in this life (only while the game is open); drives the hero's age. */
   lifeSeconds: number;
-  /** Business upgrades bought in this life (UpgradeDef ids). */
-  upgrades: string[];
   /** Goals claimed in this life (QuestDef ids, plus generated milestone goal ids). */
   questsDone: string[];
   /** Bottles and cans collected in this life (goal counter). */

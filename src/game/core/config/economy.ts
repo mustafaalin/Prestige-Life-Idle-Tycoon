@@ -1,20 +1,8 @@
 // Global economy knobs. Every value here is checked by `npm run sim` against the pacing targets
 // in docs/game-design-v2.md §5.
 
-/** Owned-unit counts where a business's profit doubles. */
-export const PROFIT_MILESTONES = [25, 50, 75];
-export const PROFIT_MILESTONE_FACTOR = 2;
-
 /** Share of a business's full output an active player gets by tapping it without a manager. */
 export const ACTIVE_UNMANAGED_EFFICIENCY = 0.6;
-
-/**
- * Money per collected bottle = TAP_BASE + TAP_INCOME_SECONDS × active income per second. A bottle is
- * worth several seconds of income so collecting is worth the effort (2026-10-08); bottles are capped
- * by how fast they appear (config/scene.ts), so tapping can't replace the economy.
- */
-export const TAP_BASE = 2;
-export const TAP_INCOME_SECONDS = 2.5;
 
 /** Offline: share of idle income earned while away. */
 export const OFFLINE_RATE = 0.5;

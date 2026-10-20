@@ -140,9 +140,8 @@ export function cityName(locale: Locale, kind: ContentKind, id: string): string 
   return current === 'lumen' ? LUMEN_NAMES[locale]?.[kind]?.[id] : undefined;
 }
 
-/** The i18n branch holding the current city's managers and business upgrades. */
+/** The i18n branch holding the current city's managers. Business level names are the old city's until generation 2 writes Lumen's. */
 export const cityManagers = () => (current === 'lumen' ? 'managersLumen' : 'managers');
-export const cityUpgrades = () => (current === 'lumen' ? 'upgradesLumen' : 'upgrades');
 
 /** The current city's manager portrait for a business. */
 export const cityManagerPortrait = (businessId: string) =>

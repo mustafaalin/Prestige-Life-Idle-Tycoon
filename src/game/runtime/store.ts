@@ -12,10 +12,10 @@ import type { InvestPlanId } from '../core/config/investments';
 import { ownedProducts, realStore } from './iap';
 import { applyPurchase, applyRevoke, openOffers, refundedToRevoke, storeOwnedToGrant } from './purchases';
 import {
-  buyBusinessUnits,
+  levelUpBusiness,
+  openBranch,
   buyHome,
   buyLifestyle,
-  buyUpgrade,
   answerEvent,
   claimFind,
   claimQuest,
@@ -63,12 +63,13 @@ export interface GameActions {
   claimFind(multiplier?: number): number;
   /** Settles an event card the moment it is answered (the card rolled the bold answer); returns the change in cash (negative on a loss). */
   answerEvent(cardId: string, outcome: EventOutcome): number;
-  buyBusiness(businessId: string, count: number): boolean;
+  /** Opens a business or buys its next level. */
+  levelUpBusiness(businessId: string): boolean;
+  openBranch(businessId: string): boolean;
   hireManager(businessId: string): boolean;
   startCycle(businessId: string): boolean;
   promote(): boolean;
   buyLifestyle(itemId: string): boolean;
-  buyUpgrade(upgradeId: string): boolean;
   /** Claims a finished goal; returns what it paid (0 if it could not be claimed). */
   claimQuest(questId: string): number;
   rentHome(houseId: string): boolean;
@@ -343,18 +344,21 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         actTracked((s) => answerEvent(s, outcome, clock()), 'event_card', () => ({ card_id: cardId, outcome }));
         return state.game.cash - before;
       },
-      buyBusiness: (businessId, count) =>
-        actTracked((s) => buyBusinessUnits(s, businessId, count), 'business_buy', () => ({
+      levelUpBusiness: (businessId) =>
+        actTracked((s) => levelUpBusiness(s, businessId), 'business_level', () => ({
           business_id: businessId,
-          count,
-          owned: state.game.businesses[businessId]?.owned ?? 0,
+          level: state.game.businesses[businessId]?.level ?? 0,
+        })),
+      openBranch: (businessId) =>
+        actTracked((s) => openBranch(s, businessId), 'business_branch', () => ({
+          business_id: businessId,
+          branches: state.game.businesses[businessId]?.branches ?? 0,
         })),
       hireManager: (businessId) =>
         actTracked((s) => hireManager(s, businessId), 'manager_hire', () => ({ business_id: businessId })),
       startCycle: (businessId) => act((s) => startCycle(s, businessId)),
       promote: () => actTracked(promote, 'promotion', () => ({ career_index: state.game.careerIndex })),
       buyLifestyle: (itemId) => actTracked((s) => buyLifestyle(s, itemId), 'lifestyle_buy', () => ({ item_id: itemId })),
-      buyUpgrade: (upgradeId) => actTracked((s) => buyUpgrade(s, upgradeId), 'upgrade_buy', () => ({ upgrade_id: upgradeId })),
       claimQuest: (questId) => {
         const before = state.game.cash;
         return actTracked((s) => claimQuest(s, questId), 'quest_claim', () => ({ quest_id: questId }))

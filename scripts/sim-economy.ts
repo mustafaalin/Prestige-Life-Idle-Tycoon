@@ -1,3 +1,4 @@
+import { SECONDS_PER_MONTH } from '../src/game/core/config/life';
 // Usage: npm run sim [-- --days 45 --timeline --purchases --sessions --offline-cap 8 --daily-claims]
 //   --purchases            add every purchase to the timeline
 //   --offline-cap <hours>  try another offline cap (default: OFFLINE_CAP_HOURS)
@@ -28,11 +29,14 @@ const retireAtTop = args.includes('--retire-at-top');
 
 
 if (args.includes('--config')) {
-  console.log('Businesses: name | first unit | growth | cycle | revenue/cycle | first-unit payback | manager');
+  console.log('Businesses: name | open | run L1 → L10 | /month L1 → L10 | open payback | first branch | manager');
   for (const b of BUSINESSES) {
-    const payback = b.baseCost / (b.baseRevenue / b.cycleSeconds);
+    const first = b.levels[0];
+    const last = b.levels[b.levels.length - 1];
+    const monthly = (revenue: number) => formatMoney((revenue / b.cycleSeconds) * SECONDS_PER_MONTH);
+    const payback = first.cost / (first.revenue / b.cycleSeconds);
     console.log(
-      `  ${b.name.padEnd(20)} ${formatMoney(b.baseCost).padStart(8)}  x${b.costGrowth}  ${String(b.cycleSeconds).padStart(4)}s  ${formatMoney(b.baseRevenue).padStart(8)}  ${formatDuration(payback).padStart(8)}  ${formatMoney(b.managerCost)}`
+      `  ${b.name.padEnd(20)} ${formatMoney(first.cost).padStart(8)}  ${formatMoney(first.revenue).padStart(7)} → ${formatMoney(last.revenue).padStart(7)}  ${monthly(first.revenue).padStart(7)} → ${monthly(last.revenue).padStart(7)}  ${formatDuration(payback).padStart(8)}  ${formatMoney(b.branchCost).padStart(8)}  ${formatMoney(b.managerCost)}`
     );
   }
   console.log('Careers: name | cost | salary/s | income bonus');
@@ -53,7 +57,7 @@ for (const profile of PROFILES) {
     const kinds = showSessions
       ? new Set(['session', 'retire', 'class', 'rank'])
       : showPurchases
-        ? new Set(['class', 'manager', 'career', 'retire', 'business', 'purchase', 'upgrade', 'lifestyle', 'home'])
+        ? new Set(['class', 'manager', 'career', 'retire', 'business', 'purchase', 'branch', 'lifestyle', 'home'])
         : undefined;
     console.log(timeline(result, 400, kinds).join('\n'));
     console.log('');

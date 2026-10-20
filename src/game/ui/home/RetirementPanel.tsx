@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { BUSINESSES } from '../../core/config/businesses';
-import { heroAge, legacyAvailable, pendingLegacyPoints } from '../../core/formulas';
+import { businessImage, heroAge, legacyAvailable, locations, pendingLegacyPoints } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { storyRuns } from '../../runtime/story';
@@ -43,7 +43,7 @@ export function RetirementPanel() {
   const gained = pendingLegacyPoints(game);
   // Points the heir can spend: what is left unspent plus this life's.
   const total = legacyAvailable(game) + gained;
-  const owned = BUSINESSES.filter((def) => (game.businesses[def.id]?.owned ?? 0) > 0);
+  const owned = BUSINESSES.filter((def) => (game.businesses[def.id]?.level ?? 0) > 0);
   const managers = owned.filter((def) => game.businesses[def.id].managed).length;
   // The pictures are the first generation's life; an heir has none of their own yet (story §6).
   const pictures = storyRuns(game) ? ALBUM.filter((entry) => albumSeen(entry, state.story)) : [];
@@ -109,9 +109,11 @@ export function RetirementPanel() {
                 {owned.map((def) => (
                   <li key={def.id} className="flex flex-col items-center">
                     <ImageTile className="w-12 h-12">
-                      <img src={def.image} alt={name('business', def)} draggable={false} className="w-[85%] h-[85%] object-contain" />
+                      <img src={businessImage(def, game.businesses[def.id].level)} alt={name('business', def)} draggable={false} className="w-[85%] h-[85%] object-contain" />
                     </ImageTile>
-                    <span className="mt-0.5 text-[11px] font-black text-slate-500 tabular-nums">×{game.businesses[def.id].owned}</span>
+                    <span className="mt-0.5 text-[11px] font-black text-slate-500 tabular-nums">
+                      ×{locations(game.businesses[def.id])}
+                    </span>
                   </li>
                 ))}
               </ul>

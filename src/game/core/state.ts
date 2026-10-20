@@ -1,19 +1,25 @@
 import { BUSINESSES, CLASS_MANAGER_GIFT } from './config/businesses';
 import { CAREERS } from './config/careers';
-import { PROFIT_MILESTONES, STARTING_CASH } from './config/economy';
+import { STARTING_CASH } from './config/economy';
 import { CLASS_HOME_FLOOR, FIRST_OWNED_HOME, HOUSES, STARTING_HOME_ID } from './config/housing';
 import { LIFE_SECONDS } from './config/life';
 import { CLASS_OUTFIT_FLOOR, LIFESTYLE_ITEMS, OUTFITS, STARTING_LIFESTYLE_IDS, VEHICLES } from './config/lifestyle';
-import { ACTIVE_QUESTS, GENERATED_QUEST_SECONDS, QUESTS } from './config/quests';
+import { ACTIVE_QUESTS, GENERATED_BRANCH_GOALS, GENERATED_LEVEL_GOALS, GENERATED_QUEST_SECONDS, QUESTS } from './config/quests';
 import { COLLECT_END_CLASS } from './config/scene';
-import { UPGRADES } from './config/upgrades';
 import { WEALTH_CLASSES } from './config/classes';
 import { heirloomDef } from './config/heirlooms';
 import {
   ageSpeed,
-  businessUnitCap,
+  branchCapAt,
+  branchCost,
+  businessDef,
+  businessState,
+  canOpenBranch,
+  canOpenBusiness,
   classIndexFor,
-  costForUnits,
+  emptyBusiness,
+  isOpened,
+  nextLevel,
   heirloomCap,
   heirloomLevel,
   heirloomPrice,
@@ -24,16 +30,15 @@ import {
   pendingLegacyPoints,
   questReward,
 } from './formulas';
-import type { BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind, QuestDef, QuestGoal, UpgradeDef } from './types';
+import type { BusinessDef, BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind, QuestDef, QuestGoal } from './types';
 
 // Pure state transitions. Every action returns a new state, or null when it is not allowed.
 
-const BUSINESS_BY_ID = new Map(BUSINESSES.map((def) => [def.id, def]));
 const LIFESTYLE_BY_ID = new Map(LIFESTYLE_ITEMS.map((item) => [item.id, item]));
 const HOUSE_INDEX = new Map(HOUSES.map((house, index) => [house.id, index]));
 
 function emptyBusinesses(): Record<string, BusinessState> {
-  return Object.fromEntries(BUSINESSES.map((def) => [def.id, { owned: 0, managed: false }]));
+  return Object.fromEntries(BUSINESSES.map((def) => [def.id, emptyBusiness()]));
 }
 
 export function createInitialState(
@@ -60,7 +65,6 @@ export function createInitialState(
     homesOwned: [],
     classIndex: 0,
     lifeSeconds: 0,
-    upgrades: [],
     questsDone: [],
     bottles: 0,
     finds: 0,
@@ -106,13 +110,13 @@ export function applyClassFloors(state: GameStateV2): GameStateV2 {
     .filter((id) => !state.lifestyleOwned.includes(id));
   const gift = HOUSES[FIRST_OWNED_HOME.houseIndex].id;
   const gifted = state.classIndex >= FIRST_OWNED_HOME.classIndex && !state.homesOwned.includes(gift);
-  const hotel = state.businesses[CLASS_MANAGER_GIFT.businessId];
+  const hotel = businessState(state, CLASS_MANAGER_GIFT.businessId);
   const hired = state.classIndex >= CLASS_MANAGER_GIFT.classIndex && !hotel.managed;
   if (home === state.home && missing.length === 0 && !gifted && !hired) return state;
   return {
     ...state,
     businesses: hired
-      ? { ...state.businesses, [CLASS_MANAGER_GIFT.businessId]: { ...hotel, owned: Math.max(1, hotel.owned), managed: true } }
+      ? { ...state.businesses, [CLASS_MANAGER_GIFT.businessId]: { ...hotel, level: Math.max(1, hotel.level), managed: true } }
       : state.businesses,
     home,
     homesOwned: gifted ? [...state.homesOwned, gift] : state.homesOwned,
@@ -125,29 +129,42 @@ function spend(state: GameStateV2, cost: number): GameStateV2 | null {
   return { ...state, cash: state.cash - cost };
 }
 
-export function buyBusinessUnits(state: GameStateV2, businessId: string, count: number): GameStateV2 | null {
-  const def = BUSINESS_BY_ID.get(businessId);
-  if (!def || count <= 0) return null;
-  const current = state.businesses[businessId];
-  if (current.owned + count > businessUnitCap(state, def)) return null;
-  const paid = spend(state, costForUnits(def, current.owned, count));
+function withBusiness(state: GameStateV2, businessId: string, business: BusinessState): GameStateV2 {
+  return { ...state, businesses: { ...state.businesses, [businessId]: business } };
+}
+
+/**
+ * Buys the next level of a business; at level 0 this opens it (docs/economy-rebuild.md §3). Opening
+ * waits for the line's conditions (its class); later levels only cost money.
+ */
+export function levelUpBusiness(state: GameStateV2, businessId: string): GameStateV2 | null {
+  const def = businessDef(businessId);
+  if (!def) return null;
+  const business = businessState(state, businessId);
+  const level = nextLevel(def, business);
+  if (!level || (!isOpened(business) && !canOpenBusiness(state, def))) return null;
+  const paid = spend(state, level.cost);
   if (!paid) return null;
-  return {
-    ...paid,
-    businesses: { ...paid.businesses, [businessId]: { ...current, owned: current.owned + count } },
-  };
+  return withBusiness(paid, businessId, { ...business, level: business.level + 1 });
+}
+
+/** Opens one more branch: only at the last level, up to what the class allows. */
+export function openBranch(state: GameStateV2, businessId: string): GameStateV2 | null {
+  const def = businessDef(businessId);
+  if (!def || !canOpenBranch(state, def)) return null;
+  const business = businessState(state, businessId);
+  const paid = spend(state, branchCost(def, business.branches));
+  if (!paid) return null;
+  return withBusiness(paid, businessId, { ...business, branches: business.branches + 1 });
 }
 
 export function hireManager(state: GameStateV2, businessId: string): GameStateV2 | null {
-  const def = BUSINESS_BY_ID.get(businessId);
-  const current = state.businesses[businessId];
-  if (!def || current.managed || current.owned <= 0) return null;
+  const def = businessDef(businessId);
+  const business = businessState(state, businessId);
+  if (!def || business.managed || !isOpened(business)) return null;
   const paid = spend(state, managerCost(state, def));
   if (!paid) return null;
-  return {
-    ...paid,
-    businesses: { ...paid.businesses, [businessId]: { ...current, managed: true } },
-  };
+  return withBusiness(paid, businessId, { ...business, managed: true });
 }
 
 export function nextCareer(state: GameStateV2) {
@@ -316,30 +333,6 @@ export function moveHome(state: GameStateV2, houseId: string): GameStateV2 | nul
   return { ...state, home: houseId };
 }
 
-// ── Business upgrades (config/upgrades.ts) ───────────────────────────────────
-
-const UPGRADE_BY_ID = new Map(UPGRADES.map((upgrade) => [upgrade.id, upgrade]));
-
-/** The next upgrade of a business not bought yet (they come in order), or null when all are bought. */
-export function nextUpgrade(state: GameStateV2, businessId: string): UpgradeDef | null {
-  return UPGRADES.find((upgrade) => upgrade.businessId === businessId && !state.upgrades.includes(upgrade.id)) ?? null;
-}
-
-export function canBuyUpgrade(state: GameStateV2, upgrade: UpgradeDef) {
-  return (
-    nextUpgrade(state, upgrade.businessId)?.id === upgrade.id &&
-    state.businesses[upgrade.businessId].owned >= upgrade.requiredOwned
-  );
-}
-
-export function buyUpgrade(state: GameStateV2, upgradeId: string): GameStateV2 | null {
-  const upgrade = UPGRADE_BY_ID.get(upgradeId);
-  if (!upgrade || !canBuyUpgrade(state, upgrade)) return null;
-  const paid = spend(state, upgrade.cost);
-  if (!paid) return null;
-  return { ...paid, upgrades: [...paid.upgrades, upgradeId] };
-}
-
 // ── Goals (config/quests.ts) ─────────────────────────────────────────────────
 
 /** How far a goal is: current and target counts (done when current >= target). */
@@ -351,12 +344,12 @@ export function questProgress(state: GameStateV2, goal: QuestGoal): { current: n
       return { current: state.classIndex >= COLLECT_END_CLASS ? goal.count : state.bottles, target: goal.count };
     case 'find':
       return { current: state.finds, target: goal.count };
-    case 'units':
-      return { current: state.businesses[goal.businessId]?.owned ?? 0, target: goal.count };
+    case 'level':
+      return { current: businessState(state, goal.businessId).level, target: goal.level };
+    case 'branches':
+      return { current: businessState(state, goal.businessId).branches, target: goal.count };
     case 'manager':
-      return { current: state.businesses[goal.businessId]?.managed ? 1 : 0, target: 1 };
-    case 'upgrade':
-      return { current: state.upgrades.includes(goal.upgradeId) ? 1 : 0, target: 1 };
+      return { current: businessState(state, goal.businessId).managed ? 1 : 0, target: 1 };
     case 'career':
       return { current: state.careerIndex + 1, target: goal.index + 1 };
     case 'home':
@@ -376,39 +369,58 @@ export function isQuestComplete(state: GameStateV2, quest: QuestDef) {
   return current >= target;
 }
 
-/** Unit goals the written list already pays for (`businessId:count`); no generated goal repeats them. */
-const WRITTEN_UNIT_GOALS = new Set(
-  QUESTS.flatMap((quest) => (quest.goal.type === 'units' ? [`${quest.goal.businessId}:${quest.goal.count}`] : [])),
+/** Business goals the written list already pays for; no generated goal repeats them. */
+const WRITTEN_GOALS = new Set(
+  QUESTS.flatMap((quest) => {
+    const goal = quest.goal;
+    if (goal.type === 'level') return [`level:${goal.businessId}:${goal.level}`];
+    if (goal.type === 'branches') return [`branches:${goal.businessId}:${goal.count}`];
+    return [];
+  }),
 );
 
+/** Money still needed to take a business from where it is to a level (0 once there). */
+function costToLevel(def: BusinessDef, business: BusinessState, level: number) {
+  return def.levels.slice(business.level, level).reduce((sum, step) => sum + step.cost, 0);
+}
+
+/** Money still needed for a branch count (0 once there). */
+function costToBranches(def: BusinessDef, business: BusinessState, count: number) {
+  let cost = 0;
+  for (let branch = business.branches; branch < count; branch += 1) cost += branchCost(def, branch);
+  return cost;
+}
+
 /**
- * Goals on screen: the next written ones, then generated "take a business to its next milestone"
- * goals so there is always something to aim for. A business's goal is its first milestone not
- * claimed yet, so a reached milestone stays up (and comes first) until its reward is collected.
+ * A business's generated goal: its first level milestone not claimed yet, then its branch milestones.
+ * A reached milestone stays up (and comes first) until its reward is collected. Branch goals the
+ * class does not allow yet are left out, or they would sit on screen undoable.
+ */
+function generatedGoal(state: GameStateV2, def: BusinessDef): { quest: QuestDef; cost: number } | null {
+  const business = businessState(state, def.id);
+  if (!isOpened(business)) return null;
+  const goal = (id: string, questGoal: QuestGoal, cost: number) => ({
+    quest: { id, goal: questGoal, rewardSeconds: GENERATED_QUEST_SECONDS, rewardMin: 0 },
+    cost,
+  });
+  const open = (id: string) => !state.questsDone.includes(id) && !WRITTEN_GOALS.has(id);
+  const level = GENERATED_LEVEL_GOALS.find((target) => target <= def.levels.length && open(`level:${def.id}:${target}`));
+  if (level !== undefined) {
+    return goal(`level:${def.id}:${level}`, { type: 'level', businessId: def.id, level }, costToLevel(def, business, level));
+  }
+  const count = GENERATED_BRANCH_GOALS.find((target) => open(`branches:${def.id}:${target}`));
+  if (count === undefined || count > branchCapAt(def, state.classIndex)) return null;
+  return goal(`branches:${def.id}:${count}`, { type: 'branches', businessId: def.id, count }, costToBranches(def, business, count));
+}
+
+/**
+ * Goals on screen: the next written ones, then generated business goals so there is always something
+ * to aim for, cheapest first.
  */
 export function activeQuests(state: GameStateV2): QuestDef[] {
   const list = QUESTS.filter((quest) => !state.questsDone.includes(quest.id)).slice(0, ACTIVE_QUESTS);
   if (list.length >= ACTIVE_QUESTS) return list;
-  const generated: { quest: QuestDef; cost: number }[] = [];
-  for (const def of BUSINESSES) {
-    const { owned } = state.businesses[def.id];
-    if (owned <= 0) continue;
-    const target = PROFIT_MILESTONES.find(
-      (count) => !state.questsDone.includes(`units:${def.id}:${count}`) && !WRITTEN_UNIT_GOALS.has(`${def.id}:${count}`),
-    );
-    // A goal the class does not allow yet would sit on screen undoable (§4.2 caps).
-    if (target === undefined || target > businessUnitCap(state, def)) continue;
-    const id = `units:${def.id}:${target}`;
-    generated.push({
-      quest: {
-        id,
-        goal: { type: 'units', businessId: def.id, count: target },
-        rewardSeconds: GENERATED_QUEST_SECONDS,
-        rewardMin: 0,
-      },
-      cost: target > owned ? costForUnits(def, owned, target - owned) : 0,
-    });
-  }
+  const generated = BUSINESSES.map((def) => generatedGoal(state, def)).filter((entry) => entry !== null);
   generated.sort((a, b) => a.cost - b.cost);
   return [...list, ...generated.map((entry) => entry.quest)].slice(0, ACTIVE_QUESTS);
 }

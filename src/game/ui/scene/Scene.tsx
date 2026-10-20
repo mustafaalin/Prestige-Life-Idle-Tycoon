@@ -90,7 +90,9 @@ interface Floater {
 /** Grows with every purchase, promotion, move or class; a rise makes the hero cheer. */
 function progressMark(game: GameStateV2) {
   let owned = 0;
-  for (const business of Object.values(game.businesses)) owned += business.owned + (business.managed ? 1 : 0);
+  for (const business of Object.values(game.businesses)) {
+    owned += business.level + business.branches + (business.managed ? 1 : 0);
+  }
   return (
     owned +
     game.careerIndex +

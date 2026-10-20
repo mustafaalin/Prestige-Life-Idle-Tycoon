@@ -1,15 +1,12 @@
 import { Lock } from 'lucide-react';
-import { useState } from 'react';
 import { BUSINESSES } from '../../core/config/businesses';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { businessOpenClass } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
 import { useMusic } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { ImageTile, Segmented, SectionLabel } from '../kit';
-import { BusinessCard, type BuyMode } from './BusinessCard';
-
-const BUY_MODES: BuyMode[] = [1, 10, 'max'];
+import { ImageTile } from '../kit';
+import { BusinessCard } from './BusinessCard';
 
 /**
  * Business list. Lines are revealed one at a time: everything owned (a ceremony's gift can be
@@ -21,10 +18,9 @@ export function BusinessesScreen() {
   useMusic('calm');
   const { game } = useGameV2();
   const { t, name, money } = useT();
-  const [buyMode, setBuyMode] = useState<BuyMode>(1);
 
-  const firstUnowned = BUSINESSES.findIndex((def) => game.businesses[def.id].owned === 0);
-  const owns = (def: (typeof BUSINESSES)[number]) => game.businesses[def.id].owned > 0;
+  const owns = (def: (typeof BUSINESSES)[number]) => (game.businesses[def.id]?.level ?? 0) > 0;
+  const firstUnowned = BUSINESSES.findIndex((def) => !owns(def));
   const isOpen = (def: (typeof BUSINESSES)[number]) => businessOpenClass(def) <= game.classIndex;
   // The next line gets a full card only once its class has opened it.
   const nextShown = firstUnowned >= 0 && isOpen(BUSINESSES[firstUnowned]) ? firstUnowned : firstUnowned - 1;
@@ -34,19 +30,8 @@ export function BusinessesScreen() {
 
   return (
     <section className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-3">
-        <SectionLabel>{t('business.buyAmount')}</SectionLabel>
-        <div className="w-44">
-          <Segmented
-            options={BUY_MODES.map((mode) => ({ value: mode, label: mode === 'max' ? t('business.max') : `×${mode}` }))}
-            value={buyMode}
-            onChange={setBuyMode}
-          />
-        </div>
-      </div>
-
       {visible.map((def) => (
-        <BusinessCard key={def.id} def={def} buyMode={buyMode} />
+        <BusinessCard key={def.id} def={def} />
       ))}
 
       {teaser && (
@@ -65,7 +50,7 @@ export function BusinessesScreen() {
               <Lock className="w-3 h-3" />
               {teaserClass
                 ? t('business.classLocked', { class: name('wealthClass', teaserClass) })
-                : t('business.teaser', { price: money(teaser.baseCost) })}
+                : t('business.teaser', { price: money(teaser.levels[0].cost) })}
             </p>
           </div>
         </div>

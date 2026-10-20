@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
+import { BUSINESSES } from '../core/config/businesses';
 import { CAREERS } from '../core/config/careers';
 import { WEALTH_CLASSES } from '../core/config/classes';
 import { HEIRLOOMS } from '../core/config/heirlooms';
@@ -7,7 +8,6 @@ import { HOUSES, LEGACY_HOUSE_TO_HOME } from '../core/config/housing';
 import { LIFE_SECONDS } from '../core/config/life';
 import { legacyOutfitIndex, legacyVehicleCount, LIFESTYLE_ITEMS, OUTFITS, VEHICLES } from '../core/config/lifestyle';
 import { RICH_MILESTONES } from '../core/config/richList';
-import { UPGRADES } from '../core/config/upgrades';
 import { classIndexFor } from '../core/formulas';
 import { applyClassFloors, createInitialState } from '../core/state';
 import type { GameStateV2 } from '../core/types';
@@ -30,7 +30,12 @@ import { createStoryProgress, HERO_NAME_MAX, LIFE_MOMENT_IDS, MOM_MESSAGES, type
 
 export const STORAGE_KEY = 'prestige_life_v2';
 const BACKUP_KEY = 'prestige_life_v2_unreadable';
-const SAVE_SCHEMA = 1;
+/**
+ * Where a schema-1 save is kept when the economy rebuild starts it fresh (2026-10-21, user: nobody
+ * plays v2 yet, docs/economy-rebuild.md §1.9). A one-time step before launch, never again after it.
+ */
+const PRE_REBUILD_KEY = 'prestige_life_v2_pre_rebuild';
+const SAVE_SCHEMA = 2;
 
 interface SaveFile {
   schema: number;
@@ -40,6 +45,8 @@ interface SaveFile {
 
 type Raw = Record<string, unknown>;
 
+const BUSINESS_LEVELS: Record<string, number> = Object.fromEntries(BUSINESSES.map((def) => [def.id, def.levels.length]));
+
 function isRecord(value: unknown): value is Raw {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -47,8 +54,6 @@ function isRecord(value: unknown): value is Raw {
 function finite(value: unknown, fallback: number, min = 0) {
   return typeof value === 'number' && Number.isFinite(value) && value >= min ? value : fallback;
 }
-
-const knownUpgrades = new Set(UPGRADES.map((upgrade) => upgrade.id));
 
 function stringList(value: unknown): string[] {
   return Array.isArray(value) ? [...new Set(value.filter((item): item is string => typeof item === 'string'))] : [];
@@ -63,7 +68,14 @@ function normalizeGame(raw: unknown): GameStateV2 {
   const businesses = { ...base.businesses };
   for (const id of Object.keys(businesses)) {
     const saved = savedBusinesses[id];
-    if (isRecord(saved)) businesses[id] = { owned: Math.floor(finite(saved.owned, 0)), managed: saved.managed === true };
+    if (!isRecord(saved)) continue;
+    // Never past the line's last level: a level that config no longer has would pay nothing.
+    const level = Math.min(Math.floor(finite(saved.level, 0)), BUSINESS_LEVELS[id] ?? 0);
+    businesses[id] = {
+      level,
+      branches: level > 0 ? Math.floor(finite(saved.branches, 0)) : 0,
+      managed: level > 0 && saved.managed === true,
+    };
   }
 
   const knownItems = new Set(LIFESTYLE_ITEMS.map((item) => item.id));
@@ -109,8 +121,6 @@ function normalizeGame(raw: unknown): GameStateV2 {
     classIndex: Math.max(savedClass, classIndexFor(generationEarnings)),
     // Saves from before the life clock start at 17.
     lifeSeconds: Math.min(finite(raw.lifeSeconds, 0), LIFE_SECONDS),
-    // Saves from before upgrades and goals start with none.
-    upgrades: stringList(raw.upgrades).filter((id) => knownUpgrades.has(id)),
     questsDone: stringList(raw.questsDone),
     bottles: Math.floor(finite(raw.bottles, 0)),
     finds: Math.floor(finite(raw.finds, 0)),
@@ -274,25 +284,43 @@ export async function readSave(): Promise<string | null> {
   return savedAtOf(local) > savedAtOf(stored) ? local : stored;
 }
 
-/** Keeps a save that could not be read, so a fix in a later update can still bring it back. */
-function keepUnreadable(text: string) {
+/** Keeps a save text under another key (never throws). */
+function keepCopy(key: string, text: string) {
   try {
-    localStorage.setItem(BACKUP_KEY, text);
+    localStorage.setItem(key, text);
   } catch {
     // Storage full or blocked.
   }
-  if (native) void Preferences.set({ key: BACKUP_KEY, value: text }).catch(() => undefined);
+  if (native) void Preferences.set({ key, value: text }).catch(() => undefined);
+}
+
+/** Keeps a save that could not be read, so a fix in a later update can still bring it back. */
+function keepUnreadable(text: string) {
+  keepCopy(BACKUP_KEY, text);
 }
 
 /**
  * Brings an older save file up to SAVE_SCHEMA, one step per schema. A file from a newer app (the
  * player went back a version) is read as it is: normalize*() drops what this version does not know.
  */
-function migrate(file: Raw): Raw | null {
+function migrate(file: Raw, text: string): Raw | null {
   const schema = finite(file.schema, 0);
   if (schema < 1 || !isRecord(file.runtime)) return null;
-  // Add steps here when SAVE_SCHEMA goes up: if (schema < 2) file = { ...file, schema: 2, runtime: ... }.
-  return file;
+  let current = file;
+  if (schema < 2) {
+    // The economy rebuild (businesses by level, not units) starts the game fresh once, before launch:
+    // only store purchases and the notification answer carry over. The old save is kept aside.
+    keepCopy(PRE_REBUILD_KEY, text);
+    const runtime = file.runtime as Raw;
+    const story = isRecord(runtime.story) ? runtime.story : {};
+    current = {
+      ...current,
+      schema: 2,
+      runtime: { purchases: runtime.purchases, story: { ceremonySeen: 0, notificationsAsked: story.notificationsAsked } },
+    };
+  }
+  // Add steps here when SAVE_SCHEMA goes up: if (schema < 3) current = { ...current, schema: 3, runtime: ... }.
+  return current;
 }
 
 /** Builds the runtime from save text, or starts a new life. Never throws. */
@@ -300,7 +328,7 @@ export function parseRuntime(text: string | null, now: number): RuntimeState {
   if (!text) return createRuntimeState(now);
   try {
     const parsed: unknown = JSON.parse(text);
-    const file = isRecord(parsed) ? migrate(parsed) : null;
+    const file = isRecord(parsed) ? migrate(parsed, text) : null;
     if (!file || !isRecord(file.runtime)) {
       keepUnreadable(text);
       return createRuntimeState(now);

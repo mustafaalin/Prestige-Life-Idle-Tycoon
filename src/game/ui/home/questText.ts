@@ -1,10 +1,9 @@
-import { cityUpgrades } from '../../runtime/city';
 import { BUSINESSES } from '../../core/config/businesses';
 import { CAREERS } from '../../core/config/careers';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { HOUSES } from '../../core/config/housing';
 import { LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
-import { UPGRADES } from '../../core/config/upgrades';
+import { businessImage } from '../../core/formulas';
 import type { QuestDef } from '../../core/types';
 import type { MessageKey, Translator } from '../../i18n/translate';
 import { managerKey, managerPortrait } from '../businesses/managers';
@@ -15,11 +14,11 @@ import type { FocusTarget } from './focus';
 // button "Go" points at (ui/home/focus.ts).
 
 const BUSINESS_BY_ID = new Map(BUSINESSES.map((def) => [def.id, def]));
-const UPGRADE_BY_ID = new Map(UPGRADES.map((upgrade) => [upgrade.id, upgrade]));
 /** The first vehicle you can buy (the bike). */
 const FIRST_VEHICLE = LIFESTYLE_ITEMS.filter((item) => item.kind === 'vehicle')[0];
 
-export const upgradeNameKey = (upgradeId: string) => `${cityUpgrades()}.${upgradeId.replace(':', '.')}` as MessageKey;
+/** What a business is called at a level ("Small shop"); level 1 is the business as opened. */
+export const levelNameKey = (businessId: string, level: number) => `businessLevels.${businessId}.${level}` as MessageKey;
 
 type Words = Pick<Translator, 't' | 'name'>;
 
@@ -36,19 +35,16 @@ export function questText(quest: QuestDef, words: Words) {
       return t('quests.collect', { count: goal.count });
     case 'find':
       return t('quests.find', { count: goal.count });
-    case 'units': {
+    case 'level': {
       const business = businessName(goal.businessId, words);
-      return goal.count === 1 ? t('quests.open', { business }) : t('quests.units', { count: goal.count, business });
+      return goal.level === 1
+        ? t('quests.open', { business })
+        : t('quests.level', { business, level: t(levelNameKey(goal.businessId, goal.level)) });
     }
+    case 'branches':
+      return t('quests.branches', { business: businessName(goal.businessId, words), count: goal.count });
     case 'manager':
       return t('quests.manager', { business: businessName(goal.businessId, words) });
-    case 'upgrade': {
-      const upgrade = UPGRADE_BY_ID.get(goal.upgradeId);
-      return t('quests.upgrade', {
-        business: upgrade ? businessName(upgrade.businessId, words) : '',
-        upgrade: t(upgradeNameKey(goal.upgradeId)),
-      });
-    }
     case 'career':
       return t(goal.index === 0 ? 'quests.career' : 'quests.promote', { job: name('career', CAREERS[goal.index]) });
     case 'home':
@@ -66,7 +62,7 @@ export interface QuestVisual {
   cover?: boolean;
   /** Manager portraits are round. */
   round?: boolean;
-  /** Small arrow badge for upgrades. */
+  /** Small arrow badge for business levels and branches. */
   upgrade?: boolean;
 }
 
@@ -77,14 +73,14 @@ export function questVisual(quest: QuestDef): QuestVisual {
       return { image: '/assets/scene/bottle-green.webp' };
     case 'find':
       return { image: '/assets/scene/sans-wallet.webp' };
-    case 'units':
-      return { image: BUSINESS_BY_ID.get(goal.businessId)?.image ?? ICONS.business };
+    case 'level':
+    case 'branches': {
+      const def = BUSINESS_BY_ID.get(goal.businessId);
+      const level = goal.type === 'level' ? goal.level : def?.levels.length ?? 1;
+      return { image: def ? businessImage(def, level) : ICONS.business, upgrade: goal.type !== 'level' || goal.level > 1 };
+    }
     case 'manager':
       return { image: managerPortrait(goal.businessId), round: true };
-    case 'upgrade': {
-      const businessId = UPGRADE_BY_ID.get(goal.upgradeId)?.businessId ?? '';
-      return { image: BUSINESS_BY_ID.get(businessId)?.image ?? ICONS.business, upgrade: true };
-    }
     case 'career':
       return { image: CAREERS[goal.index].image };
     case 'home':
@@ -100,14 +96,12 @@ export function questVisual(quest: QuestDef): QuestVisual {
 export function questTarget(quest: QuestDef): FocusTarget | null {
   const goal = quest.goal;
   switch (goal.type) {
-    case 'units':
-      return { tab: 'businesses', key: `business:${goal.businessId}:buy` };
+    case 'level':
+      return { tab: 'businesses', key: `business:${goal.businessId}:level` };
+    case 'branches':
+      return { tab: 'businesses', key: `business:${goal.businessId}:branch` };
     case 'manager':
       return { tab: 'businesses', key: `business:${goal.businessId}:manager` };
-    case 'upgrade': {
-      const businessId = UPGRADE_BY_ID.get(goal.upgradeId)?.businessId ?? '';
-      return { tab: 'businesses', key: `business:${businessId}:upgrade` };
-    }
     case 'career':
       return { tab: 'career', key: 'career:promote' };
     case 'home':

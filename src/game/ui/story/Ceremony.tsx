@@ -5,7 +5,7 @@ import { WEALTH_CLASSES } from '../../core/config/classes';
 import { AD_STORY_GIFT_MULTIPLIER } from '../../core/config/ads';
 import { OFFLINE_CAP_HOURS_BY_CLASS } from '../../core/config/economy';
 import { COLLARS, type CollarDef } from '../../core/config/lifestyle';
-import { businessCapAt, businessOpenClass, collarAt, storyGift } from '../../core/formulas';
+import { branchCapAt, businessOpenClass, collarAt, storyGift } from '../../core/formulas';
 import { bestOwnedLifestyle, currentHome, ownsHouse } from '../../core/state';
 import type { BusinessDef, GameStateV2, HouseDef, LifestyleDef } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
@@ -495,10 +495,10 @@ function ClassSummary({
   const { home, outfit, gift } = classChanges(classIndex, before, now);
   const giftIsMain = gift !== undefined && !home && !outfit;
   const collar = COLLARS.find((item) => item.fromClass === classIndex);
-  // Lines the class opens, and whether an owned line may now grow further (game-design-v2 §4.2).
+  // Lines the class opens, and whether an opened line may now have more branches (economy-rebuild §3).
   const opened = BUSINESSES.filter((def) => businessOpenClass(def) === classIndex);
   const capsUp = BUSINESSES.some(
-    (def) => now.businesses[def.id].owned > 0 && businessCapAt(def, classIndex) > businessCapAt(def, classIndex - 1),
+    (def) => (now.businesses[def.id]?.level ?? 0) > 0 && branchCapAt(def, classIndex) > branchCapAt(def, classIndex - 1),
   );
 
   return (

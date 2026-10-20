@@ -9,9 +9,9 @@ import { Capacitor } from '@capacitor/core';
 
 export type AnalyticsEvent =
   | 'class_up'
-  | 'business_buy'
+  | 'business_level'
+  | 'business_branch'
   | 'manager_hire'
-  | 'upgrade_buy'
   | 'promotion'
   | 'lifestyle_buy'
   | 'home_change'

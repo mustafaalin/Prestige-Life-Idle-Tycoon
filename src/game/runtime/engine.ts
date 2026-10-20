@@ -10,17 +10,17 @@ import {
   tapValue,
 } from '../core/formulas';
 import {
-  buyBusinessUnits as coreBuyBusinessUnits,
   buyHeirloom as coreBuyHeirloom,
   buyHome as coreBuyHome,
   buyLifestyle as coreBuyLifestyle,
-  buyUpgrade as coreBuyUpgrade,
   claimQuest as coreClaimQuest,
   createInitialState,
   earn,
   handOverEarly as coreHandOverEarly,
   hireManager as coreHireManager,
+  levelUpBusiness as coreLevelUpBusiness,
   moveHome as coreMoveHome,
+  openBranch as coreOpenBranch,
   promote as corePromote,
   rentHome as coreRentHome,
   retire as coreRetire,
@@ -109,7 +109,7 @@ function advanceCycles(state: RuntimeState, seconds: number, includeManaged: boo
   for (const def of BUSINESSES) {
     const business = state.game.businesses[def.id];
     const cycle = cycles[def.id];
-    if (!business || business.owned <= 0) continue;
+    if (!business || business.level <= 0) continue;
     if (business.managed ? !includeManaged : !cycle.running) continue;
 
     let progress = cycle.progress + seconds / def.cycleSeconds;
@@ -207,16 +207,17 @@ export function claimFind(state: RuntimeState, multiplier = 1): RuntimeState {
   return { ...state, game: { ...game, finds: game.finds + 1 } };
 }
 
-export function buyUpgrade(state: RuntimeState, upgradeId: string) {
-  return withGame(state, coreBuyUpgrade(state.game, upgradeId));
-}
-
 export function claimQuest(state: RuntimeState, questId: string) {
   return withGame(state, coreClaimQuest(state.game, questId));
 }
 
-export function buyBusinessUnits(state: RuntimeState, businessId: string, count: number) {
-  return withGame(state, coreBuyBusinessUnits(state.game, businessId, count));
+/** Opens a business or buys its next level. */
+export function levelUpBusiness(state: RuntimeState, businessId: string) {
+  return withGame(state, coreLevelUpBusiness(state.game, businessId));
+}
+
+export function openBranch(state: RuntimeState, businessId: string) {
+  return withGame(state, coreOpenBranch(state.game, businessId));
 }
 
 export function hireManager(state: RuntimeState, businessId: string): RuntimeState | null {
@@ -231,7 +232,7 @@ export function hireManager(state: RuntimeState, businessId: string): RuntimeSta
 export function startCycle(state: RuntimeState, businessId: string): RuntimeState | null {
   const business = state.game.businesses[businessId];
   const cycle = state.cycles[businessId];
-  if (!BUSINESS_BY_ID.has(businessId) || !business || business.owned <= 0 || business.managed || cycle.running) {
+  if (!BUSINESS_BY_ID.has(businessId) || !business || business.level <= 0 || business.managed || cycle.running) {
     return null;
   }
   return { ...state, cycles: { ...state.cycles, [businessId]: { progress: 0, running: true } } };

@@ -1,7 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { BUSINESSES } from '../../core/config/businesses';
 import { CAREERS } from '../../core/config/careers';
-import { costForUnits } from '../../core/formulas';
 import type { GameStateV2 } from '../../core/types';
 import type { RuntimeState } from '../../runtime/engine';
 import { storyRuns } from '../../runtime/story';
@@ -58,8 +57,8 @@ export function guideStep(state: RuntimeState): GuideStep | null {
   if (game.careerIndex < 0) {
     return step('job', game.cash >= FIRST_JOB.cost, { tab: 'career', key: 'career:promote' });
   }
-  if (stand.owned === 0) {
-    return step('stand', canAffordStand(game), { tab: 'businesses', key: `business:${STAND.id}:buy` });
+  if (stand.level === 0) {
+    return step('stand', canAffordStand(game), { tab: 'businesses', key: `business:${STAND.id}:level` });
   }
   if (!story.heroName) return step('name', true, null);
   if (!story.guideDone.includes('run')) {
@@ -69,7 +68,7 @@ export function guideStep(state: RuntimeState): GuideStep | null {
 }
 
 function canAffordStand(game: GameStateV2) {
-  return game.cash >= costForUnits(STAND, 0, 1);
+  return game.cash >= STAND.levels[0].cost;
 }
 
 /** Old Ray speaks right away on these steps, before they can be done (what to save up for). */
