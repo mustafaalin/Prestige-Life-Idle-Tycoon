@@ -56,7 +56,7 @@ Sınıf, harcanan paradan bağımsızdır (kazanılan toplam). Oyuncu alışveri
 
 ### 4.2 İşletmeler (`config/businesses.ts`)
 
-> **Yeniden kuruluyor (2026-10-21):** kodda artık adet değil seviye + şube modeli var (yükseltmeler, kilometre taşları ve adet sınırı kalktı) ve sayılar değişti: meslekler (§4.3), eşya ve evler (§4.4, §4.8), çevrimdışı (§4.6), günlük ödül (§4.12), yatırım (§4.13), tempo (§5). Güncel hâli [economy-rebuild.md](./economy-rebuild.md) §3, §8b, §8c; bu belge Faz E bitince yeniden yazılır.
+> **Yeniden kuruluyor (2026-10-21):** kodda artık adet değil seviye + şube modeli var (yükseltmeler, kilometre taşları ve adet sınırı kalktı) ve sayılar değişti: meslekler (§4.3; artık 63 meslek, şartlar ve kurslar), eşya ve evler (§4.4, §4.8), çevrimdışı (§4.6), günlük ödül (§4.12), yatırım (§4.13), tempo (§5). Güncel hâli [economy-rebuild.md](./economy-rebuild.md) §3, §8b, §8c; bu belge Faz E bitince yeniden yazılır.
 
 AdVenture Capitalist modeli: her işletme adet adet alınır, her birim bir üretim döngüsünde gelir getirir.
 

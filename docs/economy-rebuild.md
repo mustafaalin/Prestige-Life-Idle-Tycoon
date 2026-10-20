@@ -105,7 +105,8 @@ Ekonomi saf TypeScript `core/`'da kalır (React yok); simülatör aynı çekirde
 
 1. Görseller GPT'de: 32 işletme aşaması ve 4 yönetici portresi ([art-prompts-businesses.md](./art-prompts-businesses.md)). Dört yeni işletmenin adları ve yöneticileri onaylandı (2026-10-21).
 2. Telefonda ilk his: Çiçek Tezgâhı tablosu, şişe, deneyimle açılan meslekler.
-3. Gece Vardiyası IAP'ı (çevrimdışı %50 → %100, tavan +2 sa) yeni %20'ye göre yeniden yazılmalı ([monetization-v2.md](./monetization-v2.md) §5).
+3. Bot en ucuz kursu seçiyor; gerçek oyuncunun yolu telefonda görülmeli (kurs sayısı ve süreleri).
+4. Gece Vardiyası IAP'ı (çevrimdışı %50 → %100, tavan +2 sa) yeni %20'ye göre yeniden yazılmalı ([monetization-v2.md](./monetization-v2.md) §5).
 
 ## 8b. E1'de yapılanlar (2026-10-21)
 
@@ -147,12 +148,26 @@ Ekonomi saf TypeScript `core/`'da kalır (React yok); simülatör aynı çekirde
 - **Aşama görselleri:** `config/businesses.ts` `STAGE_ART` (işletme başına çizilmiş aşama sayısı; dosyalar `{id}.webp`, `{id}-2.webp`, `{id}-3.webp`), görseli olmayan aşama bir öncekini gösterir. Komutlar [art-prompts-businesses.md](./art-prompts-businesses.md); mevcut 10 ikon 1. aşama.
 - **E4'e kalanlar:** kariyerde deneyim dışındaki şartlar ve "Git", mağazada "neyi açar" (eşyalar henüz bir şey açmıyor).
 
+## 8e. E4'te yapılanlar (2026-10-21)
+
+- **63 meslek, 9 alan** (`config/careers.ts`): başlangıç (el ilanı), yemek ve konaklama (8), satış (8), ulaşım ve lojistik (9), teknoloji (8), ofis ve finans (7), inşaat ve zanaat (7), medya (7), sağlık (7), zirve (CEO: herhangi bir alanın direktörlüğünden). Maaş gerçek aylık ($300 → $60K), küçük bedel ($20 → $20K), gelir bonusu yok. Aynı anda tek iş; işler arasında serbest geçiş, önceki işlerdeki aylar deneyim olarak kalır.
+- **Şartlar** (`core/requirements.ts`): bir işte N ay (`job`, şimdiki ya da eski iş), kurs (`course`), eşya (`item`: telefon, alet çantası, fotoğraf makinesi, dizüstü, iş kıyafeti, bisiklet, skuter, emektar sedan), adres (`home`: kiralık oda ve üstü), sınıf, işletme seviyesi, "şunlardan biri" (`anyOf`). Eski "şimdiki işte deneyim" şartı kalktı.
+- **16 kurs** (`config/courses.ts`): ilk yardım (1 ay, $300) → tıp fakültesi (72 ay, $150K); aynı anda tek kurs, para baştan, oyun açıkken ilerler (yaş gibi). Ağır vasıta ehliyeti ehliyet ister.
+- **4 meslek açan eşya** (`gadget` türü, mağazada yeni "Eşyalar" sekmesi; sıra yok, hepsi bir listede).
+- **Kariyer ekranı = iş panosu:** şimdiki iş ve bu işteki ay, süren kurs (çubuk, kalan ay), "Girebileceğin işler" (şartları tamam ve daha çok kazandıran; satır ve "İşe gir"), "Hedefindeki işler" (en çok 6; şart listesi ✓ / ○, deneyimde "7/12", eşya, kurs ve adreste "Git"), kurslar (kaç ay, "Açar: …", "Başla"), "Bütün meslekler" alanlara göre. Kariyer düğmesinde "!" daha iyi bir iş alınabilir olunca.
+- **Mağazada "Açar: …":** sıradaki araç, kıyafet, ev ve her eşya hangi meslekleri açtığını söylüyor.
+- **Kayıt:** `careerId` (eski `careerIndex` eski 12 basamağa eşlenir), `jobSeconds` (iş başına oynanan saniye), `coursesDone`, `course`; bilinmeyen kimlikler düşer, süren kursun parası ödendiği için kurs kaybolmaz. Betikle denendi.
+- **Hedefler:** iş hedefleri kimlikle (`job-1` el ilanı, `job-2` bulaşıkçı, `job-4` garson); analitik `job_take`, `course_start` (`promotion` yerine).
+- **Simülatör:** bot daha çok kazandıran ve eksiği yalnız eşya olan işi eşyasıyla alır; kurs yokken daha iyi bir iş açan en ucuz kursu başlatır. Bağlı oyuncunun bütün hedefleri tutuyor: ilk yönetici 12 dk 49 sn, Orta Sınıf 1 sa 11 dk (21 yaş), Milyoner 2 sa 28 dk (26), Milyarder 14 sa 9 dk (70); bot 29 iş ve kurs adımı atıyor, 7 sa 12 dk oyunda (44 yaş) CEO.
+- **Görseller:** 51 meslek ve 4 eşya ikonu GPT'yi bekliyor ([art-prompts-jobs.md](./art-prompts-jobs.md)); şimdilik kariyer ve mağaza simgesi.
+- **Yapılmayan:** araç sayısı 12'de kaldı (yeni araç sahne kesimi ve ev–araç zinciri ister); eşyalar meslek dışında bir şey (olay, yer) açmıyor.
+
 ## 9. Sıra (Faz E)
 
 1. **E0:** kararlar ve bu belge (2026-10-20/21).
 2. **E1 çekirdek (yapıldı 2026-10-21, §8b):** `core/economy/` bölünmesi, şart sistemi, işletme seviye/şube modeli, gelir kaynakları; simülatör yeni modele; yeni tempo hedefleri.
 3. **E2 sayılar (yapıldı 2026-10-21, §8c):** Çiçek Tezgâhı'ndan başlayarak bütün işletmelerin seviye tabloları, şişe, Şans, çevrimdışı; `npm run sim` ile.
 4. **E3 arayüz (yapıldı 2026-10-21, §8d; görseller GPT'de):** işletme kartı (seviye, aşama görseli, şube satırı), kariyer ekranı (şartlar + Git), mağaza (sabit fiyat, "neyi açar").
-5. **E4 meslekler ve eşyalar:** 60+ meslek tablosu, eşya listesi, kurslar.
+5. **E4 meslekler ve eşyalar (yapıldı 2026-10-21, §8e; ikonlar GPT'de):** 60+ meslek tablosu, eşya listesi, kurslar.
 6. **E5 hanedan:** Burak hikâyesinin kaldırılması, 63/70 metinleri, gizlenen sistemler, 80'de "yakında" kartı, içerik paketleri ve lansman bayrakları.
 7. **E6 bütünleme:** hedefler (quests), hayaller panosu, olay kartı ödülleri, günlük ödül ve yatırım tutarları yeni ölçeğe; belgeler yeniden yazılır; telefonda test; lansman.
