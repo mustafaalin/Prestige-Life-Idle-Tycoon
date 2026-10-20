@@ -63,6 +63,18 @@ const ART = '/assets/businesses/v2';
 /** Lines whose art and manager portrait are not drawn yet (plan Faz E3): they show the business icon. */
 export const ART_PENDING = new Set(['restaurant', 'real-estate-office', 'construction', 'media']);
 const PENDING_IMAGE = '/assets/icons/v2/business.webp';
+/**
+ * How many of a line's three looks are drawn (prompts: docs/art-prompts-businesses.md). Stage 1 is
+ * `{id}.webp`, stages 2 and 3 are `{id}-2.webp` and `{id}-3.webp`; a stage without art shows the one
+ * before it. Raise the number when the art arrives.
+ */
+const STAGE_ART: Record<string, number> = {};
+
+function stageImages(id: string): string[] {
+  if (ART_PENDING.has(id)) return [];
+  const drawn = STAGE_ART[id] ?? 1;
+  return Array.from({ length: drawn }, (_, stage) => (stage === 0 ? `${ART}/${id}.webp` : `${ART}/${id}-${stage + 1}.webp`));
+}
 
 // openCost: opening the business · paybackMonths: game months level 1 takes to repay the opening
 // (bigger businesses repay slower, economy-rebuild §2) · openClass: the class the line opens at.
@@ -107,8 +119,7 @@ export const BUSINESSES: BusinessDef[] = LINES.map(({ openCost, paybackMonths, o
   return {
     ...line,
     image: ART_PENDING.has(line.id) ? PENDING_IMAGE : `${ART}/${line.id}.webp`,
-    // Shop and store art comes with plan Faz E3 (GPT); until then every stage shows the first look.
-    stageImages: ART_PENDING.has(line.id) ? [] : [`${ART}/${line.id}.webp`],
+    stageImages: stageImages(line.id),
     levels,
     branchCost: roundNice(levels.reduce((sum, level) => sum + level.cost, 0)),
     branchCostGrowth: BRANCH_COST_GROWTH,

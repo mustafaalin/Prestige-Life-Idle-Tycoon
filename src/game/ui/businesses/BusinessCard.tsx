@@ -1,6 +1,7 @@
 import { ArrowBigUpDash, Lock, Play, Store } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { WEALTH_CLASSES } from '../../core/config/classes';
+import { SECONDS_PER_MONTH } from '../../core/config/life';
 import {
   branchCapAt,
   branchCost,
@@ -12,7 +13,9 @@ import {
   levelRevenue,
   locations,
   managerCost,
+  businessStage,
   nextLevel,
+  nextStageLevel,
 } from '../../core/formulas';
 import type { BusinessDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
@@ -33,6 +36,26 @@ import { managerKey, managerPortrait, type ManagerLine } from './managers';
 
 /** Most branch icons drawn in the row; more shows as the count alone. */
 const BRANCH_ICONS = 8;
+
+/** One dot per level; the first level of each new look (shop, store) is a larger dot. */
+function LevelPips({ def, level }: { def: BusinessDef; level: number }) {
+  return (
+    <span className="flex items-center gap-[3px]" aria-hidden>
+      {def.levels.map((step, index) => {
+        const newLook = index > 0 && step.stage > def.levels[index - 1].stage;
+        const reached = index < level;
+        return (
+          <span
+            key={index}
+            className={`rounded-full ${newLook ? 'w-2.5 h-2.5' : 'w-1.5 h-1.5'} ${
+              reached ? 'bg-gradient-to-b from-amber-300 to-orange-500' : newLook ? 'bg-amber-100 ring-1 ring-amber-300' : 'bg-indigo-100'
+            }`}
+          />
+        );
+      })}
+    </span>
+  );
+}
 
 export function BusinessCard({ def }: { def: BusinessDef }) {
   const { game, state, actions } = useGameV2();
@@ -65,10 +88,20 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
   const branchPrice = branchCost(def, branches);
   const branchRun = levelRevenue(def, level) * multiplier;
   const hirePrice = managerCost(game, def);
+  // In the hero's calendar (one month = 80 s of play), like the rest of the economy: "~22 months".
+  const paybackText = (seconds: number) => {
+    const months = Math.max(1, Math.round(seconds / SECONDS_PER_MONTH));
+    if (months < 24) return t('business.paybackMonths', { count: months });
+    const years = Math.round(months / 12);
+    return t('business.paybackYears', { count: years });
+  };
 
   const managerName = t(managerKey(def.id, 'name'));
   const portrait = managerPortrait(def.id);
   const [hired, setHired] = useState(false);
+  // The business took on a new look (stand → shop → store): shown once, with the new picture.
+  const [grown, setGrown] = useState<{ level: number; from: number; to: number } | null>(null);
+  const stageAt = opened ? nextStageLevel(def, level) : null;
   // Tapping a manager's portrait shows one of their lines for a moment.
   const [quote, setQuote] = useState<ManagerLine | null>(null);
   useEffect(() => {
@@ -185,14 +218,27 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
         </div>
       )}
 
+      {opened && (
+        <div className="flex items-center gap-2 px-1 -mt-1">
+          <LevelPips def={def} level={level} />
+          {stageAt !== null && (
+            <span className="min-w-0 truncate text-[11px] font-bold text-amber-600">
+              {t('business.nextStage', { level: stageAt, name: t(levelNameKey(def.id, stageAt)) })}
+            </span>
+          )}
+        </div>
+      )}
+
       <div className="flex gap-2">
         {next && (
           <Focusable focusKey={`business:${def.id}:level`} className="flex-1">
             <GameButton
               onClick={() => {
-                if (actions.levelUpBusiness(def.id)) {
-                  playSfx(opened ? 'levelUp' : 'purchase');
-                  haptic('medium');
+                if (!actions.levelUpBusiness(def.id)) return;
+                playSfx(opened ? 'levelUp' : 'purchase');
+                haptic('medium');
+                if (opened && businessStage(def, level + 1) > businessStage(def, level)) {
+                  setGrown({ level: level + 1, from: runNow, to: runNext });
                 }
               }}
               disabled={game.cash < next.cost}
@@ -261,7 +307,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
       {opened && next && (
         <p className="px-1 text-[11px] font-bold text-indigo-900/60">
           {t('business.nextRun', { from: money(runNow), to: money(runNext) })}
-          {paybackSeconds !== null && ` · ${t('business.payback', { time: duration(Math.ceil(paybackSeconds)) })}`}
+          {paybackSeconds !== null && ` · ${paybackText(paybackSeconds)}`}
         </p>
       )}
 
@@ -307,6 +353,17 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
             {t('business.managerHint', { name: managerName })}
           </p>
         </div>
+      )}
+
+      {grown && (
+        <RewardCard
+          image={businessImage(def, grown.level)}
+          title={t(levelNameKey(def.id, grown.level))}
+          body={t('business.grown', { business: name('business', def) })}
+          note={t('business.nextRun', { from: money(grown.from), to: money(grown.to) })}
+          actionLabel={t('business.grownOk')}
+          onCollect={() => setGrown(null)}
+        />
       )}
 
       {hired && (

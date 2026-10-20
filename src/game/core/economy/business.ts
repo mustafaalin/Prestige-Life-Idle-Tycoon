@@ -87,9 +87,17 @@ export function businessStage(def: BusinessDef, level: number) {
   return level > 0 ? (def.levels[Math.min(level, def.levels.length) - 1]?.stage ?? 0) : 0;
 }
 
-/** The picture for a business at a level; stages without art yet show the first look. */
+/** The picture for a business at a level; a stage without art yet shows the latest one drawn before it. */
 export function businessImage(def: BusinessDef, level: number) {
-  return def.stageImages[businessStage(def, level)] ?? def.image;
+  const stage = Math.min(businessStage(def, level), def.stageImages.length - 1);
+  return stage >= 0 ? def.stageImages[stage] : def.image;
+}
+
+/** The first level of the next look (shop, store), or null at the last look. */
+export function nextStageLevel(def: BusinessDef, level: number): number | null {
+  const stage = businessStage(def, level);
+  const index = def.levels.findIndex((step, at) => at >= level && step.stage > stage);
+  return index >= 0 ? index + 1 : null;
 }
 
 /** A manager's price after Old Ray's notebook (an heirloom, hidden at launch). */
