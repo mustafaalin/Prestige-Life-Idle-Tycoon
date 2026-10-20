@@ -214,7 +214,7 @@ v2 uses a visual-novel approach (decided 2026-10-08): consistent static poses, e
 
 ### Splash Screen (Android, v1)
 
-- Android 12+ shows a mandatory OS splash (app icon + blue `#0C2FA0` background) before the app window opens. This is system-controlled and cannot be removed.
+- Android 12+ shows a mandatory OS splash (app icon + navy `#1A1446` background; v2 icon and splash from `scripts/android-art.mjs`) before the app window opens. This is system-controlled and cannot be removed.
 - After OS splash: Capacitor `@capacitor/splash-screen` overlay shows `drawable-port-*/splash.png` (full game artwork). Configured with `launchAutoHide: false`; manually hidden via `SplashScreen.hide({ fadeOutDuration: 400 })` when `gameState.loading` becomes false.
 - Splash images live in `android/app/src/main/res/drawable-port-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/splash.png`.
 

@@ -39,7 +39,7 @@ Yaşlar `npm run sim` sonucundan alındı.
 | Tür | Boyut | Zemin | Not |
 | --- | --- | --- | --- |
 | Arka plan | 9:16 dikey, en az 1536×2752 | Dolu | Kamera ayakta duran yetişkinin göz hizasında, **ufuk yukarıdan %37'de** (her evde aynı). **Derin zemin:** duvarın, basamağın ya da çitin zemine değdiği çizgi en çok %55'te; altı boydan boya boş, düz, kuru zemin. Orada sırayla durur: araba (tekerlekler %62, x %13–89, kahramanın ~2,5 m arkası), bisiklet ve skuter (%70, sağda), kahraman (%73,5, x %40) ve Şans (x %66), toplanacaklar (%70–87). **Evi tanıtan şey %15–37 bandında** (göz hizasının üstü; onu hiçbir şey kapatmaz). Ev zenginleştikçe uzaklaşır: oda ve dairelerde yalnızca giriş, müstakil evden sonra evin tamamı görünür. Üst %15'e ve alt %10'a önemli bir şey konmaz (üst bar ve alt menü kapatır); yatay güvenli alan x %12–88. Arka planda araç olmaz (minibüs hariç: o evin kendisi). |
-| Araç | Tek araç, gövde en az 1200 px genişlikte | Düz açık gri (#d9d9d9) | **Önden dörtte üç, önü sağa** (sahne aynalamaz), ön yüz tam görünür; kamera 1,6 m göz hizasında, uzun objektif (çapa `art/pilot/09-vehicles/vehicle-4.png`). Sahnede gerçek boyunda durur; araba şeridi 2,75 m olduğu için **kesilmiş görselin genişliği en çok 2,75 m ÷ aracın yüksekliği kadar olabilir** (araç başına sınır: [art-prompts-v2.md §2](./art-prompts-v2.md)); daha yandan çizilen araba küçültülür. Uzun arabalar biraz daha önden çizilir. Anten ve tavan yükü yok (boyu şişirir). Araç kadraja tam sığar; yakın taraftaki tekerlekler kesilmez. İnsan, plaka, logo, marka yok. |
+| Araç | Tek araç, gövde en az 1200 px genişlikte | Düz açık gri (#d9d9d9) | **Önden dörtte üç, önü sağa** (sahne aynalamaz), ön yüz tam görünür; kamera 1,6 m göz hizasında, uzun objektif (çapa `art/pilot/09-vehicles/vehicle-4.png`). Sahnede gerçek boyunda durur; araba şeridi 2,75 m olduğu için **kesilmiş görselin genişliği en çok 2,75 m ÷ aracın yüksekliği kadar olabilir** (araç başına sınır: [archive/art-prompts-v2-gen1.md §2](./archive/art-prompts-v2-gen1.md)); daha yandan çizilen araba küçültülür. Uzun arabalar biraz daha önden çizilir. Anten ve tavan yükü yok (boyu şişirir). Araç kadraja tam sığar; yakın taraftaki tekerlekler kesilmez. İnsan, plaka, logo, marka yok. |
 | Kahraman pozu | Tek karakter, ayakta boy en az 1500 px | Düz açık gri (#d9d9d9) | Arka planı sonra silinir. Ayaklar görünür, kesilmez. Kamera göz hizasında, hafif yandan (mevcut sokak pozları gibi). |
 | Toplanacaklar | Tek sayfada 3 nesne, aralarında boşluk | Düz açık gri | Her biri tek başına okunabilir, yukarıdan hafif açıyla. |
 | Şans | Tek köpek | Düz açık gri | Mevcut `sans-sit-cut.png` ve `sans-wallet-cut.png` ile aynı ölçek; deri tasmada duruş aynı, altın tasmada ayrı (§4.3). |
@@ -66,7 +66,7 @@ Ekran haritası (resmin oranı): üst %15 üst bar · %15–37 evin kimliği · 
 
 ### 4.1 Kahraman kıyafetleri (A)
 
-Her kıyafet için önce bir kıyafet kılavuzu üretilir (önden ve yandan tam boy), onaylanınca pozlar o kılavuzla üretilir; böylece kıyafet pozlar arasında değişmez. Yedi kıyafetin hepsi oyunda: aşağıdaki üçü 2026-10-12'de, deve tüyü palto, üç parçalı takım ve smokin 2026-10-14'te ([art-prompts-v2.md §9](./art-prompts-v2.md)); her birinin 4 ifade portresi de var.
+Her kıyafet için önce bir kıyafet kılavuzu üretilir (önden ve yandan tam boy), onaylanınca pozlar o kılavuzla üretilir; böylece kıyafet pozlar arasında değişmez. Yedi kıyafetin hepsi oyunda: aşağıdaki üçü 2026-10-12'de, deve tüyü palto, üç parçalı takım ve smokin 2026-10-14'te ([archive/art-prompts-v2-gen1.md §9](./archive/art-prompts-v2-gen1.md)); her birinin 4 ifade portresi de var.
 
 | Kıyafet | Kılavuz dosyası | Tasarım |
 | --- | --- | --- |
@@ -86,7 +86,7 @@ Kıyafet 2 için 4 poz (oyunda), kıyafet 3 ve 4 için 3 poz (toplama Orta Sın�
 | `joy` | Sevinç: tek kol havada yumruk, gülüyor. | `art/pilot/05-scene/hero-joy-cut.png` |
 | `pet` | Çömelmiş, yanında oturan Şans'ı okşuyor (Şans o aşamanın tasmasıyla: kıyafet 2 ip, kıyafet 3 deri, kıyafet 4 altın). | `art/pilot/05-scene/hero-pet-sans-cut.png` |
 
-Hazır komutlar (kıyafet 3 ve 4): [art-prompts-v2.md §4](./art-prompts-v2.md). Bekleme pozu kıyafete göre ayrı bir duruş: şık günlükte rahat, bir eli cepte; takım elbisede kendinden emin, ceketini ilikliyor. Şablon:
+Hazır komutlar (kıyafet 3 ve 4): [archive/art-prompts-v2-gen1.md §4](./archive/art-prompts-v2-gen1.md). Bekleme pozu kıyafete göre ayrı bir duruş: şık günlükte rahat, bir eli cepte; takım elbisede kendinden emin, ceketini ilikliyor. Şablon:
 > The SAME young man from the outfit sheet, same outfit, {poz tarifi}. Full body, feet visible, eye-level camera, slight three-quarter view like the pose reference. Exactly two arms and two hands. Plain light grey background. {stil paragrafı}
 >
 > Referanslar: kıyafet kılavuzu + `A1-semi3d.png` + mevcut poz karşılığı.
@@ -95,7 +95,7 @@ Hazır komutlar (kıyafet 3 ve 4): [art-prompts-v2.md §4](./art-prompts-v2.md).
 
 12 ev; her biri sahnede ayrı bir yer. **Hepsi oyunda (2026-10-12)**: çadır eski görseliyle (önünde yalnızca bisiklet durur), ev 2–12 derin zeminli yeni görsellerle. Sıra önemli: oyuncu bunları sırayla görür, her biri bir öncekinden belirgin biçimde daha iyi olmalı. Her ev kendi iki aracına göre düşünülür (ev–araç zinciri, game-design §4.4); gelen görsele sahne laboratuvarında bakılır ve o eve özel yerleşim `stages.ts` `HOME_ART`'a yazılır.
 
-Kurallar §3 "Arka plan" satırında; hazır komutlar [art-prompts-v2.md §1](./art-prompts-v2.md).
+Kurallar §3 "Arka plan" satırında; hazır komutlar [archive/art-prompts-v2-gen1.md §1](./archive/art-prompts-v2-gen1.md).
 
 | # | Ev | Dosya | Yer tarifi | Durum |
 | --- | --- | --- | --- | --- |
@@ -120,7 +120,7 @@ Not: annenin evleri (eski aile evi, konak) ayrı; mağazada yok, törenlerde hik
 | --- | --- |
 | `art/pilot/05-scene/items-coins.png` (A, oyunda) | Üç nesne: tek parlak bozuk para, küçük bozuk para yığını, birkaç madeni para ve buruşuk tek banknot. |
 | `art/pilot/05-scene/sans-sit-leather.png` + `sans-wallet-leather.png` (B, oyunda) | Şans oturuyor / ağzında cüzdanla; kahverengi deri tasma, ipli olanla aynı duruş. Orta Sınıf'tan itibaren. |
-| `art/pilot/05-scene/sans-sit-silver.png` + `sans-wallet-silver.png` + `sans-sleep-silver.png` (oyunda, 2026-10-15) | Gümüş tasma, altın tasmanın rahat duruşuyla. Milyoner'den itibaren. Komut [art-prompts-v2.md §11](./art-prompts-v2.md). |
+| `art/pilot/05-scene/sans-sit-silver.png` + `sans-wallet-silver.png` + `sans-sleep-silver.png` (oyunda, 2026-10-15) | Gümüş tasma, altın tasmanın rahat duruşuyla. Milyoner'den itibaren. Komut [archive/art-prompts-v2-gen1.md §11](./archive/art-prompts-v2-gen1.md). |
 | `art/pilot/05-scene/sans-sit-gold.png` + `sans-wallet-gold.png` (B, oyunda) | Altın tasma, ayrı duruş: rahat oturmuş, ağzı hafif açık ve mutlu; cüzdanı kuyruğu yukarıda, neşeli bir adımla getiriyor. Milyarder'den itibaren. |
 | `art/pilot/05-scene/sans-sleep-{rope,leather,gold}.png` (oyunda) | Uyuyan Şans, sınıfın tasmasıyla; çevrimdışı kazanç kartında. |
 | `art/pilot/05-scene/sans-*-ruby.png` (hazır, 2026-10-15) | Yakut tasma (ücretli ürün, IAP 2. adım); oturan, cüzdanlı, uyuyan. Oyundaki dosyalar `public/assets/scene/sans-*-ruby.webp`, bağlanmadı. |
@@ -137,7 +137,7 @@ Not: annenin evleri (eski aile evi, konak) ayrı; mağazada yok, törenlerde hik
 | `art/pilot/03-cast/nevin-sheet.png` | Nevin Hanım: 70'lerinde, ufak tefek, gümüş saç topuz, gözlük, hırka, sıcak ve biraz şakacı. İfadeler: gülümseyen, duygulanmış (gözleri dolu), şaşkın, kahkaha. |
 | `art/pilot/03-cast/defne-sheet.png` | Defne: 18 yaşında, güler yüzlü, doğal güzellikte; koyu kumral, omuz hizasında saç, sade kazak ve kot. Abartılı değil, kahramanla aynı stil ve boy oranında. İfadeler: gülümseyen, utangaç, şaşkın, gülen. |
 
-Hazır komutlar: [art-prompts-v2.md §3](./art-prompts-v2.md). Özet: *"Character sheet: front full-body view plus four close-up expression portraits (head and shoulders) of {tarif}. Same style and proportions as the hero reference sheet. Plain light grey background."* Referans: `A1-semi3d.png` + `mom-sheet.png` (aynı sayfa düzeni için).
+Hazır komutlar: [archive/art-prompts-v2-gen1.md §3](./archive/art-prompts-v2-gen1.md). Özet: *"Character sheet: front full-body view plus four close-up expression portraits (head and shoulders) of {tarif}. Same style and proportions as the hero reference sheet. Plain light grey background."* Referans: `A1-semi3d.png` + `mom-sheet.png` (aynı sayfa düzeni için).
 
 ### 4.5 Hikâye kareleri
 
@@ -151,13 +151,13 @@ Yedisi de oyunda (2026-10-13, GPT; `public/assets/story/ceremony/`, 1080 px geni
 | H4 | 7 En Zengin | `c7-mansion-cake.png` → `mansion-cake.webp` | Konağın önü, pencerede saksı çiçekler: anne ağlayan-mutlu, kahraman (kıyafet 4) elinde kurdeleli pasta kutusu (önsözdekinin aynısı). | Törenin üç cümlesi. |
 | H5 | 5 Milyarder | `c5-restaurant.png` → `restaurant.webp` | Bülent Bey'in restoranı (önsözdeki restoran): iki personel endişeli, Bülent Bey şaşkın, kahraman (kıyafet 4) sakin. | Törenin beş cümlesi. |
 | H6 | 1 Gündelikçi | `c1-soup.png` → `soup.webp` | Minibüsün önünde Rıza Amca ve kahraman (kapüşonlu) sıcak çorba içiyor, Şans bekliyor. | Törenin dört cümlesi. |
-| H7 | 6 Multimilyarder | `c6-workshop.png` → `workshop.webp` (2026-10-13) | Rıza Amca'nın atölyesi: kahraman anahtarları uzatıyor ([art-prompts-v2.md §6](./art-prompts-v2.md)). | Törenin üç cümlesi. |
+| H7 | 6 Multimilyarder | `c6-workshop.png` → `workshop.webp` (2026-10-13) | Rıza Amca'nın atölyesi: kahraman anahtarları uzatıyor ([archive/art-prompts-v2-gen1.md §6](./archive/art-prompts-v2-gen1.md)). | Törenin üç cümlesi. |
 
 Referanslar: sahnenin yeri (ilgili arka plan ya da önsöz karesi) + kahraman kıyafet kılavuzu + ilgili kadro kılavuzları + `alley.png` (stil). Komut, yer ve kişiler tarif edildikten sonra: *"Story panel, 9:16 vertical. Keep faces and key objects in the upper two thirds; the bottom third will be covered by a speech bubble."* + stil paragrafı + arka plan cümlesi.
 
 ### 4.6 Araçlar (A)
 
-12 araç (karar 2026-10-11; önce 16'ydı; motosiklet ve pikap ev–araç zinciri için eklendi), evin önünde park eder; her evin önünde yalnızca kendi iki aracı görülür (tablo: art-prompts §2): araba kahramanın ~2,5 m arkasında, burnu sağda; bisiklet ve skuter kahramanın yanında, sağda. Hepsi önden dörtte üç, önü sağa (§3 Araç). Liste, sıra, araç başına oran sınırı ve hazır komutlar: [art-prompts-v2.md §2](./art-prompts-v2.md). Çapa hatchback (4). 12'si de yeni açıyla oyunda (2026-10-12, `public/assets/vehicles/v2/`). Sahnedeki boy aracın gerçek yüksekliğinden hesaplanır (`stages.ts` `VEHICLE_SHAPE`), görselin genişliğinden değil. Kesim: arka plan silinir, aracın alt %30'undaki gri (gölge ve tekerlekler arasından görünen zemin) yarı saydam siyaha çevrilir (sahnede zemine basar); bisiklet ve skuterde tekerlek içindeki kapalı gri de silinir.
+12 araç (karar 2026-10-11; önce 16'ydı; motosiklet ve pikap ev–araç zinciri için eklendi), evin önünde park eder; her evin önünde yalnızca kendi iki aracı görülür (tablo: art-prompts-v2-gen1 §2): araba kahramanın ~2,5 m arkasında, burnu sağda; bisiklet ve skuter kahramanın yanında, sağda. Hepsi önden dörtte üç, önü sağa (§3 Araç). Liste, sıra, araç başına oran sınırı ve hazır komutlar: [archive/art-prompts-v2-gen1.md §2](./archive/art-prompts-v2-gen1.md). Çapa hatchback (4). 12'si de yeni açıyla oyunda (2026-10-12, `public/assets/vehicles/v2/`). Sahnedeki boy aracın gerçek yüksekliğinden hesaplanır (`stages.ts` `VEHICLE_SHAPE`), görselin genişliğinden değil. Kesim: arka plan silinir, aracın alt %30'undaki gri (gölge ve tekerlekler arasından görünen zemin) yarı saydam siyaha çevrilir (sahnede zemine basar); bisiklet ve skuterde tekerlek içindeki kapalı gri de silinir.
 
 ### 4.7 İşletme ikonları (oyunda, 2026-10-13)
 

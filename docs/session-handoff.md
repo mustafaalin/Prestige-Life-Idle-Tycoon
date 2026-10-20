@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-16 · Dal: `v2-rebuild` · Son sürüm: **AAB 29** (`versionCode` 29, `versionName` 2.0)
+Son güncelleme: 2026-10-17 · Dal: `v2-rebuild` · Son sürüm: **AAB 29** (`versionCode` 29, `versionName` 2.0; Play'de, telefonda test ediliyor)
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve Faz 2.11'de kaldırılacak. Bu belge günlük tutmaz: her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**. Kararların gerekçesi ve sayılar ilgili belgededir; burada yalnızca özet ve yapılacaklar durur.
 
@@ -13,9 +13,11 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak ye
 | [monetization-v2.md](./monetization-v2.md) | Reklam ve IAP | Ürünler, mağaza kurulumu, veri güvenliği beyanı, destek akışı |
 | [rebuild-plan.md](./rebuild-plan.md) | **Ne zaman?** Fazlar ve görevler | Yapılanlar işaretli |
 | [discussion-notes.md](./discussion-notes.md) | Kararı bekleyen konular | Yalnızca açık konular |
+| [engagement-strategy-v2.md](./engagement-strategy-v2.md) | Oyuncuyu oyunda tutma: boş oturum ölçümü ve öneriler | Claude + GPT birleşik öneri, karar bekliyor (2026-10-20); GPT'nin raporu `research/` |
 | [art-brief-v2.md](./art-brief-v2.md) | Görsel listesi, boyutlar, oyuna bağlama | |
-| [art-prompts-v2.md](./art-prompts-v2.md) | GPT'ye yapıştırılacak hazır komutlar | Yeniden üretim için duruyor |
+| [art-prompts-v2.md](./art-prompts-v2.md) | GPT'ye yapıştırılacak, üretilmeyi bekleyen komutlar | Şu an yeni uygulama ikonu ve özellik grafiği (2şer aday), önsözün 3D'deki beş karesi; 1. neslin bitmiş komutları [archive/art-prompts-v2-gen1.md](./archive/art-prompts-v2-gen1.md) |
 | [art-prompts-burak.md](./art-prompts-burak.md) | Burak hattının görselleri: kılavuz, ortaklık ve kazık kareleri | Anahtar karesi yetişkin Ada'yı bekliyor |
+| [art-prompts-ada.md](./art-prompts-ada.md) | Ada'nın (2. nesil kahramanı) 7 kıyafeti: kılavuz, poz ve portre şablonları | GPT'yi bekliyor (2026-10-17) |
 | [art-prompts-lumen.md](./art-prompts-lumen.md) | 2. neslin şehri Lumen: yöneticiler, evler, işletmeler, araçlar, lüksler için GPT komutları | 46 görsel oyunda (2026-10-17); pikap yeniden üretilecek |
 | [audio-v2.md](./audio-v2.md) | Ses efektleri ve müzik: liste, kurallar, kaynaklar | Oyunda (2026-10-17) |
 | [mobile-ad-integration.md](./mobile-ad-integration.md) | v2 reklam altyapısı | |
@@ -25,7 +27,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak ye
 
 ## Oyunda olanlar (özet)
 
-Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda neredeyse hiçbir şey denenmedi** (aşağıda "Telefonda test listesi").
+Ayrıntılar tasarım ve hikâye belgelerinde. AAB 28 telefonda denendi (bulgular AAB 29'da düzeltildi), AAB 29 Play'de test ediliyor; 2026-10-15 akşamından sonraki işler (aile, devir, Burak, Lumen, ses, dikey sütun) henüz hiçbir sürümde yok (aşağıda "Telefonda test listesi").
 
 - **Ekonomi:** 10 işletme (+ yükseltmeler, yöneticiler), 12 basamak kariyer, 8 sınıf, 12 ev (kirala → satın al → kiraya ver), 12 araç (ev–araç zinciri), 7 kıyafet, 4 lüks, Şans'ın tasmaları (deri %2, gümüş %4, altın %6), yaş ve ömür (17 → 80, ~17 saatlik oyun), miras, hedefler, Zenginler Listesi. `npm run sim` tempo ve his hedefleri.
 - **Hikâye:** önsöz (6 kare), 7 sınıf töreni (hepsinin kendi karesi), tasma kartı, annenin 11 mesajı, yaşa bağlı 3 hayat anı, 4 lüks anı, 10 olay kartı, Zenginler Listesi'nin 6 kartı, aile albümü, emeklilik paneli. Kapanış kartında ve hayat anlarında hediye (10 dk gelir, reklamla ×2).
@@ -44,7 +46,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde. Telefonda **gerçek cihazda nered
 
 - **Ses ve müzik (2026-10-17):** 14 yeni efekt (ElevenLabs) ve 4 müzik (ana ekran, işletme/yatırım, hikâye, olay kartı) oyunda; Ayarlar'da iki anahtar. Ayrıntı [audio-v2.md](./audio-v2.md). Tarayıcıda müzik geçişleri denendi, telefonda denenmedi.
 
-- **Hikâye düzeltmeleri (2026-10-17):** Milyoner töreninde Rıza saati verir ("Bu saat babanındı..."), devirdeki saat artık bir yerden geliyor. Lüks anlarında yaş: helikopterde "biri el sallıyor"; jette Rıza ve Nevin yerine Defne ve Elif konuşuyor, eski kare kaldırıldı, yeni karenin komutu [art-prompts-v2.md §13](./art-prompts-v2.md).
+- **Hikâye düzeltmeleri (2026-10-17):** Milyoner töreninde Rıza saati verir ("Bu saat babanındı..."), devirdeki saat artık bir yerden geliyor. Lüks anlarında yaş: helikopterde "biri el sallıyor"; jette Rıza ve Nevin yerine Defne ve Elif konuşuyor, yeni aile karesi oyunda (`public/assets/story/life/jet.webp`, albümde de).
 
 - **Burak hattı (1. nesil) oyunda, görselsiz:** 45 yaşta ortaklık anı, annenin uyarısı, 70 yaş anında iki gölge balonu, 80'de devirden önce kazık anı, devirde Ada'nın yemini ([story-v2.md §6a](./story-v2.md)). Burak isim etiketiyle konuşur; kılavuz ve iki kare GPT'yi bekliyor ([art-prompts-burak.md](./art-prompts-burak.md)). Simülatör: hedefler aynı. DEV → "Hayat anını oynat" `partner` / `betrayal`.
 
@@ -72,46 +74,62 @@ GPT devir görsellerini üretirken (komutlar [art-prompts-dynasty.md](./art-prom
 
 ## Sıradaki
 
-1. **AAB 29'u dahili teste yükle ve telefonda dene (kullanıcı).** Lisans hesabıyla üç ürün: ödüller geliyor mu, RevenueCat → Customers, Firebase Realtime'da `purchase` ve `purchase_applied`. Puanlama penceresi Milyoner'e ulaşmış kayıtta, ikinci oturumda. Sonra "Telefonda test listesi".
-2. **Kapalı test:** sorun yoksa aynı sürüm kapalı test kanalına. 14 gün ~2026-10-20'de doluyor; testçiler listede kalmalı, sonra Play'den yayın erişimi başvurusu.
-3. **Telefondan gelen bulguları düzeltmek**, gerekiyorsa AAB 30.
-4. **Faz 2:** günlük ödül (2.7) ve yatırım (2.5) yapıldı, telefonda denenmedi; sıradaki zirve sonrası ve yeni hanedan (plan 2.12; kararlar 2026-10-15: [game-design §4.5](./game-design-v2.md) ve [story-v2 §6](./story-v2.md)): görünür miras, "Şimdi devret" (yıllar atlanır, devir hep 80'de), yadigâr mağazası, 2. nesil kız torun yeni şehirde, 3. nesil erkek (ilk kahramanın görselleri), 60+ dede görünümü; hepsi birlikte yayınlanır. Yapıldı (2026-10-16): Aile sekmesi, "Şimdi devret", yadigârlar ([game-design §4.5](./game-design-v2.md)). Devir hikâye anları kodda (2026-10-16). Devir görselleri oyunda (2026-10-16; portreler, dede pozları, üç kare, yadigâr ikonları; tarayıcıda denendi, telefonda değil). Sıradaki: 2. nesil yeni şehir (2.3): önce Lumen deneme karesi ([art-prompts-lumen.md](./art-prompts-lumen.md)), sonra içerik. Sonra Yakut Tasma ve Gece Vardiyası (IAP 2. adım), Remote Config (2.10).
-5. **Faz 1'in küçük kalanları:** oyun testi paketi (1.15: anket, test notları), fuların bütün pozlarda görünmesi ([discussion-notes §1](./discussion-notes.md)).
+1. **AAB 29 testi sürüyor (kullanıcı):** aşağıdaki listenin A bölümü. Bulgular gelince düzeltilir.
+2. **AAB 30:** 2026-10-15 akşamından bu yana yapılanlar (yadigârlar ve Aile sekmesi, devir anları ve görselleri, Burak hattı, işletmelerin sınıfla açılması, Lumen, ses ve müzik, dikey sütun) + AAB 29 bulguları. `versionCode` 30'a çekildi. Uygulama ikonu ve açılış ekranı v2'nin (2026-10-17): `node scripts/android-art.mjs` ikonu `art/store-v2/icon-1024.png`'den, açılışı sokak sahnesinden (kahraman, Şans, ad) üretir; zemin `#1A1446`. Derleme GPT görselleri bağlanınca.
+3. **Kapalı test:** 14 gün ~2026-10-20'de doluyor; sonra Play'den üretim erişimi başvurusu.
+4. **GPT işleri** (aşağıda) ve 2. nesil içeriği (plan 2.3): Ada'nın görselleri, 2. neslin tören ve rehber metinleri, Lumen olay kartları, Zenginler Listesi'nde Burak. Lansman kapsamı (2. nesil lansmanda mı, ilk güncellemede mi) kullanıcının kararı.
+5. Sonra Yakut Tasma ve Gece Vardiyası (IAP 2. adım), Remote Config (2.10), Crashlytics.
 
-**Sürüm derleme:** sürüm kodunu artır (`android/app/build.gradle`; Play'e yüklenmemiş bir kodu artırma), sonra `VITE_DEV_MENU=false VITE_ADMOB_TESTING=false npm run build:v2 && npx cap sync android`, ardından `android/`'da `./gradlew bundleRelease` (`JAVA_HOME` Android Studio'nun Java'sı). Ortam değişkenleri şart: `.env.v2` DEV menüsünü, `.env.local` test reklamını açık tutuyor. Çıktı `android/app/build/outputs/bundle/release/app-release.aab`; `~/Downloads/prestige-life-v2-<kod>.aab` adıyla kopyalanır.
+## GPT işleri (2026-10-17)
+
+Sırayla; kullanıcı dördünü de GPT'ye verdi (2026-10-17), oyuna bağlama Claude'un.
+
+1. **Jet anı, aile karesi** (1): oyunda (2026-10-17; `public/assets/story/life/jet.webp`, kaynak `art/pilot/10-life/life-jet-family.png`).
+2. **Lumen pikabı** (1): [art-prompts-lumen.md §4.1](./art-prompts-lumen.md).
+3. **Burak** (kılavuz + 2 kare): [art-prompts-burak.md](./art-prompts-burak.md), belgedeki tek görünümle. Hikâyede yaşlara girilmez (kullanıcı, 2026-10-17).
+4. **Ada'nın 7 kıyafeti** (6 kılavuz, 21 poz, 28 portre): [art-prompts-ada.md](./art-prompts-ada.md). En büyük iş; 2. nesil bunsuz ilk kahramanla oynuyor.
+
+Bekleyen kararlar (GPT'ye gitmeden): okşama pozunda fular/tasma ([discussion-notes.md §1](./discussion-notes.md)), önsözün 3D'ye geçmesi (deneme karesi hazır).
 
 ## Kullanıcının yapacakları
 
 - **Play Console:**
-  - AAB 29 → dahili test, sonra kapalı test.
+  - AAB 29 dahili testte (2026-10-17); sonra kapalı test.
+  - Mağaza sayfası: **web sitesi `https://mathgamesstudio.com`** (AdMob `app-ads.txt`'yi bu adresten okur), **gizlilik politikası `https://mathgamesstudio.com/games/prestige-life/privacy`**.
   - Başlangıç Paketi açıklamasına fuların bonusu (metin [monetization-v2.md §8](./monetization-v2.md) "Mağaza kurulumu").
   - Veri güvenliği beyanı v2'ye göre (cevaplar [monetization-v2.md §7](./monetization-v2.md)).
-  - Lisans testi: Ayarlar → Lisans testi'nde telefonun Google hesabı (geliştirici hesabıysa zaten testçi).
   - v1'in 8 ürününü pasifleştirmek.
   - Ürünler tanımlı (2026-10-15): `v2_comfort_pack` $7,99, `v2_starter_pack` $2,99, `v2_starter_pack_welcome` $1,49; RevenueCat'te üçü non-consumable.
-- **Mağaza sayfası:** ekran görüntüleri (4 × TR/EN, `~/Downloads/play-store-v2/`, kaynak ve betikler `art/store-v2/`), ikon ve özellik grafiği (`art/store-v2/`) Play'e yüklenecek. Telefondaki uygulama ikonu (`android/.../mipmap-*`) hâlâ v1'inki.
-- **AdMob:** yayından önce `app-ads.txt` (stüdyo sitesiyle), Ayarlar → Test cihazları'na telefon.
+  - Mağaza görselleri yenilendi (2026-10-17): 6 ekran × TR/EN (sokak, söz, işletmeler, zengin hayatı, Zenginler Listesi, aile albümü), özellik grafiği (sokak → villa; sağda kahramanın arkasında süper araba, yanında altın tasmalı Şans, yerde para yok), ikon 512 (yeni ikon bekliyor: iki aday GPT komutu [art-prompts-v2.md §1](./art-prompts-v2.md)); `~/Downloads/play-store-v2/` (eskiler `eski-2026-10-09/`). Kaynak `art/store-v2/` (`capture.mjs` önizleme derlemesinden çeker, DEV menüsü kapalı: `VITE_DEV_MENU=false npm run build:v2`, `vite preview --mode v2 --port 5198`; `compose.mjs` çerçeveler, `feature.mjs` grafik; `playwright-core` projede yok, yerel bir kopya gerekir).
+- **AdMob:** `app-ads.txt` sitede yayında (2026-10-17, `google.com, pub-8950990027285549, DIRECT, f08c47fec0942fa0`); Play'de web sitesi girildikten sonra AdMob → Uygulamalar → app-ads.txt sekmesinde doğrulanır (24 saate kadar sürebilir). Ayarlar → Test cihazları'na telefon.
 - **Test kullanıcısı listesi:** Faz 1 oyun testi için 20–50 kişi.
-- **Telefonda test listesi** (aşağıda).
 
 ## Telefonda test listesi
 
 Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV sürümü, ayrı uygulama "Prestige DEV"). Bulgular gelince madde buradan silinir.
 
-1. **Satın alma ve puanlama** (yalnız Play sürümü): üç ürün, geri yükleme, Rahat Paket sonrası "Hemen al" düğmeleri, Başlangıç Paketi'nin hoş geldin fiyatı ve yerel para birimi, Milyoner sonrası puanlama penceresi.
-2. **Törenler** (DEV → "Töreni oynat" 1–7): kareler balonun altında kalıyor mu, kahramanın yüzü kıyafetle uyuşuyor mu, kapanış kartı, 3 / 4 / 5'te tasma kartı, hediye ve "Reklam izle ×2". Tören bitince sahne değişiyor mu.
-3. **Sahne:** ev 7 ve ev 10'da araçların boyu, yedi kıyafetin pozları, tasmalar (gerçek sınıf atlamayla), fular (oturan Şans'ta), hedef rozeti ve gelir dökümü, sol ve sağ düğmeler kahramanı ya da evi kapatıyor mu.
-4. **Ekranlar:** İşletmeler (A görünümü; DEV'den Eski / A / B, sonra B ve seçici kaldırılabilir), rehberin eli ilk dakikalarda doğru düğmede mi, Kariyer, Alışveriş, Lüks resimlerinde gri kenar kalıntısı.
-5. **Albüm, hayat anları, emeklilik, Zenginler Listesi:** DEV → "Hayat anını oynat", "Kahramanı yaşlandır +40" iki kez (emeklilik paneli ve devir), liste kartları.
-6. **Çevrimdışı ve reklam** (DEV'de Google'ın test reklamı): uyuyan Şans kartı, "+%30", ×2 hızlandırıcı, Şans ×2, "biraz yardım".
-7. **Olay kartları:** çağrı düğmesinin titremesi, iki cevap, kayıpta paraların dökülmesi ve bakiyenin düşmesi, kapat-aç sonrası ödül ya da kayıp bakiyede mi.
-7b. **Günlük ödül:** ertesi gün ilk açılışta çevrimdışı kartından sonra geliyor mu, küçük ekranda kart sığıyor mu, ×2 reklamı, uygulamayı kapatıp açınca tutar aynı mı (DEV → "Günlük ödülü tekrar ver").
-7c. **Yatırım:** alt menüde 4 düğme dar ekranda sığıyor mu, kilitli düğmenin baloncuğu, üç vade, kalan süre, vade dolunca bildirim ve "!", cesur vadenin kaybı (DEV → "Yatırımı hemen bitir").
-7d. **Hayaller panosu:** alt menü yükseldi; şişeler menünün altında kalıyor mu, kahramanın ayakları ve araç görünüyor mu (özellikle küçük ekranlarda), "Al!" ve kilit, dokununca doğru sekme.
-7e. **Devir:** DEV → "Hayat anını oynat" 63 / 70 / 80; En Zengin'de Aile → "Şimdi devret": "Yıllar geçti…", üç an, torunun adı, sonra emeklilik paneli ("Varisin: …").
-8. **Bildirim ve annenin mesajı:** DEV → "Deneme bildirimi (5 sn)", Ayarlar'daki anahtar.
-9. **Erken oyun (yeni kayıtla):** tezgâha ve ilk yöneticiye kadar boşluk var mı, Şans sık geliyor mu, hedef sırası ve rehber.
-10. **Genel:** Android geri tuşu, güvenli alanlar, akıcılık, Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.prestigelife.idletycoon.dev`; Play sürümünde `.dev` olmadan).
+**Denendi, sorun yok (AAB 28–29, kullanıcı):** güncellemede kayıt, mağaza ve yerel para birimi, Başlangıç Paketi'nin ödülleri, tören hediyesi ve Rahat Paket'le "Hemen al ×2", kıyafetlerin sınıf kilidi, akıcılık ve ısınma, TR/EN metinler, bildirimler (2026-10-17).
+
+### A. AAB 29'da (şimdi)
+
+1. **AAB 28'den kalanlar:** geri tuşu ("bir kez daha bas"), alımdan sonra sayfanın kapanıp sevinç ve aracın gelişi, yanıp sönen "!" (alt menü ve Alışveriş sekmeleri), ×2 hızlandırıcı yazısı, ödülün ekranda yarım saniye durması.
+2. **Orta Sınıf:** "Şans'ın yeni tasması!" kartı (+%0 → +%2), sahnede deri tasma, gelir dökümünde tasma satırı; yerden toplamanın bitişi; **olay kartları** (çağrı titremesi, iki cevap, kayıpta paraların dökülmesi, kapat-aç sonrası bakiye); **yatırım** düğmesinin açılması, üç vade, vade bitince "!".
+3. **Milyoner:** törende Rıza'nın fotoğrafı tanıması, gümüş tasma (+%4), ilk kendi evin; **Play puanlama penceresi** Milyoner'den sonraki ikinci oturumda (çıkmazsa Google'ın sıklık sınırı olabilir).
+4. **Milyarder ve sonrası:** Bülent Bey ve Otel hediyesi, altın tasma (+%6), Zenginler Listesi'ne giriş kartı ve liste sayfası, lüks alımında hayat anı ve albüm.
+5. **Yaşa bağlı anlar:** 25 / 28 / 31 (ilk buluşma, düğün, kızın adı), annenin Defne mesajı.
+6. **Günlük ödül:** ertesi gün çevrimdışı kartından sonra, ×2 reklamı, uygulamayı kapatıp açınca aynı tutar.
+7. **Hayaller panosu:** şişelerin ve kahramanın ayaklarının menünün altında kalmaması, "Al!" ve kilit, dokununca doğru sekme.
+8. **Para:** Başlangıç Paketi'nin hoş geldin fiyatının 3 gün sonra $2,99'a dönmesi ve kırmızı noktanın kaybolması, uygulamayı silip "Satın alımları geri yükle", Rahat Paket'le 10 dakikadan uzun ayrılıkta "Hemen al +%30".
+9. **Ana ekran:** yuvarlak hedef rozeti evi kapatıyor mu, gelir dökümü (aylık gelire dokununca).
+
+### B. AAB 30 gelince
+
+1. **Dikey sütun:** tablette ve katlanırda ortada dikey oyun, yanlarda bulanık ev; telefonu yan çevirince oyunun dönmemesi.
+2. **Ses ve müzik:** dört müziğin geçişleri (ana ekran, işletme/yatırım, hikâye, olay kartı), efektler, Ayarlar'daki iki anahtar, uygulama arka plandayken sesin susması.
+3. **İşletmelerin sınıfla açılması:** adet sınırları 10 / 25 / 50, kilitli işletmenin yazısı.
+4. **En Zengin ve devir:** Aile sekmesi, yadigâr alımı, "Şimdi devret" → "Yıllar geçti…", 63 / 70 / 80 anları ve görselleri, torunun adı, Burak'ın ortaklık ve kazık anları, emeklilik paneli. Gerçek oyunda En Zengin'e ulaşmak günler sürer; DEV sürümüyle denenir.
+5. **Lumen (2. nesil):** evlerin yerleşimi, araç boyları, yöneticiler. Ada'nın görselleri gelene kadar sahnede ilk kahraman var.
+6. **Bildirimler:** "Günlük ödül hazır" ve ömür sonunda varisin mesajı.
 
 ## Kurallar
 
@@ -134,10 +152,10 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
 - **Telefon:** `npm run phone` (Android, kablosuz ya da USB; port değişince `-- PORT`, yerel eklenti değişince `-- --install`). DEV sürümü ayrı uygulama: `com.prestigelife.idletycoon.dev`, "Prestige DEV", kendi kaydı var, Play sürümünün yanında durur. Kullanıcının telefonu Samsung Galaxy S24+ (Android 16). Gradle için `JAVA_HOME` Android Studio'nun Java 21'i.
 - **Kod:** `src/game/` (çekirdek `core/`, simülatör `sim/`, `runtime/`, `i18n/`, `ui/`). Mimari [rebuild-plan.md](./rebuild-plan.md).
 - **Görseller:** çoğu GPT (yerleşik görsel üretimi; komutlar [art-prompts-v2.md](./art-prompts-v2.md)), bir kısmı fal.ai (bakiye ~$2,5 kaldı). Kaynaklar `art/` (git'te değil), oyundakiler `public/assets/`; stil kılavuzu [story-v2.md §8](./story-v2.md). Git dışı klasörler Drive'da yedekli; yeni görselden sonra `npm run backup`.
-- **Gizlilik politikası:** `https://mustafaalin.github.io/Prestige-Life-Idle-Tycoon/privacy-policy.html` (kaynak `docs/privacy-policy.html`; GitHub Pages `main`'den yayınlar, değişiklik `main`'e de alınmalı).
+- **Stüdyo sitesi (2026-10-17):** `https://mathgamesstudio.com` (Cloudflare Pages; oyun sayfası, destek, `app-ads.txt`). Gizlilik politikası `https://mathgamesstudio.com/games/prestige-life/privacy`; eski GitHub Pages adresi (`docs/privacy-policy.html`, `main`'den) yedek olarak duruyor.
 
 ## Uygulama kimliği
 
-- Paket `com.prestigelife.idletycoon` · Prestige Life: Idle Tycoon · yayıncı Math Games Studio (`mathgamesstudio@gmail.com`; ileride stüdyo sitesi)
+- Paket `com.prestigelife.idletycoon` · Prestige Life: Idle Tycoon · yayıncı Math Games Studio (`mathgamesstudio@gmail.com`, `mathgamesstudio.com`)
 - AdMob App ID: Android `ca-app-pub-8950990027285549~9898475278`, iOS `ca-app-pub-8950990027285549~3253175874`; ödüllü birim `runtime/ads.ts`. GDPR mesajı yayında.
 - Firebase projesi `prestige-life-idle-tycoon`; RevenueCat → Firebase entegrasyonu panelde.

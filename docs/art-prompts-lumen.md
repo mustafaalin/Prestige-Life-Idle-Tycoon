@@ -4,7 +4,7 @@ Son güncelleme: 2026-10-17 · İlgili: [story-v2.md §6](./story-v2.md), [game-
 
 Bu belge GPT'ye (VS Code'da) verilir. 2. neslin şehri Lumen'in **46 görselinin** (yönetici 10, ev 11, işletme 9, araç 12, lüks 4) sırasını, referanslarını, kayıt yerini ve doğrudan yapıştırılacak İngilizce komutlarını içerir. Oyuna bağlama (kesim, webp, kod) Claude'un işidir (§7).
 
-**Durum (2026-10-17): 46/46 üretildi ve oyunda.** Kesim, webp ve şehir katmanı (`runtime/city.ts`) yapıldı; teslim notu [archive/lumen-art-handoff.md](./archive/lumen-art-handoff.md). **Yeniden üretilecek tek görsel: Elektrikli Pikap** (`lumen-vehicle-pickup.png`): neredeyse önden çizildiği için kasası görünmüyor ve Keşif Aracı'yla aynı renk ve silüette (ikisi de zeytin yeşili, kutu gibi); kural her basamakta farklı silüet ve renk. Yeni komutta: kasası açıkça görünsün (önden dörtte üç, biraz daha yandan), Lumen araçlarında olmayan bir renk (öneri: bordo). Evlerin yerleşimi ve araç boyları telefonda bakılacak.
+**Durum (2026-10-17): 46/46 üretildi ve oyunda.** Kesim, webp ve şehir katmanı (`runtime/city.ts`) yapıldı; teslim notu [archive/lumen-art-handoff.md](./archive/lumen-art-handoff.md). **Yeniden üretilecek tek görsel: Elektrikli Pikap** (`lumen-vehicle-pickup.png`; komut §4.1): neredeyse önden çizildiği için kasası görünmüyor ve Keşif Aracı'yla aynı renk ve silüette (ikisi de zeytin yeşili, kutu gibi); kural her basamakta farklı silüet ve renk. Yeni komutta: kasası açıkça görünsün (önden dörtte üç, biraz daha yandan), Lumen araçlarında olmayan bir renk (öneri: bordo). Evlerin yerleşimi ve araç boyları telefonda bakılacak.
 
 ## 0. GPT için çalışma kuralları
 
@@ -64,9 +64,9 @@ Karar (2026-10-16, kullanıcı): Lumen'in yöneticileri de **insan**; robot yön
 
 Sabah istenen kareler açık mavi gökyüzü ve sıcak sabah ışığı kullanır; hepsi turuncu gün batımına çevrilmez. Alt %45 boş ve kuru kalır; zemin malzemeleri de evden eve değişir.
 
-1. neslin ev kuralları aynen ([art-prompts-v2.md §1](./art-prompts-v2.md), [art-brief §3](./art-brief-v2.md)): ufuk %37, zemin çizgisi en çok %55, altı boş ve kuru; evi tanıtan şey %15–37 bandında; yakın evlerde (2–6) giriş sol üçte birde, uzak evlerde (7–12) ev ortanın biraz solunda. Ev zenginleştikçe uzaklaşır. Önünde duran araçlar 1. nesille aynı zincirde (§4 tablosu). Işık evden eve değişir ama hep sıcak. **Kullanıcı düzeltmesi:** aynı yeşil kuleler ve aynı çevre tekrarlanmaz; kent silueti her karede görünmek zorunda değil. Her ev aşağıdaki ayrı mahalle/çevre tarifini kullanır. Hafif fütürizm çevredeki tek bir sessiz ayrıntıyla taşınabilir; dron da zorunlu değildir.
+1. neslin ev kuralları aynen ([archive/art-prompts-v2-gen1.md §1](./archive/art-prompts-v2-gen1.md), [art-brief §3](./art-brief-v2.md)): ufuk %37, zemin çizgisi en çok %55, altı boş ve kuru; evi tanıtan şey %15–37 bandında; yakın evlerde (2–6) giriş sol üçte birde, uzak evlerde (7–12) ev ortanın biraz solunda. Ev zenginleştikçe uzaklaşır. Önünde duran araçlar 1. nesille aynı zincirde (§4 tablosu). Işık evden eve değişir ama hep sıcak. **Kullanıcı düzeltmesi:** aynı yeşil kuleler ve aynı çevre tekrarlanmaz; kent silueti her karede görünmek zorunda değil. Her ev aşağıdaki ayrı mahalle/çevre tarifini kullanır. Hafif fütürizm çevredeki tek bir sessiz ayrıntıyla taşınabilir; dron da zorunlu değildir.
 
-**Kontrol et:** 1. neslin kontrol listesi ([art-prompts-v2.md §1](./art-prompts-v2.md)) + şehir hâlâ "bugün, biraz ileride" mi (neon, hologram, uçan araç yok), ev bir öncekinden belirgin biçimde daha iyi mi?
+**Kontrol et:** 1. neslin kontrol listesi ([archive/art-prompts-v2-gen1.md §1](./archive/art-prompts-v2-gen1.md)) + şehir hâlâ "bugün, biraz ileride" mi (neon, hologram, uçan araç yok), ev bir öncekinden belirgin biçimde daha iyi mi?
 
 | # | Ev (TR / EN) | Dosya |
 | --- | --- | --- |
@@ -165,7 +165,7 @@ Oyunun en büyük evi bu şehirde gökte: Lumen'in en uzun yeşil kulesinin tepe
 
 **Üretim notu (2026-10-17):** İlk elektrikli, şehir arabası, pikap, keşif aracı ve grand tourer önceki araç ayrıntılarına yaklaşan ilk denemelerinin yerine bağımsız tasarımlarla üretildi. Bu beş araçta ve dört lükste önceki nesne görselleri eklenmedi; stil ve kamera metinle tarif edildi. Pikap, keşif aracı ve grand tourer sahne oranı için daha önden bir açıya ayrıca düzeltildi. Nihai kullanılan komutlar kaynakların yanındadır; eski denemeler `-v1`/`-v2` olarak korunur.
 
-1. neslin araç kuralları aynen ([art-prompts-v2.md §2](./art-prompts-v2.md)): önden dörtte üç, önü sağa, ön yüz tam görünür; kamera 1,6 m, uzun objektif; düz açık gri zemin; tavanda yük ve anten yok. Başlıktaki oran, kesilmiş görselde **genişlik / yükseklik sınırıdır** (şerit 2,75 m ÷ gerçek boy); aşılırsa aynı komuta "more head-on" eklenir. Lumen'de arabaların hepsi elektrikli ama tanıdık: bugünün arabaları gibi tekerlekleri yerde, ızgarası kapalı ya da ince. Hangi evin önünde durdukları 1. nesille aynı:
+1. neslin araç kuralları aynen ([archive/art-prompts-v2-gen1.md §2](./archive/art-prompts-v2-gen1.md)): önden dörtte üç, önü sağa, ön yüz tam görünür; kamera 1,6 m, uzun objektif; düz açık gri zemin; tavanda yük ve anten yok. Başlıktaki oran, kesilmiş görselde **genişlik / yükseklik sınırıdır** (şerit 2,75 m ÷ gerçek boy); aşılırsa aynı komuta "more head-on" eklenir. Lumen'de arabaların hepsi elektrikli ama tanıdık: bugünün arabaları gibi tekerlekleri yerde, ızgarası kapalı ya da ince. Hangi evin önünde durdukları 1. nesille aynı:
 
 | Ev | Önünde görülen araçlar |
 | --- | --- |
@@ -203,9 +203,19 @@ Oyunun en büyük evi bu şehirde gökte: Lumen'in en uzun yeşil kulesinin tepe
 | 9 | Hiper Araba / Electric Hypercar · 1,12 m · 2,45 | `lumen-vehicle-9.png` | `A very low, wide electric hypercar, pearl-white paint with deep-blue accents, a teardrop glass canopy and sculpted air channels. Slightly more head-on (about 15–20 degrees) because it is long. Landscape 3:2.` |
 | 10 | Grand Tourer / Electric Grand Tourer · 1,55 m · 1,77 | `lumen-vehicle-10.png` | `The final car: a long, stately electric grand tourer, champagne-gold paint over a dark lower body, a tall proud front with a slim lit grille line, large wheels. Slightly more head-on (about 15–20 degrees) because it is long. Landscape 3:2.` |
 
+### 4.1 Pikabın yeniden üretimi (bordo kaynak hazır, 2026-10-17)
+
+**Seçili kaynak:** `art/pilot/17-lumen/lumen-vehicle-pickup.png`, 1536×1024. Bordo boya, grafit alt gövde, kısa kabin ve uzun açık kasa; kasada iki küçük sandık ve katlı branda. Bir kez daha önden açı düzeltmesi yapıldı, kasa görünürlüğü korundu. Komut ve son düzeltme yanındadır. Görsel üzerinden yaklaşık siluet oranı 1,6; 1,49 hedefinin biraz üstünde, kesin ölçüm kesimden sonra yapılmalı. Ek açı daraltması kasayı yeniden gizleyebilir; sahnede kontrol edilmeden oranı tutuyor sayılmamalı. Eski yeşil kanonik kaynak `lumen-vehicle-pickup-before-burgundy.png` olarak korundu; mevcut `-v1` denemelerinin üstüne yazılmadı. Runtime dosyası değiştirilmedi.
+
+İlk pikap neredeyse önden çizildi: kasası görünmüyor ve Keşif Aracı'yla aynı renk ve silüette. Komut (sonra §4'ün ortak kuyruğu aynen, en sonda stil paragrafı); dosya adı aynı, eski görsel `lumen-vehicle-pickup-v1.png` olarak kalır:
+
+> A rugged mid-size electric pickup truck with smooth slab sides, a flat closed front with slim headlights, deep BURGUNDY-red paint over a dark graphite lower body and wheel arches, and an OPEN load bed at the back that is clearly visible: the camera looks a little more from the side than the other vehicles (about 30–35 degrees instead of 25), so the bed's side wall, tailgate and the inside of the bed read at a glance; a folded grey tarp and two small wooden crates sit low inside the bed, nothing sticks out above the cab. It must not look like a box-shaped 4x4: a lower roofline than the expedition 4x4, a long separate bed behind a short cab. Landscape 3:2.
+
+Kontrol: kasa açıkça görünüyor mu, bordo mu (Lumen'de başka bordo araç yok), keşif aracından silüetle ayrılıyor mu, oran 1,49 sınırını çok aşıyor mu (aşarsa "slightly more head-on, keep the bed visible" ile bir kez daha).
+
 ## 5. Lüksler (4 görsel)
 
-1. neslin lüksleriyle aynı biçim ([art-prompts-v2.md §7](./art-prompts-v2.md)): tek nesne, düz açık gri zemin, önden dörtte üç, burnu sağa, nesnenin tamamı kadrajda; tekne ve yat sudan çıkmış bir model gibi. Fiyatlar 1. nesille aynı ($5B, $50B, $200B, $1T).
+1. neslin lüksleriyle aynı biçim ([archive/art-prompts-v2-gen1.md §7](./archive/art-prompts-v2-gen1.md)): tek nesne, düz açık gri zemin, önden dörtte üç, burnu sağa, nesnenin tamamı kadrajda; tekne ve yat sudan çıkmış bir model gibi. Fiyatlar 1. nesille aynı ($5B, $50B, $200B, $1T).
 
 **Ortak kuyruk:**
 

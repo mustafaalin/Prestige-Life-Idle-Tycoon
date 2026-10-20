@@ -12,3 +12,4 @@
 | `iap-design-review-2026-10-14.md`, `iap-store-design-handoff.md`, `iap-store-design-preview.html` | Mağaza tasarım incelemesi ve teslimi (oyunda) |
 | `gpt-review-progression-monetization*.md` | İlerleme ve monetizasyon incelemesi (2026-10-14); sonuçları monetizasyon belgesinde ve oyunda |
 | `sans-collars-preview.html` | Gümüş ve yakut tasmalı Şans önizlemesi (2026-10-15) |
+| `art-prompts-v2-gen1.md` | 1. neslin bütün GPT komutları (evler, araçlar, kadro, kıyafetler, portreler, lüksler, mağaza, tasmalar, jet karesi, önsöz denemesi); hepsi üretildi (2026-10-17). Lumen ve Ada belgeleri kurallarına buradan atıf yapar |

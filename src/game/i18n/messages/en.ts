@@ -671,7 +671,7 @@ export const en = {
       title: 'Your granddaughter is born',
       room: 'Thirty-two years later, the same room. This time his daughter held the baby.',
       elif: "Dad... You're a grandpa.",
-      hero: 'I brought the plum jam. Mom always said, "The first jar belongs to the baby."',
+      hero: 'Mom sent the plum jam. She says, "The first jar belongs to the baby."',
       defne: 'Look, she has your nose. And my freckles.',
     },
     partner: {

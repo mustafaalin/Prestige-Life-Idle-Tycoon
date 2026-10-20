@@ -6,7 +6,7 @@ import type { LifestyleDef } from '../types';
 
 // Twelve vehicles, each step its own silhouette and color so it reads on a small screen (decided
 // 2026-10-11; there were 16, starting with a free wheelbarrow). A new life starts without one.
-// Art and prompts: docs/art-prompts-v2.md §2.
+// Art and prompts: docs/archive/art-prompts-v2-gen1.md §2.
 //
 // Homes and vehicles climb together (game-design §4.4, decided 2026-10-11): `home` is the home a
 // vehicle opens in (index into HOUSES), and the last vehicle of a home is needed to move on to the

@@ -670,7 +670,7 @@ export const tr: Messages = {
       title: 'Torunun doğdu',
       room: 'Otuz iki yıl sonra aynı oda. Bu kez bebeği kızı tutuyordu.',
       elif: 'Baba... Dede oldun.',
-      hero: 'Erik reçelini getirdim. Annem hep "İlk kavanoz bebeğin hakkı" derdi.',
+      hero: 'Erik reçelini annem gönderdi. "İlk kavanoz bebeğin hakkı" diyor.',
       defne: 'Bak, burnu sana çekmiş. Çilleri de bana.',
     },
     partner: {

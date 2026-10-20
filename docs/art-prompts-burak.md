@@ -6,7 +6,7 @@ Bu belge GPT'ye verilir. Burak, Lojistik Deposu'nun düzen takıntılı şefi; �
 
 | # | Dosya | Ne | Durum |
 | --- | --- | --- | --- |
-| B1 | `art/pilot/16-dynasty/burak-sheet.png` | Kılavuz + 4 portre | Şimdi |
+| B1 | `art/pilot/16-dynasty/burak-sheet.png` | Kılavuz + 4 portre | Kaynak hazır; kullanıcı onayı bekliyor (2026-10-17) |
 | B2 | `art/pilot/10-life/life-partner.png` | 45 yaş · Ortaklık (el sıkışma) | B1 onaylanınca |
 | B3 | `art/pilot/10-life/life-betrayal.png` | 80 yaş · Kazık (gazete) | B1 onaylanınca |
 | B4 | anahtar karesi (2. neslin son töreni) | | **Bekliyor:** yetişkin Ada'nın 2. nesil görünümü tasarlanınca yazılır |
@@ -27,6 +27,8 @@ Bu belge GPT'ye verilir. Burak, Lojistik Deposu'nun düzen takıntılı şefi; �
 > Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
 
 ## B1 Burak kılavuzu → `art/pilot/16-dynasty/burak-sheet.png`
+
+**Üretim notu (2026-10-17):** 1536×1024 seçili PNG ve komutu hazır. Mevcut lojistik yöneticisinin yüzü, antrasit ince çizgili takım, bordo kravat ve küçük altın ördek rozeti korundu. Sakaldaki kırlar son düzeltmeyle belirginleştirildi (`burak-sheet-correction-prompt.txt`); ilk çıktı `burak-sheet-v1.png`. Eller yakın planda kontrol edildi. Kullanıcı ayrıca B1 onayından sonra B2/B3’e geçileceğini teyit etti; B2 ve B3 henüz üretilmedi.
 
 Referanslar: `art/pilot/06-managers/logistics-warehouse.png` (yüz: oyundaki Burak), `art/pilot/03-cast/defne-sheet.png` (sayfa düzeni), `art/pilot/16-dynasty/grandpa-sheet.png` (aynı stilde yaşlanmış bir yüz), `art/pilot/03-cast/bulent-sheet.png` (takım elbiseli bir yetişkinin bu stilde çizimi).
 
