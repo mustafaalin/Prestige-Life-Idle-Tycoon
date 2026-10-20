@@ -103,7 +103,7 @@ Ekonomi saf TypeScript `core/`'da kalır (React yok); simülatör aynı çekirde
 
 ## 8. Kararı bekleyenler
 
-1. Dört yeni işletmenin adları ve yöneticileri (oyunda taslak olarak, §8c): Restoran (Şef Nazan), Emlak Ofisi (Cem), İnşaat Şirketi (Tekin Usta), Medya Şirketi (Pelin). Görselleri yok (işletme simgesi duruyor); 14 × 3 aşama görseli GPT işi (E3).
+1. Görseller GPT'de: 32 işletme aşaması ve 4 yönetici portresi ([art-prompts-businesses.md](./art-prompts-businesses.md)). Dört yeni işletmenin adları ve yöneticileri onaylandı (2026-10-21).
 2. Telefonda ilk his: Çiçek Tezgâhı tablosu, şişe, deneyimle açılan meslekler.
 3. Gece Vardiyası IAP'ı (çevrimdışı %50 → %100, tavan +2 sa) yeni %20'ye göre yeniden yazılmalı ([monetization-v2.md](./monetization-v2.md) §5).
 
@@ -141,12 +141,18 @@ Ekonomi saf TypeScript `core/`'da kalır (React yok); simülatör aynı çekirde
 
 **Bilinen eksikler:** 13 işletmenin seviye tablosu hâlâ Çiçek Tezgâhı'nın biçiminden üretiliyor (her işletmeye kendi karakteri E3/E4'te); Çiçek Tezgâhı ilk saatlerde gelirin %60–85'i (ucuz şubeleri); Milyarder 69 yaşla aralığın üst ucunda.
 
+## 8d. E3'te yapılanlar (2026-10-21)
+
+- **İşletme kartı:** ad satırının altında 10 nokta (alınan seviyeler turuncu; yeni görünümün başladığı 8. ve 10. seviye büyük nokta) ve sıradaki görünüm ("Seviye 8: Küçük dükkân"). Geri dönüş oyunun takvimiyle yazılıyor ("kendini ~22 ayda öder", 24 aydan sonra yıl). 8. ve 10. seviyede "{işletme} büyüdü!" kartı: yeni görünümün resmi, seviyenin adı, tur öncesi → sonrası.
+- **Aşama görselleri:** `config/businesses.ts` `STAGE_ART` (işletme başına çizilmiş aşama sayısı; dosyalar `{id}.webp`, `{id}-2.webp`, `{id}-3.webp`), görseli olmayan aşama bir öncekini gösterir. Komutlar [art-prompts-businesses.md](./art-prompts-businesses.md); mevcut 10 ikon 1. aşama.
+- **E4'e kalanlar:** kariyerde deneyim dışındaki şartlar ve "Git", mağazada "neyi açar" (eşyalar henüz bir şey açmıyor).
+
 ## 9. Sıra (Faz E)
 
 1. **E0:** kararlar ve bu belge (2026-10-20/21).
 2. **E1 çekirdek (yapıldı 2026-10-21, §8b):** `core/economy/` bölünmesi, şart sistemi, işletme seviye/şube modeli, gelir kaynakları; simülatör yeni modele; yeni tempo hedefleri.
 3. **E2 sayılar (yapıldı 2026-10-21, §8c):** Çiçek Tezgâhı'ndan başlayarak bütün işletmelerin seviye tabloları, şişe, Şans, çevrimdışı; `npm run sim` ile.
-4. **E3 arayüz:** işletme kartı (seviye, aşama görseli, şube satırı), kariyer ekranı (şartlar + Git), mağaza (sabit fiyat, "neyi açar").
+4. **E3 arayüz (yapıldı 2026-10-21, §8d; görseller GPT'de):** işletme kartı (seviye, aşama görseli, şube satırı), kariyer ekranı (şartlar + Git), mağaza (sabit fiyat, "neyi açar").
 5. **E4 meslekler ve eşyalar:** 60+ meslek tablosu, eşya listesi, kurslar.
 6. **E5 hanedan:** Burak hikâyesinin kaldırılması, 63/70 metinleri, gizlenen sistemler, 80'de "yakında" kartı, içerik paketleri ve lansman bayrakları.
 7. **E6 bütünleme:** hedefler (quests), hayaller panosu, olay kartı ödülleri, günlük ödül ve yatırım tutarları yeni ölçeğe; belgeler yeniden yazılır; telefonda test; lansman.

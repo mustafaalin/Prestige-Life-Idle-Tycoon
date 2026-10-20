@@ -163,6 +163,8 @@ Referanslar: sahnenin yeri (ilgili arka plan ya da önsöz karesi) + kahraman k�
 
 On işletmenin ikonu yeni stilde, GPT ile (`art/pilot/10-businesses/`, 1254 px kare, şeffaf zemin; her dosyanın yanında komutu `*-prompt.txt`). Oyunda `public/assets/businesses/v2/<işletme kimliği>.webp` (384 px), `core/config/businesses.ts`. Basamak hissi ikonlarda: açık tezgâh → el arabası → küçük dükkân → ... → cam kule. Kahve Arabası'nın iki denemesinden ikincisi (`coffee-cart-v2.png`, yeşil el arabası) kullanıldı: ilki Çiçek Tezgâhı'yla aynı ahşap tezgâhtı. v1'in 40 ikonu (`public/assets/businesses/small/`, `large/`) v1'de kalır.
 
+**Aşamalar (2026-10-21):** işletmeler artık seviyeyle büyüyor; bu on ikon 1. aşamadır. 2. ve 3. aşama ile dört yeni işletmenin komutları [art-prompts-businesses.md](./art-prompts-businesses.md).
+
 Yeni ikon komutu (özet): *"ONE high-resolution square game business icon for {işletme}. Slight three-quarter view, whole building visible, centered. Genuine transparent background, no ground plane, no frame. Chunky readable simplified shapes for viewing at 76px. NO people, NO text, NO logos."* + stil paragrafı.
 
 ## 5. Bekleyenler
