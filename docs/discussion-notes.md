@@ -4,6 +4,10 @@ Kararı henüz verilmemiş konular ve Claude'un önerileri. **Karar verilince il
 
 Son güncelleme: 2026-10-16 (oyunun baştan sona incelemesi: hanedan matematiği §3, hikâye §7; Burak hattı kararı story-v2 §6a)
 
+**Ekonominin yeniden kurulması (karar 2026-10-20, kullanıcı):** lansman = 1. nesil; 2. ve 3. nesil yayından sonra; Burak hikâyesi kalkar (yalnız yönetici); 80 yaşta torun her şeyle devam eder (devir 2. nesille, lansmanda kahraman 80'de kalır); işletmeler seviye + şube modeline geçer, fiyatlar katlanmaz. Bu kararlar aşağıdaki §2, §3 (hanedan, Burak hattı, 2. nesil) ve §4 (ekonomi) maddelerinin önüne geçer; ayrıntı ve açık sorular [economy-rebuild.md](./economy-rebuild.md).
+
+**Oyuncuyu tutma stratejisi (2026-10-20):** ölçüm ve Claude + GPT raporlarının birleşik önerileri (iş teklifleri, üç katmanlı hedef, atölye ve konak projeleri, Burak sonrası "geriye ne kaldı", günlük görevler) [engagement-strategy-v2.md](./engagement-strategy-v2.md); karar bekliyor.
+
 ## 1. Görsel
 
 Yaklaşım (görsel roman) ve stil (yarı 3D) kararlaştı: [story-v2.md §8](./story-v2.md). Açık kalanlar:

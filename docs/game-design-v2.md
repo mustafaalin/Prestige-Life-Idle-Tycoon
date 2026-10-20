@@ -56,6 +56,8 @@ Sınıf, harcanan paradan bağımsızdır (kazanılan toplam). Oyuncu alışveri
 
 ### 4.2 İşletmeler (`config/businesses.ts`)
 
+> **Yeniden kuruluyor (2026-10-21):** kodda artık adet değil seviye + şube modeli var (yükseltmeler, kilometre taşları ve adet sınırı kalktı). Güncel model ve sayılar [economy-rebuild.md](./economy-rebuild.md) §3 ve §8b; bu bölüm E2 bitince yeniden yazılır.
+
 AdVenture Capitalist modeli: her işletme adet adet alınır, her birim bir üretim döngüsünde gelir getirir.
 
 - Birim fiyatı: `baseCost × costGrowth^sahipOlunan`

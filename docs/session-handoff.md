@@ -13,6 +13,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak ye
 | [monetization-v2.md](./monetization-v2.md) | Reklam ve IAP | Ürünler, mağaza kurulumu, veri güvenliği beyanı, destek akışı |
 | [rebuild-plan.md](./rebuild-plan.md) | **Ne zaman?** Fazlar ve görevler | Yapılanlar işaretli |
 | [discussion-notes.md](./discussion-notes.md) | Kararı bekleyen konular | Yalnızca açık konular |
+| [economy-rebuild.md](./economy-rebuild.md) | Ekonominin yeniden kurulması: kararlar, işletme seviye + şube modeli, mimari | Yön kararlaştı, sayılar öneri (2026-10-20) |
 | [engagement-strategy-v2.md](./engagement-strategy-v2.md) | Oyuncuyu oyunda tutma: boş oturum ölçümü ve öneriler | Claude + GPT birleşik öneri, karar bekliyor (2026-10-20); GPT'nin raporu `research/` |
 | [art-brief-v2.md](./art-brief-v2.md) | Görsel listesi, boyutlar, oyuna bağlama | |
 | [art-prompts-v2.md](./art-prompts-v2.md) | GPT'ye yapıştırılacak, üretilmeyi bekleyen komutlar | Şu an yeni uygulama ikonu ve özellik grafiği (2şer aday), önsözün 3D'deki beş karesi; 1. neslin bitmiş komutları [archive/art-prompts-v2-gen1.md](./archive/art-prompts-v2-gen1.md) |
@@ -74,6 +75,7 @@ GPT devir görsellerini üretirken (komutlar [art-prompts-dynasty.md](./art-prom
 
 ## Sıradaki
 
+0. **Ekonominin yeniden kurulması (karar 2026-10-20, öncelikli; plan Faz E, [economy-rebuild.md](./economy-rebuild.md)):** lansman yalnız 1. nesil; Burak hikâyesi kalkıyor (yalnız yönetici); lansmanda kahraman 80'de kalır, devir 2. nesille; miras/yadigâr gizli; gerçekçi takvim; işletmeler seviye + şube; meslekler şartla, eşyalar gerçek fiyatla. E1 (çekirdek) yapıldı 2026-10-21 (economy-rebuild §8b): işletmeler seviye + şube, kayıt şeması 2 (eski kayıt bir kez temiz başlar), yaşa bağlı tempo hedefleri; simülatörde ekonomi şu an çok hızlı, sıradaki iş E2 (sayılar). 14 işletme, kıyafet 7. Aşağıdaki 2. nesil işleri (madde 4, GPT işleri 3–4) bekletiliyor.
 1. **AAB 29 testi sürüyor (kullanıcı):** aşağıdaki listenin A bölümü. Bulgular gelince düzeltilir.
 2. **AAB 30:** 2026-10-15 akşamından bu yana yapılanlar (yadigârlar ve Aile sekmesi, devir anları ve görselleri, Burak hattı, işletmelerin sınıfla açılması, Lumen, ses ve müzik, dikey sütun) + AAB 29 bulguları. `versionCode` 30'a çekildi. Uygulama ikonu ve açılış ekranı v2'nin (2026-10-17): `node scripts/android-art.mjs` ikonu `art/store-v2/icon-1024.png`'den, açılışı sokak sahnesinden (kahraman, Şans, ad) üretir; zemin `#1A1446`. Derleme GPT görselleri bağlanınca.
 3. **Kapalı test:** 14 gün ~2026-10-20'de doluyor; sonra Play'den üretim erişimi başvurusu.

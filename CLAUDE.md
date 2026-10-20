@@ -9,7 +9,7 @@ The game is being rebuilt as **v2** on branch `v2-rebuild`, in `src/game/` with 
 Session startup — read in this order:
 1. `docs/session-handoff.md` — current state and the doc map
 2. `docs/rebuild-plan.md` — phases, tasks, what's next
-3. `docs/game-design-v2.md` — v2 rules and numbers (source of truth for v2)
+3. `docs/game-design-v2.md` — v2 rules and numbers (source of truth for v2); `docs/economy-rebuild.md` — the economy rebuild in progress (decided 2026-10-20: launch = generation 1 only, level + branch businesses, no Burak betrayal); where it is decided it overrides the design doc until moved into it
 4. `docs/story-v2.md` — story, characters, tone (when touching text, ceremonies, visuals)
 5. `docs/discussion-notes.md` — open decisions; don't act on them as if decided
 6. `docs/monetization-v2.md` — rewarded ads and IAP decisions (when touching ads, rewards, purchases)
