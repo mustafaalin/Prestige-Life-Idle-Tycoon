@@ -274,6 +274,8 @@ Faz 1'de pano sadece statü eşyalarını gösterir (sıradaki ev, araç, kıyaf
 
 ## 6. Hanedan (Faz 2, ilke kararları)
 
+> **Lansman kapsamı (2026-10-21):** lansman 1. nesil. 63 (torunun doğumu) ve 70 (dede ve torun) anları oynar; 80'de devir yok: kahraman 80'de kalır, "Torununun hikâyesi yakında" kartı bir kez gelir, oyun ve para sürer. Devir (torun ailenin her şeyiyle 17 yaşında devam eder) 2. nesil güncellemesiyle gelir; aşağıdaki "varis en dipten başlar" kurgusu geçersiz ([economy-rebuild.md §6](./economy-rebuild.md)).
+
 - **Devir 80 yaşta.** Varis, kahramanın kızının çocuğu: kahraman 63 yaşındayken doğar, devirde 17 yaşındadır (§4c). En Zengin'den sonra "Şimdi devret" kalan yılları atlar ("Yıllar geçti…", sonra 63, 70 ve 80 yaş anları art arda; karar 2026-10-15). Devir hep 80 yaşta ([game-design-v2.md §4.5](./game-design-v2.md)).
 - **Varislerin cinsiyeti (karar 2026-10-15, kullanıcı):** 2. nesil **kız torun** (sabit, seçim yok); 3. nesil **erkek**, ilk kahramanın görselleri (kıyafetler, pozlar, portreler) yeniden kullanılır; sonra kadın, erkek diye sürer. Torunun adını oyuncu koyar (varsayılan **Ada**, EN de Ada).
 - **Dede görünümü (karar 2026-10-15, kullanıcı):** kahraman 60 yaştan sonra tek bir dede görünümüne geçer (kır saç, gözlük, yelek, babadan kalan saat): 3 sahne pozu + 4 portre. Kıyafetlerin gelir bonusu sürer, görünüm yaşa bağlı. 2. nesilde aynı dede torunun rehberi (Rıza Amca'nın kahramana yaptığını yapar). Yetişkin kız (Elif) ve yaşlı Defne kılavuzları hazır ([art-prompts-dynasty.md](./art-prompts-dynasty.md)).
@@ -290,6 +292,8 @@ Faz 1'de pano sadece statü eşyalarını gösterir (sıradaki ev, araç, kıyaf
 - Açık sorular: [discussion-notes.md §3](./discussion-notes.md).
 
 ### 6a. Burak hattı (karar 2026-10-16, kullanıcı; 1. nesil oyunda 2026-10-16, görselsiz; 2. nesil taslak)
+
+> **Kaldırıldı (2026-10-21, kullanıcı: "burak hikayesini şimdilik kaldıralım, burak sadece bir yönetici olsun").** Ortaklık, annenin uyarısı, 70 yaşın gölge balonları, kazık, Ada'nın yemini ve 2. neslin intikam planı oyunda oynamaz (`config/content.ts` `bradStory: false`); kayıttaki `partner` / `betrayal` kimlikleri durur. Burak yalnız Lojistik Deposu'nun yöneticisi, olay kartıyla. Aşağıdaki metinler ileride hikâye geri gelirse diye duruyor; karar değil.
 
 **Kapsam (karar 2026-10-16, kullanıcı):** Burak hattı yalnız ilk iki nesilde. 2. neslin sonundaki anahtar karesiyle kapanır; 3. nesilde ve sonrasında Burak, ailesi ya da torunu hikâyede yer almaz (Lojistik Deposu'nun yeri yeni bir yöneticiye geçer, §3).
 

@@ -162,6 +162,15 @@ Ekonomi saf TypeScript `core/`'da kalır (React yok); simülatör aynı çekirde
 - **Görseller:** 51 meslek ve 4 eşya ikonu GPT'yi bekliyor ([art-prompts-jobs.md](./art-prompts-jobs.md)); şimdilik kariyer ve mağaza simgesi.
 - **Yapılmayan:** araç sayısı 12'de kaldı (yeni araç sahne kesimi ve ev–araç zinciri ister); eşyalar meslek dışında bir şey (olay, yer) açmıyor.
 
+## 8f. E5'te yapılanlar (2026-10-21)
+
+- **İçerik bayrakları** (`core/config/content.ts`): `handover` (80'de devir), `legacy` (miras puanı, yadigârlar, "Şimdi devret", Aile sekmesi), `bradStory` (Burak hikâyesi); üçü de lansmanda kapalı. Ekranlar, hikâye ve simülatör yalnız bunlara bakar; 2. nesil güncellemesi bayrakları açar, sistemleri yeniden yazmaz. §7'deki tam `ContentPack` yapısı (nesil başına işletme, ev, meslek listeleri) bilinçli olarak yapılmadı: tek nesil varken gereksiz soyutlama olurdu, 2. nesille birlikte, gerçek ihtiyaca göre kurulur.
+- **Burak hikâyesi oynamaz:** ortaklık (45) ve kazık (80) anları, annenin `partner` mesajı, 70 yaşın gölge balonları ve Ada'nın yemini; kayıttaki kimlikler korunur (`LIFE_MOMENT_IDS` bütün anları tanır).
+- **80 yaş:** `awaitsHandover` (bayrak + 80) ömür sonu panelini, olay kartlarının durmasını, rehberin gizlenmesini ve varisin bildirimini yönetir; bayrak kapalıyken hiçbiri olmaz. Devir anı oynamaz; 80'de bir kez "Torununun hikâyesi yakında" kartı (dede portresi, "{Ada} büyüyor…", "Devam"), kayıtta `story.sequelSeen`. Yaş 80'de durur, oyun ve gelir sürer. Tarayıcıda denendi.
+- **Gizlenenler:** Aile sekmesi alt menüden çıktı (4 düğme), erken devir ve emeklilik yapılamaz (`canRetire`, `canHandOverEarly` bayrağa bağlı).
+- **Lumen:** yalnız 2. nesilde açılır; devir olmadığı için lansmanda hiç görünmez (DEV önizlemesi kalır).
+- **Simülatör:** devir yok; 80 yaş bir kez "Life reaches 80" olarak yazılır, oyun sürer. Bütün hedefler tutuyor.
+
 ## 9. Sıra (Faz E)
 
 1. **E0:** kararlar ve bu belge (2026-10-20/21).
@@ -169,5 +178,5 @@ Ekonomi saf TypeScript `core/`'da kalır (React yok); simülatör aynı çekirde
 3. **E2 sayılar (yapıldı 2026-10-21, §8c):** Çiçek Tezgâhı'ndan başlayarak bütün işletmelerin seviye tabloları, şişe, Şans, çevrimdışı; `npm run sim` ile.
 4. **E3 arayüz (yapıldı 2026-10-21, §8d; görseller GPT'de):** işletme kartı (seviye, aşama görseli, şube satırı), kariyer ekranı (şartlar + Git), mağaza (sabit fiyat, "neyi açar").
 5. **E4 meslekler ve eşyalar (yapıldı 2026-10-21, §8e; ikonlar GPT'de):** 60+ meslek tablosu, eşya listesi, kurslar.
-6. **E5 hanedan:** Burak hikâyesinin kaldırılması, 63/70 metinleri, gizlenen sistemler, 80'de "yakında" kartı, içerik paketleri ve lansman bayrakları.
+6. **E5 hanedan (yapıldı 2026-10-21, §8f):** Burak hikâyesinin kaldırılması, 63/70 metinleri, gizlenen sistemler, 80'de "yakında" kartı, içerik paketleri ve lansman bayrakları.
 7. **E6 bütünleme:** hedefler (quests), hayaller panosu, olay kartı ödülleri, günlük ödül ve yatırım tutarları yeni ölçeğe; belgeler yeniden yazılır; telefonda test; lansman.

@@ -163,6 +163,8 @@ En iyi evde (kendi evin) yaşanıp tüm eşyalar alındığında statü toplamı
 
 ### 4.5 Hanedan / miras (`config/economy.ts`, `config/heirlooms.ts`; karar 2026-10-15, plan 2.12)
 
+> **Lansmanda kapalı (2026-10-21, `config/content.ts`):** miras puanı, yadigârlar, "Şimdi devret" ve Aile sekmesi gizli; 80'de devir yok, kahraman 80'de kalır. Kod ve kayıt alanları duruyor, 2. nesille yeniden tasarlanacak ([economy-rebuild.md §6, §8f](./economy-rebuild.md)). Aşağısı kapalı sistemin kuralları.
+
 - **Miras puanı (2026-10-16):** her nesil kendi kazancından puan bırakır: `floor(10 × (neslin kazancı / 1M)^(1/3))`; kayıtta ailenin toplam puanı durur. Küpkök bilinçli: bir neslin puanını ikiye katlamak 8 kat kazanç ister (§6). Önce puan ailenin bütün kazancından hesaplanıp eldeki düşülüyordu; geçmiş büyüdükçe her neslin payı küçülüyordu (discussion-notes §3.5). Yeni şehirde $1M o şehrin ölçeğiyle değişecek.
 - **Puan harcanır (oyunda, 2026-10-16):** puan artık otomatik +%1 değil; Aile sekmesinde (alt menüde 5. düğme) kalıcı yadigârlara harcanır, yadigârlar bütün nesillere kalır. Harcanan puan seviyelerden hesaplanır (ayrı alan yok); kayıtta `heirlooms` (yadigâr → seviye). Eski kayıtların puanı silinmez, harcanabilir olur (önceki +%1'ler düşer).
 - **Yadigârlar:** her seviye bir öncekinin 1,5 katı (`HEIRLOOM_PRICE_GROWTH`, 2026-10-16; önce 2 kat, etkiler toplamalı olduğu için sonraki nesiller hızlanmıyordu); ilk varisin (2. nesil) sınırı, her nesil +1 seviye. Eski kayıtlarda alınmış seviyelerin bedeli düştüğü için harcanabilir puan artar.
