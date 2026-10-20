@@ -1,6 +1,6 @@
 # Prestige Life v2 — Reklam ve Uygulama İçi Satın Alma (IAP)
 
-Tarih: 2026-10-08 · Son güncelleme: 2026-10-15 · Durum: **reklam yerleri 1–5 ve IAP 1. adım (Mağaza, Rahat Paket, Başlangıç Paketi) oyunda; IAP 2. adım (Yakut Tasma, Gece Vardiyası) bekliyor** · İlgili: [report-v2.md](./report-v2.md) §Monetizasyon, [rebuild-plan.md](./rebuild-plan.md) 2.9, [discussion-notes.md](./discussion-notes.md) §4 (ekonomi)
+Tarih: 2026-10-08 · Son güncelleme: 2026-10-21 · Durum: **19 ödüllü reklam yeri oyunda (2026-10-21) ve IAP 1. adım (Mağaza, Rahat Paket, Başlangıç Paketi) oyunda; IAP 2. adım (Yakut Tasma, Gece Vardiyası) bekliyor** · İlgili: [report-v2.md](./report-v2.md) §Monetizasyon, [rebuild-plan.md](./rebuild-plan.md) 2.9, [discussion-notes.md](./discussion-notes.md) §4 (ekonomi)
 
 Kullanıcının isteği: "Ödüllü reklam için detaylı düşün; oyun tasarımı reklam izletmeye uygun olsun. Reklamla bazı şeyleri verebiliriz, IAP ile bir şeyler satabiliriz."
 
@@ -22,9 +22,9 @@ Kullanıcının isteği: "Ödüllü reklam için detaylı düşün; oyun tasarı
 
 ## 2. İlkeler
 
-1. **Reklamsız oyun da tatmin edici olmalı.** Simülatör hedefleri reklam izlemeyen oyuncu için tutmalı. Reklam izleyen yaklaşık %20–30 hızlı ilerlesin; oyunu ikiye katlamasın.
+1. **Reklamsız oyun da tatmin edici olmalı.** Simülatör hedefleri reklam izlemeyen oyuncu için tutmalı. **Reklam izleyen %40–50 hızlı ilerlesin** (karar 2026-10-21, kullanıcı: "bolca ödüllü reklam izlettirebileceğimiz şekilde kur"; önce %20–30).
 2. **Her reklam isteğe bağlı ve tek tek seçilir.** AdMob politikası: oyuncu her reklamı açıkça kendisi seçer. Reklamdan önce ne kazanacağı yazılır ("Reklam izle: +$4,2 Bin"). Reklam kapatılabilir.
-3. **İlk oturumda reklam teklifi yok.** İlk teklif oyuncu ilk yöneticisini aldıktan ve bir kez çevrimdışı döndükten sonra gelir. Rich Inc.'in onboarding'de reklam öğretmesi yorucu bulunmuştu.
+3. **Reklamın önünde kilit yok, ama hiçbir reklam kendiliğinden açılmaz** (karar 2026-10-21, kullanıcı: "oyuncuya direkt pencere açıp ya da zorla tıklattırıp reklam izlettirmeyeceğiz; reklamı nerelere koyuyorsak oyuncu orayı ne zaman görüyorsa o zaman izleyebilir"). Düğme, bulunduğu yer ekrandayken oradadır, 3. dakikada da olabilir. Önce "ilk yönetici + bir dönüş" kilidi vardı.
 4. **Ödüller gelire oranlı ve günlük sınırlı.** Ekonomi ayarı (discussion-notes §4) yapılırken reklam ödülleri de simülatöre girer.
 5. **Satılan şey hız, konfor ve kozmetik; cezadan kaçış değil.** v1'deki "gem ile gider atlama" hatası tekrar etmez. Oyunda ceza veren sistem yok, olmayacak.
 6. **Şeffaflık.** "Reklamsız" paketin neyi kaldırdığı açıkça yazılır: ödüllü reklamları ödülüyle birlikte atlatır. Rastgele ödül (çark, kutu) varsa ihtimaller gösterilir; lansmanda yok.
@@ -52,19 +52,32 @@ Kullanıcının isteği: "Ödüllü reklam için detaylı düşün; oyun tasarı
 
 ## 4. Reklam yerleri (ödüllü video)
 
-Hepsi isteğe bağlı. Ödül miktarı düğmede yazar. "Reklamsız paket" sahipleri aynı ödülü reklamsız alır. Reklam düğmesi bir bakışta reklam olduğu anlaşılsın diye (kullanıcı 2026-10-16) turuncu düğmenin sol kenarından taşan ödüllü video ikonu (oynat işaretli bilet ve hediye, `ICONS.adReward`) ve birkaç saniyede bir üstünden geçen ışık taşır (`ui/ads/AdButton.tsx`); reklamsız paket sahibinde ikon yerine hediye işareti, ışık yok.
+Hepsi isteğe bağlı ve oyuncunun zaten bulunduğu bir yerde bir düğmenin arkasında; ödül düğmede yazar. "Reklamsız paket" sahipleri aynı ödülü reklamsız alır. Reklam düğmesi bir bakışta reklam olduğu anlaşılsın diye turuncu, sol kenarından taşan ödüllü video bileti ve üstünden geçen ışıkla (`ui/ads/AdButton.tsx`; dar yerlerde küçük boy). **Kod:** her yer `core/config/ads.ts` `AD_PLACEMENTS`'ta tek satır (günlük sınır, bekleme süresi), ödülü `runtime/adRewards.ts`'te; sayaçlar ortak (`AdProgress.today`, `lastAt`, bir şeye bağlı olanlar `marks`). Yeni yer = bir satır + bir ödül + düğme. Analitik `ad_offer`, `ad_watch` (`placement`).
 
-| # | Yer | Ne zaman | Ödül | Sınır | Durum |
-| --- | --- | --- | --- | --- | --- |
-| 1 | **Çevrimdışı +%30** | "Tekrar hoş geldin" kartında, "Topla"nın üstünde "Reklam izle: +$X (+%30)" | Çevrimdışı kazanca %30 ekler (önce ×2'ydi; aşağıda) | Her dönüşte 1; en az 10 dk uzak kalınca | **Oyunda** |
-| 2 | **Şans'ın bulduğu ×2** | Cüzdan kartında "Reklam izle: ×2" | Teşekkür ödülü ×2 | Her bulguda 1 | **Oyunda** |
-| 3 | **Gelir hızlandırıcı** | Üst barda kalıcı "×2" düğmesi; aktifken kalan süre görünür | Tüm gelir ×2, **1 saat** (gerçek zaman; çevrimdışında da sayar). Üst üste en fazla 4 saat | Günde 6 | **Oyunda** (düğme ana sahnenin sağında) |
-| 4 | **Hayaline yardım** | Sıradaki hayal, terfi ya da işletme için az para kalmışken o kartta | **Eksik tutar** (önce 15 dakikalık gelirdi; aşağıda) | Günde 5; sadece eksik tutar fiyatın %10'undan ve 5 dakikalık gelirden azken çıkar | **Oyunda** (terfi, sıradaki eşya, sıradaki eve taşınma, yönetici) |
-| 5 | **Tören ve hayat anı hediyesi ×2** | Sınıf töreninin kapanış kartında ve yaşa bağlı üç hayat anının (buluşma, düğün, doğum) sonunda | Hediye ×2 (hediye: 10 dakikalık gelir) | Her anda 1 | **Oyunda** (2026-10-14) |
-| 6 | **Günlük ödül ×2** | Günlük ödül kartında, "Topla"nın üstünde | Günün ödülü ×2 (game-design §4.13) | Günde 1 | **Oyunda** (2026-10-15; çark yerine) |
-| 7 | **Olay kartında ikinci şans** | Kötü sonuçlu kartta "tekrar dene" | Yeniden seçim | Kart başına 1 | Kartlar oyunda (game-design §4.7); ikinci şans reklam yerleriyle |
+| # | Yer (`placement`) | Nerede | Ödül | Sınır |
+| --- | --- | --- | --- | --- |
+| 1 | Çevrimdışı +%30 (`offline_x2`) | "Tekrar hoş geldin" kartı | Kart +%30 | Her dönüşte 1 |
+| 2 | Şans'ın bulduğu ×2 (`find_x2`) | Cüzdan kartı | ×2 | Her bulguda 1 |
+| 3 | Gelir ×2 (`income_boost`) | Sahnenin sağında ×2 düğmesi | Bütün gelir ×2, 1 sa (gerçek zaman, çevrimdışında da), üst üste en çok 4 sa | Günde 6 |
+| 4 | Biraz yardım (`dream_help`) | **Her satın alma düğmesinin altında:** işletme seviyesi, şube, yönetici, iş, kurs, eşya, araç, kıyafet, ev | Eksik tutar (fiyatın en çok %10'u ve 5 dk gelir) | Günde 12 |
+| 5 | Tören ve hayat anı hediyesi ×2 (`story_gift_x2`) | Tören kapanışı, buluşma, düğün, doğum, 63 ve 70 | ×2 (hediye 10 dk gelir) | Her anda 1 |
+| 6 | Günlük ödül ×2 (`daily_x2`) | Günlük ödül kartı | ×2 | Günde 1 |
+| 7 | Kursu öne al (`course_rush`) | Kariyer, süren kurs | Kursun %25'i (en az 1 ay) | Kurs başına 2, günde 6 |
+| 8 | Deneyimi öne al (`experience_rush`) | Kariyer, şimdiki iş | +3 ay deneyim | Günde 3 |
+| 9 | Vadeyi yarıya indir (`invest_rush`) | Yatırım, süren vade | Kalan süre yarıya | Vade başına 1 |
+| 10 | Geçici yönetici (`temp_manager`) | Yöneticisiz işletme kartı | 15 dk kendi kendine çalışır (oyun açıkken) | Günde 4 |
+| 11 | Kampanya (`business_campaign`) | Her açılmış işletme kartı | O işletme 15 dk ×2 (oyun açıkken) | Günde 3 |
+| 12 | Hedef ×3 (`quest_x3`) | Biten hedefin "Ödülü al"ının yanında | Ödül ×3 | Günde 10 |
+| 13 | Olay kartı (`event_bonus`) | Cevaplanan kartta | Sonuç ×2; kayıpta kayıp geri + sağlamcı ödül | Günde 10 |
+| 14 | Açılış kutlaması (`grown_bonus`) | "{işletme} büyüdü!" kartı | 2 dk gelir | Her yeni görünümde 1 |
+| 15 | Diploma hediyesi (`diploma_gift`) | Kariyer, biten kurs | 2 dk gelir | Kurs başına 1 |
+| 16 | İlk maaş ikramiyesi (`first_salary`) | Kariyer, yeni iş | 1 aylık maaş | İş başına 1 |
+| 17 | Şans'ı çağır (`call_sans`) | Sahnenin sağında yuvarlak düğme | Şans hemen cüzdan getirir | Günde 5, 10 dk arayla |
+| 18 | Bozuk para yağmuru (`coin_rain`) | Sahnenin sağında (Sokak–İşçi, yerde şişe varken) | 30 sn yere 4 kat sık, 3 kat değerli para | Günde 3, 15 dk arayla |
+| 19 | Fırsat balonu (`opportunity`) | 6–10 dk'da bir sahneden 20 sn'de geçen balon; dokununca kart | 1 dk gelir | Günde 8 |
+| — | Olay kartında "ikinci şans" | #13'e katıldı | | |
 
-**Günlük toplam:** pratikte en fazla ~15–20 reklam. Sektör verisi 15–20 reklam yerinden sonra artışın durduğunu gösteriyor; asıl sınırlayıcı ödülün değeri.
+**Simülatör (2026-10-21, "engaged + ads": günde 3 hızlandırıcı, 4 yardım, çevrimdışı ve Şans ×2, hediyeler ×2; yeni yerlerin her biri oturum başına en çok bir kez ve günlük sınırla):** reklamsız oyuncuya göre Orta Sınıf 1 sa 11 dk → 35 dk (%51), Milyoner 2 sa 28 dk → 1 sa 1 dk (%59), Milyarder 14 sa 9 dk → 7 sa 26 dk (**%47**). Yeni yerlerin parası toplamın ~%10'u (kampanya %5,5, fırsat balonu %2,3, Şans %1,9); kurs ve deneyim hızlandırmaları para değil zaman verir. Erken oyunda fark daha büyük, çünkü ×2 hızlandırıcı ilk dakikadan açık. Denenip küçültülenler: kampanya 30 dk ×3 ve balon 5 dk gelirle Milyarder %57 erken; ilk maaş 3 aylık; kart hediyeleri 10 dk gelir (300 dolarlık kursa 18 bin dolar diploma).
 
 **Zorla reklam (interstitial) ve banner:** lansmanda yok. 3. günden sonra, çok seyrek bir zorla reklamı yalnızca A/B testiyle deneriz; tutma düşerse kaldırırız.
 

@@ -207,7 +207,7 @@ Bot her an en kısa sürede kendini ödeyen alımı yapar (optimal); daha çok k
 
 - **His kontrolleri:** ilk tur ≥ 5 şişe ($25 / $10), işletmelerin gelirdeki payı Gündelikçi anında, ilk oturum sonunda ve 1. nesil ortancasında ≥ %50 (%56 / %65 / %98).
 - **Paranın kaynakları (bağlı, 45 gün):** çevrimdışı %44, oynarken işletme ve maaş %33, yatırım %10, günlük ödül %6, olay kartı %5, Şans %2, tören ve hayat anı hediyeleri %0,2, hedefler %0,1, şişe ~%0.
-- **Reklam izleyen:** Milyoner 23, Milyarder 54 yaş (~%30 erken).
+- **Reklam izleyen** (19 reklam yeri, [monetization-v2.md §4](./monetization-v2.md)): Orta Sınıf 35 dk, Milyoner 1 sa 1 dk, Milyarder 7 sa 26 dk (%47 erken; karar 2026-10-21: %40–50).
 - Komutlar: `npm run sim -- --config`, `--timeline`, `--purchases`, `--sessions`, `--daily-claims`.
 
 ## 6. Simülasyondan öğrenilenler
