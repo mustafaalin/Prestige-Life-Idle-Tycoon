@@ -1,7 +1,7 @@
 import { ChevronRight } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { BUSINESSES } from '../../core/config/businesses';
-import { isLifeOver } from '../../core/formulas';
+import { awaitsHandover } from '../../core/formulas';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
 import { track } from '../../runtime/analytics';
@@ -35,7 +35,7 @@ export function Guide({ tabOpen }: { tabOpen: boolean }) {
   const { game, state, actions } = useGameV2();
   const { t } = useT();
   const step = guideStep(state);
-  const hidden = pendingCeremony(game, state.story) !== null || state.offline !== null || isLifeOver(game);
+  const hidden = pendingCeremony(game, state.story) !== null || state.offline !== null || awaitsHandover(game);
   const stepId = step?.id ?? null;
 
   // A new object every render; setGuideTarget only tells the screens when the target really changes.

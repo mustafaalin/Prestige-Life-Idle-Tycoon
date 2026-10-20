@@ -1,5 +1,6 @@
 import { BUSINESSES, CLASS_MANAGER_GIFT } from './config/businesses';
 import { careerDef } from './config/careers';
+import { CONTENT } from './config/content';
 import { courseDef } from './config/courses';
 import { SECONDS_PER_MONTH } from './config/life';
 import { STARTING_CASH } from './config/economy';
@@ -462,12 +463,12 @@ export function claimQuest(state: GameStateV2, questId: string): GameStateV2 | n
 
 /** Retirement comes at the end of life; "Hand over now" gets there early (handOverEarly). */
 export function canRetire(state: GameStateV2) {
-  return isLifeOver(state);
+  return CONTENT.handover && isLifeOver(state);
 }
 
 /** From the top class on, the player may hand over without waiting for 80 (game-design-v2 §4.5). */
 export function canHandOverEarly(state: GameStateV2) {
-  return state.classIndex === WEALTH_CLASSES.length - 1 && !isLifeOver(state);
+  return CONTENT.legacy && CONTENT.handover && state.classIndex === WEALTH_CLASSES.length - 1 && !isLifeOver(state);
 }
 
 /**

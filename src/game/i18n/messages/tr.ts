@@ -521,6 +521,9 @@ export const tr: Messages = {
     noPenalty: 'Bir gün gelemezsen sorun yok: takvim kaldığın yerden devam eder.',
   },
   life: {
+    sequelTitle: 'Torununun hikâyesi yakında',
+    sequelBody: '80 yaşındasın. {name} büyüyor; ailenin bütün işini ondan devralacağı gün yakında geliyor. O güne kadar büyütmeye devam et.',
+    sequelOk: 'Devam',
     title: 'Bir ömür tamamlandı',
     retiresAt: '{age} yaşında emekli oluyorsun.',
     retiresAtNamed: '{name}, {age} yaşında emekli oluyorsun.',

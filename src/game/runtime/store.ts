@@ -134,6 +134,8 @@ export interface GameActions {
     lifeSeen(momentIds: string[], giftMultiplier?: number): void;
     setDaughterName(name: string): void;
     setGrandchildName(name: string): void;
+    /** The "grandchild's story is coming" card at 80 was shown. */
+    sequelSeen(): void;
     /** A Rich List card was shown; it settles the places below it too. */
     richSeen(milestoneId: string): void;
     /** Old Ray's guide (plan 1.12): a step's line was shown / a step was done. */
@@ -455,6 +457,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         notificationsAsked: () => updateStory((story) => ({ ...story, notificationsAsked: true })),
         reviewAsked: () =>
           updateStory((story) => ({ ...story, reviewAsks: story.reviewAsks + 1, reviewAskedAt: clock() })),
+        sequelSeen: () => updateStory((story) => (story.sequelSeen ? story : { ...story, sequelSeen: true })),
         setHeroName: (name) =>
           updateStory((story) => ({ ...story, heroName: name.trim().slice(0, HERO_NAME_MAX) })),
         lifeSeen: (momentIds, giftMultiplier) =>

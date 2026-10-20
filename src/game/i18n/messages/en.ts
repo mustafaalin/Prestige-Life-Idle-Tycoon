@@ -522,6 +522,9 @@ export const en = {
     noPenalty: 'Missed a day? No problem: the calendar picks up where you left off.',
   },
   life: {
+    sequelTitle: "Your grandchild's story is coming soon",
+    sequelBody: "You are 80. {name} is growing up; the day she takes over the whole family business is coming soon. Until then, keep building.",
+    sequelOk: 'Keep going',
     title: 'A life well lived',
     retiresAt: 'You retire at {age}.',
     retiresAtNamed: '{name}, you retire at {age}.',

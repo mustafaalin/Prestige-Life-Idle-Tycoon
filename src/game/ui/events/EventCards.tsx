@@ -10,7 +10,7 @@ import {
   EVENT_MIN_SECONDS,
   type EventOutcome,
 } from '../../core/config/events';
-import { eventCardsFor, eventReward, isLifeOver } from '../../core/formulas';
+import { awaitsHandover, eventCardsFor, eventReward } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx, useMusic } from '../../runtime/feedback';
@@ -40,7 +40,7 @@ export function EventCards({ tabOpen, onOpenChange }: EventCardsProps) {
   const { game, state } = useGameV2();
   const { t } = useT();
   const cards = eventCardsFor(game, sceneClass(game, state.story));
-  const enabled = cards.length > 0 && !isLifeOver(game);
+  const enabled = cards.length > 0 && !awaitsHandover(game);
 
   /** The card whose caller is waiting. */
   const [calling, setCalling] = useState<string | null>(null);
@@ -92,7 +92,7 @@ export function EventCards({ tabOpen, onOpenChange }: EventCardsProps) {
   useEffect(() => onOpenChange(open), [open, onOpenChange]);
 
   // A ceremony, the offline card or the end of life come first; the caller waits behind them.
-  const quiet = pendingCeremony(game, state.story) !== null || state.offline !== null || isLifeOver(game);
+  const quiet = pendingCeremony(game, state.story) !== null || state.offline !== null || awaitsHandover(game);
   const showsCall = calling !== null && !quiet && !open && !tabOpen;
   // The phone rings once when the call button appears.
   useEffect(() => {

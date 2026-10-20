@@ -1,7 +1,7 @@
 import { STORY_GIFT_FROM_CLASS } from '../../core/config/economy';
 import { RETIREMENT_AGE } from '../../core/config/life';
 import { useEffect, useRef, useState } from 'react';
-import { isLifeOver, offlineCapHours, offlineEarnings } from '../../core/formulas';
+import { awaitsHandover, offlineCapHours, offlineEarnings } from '../../core/formulas';
 import { applyClassFloors, createInitialState } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { track } from '../../runtime/analytics';
@@ -97,7 +97,7 @@ export function StoryDirector({
   const ceremony = hold || yearsFrom !== null ? null : (replay ?? pendingCeremony(game, state.story));
   // At the end of life the last moments (grandchild, grandpa, hand-over) play one after another before
   // the retirement panel; during a life one story beat at a time.
-  const ending = isLifeOver(game);
+  const ending = awaitsHandover(game);
   // A life moment never cuts into a shop sheet, a card or an open name question: it waits for the home scene.
   const calm = ceremony === null && yearsFrom === null && !landing && !tabOpen && !state.offline && !mom && !askNotify;
   const lifeCanPlay = calm && !nameNeeded(state.story) && (ending || !quiet);
@@ -182,7 +182,7 @@ export function StoryDirector({
       ? { title: t('notify.dailyTitle'), body: t('notify.dailyBody'), at: tomorrow.getTime() }
       : null;
     // At the end of life only the heir writes: nothing else moves until the hand-over.
-    if (isLifeOver(game)) {
+    if (awaitsHandover(game)) {
       const heir = state.story.grandchildName || t('moments.grandchildDefault');
       void scheduleReminders(
         { retire: { title: t('life.title'), body: t('notify.retireBody', { name: heir }), at: now + 3 * 3600 * 1000 } },

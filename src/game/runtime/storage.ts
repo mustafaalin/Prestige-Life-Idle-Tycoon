@@ -211,6 +211,7 @@ function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
     richSeen: stringList(raw.richSeen).filter((id) => knownRichMoments.has(id)),
     reviewAsks: Math.floor(finite(raw.reviewAsks, 0)),
     reviewAskedAt: finite(raw.reviewAskedAt, 0),
+    sequelSeen: raw.sequelSeen === true,
   };
 }
 

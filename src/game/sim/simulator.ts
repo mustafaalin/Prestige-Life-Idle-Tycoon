@@ -23,6 +23,7 @@ import {
   statusBonus,
   autoIncomePerSecond,
   incomePerSecond,
+  isLifeOver,
   isOpened,
   locations,
   nextLevel,
@@ -89,6 +90,7 @@ import {
   retire,
 } from '../core/state';
 import { HEIRLOOMS } from '../core/config/heirlooms';
+import { CONTENT } from '../core/config/content';
 import { CAREERS } from '../core/config/careers';
 import { LIFESTYLE_ITEMS } from '../core/config/lifestyle';
 import { unmet } from '../core/requirements';
@@ -482,7 +484,16 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     }
   };
 
+  /** At launch the hero stays at 80 and plays on (config/content.ts): the end of life is logged once. */
+  let reached80 = false;
   const maybeRetire = () => {
+    if (!CONTENT.handover) {
+      if (!reached80 && isLifeOver(state)) {
+        reached80 = true;
+        log('retire', 'Life reaches 80 (hand-over comes with generation 2)');
+      }
+      return;
+    }
     // "Hand over now" at the top class skips the remaining years.
     if (options.retireAtTop === true && canHandOverEarly(state)) state = handOverEarly(state) ?? state;
     if (!canRetire(state)) return;

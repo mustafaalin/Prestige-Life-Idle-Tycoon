@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { AD_OFFLINE_MIN_SECONDS, AD_OFFLINE_MULTIPLIER } from '../../core/config/ads';
-import { canTakeBetterCareer, isLifeOver, offlineCapHours } from '../../core/formulas';
+import { awaitsHandover, canTakeBetterCareer, offlineCapHours } from '../../core/formulas';
 import { bestOwnedLifestyle, canBuyAnythingInShop, canHandOverEarly, parkedVehicle } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { initAds } from '../../runtime/ads';
 import { trackScreen } from '../../runtime/analytics';
 import { haptic, playSfx, preloadSfx } from '../../runtime/feedback';
-import { retirementWaits, sceneClass, storyRuns } from '../../runtime/story';
+import { retirementWaits, sceneClass, sequelDue, storyRuns } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { BoostButton } from '../ads/Boost';
 import { useAdsUnlocked } from '../ads/useAdsUnlocked';
@@ -152,7 +152,7 @@ export function HomeScreen() {
   // Ads start once the player is in the game, so the consent form never covers the prologue.
   useEffect(() => void initAds(), []);
 
-  const lifeOver = isLifeOver(game);
+  const lifeOver = awaitsHandover(game);
   const sheetOpen = tab !== null || albumOpen || richOpen || storeOpen;
   // The album appears with its first picture; an empty book is not worth a button.
   const albumStarted = ALBUM.some((entry) => albumSeen(entry, state.story));
@@ -232,6 +232,18 @@ export function HomeScreen() {
       </div>
 
       {lifeOver && !state.offline && !retirementWaits(game, state.story) && <RetirementPanel />}
+
+      {/* At launch the hero stays at 80: the grandchild's story comes with generation 2 (config/content.ts). */}
+      {sequelDue(game, state.story) && !state.offline && !sheetOpen && (
+        <RewardCard
+          image="/assets/story/portraits/grandpa-soft.webp"
+          portrait
+          title={t('life.sequelTitle', { name: state.story.grandchildName || t('moments.grandchildDefault') })}
+          body={t('life.sequelBody', { name: state.story.grandchildName || t('moments.grandchildDefault') })}
+          actionLabel={t('life.sequelOk')}
+          onCollect={() => actions.story.sequelSeen()}
+        />
+      )}
 
       {state.offline && (
         <RewardCard

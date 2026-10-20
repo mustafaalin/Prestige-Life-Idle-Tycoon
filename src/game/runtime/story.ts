@@ -1,5 +1,6 @@
 import { RICH_MILESTONES, type RichMilestoneDef } from '../core/config/richList';
-import { heroAge, isLifeOver, richListRank } from '../core/formulas';
+import { awaitsHandover, heroAge, isLifeOver, richListRank } from '../core/formulas';
+import { CONTENT } from '../core/config/content';
 import { RETIREMENT_AGE } from '../core/config/life';
 import type { GameStateV2 } from '../core/types';
 
@@ -34,6 +35,8 @@ export interface StoryProgress {
   /** The store's review dialog (runtime/review.ts): how many times it was asked for, and when last (ms; 0 = never). */
   reviewAsks: number;
   reviewAskedAt: number;
+  /** The "grandchild's story is coming" card at 80 was shown (only while the hand-over is off). */
+  sequelSeen: boolean;
 }
 
 export interface MomMessageDef {
@@ -67,8 +70,8 @@ export const MOM_MESSAGES: MomMessageDef[] = [
   { id: 'jam', classIndex: 5 },
   { id: 'windows', classIndex: 6 },
   { id: 'chair', classIndex: 6 },
-  // Mom's warning about Brad (story §6a), after the partnership and before it turns.
-  { id: 'partner', classIndex: 6, afterMoment: 'partner', untilMoment: 'betrayal' },
+  // Mom's warning about Brad (story §6a), after the partnership and before it turns. Off with his story.
+  ...(CONTENT.bradStory ? [{ id: 'partner', classIndex: 6, afterMoment: 'partner' as const, untilMoment: 'betrayal' as const }] : []),
 ];
 
 /** Mom writes at most once a day... */
@@ -92,6 +95,7 @@ export function createStoryProgress(classIndex = 0): StoryProgress {
     richSeen: [],
     reviewAsks: 0,
     reviewAskedAt: 0,
+    sequelSeen: false,
   };
 }
 
@@ -143,7 +147,7 @@ export interface LifeMomentDef {
  * The last three lead to the heir (story §6): the granddaughter is born, learns her first job, and at
  * the end of life the hero hands over; the retirement panel waits for them.
  */
-export const LIFE_MOMENTS: LifeMomentDef[] = [
+const ALL_LIFE_MOMENTS: LifeMomentDef[] = [
   { id: 'date', age: 25, afterCeremony: 2 },
   { id: 'wedding', age: 28, afterCeremony: 3 },
   { id: 'birth', age: 31, afterCeremony: 3 },
@@ -155,6 +159,14 @@ export const LIFE_MOMENTS: LifeMomentDef[] = [
   { id: 'betrayal', age: RETIREMENT_AGE, afterCeremony: 3, gift: false, needs: 'partner' },
   { id: 'handover', age: RETIREMENT_AGE, afterCeremony: 3, gift: false },
 ];
+
+/** Moments that belong to switched-off content (config/content.ts): kept as saved ids, never played. */
+const SWITCHED_OFF = new Set<AgeMomentId>([
+  ...(CONTENT.bradStory ? [] : (['partner', 'betrayal'] as const)),
+  ...(CONTENT.handover ? [] : (['handover'] as const)),
+]);
+
+export const LIFE_MOMENTS: LifeMomentDef[] = ALL_LIFE_MOMENTS.filter((moment) => !SWITCHED_OFF.has(moment.id));
 
 /** The first age moment not seen that can still play (see `optional` and `needs`). */
 function nextAgeMoment(game: GameStateV2, story: StoryProgress): LifeMomentDef | undefined {
@@ -186,7 +198,7 @@ export const LUXURY_MOMENTS: { id: LuxuryMomentId; item: string }[] = [
 
 /** Every life moment id, for the save and the album. */
 export const LIFE_MOMENT_IDS: LifeMomentId[] = [
-  ...LIFE_MOMENTS.map((moment) => moment.id),
+  ...ALL_LIFE_MOMENTS.map((moment) => moment.id),
   ...LUXURY_MOMENTS.map((moment) => moment.id),
 ];
 
@@ -239,7 +251,7 @@ export function nameNeeded(story: StoryProgress) {
 export function retirementWaits(game: GameStateV2, story: StoryProgress) {
   return (
     storyRuns(game) &&
-    isLifeOver(game) &&
+    awaitsHandover(game) &&
     (pendingCeremony(game, story) !== null || pendingLifeMoment(game, story) !== null || nameNeeded(story))
   );
 }
@@ -291,4 +303,12 @@ export function pendingRichMoment(game: GameStateV2, story: StoryProgress): Rich
 export function richMomentsUpTo(id: string): string[] {
   const index = RICH_MILESTONES.findIndex((milestone) => milestone.id === id);
   return RICH_MILESTONES.slice(0, index + 1).map((milestone) => milestone.id);
+}
+
+/**
+ * At launch the hand-over is not in the game yet (config/content.ts): at 80 the hero stays, a card
+ * says the grandchild's story is coming, once, and the game goes on.
+ */
+export function sequelDue(game: GameStateV2, story: StoryProgress) {
+  return !CONTENT.handover && storyRuns(game) && isLifeOver(game) && !story.sequelSeen && pendingLifeMoment(game, story) === null;
 }

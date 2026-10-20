@@ -1,5 +1,6 @@
 import { LIFE_SECONDS, SECONDS_PER_MONTH, SECONDS_PER_YEAR, START_AGE, TOP_CLASS_AGE_SPEED } from './config/life';
 import { WEALTH_CLASSES } from './config/classes';
+import { CONTENT } from './config/content';
 import { STORY_GIFT_SECONDS } from './config/economy';
 import {
   EVENT_BOLD_CHANCE,
@@ -85,6 +86,14 @@ export function yearsLeft(state: GameStateV2) {
 
 export function isLifeOver(state: GameStateV2) {
   return state.lifeSeconds >= LIFE_SECONDS;
+}
+
+/**
+ * The life is over and the hand-over waits: the retirement panel, nothing else moves. Only with the
+ * hand-over switched on (config/content.ts); at launch the hero stays at 80 and the game goes on.
+ */
+export function awaitsHandover(state: GameStateV2) {
+  return CONTENT.handover && isLifeOver(state);
 }
 
 /** How many seconds of life one second of play is: faster once the top class is reached. */

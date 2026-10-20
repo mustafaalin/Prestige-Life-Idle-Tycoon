@@ -1,3 +1,4 @@
+import { CONTENT } from '../../core/config/content';
 import type { MessageKey } from '../../i18n/translate';
 import { ICONS } from '../icons';
 
@@ -10,5 +11,6 @@ export const TABS: { id: TabId; label: MessageKey; icon: string }[] = [
   { id: 'career', label: 'tabs.career', icon: ICONS.career },
   { id: 'shop', label: 'tabs.shop', icon: ICONS.shop },
   { id: 'invest', label: 'tabs.invest', icon: ICONS.invest },
-  { id: 'family', label: 'tabs.family', icon: ICONS.legacy },
+  // Legacy and heirlooms come back with generation 2 (config/content.ts).
+  ...(CONTENT.legacy ? [{ id: 'family' as const, label: 'tabs.family' as const, icon: ICONS.legacy }] : []),
 ];
