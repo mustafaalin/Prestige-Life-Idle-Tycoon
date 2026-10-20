@@ -1,6 +1,6 @@
 # Meslek ve eşya ikonları: GPT komutları
 
-Tarih: 2026-10-21 · İlgili: [economy-rebuild.md §5](./economy-rebuild.md) (63 meslek, şartlar), mevcut 12 meslek ikonu `art/pilot/11-careers/` (her birinin komutu yanında `-prompt.txt`)
+Tarih: 2026-10-21 · İlgili: [economy-rebuild.md §5](./archive/economy-rebuild.md) (63 meslek, şartlar), mevcut 12 meslek ikonu `art/pilot/11-careers/` (her birinin komutu yanında `-prompt.txt`)
 
 Meslek panosu 63 mesleğe çıktı; 12'sinin ikonu var. Gereken: **51 meslek ikonu** ve meslek açan **4 eşya ikonu** (toplam 55). Oyunda şimdilik kariyer simgesi (meslekler) ve mağaza simgesi (eşyalar) duruyor. Her ikon tek bir nesne ya da küçük nesne grubudur (mevcutlar gibi: kasiyerde yazar kasa, bulaşıkçıda tabak yığını); insan yok.
 

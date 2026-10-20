@@ -1,6 +1,6 @@
 # Görsel Komutları: Devir (dede, yetişkin kız, torun, yadigârlar)
 
-Son güncelleme: 2026-10-16 · İlgili: [story-v2.md §4c, §6, §8](./story-v2.md), [game-design-v2.md §4.5](./game-design-v2.md), [art-brief-v2.md](./art-brief-v2.md) (genel kurallar, ekran haritası), [discussion-notes.md §3](./discussion-notes.md)
+Son güncelleme: 2026-10-16 · İlgili: [story-v2.md §4c, §6, §8](./story-v2.md), [game-design-v2.md §4.10](./game-design-v2.md), [art-brief-v2.md](./art-brief-v2.md) (genel kurallar, ekran haritası), [discussion-notes.md §3](./discussion-notes.md)
 
 **Üretim durumu (2026-10-16): Tamam.** Beş ayrı kılavuz (Ada 7/17 ayrı), üç dede pozu, üç hayat anı ve dört yadigâr ikonu: toplam 15 seçili PNG ve yanlarında kullanılan `-prompt.txt` dosyaları hazır. Dosya listesi, doğal boyutlar ve entegrasyon notları: [dynasty-art-handoff.md](./dynasty-art-handoff.md). Kılavuzlar 1536×1024; ayakta pozlar 887×1774, P3 1024×1536; hikâye kareleri 941×1672; ikonlar gerçek alfa kanallı 1254×1254. P3'te eğilmiş karakter yaklaşık 1380 px yüksekliğinde; 1500 px hedefinin altında, yapay büyütme yapılmadı. Eller yakın planda ve ikonlar 56 px'te kontrol edildi. Runtime entegrasyonu bu üretim kapsamında yapılmadı.
 

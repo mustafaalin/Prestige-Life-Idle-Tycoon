@@ -9,7 +9,7 @@ Bu belge, oyunun görsellerini üretecek kişiye ya da modele (GPT dahil) verili
 Ana ekran iki şeyi gösterir (karar 2026-10-10):
 
 - **Yer = oyuncunun oturduğu ev.** Mağazada 12 ev var; her biri sahnede ayrı bir arka plan. Taşınınca arka plan değişir. Sınıf töreni kahramanı hikâyenin evine taşır (Gündelikçi → minibüs, İşçi → eski kiralık daire...).
-- **Evin izin verdiği en iyi araç önünde park eder.** Mağazada 12 araç var (ev–araç zinciri, game-design §4.4), yeni hayat araçsız başlar; yenisi alınınca sahneye kayarak gelir.
+- **Evin izin verdiği en iyi araç önünde park eder.** Mağazada 12 araç var (ev–araç zinciri, game-design §4.5), yeni hayat araçsız başlar; yenisi alınınca sahneye kayarak gelir.
 - **Kahraman sahip olduğu en iyi kıyafeti giyer** (mağazada 4 kıyafet; sınıf töreni sınıfınkini bedava verir). **Yerdeki toplanacaklar ve Şans'ın tasması sınıfı izler** (tablo aşağıda).
 
 | Sınıf | Kahramanın yaşı | Kıyafet | Yerdeki toplanacaklar | Şans'ın tasması | Hikâyenin evi |
@@ -93,7 +93,7 @@ Hazır komutlar (kıyafet 3 ve 4): [archive/art-prompts-v2-gen1.md §4](./archiv
 
 ### 4.2 Ev arka planları (A)
 
-12 ev; her biri sahnede ayrı bir yer. **Hepsi oyunda (2026-10-12)**: çadır eski görseliyle (önünde yalnızca bisiklet durur), ev 2–12 derin zeminli yeni görsellerle. Sıra önemli: oyuncu bunları sırayla görür, her biri bir öncekinden belirgin biçimde daha iyi olmalı. Her ev kendi iki aracına göre düşünülür (ev–araç zinciri, game-design §4.4); gelen görsele sahne laboratuvarında bakılır ve o eve özel yerleşim `stages.ts` `HOME_ART`'a yazılır.
+12 ev; her biri sahnede ayrı bir yer. **Hepsi oyunda (2026-10-12)**: çadır eski görseliyle (önünde yalnızca bisiklet durur), ev 2–12 derin zeminli yeni görsellerle. Sıra önemli: oyuncu bunları sırayla görür, her biri bir öncekinden belirgin biçimde daha iyi olmalı. Her ev kendi iki aracına göre düşünülür (ev–araç zinciri, game-design §4.5); gelen görsele sahne laboratuvarında bakılır ve o eve özel yerleşim `stages.ts` `HOME_ART`'a yazılır.
 
 Kurallar §3 "Arka plan" satırında; hazır komutlar [archive/art-prompts-v2-gen1.md §1](./archive/art-prompts-v2-gen1.md).
 

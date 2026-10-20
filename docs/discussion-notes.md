@@ -4,7 +4,7 @@ Kararı henüz verilmemiş konular ve Claude'un önerileri. **Karar verilince il
 
 Son güncelleme: 2026-10-16 (oyunun baştan sona incelemesi: hanedan matematiği §3, hikâye §7; Burak hattı kararı story-v2 §6a)
 
-**Ekonominin yeniden kurulması (karar 2026-10-20, kullanıcı):** lansman = 1. nesil; 2. ve 3. nesil yayından sonra; Burak hikâyesi kalkar (yalnız yönetici); 80 yaşta torun her şeyle devam eder (devir 2. nesille, lansmanda kahraman 80'de kalır); işletmeler seviye + şube modeline geçer, fiyatlar katlanmaz. Bu kararlar aşağıdaki §2, §3 (hanedan, Burak hattı, 2. nesil) ve §4 (ekonomi) maddelerinin önüne geçer; ayrıntı ve açık sorular [economy-rebuild.md](./economy-rebuild.md).
+**Ekonominin yeniden kurulması (karar 2026-10-20, kullanıcı):** lansman = 1. nesil; 2. ve 3. nesil yayından sonra; Burak hikâyesi kalkar (yalnız yönetici); 80 yaşta torun her şeyle devam eder (devir 2. nesille, lansmanda kahraman 80'de kalır); işletmeler seviye + şube modeline geçer, fiyatlar katlanmaz. Bu kararlar aşağıdaki §2, §3 (hanedan, Burak hattı, 2. nesil) ve §4 (ekonomi) maddelerinin önüne geçer; ayrıntı ve açık sorular [economy-rebuild.md](./archive/economy-rebuild.md).
 
 **Oyuncuyu tutma stratejisi (2026-10-20):** ölçüm ve Claude + GPT raporlarının birleşik önerileri (iş teklifleri, üç katmanlı hedef, atölye ve konak projeleri, Burak sonrası "geriye ne kaldı", günlük görevler) [engagement-strategy-v2.md](./engagement-strategy-v2.md); karar bekliyor.
 
@@ -31,7 +31,7 @@ En Zengin'den ömür sonuna (80 yaş) kadar yeni hedef yok: reklamsız bağlı o
 - **3. 2. nesil yeni şehirde (plan 2.3):** yeni işletmeler (kullanılmayan görsellerden), yeni evler, sınıf eşikleri ve fiyatlar şehirle yükselir; görevler, törenler ve hayat anları torunun.
 - **Yayın:** 1, 2 ve 3 birlikte yayınlanır (erken devir tek başına aynı merdiveni ~1 saatte tekrar tırmandırıyor). 1 ve 2 önce yapılıp test edilir.
 - **Erken devir, yıllar atlanır (kullanıcı onayladı):** "Şimdi devret" kalan yılları atlar; "Yıllar geçti…", sonra torunun doğumu (63), dede ve torun (70), devir (80) art arda. Neden: En Zengin 55–57 yaşta, torun 63'te doğuyor.
-- Bütün kararların toplu hâli: [game-design-v2.md §4.5](./game-design-v2.md) (kurallar, ölçüm) ve [story-v2.md §6](./story-v2.md) (varisler, dede). Açık: yadigâr listesinin onayı (öneri §4.5'te).
+- Bütün kararların toplu hâli: [game-design-v2.md §4.10](./game-design-v2.md) (kurallar, ölçüm) ve [story-v2.md §6](./story-v2.md) (varisler, dede). Açık: yadigâr listesinin onayı (öneri §4.5'te).
 
 Kalan adaylar (sonra):
 
@@ -50,7 +50,7 @@ Kararlaşanlar: varis 17 yaşında torun (kızının çocuğu), devir 80 yaşın
    - Öneri listesi: işletmeler Çiçek Tezgâhı, Kahve Barı, Telefon Tamircisi, E-Scooter Kiralama, Dikey Tarla, Sanal Gerçeklik Salonu, Dron Kargo, Güneş Santrali, Biyoteknoloji Laboratuvarı, Yörünge Oteli; evler kapsül oda → kulenin tepesinde malikâne (12). Robot geçen adlar çıktı (kullanıcı 2026-10-16: Kahve Barı, Telefon Tamircisi). Komutlar bu listeyle yazıldı ([art-prompts-lumen.md](./art-prompts-lumen.md)); öneri: Yörünge Oteli yerine Yapay Zekâ Kampüsü (uzay oteli A kararıyla çelişir).
 3. **2. nesil kıyafet ve poz seti:** aynı sayıda yeni set; dededen kalan bir yadigâr (babanın saati) hep görünsün. Torunun yanında Şans'ın yavrusu (öneri).
 4. **Rehber:** dede, toruna Rıza Amca'nın rolünü üstlenir (rehber balonları, olay kartları); annenin mesaj kanalı kızına ve dedeye geçer (öneri).
-5. **Hanedan matematiği (karar 2026-10-16, kullanıcı: paket uygun; oyunda, kurallar game-design §4.5, §4.9):** inceleme, 200 günlük simülatör: yadigârlar varisi yavaşlattı ama döngü 3. nesilde duruyordu.
+5. **Hanedan matematiği (karar 2026-10-16, kullanıcı: paket uygun; oyunda, kurallar game-design §4.10, §4.9):** inceleme, 200 günlük simülatör: yadigârlar varisi yavaşlattı ama döngü 3. nesilde duruyordu.
    - Hep erken devreden aile: puan 1.017 → 261 → 187 → 154 → 125, her nesil zirveye 4 sa 26 dk (hızlanma yok). Ömrünü dolduran: 2.531 → 6.647 puan, ama zirveden sonra 7,6 → 13 → 14 saat hedefsiz oyun. "Şimdi devret" ekonomide hep kaybettiriyordu (saat başı puan: erken devir ~110, zirve sonrası ~200).
    - Kök neden: puan ailenin bütün kazancının küpküküydü (geçmiş büyüdükçe yeni neslin payı küçülür) ve yadigâr fiyatı her seviyede ×2, etkisi toplamalı (saat +%30). AdVenture Capitalist'te melekler harcanmaz ve her biri bütün kazanca kalıcı +%2 verir, tur tur hızlanır.
    - **Uygulanan paket** (kopya simülatörde denendi, 240 gün): (1) puan her neslin kendi kazancından, `10 × (nesil kazancı / $1M)^(1/3)`; (2) yadigâr fiyatı her seviyede ×1,5 (×2 yerine); (3) En Zengin'den sonra yaş 4 kat hızlı akar.

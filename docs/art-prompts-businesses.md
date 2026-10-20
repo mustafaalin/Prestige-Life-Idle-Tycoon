@@ -1,6 +1,6 @@
 # İşletme aşamaları ve yeni yöneticiler: GPT komutları
 
-Tarih: 2026-10-21 · İlgili: [economy-rebuild.md §3](./economy-rebuild.md) (seviye + şube modeli), [art-brief-v2.md §4.7](./art-brief-v2.md) (işletme ikonları), [art-prompts-lumen.md §1](./art-prompts-lumen.md) (yönetici portresi kalıbı)
+Tarih: 2026-10-21 · İlgili: [economy-rebuild.md §3](./archive/economy-rebuild.md) (seviye + şube modeli), [art-brief-v2.md §4.7](./art-brief-v2.md) (işletme ikonları), [art-prompts-lumen.md §1](./art-prompts-lumen.md) (yönetici portresi kalıbı)
 
 Bu belge GPT'ye (yerleşik görsel üretimi) verilir. İşletmeler artık adet adet değil seviye seviye büyüyor ve görünüşleri üç aşamada değişiyor: **1. aşama** seviye 1–7 (tezgâh, araba, küçük dükkân), **2. aşama** seviye 8–9 (dükkân, büyük yer), **3. aşama** seviye 10 ve şubeler (mağaza, merkez, zincir). Mevcut 10 ikon 1. aşamadır ve değişmez. Gereken: **10 işletmenin 2. ve 3. aşaması (20)**, **4 yeni işletmenin üç aşaması (12)**, **4 yeni yönetici portresi**. Toplam 36 görsel.
 
