@@ -1,6 +1,9 @@
 import { ArrowBigUpDash, ChevronRight, ChevronUp } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { questReward } from '../../core/formulas';
+import { QUEST_AD_MULTIPLIER } from '../../core/config/ads';
+import { canWatch } from '../../runtime/adRewards';
+import { AdButton } from '../ads/AdButton';
 import { activeQuests, isQuestComplete, questProgress } from '../../core/state';
 import type { GameStateV2, QuestDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
@@ -192,7 +195,7 @@ export function QuestStrip({ tab, pinnedId, onGo }: { tab: TabId; pinnedId: stri
 }
 
 function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; compact?: boolean }) {
-  const { game } = useGameV2();
+  const { game, state, actions } = useGameV2();
   const translator = useT();
   const { t, money } = translator;
 
@@ -248,14 +251,32 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
       </div>
 
       {done ? (
-        <button
-          type="button"
-          onClick={claim}
-          className="relative v2-hit shrink-0 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95"
-        >
-          {t('quests.claim')}
-          {guided && <PointingHand className="-bottom-6 -right-1" />}
-        </button>
+        <div className="shrink-0 flex flex-col items-end gap-1">
+          <button
+            type="button"
+            onClick={claim}
+            className="relative v2-hit shrink-0 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95"
+          >
+            {t('quests.claim')}
+            {guided && <PointingHand className="-bottom-6 -right-1" />}
+          </button>
+          {/* The same goal paid three times over, for an ad. */}
+          {canWatch(state.ads, 'quest_x3', Date.now()) && (
+            <AdButton
+              small
+              placement="quest_x3"
+              onReward={() => {
+                const amount = actions.ads.questX3(quest.id);
+                if (amount <= 0) return;
+                playSfx('payout');
+                haptic('medium');
+                payout({ amount, label: `+${money(amount)}`, count: 10 });
+              }}
+            >
+              ×{QUEST_AD_MULTIPLIER} +{money(questReward(game, quest) * QUEST_AD_MULTIPLIER)}
+            </AdButton>
+          )}
+        </div>
       ) : (
         canGo && (
           <button

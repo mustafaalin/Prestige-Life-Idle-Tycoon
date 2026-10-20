@@ -23,9 +23,11 @@ interface AdButtonProps {
   /** The ad was watched to the end; `from` is the button's place on screen (where coins start). */
   onReward: (from: { x: number; y: number }) => void;
   className?: string;
+  /** A small button for tight rows (goals, the scene). */
+  small?: boolean;
 }
 
-export function AdButton({ placement, children, onReward, className = '' }: AdButtonProps) {
+export function AdButton({ placement, children, onReward, className = '', small = false }: AdButtonProps) {
   const { t } = useT();
   // The Comfort Pack: the reward comes at once, no ad (runtime/purchases.ts).
   const free = useAdFree();
@@ -71,19 +73,19 @@ export function AdButton({ placement, children, onReward, className = '' }: AdBu
           tone="ad"
           onClick={watch}
           disabled={busy}
-          className={`relative overflow-hidden w-full min-h-11 py-2 flex items-center justify-center gap-1.5 ${
-            free ? 'px-3' : 'pl-12 pr-3 v2-ad-shine'
-          }`}
+          className={`relative overflow-hidden w-full flex items-center justify-center gap-1.5 ${
+            small ? 'min-h-8 py-1' : 'min-h-11 py-2'
+          } ${free ? 'px-3' : `${small ? 'pl-8 pr-2.5' : 'pl-12 pr-3'} v2-ad-shine`}`}
         >
           {free && <Gift className="shrink-0 w-4 h-4" />}
-          <span className="v2-display text-[14px] leading-tight v2-shadow">{children}</span>
+          <span className={`v2-display ${small ? 'text-[12px]' : 'text-[14px]'} leading-tight v2-shadow`}>{children}</span>
         </GameButton>
         {!free && (
           <img
             src={ICONS.adReward}
             alt=""
             draggable={false}
-            className={`v2-ad-ticket pointer-events-none absolute -left-2 top-1/2 w-12 h-12 object-contain drop-shadow-md ${busy ? 'opacity-50' : ''}`}
+            className={`v2-ad-ticket pointer-events-none absolute -left-2 top-1/2 ${small ? 'w-8 h-8' : 'w-12 h-12'} object-contain drop-shadow-md ${busy ? 'opacity-50' : ''}`}
           />
         )}
       </div>

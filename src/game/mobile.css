@@ -144,6 +144,15 @@ body {
 .v2-float-up { animation: v2-float-up 900ms ease-out forwards; }
 .v2-pulse-ring { animation: v2-pulse-ring 1.1s ease-out infinite; }
 .v2-sheet-in { animation: v2-sheet-in 220ms ease-out both; }
+/* The opportunity balloon (ui/ads/SceneAds.tsx) floats across the scene from right to left. */
+@keyframes v2-drift {
+  0% { left: 105%; transform: translateY(0); }
+  25% { transform: translateY(-10px); }
+  50% { transform: translateY(6px); }
+  75% { transform: translateY(-6px); }
+  100% { left: -20%; transform: translateY(0); }
+}
+.v2-drift { animation: v2-drift 20s linear forwards; }
 @media (prefers-reduced-motion: reduce) {
   .v2-bob, .v2-ring, .v2-pulse-ring { animation: none; }
 }

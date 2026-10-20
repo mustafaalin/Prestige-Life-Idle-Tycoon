@@ -90,6 +90,8 @@ for (const profile of PROFILES) {
     }
     const sum = Object.values(result.sources).reduce((a, b) => a + b, 0) || 1;
     console.log(`money by source: ${Object.entries(result.sources).sort((a, b) => b[1] - a[1]).map(([key, value]) => `${key} ${((value / sum) * 100).toFixed(1)}%`).join(' · ')}`);
+    const paidByAds = Object.entries(result.adPaid).sort((a, b) => b[1] - a[1]);
+    if (paidByAds.length > 0) console.log(`new ad places: ${paidByAds.map(([key, value]) => `${key} ${((value / sum) * 100).toFixed(1)}%`).join(' · ')}`);
     console.log(`money earned while away (offline cards): ${((earnedTotal ? earnedTotal.earnedOffline / Math.max(total, 1) : 0) * 100).toFixed(0)}%`);
     console.log(`Old Ray's deals ${result.investCount}, profit ${formatMoney(result.investProfit)} (${((result.investProfit / Math.max(total, 1)) * 100).toFixed(1)}% of all money earned)`);
     console.log(`daily reward paid ${formatMoney(result.dailyPaid)} (${((result.dailyPaid / Math.max(total, 1)) * 100).toFixed(1)}% of all money earned)`);

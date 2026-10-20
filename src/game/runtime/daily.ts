@@ -2,7 +2,7 @@ import { dailyMonths } from '../core/config/daily';
 import { dailyReward } from '../core/formulas';
 import { earn } from '../core/state';
 import type { GameStateV2 } from '../core/types';
-import { adsUnlocked, dayKey, type AdProgress } from './adRewards';
+import { dayKey, rewardsStarted, type AdProgress } from './adRewards';
 
 // The daily reward (config/daily.ts, game-design-v2.md §4.13). Pure rules, time comes in as an argument.
 //
@@ -39,7 +39,7 @@ interface DailyContext {
 
 /** Offers the day's reward once it is due; returns the same state when nothing changes. */
 export function offerDaily<T extends DailyContext>(state: T, now: number): T {
-  if (state.daily.offer || !adsUnlocked(state)) return state;
+  if (state.daily.offer || !rewardsStarted(state)) return state;
   const day = dayKey(now);
   if (state.daily.claimedDay === day) return state;
   const months = dailyMonths(state.daily.claimed);

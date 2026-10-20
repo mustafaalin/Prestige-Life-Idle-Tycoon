@@ -9,7 +9,7 @@ import { haptic, playSfx, preloadSfx } from '../../runtime/feedback';
 import { retirementWaits, sceneClass, sequelDue, storyRuns } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { BoostButton } from '../ads/Boost';
-import { useAdsUnlocked } from '../ads/useAdsUnlocked';
+import { OpportunityBalloon, SceneAdButtons } from '../ads/SceneAds';
 import { useAdText } from '../ads/useAdText';
 import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
@@ -64,7 +64,6 @@ export function HomeScreen() {
   const [storeOpen, setStoreOpen] = useState(false);
   // The album is playing a moment again: new story moments wait for it.
   const [albumPlaying, setAlbumPlaying] = useState(false);
-  const adsOpen = useAdsUnlocked();
 
   const goToQuest: GoToQuest = (quest) => {
     const target = questTarget(quest);
@@ -181,10 +180,15 @@ export function HomeScreen() {
           ) : (
             <QuestPanel onGo={goToQuest} />
           )}
+          {/* The opportunity balloon floats across the scene now and then (an ad behind a tap). */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <OpportunityBalloon hidden={sheetOpen || state.offline !== null} />
+          </div>
           {/* The income boost floats on the right of the scene, clear of the goals card and the top bar. */}
           {!sheetOpen && (
-            <div className="pointer-events-auto absolute right-3 top-[42%]">
+            <div className="pointer-events-auto absolute right-3 top-[42%] flex flex-col items-center gap-3">
               <BoostButton />
+              <SceneAdButtons />
             </div>
           )}
           {/* Round buttons on the left of the scene, stacked: album, Rich List, Store. */}
@@ -260,7 +264,7 @@ export function HomeScreen() {
             payout({ amount, label: `+${money(amount)}`, count: 12 });
           }}
           ad={
-            adsOpen && state.offline.awaySeconds >= AD_OFFLINE_MIN_SECONDS
+            state.offline.awaySeconds >= AD_OFFLINE_MIN_SECONDS
               ? {
                   placement: 'offline_x2',
                   label: adText('ads.more', {

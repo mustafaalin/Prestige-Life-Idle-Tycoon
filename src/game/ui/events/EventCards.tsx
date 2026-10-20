@@ -18,6 +18,10 @@ import { pendingCeremony, sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { holdBalance, payout, spillCoins } from '../home/coins';
 import { GameButton } from '../kit';
+import { EVENT_AD_MULTIPLIER } from '../../core/config/ads';
+import { canWatch, eventAdExtra } from '../../runtime/adRewards';
+import { AdButton } from '../ads/AdButton';
+import { useAdText } from '../ads/useAdText';
 import { eventKey, eventSpeaker, onEventCardRequest } from './eventScript';
 import { portalRoot } from '../stage';
 
@@ -157,7 +161,8 @@ interface EventCardProps {
 }
 
 function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
-  const { game, actions } = useGameV2();
+  const { game, state, actions } = useGameV2();
+  const adText = useAdText();
   const { t, money } = useT();
   const [outcome, setOutcome] = useState<EventOutcome | null>(null);
   // Settled the moment the card is answered (negative: a loss); the top bar shows it once the card is
@@ -265,6 +270,29 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
               >
                 {lost ? `−${money(Math.abs(amount))}` : `+${money(amount)}`}
               </p>
+              {/* An ad pays the result again, or takes a loss back and pays the safe answer. */}
+              {canWatch(state.ads, 'event_bonus', Date.now()) && (
+                <AdButton
+                  placement="event_bonus"
+                  className="mt-2"
+                  onReward={() => {
+                    const extra = actions.ads.eventBonus(outcome);
+                    holdBalance(0);
+                    // What the card ends at: its result and the ad's extra (after a loss, the safe answer).
+                    const total = Math.max(0, amount + extra);
+                    if (total > 0) {
+                      playSfx('payout');
+                      haptic('medium');
+                      payout({ amount: total, label: `+${money(total)}`, count: 12 });
+                    }
+                    onDone();
+                  }}
+                >
+                  {lost
+                    ? adText('ads.eventSecondChance', { amount: money(eventAdExtra(game, outcome)) })
+                    : adText('ads.double', { amount: money(amount * EVENT_AD_MULTIPLIER), factor: EVENT_AD_MULTIPLIER })}
+                </AdButton>
+              )}
               {lost ? (
                 <GameButton tone="soft" onClick={collect} className="w-full mt-2 py-3 v2-display text-lg">
                   {t('events.loseOk')}

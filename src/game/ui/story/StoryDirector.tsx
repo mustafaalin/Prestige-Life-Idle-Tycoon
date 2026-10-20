@@ -28,7 +28,7 @@ import {
   type LifeMomentId,
 } from '../../runtime/story';
 import { useGameV2, useGameV2Events } from '../../runtime/useGameV2';
-import { adsUnlocked } from '../../runtime/adRewards';
+import { rewardsStarted } from '../../runtime/adRewards';
 import { offerCardDue } from '../../runtime/purchases';
 import { requestReview, reviewDue } from '../../runtime/review';
 import { RichMoment } from '../richList/RichList';
@@ -178,7 +178,7 @@ export function StoryDirector({
     // The day's reward: from tomorrow morning, once rewards are offered at all (runtime/daily.ts).
     const tomorrow = new Date(now);
     tomorrow.setHours(24, 0, 0, 0);
-    const daily = adsUnlocked(state)
+    const daily = rewardsStarted(state)
       ? { title: t('notify.dailyTitle'), body: t('notify.dailyBody'), at: tomorrow.getTime() }
       : null;
     // At the end of life only the heir writes: nothing else moves until the hand-over.

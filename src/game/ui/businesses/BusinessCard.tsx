@@ -22,6 +22,11 @@ import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { HelpAd } from '../ads/AdButton';
+import { ActionAd } from '../ads/AdOffers';
+import { useAdText } from '../ads/useAdText';
+import { CAMPAIGN_FACTOR, CAMPAIGN_SECONDS, TEMP_MANAGER_SECONDS } from '../../core/config/ads';
+import { adGift, campaignLeft, canCampaign, canTempManage, tempManagerLeft } from '../../runtime/adRewards';
+import { payout } from '../home/coins';
 import { Focusable } from '../home/Focusable';
 import { levelNameKey } from '../home/questText';
 import { RewardCard } from '../home/RewardCard';
@@ -88,6 +93,10 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
   const branchPrice = branchCost(def, branches);
   const branchRun = levelRevenue(def, level) * multiplier;
   const hirePrice = managerCost(game, def);
+  const now = Date.now();
+  const tempLeft = tempManagerLeft(state.ads, def.id, now);
+  const campaignOn = campaignLeft(state.ads, def.id, now);
+  const adText = useAdText();
   // In the hero's calendar (one month = 80 s of play), like the rest of the economy: "~22 months".
   const paybackText = (seconds: number) => {
     const months = Math.max(1, Math.round(seconds / SECONDS_PER_MONTH));
@@ -340,6 +349,41 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
       )}
 
       {opened && !managed && <HelpAd cost={hirePrice} />}
+      {next && <HelpAd cost={next.cost} />}
+      {atTop && !atCap && <HelpAd cost={branchPrice} />}
+
+      {/* Ads on the line itself: a stand-in manager until one is hired, a campaign for any opened line. */}
+      {opened && (
+        <div className="flex flex-col gap-1.5">
+          {!managed &&
+            (tempLeft > 0 ? (
+              <p className="px-1 text-[11px] font-bold text-orange-600">
+                {t('ads.tempManagerActive', { duration: duration(Math.ceil(tempLeft)) })}
+              </p>
+            ) : (
+              canTempManage(state, def.id, now) && (
+                <ActionAd
+                  placement="temp_manager"
+                  label={adText('ads.tempManager', { duration: duration(TEMP_MANAGER_SECONDS) })}
+                  run={() => actions.ads.tempManager(def.id)}
+                />
+              )
+            ))}
+          {campaignOn > 0 ? (
+            <p className="px-1 text-[11px] font-bold text-orange-600">
+              {t('ads.campaignActive', { factor: CAMPAIGN_FACTOR, duration: duration(Math.ceil(campaignOn)) })}
+            </p>
+          ) : (
+            canCampaign(state, def.id, now) && (
+              <ActionAd
+                placement="business_campaign"
+                label={adText('ads.campaign', { duration: duration(CAMPAIGN_SECONDS), factor: CAMPAIGN_FACTOR })}
+                run={() => actions.ads.campaign(def.id)}
+              />
+            )
+          )}
+        </div>
+      )}
 
       {opened && !managed && (
         <div className="flex items-center gap-2 rounded-xl bg-violet-50 px-2 py-1.5">
@@ -363,6 +407,15 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
           note={t('business.nextRun', { from: money(grown.from), to: money(grown.to) })}
           actionLabel={t('business.grownOk')}
           onCollect={() => setGrown(null)}
+          ad={{
+            placement: 'grown_bonus',
+            label: adText('ads.grown', { amount: money(adGift(game)) }),
+            onReward: () => {
+              const paid = actions.ads.grownBonus(def.id, grown.level);
+              if (paid > 0) payout({ amount: paid, label: `+${money(paid)}`, count: 10 });
+              setGrown(null);
+            },
+          }}
         />
       )}
 

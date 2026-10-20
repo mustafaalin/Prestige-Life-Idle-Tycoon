@@ -5,6 +5,9 @@ import { useT } from '../../i18n/useT';
 import { haptic, playSfx, useMusic } from '../../runtime/feedback';
 import { investAvailable, investCap, investmentDue, type Investment } from '../../runtime/investment';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { canRushInvest } from '../../runtime/adRewards';
+import { ActionAd } from '../ads/AdOffers';
+import { useAdText } from '../ads/useAdText';
 import { payout } from '../home/coins';
 import { Chip, GameButton, GlossyBar, Panel, SectionLabel } from '../kit';
 
@@ -27,8 +30,9 @@ const percent = (fraction: number) => Math.round(Math.abs(fraction) * 100);
 
 export function InvestScreen() {
   useMusic('calm');
-  const { state } = useGameV2();
+  const { state, actions } = useGameV2();
   const { t } = useT();
+  const adText = useAdText();
   // What the last collected deal did, until a new one goes in.
   const [result, setResult] = useState<number | null>(null);
   const active = state.invest.active;
@@ -59,7 +63,12 @@ export function InvestScreen() {
       {result !== null && <ResultBanner gain={result} />}
 
       {active ? (
-        <ActiveDeal deal={active} due={due} onCollected={setResult} />
+        <>
+          <ActiveDeal deal={active} due={due} onCollected={setResult} />
+          {!due && canRushInvest(state, Date.now()) && (
+            <ActionAd placement="invest_rush" label={adText('ads.investRush')} run={actions.ads.rushInvest} />
+          )}
+        </>
       ) : (
         <NewDeal onStarted={() => setResult(null)} />
       )}

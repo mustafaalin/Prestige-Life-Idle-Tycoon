@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { BOOST_FACTOR, BOOST_MAX_SECONDS, BOOST_SECONDS } from '../../core/config/ads';
 import { useT } from '../../i18n/useT';
-import { adsUnlocked, boostHasRoom, boostSecondsLeft, boostsLeft, canBoost } from '../../runtime/adRewards';
+import { boostHasRoom, boostSecondsLeft, boostsLeft, canBoost } from '../../runtime/adRewards';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
@@ -18,7 +18,6 @@ export function BoostButton() {
   const { state } = useGameV2();
   const { t, duration } = useT();
   const [open, setOpen] = useState(false);
-  if (!adsUnlocked(state)) return null;
 
   const left = boostSecondsLeft(state.ads, Date.now());
   return (

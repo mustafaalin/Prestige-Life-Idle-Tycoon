@@ -10,7 +10,6 @@ import { bestOwnedLifestyle, currentHome, ownsHouse } from '../../core/state';
 import type { BusinessDef, GameStateV2, HouseDef, LifestyleDef } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
-import { adsUnlocked } from '../../runtime/adRewards';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx, useMusic, type Sfx } from '../../runtime/feedback';
 import type { LifeMomentId } from '../../runtime/story';
@@ -684,7 +683,7 @@ function CollarCard({ collar, onNext }: { collar: CollarDef; onNext: () => void 
  * open, as everywhere) and Collect. Either button ends the card.
  */
 function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void }) {
-  const { game, state } = useGameV2();
+  const { game } = useGameV2();
   const { t, money } = useT();
   const adText = useAdText();
   const amount = storyGift(game);
@@ -706,11 +705,9 @@ function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void 
         </span>
         <span className="v2-display text-[20px] text-emerald-600 tabular-nums">+{money(amount)}</span>
       </div>
-      {adsUnlocked(state) && (
-        <AdButton placement="story_gift_x2" className="mt-3" onReward={() => collect(AD_STORY_GIFT_MULTIPLIER)}>
-          {adText('ads.double', { amount: money(amount * AD_STORY_GIFT_MULTIPLIER), factor: AD_STORY_GIFT_MULTIPLIER })}
-        </AdButton>
-      )}
+      <AdButton placement="story_gift_x2" className="mt-3" onReward={() => collect(AD_STORY_GIFT_MULTIPLIER)}>
+        {adText('ads.double', { amount: money(amount * AD_STORY_GIFT_MULTIPLIER), factor: AD_STORY_GIFT_MULTIPLIER })}
+      </AdButton>
       <GameButton
         tone="buy"
         onClick={(event) => {

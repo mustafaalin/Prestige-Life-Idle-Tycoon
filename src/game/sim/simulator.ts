@@ -8,7 +8,9 @@ import { RICH_MILESTONES } from '../core/config/richList';
 import {
   baseBusinessIncomePerSecond,
   branchCost,
+  businessStage,
   businessState,
+  uptime,
   canOpenBranch,
   canOpenBusiness,
   availableCourses,
@@ -90,12 +92,26 @@ import {
   retire,
 } from '../core/state';
 import { HEIRLOOMS } from '../core/config/heirlooms';
+import {
+  AD_PLACEMENTS,
+  CAMPAIGN_FACTOR,
+  CAMPAIGN_SECONDS,
+  COURSE_RUSH_PER_COURSE,
+  EVENT_AD_MULTIPLIER,
+  EXPERIENCE_RUSH_MONTHS,
+  INVEST_RUSH_SHARE,
+} from '../core/config/ads';
+import { adGift, courseRushSeconds, firstSalaryBonus, opportunityReward, questAdExtra } from '../runtime/adRewards';
 import { CONTENT } from '../core/config/content';
 import { CAREERS } from '../core/config/careers';
 import { LIFESTYLE_ITEMS } from '../core/config/lifestyle';
 import { unmet } from '../core/requirements';
 
 const ITEM_BY_ID = new Map(LIFESTYLE_ITEMS.map((item) => [item.id, item]));
+
+/** How many new looks the businesses have taken on in all (shop, store). */
+const totalStages = (state: GameStateV2) =>
+  BUSINESSES.reduce((sum, def) => sum + businessStage(def, businessState(state, def.id).level), 0);
 import type { GameStateV2 } from '../core/types';
 
 export interface Session {
@@ -125,6 +141,12 @@ export interface PlayerProfile {
     helpsPerDay: number;
     /** Doubles offline earnings and Şans's finds. */
     doubles: boolean;
+    /**
+     * Uses the places added 2026-10-21 (config/ads.ts): course and experience rushes, halved deals,
+     * a campaign on the best business, goals ×3, event bonuses, gifts on new looks, diplomas and new
+     * jobs, Şans on call and the balloon, at most once a session each and within the daily limits.
+     */
+    extras?: boolean;
   };
   /**
    * Şans's paid accessories this player buys as soon as the store opens (Day Laborer), as one income
@@ -194,9 +216,11 @@ export interface SimResult {
   investCount: number;
   /** All money earned, by where it came from (shares show which systems carry the economy). */
   sources: Record<MoneySource, number>;
+  /** Money the places added 2026-10-21 paid, by place (time rushes and event bonuses are not money here). */
+  adPaid: Record<string, number>;
 }
 
-export type MoneySource = 'work' | 'bottles' | 'finds' | 'events' | 'quests' | 'gifts' | 'daily' | 'deals' | 'offline' | 'help';
+export type MoneySource = 'work' | 'bottles' | 'finds' | 'events' | 'quests' | 'gifts' | 'daily' | 'deals' | 'offline' | 'help' | 'adExtras';
 
 interface Candidate {
   label: string;
@@ -335,7 +359,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
   /** Where the money came from: play time or time away. */
   const earned = { playing: 0, offline: 0 };
   const sources: Record<MoneySource, number> = {
-    work: 0, bottles: 0, finds: 0, events: 0, quests: 0, gifts: 0, daily: 0, deals: 0, offline: 0, help: 0,
+    work: 0, bottles: 0, finds: 0, events: 0, quests: 0, gifts: 0, daily: 0, deals: 0, offline: 0, help: 0, adExtras: 0,
   };
 
   const earnTracked = (amount: number, source: keyof typeof earned = 'playing') => {
@@ -358,9 +382,24 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
 
   // ── Rewarded ads (runtime/adRewards.ts rules, with the simulator's own clock) ──
   const ads = profile.ads;
-  const watched = { returned: false, boostUntil: 0, day: 0, boosts: 0, helps: 0 };
-  const adsOpen = () =>
-    ads !== undefined && watched.returned && Object.values(state.businesses).some((business) => business.managed);
+  const watched = {
+    returned: false, boostUntil: 0, day: 0, boosts: 0, helps: 0,
+    // The places added 2026-10-21: today's counts, the campaign running and the courses rushed.
+    experience: 0, courses: 0, balloons: 0, sans: 0, campaigns: 0, quests: 0, events: 0,
+    campaignUntil: 0, campaignBusiness: '', rushed: {} as Record<string, number>,
+  };
+  // Ads have no lock since 2026-10-21: a button is there whenever its place is on screen.
+  const adsOpen = () => ads !== undefined;
+  const extras = () => ads?.extras === true;
+  /** Money the places added 2026-10-21 paid, by place. */
+  const adPaid: Record<string, number> = {};
+  /** An ad money reward of the places added 2026-10-21. */
+  const adExtra = (amount: number, placement: string) => {
+    if (amount <= 0) return;
+    sources.adExtras += amount;
+    adPaid[placement] = (adPaid[placement] ?? 0) + amount;
+    earnTracked(amount);
+  };
   const boost = () => (time.clock < watched.boostUntil ? BOOST_FACTOR : 1);
   const doubles = () => adsOpen() && ads?.doubles === true;
 
@@ -376,12 +415,47 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       sources.offline += amount;
       if (amount > 0) watched.returned = true;
     }
-    if (day !== watched.day) Object.assign(watched, { day, boosts: 0, helps: 0 });
+    if (day !== watched.day) {
+      Object.assign(watched, { day, boosts: 0, helps: 0, experience: 0, courses: 0, balloons: 0, sans: 0, campaigns: 0, quests: 0, events: 0 });
+    }
     if (!ads || !adsOpen()) return;
     const left = Math.max(0, watched.boostUntil - time.clock);
     if (watched.boosts < ads.boostsPerDay && left + BOOST_SECONDS <= BOOST_MAX_SECONDS) {
       watched.boostUntil = time.clock + left + BOOST_SECONDS;
       watched.boosts += 1;
+    }
+    if (!extras()) return;
+    const limit = (placement: keyof typeof AD_PLACEMENTS) => AD_PLACEMENTS[placement].perDay ?? Infinity;
+    // Time: a few months of experience and a course pushed ahead.
+    if (state.careerId !== null && watched.experience < limit('experience_rush')) {
+      const careerId = state.careerId;
+      state = { ...state, jobSeconds: { ...state.jobSeconds, [careerId]: (state.jobSeconds[careerId] ?? 0) + EXPERIENCE_RUSH_MONTHS * SECONDS_PER_MONTH } };
+      watched.experience += 1;
+    }
+    const course = state.course;
+    if (course && watched.courses < limit('course_rush') && (watched.rushed[course.id] ?? 0) < COURSE_RUSH_PER_COURSE) {
+      state = { ...state, course: { ...course, seconds: course.seconds + courseRushSeconds(state) } };
+      watched.rushed[course.id] = (watched.rushed[course.id] ?? 0) + 1;
+      watched.courses += 1;
+    }
+    // Money: the balloon and Şans on call, once a session.
+    if (watched.balloons < limit('opportunity')) {
+      adExtra(opportunityReward(state), 'opportunity');
+      watched.balloons += 1;
+    }
+    if (watched.sans < limit('call_sans')) {
+      adExtra(fetchReward(state) * AD_FIND_MULTIPLIER, 'call_sans');
+      watched.sans += 1;
+    }
+    // A campaign on the business that earns the most, for the session.
+    if (watched.campaigns < limit('business_campaign')) {
+      const best = BUSINESSES.map((def) => ({ def, income: baseBusinessIncomePerSecond(def, businessState(state, def.id)) }))
+        .sort((a, b) => b.income - a.income)[0];
+      if (best && best.income > 0) {
+        watched.campaignBusiness = best.def.id;
+        watched.campaignUntil = time.clock + CAMPAIGN_SECONDS;
+        watched.campaigns += 1;
+      }
     }
   };
 
@@ -457,11 +531,23 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     work: incomePerSecond(state, 'active') * boost(),
     bottles: tapRate() * tapValue(state),
     finds: (profile.fetchCatchRate * fetchReward(state) * (doubles() ? AD_FIND_MULTIPLIER : 1)) / fetchAverageSeconds(state),
-    events: eventCardsFor(state).length > 0 ? (profile.eventAnswerRate * eventAverageReward(state)) / EVENT_AVERAGE_SECONDS : 0,
+    events:
+      (eventCardsFor(state).length > 0 ? (profile.eventAnswerRate * eventAverageReward(state)) / EVENT_AVERAGE_SECONDS : 0) *
+      (extras() ? EVENT_AD_MULTIPLIER : 1),
+    // The campaign's extra runs on its business (managed or run by hand while playing).
+    campaign:
+      extras() && time.clock < watched.campaignUntil
+        ? (() => {
+            const def = BUSINESSES.find((entry) => entry.id === watched.campaignBusiness);
+            if (!def) return 0;
+            const business = businessState(state, def.id);
+            return baseBusinessIncomePerSecond(def, business) * uptime(business.managed, 'active') * globalMultiplier(state) * (CAMPAIGN_FACTOR - 1) * boost();
+          })()
+        : 0,
   });
   const activeRate = () => {
     const parts = rateParts();
-    return parts.work + parts.bottles + parts.finds + parts.events;
+    return parts.work + parts.bottles + parts.finds + parts.events + parts.campaign;
   };
 
   const playFor = (seconds: number) => {
@@ -476,6 +562,8 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       sources.bottles += parts.bottles * step;
       sources.finds += parts.finds * step;
       sources.events += parts.events * step;
+      sources.adExtras += parts.campaign * step;
+      adPaid.business_campaign = (adPaid.business_campaign ?? 0) + parts.campaign * step;
       // Advance the clock first so milestones are logged at the end of the slice, never before it.
       time.clock += step;
       time.activeTotal += step;
@@ -491,7 +579,10 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       payStoryGifts();
       claimDaily();
       // The hero ages only while playing; retirement comes at the end of life.
+      const coursesBefore = state.coursesDone.length;
       state = live(state, step);
+      // A finished course: its diploma gift (an ad).
+      if (extras() && state.coursesDone.length > coursesBefore) adExtra(adGift(state), 'diploma_gift');
       maybeRetire();
       left -= step;
     }
@@ -503,10 +594,13 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       const done = activeQuests(state).find((quest) => isQuestComplete(state, quest));
       if (!done) return;
       const before = state.classIndex;
+      const extra = extras() && watched.quests < (AD_PLACEMENTS.quest_x3.perDay ?? Infinity) ? questAdExtra(state, done) : 0;
       const next = claimQuest(state, done.id);
       if (!next) return;
+      if (extra > 0) watched.quests += 1;
       sources.quests += next.generationEarnings - state.generationEarnings;
       state = next;
+      adExtra(extra, 'quest_x3');
       for (let index = before + 1; index <= state.classIndex; index += 1) log('class', WEALTH_CLASSES[index].name);
     }
   };
@@ -596,7 +690,14 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
         continue;
       }
       const isFirstPurchase = !events.some((event) => event.kind !== 'class');
+      const looksBefore = totalStages(state);
+      const jobBefore = state.careerId;
       state = next;
+      if (extras()) {
+        // A business took on a new look: the opening party; a new job: the first-pay bonus.
+        if (totalStages(state) > looksBefore) adExtra(adGift(state), 'grown_bonus');
+        if (state.careerId !== jobBefore) adExtra(firstSalaryBonus(currentCareer(state)), 'first_salary');
+      }
       claimGoals();
       if (isFirstPurchase) log('purchase', `First purchase: ${best.candidate.label}`);
       else if (best.candidate.kind === 'purchase') log('purchase', best.candidate.label);
@@ -621,11 +722,13 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
   };
   const invest = (gapSeconds: number) => {
     if (investing.stake > 0 || state.classIndex < INVEST_FROM_CLASS) return;
-    const plan = [...INVEST_PLANS].sort((a, b) => b.hours - a.hours).find((entry) => entry.hours * 3600 <= gapSeconds);
+    // A halved deal (an ad) lets a longer one fit before the next session.
+    const length = (hours: number) => hours * 3600 * (extras() ? 1 - INVEST_RUSH_SHARE : 1);
+    const plan = [...INVEST_PLANS].sort((a, b) => b.hours - a.hours).find((entry) => length(entry.hours) <= gapSeconds);
     const stake = Math.min(state.cash, autoIncomePerSecond(state) * SECONDS_PER_MONTH * INVEST_CAP_MONTHS);
     if (!plan || stake <= 0) return;
     state = { ...state, cash: state.cash - stake };
-    Object.assign(investing, { stake, rate: expectedGain(plan), until: time.clock + plan.hours * 3600, count: investing.count + 1 });
+    Object.assign(investing, { stake, rate: expectedGain(plan), until: time.clock + length(plan.hours), count: investing.count + 1 });
   };
   const schedule: { start: number; minutes: number; day: number }[] = [];
   for (let day = 1; day <= days; day += 1) {
@@ -659,6 +762,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     investProfit: investing.profit,
     investCount: investing.count,
     sources: { ...sources, daily: daily.paid, deals: investing.profit },
+    adPaid,
   };
 }
 
@@ -724,7 +828,7 @@ export const CASUAL_PLAYER: PlayerProfile = {
 export const AD_WATCHER: PlayerProfile = {
   ...ENGAGED_PLAYER,
   name: 'engaged + ads',
-  ads: { boostsPerDay: 3, helpsPerDay: 2, doubles: true },
+  ads: { boostsPerDay: 3, helpsPerDay: 4, doubles: true, extras: true },
 };
 
 /** Buys the Starter Pack: Şans's red scarf, +10% income for good (config/iap.ts). */

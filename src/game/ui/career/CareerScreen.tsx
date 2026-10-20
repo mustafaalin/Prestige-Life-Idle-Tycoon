@@ -17,6 +17,20 @@ import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { COURSE_RUSH_PER_COURSE, EXPERIENCE_RUSH_MONTHS } from '../../core/config/ads';
+import {
+  adGift,
+  canFirstSalary,
+  canRushCourse,
+  canRushExperience,
+  canWatch,
+  courseRushSeconds,
+  firstSalaryBonus,
+  marked,
+} from '../../runtime/adRewards';
+import { ActionAd, PayAd } from '../ads/AdOffers';
+import { HelpAd } from '../ads/AdButton';
+import { useAdText } from '../ads/useAdText';
 import type { FocusTarget } from '../home/focus';
 import { Focusable } from '../home/Focusable';
 import { Chip, GameButton, ImageTile, Panel, SectionLabel } from '../kit';
@@ -50,9 +64,11 @@ function isReachable(state: GameStateV2, career: CareerDef) {
 }
 
 export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void }) {
-  const { game, actions } = useGameV2();
+  const { game, state, actions } = useGameV2();
   const { t, name, money, perMonth } = useT();
+  const adText = useAdText();
   const [showAll, setShowAll] = useState(false);
+  const now = Date.now();
 
   const current = currentCareer(game);
   const multiplier = globalMultiplier(game);
@@ -69,6 +85,9 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
   const monthsLeft = running ? Math.max(1, Math.ceil(running.months - (game.course?.seconds ?? 0) / SECONDS_PER_MONTH)) : 0;
   const courses = availableCourses(game);
   const done = game.coursesDone.map((id) => courseDef(id)).filter((course) => course !== undefined);
+  // The newest finished course whose diploma gift was not taken yet (an ad, once per course).
+  const diploma = [...done].reverse().find((course) => marked(state.ads, `diploma_gift:${course.id}`) === 0);
+  const rushMonths = Math.max(1, Math.round(courseRushSeconds(game) / SECONDS_PER_MONTH));
 
   const take = (career: CareerDef) => {
     if (!actions.takeCareer(career.id)) return;
@@ -106,6 +125,20 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
           )}
         </div>
       </Panel>
+      {current && canFirstSalary(state, now) && (
+        <PayAd
+          placement="first_salary"
+          label={adText('ads.firstSalary', { amount: money(firstSalaryBonus(current)) })}
+          run={actions.ads.firstSalary}
+        />
+      )}
+      {current && canRushExperience(state, now) && (
+        <ActionAd
+          placement="experience_rush"
+          label={adText('ads.experienceRush', { count: EXPERIENCE_RUSH_MONTHS })}
+          run={actions.ads.rushExperience}
+        />
+      )}
 
       {running && (
         <Panel className="p-3 flex items-center gap-3">
@@ -124,6 +157,20 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
             <p className="mt-0.5 text-[11px] font-bold text-slate-500">{t('career.courseLeft', { count: monthsLeft })}</p>
           </div>
         </Panel>
+      )}
+      {running && canRushCourse(state, now) && (
+        <ActionAd
+          placement="course_rush"
+          label={`${adText('ads.courseRush', { count: rushMonths })} · ${COURSE_RUSH_PER_COURSE - marked(state.ads, `course_rush:${running.id}`)}/${COURSE_RUSH_PER_COURSE}`}
+          run={actions.ads.rushCourse}
+        />
+      )}
+      {diploma && canWatch(state.ads, 'diploma_gift', now) && (
+        <PayAd
+          placement="diploma_gift"
+          label={adText('ads.diploma', { course: name('course', diploma), amount: money(adGift(game)) })}
+          run={() => actions.ads.diploma(diploma.id)}
+        />
       )}
 
       <SectionLabel>{t('career.openJobs')}</SectionLabel>
@@ -154,6 +201,7 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
               </li>
             ))}
           </ul>
+          {open[0] && <HelpAd cost={open[0].cost} className="p-2.5 pt-0" />}
         </Panel>
       )}
 
@@ -210,6 +258,7 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
             );
           })}
         </ul>
+        {!running && courses[0] && <HelpAd cost={Math.min(...courses.map((course) => course.cost))} className="p-2.5" />}
         {done.length > 0 && (
           <p className="px-3 py-2 text-[11px] font-bold text-emerald-600 border-t border-indigo-50">
             {t('career.coursesDone', { count: done.length })}: {done.map((course) => name('course', course)).join(', ')}

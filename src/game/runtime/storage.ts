@@ -215,15 +215,36 @@ function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
   };
 }
 
-/** Saves from before the ad placements start with no boost and ads still locked. */
+/** Counts by key (whole, positive numbers only). */
+function counts(raw: unknown): Record<string, number> {
+  const result: Record<string, number> = {};
+  if (!isRecord(raw)) return result;
+  for (const [key, value] of Object.entries(raw)) {
+    const amount = finite(value, 0);
+    if (amount > 0) result[key] = amount;
+  }
+  return result;
+}
+
+/**
+ * Saves from before the ad places start with none used. The day's two old counters (boosts, helps,
+ * before 2026-10-21) carry into today's counts; a place no longer known is simply never read.
+ */
 function normalizeAds(raw: unknown): AdProgress {
   const base = createAdProgress();
   if (!isRecord(raw)) return base;
+  const today = counts(raw.today);
+  if (raw.boostsToday !== undefined) today.income_boost = Math.floor(finite(raw.boostsToday, 0));
+  if (raw.helpsToday !== undefined) today.dream_help = Math.floor(finite(raw.helpsToday, 0));
   return {
     boostUntil: finite(raw.boostUntil, 0),
     day: typeof raw.day === 'string' ? raw.day : '',
-    boostsToday: Math.floor(finite(raw.boostsToday, 0)),
-    helpsToday: Math.floor(finite(raw.helpsToday, 0)),
+    today,
+    lastAt: counts(raw.lastAt),
+    marks: counts(raw.marks),
+    tempManagers: counts(raw.tempManagers),
+    campaigns: counts(raw.campaigns),
+    coinRainUntil: finite(raw.coinRainUntil, 0),
     returned: raw.returned === true,
   };
 }

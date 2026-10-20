@@ -5,7 +5,24 @@ import { SECONDS_PER_MONTH, SECONDS_PER_YEAR } from '../core/config/life';
 import { ageSpeed, autoIncomePerSecond, fetchReward, heroAge, storyGift } from '../core/formulas';
 import { earn, live } from '../core/state';
 import type { GameStateV2 } from '../core/types';
-import { applyBoost, applyHelp } from './adRewards';
+import {
+  adGift,
+  applyBoost,
+  applyCallSans,
+  applyCampaign,
+  applyCardAd,
+  applyCoinRain,
+  applyCourseRush,
+  applyExperienceRush,
+  applyFirstSalary,
+  applyHelp,
+  applyInvestRush,
+  applyTempManager,
+  eventAdExtra,
+  opportunityReward,
+  questAdExtra,
+} from './adRewards';
+import { activeQuests } from '../core/state';
 import { claimDaily, offerDaily } from './daily';
 import { collectInvestment, startInvestment } from './investment';
 import type { InvestPlanId } from '../core/config/investments';
@@ -94,11 +111,35 @@ export interface GameActions {
     collect(): number | null;
   };
   /** Rewards of watched ads (call only after showRewardedAd() returned 'rewarded'; adRewards.ts). */
+  /**
+   * Rewarded ads (runtime/adRewards.ts; call after the ad was watched to the end). The ones that pay
+   * return the amount (0 if not allowed), for the flying coins; the others return whether they worked.
+   */
   ads: {
     /** An hour of doubled income; false when the day's limit or the cap is reached. */
     boost(): boolean;
     /** A little help toward something that costs `cost`: pays the `amount` its button showed; returns it (0 if not allowed). */
     help(cost: number, amount: number): number;
+    rushCourse(): boolean;
+    rushExperience(): boolean;
+    rushInvest(): boolean;
+    tempManager(businessId: string): boolean;
+    campaign(businessId: string): boolean;
+    /** Claims a finished goal and pays it three times in all. */
+    questX3(questId: string): number;
+    /** After an answered event card: the result again, or a loss taken back and the safe answer paid. */
+    eventBonus(outcome: EventOutcome): number;
+    /** A business took on a new look ("has grown"). */
+    grownBonus(businessId: string, level: number): number;
+    /** A finished course's diploma gift. */
+    diploma(courseId: string): number;
+    /** The new job's welcome bonus. */
+    firstSalary(): number;
+    /** Şans goes looking at once; the scene starts the find. */
+    callSans(): boolean;
+    coinRain(): boolean;
+    /** The opportunity balloon on the scene. */
+    opportunity(): number;
   };
   /** Store purchases (call only after runtime/iap.ts confirmed them; runtime/purchases.ts). */
   purchases: {
@@ -234,6 +275,12 @@ export function createGameStore(saveText: string | null, clock: () => number = D
     return true;
   };
 
+  /** An action that pays money: returns how much it added to the wallet (0 when not allowed). */
+  const paid = (transition: (current: RuntimeState) => RuntimeState | null) => {
+    const before = state.game.cash;
+    return act(transition) ? state.game.cash - before : 0;
+  };
+
   /** A player action that is also an analytics event (sent only if the action went through). */
   const actTracked = (
     transition: (current: RuntimeState) => RuntimeState | null,
@@ -336,7 +383,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
 
     actions: {
       tap: () => {
-        act(tap);
+        act((s) => tap(s, clock()));
       },
       claimFind: (multiplier = 1) => {
         const amount = fetchReward(state.game) * multiplier;
@@ -428,6 +475,30 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       ads: {
         boost: () => act((s) => applyBoost(s, clock())),
         help: (cost, amount) => (act((s) => applyHelp(s, clock(), cost, amount)) ? amount : 0),
+        rushCourse: () => act((s) => applyCourseRush(s, clock())),
+        rushExperience: () => act((s) => applyExperienceRush(s, clock())),
+        rushInvest: () => act((s) => applyInvestRush(s, clock())),
+        tempManager: (businessId) => act((s) => applyTempManager(s, businessId, clock())),
+        campaign: (businessId) => act((s) => applyCampaign(s, businessId, clock())),
+        questX3: (questId) => {
+          const quest = activeQuests(state.game).find((candidate) => candidate.id === questId);
+          if (!quest) return 0;
+          const extra = questAdExtra(state.game, quest);
+          const before = state.game.cash;
+          const done = act((s) => {
+            const claimed = claimQuest(s, questId);
+            return claimed && (applyCardAd(claimed, 'quest_x3', clock(), extra) ?? claimed);
+          });
+          return done ? state.game.cash - before : 0;
+        },
+        eventBonus: (outcome) => paid((s) => applyCardAd(s, 'event_bonus', clock(), eventAdExtra(s.game, outcome))),
+        grownBonus: (businessId, level) =>
+          paid((s) => applyCardAd(s, 'grown_bonus', clock(), adGift(s.game), `grown_bonus:${businessId}:${level}`)),
+        diploma: (courseId) => paid((s) => applyCardAd(s, 'diploma_gift', clock(), adGift(s.game), `diploma_gift:${courseId}`)),
+        firstSalary: () => paid((s) => applyFirstSalary(s, clock())),
+        callSans: () => act((s) => applyCallSans(s, clock())),
+        coinRain: () => act((s) => applyCoinRain(s, clock())),
+        opportunity: () => paid((s) => applyCardAd(s, 'opportunity', clock(), opportunityReward(s.game))),
       },
       purchases: {
         apply: (productId) => grant(productId, 'purchase'),

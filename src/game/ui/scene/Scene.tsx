@@ -11,6 +11,7 @@ import { HOUSES } from '../../core/config/housing';
 import { OUTFITS, VEHICLES } from '../../core/config/lifestyle';
 import { GRANDPA_AGE } from '../../core/config/life';
 import { fetchReward, fetchSeconds, heroAge, tapValue } from '../../core/formulas';
+import { COIN_RAIN_SPAWN_FACTOR, COIN_RAIN_VALUE_FACTOR } from '../../core/config/ads';
 import { bestOwnedLifestyle, houseIndex, parkedVehicle } from '../../core/state';
 import type { GameStateV2 } from '../../core/types';
 import { useT } from '../../i18n/useT';
@@ -18,7 +19,6 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { hasScarf } from '../../runtime/purchases';
 import { pendingCeremony, sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { useAdsUnlocked } from '../ads/useAdsUnlocked';
 import { useAdText } from '../ads/useAdText';
 import { useGuideTarget } from '../guide/guideSteps';
 import { burstCoins, payout } from '../home/coins';
@@ -266,18 +266,19 @@ export function Scene() {
   // ── Bottles and cans ──
   const [items, setItems] = useState<Item[]>(startingItems);
 
+  // A coin shower (an ad): the ground fills faster, holds more and every piece is worth more.
+  const raining = state.ads.coinRainUntil > Date.now();
   useEffect(() => {
+    const most = raining ? COLLECT_MAX_ON_SCREEN * 2 : COLLECT_MAX_ON_SCREEN;
     const timer = window.setInterval(() => {
-      setItems((current) =>
-        current.length >= COLLECT_MAX_ON_SCREEN ? current : [...current, newItem(nextId.current++, current)],
-      );
-    }, COLLECT_SPAWN_SECONDS * 1000);
+      setItems((current) => (current.length >= most ? current : [...current, newItem(nextId.current++, current)]));
+    }, (COLLECT_SPAWN_SECONDS * 1000) / (raining ? COIN_RAIN_SPAWN_FACTOR : 1));
     return () => window.clearInterval(timer);
-  }, []);
+  }, [raining]);
 
   const collect = (item: Item, event: MouseEvent) => {
     event.stopPropagation();
-    const value = tapValue(game);
+    const value = tapValue(game) * (raining ? COIN_RAIN_VALUE_FACTOR : 1);
     actions.tap();
     playSfx('coin');
     haptic('light');
@@ -328,7 +329,6 @@ export function Scene() {
 
   // Tapping Şans with the wallet shows what it's worth; the money comes when the card is collected.
   const [findOffer, setFindOffer] = useState<number | null>(null);
-  const adsOpen = useAdsUnlocked();
 
   const openFind = (event: MouseEvent) => {
     event.stopPropagation();
@@ -545,15 +545,11 @@ export function Scene() {
           body={t('scene.findBody')}
           amount={`+${money(findOffer)}`}
           onCollect={() => collectFind()}
-          ad={
-            adsOpen
-              ? {
-                  placement: 'find_x2',
-                  label: adText('ads.double', { amount: money(findOffer * AD_FIND_MULTIPLIER), factor: AD_FIND_MULTIPLIER }),
-                  onReward: () => collectFind(AD_FIND_MULTIPLIER),
-                }
-              : undefined
-          }
+          ad={{
+            placement: 'find_x2',
+            label: adText('ads.double', { amount: money(findOffer * AD_FIND_MULTIPLIER), factor: AD_FIND_MULTIPLIER }),
+            onReward: () => collectFind(AD_FIND_MULTIPLIER),
+          }}
         />
       )}
     </div>

@@ -219,6 +219,7 @@ function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: (
 function GadgetPanel() {
   const { game, actions } = useGameV2();
   const { t, name, money } = useT();
+  const cheapest = GADGETS.filter((gadget) => !game.lifestyleOwned.includes(gadget.id)).sort((a, b) => a.cost - b.cost)[0];
   return (
     <Panel className="overflow-hidden">
       <ul className="divide-y divide-indigo-50">
@@ -253,6 +254,8 @@ function GadgetPanel() {
           );
         })}
       </ul>
+      {/* A little help toward the cheapest gear not owned yet. */}
+      {cheapest && <HelpAd cost={cheapest.cost} className="p-3 pt-0" />}
     </Panel>
   );
 }

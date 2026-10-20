@@ -28,7 +28,8 @@ import {
   live,
 } from '../core/state';
 import type { GameStateV2 } from '../core/types';
-import { boostFactor, boostShare, createAdProgress, type AdProgress } from './adRewards';
+import { CAMPAIGN_FACTOR, COIN_RAIN_VALUE_FACTOR } from '../core/config/ads';
+import { boostFactor, boostShare, campaignFactor, coinRainActive, createAdProgress, tempManagerLeft, type AdProgress } from './adRewards';
 import { createDailyProgress, type DailyProgress } from './daily';
 import { createInvestProgress, type InvestProgress } from './investment';
 import { createPurchaseProgress, type PurchaseProgress } from './purchases';
@@ -101,8 +102,12 @@ export function createRuntimeState(now: number, game: GameStateV2 = createInitia
   };
 }
 
-/** Runs production cycles for `seconds`. Offline time skips managed lines; their income comes from offlineEarnings. */
-function advanceCycles(state: RuntimeState, seconds: number, includeManaged: boolean) {
+/**
+ * Runs production cycles for `seconds`. Offline time skips managed lines; their income comes from
+ * offlineEarnings. While the game is open a stand-in manager (an ad) runs a line like a manager, and
+ * a campaign (an ad) multiplies what its runs pay (runtime/adRewards.ts).
+ */
+function advanceCycles(state: RuntimeState, seconds: number, includeManaged: boolean, now: number) {
   const cycles = { ...state.cycles };
   const payouts: Payout[] = [];
   let earned = 0;
@@ -111,21 +116,22 @@ function advanceCycles(state: RuntimeState, seconds: number, includeManaged: boo
     const business = state.game.businesses[def.id];
     const cycle = cycles[def.id];
     if (!business || business.level <= 0) continue;
-    if (business.managed ? !includeManaged : !cycle.running) continue;
+    const runsItself = business.managed || (includeManaged && tempManagerLeft(state.ads, def.id, now) > 0);
+    if (runsItself ? !includeManaged : !cycle.running) continue;
 
     let progress = cycle.progress + seconds / def.cycleSeconds;
     let completed = 0;
-    if (business.managed) {
+    if (runsItself) {
       completed = Math.floor(progress);
       progress -= completed;
     } else if (progress >= 1) {
       completed = 1;
       progress = 0;
     }
-    cycles[def.id] = { progress, running: business.managed || (cycle.running && completed === 0) };
+    cycles[def.id] = { progress, running: runsItself || (cycle.running && completed === 0) };
 
     if (completed > 0) {
-      const amount = cycleRevenue(state.game, def) * completed;
+      const amount = cycleRevenue(state.game, def) * completed * campaignFactor(state.ads, def.id, now, CAMPAIGN_FACTOR);
       payouts.push({ businessId: def.id, amount, cycles: completed });
       earned += amount;
     }
@@ -141,7 +147,7 @@ export function tick(state: RuntimeState, now: number, speed = 1): { state: Runt
   if (elapsed > MAX_TICK_GAP_SECONDS) return resume(state, now);
 
   const seconds = elapsed * speed;
-  const { cycles, payouts, earned } = advanceCycles(state, seconds, true);
+  const { cycles, payouts, earned } = advanceCycles(state, seconds, true, now);
   const steady = steadyIncomePerSecond(state.game) * globalMultiplier(state.game) * seconds;
   // A watched ad's income boost multiplies everything the game earns by itself.
   const boost = boostFactor(state.ads, now);
@@ -160,7 +166,7 @@ export function resume(state: RuntimeState, now: number): { state: RuntimeState;
   const away = (now - state.lastActiveAt) / 1000;
   if (away <= 0) return { state: { ...state, lastActiveAt: now }, payouts: [] };
 
-  const { cycles, payouts, earned } = advanceCycles(state, away, false);
+  const { cycles, payouts, earned } = advanceCycles(state, away, false, now);
   // The income boost runs in real time: the part of the absence it covers earns double.
   const boosted = 1 + (boostFactor(state.ads, state.lastActiveAt) - 1) * boostShare(state.ads, state.lastActiveAt, now);
   const offlineAmount = offlineEarnings(state.game, away) * boosted;
@@ -183,8 +189,10 @@ function withGame(state: RuntimeState, game: GameStateV2 | null): RuntimeState |
 }
 
 /** A tap on the scene: one collected bottle or can. */
-export function tap(state: RuntimeState): RuntimeState {
-  const game = earn(state.game, tapValue(state.game));
+export function tap(state: RuntimeState, now: number): RuntimeState {
+  // Coins rain (an ad): each one picked up is worth more.
+  const value = tapValue(state.game) * (coinRainActive(state.ads, now) ? COIN_RAIN_VALUE_FACTOR : 1);
+  const game = earn(state.game, value);
   return { ...state, game: { ...game, bottles: game.bottles + 1 } };
 }
 
