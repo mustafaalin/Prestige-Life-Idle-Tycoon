@@ -21,7 +21,8 @@ import {
   levelUpBusiness as coreLevelUpBusiness,
   moveHome as coreMoveHome,
   openBranch as coreOpenBranch,
-  promote as corePromote,
+  startCourse as coreStartCourse,
+  takeCareer as coreTakeCareer,
   rentHome as coreRentHome,
   retire as coreRetire,
   live,
@@ -238,8 +239,12 @@ export function startCycle(state: RuntimeState, businessId: string): RuntimeStat
   return { ...state, cycles: { ...state.cycles, [businessId]: { progress: 0, running: true } } };
 }
 
-export function promote(state: RuntimeState) {
-  return withGame(state, corePromote(state.game));
+export function takeCareer(state: RuntimeState, careerId: string) {
+  return withGame(state, coreTakeCareer(state.game, careerId));
+}
+
+export function startCourse(state: RuntimeState, courseId: string) {
+  return withGame(state, coreStartCourse(state.game, courseId));
 }
 
 export function buyLifestyle(state: RuntimeState, itemId: string) {

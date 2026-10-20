@@ -18,14 +18,23 @@ export function isMet(state: GameStateV2, requirement: Requirement): boolean {
       return state.lifestyleOwned.includes(requirement.itemId);
     case 'businessLevel':
       return (state.businesses[requirement.businessId]?.level ?? 0) >= requirement.level;
-    case 'experience':
-      return experienceMonths(state) >= requirement.months;
+    case 'job':
+      return jobMonths(state, requirement.careerId) >= requirement.months;
+    case 'course':
+      return state.coursesDone.includes(requirement.courseId);
+    case 'anyOf':
+      return requirement.options.some((option) => isMet(state, option));
   }
 }
 
-/** Whole game months worked in the current job. */
-export function experienceMonths(state: GameStateV2) {
-  return Math.floor(state.careerSeconds / SECONDS_PER_MONTH);
+/** Whole game months worked in a job, now or before. */
+export function jobMonths(state: GameStateV2, careerId: string) {
+  return Math.floor((state.jobSeconds[careerId] ?? 0) / SECONDS_PER_MONTH);
+}
+
+/** Every condition not met yet, in the order listed. */
+export function unmet(state: GameStateV2, requirements: readonly Requirement[]): Requirement[] {
+  return requirements.filter((requirement) => !isMet(state, requirement));
 }
 
 /** The first condition not met yet, in the order listed (the one a locked card shows), or null. */

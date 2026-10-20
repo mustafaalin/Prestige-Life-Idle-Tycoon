@@ -39,9 +39,9 @@ if (args.includes('--config')) {
       `  ${b.name.padEnd(20)} ${formatMoney(first.cost).padStart(8)}  ${formatMoney(first.revenue).padStart(7)} → ${formatMoney(last.revenue).padStart(7)}  ${monthly(first.revenue).padStart(7)} → ${monthly(last.revenue).padStart(7)}  ${formatDuration(payback).padStart(8)}  ${formatMoney(b.branchCost).padStart(8)}  ${formatMoney(b.managerCost)}`
     );
   }
-  console.log('Careers: name | cost | salary/s | income bonus');
+  console.log(`Careers: ${CAREERS.length} jobs | name | cost | salary/month`);
   for (const c of CAREERS) {
-    console.log(`  ${c.name.padEnd(22)} ${formatMoney(c.cost).padStart(8)}  ${formatMoney(c.salaryPerSecond).padStart(8)}/s  +${Math.round(c.incomeBonus * 100)}%`);
+    console.log(`  ${c.name.padEnd(30)} ${formatMoney(c.cost).padStart(8)}  ${formatMoney(c.salaryPerSecond * SECONDS_PER_MONTH).padStart(8)}/mo`);
   }
 }
 
@@ -94,7 +94,7 @@ for (const profile of PROFILES) {
   }
   const final = result.finalState;
   console.log(
-    `final: generation ${final.generation}, legacy ${final.legacyPoints}, class ${final.classIndex}, job ${final.careerIndex + 1}`
+    `final: generation ${final.generation}, legacy ${final.legacyPoints}, class ${final.classIndex}, job ${final.careerId ?? "-"}, courses ${final.coursesDone.length}`
   );
 }
 

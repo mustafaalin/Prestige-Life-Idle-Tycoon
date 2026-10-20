@@ -1,39 +1,85 @@
-import { Briefcase, Check, Lock } from 'lucide-react';
-import { CAREERS } from '../../core/config/careers';
-import { autoIncomePerSecond, globalMultiplier, salaryPerSecond } from '../../core/formulas';
-import { experienceMonths } from '../../core/requirements';
-import { canTakeNextCareer, nextCareer, promote } from '../../core/state';
-import type { CareerDef } from '../../core/types';
+import { Briefcase, ChevronDown, ChevronUp, GraduationCap, Lock } from 'lucide-react';
+import { useState } from 'react';
+import { CAREER_TRACKS, CAREERS } from '../../core/config/careers';
+import { courseDef } from '../../core/config/courses';
+import { SECONDS_PER_MONTH } from '../../core/config/life';
+import {
+  availableCourses,
+  betterOpenCareers,
+  careersNeedingCourse,
+  courseProgress,
+  currentCareer,
+  globalMultiplier,
+} from '../../core/formulas';
+import { allMet, jobMonths, unmet } from '../../core/requirements';
+import type { CareerDef, GameStateV2, Requirement } from '../../core/types';
+import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
+import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { HelpAd } from '../ads/AdButton';
+import type { FocusTarget } from '../home/focus';
 import { Focusable } from '../home/Focusable';
 import { Chip, GameButton, ImageTile, Panel, SectionLabel } from '../kit';
+import { RequirementList } from './Requirements';
 
-/** Months in the job before that a job asks for (0 for the first job). */
-const monthsNeeded = (career: CareerDef) =>
-  career.requires.reduce((months, requirement) => (requirement.type === 'experience' ? Math.max(months, requirement.months) : months), 0);
+// The job board (docs/economy-rebuild.md §5): the job held, the course running, the better jobs that
+// are open now, the ones to aim for with what they still need, courses, and every job by field.
+
+/** Jobs to aim for at most, so the board stays short. */
+const GOAL_JOBS = 6;
 
 /**
- * Current job, the next promotion as the one big call to action, and the whole ladder for ambition.
- * A job opens after enough months in the one before (docs/economy-rebuild.md §5); money only pays
- * for the small things it needs.
+ * A job worth aiming for: everything it still needs can be worked on now (a course whose own
+ * prerequisites are done, an item, a home, months in a job already held). Jobs behind a job never
+ * held stay out of the list until that job is taken.
  */
-export function CareerScreen() {
-  const { game, actions } = useGameV2();
-  const { t, name, money, duration, perMonth } = useT();
+function isReachable(state: GameStateV2, career: CareerDef) {
+  const reachable = (requirement: Requirement): boolean => {
+    switch (requirement.type) {
+      case 'job':
+        return state.careerId === requirement.careerId || jobMonths(state, requirement.careerId) > 0;
+      case 'anyOf':
+        return requirement.options.some(reachable);
+      case 'course':
+        return allMet(state, courseDef(requirement.courseId)?.requires ?? []);
+      default:
+        return true;
+    }
+  };
+  return unmet(state, career.requires).every(reachable);
+}
 
-  const current = game.careerIndex >= 0 ? CAREERS[game.careerIndex] : null;
-  const next = nextCareer(game);
-  // Its gain as if it were open already (experience aside), so the card can show what it is worth.
-  const promoted = next ? promote({ ...game, cash: Number.POSITIVE_INFINITY, careerSeconds: Number.POSITIVE_INFINITY }) : null;
-  const incomeGain = promoted ? autoIncomePerSecond(promoted) - autoIncomePerSecond(game) : 0;
-  const income = autoIncomePerSecond(game);
-  const experienced = canTakeNextCareer(game);
-  const canPromote = next !== null && experienced && game.cash >= next.cost;
-  const secondsToAfford = next && experienced && !canPromote && income > 0 ? (next.cost - game.cash) / income : null;
-  const needed = next ? monthsNeeded(next) : 0;
-  const worked = Math.min(experienceMonths(game), needed);
+export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void }) {
+  const { game, actions } = useGameV2();
+  const { t, name, money, perMonth } = useT();
+  const [showAll, setShowAll] = useState(false);
+
+  const current = currentCareer(game);
+  const multiplier = globalMultiplier(game);
+  const salary = (career: CareerDef) => perMonth(career.salaryPerSecond * multiplier);
+  const open = betterOpenCareers(game).sort((a, b) => b.salaryPerSecond - a.salaryPerSecond);
+  const currentSalary = current?.salaryPerSecond ?? 0;
+  const goals = CAREERS.filter(
+    (career) => career.salaryPerSecond > currentSalary && !open.includes(career) && isReachable(game, career),
+  )
+    .sort((a, b) => a.salaryPerSecond - b.salaryPerSecond)
+    .slice(0, GOAL_JOBS);
+
+  const running = game.course ? courseDef(game.course.id) : undefined;
+  const monthsLeft = running ? Math.max(1, Math.ceil(running.months - (game.course?.seconds ?? 0) / SECONDS_PER_MONTH)) : 0;
+  const courses = availableCourses(game);
+  const done = game.coursesDone.map((id) => courseDef(id)).filter((course) => course !== undefined);
+
+  const take = (career: CareerDef) => {
+    if (!actions.takeCareer(career.id)) return;
+    playSfx('levelUp');
+    haptic('medium');
+  };
+  const start = (courseId: string) => {
+    if (!actions.startCourse(courseId)) return;
+    playSfx('purchase');
+    haptic('medium');
+  };
 
   return (
     <section className="flex flex-col gap-3">
@@ -51,149 +97,159 @@ export function CareerScreen() {
             {current ? name('career', current) : t('career.unemployed')}
           </p>
           <p className="text-[12px] font-bold text-emerald-600">
-            {current
-              ? t('career.salary', { amount: perMonth(salaryPerSecond(game) * globalMultiplier(game)) })
-              : t('career.unemployedBody')}
+            {current ? t('career.salary', { amount: salary(current) }) : t('career.unemployedBody')}
           </p>
+          {current && (
+            <p className="text-[11px] font-bold text-violet-600">
+              {t('career.monthsHere', { count: jobMonths(game, current.id) })}
+            </p>
+          )}
         </div>
       </Panel>
 
-      {next ? (
-        <Panel accent className="overflow-hidden">
-          <div className="px-4 py-1.5 bg-gradient-to-r from-amber-300 to-orange-500">
-            <p className="v2-display text-[13px] uppercase tracking-wide text-white v2-shadow">
-              {current ? t('career.next') : t('career.firstJobLabel')}
-            </p>
-          </div>
-          <div className="p-4 flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <ImageTile className="w-20 h-20">
-                <img src={next.image} alt="" className="w-[72px] h-[72px] object-contain" draggable={false} />
-              </ImageTile>
-              <div className="flex-1 min-w-0">
-                <p className="v2-display text-xl leading-tight text-indigo-950">{name('career', next)}</p>
-                <p className="v2-display text-lg text-emerald-500 tabular-nums">
-                  {t('career.gain', { amount: perMonth(incomeGain) })}
-                </p>
-              </div>
+      {running && (
+        <Panel className="p-3 flex items-center gap-3">
+          <ImageTile className="w-12 h-12">
+            <GraduationCap className="w-7 h-7 text-violet-500" />
+          </ImageTile>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-black uppercase tracking-widest text-violet-700/70">{t('career.courseRunning')}</p>
+            <p className="v2-display text-[15px] leading-tight text-indigo-950">{name('course', running)}</p>
+            <div className="mt-1 h-2 rounded-full bg-violet-100 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-violet-400 to-indigo-500 transition-all duration-300"
+                style={{ width: `${(courseProgress(game) ?? 0) * 100}%` }}
+              />
             </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-2.5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700/70">
-                  {t('career.salaryLabel')}
-                </p>
-                <p className="v2-display text-[15px] text-emerald-700 tabular-nums">
-                  {perMonth(next.salaryPerSecond * globalMultiplier(promoted ?? game))}
-                </p>
-              </div>
-              <div className="rounded-xl bg-violet-50 border border-violet-100 p-2.5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-violet-700/70">
-                  {t('career.experienceLabel')}
-                </p>
-                <p className="v2-display text-[15px] text-violet-700 tabular-nums">
-                  {needed > 0 ? t('career.experience', { done: worked, need: needed }) : t('career.noExperience')}
-                </p>
-                {needed > 0 && (
-                  <div className="mt-1 h-1.5 rounded-full bg-violet-100 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-violet-400 to-indigo-500 transition-all duration-300"
-                      style={{ width: `${(worked / needed) * 100}%` }}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <Focusable focusKey="career:promote">
-              <GameButton
-                onClick={actions.promote}
-                disabled={!canPromote}
-                className="w-full py-3 px-4 flex items-center justify-between"
-              >
-                <span className="v2-display text-[16px] v2-shadow">
-                  {current ? t('career.promote') : t('career.firstJob')}
-                </span>
-                <span className="v2-display text-[16px] v2-shadow tabular-nums">{money(next.cost)}</span>
-              </GameButton>
-            </Focusable>
-            {!experienced && needed > 0 && (
-              <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
-                {t('career.workMore', { months: needed - worked, count: needed - worked })}
-              </p>
-            )}
-            {secondsToAfford !== null && (
-              <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
-                {t('common.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}
-              </p>
-            )}
-            <HelpAd cost={next.cost} />
+            <p className="mt-0.5 text-[11px] font-bold text-slate-500">{t('career.courseLeft', { count: monthsLeft })}</p>
           </div>
-        </Panel>
-      ) : (
-        <Panel accent className="p-4 text-center">
-          <p className="v2-display text-lg text-indigo-950">{t('career.top')}</p>
         </Panel>
       )}
 
-      <SectionLabel>{t('career.ladder')}</SectionLabel>
-      <Panel className="overflow-hidden">
-        <ol className="divide-y divide-indigo-50">
-          {CAREERS.map((career, index) => {
-            const done = index < game.careerIndex;
-            const isCurrent = index === game.careerIndex;
-            const isNext = index === game.careerIndex + 1;
-            return (
-              <li key={career.id} className={`flex items-center gap-3 px-3 py-2 ${isCurrent ? 'bg-amber-50' : ''}`}>
-                <span
-                  className={`shrink-0 w-7 h-7 rounded-full border-2 border-white flex items-center justify-center v2-display text-[12px] ${
-                    done || isCurrent
-                      ? 'bg-gradient-to-b from-violet-400 to-indigo-600 text-white v2-glossy'
-                      : isNext
-                        ? 'bg-gradient-to-b from-emerald-300 to-green-500 text-white v2-glossy'
-                        : 'bg-indigo-50 text-indigo-300'
-                  }`}
-                >
-                  {done ? (
-                    <Check className="w-3.5 h-3.5" />
-                  ) : isNext || isCurrent ? (
-                    index + 1
-                  ) : (
-                    <Lock className="w-3 h-3" />
-                  )}
-                </span>
-                {/* The current job keeps its full name: the badge sits under it, not beside it. */}
-                <span className="flex-1 min-w-0 flex flex-col items-start gap-0.5">
-                  <span
-                    className={`max-w-full text-[13px] leading-tight ${
-                      isCurrent
-                        ? 'v2-display text-indigo-950'
-                        : done
-                          ? 'font-bold text-slate-400'
-                          : 'font-bold text-slate-700'
-                    }`}
+      <SectionLabel>{t('career.openJobs')}</SectionLabel>
+      {open.length === 0 ? (
+        <p className="px-1 text-[12px] font-bold text-slate-500">{t('career.noOpen')}</p>
+      ) : (
+        <Panel accent className="overflow-hidden">
+          <ul className="divide-y divide-indigo-50">
+            {open.map((career) => (
+              <li key={career.id} className="p-2.5 flex items-center gap-2.5">
+                <ImageTile className="w-12 h-12">
+                  <img src={career.image} alt="" className="w-10 h-10 object-contain" draggable={false} />
+                </ImageTile>
+                <div className="flex-1 min-w-0">
+                  <p className="v2-display text-[15px] leading-tight text-indigo-950">{name('career', career)}</p>
+                  <p className="text-[12px] font-bold text-emerald-600">{t('career.salary', { amount: salary(career) })}</p>
+                </div>
+                <Focusable focusKey={`career:take:${career.id}`} className="shrink-0">
+                  <GameButton
+                    onClick={() => take(career)}
+                    disabled={game.cash < career.cost}
+                    className="py-1.5 px-3 flex flex-col items-center leading-tight"
                   >
-                    {name('career', career)}
-                  </span>
-                  {isCurrent && <Chip tone="gold">{t('career.current')}</Chip>}
-                </span>
-                {monthsNeeded(career) > 0 && (
-                  <span className="shrink-0 text-[11px] font-black text-violet-500 tabular-nums">
-                    {t('career.monthsShort', { months: monthsNeeded(career) })}
-                  </span>
-                )}
-                <span
-                  className={`shrink-0 w-16 text-right text-[11px] font-black tabular-nums ${
-                    done || isCurrent ? 'text-slate-300' : 'text-indigo-900/70'
-                  }`}
-                >
-                  {money(career.cost)}
-                </span>
+                    <span className="v2-display text-[13px] v2-shadow">{t('career.take')}</span>
+                    <span className="v2-display text-[13px] v2-shadow tabular-nums">{money(career.cost)}</span>
+                  </GameButton>
+                </Focusable>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      )}
+
+      {goals.length > 0 && (
+        <>
+          <SectionLabel>{t('career.goalJobs')}</SectionLabel>
+          {goals.map((career) => (
+            <Panel key={career.id} className="p-3 flex gap-3">
+              <ImageTile className="w-12 h-12">
+                <img src={career.image} alt="" className="w-10 h-10 object-contain grayscale opacity-70" draggable={false} />
+              </ImageTile>
+              <div className="flex-1 min-w-0 flex flex-col gap-1">
+                <p className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="v2-display text-[15px] leading-tight text-indigo-950">{name('career', career)}</span>
+                  <span className="text-[11px] font-bold text-emerald-600">{salary(career)}</span>
+                </p>
+                <RequirementList state={game} requirements={career.requires} onGo={onGoTo} />
+              </div>
+            </Panel>
+          ))}
+        </>
+      )}
+
+      <SectionLabel>{t('career.courses')}</SectionLabel>
+      {running && <p className="px-1 -mt-1 text-[11px] font-bold text-slate-500">{t('career.courseBusy')}</p>}
+      <Panel className="overflow-hidden">
+        <ul className="divide-y divide-indigo-50">
+          {courses.map((course) => {
+            const opens = careersNeedingCourse(course.id).map((career) => name('career', career));
+            return (
+              <li key={course.id} className="px-3 py-2 flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 shrink-0 text-violet-400" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-bold leading-tight text-indigo-950">
+                    {name('course', course)}
+                    <span className="ml-1.5 text-[11px] text-slate-400">{t('career.courseMonths', { count: course.months })}</span>
+                  </p>
+                  {opens.length > 0 && (
+                    <p className="text-[11px] font-bold leading-snug text-violet-600">{t('career.opens', { jobs: opens.join(', ') })}</p>
+                  )}
+                </div>
+                <Focusable focusKey={`career:course:${course.id}`} className="shrink-0">
+                  <GameButton
+                    tone="soft"
+                    onClick={() => start(course.id)}
+                    disabled={running !== undefined || game.cash < course.cost}
+                    className="py-1.5 px-2.5 flex flex-col items-center leading-tight"
+                  >
+                    <span className="v2-display text-[12px]">{t('career.courseStart')}</span>
+                    <span className="v2-display text-[12px] tabular-nums">{money(course.cost)}</span>
+                  </GameButton>
+                </Focusable>
               </li>
             );
           })}
-        </ol>
+        </ul>
+        {done.length > 0 && (
+          <p className="px-3 py-2 text-[11px] font-bold text-emerald-600 border-t border-indigo-50">
+            {t('career.coursesDone', { count: done.length })}: {done.map((course) => name('course', course)).join(', ')}
+          </p>
+        )}
       </Panel>
+
+      <button
+        type="button"
+        onClick={() => setShowAll((value) => !value)}
+        className="flex items-center justify-center gap-1 py-1 text-[12px] font-black text-violet-600"
+      >
+        {showAll ? t('career.hideJobs') : t('career.allJobs')}
+        {showAll ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      </button>
+      {showAll &&
+        CAREER_TRACKS.map((track) => (
+          <Panel key={track} className="overflow-hidden">
+            <p className="px-3 pt-2 pb-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+              {t(`career.tracks.${track}` as MessageKey)}
+            </p>
+            <ul className="divide-y divide-indigo-50">
+              {CAREERS.filter((career) => career.track === track).map((career) => {
+                const held = career.id === game.careerId;
+                const worked = held || jobMonths(game, career.id) > 0;
+                const locked = !worked && !allMet(game, career.requires);
+                return (
+                  <li key={career.id} className={`px-3 py-1.5 flex items-center gap-2 ${held ? 'bg-amber-50' : ''}`}>
+                    {locked && <Lock className="w-3 h-3 shrink-0 text-indigo-300" />}
+                    <span className={`flex-1 min-w-0 text-[12px] font-bold ${worked ? 'text-indigo-950' : 'text-slate-500'}`}>
+                      {name('career', career)}
+                    </span>
+                    {held && <Chip tone="gold">{t('career.current')}</Chip>}
+                    <span className="shrink-0 text-[11px] font-black text-emerald-600 tabular-nums">{salary(career)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </Panel>
+        ))}
     </section>
   );
 }

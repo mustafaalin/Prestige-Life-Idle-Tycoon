@@ -19,6 +19,7 @@ import type { GameStateV2, QuestDef } from './types';
 // income sources, multipliers, legacy, money by hand); it is re-exported here so screens have one import.
 
 export * from './economy/business';
+export * from './economy/career';
 export * from './economy/income';
 export * from './economy/legacy';
 export * from './economy/manual';

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { BUSINESSES } from '../../core/config/businesses';
-import { CAREERS } from '../../core/config/careers';
+import { FIRST_JOB } from '../../core/config/careers';
 import type { GameStateV2 } from '../../core/types';
 import type { RuntimeState } from '../../runtime/engine';
 import { storyRuns } from '../../runtime/story';
@@ -30,7 +30,6 @@ export interface GuideStep {
 }
 
 const STAND = BUSINESSES[0];
-const FIRST_JOB = CAREERS[0];
 /** Bottles before the first goal is done (quests.ts `collect-5`). */
 const FIRST_BOTTLES = 5;
 export const FIRST_QUEST = 'collect-5';
@@ -54,8 +53,8 @@ export function guideStep(state: RuntimeState): GuideStep | null {
       ? step('bottles', true, { key: 'scene:item' })
       : step('claim', true, { key: `quest:${FIRST_QUEST}:claim` }, false);
   }
-  if (game.careerIndex < 0) {
-    return step('job', game.cash >= FIRST_JOB.cost, { tab: 'career', key: 'career:promote' });
+  if (game.careerId === null) {
+    return step('job', game.cash >= FIRST_JOB.cost, { tab: 'career', key: `career:take:${FIRST_JOB.id}` });
   }
   if (stand.level === 0) {
     return step('stand', canAffordStand(game), { tab: 'businesses', key: `business:${STAND.id}:level` });

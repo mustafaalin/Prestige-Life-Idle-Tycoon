@@ -23,7 +23,8 @@ import {
   createRuntimeState,
   hireManager,
   moveHome,
-  promote,
+  startCourse,
+  takeCareer,
   rentHome,
   resume,
   retire,
@@ -68,7 +69,8 @@ export interface GameActions {
   openBranch(businessId: string): boolean;
   hireManager(businessId: string): boolean;
   startCycle(businessId: string): boolean;
-  promote(): boolean;
+  takeCareer(careerId: string): boolean;
+  startCourse(courseId: string): boolean;
   buyLifestyle(itemId: string): boolean;
   /** Claims a finished goal; returns what it paid (0 if it could not be claimed). */
   claimQuest(questId: string): number;
@@ -357,7 +359,8 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       hireManager: (businessId) =>
         actTracked((s) => hireManager(s, businessId), 'manager_hire', () => ({ business_id: businessId })),
       startCycle: (businessId) => act((s) => startCycle(s, businessId)),
-      promote: () => actTracked(promote, 'promotion', () => ({ career_index: state.game.careerIndex })),
+      takeCareer: (careerId) => actTracked((s) => takeCareer(s, careerId), 'job_take', () => ({ career_id: careerId })),
+      startCourse: (courseId) => actTracked((s) => startCourse(s, courseId), 'course_start', () => ({ course_id: courseId })),
       buyLifestyle: (itemId) => actTracked((s) => buyLifestyle(s, itemId), 'lifestyle_buy', () => ({ item_id: itemId })),
       claimQuest: (questId) => {
         const before = state.game.cash;

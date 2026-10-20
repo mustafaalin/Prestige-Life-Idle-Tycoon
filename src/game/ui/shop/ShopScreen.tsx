@@ -1,8 +1,9 @@
 import { Check, Lock } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
+import { GADGETS, LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { autoIncomePerSecond } from '../../core/formulas';
+import { haptic, playSfx } from '../../runtime/feedback';
 import { canBuyNextLifestyle, canMoveUp, lifestyleNeedsClass, lifestyleNeedsHome, nextLifestyle } from '../../core/state';
 import type { GameStateV2, LifestyleKind } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
@@ -12,9 +13,10 @@ import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
 import { ICONS } from '../icons';
 import { useFocus, type ShopTabId } from '../home/focus';
-import { GameButton, Panel, Segmented, SectionLabel } from '../kit';
+import { Chip, GameButton, Panel, Segmented, SectionLabel } from '../kit';
 import { HousingPanel } from './HousingPanel';
 import { StoreStrip } from './StoreSheet';
+import { OpensJobs } from './OpensJobs';
 import { Thumb } from './Thumb';
 
 type ShopTab = ShopTabId;
@@ -24,6 +26,7 @@ const TABS: { kind: ShopTab; label: MessageKey; icon: string }[] = [
   { kind: 'vehicle', label: 'shop.vehicle', icon: ICONS.vehicle },
   { kind: 'outfit', label: 'shop.outfit', icon: ICONS.outfit },
   { kind: 'toy', label: 'shop.toy', icon: ICONS.luxury },
+  { kind: 'gadget', label: 'shop.gadget', icon: ICONS.career },
 ];
 
 /** How many not-yet-affordable dreams are previewed after the next one. */
@@ -33,6 +36,8 @@ const UPCOMING_COUNT = 3;
 /** Whether a tab has something the player can do right now (red dot). */
 function tabReady(game: GameStateV2, tab: ShopTab) {
   if (tab === 'house') return canMoveUp(game);
+  // Gear is bought for a job, not as the next dream: no dot.
+  if (tab === 'gadget') return false;
   return canBuyNextLifestyle(game, tab);
 }
 
@@ -68,6 +73,8 @@ export function ShopScreen({ onOpenStore }: { onOpenStore: () => void }) {
 
       {tab === 'house' ? (
         <HousingPanel onGoVehicles={() => setTab('vehicle')} />
+      ) : tab === 'gadget' ? (
+        <GadgetPanel />
       ) : (
         <LifestylePanel kind={tab} onGoHomes={() => setTab('house')} />
       )}
@@ -108,6 +115,7 @@ function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: (
               <Thumb image={next.image} large />
               <div className="flex-1 min-w-0">
                 <p className="v2-display text-xl leading-tight text-indigo-950">{name('lifestyle', next)}</p>
+                <OpensJobs itemId={next.id} />
               </div>
             </div>
             <Focusable focusKey={`shop:${kind}:next`}>
@@ -204,5 +212,47 @@ function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: (
         </>
       )}
     </div>
+  );
+}
+
+/** Gear: all of it on one list, each with the jobs it opens; bought once, in any order. */
+function GadgetPanel() {
+  const { game, actions } = useGameV2();
+  const { t, name, money } = useT();
+  return (
+    <Panel className="overflow-hidden">
+      <ul className="divide-y divide-indigo-50">
+        {GADGETS.map((gadget) => {
+          const owned = game.lifestyleOwned.includes(gadget.id);
+          return (
+            <li key={gadget.id} className="p-3 flex items-center gap-3">
+              <Thumb image={gadget.image} />
+              <div className="flex-1 min-w-0">
+                <p className="v2-display text-[15px] leading-tight text-indigo-950">{name('lifestyle', gadget)}</p>
+                <OpensJobs itemId={gadget.id} />
+              </div>
+              {owned ? (
+                <Chip tone="gold">{t('shop.have')}</Chip>
+              ) : (
+                <Focusable focusKey={`shop:gadget:${gadget.id}`} className="shrink-0">
+                  <GameButton
+                    onClick={() => {
+                      if (!actions.buyLifestyle(gadget.id)) return;
+                      playSfx('purchase');
+                      haptic('medium');
+                    }}
+                    disabled={game.cash < gadget.cost}
+                    className="py-2 px-3 flex flex-col items-center leading-tight"
+                  >
+                    <span className="v2-display text-[13px] v2-shadow">{t('shop.buy')}</span>
+                    <span className="v2-display text-[13px] v2-shadow tabular-nums">{money(gadget.cost)}</span>
+                  </GameButton>
+                </Focusable>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </Panel>
   );
 }

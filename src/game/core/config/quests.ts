@@ -17,10 +17,10 @@ const level = (businessId: string, value: number) => ({ type: 'level' as const, 
 export const QUESTS: QuestDef[] = [
   // A job comes first; the Flower Stand is opened from the savings (2026-10-09).
   quest('collect-5', { type: 'collect', count: 5 }, 3),
-  quest('job-1', { type: 'career', index: 0 }, 5),
+  quest('job-1', { type: 'job', careerId: 'flyer-distributor' }, 5),
   // Something to buy while saving for the stand (2026-10-13): the bike, then the second job.
   quest('vehicle-2', { type: 'vehicle', count: 1 }, 8),
-  quest('job-2', { type: 'career', index: 1 }, 15),
+  quest('job-2', { type: 'job', careerId: 'dishwasher' }, 15),
   quest('flower-open', level('flower-stand', 1), 20),
   quest('flower-level-3', level('flower-stand', 3), 40),
   quest('collect-30', { type: 'collect', count: 30 }, 30),
@@ -37,7 +37,7 @@ export const QUESTS: QuestDef[] = [
   quest('bakery-open', level('bakery', 1), 1000),
   quest('flower-store', level('flower-stand', 10), 1500),
   quest('flower-branch-1', { type: 'branches', businessId: 'flower-stand', count: 1 }, 2000),
-  quest('job-4', { type: 'career', index: 3 }, 3000),
+  quest('job-4', { type: 'job', careerId: 'waiter' }, 3000),
   quest('bakery-manager', { type: 'manager', businessId: 'bakery' }, 5000),
   quest('home-flat-2', { type: 'home', index: 4 }, 5000),
   // The Car Wash opens at Middle Class (game-design-v2 §4.2), so the class goal comes first.

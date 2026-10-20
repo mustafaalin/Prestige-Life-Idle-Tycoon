@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AD_OFFLINE_MIN_SECONDS, AD_OFFLINE_MULTIPLIER } from '../../core/config/ads';
-import { isLifeOver, offlineCapHours } from '../../core/formulas';
-import { bestOwnedLifestyle, canBuyAnythingInShop, canHandOverEarly, nextCareer, parkedVehicle } from '../../core/state';
+import { canTakeBetterCareer, isLifeOver, offlineCapHours } from '../../core/formulas';
+import { bestOwnedLifestyle, canBuyAnythingInShop, canHandOverEarly, parkedVehicle } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { initAds } from '../../runtime/ads';
 import { trackScreen } from '../../runtime/analytics';
@@ -64,7 +64,6 @@ export function HomeScreen() {
   const [storeOpen, setStoreOpen] = useState(false);
   // The album is playing a moment again: new story moments wait for it.
   const [albumPlaying, setAlbumPlaying] = useState(false);
-  const promotion = nextCareer(game);
   const adsOpen = useAdsUnlocked();
 
   const goToQuest: GoToQuest = (quest) => {
@@ -178,7 +177,7 @@ export function HomeScreen() {
           ) : storeOpen ? (
             <StoreSheet onClose={() => setStoreOpen(false)} />
           ) : tab ? (
-            <TabSheet tab={tab} onClose={() => selectTab(null)} pinnedQuest={pinnedQuest} onGo={goToQuest} onOpenStore={openStore} />
+            <TabSheet tab={tab} onClose={() => selectTab(null)} pinnedQuest={pinnedQuest} onGo={goToQuest} onGoTo={goToDream} onOpenStore={openStore} />
           ) : (
             <QuestPanel onGo={goToQuest} />
           )}
@@ -213,7 +212,7 @@ export function HomeScreen() {
             open={tab}
             onSelect={selectTab}
             attention={{
-              career: promotion !== null && game.cash >= promotion.cost,
+              career: canTakeBetterCareer(game),
               shop: canBuyAnythingInShop(game),
               // A deal is due, or the account just opened and was never used.
               invest: investTabOpen(state) && (investmentDue(state.invest, Date.now()) || state.invest.made === 0),

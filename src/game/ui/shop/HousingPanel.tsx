@@ -16,6 +16,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
 import { Chip, GameButton, Panel, SectionLabel } from '../kit';
+import { OpensJobs } from './OpensJobs';
 import { Thumb } from './Thumb';
 
 // Homes tab: rent → buy → rent out (docs/game-design-v2.md §4.8). You live in one house; the next
@@ -107,6 +108,7 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
               <Thumb image={next.image} cover large />
               <div className="flex-1 min-w-0">
                 <p className="v2-display text-xl leading-tight text-indigo-950">{name('lifestyle', next)}</p>
+                <OpensJobs homeIndex={houseIndex(next.id)} />
               </div>
             </div>
             <Focusable focusKey="shop:house:next">

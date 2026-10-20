@@ -2,6 +2,7 @@ import { X } from 'lucide-react';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
 import { BusinessesScreen } from '../businesses/BusinessesScreen';
+import type { FocusTarget } from './focus';
 import { CareerScreen } from '../career/CareerScreen';
 import { FamilyScreen } from '../family/FamilyScreen';
 import { InvestScreen } from '../invest/InvestScreen';
@@ -18,12 +19,15 @@ export function TabSheet({
   onClose,
   pinnedQuest,
   onGo,
+  onGoTo,
   onOpenStore,
 }: {
   tab: TabId;
   onClose: () => void;
   pinnedQuest: string | null;
   onGo: GoToQuest;
+  /** Opens another tab on a button ("Go" from a job's condition to the shop). */
+  onGoTo: (target: FocusTarget) => void;
   onOpenStore: () => void;
 }) {
   const { t } = useT();
@@ -53,7 +57,7 @@ export function TabSheet({
       <QuestStrip tab={tab} pinnedId={pinnedQuest} onGo={onGo} />
       <div key={tab} className="v2-sheet-body flex-1 overflow-y-auto px-3 py-3 bg-gradient-to-b from-sky-100 to-indigo-100">
         {tab === 'businesses' && <BusinessesScreen />}
-        {tab === 'career' && <CareerScreen />}
+        {tab === 'career' && <CareerScreen onGoTo={onGoTo} />}
         {tab === 'shop' && <ShopScreen onOpenStore={onOpenStore} />}
         {tab === 'invest' && <InvestScreen />}
         {tab === 'family' && <FamilyScreen onClose={onClose} />}

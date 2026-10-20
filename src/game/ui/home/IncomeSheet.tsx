@@ -29,7 +29,6 @@ export function IncomeSheet({ onClose }: { onClose: () => void }) {
   ];
   const total = sources.reduce((sum, [, amount]) => sum + amount, 0);
   const bonuses: [MessageKey, number][] = [
-    ['income.career', parts.career],
     ['income.home', parts.home],
     ['income.collar', parts.collar],
     ['income.items', parts.items],

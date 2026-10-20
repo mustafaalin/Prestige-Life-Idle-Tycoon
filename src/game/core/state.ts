@@ -1,5 +1,7 @@
 import { BUSINESSES, CLASS_MANAGER_GIFT } from './config/businesses';
-import { CAREERS } from './config/careers';
+import { careerDef } from './config/careers';
+import { courseDef } from './config/courses';
+import { SECONDS_PER_MONTH } from './config/life';
 import { STARTING_CASH } from './config/economy';
 import { CLASS_HOME_FLOOR, FIRST_OWNED_HOME, HOUSES, STARTING_HOME_ID } from './config/housing';
 import { LIFE_SECONDS } from './config/life';
@@ -10,6 +12,7 @@ import { WEALTH_CLASSES } from './config/classes';
 import { heirloomDef } from './config/heirlooms';
 import {
   ageSpeed,
+  canTakeCareer,
   branchCapAt,
   branchCost,
   businessDef,
@@ -60,8 +63,10 @@ export function createInitialState(
     generation: family.generation,
     legacyPoints: family.legacyPoints,
     businesses: emptyBusinesses(),
-    careerIndex: -1,
-    careerSeconds: 0,
+    careerId: null,
+    jobSeconds: {},
+    coursesDone: [],
+    course: null,
     lifestyleOwned: [...STARTING_LIFESTYLE_IDS],
     home: STARTING_HOME_ID,
     homesOwned: [],
@@ -79,12 +84,20 @@ export function createInitialState(
 export function live(state: GameStateV2, seconds: number): GameStateV2 {
   if (seconds <= 0 || state.lifeSeconds >= LIFE_SECONDS) return state;
   const lived = seconds * ageSpeed(state);
-  return {
+  return studied({
     ...state,
     lifeSeconds: Math.min(LIFE_SECONDS, state.lifeSeconds + lived),
     // Experience runs with age: months in a job are months of the hero's life.
-    careerSeconds: state.careerIndex >= 0 ? state.careerSeconds + lived : 0,
-  };
+    jobSeconds: state.careerId === null ? state.jobSeconds : { ...state.jobSeconds, [state.careerId]: (state.jobSeconds[state.careerId] ?? 0) + lived },
+    course: state.course ? { ...state.course, seconds: state.course.seconds + lived } : null,
+  });
+}
+
+/** A course whose months are done is finished. */
+function studied(state: GameStateV2): GameStateV2 {
+  const running = state.course ? courseDef(state.course.id) : undefined;
+  if (!state.course || !running || state.course.seconds < running.months * SECONDS_PER_MONTH) return state;
+  return { ...state, course: null, coursesDone: [...state.coursesDone, running.id] };
 }
 
 /** Adds earned money. Earned money counts toward wealth class and legacy; spending never removes it. */
@@ -175,23 +188,22 @@ export function hireManager(state: GameStateV2, businessId: string): GameStateV2
   return withBusiness(paid, businessId, { ...business, managed: true });
 }
 
-export function nextCareer(state: GameStateV2) {
-  return CAREERS[state.careerIndex + 1] ?? null;
-}
-
-/** Whether the next job's conditions (experience, ...) are met, money aside. */
-export function canTakeNextCareer(state: GameStateV2) {
-  const career = nextCareer(state);
-  return career !== null && allMet(state, career.requires);
-}
-
-/** Takes the next job; experience starts again from zero in it. */
-export function promote(state: GameStateV2): GameStateV2 | null {
-  const career = nextCareer(state);
-  if (!career || !allMet(state, career.requires)) return null;
+/** Takes a job whose conditions are met. Months worked in the old one stay (experience). */
+export function takeCareer(state: GameStateV2, careerId: string): GameStateV2 | null {
+  const career = careerDef(careerId);
+  if (!career || !canTakeCareer(state, career)) return null;
   const paid = spend(state, career.cost);
   if (!paid) return null;
-  return { ...paid, careerIndex: state.careerIndex + 1, careerSeconds: 0 };
+  return { ...paid, careerId };
+}
+
+/** Starts a course: paid up front, one at a time. */
+export function startCourse(state: GameStateV2, courseId: string): GameStateV2 | null {
+  const course = courseDef(courseId);
+  if (!course || state.course !== null || state.coursesDone.includes(courseId) || !allMet(state, course.requires)) return null;
+  const paid = spend(state, course.cost);
+  if (!paid) return null;
+  return { ...paid, course: { id: courseId, seconds: 0 } };
 }
 
 export const LIFESTYLE_KINDS: LifestyleKind[] = ['vehicle', 'outfit', 'toy'];
@@ -365,8 +377,8 @@ export function questProgress(state: GameStateV2, goal: QuestGoal): { current: n
       return { current: businessState(state, goal.businessId).branches, target: goal.count };
     case 'manager':
       return { current: businessState(state, goal.businessId).managed ? 1 : 0, target: 1 };
-    case 'career':
-      return { current: state.careerIndex + 1, target: goal.index + 1 };
+    case 'job':
+      return { current: state.careerId === goal.careerId || (state.jobSeconds[goal.careerId] ?? 0) > 0 ? 1 : 0, target: 1 };
     case 'home':
       return { current: houseIndex(state.home), target: goal.index };
     case 'class':

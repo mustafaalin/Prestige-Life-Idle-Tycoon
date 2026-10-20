@@ -1,11 +1,11 @@
 import { BUSINESSES } from '../config/businesses';
-import { CAREERS } from '../config/careers';
 import { ACTIVE_UNMANAGED_EFFICIENCY, OFFLINE_CAP_HOURS_BY_CLASS, OFFLINE_RATE } from '../config/economy';
 import { HOUSES } from '../config/housing';
 import type { BusinessDef, GameStateV2, IncomeMode } from '../types';
 import { baseBusinessIncomePerSecond, baseRunRevenue, businessState, isOpened } from './business';
 import { legacyMultiplier } from './legacy';
-import { careerBonus, collarAt, globalMultiplier, homeBonus, statusBonus } from './multipliers';
+import { currentCareer, salaryOf } from './career';
+import { collarAt, globalMultiplier, homeBonus, statusBonus } from './multipliers';
 
 // Where income comes from (docs/economy-rebuild.md §7). Each source says what it pays per second
 // before the global multiplier; totals, offline earnings and the income breakdown all add up the same
@@ -26,7 +26,7 @@ export function uptime(managed: boolean, mode: IncomeMode) {
 }
 
 export function salaryPerSecond(state: GameStateV2) {
-  return state.careerIndex >= 0 ? CAREERS[state.careerIndex].salaryPerSecond : 0;
+  return salaryOf(currentCareer(state));
 }
 
 /** Base rent per second from owned houses you do not live in (before global multipliers). */
@@ -96,7 +96,6 @@ export function incomeBreakdown(state: GameStateV2) {
   const collar = collarAt(state.classIndex)?.statusBonus ?? 0;
   return {
     ...sources,
-    career: careerBonus(state),
     home,
     collar,
     items: statusBonus(state) - home - collar,

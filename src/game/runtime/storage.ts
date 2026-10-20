@@ -1,7 +1,8 @@
 import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { BUSINESSES } from '../core/config/businesses';
-import { CAREERS } from '../core/config/careers';
+import { careerDef, LEGACY_CAREER_IDS } from '../core/config/careers';
+import { COURSES, courseDef } from '../core/config/courses';
 import { WEALTH_CLASSES } from '../core/config/classes';
 import { HEIRLOOMS } from '../core/config/heirlooms';
 import { HOUSES, LEGACY_HOUSE_TO_HOME } from '../core/config/housing';
@@ -114,9 +115,11 @@ function normalizeGame(raw: unknown): GameStateV2 {
     generation: Math.floor(finite(raw.generation, 1, 1)),
     legacyPoints: Math.floor(finite(raw.legacyPoints, 0)),
     businesses,
-    careerIndex: Math.min(Math.floor(finite(raw.careerIndex, -1, -1)), CAREERS.length - 1),
-    // Saves from before job experience (2026-10-21) start the current job's experience at zero.
-    careerSeconds: finite(raw.careerSeconds, 0),
+    careerId: normalizeCareerId(raw),
+    // Saves from before the job board (2026-10-21) start with no experience on record.
+    jobSeconds: normalizeSeconds(raw.jobSeconds, (id) => careerDef(id) !== undefined),
+    coursesDone: stringList(raw.coursesDone).filter((id) => courseDef(id) !== undefined),
+    course: normalizeCourse(raw.course),
     lifestyleOwned: [...new Set([...base.lifestyleOwned, ...legacyOutfits, ...legacyVehicles, ...savedItems])],
     home,
     homesOwned,
@@ -131,6 +134,30 @@ function normalizeGame(raw: unknown): GameStateV2 {
     // Saves from before the heirlooms (2026-10-15) have none: their legacy points are now there to spend.
     heirlooms: normalizeHeirlooms(raw.heirlooms),
   });
+}
+
+/** The job held: its id, or the old single ladder's index (saves from before 2026-10-21). */
+function normalizeCareerId(raw: Raw): string | null {
+  if (typeof raw.careerId === 'string' && careerDef(raw.careerId)) return raw.careerId;
+  const index = Math.floor(finite(raw.careerIndex, -1, -1));
+  return LEGACY_CAREER_IDS[index] ?? null;
+}
+
+/** Seconds by id for known ids only. */
+function normalizeSeconds(raw: unknown, known: (id: string) => boolean): Record<string, number> {
+  const seconds: Record<string, number> = {};
+  if (!isRecord(raw)) return seconds;
+  for (const [id, value] of Object.entries(raw)) {
+    const amount = finite(value, 0);
+    if (known(id) && amount > 0) seconds[id] = amount;
+  }
+  return seconds;
+}
+
+/** A running course that still exists (its money was paid, so it is never dropped otherwise). */
+function normalizeCourse(raw: unknown): GameStateV2['course'] {
+  if (!isRecord(raw) || typeof raw.id !== 'string' || !COURSES.some((course) => course.id === raw.id)) return null;
+  return { id: raw.id, seconds: finite(raw.seconds, 0) };
 }
 
 /** Known heirlooms only, whole levels, never past the last level. */

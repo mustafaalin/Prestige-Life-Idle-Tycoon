@@ -44,21 +44,38 @@ export type Requirement =
   | { type: 'home'; index: number }
   | { type: 'item'; itemId: string }
   | { type: 'businessLevel'; businessId: string; level: number }
-  /** Game months worked in the current job (time played, like age). */
-  | { type: 'experience'; months: number };
+  /** Game months worked in a job, now or before (time played, like age). */
+  | { type: 'job'; careerId: string; months: number }
+  /** A finished course. */
+  | { type: 'course'; courseId: string }
+  /** Any one of these. */
+  | { type: 'anyOf'; options: Requirement[] };
+
+/** The field a job belongs to (careers.ts CAREER_TRACKS); the career screen groups jobs by it. */
+export type CareerTrack = 'start' | 'food' | 'sales' | 'transport' | 'tech' | 'finance' | 'trades' | 'media' | 'health' | 'top';
 
 export interface CareerDef {
   id: string;
   name: string;
   image: string;
-  /** Price to get this job (training, clothes, licence...). */
+  track: CareerTrack;
+  /** A small price to take the job (clothes, a fee, a licence card). */
   cost: number;
-  /** What has to be true before this job can be taken (experience in the job before it, ...). */
-  requires: Requirement[];
   /** Salary per second; paid automatically, online and offline. */
   salaryPerSecond: number;
-  /** Permanent additive bonus to all income while this generation lasts (0.1 = +10%). */
-  incomeBonus: number;
+  /** What has to be true before the job can be taken: experience, a course, an item, an address... */
+  requires: Requirement[];
+}
+
+/** A course taken alongside work: costs money, takes game months of play, opens jobs (docs/economy-rebuild.md §5). */
+export interface CourseDef {
+  id: string;
+  name: string;
+  cost: number;
+  /** Game months of play it takes (one month = 80 s, like age). */
+  months: number;
+  /** Courses that must be finished first. */
+  requires: Requirement[];
 }
 
 export interface WealthClassDef {
@@ -69,7 +86,8 @@ export interface WealthClassDef {
 }
 
 /** Homes are not status items: you live in one and rent or buy it (HouseDef, config/housing.ts). */
-export type LifestyleKind = 'vehicle' | 'outfit' | 'toy';
+/** Gadgets (phone, laptop...) are bought once and open jobs; they are not "dreams" (no next-in-line). */
+export type LifestyleKind = 'vehicle' | 'outfit' | 'toy' | 'gadget';
 
 export interface LifestyleDef {
   id: string;
@@ -116,7 +134,7 @@ export type QuestGoal =
   /** Own this many branches of a business. */
   | { type: 'branches'; businessId: string; count: number }
   | { type: 'manager'; businessId: string }
-  | { type: 'career'; index: number }
+  | { type: 'job'; careerId: string }
   | { type: 'home'; index: number }
   | { type: 'class'; index: number }
   /** Vehicles bought (the free starting one doesn't count). */
@@ -140,10 +158,14 @@ export interface GameStateV2 {
   generation: number;
   legacyPoints: number;
   businesses: Record<string, BusinessState>;
-  /** Index into CAREERS; -1 = no job yet (living on the street). */
-  careerIndex: number;
-  /** Seconds played in the current job (only while the game is open, like age): its experience. */
-  careerSeconds: number;
+  /** The job held now (CareerDef id), or null: no job yet. */
+  careerId: string | null;
+  /** Seconds played in each job ever held (only while the game is open, like age): experience. */
+  jobSeconds: Record<string, number>;
+  /** Courses finished (CourseDef ids). */
+  coursesDone: string[];
+  /** The course being taken, one at a time, and the seconds of play spent on it. */
+  course: { id: string; seconds: number } | null;
   lifestyleOwned: string[];
   /** Id of the house you live in (rented unless it is in homesOwned). */
   home: string;

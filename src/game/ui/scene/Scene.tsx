@@ -95,7 +95,7 @@ function progressMark(game: GameStateV2) {
   }
   return (
     owned +
-    game.careerIndex +
+    Object.keys(game.jobSeconds).length +
     game.classIndex +
     game.lifestyleOwned.length +
     game.homesOwned.length +

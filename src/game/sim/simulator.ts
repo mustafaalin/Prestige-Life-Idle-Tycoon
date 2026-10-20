@@ -11,7 +11,9 @@ import {
   businessState,
   canOpenBranch,
   canOpenBusiness,
-  careerBonus,
+  availableCourses,
+  careersNeedingCourse,
+  currentCareer,
   globalMultiplier,
   heirloomLevel,
   heirloomPrice,
@@ -77,16 +79,21 @@ import {
   lifestyleLocked,
   live,
   moveUpNeedsVehicle,
-  nextCareer,
   nextHome,
   nextLifestyle,
   ownsHouse,
-  promote,
+  startCourse,
+  takeCareer,
   rentHome,
   handOverEarly,
   retire,
 } from '../core/state';
 import { HEIRLOOMS } from '../core/config/heirlooms';
+import { CAREERS } from '../core/config/careers';
+import { LIFESTYLE_ITEMS } from '../core/config/lifestyle';
+import { unmet } from '../core/requirements';
+
+const ITEM_BY_ID = new Map(LIFESTYLE_ITEMS.map((item) => [item.id, item]));
 import type { GameStateV2 } from '../core/types';
 
 export interface Session {
@@ -141,6 +148,7 @@ export type SimEventKind =
   | 'business'
   | 'manager'
   | 'career'
+  | 'course'
   | 'lifestyle'
   | 'home'
   | 'branch'
@@ -231,9 +239,25 @@ function candidates(state: GameStateV2): Candidate[] {
     }
   }
 
-  const career = nextCareer(state);
-  if (career) {
-    list.push({ label: `Job: ${career.name}`, kind: 'career', cost: career.cost, apply: promote });
+  // Jobs (economy-rebuild §5): any better-paying job whose missing conditions are only items the bot
+  // can buy now; the items are bought with it. Courses are started separately (maybeStudy).
+  const salary = currentCareer(state)?.salaryPerSecond ?? 0;
+  for (const career of CAREERS) {
+    if (career.salaryPerSecond <= salary || career.id === state.careerId) continue;
+    const missing = unmet(state, career.requires);
+    const items = missing.flatMap((requirement) => (requirement.type === 'item' ? [ITEM_BY_ID.get(requirement.itemId)] : []));
+    if (items.length !== missing.length || items.some((item) => !item || lifestyleLocked(state, item))) continue;
+    const gear = items.filter((item) => item !== undefined);
+    list.push({
+      label: `Job: ${career.name}${gear.length ? ` (+ ${gear.map((item) => item.name).join(', ')})` : ''}`,
+      kind: 'career',
+      cost: career.cost + gear.reduce((sum, item) => sum + item.cost, 0),
+      apply: (s) => {
+        let next: GameStateV2 | null = s;
+        for (const item of gear) next = next && buyLifestyle(next, item.id);
+        return next && takeCareer(next, career.id);
+      },
+    });
   }
 
   for (const kind of LIFESTYLE_KINDS) {
@@ -477,10 +501,29 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     }
   };
 
+  /**
+   * Courses: with none running, the bot starts the cheapest one that opens a job paying more than its
+   * own, once it has the money (a real player studies for the job they want, not for every job).
+   */
+  const maybeStudy = () => {
+    if (state.course) return;
+    const salary = currentCareer(state)?.salaryPerSecond ?? 0;
+    const worth = availableCourses(state)
+      .filter((course) => careersNeedingCourse(course.id).some((career) => career.salaryPerSecond > salary))
+      .sort((a, b) => a.cost - b.cost)[0];
+    if (!worth || state.cash < worth.cost) return;
+    const next = startCourse(state, worth.id);
+    if (next) {
+      state = next;
+      log('course', `Course: ${worth.name}`);
+    }
+  };
+
   const playSession = (sessionSeconds: number) => {
     const end = time.clock + sessionSeconds;
     maybeRetire();
     while (time.clock < end) {
+      maybeStudy();
       const rate = activeRate();
       let best: { candidate: Candidate; wait: number; score: number } | null = null;
       for (const candidate of candidates(state)) {
@@ -704,7 +747,8 @@ export function sessionSummary(state: GameStateV2) {
     .join(', ');
   return [
     `cash ${state.cash.toExponential(2)}`,
-    `x${globalMultiplier(state).toFixed(1)} (career +${Math.round(careerBonus(state) * 100)}%, status +${Math.round(statusBonus(state) * 100)}%, legacy x${legacyMultiplier(state).toFixed(2)})`,
+    `x${globalMultiplier(state).toFixed(1)} (status +${Math.round(statusBonus(state) * 100)}%, legacy x${legacyMultiplier(state).toFixed(2)})`,
+    `job ${state.careerId ?? '-'}, courses ${state.coursesDone.length}`,
     `items ${state.lifestyleOwned.length}`,
     `home ${state.home}${state.homesOwned.includes(state.home) ? ' (owned)' : ''}, owns ${state.homesOwned.length}`,
     `salary ${Math.round((salary / total) * 100)}%`,

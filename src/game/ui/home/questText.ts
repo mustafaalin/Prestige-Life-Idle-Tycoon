@@ -1,5 +1,5 @@
 import { BUSINESSES } from '../../core/config/businesses';
-import { CAREERS } from '../../core/config/careers';
+import { careerDef, FIRST_JOB } from '../../core/config/careers';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { HOUSES } from '../../core/config/housing';
 import { LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
@@ -45,8 +45,11 @@ export function questText(quest: QuestDef, words: Words) {
       return t('quests.branches', { business: businessName(goal.businessId, words), count: goal.count });
     case 'manager':
       return t('quests.manager', { business: businessName(goal.businessId, words) });
-    case 'career':
-      return t(goal.index === 0 ? 'quests.career' : 'quests.promote', { job: name('career', CAREERS[goal.index]) });
+    case 'job': {
+      const career = careerDef(goal.careerId);
+      const job = career ? name('career', career) : goal.careerId;
+      return t(career === FIRST_JOB ? 'quests.career' : 'quests.promote', { job });
+    }
     case 'home':
       return t('quests.home', { home: name('lifestyle', HOUSES[goal.index]) });
     case 'class':
@@ -81,8 +84,8 @@ export function questVisual(quest: QuestDef): QuestVisual {
     }
     case 'manager':
       return { image: managerPortrait(goal.businessId), round: true };
-    case 'career':
-      return { image: CAREERS[goal.index].image };
+    case 'job':
+      return { image: careerDef(goal.careerId)?.image ?? ICONS.career };
     case 'home':
       return { image: HOUSES[goal.index].image, cover: true };
     case 'class':
@@ -102,8 +105,8 @@ export function questTarget(quest: QuestDef): FocusTarget | null {
       return { tab: 'businesses', key: `business:${goal.businessId}:branch` };
     case 'manager':
       return { tab: 'businesses', key: `business:${goal.businessId}:manager` };
-    case 'career':
-      return { tab: 'career', key: 'career:promote' };
+    case 'job':
+      return { tab: 'career', key: `career:take:${goal.careerId}` };
     case 'home':
       return { tab: 'shop', shopTab: 'house', key: 'shop:house:next' };
     case 'vehicle':

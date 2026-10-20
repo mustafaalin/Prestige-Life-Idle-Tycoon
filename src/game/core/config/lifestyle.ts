@@ -107,7 +107,25 @@ export const LUXURY_TOYS: LifestyleDef[] = TOYS.map((toy, index) => ({
   statusBonus: ITEM_STATUS_BONUS,
 }));
 
-export const LIFESTYLE_ITEMS: LifestyleDef[] = [...VEHICLES, ...OUTFITS, ...LUXURY_TOYS];
+/**
+ * Gear (2026-10-21): bought once at a real price, they open jobs (careers.ts) rather than show on the
+ * scene. Art comes with the job icons (plan Faz E4); until then they show the shop icon.
+ */
+const GADGET_SPECS: { id: string; name: string; cost: number }[] = [
+  { id: 'gadget-phone', name: 'Smartphone', cost: 300 },
+  { id: 'gadget-toolbox', name: 'Toolbox', cost: 400 },
+  { id: 'gadget-camera', name: 'Camera', cost: 900 },
+  { id: 'gadget-laptop', name: 'Laptop', cost: 1_200 },
+];
+
+export const GADGETS: LifestyleDef[] = GADGET_SPECS.map((gadget) => ({
+  ...gadget,
+  kind: 'gadget',
+  image: '/assets/icons/v2/shop.webp',
+  statusBonus: ITEM_STATUS_BONUS,
+}));
+
+export const LIFESTYLE_ITEMS: LifestyleDef[] = [...VEHICLES, ...OUTFITS, ...LUXURY_TOYS, ...GADGETS];
 
 /** Items every new life starts with. */
 export const STARTING_LIFESTYLE_IDS = ['outfit-hoodie'];

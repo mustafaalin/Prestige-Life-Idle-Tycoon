@@ -124,7 +124,7 @@ export function checkFeel(result: SimResult) {
   ];
 }
 
-const TIMELINE_KINDS = new Set(['class', 'rank', 'manager', 'career', 'retire', 'business', 'session']);
+const TIMELINE_KINDS = new Set(['class', 'rank', 'manager', 'career', 'course', 'retire', 'business', 'session']);
 
 export function timeline(result: SimResult, maxRows = 200, kinds: Set<string> = TIMELINE_KINDS) {
   return result.events
