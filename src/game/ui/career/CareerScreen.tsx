@@ -1,27 +1,39 @@
 import { Briefcase, Check, Lock } from 'lucide-react';
 import { CAREERS } from '../../core/config/careers';
-import { autoIncomePerSecond, careerBonus, globalMultiplier, salaryPerSecond } from '../../core/formulas';
-import { nextCareer, promote } from '../../core/state';
+import { autoIncomePerSecond, globalMultiplier, salaryPerSecond } from '../../core/formulas';
+import { experienceMonths } from '../../core/requirements';
+import { canTakeNextCareer, nextCareer, promote } from '../../core/state';
+import type { CareerDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
 import { Chip, GameButton, ImageTile, Panel, SectionLabel } from '../kit';
 
-const percent = (fraction: number) => Math.round(fraction * 100);
+/** Months in the job before that a job asks for (0 for the first job). */
+const monthsNeeded = (career: CareerDef) =>
+  career.requires.reduce((months, requirement) => (requirement.type === 'experience' ? Math.max(months, requirement.months) : months), 0);
 
-/** Current job, the next promotion as the one big call to action, and the whole ladder for ambition. */
+/**
+ * Current job, the next promotion as the one big call to action, and the whole ladder for ambition.
+ * A job opens after enough months in the one before (docs/economy-rebuild.md §5); money only pays
+ * for the small things it needs.
+ */
 export function CareerScreen() {
   const { game, actions } = useGameV2();
   const { t, name, money, duration, perMonth } = useT();
 
   const current = game.careerIndex >= 0 ? CAREERS[game.careerIndex] : null;
   const next = nextCareer(game);
-  const promoted = next ? promote({ ...game, cash: Number.POSITIVE_INFINITY }) : null;
+  // Its gain as if it were open already (experience aside), so the card can show what it is worth.
+  const promoted = next ? promote({ ...game, cash: Number.POSITIVE_INFINITY, careerSeconds: Number.POSITIVE_INFINITY }) : null;
   const incomeGain = promoted ? autoIncomePerSecond(promoted) - autoIncomePerSecond(game) : 0;
   const income = autoIncomePerSecond(game);
-  const canPromote = next !== null && game.cash >= next.cost;
-  const secondsToAfford = next && !canPromote && income > 0 ? (next.cost - game.cash) / income : null;
+  const experienced = canTakeNextCareer(game);
+  const canPromote = next !== null && experienced && game.cash >= next.cost;
+  const secondsToAfford = next && experienced && !canPromote && income > 0 ? (next.cost - game.cash) / income : null;
+  const needed = next ? monthsNeeded(next) : 0;
+  const worked = Math.min(experienceMonths(game), needed);
 
   return (
     <section className="flex flex-col gap-3">
@@ -43,11 +55,6 @@ export function CareerScreen() {
               ? t('career.salary', { amount: perMonth(salaryPerSecond(game) * globalMultiplier(game)) })
               : t('career.unemployedBody')}
           </p>
-          {current && (
-            <p className="text-[11px] font-bold text-violet-600">
-              {t('career.totalBonus', { percent: percent(careerBonus(game)) })}
-            </p>
-          )}
         </div>
       </Panel>
 
@@ -82,11 +89,19 @@ export function CareerScreen() {
               </div>
               <div className="rounded-xl bg-violet-50 border border-violet-100 p-2.5">
                 <p className="text-[10px] font-black uppercase tracking-widest text-violet-700/70">
-                  {t('career.bonusLabel')}
+                  {t('career.experienceLabel')}
                 </p>
-                <p className="v2-display text-[15px] text-violet-700">
-                  {t('career.bonusShort', { percent: percent(next.incomeBonus) })}
+                <p className="v2-display text-[15px] text-violet-700 tabular-nums">
+                  {needed > 0 ? t('career.experience', { done: worked, need: needed }) : t('career.noExperience')}
                 </p>
+                {needed > 0 && (
+                  <div className="mt-1 h-1.5 rounded-full bg-violet-100 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-violet-400 to-indigo-500 transition-all duration-300"
+                      style={{ width: `${(worked / needed) * 100}%` }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -102,6 +117,11 @@ export function CareerScreen() {
                 <span className="v2-display text-[16px] v2-shadow tabular-nums">{money(next.cost)}</span>
               </GameButton>
             </Focusable>
+            {!experienced && needed > 0 && (
+              <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
+                {t('career.workMore', { months: needed - worked, count: needed - worked })}
+              </p>
+            )}
             {secondsToAfford !== null && (
               <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
                 {t('common.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}
@@ -157,9 +177,11 @@ export function CareerScreen() {
                   </span>
                   {isCurrent && <Chip tone="gold">{t('career.current')}</Chip>}
                 </span>
-                <span className="shrink-0 text-[11px] font-black text-violet-500 tabular-nums">
-                  {t('career.bonusShort', { percent: percent(career.incomeBonus) })}
-                </span>
+                {monthsNeeded(career) > 0 && (
+                  <span className="shrink-0 text-[11px] font-black text-violet-500 tabular-nums">
+                    {t('career.monthsShort', { months: monthsNeeded(career) })}
+                  </span>
+                )}
                 <span
                   className={`shrink-0 w-16 text-right text-[11px] font-black tabular-nums ${
                     done || isCurrent ? 'text-slate-300' : 'text-indigo-900/70'

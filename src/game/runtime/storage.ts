@@ -115,6 +115,8 @@ function normalizeGame(raw: unknown): GameStateV2 {
     legacyPoints: Math.floor(finite(raw.legacyPoints, 0)),
     businesses,
     careerIndex: Math.min(Math.floor(finite(raw.careerIndex, -1, -1)), CAREERS.length - 1),
+    // Saves from before job experience (2026-10-21) start the current job's experience at zero.
+    careerSeconds: finite(raw.careerSeconds, 0),
     lifestyleOwned: [...new Set([...base.lifestyleOwned, ...legacyOutfits, ...legacyVehicles, ...savedItems])],
     home,
     homesOwned,

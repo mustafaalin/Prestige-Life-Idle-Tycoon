@@ -43,7 +43,9 @@ export type Requirement =
   /** Live in this home (index into HOUSES) or a better one. */
   | { type: 'home'; index: number }
   | { type: 'item'; itemId: string }
-  | { type: 'businessLevel'; businessId: string; level: number };
+  | { type: 'businessLevel'; businessId: string; level: number }
+  /** Game months worked in the current job (time played, like age). */
+  | { type: 'experience'; months: number };
 
 export interface CareerDef {
   id: string;
@@ -51,6 +53,8 @@ export interface CareerDef {
   image: string;
   /** Price to get this job (training, clothes, licence...). */
   cost: number;
+  /** What has to be true before this job can be taken (experience in the job before it, ...). */
+  requires: Requirement[];
   /** Salary per second; paid automatically, online and offline. */
   salaryPerSecond: number;
   /** Permanent additive bonus to all income while this generation lasts (0.1 = +10%). */
@@ -138,6 +142,8 @@ export interface GameStateV2 {
   businesses: Record<string, BusinessState>;
   /** Index into CAREERS; -1 = no job yet (living on the street). */
   careerIndex: number;
+  /** Seconds played in the current job (only while the game is open, like age): its experience. */
+  careerSeconds: number;
   lifestyleOwned: string[];
   /** Id of the house you live in (rented unless it is in homesOwned). */
   home: string;

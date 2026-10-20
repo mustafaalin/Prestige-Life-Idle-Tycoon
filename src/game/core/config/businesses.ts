@@ -37,16 +37,21 @@ function ladder(openCost: number, firstMonthly: number, cycleSeconds: number): B
   }));
 }
 
-/** Each branch costs this much more than the one before (low on purpose: no runaway prices). */
-const BRANCH_COST_GROWTH = 1.15;
+/**
+ * A branch is a whole new store: the first costs what every level of the line cost together (from
+ * zero to the store), and each next one this much more. A branch repays slower than the levels did,
+ * so the cheapest line's branches are not the best buy in the game (2026-10-21: at the top level's
+ * price and ×1.15 the bot opened 30 flower stores by Millionaire).
+ */
+const BRANCH_COST_GROWTH = 1.4;
 /** Manager price as a multiple of opening the business. */
-const MANAGER_COST_MULTIPLE = 3;
+const MANAGER_COST_MULTIPLE = 4;
 
 /**
  * Branches allowed by classes since the line opened (the old unit caps, decided 2026-10-16): a
  * ceremony lets a business spread further. Past the end there is no limit.
  */
-export const BRANCH_CAP_STEPS = [2, 5, 10, 20];
+export const BRANCH_CAP_STEPS = [1, 2, 4, 8, 16, 32];
 
 /**
  * The Billionaire ceremony brings Mr. Bryce to work for the hero (story-v2 §4): the first hotel and
@@ -55,26 +60,34 @@ export const BRANCH_CAP_STEPS = [2, 5, 10, 20];
 export const CLASS_MANAGER_GIFT = { classIndex: 5, businessId: 'hotel' };
 
 const ART = '/assets/businesses/v2';
+/** Lines whose art and manager portrait are not drawn yet (plan Faz E3): they show the business icon. */
+export const ART_PENDING = new Set(['restaurant', 'real-estate-office', 'construction', 'media']);
+const PENDING_IMAGE = '/assets/icons/v2/business.webp';
 
-// openCost: opening the business · firstMonthly: what level 1 earns a month with a manager.
-// openClass: the class the line opens at (decided 2026-10-16: Middle Class opens two lines,
-// Millionaire two, Billionaire three).
-const LINES: { id: string; name: string; openCost: number; firstMonthly: number; cycleSeconds: number; openClass: number }[] = [
-  { id: 'flower-stand', name: 'Flower Stand', openCost: 500, firstMonthly: 400, cycleSeconds: 5, openClass: 0 },
-  { id: 'coffee-cart', name: 'Coffee Cart', openCost: 4e3, firstMonthly: 1.5e3, cycleSeconds: 6, openClass: 1 },
-  { id: 'bakery', name: 'Bakery', openCost: 3e4, firstMonthly: 5e3, cycleSeconds: 8, openClass: 2 },
-  { id: 'car-wash', name: 'Car Wash', openCost: 1.2e5, firstMonthly: 1.2e4, cycleSeconds: 9, openClass: 3 },
-  { id: 'mini-market', name: 'Mini Market', openCost: 5e5, firstMonthly: 3e4, cycleSeconds: 10, openClass: 3 },
-  { id: 'beauty-salon', name: 'Beauty Salon', openCost: 2e6, firstMonthly: 8e4, cycleSeconds: 11, openClass: 4 },
-  { id: 'logistics-warehouse', name: 'Logistics Warehouse', openCost: 1.5e7, firstMonthly: 4e5, cycleSeconds: 12, openClass: 4 },
-  { id: 'factory', name: 'Factory', openCost: 1e8, firstMonthly: 2e6, cycleSeconds: 13, openClass: 5 },
-  { id: 'hotel', name: 'Hotel Chain', openCost: 6e8, firstMonthly: 9e6, cycleSeconds: 14, openClass: 5 },
-  { id: 'tech-startup', name: 'Tech Startup', openCost: 4e9, firstMonthly: 5e7, cycleSeconds: 15, openClass: 5 },
+// openCost: opening the business · paybackMonths: game months level 1 takes to repay the opening
+// (bigger businesses repay slower, economy-rebuild §2) · openClass: the class the line opens at.
+// Fourteen lines (decided 2026-10-21); restaurant, real-estate-office, construction and media are new
+// and wait for their art and managers (plan Faz E3).
+const LINES: { id: string; name: string; openCost: number; paybackMonths: number; cycleSeconds: number; openClass: number }[] = [
+  { id: 'flower-stand', name: 'Flower Stand', openCost: 1000, paybackMonths: 1.25, cycleSeconds: 5, openClass: 0 },
+  { id: 'coffee-cart', name: 'Coffee Cart', openCost: 4e3, paybackMonths: 8, cycleSeconds: 6, openClass: 1 },
+  { id: 'bakery', name: 'Bakery', openCost: 3e4, paybackMonths: 28, cycleSeconds: 8, openClass: 2 },
+  { id: 'car-wash', name: 'Car Wash', openCost: 1.2e5, paybackMonths: 50, cycleSeconds: 9, openClass: 2 },
+  { id: 'mini-market', name: 'Mini Market', openCost: 4e5, paybackMonths: 80, cycleSeconds: 10, openClass: 3 },
+  { id: 'restaurant', name: 'Restaurant', openCost: 8e5, paybackMonths: 110, cycleSeconds: 10, openClass: 3 },
+  { id: 'beauty-salon', name: 'Beauty Salon', openCost: 1.5e6, paybackMonths: 140, cycleSeconds: 11, openClass: 3 },
+  { id: 'real-estate-office', name: 'Real Estate Office', openCost: 3e6, paybackMonths: 170, cycleSeconds: 11, openClass: 4 },
+  { id: 'logistics-warehouse', name: 'Logistics Warehouse', openCost: 1e7, paybackMonths: 150, cycleSeconds: 12, openClass: 4 },
+  { id: 'construction', name: 'Construction Company', openCost: 2.5e7, paybackMonths: 180, cycleSeconds: 12, openClass: 4 },
+  { id: 'factory', name: 'Factory', openCost: 6e7, paybackMonths: 210, cycleSeconds: 13, openClass: 4 },
+  { id: 'hotel', name: 'Hotel Chain', openCost: 1.5e8, paybackMonths: 250, cycleSeconds: 14, openClass: 5 },
+  { id: 'media', name: 'Media Company', openCost: 4e8, paybackMonths: 300, cycleSeconds: 14, openClass: 5 },
+  { id: 'tech-startup', name: 'Tech Startup', openCost: 1e9, paybackMonths: 360, cycleSeconds: 15, openClass: 5 },
 ];
 
 /** The Flower Stand has its own designed table (economy-rebuild §3.2); the others follow its shape for now. */
 const FLOWER_STAND_LEVELS: BusinessLevelDef[] = [
-  { cost: 500, revenue: 25, stage: 0 },
+  { cost: 1000, revenue: 25, stage: 0 },
   { cost: 300, revenue: 32, stage: 0 },
   { cost: 600, revenue: 40, stage: 0 },
   { cost: 1500, revenue: 55, stage: 0 },
@@ -86,17 +99,20 @@ const FLOWER_STAND_LEVELS: BusinessLevelDef[] = [
   { cost: 80000, revenue: 400, stage: 2 },
 ];
 
-export const BUSINESSES: BusinessDef[] = LINES.map(({ openCost, firstMonthly, openClass, ...line }) => {
-  const levels = line.id === 'flower-stand' ? FLOWER_STAND_LEVELS : ladder(openCost, firstMonthly, line.cycleSeconds);
+/** Old Ray, the first manager: a little dearer than the rule so he comes after the first few minutes of running the stand by hand. */
+const FLOWER_STAND_MANAGER = 5000;
+
+export const BUSINESSES: BusinessDef[] = LINES.map(({ openCost, paybackMonths, openClass, ...line }) => {
+  const levels = line.id === 'flower-stand' ? FLOWER_STAND_LEVELS : ladder(openCost, openCost / paybackMonths, line.cycleSeconds);
   return {
     ...line,
-    image: `${ART}/${line.id}.webp`,
+    image: ART_PENDING.has(line.id) ? PENDING_IMAGE : `${ART}/${line.id}.webp`,
     // Shop and store art comes with plan Faz E3 (GPT); until then every stage shows the first look.
-    stageImages: [`${ART}/${line.id}.webp`],
+    stageImages: ART_PENDING.has(line.id) ? [] : [`${ART}/${line.id}.webp`],
     levels,
-    branchCost: levels[levels.length - 1].cost,
+    branchCost: roundNice(levels.reduce((sum, level) => sum + level.cost, 0)),
     branchCostGrowth: BRANCH_COST_GROWTH,
-    managerCost: roundNice(openCost * MANAGER_COST_MULTIPLE),
+    managerCost: line.id === 'flower-stand' ? FLOWER_STAND_MANAGER : roundNice(openCost * MANAGER_COST_MULTIPLE),
     requires: openClass > 0 ? [{ type: 'class', index: openClass }] : [],
   };
 });

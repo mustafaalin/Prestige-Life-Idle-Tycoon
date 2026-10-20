@@ -30,6 +30,7 @@ import {
   pendingLegacyPoints,
   questReward,
 } from './formulas';
+import { allMet } from './requirements';
 import type { BusinessDef, BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind, QuestDef, QuestGoal } from './types';
 
 // Pure state transitions. Every action returns a new state, or null when it is not allowed.
@@ -60,6 +61,7 @@ export function createInitialState(
     legacyPoints: family.legacyPoints,
     businesses: emptyBusinesses(),
     careerIndex: -1,
+    careerSeconds: 0,
     lifestyleOwned: [...STARTING_LIFESTYLE_IDS],
     home: STARTING_HOME_ID,
     homesOwned: [],
@@ -76,7 +78,13 @@ export function createInitialState(
 /** Ages the hero by `seconds` of play (faster at the top class, formulas.ts ageSpeed); stops at the end of life. */
 export function live(state: GameStateV2, seconds: number): GameStateV2 {
   if (seconds <= 0 || state.lifeSeconds >= LIFE_SECONDS) return state;
-  return { ...state, lifeSeconds: Math.min(LIFE_SECONDS, state.lifeSeconds + seconds * ageSpeed(state)) };
+  const lived = seconds * ageSpeed(state);
+  return {
+    ...state,
+    lifeSeconds: Math.min(LIFE_SECONDS, state.lifeSeconds + lived),
+    // Experience runs with age: months in a job are months of the hero's life.
+    careerSeconds: state.careerIndex >= 0 ? state.careerSeconds + lived : 0,
+  };
 }
 
 /** Adds earned money. Earned money counts toward wealth class and legacy; spending never removes it. */
@@ -171,12 +179,19 @@ export function nextCareer(state: GameStateV2) {
   return CAREERS[state.careerIndex + 1] ?? null;
 }
 
+/** Whether the next job's conditions (experience, ...) are met, money aside. */
+export function canTakeNextCareer(state: GameStateV2) {
+  const career = nextCareer(state);
+  return career !== null && allMet(state, career.requires);
+}
+
+/** Takes the next job; experience starts again from zero in it. */
 export function promote(state: GameStateV2): GameStateV2 | null {
   const career = nextCareer(state);
-  if (!career) return null;
+  if (!career || !allMet(state, career.requires)) return null;
   const paid = spend(state, career.cost);
   if (!paid) return null;
-  return { ...paid, careerIndex: state.careerIndex + 1 };
+  return { ...paid, careerIndex: state.careerIndex + 1, careerSeconds: 0 };
 }
 
 export const LIFESTYLE_KINDS: LifestyleKind[] = ['vehicle', 'outfit', 'toy'];

@@ -24,10 +24,12 @@ export const INVEST_PLANS: InvestPlan[] = [
 ];
 
 /**
- * The most that can go in, in months of income (60 = five years). Without a cap the savings snowball
- * session after session and the account pays a quarter to most of the game (simulator, 2026-10-15).
+ * The most that can go in, in months of income (24 = two years; 60 until the economy rebuild,
+ * 2026-10-21, when offline earnings fell to 20% and the deals grew to an eighth of all money). Without
+ * a cap the savings snowball session after session and the account pays a quarter to most of the game
+ * (simulator, 2026-10-15).
  */
-export const INVEST_CAP_MONTHS = 60;
+export const INVEST_CAP_MONTHS = 24;
 
 /** The account opens with Middle Class, when players start saving for big purchases. */
 export const INVEST_FROM_CLASS = WEALTH_CLASSES.findIndex((wealthClass) => wealthClass.id === 'middle-class');

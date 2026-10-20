@@ -1,6 +1,6 @@
 import { Home, KeyRound, Lock } from 'lucide-react';
-import { HOUSES, OWNER_HOME_BONUS } from '../../core/config/housing';
-import { autoIncomePerSecond, globalMultiplier, homeBonus, rentPerSecond } from '../../core/formulas';
+import { HOUSES } from '../../core/config/housing';
+import { autoIncomePerSecond, globalMultiplier, rentPerSecond } from '../../core/formulas';
 import {
   currentHome,
   houseIndex,
@@ -24,7 +24,6 @@ import { Thumb } from './Thumb';
 
 const UPCOMING_COUNT = 3;
 
-const percent = (fraction: number) => Math.round(fraction * 100);
 
 export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
   const { game, actions } = useGameV2();
@@ -65,9 +64,6 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
           <div className="flex-1 min-w-0">
             <SectionLabel>{t('home.current')}</SectionLabel>
             <p className="v2-display text-[17px] leading-tight text-indigo-950 px-1">{name('lifestyle', home)}</p>
-            <p className="text-[11px] font-bold text-violet-600 px-1">
-              {t('home.livingBonus', { percent: percent(homeBonus(game)) })}
-            </p>
           </div>
           {renting && (
             <Chip tone="gold">
@@ -94,8 +90,6 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
               <span className="v2-display text-[14px] tabular-nums">{money(homePrice)}</span>
             </GameButton>
             <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
-              {t('home.ownerBonus', { percent: percent(OWNER_HOME_BONUS) })}
-              {' · '}
               {t('home.depositCounted', { amount: money(home.moveInCost) })}
             </p>
           </>
@@ -113,9 +107,6 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
               <Thumb image={next.image} cover large />
               <div className="flex-1 min-w-0">
                 <p className="v2-display text-xl leading-tight text-indigo-950">{name('lifestyle', next)}</p>
-                <p className="text-[12px] font-bold text-violet-600">
-                  {t('home.bonusChange', { percent: percent(homeBonus(game)), next: percent(next.homeBonus) })}
-                </p>
               </div>
             </div>
             <Focusable focusKey="shop:house:next">
@@ -143,7 +134,7 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
                 className="min-h-11 -mt-1 py-2 px-4 flex items-center justify-between"
               >
                 <span className="v2-display text-[14px]">
-                  {t('home.buyMove')} · +{percent(next.homeBonus + OWNER_HOME_BONUS)}%
+                  {t('home.buyMove')}
                 </span>
                 <span className="v2-display text-[14px] tabular-nums">{money(nextPrice)}</span>
               </GameButton>
@@ -186,7 +177,7 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
                   <p className="v2-display text-[15px] leading-tight text-indigo-900/50">{name('lifestyle', house)}</p>
                   <p className="text-[11px] font-bold text-indigo-900/40 flex items-center gap-1">
                     <Lock className="w-3 h-3" />
-                    {money(house.moveInCost)} · {t('career.bonusShort', { percent: percent(house.homeBonus) })}
+                    {money(house.moveInCost)}
                   </p>
                 </div>
               </li>

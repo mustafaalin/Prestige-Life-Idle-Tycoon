@@ -1,8 +1,9 @@
 import type { LifestyleDef } from '../types';
 
-// Status items: vehicles, outfits and luxury toys (homes live in housing.ts). They are never an expense;
-// each one adds a permanent (per generation) income bonus, so shopping makes you stronger.
-// Each next dream sits a few minutes to a few hours of income away.
+// Personal items: vehicles, outfits and luxury toys (homes live in housing.ts). They are never an
+// expense. Since the economy rebuild (decided 2026-10-20, docs/economy-rebuild.md §5) they cost what
+// they cost in real life and give no income bonus: their worth is the life they show and, from plan
+// Faz E4, what they open (jobs, events, places). Only Şans's collars still add to income.
 
 // Twelve vehicles, each step its own silhouette and color so it reads on a small screen (decided
 // 2026-10-11; there were 16, starting with a free wheelbarrow). A new life starts without one.
@@ -15,22 +16,22 @@ import type { LifestyleDef } from '../types';
 // rented room opens two (the old sedan, then the motorcycle), every other home but the last opens one.
 const V2 = '/assets/vehicles/v2';
 const VEHICLE_SPECS: { id: string; name: string; image: string; cost: number; home: number }[] = [
-  { id: 'vehicle-bike', name: 'City Bike', image: `${V2}/vehicle-1.webp`, cost: 20, home: 0 },
-  { id: 'vehicle-scooter', name: 'Retro Scooter', image: `${V2}/vehicle-2.webp`, cost: 150, home: 1 },
-  { id: 'vehicle-old-sedan', name: 'Old Family Sedan', image: `${V2}/vehicle-3.webp`, cost: 1_500, home: 2 },
-  { id: 'vehicle-motorcycle', name: 'Motorcycle', image: `${V2}/vehicle-motorcycle.webp`, cost: 5_000, home: 2 },
-  { id: 'vehicle-hatchback', name: 'Modern Hatchback', image: `${V2}/vehicle-4.webp`, cost: 12_000, home: 3 },
-  { id: 'vehicle-suv', name: 'Family SUV', image: `${V2}/vehicle-5.webp`, cost: 90_000, home: 4 },
-  { id: 'vehicle-pickup', name: 'Pickup Truck', image: `${V2}/vehicle-pickup.webp`, cost: 300_000, home: 5 },
-  { id: 'vehicle-executive', name: 'Executive Sedan', image: `${V2}/vehicle-6.webp`, cost: 700_000, home: 6 },
-  { id: 'vehicle-coupe', name: 'Sports Coupe', image: `${V2}/vehicle-7.webp`, cost: 4e6, home: 7 },
-  { id: 'vehicle-offroader', name: 'Luxury Off-Roader', image: `${V2}/vehicle-8.webp`, cost: 2.5e7, home: 8 },
-  { id: 'vehicle-supercar', name: 'Supercar', image: `${V2}/vehicle-9.webp`, cost: 1.5e8, home: 9 },
-  { id: 'vehicle-grand', name: 'Grand Luxury Car', image: `${V2}/vehicle-10.webp`, cost: 1e9, home: 10 },
+  { id: 'vehicle-bike', name: 'City Bike', image: `${V2}/vehicle-1.webp`, cost: 150, home: 0 },
+  { id: 'vehicle-scooter', name: 'Retro Scooter', image: `${V2}/vehicle-2.webp`, cost: 1_200, home: 1 },
+  { id: 'vehicle-old-sedan', name: 'Old Family Sedan', image: `${V2}/vehicle-3.webp`, cost: 5_000, home: 2 },
+  { id: 'vehicle-motorcycle', name: 'Motorcycle', image: `${V2}/vehicle-motorcycle.webp`, cost: 8_000, home: 2 },
+  { id: 'vehicle-hatchback', name: 'Modern Hatchback', image: `${V2}/vehicle-4.webp`, cost: 18_000, home: 3 },
+  { id: 'vehicle-suv', name: 'Family SUV', image: `${V2}/vehicle-5.webp`, cost: 40_000, home: 4 },
+  { id: 'vehicle-pickup', name: 'Pickup Truck', image: `${V2}/vehicle-pickup.webp`, cost: 55_000, home: 5 },
+  { id: 'vehicle-executive', name: 'Executive Sedan', image: `${V2}/vehicle-6.webp`, cost: 90_000, home: 6 },
+  { id: 'vehicle-coupe', name: 'Sports Coupe', image: `${V2}/vehicle-7.webp`, cost: 180_000, home: 7 },
+  { id: 'vehicle-offroader', name: 'Luxury Off-Roader', image: `${V2}/vehicle-8.webp`, cost: 250_000, home: 8 },
+  { id: 'vehicle-supercar', name: 'Supercar', image: `${V2}/vehicle-9.webp`, cost: 500_000, home: 9 },
+  { id: 'vehicle-grand', name: 'Grand Luxury Car', image: `${V2}/vehicle-10.webp`, cost: 1.5e6, home: 10 },
 ];
 
-/** Twelve vehicles add up to the same +45% the ten (at 4.5%) and the sixteen before them gave. */
-const VEHICLE_STATUS_BONUS = 0.0375;
+/** Items give no income bonus since the economy rebuild (2026-10-20); the field stays for the collars. */
+const ITEM_STATUS_BONUS = 0;
 
 /**
  * Saves from before 2026-10-11 had 16 vehicles (`vehicle-1`…`vehicle-16`, bought in order, the first
@@ -40,14 +41,12 @@ export function legacyVehicleCount(oldNumber: number) {
   return oldNumber <= 1 ? 0 : Math.min(VEHICLE_SPECS.length, Math.ceil((oldNumber - 1) * 0.8));
 }
 
-// Priced so a player without ads owns all four in the first life (2026-10-14; the jet used to be out
-// of reach): the boat between Billionaire and Multibillionaire, the yacht before Richest, the
-// helicopter right after it and the jet with a few hours of the life left to fly it.
+// Real prices (2026-10-21): bought in this order, so each costs more than the one before.
 const TOYS: { name: string; image: string; cost: number }[] = [
-  { name: 'Speedboat', image: `${V2}/luxury-speedboat.webp`, cost: 3e9 },
-  { name: 'Mega Yacht', image: `${V2}/luxury-mega-yacht.webp`, cost: 2e10 },
-  { name: 'Private Helicopter', image: `${V2}/luxury-private-helicopter.webp`, cost: 5e10 },
-  { name: 'Private Jet', image: `${V2}/luxury-private-jet.webp`, cost: 1.2e11 },
+  { name: 'Speedboat', image: `${V2}/luxury-speedboat.webp`, cost: 300_000 },
+  { name: 'Mega Yacht', image: `${V2}/luxury-mega-yacht.webp`, cost: 1e7 },
+  { name: 'Private Helicopter', image: `${V2}/luxury-private-helicopter.webp`, cost: 1.5e7 },
+  { name: 'Private Jet', image: `${V2}/luxury-private-jet.webp`, cost: 6e7 },
 ];
 
 // The hero's story outfits (decided 2026-10-11; there were 20 that never showed on screen). Seven since
@@ -59,19 +58,14 @@ const TOYS: { name: string; image: string; cost: number }[] = [
 // gives them, so they are never bought; the suit, three-piece and tuxedo can be bought a class early.
 const OUTFIT_SPECS: { id: string; name: string; image: string; cost: number; minClass: number }[] = [
   { id: 'outfit-hoodie', name: 'Hoodie', image: '/assets/scene/hero-street-idle.webp', cost: 0, minClass: 0 },
-  { id: 'outfit-work', name: 'Work Clothes', image: '/assets/scene/hero-work-idle.webp', cost: 6_000, minClass: 1 },
-  { id: 'outfit-smart', name: 'Smart Casual', image: '/assets/scene/hero-smart-idle.webp', cost: 200_000, minClass: 3 },
-  { id: 'outfit-coat', name: 'Camel Overcoat', image: '/assets/scene/hero-coat-idle.webp', cost: 3e6, minClass: 4 },
-  { id: 'outfit-suit', name: 'Suit', image: '/assets/scene/hero-suit-idle.webp', cost: 1.5e7, minClass: 4 },
-  { id: 'outfit-threepiece', name: 'Three-Piece Suit', image: '/assets/scene/hero-threepiece-idle.webp', cost: 1.5e10, minClass: 5 },
-  { id: 'outfit-tux', name: 'Tuxedo', image: '/assets/scene/hero-tux-idle.webp', cost: 2e11, minClass: 6 },
+  { id: 'outfit-work', name: 'Work Clothes', image: '/assets/scene/hero-work-idle.webp', cost: 60, minClass: 1 },
+  { id: 'outfit-smart', name: 'Smart Casual', image: '/assets/scene/hero-smart-idle.webp', cost: 400, minClass: 3 },
+  { id: 'outfit-coat', name: 'Camel Overcoat', image: '/assets/scene/hero-coat-idle.webp', cost: 1_500, minClass: 4 },
+  { id: 'outfit-suit', name: 'Suit', image: '/assets/scene/hero-suit-idle.webp', cost: 3_000, minClass: 4 },
+  { id: 'outfit-threepiece', name: 'Three-Piece Suit', image: '/assets/scene/hero-threepiece-idle.webp', cost: 8_000, minClass: 5 },
+  { id: 'outfit-tux', name: 'Tuxedo', image: '/assets/scene/hero-tux-idle.webp', cost: 15_000, minClass: 6 },
 ];
 
-/**
- * Status bonus of each outfit after the free hoodie. Six outfits at 6% keep the +36% the three at 12%
- * gave (2026-10-14, with the coat, three-piece and tuxedo; at 12% the late game ran ~5% faster).
- */
-const OUTFIT_STATUS_BONUS = 0.06;
 
 /**
  * The outfit each wealth class wears at least (index into OUTFITS: hoodie, work clothes, smart casual,
@@ -93,16 +87,16 @@ export function legacyOutfitIndex(oldNumber: number) {
 export const VEHICLES: LifestyleDef[] = VEHICLE_SPECS.map((vehicle) => ({
   ...vehicle,
   kind: 'vehicle',
-  statusBonus: VEHICLE_STATUS_BONUS,
+  statusBonus: ITEM_STATUS_BONUS,
 }));
-export const OUTFITS: LifestyleDef[] = OUTFIT_SPECS.map((outfit, index) => ({
+export const OUTFITS: LifestyleDef[] = OUTFIT_SPECS.map((outfit) => ({
   id: outfit.id,
   kind: 'outfit',
   name: outfit.name,
   image: outfit.image,
   cost: outfit.cost,
   minClass: outfit.minClass,
-  statusBonus: index === 0 ? 0 : OUTFIT_STATUS_BONUS,
+  statusBonus: ITEM_STATUS_BONUS,
 }));
 export const LUXURY_TOYS: LifestyleDef[] = TOYS.map((toy, index) => ({
   id: `toy-${index + 1}`,
@@ -110,7 +104,7 @@ export const LUXURY_TOYS: LifestyleDef[] = TOYS.map((toy, index) => ({
   name: toy.name,
   image: toy.image,
   cost: toy.cost,
-  statusBonus: 0.1,
+  statusBonus: ITEM_STATUS_BONUS,
 }));
 
 export const LIFESTYLE_ITEMS: LifestyleDef[] = [...VEHICLES, ...OUTFITS, ...LUXURY_TOYS];

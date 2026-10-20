@@ -1,4 +1,5 @@
 import { HOUSES } from './config/housing';
+import { SECONDS_PER_MONTH } from './config/life';
 import type { GameStateV2, Requirement } from './types';
 
 // Conditions besides money (docs/economy-rebuild.md §7). One evaluator per kind: a new kind of
@@ -17,7 +18,14 @@ export function isMet(state: GameStateV2, requirement: Requirement): boolean {
       return state.lifestyleOwned.includes(requirement.itemId);
     case 'businessLevel':
       return (state.businesses[requirement.businessId]?.level ?? 0) >= requirement.level;
+    case 'experience':
+      return experienceMonths(state) >= requirement.months;
   }
+}
+
+/** Whole game months worked in the current job. */
+export function experienceMonths(state: GameStateV2) {
+  return Math.floor(state.careerSeconds / SECONDS_PER_MONTH);
 }
 
 /** The first condition not met yet, in the order listed (the one a locked card shows), or null. */

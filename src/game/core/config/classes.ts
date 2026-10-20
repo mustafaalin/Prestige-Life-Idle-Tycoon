@@ -4,7 +4,8 @@ import type { WealthClassDef } from '../types';
 // Every step is a full-screen ceremony in the UI.
 export const WEALTH_CLASSES: WealthClassDef[] = [
   { id: 'street', name: 'Living on the Street', threshold: 0 },
-  { id: 'day-laborer', name: 'Day Laborer', threshold: 1e3 },
+  // $2K since the economy rebuild (2026-10-21): with real salaries $1K came before the first stand ran.
+  { id: 'day-laborer', name: 'Day Laborer', threshold: 2e3 },
   { id: 'employee', name: 'Working Class', threshold: 1e5 },
   // Middle Class replaced Multimillionaire (2026-10-08): Working Class → Millionaire was too big a jump,
   // and "Millionaire" now means millions (10M), reached on the first return session.

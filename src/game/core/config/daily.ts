@@ -2,10 +2,14 @@
 // player collects some months of income, shown as "monthly income ×N". Missing a day costs nothing:
 // the calendar goes on from where it stopped. Rules: runtime/daily.ts. Checked by `npm run sim`.
 
-/** Months of income on the first seven days: grows each day, Şans brings the last one. */
-export const DAILY_FIRST_WEEK = [5, 10, 15, 20, 30, 40, 50];
+/**
+ * Months of income on the first seven days: grows each day, Şans brings the last one. Two fifths of
+ * the old ×5…×50 since the economy rebuild (2026-10-21): offline earnings went from 50% to 20%, and at
+ * the old size one day's reward pulled Millionaire forward by a class's worth of play.
+ */
+export const DAILY_FIRST_WEEK = [2, 4, 6, 8, 12, 16, 20];
 /** From the second week on, the week repeats like this (the seventh day stays the big one). */
-export const DAILY_LATER_WEEK = [15, 15, 15, 15, 15, 15, 50];
+export const DAILY_LATER_WEEK = [6, 6, 6, 6, 6, 6, 20];
 
 /** Months of income paid on the reward with this index (0 = the first day ever claimed). */
 export function dailyMonths(claimed: number): number {

@@ -2,7 +2,7 @@ import { Check, Lock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
 import { WEALTH_CLASSES } from '../../core/config/classes';
-import { autoIncomePerSecond, statusBonus } from '../../core/formulas';
+import { autoIncomePerSecond } from '../../core/formulas';
 import { canBuyNextLifestyle, canMoveUp, lifestyleNeedsClass, lifestyleNeedsHome, nextLifestyle } from '../../core/state';
 import type { GameStateV2, LifestyleKind } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
@@ -12,7 +12,7 @@ import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
 import { ICONS } from '../icons';
 import { useFocus, type ShopTabId } from '../home/focus';
-import { Chip, GameButton, Panel, Segmented, SectionLabel } from '../kit';
+import { GameButton, Panel, Segmented, SectionLabel } from '../kit';
 import { HousingPanel } from './HousingPanel';
 import { StoreStrip } from './StoreSheet';
 import { Thumb } from './Thumb';
@@ -29,7 +29,6 @@ const TABS: { kind: ShopTab; label: MessageKey; icon: string }[] = [
 /** How many not-yet-affordable dreams are previewed after the next one. */
 const UPCOMING_COUNT = 3;
 
-const percent = (fraction: number) => Math.round(fraction * 100);
 
 /** Whether a tab has something the player can do right now (red dot). */
 function tabReady(game: GameStateV2, tab: ShopTab) {
@@ -52,13 +51,6 @@ export function ShopScreen({ onOpenStore }: { onOpenStore: () => void }) {
 
   return (
     <section className="flex flex-col gap-3">
-      <div className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-amber-300 to-orange-500 border-2 border-white v2-glossy px-3 py-1.5">
-        <img src={ICONS.status} alt="" draggable={false} className="w-6 h-6 object-contain" />
-        <p className="v2-display text-[13px] text-white v2-shadow">
-          {t('shop.statusTotal', { percent: percent(statusBonus(game)) })}
-        </p>
-      </div>
-
       <Segmented
         options={TABS.map((entry) => ({
           value: entry.kind,
@@ -116,9 +108,6 @@ function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: (
               <Thumb image={next.image} large />
               <div className="flex-1 min-w-0">
                 <p className="v2-display text-xl leading-tight text-indigo-950">{name('lifestyle', next)}</p>
-                <div className="mt-1">
-                  <Chip>{t('shop.bonus', { percent: percent(next.statusBonus) })}</Chip>
-                </div>
               </div>
             </div>
             <Focusable focusKey={`shop:${kind}:next`}>
