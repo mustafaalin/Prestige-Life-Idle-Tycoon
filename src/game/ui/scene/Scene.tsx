@@ -267,10 +267,18 @@ export function Scene() {
   // ── Bottles and cans ──
   const [items, setItems] = useState<Item[]>(startingItems);
 
-  // A coin shower (an ad): the ground fills faster, holds more and every piece is worth more.
+  // A coin shower (an ad): the ground fills at once and keeps filling fast, every spot can hold a
+  // piece and every piece is worth more.
   const raining = state.ads.coinRainUntil > Date.now();
   useEffect(() => {
-    const most = raining ? COLLECT_MAX_ON_SCREEN * 2 : COLLECT_MAX_ON_SCREEN;
+    const most = raining ? SPOTS.length : COLLECT_MAX_ON_SCREEN;
+    if (raining) {
+      setItems((current) => {
+        const filled = [...current];
+        while (filled.length < most) filled.push(newItem(nextId.current++, filled));
+        return filled;
+      });
+    }
     const timer = window.setInterval(() => {
       setItems((current) => (current.length >= most ? current : [...current, newItem(nextId.current++, current)]));
     }, (COLLECT_SPAWN_SECONDS * 1000) / (raining ? COIN_RAIN_SPAWN_FACTOR : 1));

@@ -114,9 +114,10 @@ export const EVENT_AD_MULTIPLIER = 2;
 export const AD_GIFT_SECONDS = 2 * 60;
 /** A new job: the ad pays this many months of its salary as a welcome bonus. */
 export const FIRST_SALARY_MONTHS = 1;
-/** Coins rain on the ground (Street to Working Class): this long, this much faster, each worth this much more. */
+/** Coins rain on the ground (Street to Working Class): this long, this much faster, each worth this much more.
+ * Twice as fast since 2026-10-21 (user: it should pour), every spot on the ground can hold a piece. */
 export const COIN_RAIN_SECONDS = 30;
-export const COIN_RAIN_SPAWN_FACTOR = 4;
+export const COIN_RAIN_SPAWN_FACTOR = 8;
 export const COIN_RAIN_VALUE_FACTOR = 3;
 /** The opportunity balloon floats by now and then; its ad pays this many seconds of income. */
 export const OPPORTUNITY_SECONDS = 60;

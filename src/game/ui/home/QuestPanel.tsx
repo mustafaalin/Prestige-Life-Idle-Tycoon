@@ -110,9 +110,13 @@ export function QuestPanel({ onGo }: { onGo: GoToQuest }) {
   );
 }
 
-/** The folded goal: its picture in a progress ring; a finished one also gets a Claim button. */
+/**
+ * The folded goal: its picture in a progress ring; a finished one also gets a Claim button and, beside
+ * it, the ad that pays it three times over (2026-10-21, user: claiming from here skipped the ×3 offer
+ * that only the open card showed).
+ */
 function QuestBadge({ quest, onOpen }: { quest: QuestDef; onOpen: () => void }) {
-  const { game } = useGameV2();
+  const { game, state, actions } = useGameV2();
   const translator = useT();
   const { t, money } = translator;
   const claim = useClaimQuest();
@@ -166,6 +170,21 @@ function QuestBadge({ quest, onOpen }: { quest: QuestDef; onOpen: () => void }) 
           {t('quests.claim')} <span className="tabular-nums">+{money(questReward(game, quest))}</span>
           {guided && <PointingHand className="-bottom-6 -right-1" />}
         </button>
+      )}
+      {done && canWatch(state.ads, 'quest_x3', Date.now()) && (
+        <AdButton
+          small
+          placement="quest_x3"
+          onReward={() => {
+            const amount = actions.ads.questX3(quest.id);
+            if (amount <= 0) return;
+            playSfx('payout');
+            haptic('medium');
+            payout({ amount, label: `+${money(amount)}`, count: 10 });
+          }}
+        >
+          ×{QUEST_AD_MULTIPLIER} +{money(questReward(game, quest) * QUEST_AD_MULTIPLIER)}
+        </AdButton>
       )}
     </div>
   );
