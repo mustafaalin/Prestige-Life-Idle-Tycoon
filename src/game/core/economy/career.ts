@@ -53,6 +53,28 @@ export function canTakeBetterCareer(state: GameStateV2) {
   return betterOpenCareers(state).length > 0;
 }
 
+/**
+ * How the job tree shows a job (docs/career-redesign.md §4): the one held, one held before, one that
+ * can be taken now, the next step (name shown, pay hidden) and the rest ("???").
+ */
+export type JobView = 'held' | 'done' | 'open' | 'next' | 'hidden';
+
+export function jobView(state: GameStateV2, career: CareerDef): JobView {
+  if (state.careerId === career.id) return 'held';
+  if (hasWorked(state, career.id)) return 'done';
+  if (canTakeCareer(state, career)) return 'open';
+  if (career.after.length === 0 || career.after.some((id) => hasWorked(state, id))) return 'next';
+  return 'hidden';
+}
+
+/** Months until the next yearly raise in the job held, or null when no raise is left before mastery. */
+export function monthsToNextRaise(state: GameStateV2) {
+  const career = currentCareer(state);
+  if (!career) return null;
+  const next = (raisesEarned(state, career) + 1) * 12;
+  return next > career.masteryMonths ? null : next - jobMonths(state, career.id);
+}
+
 /** Jobs that follow a job in the tree (one row up). */
 export function careersAfter(careerId: string): CareerDef[] {
   return CAREERS.filter((career) => career.after.includes(careerId));
