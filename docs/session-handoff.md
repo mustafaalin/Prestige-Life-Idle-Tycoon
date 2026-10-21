@@ -38,7 +38,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 
 ## Sıradaki
 
-1b. **IAP para paketleri (2026-10-22, oyunda):** Mağaza'da "Para çantaları" bölümü, 5 tüketilir ürün `v2_cash_1..5` ($0,99 / $2,99 / $4,99 / $9,99 / $14,99 = 15 dk / 1 / 2 / 5 / 10 saatlik gelir; [monetization-v2.md §5](./monetization-v2.md)), görselleri para serisi M2–M6. Lansmanda gelecek. Kullanıcı Play Console'da 5 ürünü açıyor ve RevenueCat'te **tüketilir** işaretliyor (2026-10-22); sonra telefonda gerçek satın alma denenecek.
+1b. **IAP para paketleri (2026-10-22, oyunda):** Mağaza'da "Para çantaları" bölümü, 5 tüketilir ürün `v2_cash_1..5` ($0,99 / $2,99 / $4,99 / $9,99 / $14,99 = 15 dk / 1 / 2 / 5 / 10 saatlik gelir; [monetization-v2.md §5](./monetization-v2.md)), görselleri para serisi M2–M6. Lansmanda gelecek. Kullanıcı 5 ürünü Play Console'a ve RevenueCat'e ekledi (2026-10-22). Oyun ürünleri id ile çeker (`runtime/iap.ts` `getProducts`), RevenueCat'te offering gerekmez. Sırada AAB 31'de gerçek satın alma (lisans test hesabıyla).
 2. **AAB 31:** karar gelince derlenir (`versionCode` 31), `~/Downloads/prestige-life-v2-31.aab`; telefon testi aşağıdaki listeyle.
 3. **Telefon bulgularına göre düzeltme.**
 4. **Lansman hazırlığı:** Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu yeniden tasarlanıyor (özellik grafiği tamam, 2026-10-22; yeni ikon komutları [art-prompts-v2.md §1](./art-prompts-v2.md)); mağaza ekran görüntülerini yeni ekranlarla yenilemek.
