@@ -177,7 +177,7 @@ function JobBox({
               }}
               className="px-2.5 py-0.5"
             >
-              <span className="v2-display text-[11px] v2-shadow">{t('career.take')}</span>
+              <span className="v2-display text-[11px] v2-shadow whitespace-nowrap">{t('career.takeShort')}</span>
             </GameButton>
           )}
           {view === 'held' && (
