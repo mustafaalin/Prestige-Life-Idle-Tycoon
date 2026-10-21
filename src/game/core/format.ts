@@ -39,6 +39,18 @@ export function formatMoney(value: number, style: NumberStyle = EN_NUMBER_STYLE)
   return `$${formatAmount(value, style)}`;
 }
 
+/**
+ * A business run's pay (2026-10-21): small runs keep one decimal, rounded to nearest ($16.5, $8.3),
+ * so the card's "per run" and the "+$" bubble always read the same; from $100 as formatMoney.
+ */
+export function formatRunMoney(value: number, style: NumberStyle = EN_NUMBER_STYLE) {
+  const abs = Math.abs(value);
+  if (abs < 1 || abs >= 100) return formatMoney(value, style);
+  const rounded = Math.round(value * 10) / 10;
+  const text = rounded % 1 === 0 ? String(rounded) : rounded.toFixed(1);
+  return `$${style.decimal === '.' ? text : text.replace('.', style.decimal)}`;
+}
+
 /** 75 → "1m 15s", 5400 → "1h 30m", 200000 → "2d 7h". */
 export function formatDuration(seconds: number, style: NumberStyle = EN_NUMBER_STYLE) {
   if (!Number.isFinite(seconds)) return '∞';

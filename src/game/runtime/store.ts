@@ -407,7 +407,12 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         })),
       hireManager: (businessId) =>
         actTracked((s) => hireManager(s, businessId), 'manager_hire', () => ({ business_id: businessId })),
-      startCycle: (businessId) => act((s) => startCycle(s, businessId)),
+      startCycle: (businessId) => {
+        const result = startCycle(state, businessId, clock());
+        if (!result) return false;
+        commit(result.state, result.payouts, true);
+        return true;
+      },
       takeCareer: (careerId) => actTracked((s) => takeCareer(s, careerId), 'job_take', () => ({ career_id: careerId })),
       startCourse: (courseId) => actTracked((s) => startCourse(s, courseId), 'course_start', () => ({ course_id: courseId })),
       buyLifestyle: (itemId) => actTracked((s) => buyLifestyle(s, itemId), 'lifestyle_buy', () => ({ item_id: itemId })),

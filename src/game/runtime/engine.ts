@@ -27,7 +27,7 @@ import {
   retire as coreRetire,
   live,
 } from '../core/state';
-import type { GameStateV2 } from '../core/types';
+import type { BusinessDef, GameStateV2 } from '../core/types';
 import { CAMPAIGN_FACTOR, COIN_RAIN_VALUE_FACTOR } from '../core/config/ads';
 import { boostFactor, boostShare, campaignFactor, coinRainActive, createAdProgress, tempManagerLeft, type AdProgress } from './adRewards';
 import { createDailyProgress, type DailyProgress } from './daily';
@@ -103,9 +103,18 @@ export function createRuntimeState(now: number, game: GameStateV2 = createInitia
 }
 
 /**
+ * What one run of a business pays right now, as the "+$" bubble shows it: the run, a campaign on the
+ * line and the income boost (both ads). The card's "per run" reads this same number.
+ */
+export function runPay(state: Pick<RuntimeState, 'game' | 'ads'>, def: BusinessDef, now: number) {
+  return cycleRevenue(state.game, def) * campaignFactor(state.ads, def.id, now, CAMPAIGN_FACTOR) * boostFactor(state.ads, now);
+}
+
+/**
  * Runs production cycles for `seconds`. Offline time skips managed lines; their income comes from
  * offlineEarnings. While the game is open a stand-in manager (an ad) runs a line like a manager, and
- * a campaign (an ad) multiplies what its runs pay (runtime/adRewards.ts).
+ * a campaign (an ad) multiplies what its runs pay (runtime/adRewards.ts). A run started by hand was
+ * paid when "Run" was tapped (startCycle); its second only has to pass before the next tap.
  */
 function advanceCycles(state: RuntimeState, seconds: number, includeManaged: boolean, now: number) {
   const cycles = { ...state.cycles };
@@ -130,7 +139,7 @@ function advanceCycles(state: RuntimeState, seconds: number, includeManaged: boo
     }
     cycles[def.id] = { progress, running: runsItself || (cycle.running && completed === 0) };
 
-    if (completed > 0) {
+    if (completed > 0 && runsItself) {
       const amount = cycleRevenue(state.game, def) * completed * campaignFactor(state.ads, def.id, now, CAMPAIGN_FACTOR);
       payouts.push({ businessId: def.id, amount, cycles: completed });
       earned += amount;
@@ -237,14 +246,20 @@ export function hireManager(state: RuntimeState, businessId: string): RuntimeSta
   return { ...next, cycles: { ...next.cycles, [businessId]: { ...cycle, running: true } } };
 }
 
-/** Player taps an unmanaged business to run one production cycle. */
-export function startCycle(state: RuntimeState, businessId: string): RuntimeState | null {
+/**
+ * Player taps "Run" on an unmanaged business (2026-10-21, user: the "+$" shows the moment it is
+ * tapped): the run pays at once, then its second passes before the next tap.
+ */
+export function startCycle(state: RuntimeState, businessId: string, now: number): { state: RuntimeState; payouts: Payout[] } | null {
+  const def = BUSINESS_BY_ID.get(businessId);
   const business = state.game.businesses[businessId];
   const cycle = state.cycles[businessId];
-  if (!BUSINESS_BY_ID.has(businessId) || !business || business.level <= 0 || business.managed || cycle.running) {
-    return null;
-  }
-  return { ...state, cycles: { ...state.cycles, [businessId]: { progress: 0, running: true } } };
+  if (!def || !business || business.level <= 0 || business.managed || cycle.running) return null;
+  const amount = runPay(state, def, now);
+  return {
+    state: { ...state, game: earn(state.game, amount), cycles: { ...state.cycles, [businessId]: { progress: 0, running: true } } },
+    payouts: [{ businessId, amount, cycles: 1 }],
+  };
 }
 
 export function takeCareer(state: RuntimeState, careerId: string) {

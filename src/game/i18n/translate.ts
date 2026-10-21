@@ -1,5 +1,5 @@
 import { SECONDS_PER_MONTH } from '../core/config/life';
-import { formatAmount, formatDuration, formatMoney } from '../core/format';
+import { formatAmount, formatDuration, formatMoney, formatRunMoney } from '../core/format';
 import { LOCALES, type Locale } from './locales';
 import { en, type Messages } from './messages/en';
 import { cityName } from '../runtime/city';
@@ -32,6 +32,8 @@ export interface Translator {
   /** Localized name of a business, job, wealth class or lifestyle item. */
   name(kind: ContentKind, def: { id: string; name: string }): string;
   money(value: number): string;
+  /** A business run's pay, one decimal under $100: the card and its bubble (formatRunMoney). */
+  runMoney(value: number): string;
   /** An income given per second, shown per game month (SECONDS_PER_MONTH): "$216/mo". */
   perMonth(perSecond: number): string;
   amount(value: number): string;
@@ -61,6 +63,7 @@ export function createTranslator(locale: Locale): Translator {
     },
 
     money: (value) => formatMoney(value, def.numbers),
+    runMoney: (value) => formatRunMoney(value, def.numbers),
     perMonth: (perSecond) => t('hud.perMonth', { amount: formatMoney(perSecond * SECONDS_PER_MONTH, def.numbers) }),
     amount: (value) => formatAmount(value, def.numbers),
     duration: (seconds) => formatDuration(seconds, def.numbers),
