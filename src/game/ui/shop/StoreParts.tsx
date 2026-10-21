@@ -1,4 +1,4 @@
-import { useId, type CSSProperties, type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode } from 'react';
 import type { ProductDef } from '../../core/config/iap';
 import { useT } from '../../i18n/useT';
 import { purchaseCash } from '../../runtime/purchases';
@@ -27,27 +27,13 @@ export function StarterArt() {
 }
 
 /**
- * The Comfort Pack at a glance (2026-10-21, user: like the reference shops, an ad button crossed out):
- * the game's rewarded-ad ticket with a thick gold "no" ring over the ticket, the gift left in view.
+ * The Comfort Pack at a glance (2026-10-22): the red play button under a gold "no" ring, the gift
+ * peeking out (the rewards still come, only the ads are gone). One picture, art/pilot/15-iap/v2/comfort-noads.png.
  */
 export function NoAdsArt({ className = 'w-[148px] max-[359px]:w-[125px]' }: { className?: string }) {
-  const id = useId();
   return (
     <div className={`v2-iap-art aspect-square shrink-0 ${className}`}>
       <img src={STORE_ART.noAds} alt="" draggable={false} className="absolute inset-0 w-full h-full object-contain" />
-      <svg viewBox="0 0 100 100" className="absolute drop-shadow-[0_3px_3px_rgba(80,30,0,0.45)]" style={{ left: '4%', top: '9%', width: '70%' }} aria-hidden>
-        <defs>
-          <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#fff3b0" />
-            <stop offset="0.45" stopColor="#ffc93a" />
-            <stop offset="1" stopColor="#d88a0c" />
-          </linearGradient>
-        </defs>
-        <circle cx="50" cy="50" r="40" fill="none" stroke="#8a4a00" strokeWidth="15" />
-        <line x1="22" y1="22" x2="78" y2="78" stroke="#8a4a00" strokeWidth="15" strokeLinecap="round" />
-        <circle cx="50" cy="50" r="40" fill="none" stroke={`url(#${id})`} strokeWidth="10" />
-        <line x1="22" y1="22" x2="78" y2="78" stroke={`url(#${id})`} strokeWidth="10" strokeLinecap="round" />
-      </svg>
     </div>
   );
 }

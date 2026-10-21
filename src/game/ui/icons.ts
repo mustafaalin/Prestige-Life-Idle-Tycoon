@@ -25,7 +25,7 @@ export const ICONS = {
   luxury: `${DIR}/luxury.webp`,
   /** Old Ray's deals (the investment account): a savings pot with a rising arrow. */
   invest: `${DIR}/invest.webp`,
-  /** A rewarded video: on every "watch an ad" button. */
+  /** A rewarded video (a red play button, 2026-10-22): on every "watch an ad" button. */
   adReward: `${DIR}/ad-reward.webp`,
   /** Family legacy points; never the status star. */
   legacy: `${DIR}/legacy-points.webp`,
