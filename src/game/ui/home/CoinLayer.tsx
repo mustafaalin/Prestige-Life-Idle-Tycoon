@@ -53,6 +53,9 @@ interface FallingCoin {
 
 const SPILL_MS = 1500;
 
+/** Half a flying banknote's size (42 px, 2026-10-22, user: ×1.5), so it is centred on its point. */
+const BILL_HALF = 21;
+
 export function CoinLayer() {
   const [coins, setCoins] = useState<Coin[]>([]);
   const [labels, setLabels] = useState<Label[]>([]);
@@ -173,11 +176,11 @@ export function CoinLayer() {
           src={ICONS.bill}
           alt=""
           draggable={false}
-          className="v2-coin-fall absolute w-7 h-7 drop-shadow-md"
+          className="v2-coin-fall absolute w-[42px] h-[42px] drop-shadow-md"
           style={
             {
-              left: coin.x - 12,
-              top: coin.y - 12,
+              left: coin.x - BILL_HALF,
+              top: coin.y - BILL_HALF,
               '--sx': `${coin.sx}px`,
               '--sy': `${coin.sy}px`,
               '--dy': `${coin.dy}px`,
@@ -195,8 +198,8 @@ export function CoinLayer() {
             className="v2-coin-x absolute"
             style={
               {
-                left: coin.x - 12,
-                top: coin.y - 12,
+                left: coin.x - BILL_HALF,
+                top: coin.y - BILL_HALF,
                 '--sx': `${coin.sx}px`,
                 '--dx': `${coin.dx}px`,
                 ...timing,
@@ -207,7 +210,7 @@ export function CoinLayer() {
               src={ICONS.bill}
               alt=""
               draggable={false}
-              className="v2-coin-y block w-7 h-7 drop-shadow-md"
+              className="v2-coin-y block w-[42px] h-[42px] drop-shadow-md"
               style={{ '--sy': `${coin.sy}px`, '--dy': `${coin.dy}px`, ...timing } as CSSProperties}
             />
           </span>
