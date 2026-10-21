@@ -388,6 +388,21 @@ body {
   70% { transform: scale(0.94) rotate(-8deg); opacity: 1; }
   100% { transform: scale(1) rotate(-8deg); opacity: 1; }
 }
+/* A new job (ui/career/JobShow.tsx): the old one leaves to the left, the new one comes in from the right. */
+@keyframes v2-job-out {
+  0% { transform: none; opacity: 1; }
+  100% { transform: translateX(-160%) rotate(-8deg); opacity: 0; }
+}
+@keyframes v2-job-in {
+  0% { transform: translateX(160%) rotate(8deg) scale(0.8); opacity: 0; }
+  70% { transform: translateX(-6%) scale(1.06); opacity: 1; }
+  100% { transform: none; }
+}
+.v2-job-out { animation: v2-job-out 450ms ease-in forwards; }
+.v2-job-in { animation: v2-job-in 600ms cubic-bezier(0.2, 0.8, 0.3, 1.1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .v2-job-out, .v2-job-in { animation: none; }
+}
 .v2-show-charge { animation: v2-show-charge 650ms ease-in forwards; }
 .v2-show-flash { animation: v2-show-flash 600ms ease-out forwards; }
 .v2-show-reveal { animation: v2-show-reveal 650ms cubic-bezier(0.2, 0.8, 0.3, 1.2) both; }

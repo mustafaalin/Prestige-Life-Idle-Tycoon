@@ -223,3 +223,11 @@ Kullanıcı: maaş işletmelerin yanında az kazandırıyor ama fazlası dengeyi
 - **Bağlı bot:** CEO 51 yaşta, Yönetim Kurulu Başkanı 70 yaşta; bütün tempo hedefleri tuttu. Maaşın payı 23–45 yaş arasında %2–8 (işletmeler çok hızlı büyüyor), CEO'da %25.
 - **Başhekim, Başmimar, Rektör, Hâkim'in yolu:** CEO'ya doğrudan değil, Genel Müdür Yardımcısı (COO) üzerinden gider.
 - **Hedefler:** "Bulaşıkçı ol" ve "Garson ol" hedefleri o satırdaki herhangi bir işle tamamlanır.
+
+## 9. İkinci düzen (2026-10-21, kullanıcı)
+
+- **Satırda en çok 2 iş, sekmeler sırayla** (İşçi bitince Ofis, sonra Uzman, Zirve): 54 satır. Her iş bir üst satırın iki işinden birinde ustalık ister.
+- **Ustalık 3 → 8 ay, yıllık zam kalktı** (kullanıcı: "zamı mecburen koymuştuk"); her satır ×1,10 / ×1,13 / ×1,25. 15 satırlık düzenin (§8) maaş ve ustalık sayıları geçersiz.
+- **Seçilmeyen kardeş işler açık kalır**; sıradaki satır tam görünür, altındaki tek satır "???", ötesi gizli. Kart açtığı işlerin adlarını gösterir.
+- **Kurslar en çok 2 yıl;** iki şart yumuşadı (Hukuk Direktörü takım elbise, Havayolu Operasyon Direktörü makam sedanı), Konaklama ve Medya Direktörü ile Mühendislik Müdürü artık Milyarder işletmesi istemiyor (bot 55 yaşında 14 yıl takılıyordu).
+- **İş değişimi şovu ve "Usta oldun!" şeridi** yapıldı (§4'ün 3. adımı).

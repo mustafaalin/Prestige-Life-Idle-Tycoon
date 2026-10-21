@@ -7,58 +7,19 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { AdButton } from '../ads/AdButton';
 import { Confetti } from '../Confetti';
 import { portalRoot } from '../stage';
+import { reducedMotion, useCountUp, useShowStep, type Timeline } from './showTiming';
 
 // The two big moments of a business line, played as a short show (2026-10-21): every business has
 // three looks of its own and its own manager, so the moment the look changes and the moment a manager
 // joins are staged instead of announced. A tap during the show jumps to its end; Android back does the
 // same, then closes. With reduced motion the show starts at its end.
 
-/** When each step of a show begins, in ms from the start; the last step is the finished card. */
-type Timeline = readonly number[];
-
 /** The old look charges up, a flash, the new look grows in with its name, then the run counts up. */
 const GROW_STEPS: Timeline = [0, 700, 1350, 1900];
 const GROW_FLASH = 2;
 /** The spotlight, the manager steps in, the name plate, then the line is typed and the stamp lands. */
 const HIRE_STEPS: Timeline = [0, 250, 800, 1100];
-const COUNT_MS = 900;
 const TYPE_MS_PER_CHAR = 24;
-
-const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-
-/** The step a show has reached; `skip` jumps to the last one. */
-function useShowStep(steps: Timeline) {
-  const last = steps.length - 1;
-  const [step, setStep] = useState(() => (reducedMotion() ? last : 0));
-  useEffect(() => {
-    if (step >= last) return;
-    const timer = window.setTimeout(() => setStep((current) => current + 1), steps[step + 1] - steps[step]);
-    return () => window.clearTimeout(timer);
-  }, [step, steps, last]);
-  return { step, done: step >= last, skip: () => setStep(last) };
-}
-
-/** A number running from `from` to `to` once `active`; at once when `instant`. */
-function useCountUp(from: number, to: number, active: boolean, instant: boolean) {
-  const [value, setValue] = useState(from);
-  useEffect(() => {
-    if (!active) return;
-    if (instant) {
-      setValue(to);
-      return;
-    }
-    const began = performance.now();
-    let frame = 0;
-    const tick = () => {
-      const t = Math.min(1, (performance.now() - began) / COUNT_MS);
-      setValue(from + (to - from) * (1 - (1 - t) ** 3));
-      if (t < 1) frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [from, to, active, instant]);
-  return value;
-}
 
 /** `text` typed out letter by letter once `active`; whole when `instant`. */
 function useTyped(text: string, active: boolean, instant: boolean) {
@@ -90,7 +51,7 @@ interface ShowFrameProps {
   children: ReactNode;
 }
 
-function ShowFrame({ stage, stageClass, done, skip, onClose, children }: ShowFrameProps) {
+export function ShowFrame({ stage, stageClass, done, skip, onClose, children }: ShowFrameProps) {
   useBackButton(true, 70, done ? onClose : skip);
 
   // Portaled to <body>: a sheet's slide-in animation would otherwise trap the fixed overlay inside it.
@@ -108,7 +69,7 @@ function ShowFrame({ stage, stageClass, done, skip, onClose, children }: ShowFra
   );
 }
 
-function OkButton({ label, onClick }: { label: string; onClick: () => void }) {
+export function OkButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <button
       type="button"

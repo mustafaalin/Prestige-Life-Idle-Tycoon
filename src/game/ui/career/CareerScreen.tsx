@@ -7,7 +7,7 @@ import { isMastered, masteryOf } from '../../core/requirements';
 import type { CareerDef, CareerTrack } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
-import { haptic, playSfx } from '../../runtime/feedback';
+import { haptic } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { canFirstSalary, canRushExperience, firstSalaryBonus } from '../../runtime/adRewards';
 import { ActionAd, PayAd } from '../ads/AdOffers';
@@ -19,6 +19,7 @@ import { ImageTile, Panel, Segmented } from '../kit';
 import { CoursesPanel } from './CoursesPanel';
 import { JobIcon } from './JobIcon';
 import { JobSheet } from './JobSheet';
+import { JobShow } from './JobShow';
 import { JobTree } from './JobTree';
 
 // The career screen (docs/career-redesign.md §4): the job held with its mastery ring, then two
@@ -54,10 +55,14 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
   const open = betterOpenCareers(game);
   const courseReady = !game.course && availableCourses(game).some((course) => game.cash >= course.cost);
 
+  // Taking a job plays its show (JobShow), which has its own sound.
+  const [show, setShow] = useState<{ from: CareerDef | undefined; to: CareerDef; fromPay: number; toPay: number } | null>(null);
   const take = (career: CareerDef) => {
+    const from = current;
+    const fromPay = currentSalary(game) * globalMultiplier(game);
     if (!actions.takeCareer(career.id)) return;
-    playSfx('levelUp');
     haptic('medium');
+    setShow({ from, to: career, fromPay, toPay: career.salaryPerSecond * globalMultiplier(game) });
   };
 
   return (
@@ -128,6 +133,7 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
         </>
       )}
 
+      {show && <JobShow {...show} onClose={() => setShow(null)} />}
       {opened && (
         <JobSheet
           career={opened}

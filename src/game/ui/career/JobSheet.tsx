@@ -1,7 +1,6 @@
 import { X } from 'lucide-react';
 import { createPortal } from 'react-dom';
-import { YEARLY_RAISE } from '../../core/config/careers';
-import { careersAfter, globalMultiplier, jobView, monthsToNextRaise, salaryOf } from '../../core/formulas';
+import { canLeaveCareer, canTakeCareer, careersAfter, globalMultiplier, jobView } from '../../core/formulas';
 import { isMastered, masteryOf } from '../../core/requirements';
 import type { CareerDef, GameStateV2 } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
@@ -35,9 +34,8 @@ export function JobSheet({
   const view = jobView(state, career);
   const hidden = view === 'hidden';
   const multiplier = globalMultiplier(state);
-  const atMastery = career.salaryPerSecond * (1 + YEARLY_RAISE) ** Math.floor(career.masteryMonths / 12);
   const mastery = masteryOf(state, career.id);
-  const raiseIn = view === 'held' ? monthsToNextRaise(state) : null;
+  const canTake = view === 'open' && canTakeCareer(state, career);
   const leadsTo = careersAfter(career.id);
 
   return createPortal(
@@ -67,12 +65,8 @@ export function JobSheet({
           <h3 id="job-title" className="mt-1.5 v2-display text-[21px] leading-tight text-indigo-950">
             {hidden ? '???' : name('career', career)}
           </h3>
-          <p className={`mt-1 rounded-full px-3 py-0.5 text-[12px] font-black ${view === 'next' || hidden ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-emerald-600'}`}>
-            {view === 'held'
-              ? t('career.salary', { amount: perMonth(salaryOf(state, career) * multiplier) })
-              : view === 'next' || hidden
-                ? t('career.salary', { amount: t('career.hiddenSalary') })
-                : t('career.payRange', { start: perMonth(career.salaryPerSecond * multiplier), end: perMonth(atMastery * multiplier) })}
+          <p className={`mt-1 rounded-full px-3 py-0.5 text-[12px] font-black ${hidden ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-emerald-600'}`}>
+            {t('career.salary', { amount: hidden ? t('career.hiddenSalary') : perMonth(career.salaryPerSecond * multiplier) })}
           </p>
         </div>
 
@@ -84,11 +78,6 @@ export function JobSheet({
                 fill={mastery >= 1 ? 'from-emerald-400 to-green-500' : 'from-amber-300 to-orange-500'}
                 label={isMastered(state, career.id) ? t('career.mastered') : t('career.mastery', { percent: Math.floor(mastery * 100) })}
               />
-              {raiseIn !== null && (
-                <p className="text-[11px] font-bold text-slate-500 text-center">
-                  {t('career.nextRaise', { count: raiseIn, percent: Math.round(YEARLY_RAISE * 100) })}
-                </p>
-              )}
               {!isMastered(state, career.id) && <p className="text-[11px] font-bold text-slate-500 text-center">{t('career.masterFirst')}</p>}
             </div>
           ) : (
@@ -114,14 +103,18 @@ export function JobSheet({
               <span className="text-[11px] font-bold text-slate-400">{t('career.leadsToLabel')}</span>
               {leadsTo.map((next) => (
                 <span key={next.id} className="rounded-full bg-violet-50 px-2 py-0.5 text-[11px] font-black text-violet-600">
-                  {jobView(state, next) === 'hidden' ? '???' : name('career', next)}
+                  {name('career', next)}
                 </span>
               ))}
             </div>
           )}
 
+          {view === 'open' && !canLeaveCareer(state) && (
+            <p className="text-[11px] font-bold text-slate-500 text-center">{t('career.masterFirst')}</p>
+          )}
           {view === 'open' && (
             <GameButton
+              disabled={!canTake}
               onClick={() => {
                 onTake(career);
                 onClose();

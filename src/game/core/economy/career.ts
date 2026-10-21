@@ -1,7 +1,7 @@
-import { CAREERS, careerDef, YEARLY_RAISE } from '../config/careers';
+import { CAREERS, careerDef } from '../config/careers';
 import { COURSES, courseDef } from '../config/courses';
 import { SECONDS_PER_MONTH } from '../config/life';
-import { allMet, isMastered, jobMonths } from '../requirements';
+import { allMet, isMastered } from '../requirements';
 import type { CareerDef, CourseDef, GameStateV2, Requirement } from '../types';
 
 // Jobs and courses (docs/game-design-v2.md §4.4): pure reads; state.ts holds the actions.
@@ -11,20 +11,14 @@ export function currentCareer(state: GameStateV2): CareerDef | undefined {
   return careerDef(state.careerId);
 }
 
-/** Yearly raises earned in a job: one per full game year worked, none after mastery. */
-export function raisesEarned(state: GameStateV2, career: CareerDef) {
-  return Math.floor(Math.min(jobMonths(state, career.id), career.masteryMonths) / 12);
-}
-
-/** What a job pays per second for this hero: its starting salary plus the raises earned in it. */
-export function salaryOf(state: GameStateV2, career: CareerDef | undefined) {
-  if (!career) return 0;
-  return career.salaryPerSecond * (1 + YEARLY_RAISE) ** raisesEarned(state, career);
+/** What a job pays per second. */
+export function salaryOf(career: CareerDef | undefined) {
+  return career?.salaryPerSecond ?? 0;
 }
 
 /** What the job held now pays per second. */
 export function currentSalary(state: GameStateV2) {
-  return salaryOf(state, currentCareer(state));
+  return salaryOf(currentCareer(state));
 }
 
 /** Whether a job has been held, now or before (a job once left is never taken again). */
@@ -53,26 +47,25 @@ export function canTakeBetterCareer(state: GameStateV2) {
   return betterOpenCareers(state).length > 0;
 }
 
+/** The highest row of the tree reached: the job held or any job held before (0 before the first job). */
+export function careerFrontier(state: GameStateV2) {
+  return CAREERS.reduce((top, career) => (hasWorked(state, career.id) ? Math.max(top, career.level) : top), 0);
+}
+
 /**
- * How the job tree shows a job (docs/career-redesign.md §4): the one held, one held before, one that
- * can be taken now, the next step (name shown, pay hidden) and the rest ("???").
+ * How the job tree shows a job (2026-10-21, user): the one held, one held before, one whose conditions
+ * are met ("Take" once the job held is mastered; a skipped job beside it stays open), the rows up to
+ * the next one in full (name, pay, what it needs), one row after that as "???", nothing further.
  */
-export type JobView = 'held' | 'done' | 'open' | 'next' | 'hidden';
+export type JobView = 'held' | 'done' | 'open' | 'next' | 'hidden' | 'beyond';
 
 export function jobView(state: GameStateV2, career: CareerDef): JobView {
   if (state.careerId === career.id) return 'held';
   if (hasWorked(state, career.id)) return 'done';
-  if (canTakeCareer(state, career)) return 'open';
-  if (career.after.length === 0 || career.after.some((id) => hasWorked(state, id))) return 'next';
-  return 'hidden';
-}
-
-/** Months until the next yearly raise in the job held, or null when no raise is left before mastery. */
-export function monthsToNextRaise(state: GameStateV2) {
-  const career = currentCareer(state);
-  if (!career) return null;
-  const next = (raisesEarned(state, career) + 1) * 12;
-  return next > career.masteryMonths ? null : next - jobMonths(state, career.id);
+  if (allMet(state, career.requires)) return 'open';
+  const frontier = careerFrontier(state);
+  if (career.level <= frontier + 1) return 'next';
+  return career.level === frontier + 2 ? 'hidden' : 'beyond';
 }
 
 /** Jobs that follow a job in the tree (one row up). */

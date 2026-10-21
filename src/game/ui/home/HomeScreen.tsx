@@ -11,6 +11,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { BoostButton } from '../ads/Boost';
 import { OpportunityBalloon, SceneAdButtons } from '../ads/SceneAds';
 import { RainTimer } from '../scene/RainTimer';
+import { MasteredToast } from '../career/MasteredToast';
 import { useAdText } from '../ads/useAdText';
 import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
@@ -190,6 +191,8 @@ export function HomeScreen() {
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
             <OpportunityBalloon hidden={sheetOpen || state.offline !== null} />
           </div>
+          {/* The job held reaches mastery: a banner at the top, wherever the player is. */}
+          <MasteredToast onOpen={() => selectTab('career')} />
           {/* The coin shower's countdown, high in the middle of the scene. */}
           {!sheetOpen && (
             <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-[15%]">

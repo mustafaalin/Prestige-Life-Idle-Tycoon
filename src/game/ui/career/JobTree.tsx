@@ -1,7 +1,7 @@
 import { Check, Lock } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CAREERS } from '../../core/config/careers';
-import { globalMultiplier, jobView, salaryOf, type JobView } from '../../core/formulas';
+import { canTakeCareer, globalMultiplier, jobView, type JobView } from '../../core/formulas';
 import { isMastered, masteryOf } from '../../core/requirements';
 import type { CareerDef, CareerTrack, GameStateV2 } from '../../core/types';
 import { useT } from '../../i18n/useT';
@@ -30,7 +30,8 @@ export function JobTree({
   onOpen: (career: CareerDef) => void;
   onTake: (career: CareerDef) => void;
 }) {
-  const jobs = CAREERS.filter((career) => career.track === track);
+  // Rows past the "???" one are not drawn at all.
+  const jobs = CAREERS.filter((career) => career.track === track && jobView(state, career) !== 'beyond');
   const rows = [...new Set(jobs.map((career) => career.level))].sort((a, b) => a - b);
   const area = useRef<HTMLDivElement>(null);
   const boxes = useRef(new Map<string, HTMLDivElement>());
@@ -83,6 +84,15 @@ export function JobTree({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [track]);
 
+  if (jobs.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-2 py-10 text-center">
+        <Lock className="w-8 h-8 text-indigo-300" />
+        <p className="px-6 text-[13px] font-bold text-indigo-900/50">{t('career.trackLocked')}</p>
+      </div>
+    );
+  }
+
   return (
     <div ref={area} className="relative flex flex-col gap-5 py-1">
       <svg className="pointer-events-none absolute inset-0 overflow-visible" width={width} height="100%" aria-hidden="true">
@@ -102,7 +112,7 @@ export function JobTree({
           <span className="shrink-0 mt-6 w-8 rounded-full bg-white/80 border border-white py-0.5 text-center v2-display text-[11px] text-indigo-900/60 shadow-sm">
             {t('career.level', { level })}
           </span>
-          <div className="flex-1 flex flex-wrap justify-center gap-x-2 gap-y-4">
+          <div className="flex-1 flex justify-center gap-4">
             {jobs
               .filter((career) => career.level === level)
               .map((career) => (
@@ -129,6 +139,7 @@ const BOX_TONE: Record<JobView, string> = {
   open: 'bg-white border-emerald-400 shadow-[0_4px_14px_rgba(16,185,129,0.3)]',
   next: 'bg-white/90 border-white',
   hidden: 'bg-white/50 border-white/60',
+  beyond: '',
 };
 
 function JobBox({
@@ -146,7 +157,8 @@ function JobBox({
 }) {
   const { t, name, perMonth } = useT();
   const hidden = view === 'hidden';
-  const pay = perMonth((view === 'held' ? salaryOf(state, career) : career.salaryPerSecond) * globalMultiplier(state));
+  const pay = perMonth(career.salaryPerSecond * globalMultiplier(state));
+  const canTake = view === 'open' && canTakeCareer(state, career);
   return (
     <Focusable focusKey={`career:take:${career.id}`}>
       <div
@@ -154,7 +166,7 @@ function JobBox({
         tabIndex={0}
         onClick={() => onOpen(career)}
         onKeyDown={(event) => event.key === 'Enter' && onOpen(career)}
-        className={`relative z-[1] w-[92px] min-h-[124px] rounded-2xl border-2 px-1 pt-1.5 pb-1.5 flex flex-col items-center gap-0.5 text-center transition-all active:scale-[0.97] ${BOX_TONE[view]}`}
+        className={`relative z-[1] w-[118px] min-h-[132px] rounded-2xl border-2 px-1 pt-1.5 pb-1.5 flex flex-col items-center gap-0.5 text-center transition-all active:scale-[0.97] ${BOX_TONE[view]}`}
       >
         <JobIcon
           career={career}
@@ -165,17 +177,18 @@ function JobBox({
         <p className={`text-[11px] font-black leading-tight line-clamp-2 ${hidden ? 'text-indigo-900/40' : 'text-indigo-950'}`}>
           {hidden ? '???' : name('career', career)}
         </p>
-        <p className={`text-[10px] font-black tabular-nums ${view === 'next' || hidden ? 'text-slate-400' : 'text-emerald-600'}`}>
-          {view === 'next' || hidden ? t('career.hiddenSalary') : pay}
+        <p className={`text-[10px] font-black tabular-nums ${hidden ? 'text-slate-400' : view === 'next' ? 'text-emerald-600/60' : 'text-emerald-600'}`}>
+          {hidden ? t('career.hiddenSalary') : pay}
         </p>
         <div className="mt-auto">
           {view === 'open' && (
             <GameButton
               onClick={(event) => {
                 event.stopPropagation();
-                onTake(career);
+                if (canTake) onTake(career);
+                else onOpen(career);
               }}
-              className="px-2.5 py-0.5"
+              className={`px-2.5 py-0.5 ${canTake ? '' : 'opacity-50'}`}
             >
               <span className="v2-display text-[11px] v2-shadow whitespace-nowrap">{t('career.takeShort')}</span>
             </GameButton>

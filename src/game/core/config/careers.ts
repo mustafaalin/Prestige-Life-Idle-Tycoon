@@ -2,45 +2,37 @@ import type { CareerDef, CareerTrack, Requirement } from '../types';
 import { SECONDS_PER_MONTH } from './life';
 import { VEHICLES } from './lifestyle';
 
-// The job tree (docs/game-design-v2.md §4.4, decided 2026-10-21): four tabs, jobs in rows. A job opens
-// when one of the jobs before it (one row lower) is mastered, plus two or three extras (a course, an
-// item, an address, a business, a class). The job held has to be mastered before moving on, and a job
-// once left is never taken again. Pay is set by the row: every move pays nextJobStep() more than the
-// job before it paid at mastery, with a yearly raise while working towards mastery. There is no fee.
-// Ids are saved (current job, months per job): never rename one.
+// The job tree (docs/game-design-v2.md §4.4, decided 2026-10-21): jobs in rows of at most two, the
+// four tabs one after another (Worker, Office, Expert, The top). A job opens when a job of the row
+// above it is mastered, plus one to three extras (a course, an item, an address, a business, a class).
+// The job held has to be mastered before moving on; a job once left is never taken again. Pay is set
+// by the row: each row pays nextJobStep() more than the one above it, so a promotion comes about every
+// eight game months. There is no fee and no yearly raise. Ids are saved (current job, months per job):
+// never rename one.
 
-/** The tabs in the order the career screen shows them. */
+/** The tabs in the order the career screen shows them, which is also the order they are reached in. */
 export const CAREER_TRACKS: CareerTrack[] = ['worker', 'office', 'expert', 'top'];
 
 /** What the first job pays a month. */
 export const FIRST_JOB_MONTHLY = 300;
 
 /**
- * A new job pays this many times what the job before it (one row lower) paid at mastery: within the
- * user's +10–25%. Small while the first jobs take under a year to master, so they don't outrun the
- * first businesses; bigger from row 6, where each job takes years.
+ * A row pays this many times the row above it: within the user's +10–25%. Small for the first rows so
+ * the jobs don't outrun the first businesses, bigger at the top.
  */
 export function nextJobStep(level: number) {
-  return level <= 5 ? 1.1 : 1.25;
+  return level <= 5 ? 1.1 : level <= 45 ? 1.13 : 1.25;
 }
 
-/** Each full game year in a job raises its pay this much, until the job is mastered. */
-export const YEARLY_RAISE = 0.2;
-
-/** Months to master a job in this row: under a year for the first two rows (no raise there), at most 36. */
+/** Months to master a job in this row: 3 for the first job, half a month more every row, at most 8. */
 export function masteryMonthsAt(level: number) {
-  return Math.min(36, 6 * level - 3);
+  return Math.min(8, 3 + Math.floor((level - 1) / 2));
 }
 
-/** Raises a job in this row gives on the way to mastery (one per full year). */
-export function raisesAt(level: number) {
-  return Math.floor(masteryMonthsAt(level) / 12);
-}
-
-/** Starting pay a month in this row: the row below at mastery, times the step. */
+/** Pay a month in this row. */
 export function monthlyAt(level: number) {
   let monthly = FIRST_JOB_MONTHLY;
-  for (let row = 2; row <= level; row += 1) monthly *= (1 + YEARLY_RAISE) ** raisesAt(row - 1) * nextJobStep(row);
+  for (let row = 2; row <= level; row += 1) monthly *= nextJobStep(row);
   return monthly;
 }
 
@@ -80,142 +72,175 @@ const job = (id: string, name: string, track: CareerTrack, after: string[], requ
   requires,
 });
 
-// Listed by row; every job's `after` sits in the row above it in this list.
-const JOBS: JobSpec[] = [
-  // Row 1: anyone can hand out flyers.
-  job('flyer-distributor', 'Flyer Distributor', 'worker', []),
 
+const JOBS: JobSpec[] = [
+// Listed by row, the four tabs one after another (2026-10-21, user: Worker first, then Office, Expert,
+// The top; at most two jobs a row). Every job follows both jobs of the row above it.
+
+  // ── Worker (İşçi): rows 1–15 ──
+  // Row 1
+  job('flyer-distributor', 'Flyer Distributor', 'worker', []),
   // Row 2
   job('porter', 'Porter', 'worker', ['flyer-distributor']),
   job('dishwasher', 'Dishwasher', 'worker', ['flyer-distributor'], [wealth(DAY_LABORER)]),
-  job('cleaner', 'Cleaner', 'worker', ['flyer-distributor'], [item('outfit-work')]),
-
   // Row 3
-  job('bike-courier', 'Bike Courier', 'worker', ['porter'], [item('vehicle-bike')]),
-  job('warehouse-worker', 'Warehouse Worker', 'worker', ['porter'], [item('outfit-work')]),
-  job('construction-laborer', 'Construction Laborer', 'worker', ['porter'], [wealth(DAY_LABORER)]),
-  job('waiter', 'Waiter', 'worker', ['dishwasher'], [item('outfit-work'), home(1)]),
-  job('carpenter-apprentice', 'Carpenter\'s Apprentice', 'worker', ['porter', 'cleaner'], [item('gadget-toolbox')]),
-  job('hospital-porter', 'Hospital Porter', 'worker', ['cleaner'], [home(2)]),
-  job('cashier', 'Cashier', 'office', ['dishwasher', 'cleaner'], [item('outfit-work')]),
-
+  job('cleaner', 'Cleaner', 'worker', ['porter', 'dishwasher'], [item('outfit-work')]),
+  job('bike-courier', 'Bike Courier', 'worker', ['porter', 'dishwasher'], [item('vehicle-bike')]),
   // Row 4
-  job('delivery-driver', 'Delivery Driver', 'worker', ['bike-courier'], [item('vehicle-scooter'), course('driving-license')]),
-  job('security-guard', 'Security Guard', 'worker', ['warehouse-worker', 'hospital-porter'], [course('first-aid')]),
-  job('apprentice-electrician', 'Apprentice Electrician', 'worker', ['construction-laborer'], [item('gadget-toolbox')]),
-  job('line-cook', 'Line Cook', 'worker', ['waiter'], [home(2)]),
-  job('carpenter', 'Carpenter', 'worker', ['carpenter-apprentice'], [business('flower-stand', 5)]),
-  job('nursing-assistant', 'Nursing Assistant', 'expert', ['hospital-porter'], [course('first-aid')]),
-  job('shop-assistant', 'Shop Assistant', 'office', ['cashier'], [item('gadget-phone')]),
-  job('call-center-agent', 'Call Center Agent', 'office', ['cashier'], [item('gadget-phone'), home(2)]),
-  job('street-photographer', 'Street Photographer', 'expert', ['cashier', 'waiter'], [item('gadget-camera')]),
-
+  job('warehouse-worker', 'Warehouse Worker', 'worker', ['cleaner', 'bike-courier'], [item('outfit-work')]),
+  job('waiter', 'Waiter', 'worker', ['cleaner', 'bike-courier'], [item('outfit-work'), home(1)]),
   // Row 5
-  job('taxi-driver', 'Taxi Driver', 'worker', ['delivery-driver'], [item('vehicle-old-sedan')]),
-  job('senior-security-guard', 'Senior Security Guard', 'worker', ['security-guard'], [wealth(WORKING_CLASS)]),
-  job('electrician', 'Electrician', 'worker', ['apprentice-electrician'], [course('electrician-certificate')]),
-  job('sous-chef', 'Sous Chef', 'worker', ['line-cook'], [course('culinary-school')]),
-  job('master-carpenter', 'Master Carpenter', 'worker', ['carpenter'], [wealth(WORKING_CLASS), item('outfit-work')]),
-  job('nurse', 'Nurse', 'expert', ['nursing-assistant'], [course('nursing-school')]),
-  job('sales-representative', 'Sales Representative', 'office', ['shop-assistant', 'call-center-agent'], [item('vehicle-old-sedan')]),
-  job('office-clerk', 'Office Clerk', 'office', ['call-center-agent', 'shop-assistant'], [course('night-school')]),
-  job('social-media-assistant', 'Social Media Assistant', 'office', ['street-photographer', 'call-center-agent'], [item('gadget-laptop')]),
-  job('it-support', 'IT Support', 'expert', ['call-center-agent'], [course('it-certificate'), item('gadget-laptop')]),
-
+  job('construction-laborer', 'Construction Laborer', 'worker', ['warehouse-worker', 'waiter'], [wealth(DAY_LABORER)]),
+  job('hospital-porter', 'Hospital Porter', 'worker', ['warehouse-worker', 'waiter'], [home(2)]),
   // Row 6
-  job('truck-driver', 'Truck Driver', 'worker', ['taxi-driver'], [course('heavy-license')]),
-  job('warehouse-supervisor', 'Warehouse Supervisor', 'worker', ['senior-security-guard', 'taxi-driver'], [item('gadget-phone')]),
-  job('master-electrician', 'Master Electrician', 'worker', ['electrician'], [vehicle('vehicle-hatchback')]),
-  job('head-chef', 'Head Chef', 'worker', ['sous-chef'], [business('restaurant')]),
-  job('furniture-workshop-chief', 'Furniture Workshop Chief', 'worker', ['master-carpenter'], [wealth(MIDDLE_CLASS), business('bakery', 5)]),
-  job('paramedic', 'Paramedic', 'expert', ['nurse'], [course('driving-license')]),
-  job('senior-sales', 'Senior Sales Representative', 'office', ['sales-representative'], [vehicle('vehicle-hatchback')]),
-  job('bank-teller', 'Bank Teller', 'office', ['office-clerk'], [item('outfit-smart')]),
-  job('executive-assistant', 'Executive Assistant', 'office', ['office-clerk'], [item('outfit-smart')]),
-  job('junior-web-developer', 'Junior Web Developer', 'expert', ['it-support'], [course('coding-bootcamp')]),
-  job('content-creator', 'Content Creator', 'office', ['social-media-assistant'], [item('gadget-camera')]),
-
+  job('carpenter-apprentice', 'Carpenter\'s Apprentice', 'worker', ['construction-laborer', 'hospital-porter'], [item('gadget-toolbox')]),
+  job('delivery-driver', 'Delivery Driver', 'worker', ['construction-laborer', 'hospital-porter'], [item('vehicle-scooter'), course('driving-license')]),
   // Row 7
-  job('dispatcher', 'Dispatcher', 'worker', ['truck-driver', 'warehouse-supervisor'], [wealth(MIDDLE_CLASS)]),
-  job('site-foreman', 'Site Foreman', 'worker', ['master-electrician', 'furniture-workshop-chief'], [home(3)]),
-  job('restaurant-manager', 'Restaurant Manager', 'office', ['head-chef'], [business('restaurant', 5)]),
-  job('head-nurse', 'Head Nurse', 'expert', ['paramedic'], [home(5)]),
-  job('store-manager', 'Store Manager', 'office', ['senior-sales'], [wealth(MIDDLE_CLASS)]),
-  job('real-estate-agent', 'Real Estate Agent', 'office', ['senior-sales'], [wealth(MIDDLE_CLASS), business('real-estate-office')]),
-  job('accountant', 'Accountant', 'office', ['bank-teller'], [course('accounting-certificate')]),
-  job('hr-specialist', 'HR Specialist', 'office', ['executive-assistant'], [item('gadget-laptop')]),
-  job('teacher', 'Teacher', 'expert', ['executive-assistant', 'paramedic'], [course('education-degree')]),
-  job('web-developer', 'Web Developer', 'expert', ['junior-web-developer'], [home(4)]),
-  job('journalist', 'Journalist', 'expert', ['content-creator'], [course('journalism')]),
-
+  job('security-guard', 'Security Guard', 'worker', ['carpenter-apprentice', 'delivery-driver'], [course('first-aid')]),
+  job('line-cook', 'Line Cook', 'worker', ['carpenter-apprentice', 'delivery-driver'], [home(2)]),
   // Row 8
-  job('logistics-coordinator', 'Logistics Coordinator', 'office', ['dispatcher'], [item('gadget-laptop'), business('logistics-warehouse')]),
-  job('site-manager', 'Site Manager', 'worker', ['site-foreman'], [vehicle('vehicle-pickup')]),
-  job('food-beverage-manager', 'Food & Beverage Manager', 'office', ['restaurant-manager'], [home(5)]),
-  job('doctor', 'Doctor', 'expert', ['head-nurse'], [course('medical-school')]),
-  job('regional-sales-manager', 'Regional Sales Manager', 'office', ['store-manager', 'real-estate-agent'], [vehicle('vehicle-suv')]),
-  job('financial-analyst', 'Financial Analyst', 'office', ['accountant'], [course('economics-degree')]),
-  job('office-manager', 'Office Manager', 'office', ['hr-specialist'], [item('outfit-coat')]),
-  job('lawyer', 'Lawyer', 'expert', ['teacher', 'hr-specialist'], [course('law-school')]),
-  job('software-engineer', 'Software Engineer', 'expert', ['web-developer'], [course('computer-science')]),
-  job('editor', 'Editor', 'expert', ['journalist'], [wealth(MILLIONAIRE)]),
-
+  job('apprentice-electrician', 'Apprentice Electrician', 'worker', ['security-guard', 'line-cook'], [item('gadget-toolbox')]),
+  job('carpenter', 'Carpenter', 'worker', ['security-guard', 'line-cook'], [business('flower-stand', 5)]),
   // Row 9
-  job('operations-manager', 'Operations Manager', 'office', ['logistics-coordinator', 'office-manager', 'food-beverage-manager'], [business('mini-market')]),
-  job('contractor', 'Contractor', 'worker', ['site-manager'], [business('construction')]),
-  job('architect', 'Architect', 'expert', ['site-manager', 'software-engineer'], [course('architecture')]),
-  job('specialist-doctor', 'Specialist Doctor', 'expert', ['doctor'], [home(6)]),
-  job('veterinarian', 'Veterinarian', 'expert', ['doctor'], [course('veterinary-school')]),
-  job('national-sales-manager', 'National Sales Manager', 'office', ['regional-sales-manager'], [vehicle('vehicle-executive')]),
-  job('finance-manager', 'Finance Manager', 'office', ['financial-analyst'], [home(6)]),
-  job('hr-manager', 'HR Manager', 'office', ['office-manager'], [item('outfit-suit')]),
-  job('senior-lawyer', 'Senior Lawyer', 'expert', ['lawyer'], [home(6)]),
-  job('senior-engineer', 'Senior Software Engineer', 'expert', ['software-engineer'], [vehicle('vehicle-suv')]),
-  job('pilot', 'Pilot', 'expert', ['software-engineer', 'logistics-coordinator'], [course('flight-school')]),
-  job('editor-in-chief', 'Editor-in-Chief', 'expert', ['editor'], [item('outfit-suit')]),
-
+  job('taxi-driver', 'Taxi Driver', 'worker', ['apprentice-electrician', 'carpenter'], [item('vehicle-old-sedan')]),
+  job('senior-security-guard', 'Senior Security Guard', 'worker', ['apprentice-electrician', 'carpenter'], [wealth(WORKING_CLASS)]),
   // Row 10
-  job('hotel-manager', 'Hotel Manager', 'office', ['operations-manager'], [course('hospitality-degree')]),
-  job('supply-chain-manager', 'Supply Chain Manager', 'office', ['operations-manager'], [managers(3)]),
-  job('construction-project-manager', 'Construction Project Manager', 'expert', ['contractor', 'architect'], [course('engineering-degree')]),
-  job('surgeon', 'Surgeon', 'expert', ['specialist-doctor'], [course('surgical-residency')]),
-  job('marketing-manager', 'Marketing Manager', 'office', ['national-sales-manager', 'hr-manager', 'editor-in-chief'], [managers(3)]),
-  job('investment-banker', 'Investment Banker', 'office', ['finance-manager'], [course('mba')]),
-  job('judge', 'Judge', 'expert', ['senior-lawyer'], [home(7)]),
-  job('professor', 'Professor', 'expert', ['senior-lawyer', 'veterinarian'], [course('doctorate')]),
-  job('team-leader', 'Team Leader', 'expert', ['senior-engineer'], [item('outfit-suit')]),
-  job('captain', 'Captain', 'expert', ['pilot'], [vehicle('vehicle-coupe')]),
-  job('tv-producer', 'TV Producer', 'expert', ['editor-in-chief'], [managers(3)]),
+  job('electrician', 'Electrician', 'worker', ['taxi-driver', 'senior-security-guard'], [course('electrician-certificate')]),
+  job('sous-chef', 'Sous Chef', 'worker', ['taxi-driver', 'senior-security-guard'], [course('culinary-school')]),
+  // Row 11
+  job('master-carpenter', 'Master Carpenter', 'worker', ['electrician', 'sous-chef'], [wealth(WORKING_CLASS), item('outfit-work')]),
+  job('truck-driver', 'Truck Driver', 'worker', ['electrician', 'sous-chef'], [course('heavy-license')]),
+  // Row 12
+  job('warehouse-supervisor', 'Warehouse Supervisor', 'worker', ['master-carpenter', 'truck-driver'], [item('gadget-phone')]),
+  job('master-electrician', 'Master Electrician', 'worker', ['master-carpenter', 'truck-driver'], [vehicle('vehicle-hatchback')]),
+  // Row 13
+  job('head-chef', 'Head Chef', 'worker', ['warehouse-supervisor', 'master-electrician'], [business('restaurant')]),
+  job('furniture-workshop-chief', 'Furniture Workshop Chief', 'worker', ['warehouse-supervisor', 'master-electrician'], [wealth(MIDDLE_CLASS), business('bakery', 5)]),
+  // Row 14
+  job('dispatcher', 'Dispatcher', 'worker', ['head-chef', 'furniture-workshop-chief'], [wealth(MIDDLE_CLASS)]),
+  job('site-foreman', 'Site Foreman', 'worker', ['head-chef', 'furniture-workshop-chief'], [home(3)]),
+  // Row 15
+  job('site-manager', 'Site Manager', 'worker', ['dispatcher', 'site-foreman'], [vehicle('vehicle-pickup')]),
+  job('contractor', 'Contractor', 'worker', ['dispatcher', 'site-foreman'], [business('construction')]),
 
-  // Row 11: the directors
-  job('hospitality-director', 'Hospitality Director', 'top', ['hotel-manager'], [home(8), business('hotel')]),
-  job('logistics-director', 'Logistics Director', 'top', ['supply-chain-manager'], [course('mba')]),
-  job('chief-architect', 'Chief Architect', 'expert', ['construction-project-manager'], [business('factory')]),
-  job('hospital-director', 'Hospital Director', 'expert', ['surgeon'], [course('mba')]),
-  job('director', 'Sales Director', 'top', ['marketing-manager'], [course('mba')]),
-  job('portfolio-manager', 'Portfolio Manager', 'top', ['investment-banker'], [item('outfit-threepiece')]),
-  job('legal-director', 'Legal Director', 'top', ['judge'], [item('outfit-threepiece')]),
-  job('rector', 'Rector', 'expert', ['professor'], [home(8)]),
-  job('engineering-manager', 'Engineering Manager', 'expert', ['team-leader'], [business('tech-startup')]),
-  job('airline-ops-director', 'Airline Operations Director', 'top', ['captain'], [vehicle('vehicle-offroader')]),
-  job('media-director', 'Media Director', 'top', ['tv-producer', 'marketing-manager'], [business('media')]),
+  // ── Office (Ofis): rows 16–29 ──
+  // Row 16
+  job('cashier', 'Cashier', 'office', ['site-manager', 'contractor'], [item('outfit-work')]),
+  job('call-center-agent', 'Call Center Agent', 'office', ['site-manager', 'contractor'], [item('gadget-phone'), home(2)]),
+  // Row 17
+  job('shop-assistant', 'Shop Assistant', 'office', ['cashier', 'call-center-agent'], [item('gadget-phone')]),
+  job('office-clerk', 'Office Clerk', 'office', ['cashier', 'call-center-agent'], [course('night-school')]),
+  // Row 18
+  job('sales-representative', 'Sales Representative', 'office', ['shop-assistant', 'office-clerk'], [item('vehicle-old-sedan')]),
+  job('bank-teller', 'Bank Teller', 'office', ['shop-assistant', 'office-clerk'], [item('outfit-smart')]),
+  // Row 19
+  job('executive-assistant', 'Executive Assistant', 'office', ['sales-representative', 'bank-teller'], [item('outfit-smart')]),
+  job('social-media-assistant', 'Social Media Assistant', 'office', ['sales-representative', 'bank-teller'], [item('gadget-laptop')]),
+  // Row 20
+  job('senior-sales', 'Senior Sales Representative', 'office', ['executive-assistant', 'social-media-assistant'], [vehicle('vehicle-hatchback')]),
+  job('accountant', 'Accountant', 'office', ['executive-assistant', 'social-media-assistant'], [course('accounting-certificate')]),
+  // Row 21
+  job('hr-specialist', 'HR Specialist', 'office', ['senior-sales', 'accountant'], [item('gadget-laptop')]),
+  job('content-creator', 'Content Creator', 'office', ['senior-sales', 'accountant'], [item('gadget-camera')]),
+  // Row 22
+  job('store-manager', 'Store Manager', 'office', ['hr-specialist', 'content-creator'], [wealth(MIDDLE_CLASS)]),
+  job('real-estate-agent', 'Real Estate Agent', 'office', ['hr-specialist', 'content-creator'], [wealth(MIDDLE_CLASS), business('real-estate-office')]),
+  // Row 23
+  job('logistics-coordinator', 'Logistics Coordinator', 'office', ['store-manager', 'real-estate-agent'], [item('gadget-laptop'), business('logistics-warehouse')]),
+  job('financial-analyst', 'Financial Analyst', 'office', ['store-manager', 'real-estate-agent'], [course('economics-degree')]),
+  // Row 24
+  job('office-manager', 'Office Manager', 'office', ['logistics-coordinator', 'financial-analyst'], [item('outfit-coat')]),
+  job('restaurant-manager', 'Restaurant Manager', 'office', ['logistics-coordinator', 'financial-analyst'], [business('restaurant', 5)]),
+  // Row 25
+  job('regional-sales-manager', 'Regional Sales Manager', 'office', ['office-manager', 'restaurant-manager'], [vehicle('vehicle-suv')]),
+  job('food-beverage-manager', 'Food & Beverage Manager', 'office', ['office-manager', 'restaurant-manager'], [home(5)]),
+  // Row 26
+  job('operations-manager', 'Operations Manager', 'office', ['regional-sales-manager', 'food-beverage-manager'], [business('mini-market')]),
+  job('finance-manager', 'Finance Manager', 'office', ['regional-sales-manager', 'food-beverage-manager'], [home(6)]),
+  // Row 27
+  job('hr-manager', 'HR Manager', 'office', ['operations-manager', 'finance-manager'], [item('outfit-suit')]),
+  job('national-sales-manager', 'National Sales Manager', 'office', ['operations-manager', 'finance-manager'], [vehicle('vehicle-executive')]),
+  // Row 28
+  job('supply-chain-manager', 'Supply Chain Manager', 'office', ['hr-manager', 'national-sales-manager'], [managers(3)]),
+  job('marketing-manager', 'Marketing Manager', 'office', ['hr-manager', 'national-sales-manager'], [managers(3)]),
+  // Row 29
+  job('hotel-manager', 'Hotel Manager', 'office', ['supply-chain-manager', 'marketing-manager'], [course('hospitality-degree')]),
+  job('investment-banker', 'Investment Banker', 'office', ['supply-chain-manager', 'marketing-manager'], [course('mba')]),
 
-  // Row 12: the chiefs
-  job('cto', 'Chief Technology Officer', 'top', ['engineering-manager'], [vehicle('vehicle-executive'), managers(4)]),
-  job('cfo', 'Chief Financial Officer', 'top', ['portfolio-manager'], [item('outfit-tux'), managers(4)]),
-  job('chief-commercial-officer', 'Chief Commercial Officer', 'top', ['director', 'media-director'], [managers(4)]),
-  job(
-    'coo',
-    'Chief Operating Officer',
-    'top',
-    ['logistics-director', 'hospitality-director', 'legal-director', 'airline-ops-director', 'hospital-director', 'chief-architect', 'rector'],
-    [managers(4)],
-  ),
+  // ── Expert (Uzman): rows 30–45 ──
+  // Row 30
+  job('street-photographer', 'Street Photographer', 'expert', ['hotel-manager', 'investment-banker'], [item('gadget-camera')]),
+  job('it-support', 'IT Support', 'expert', ['hotel-manager', 'investment-banker'], [course('it-certificate'), item('gadget-laptop')]),
+  // Row 31
+  job('nursing-assistant', 'Nursing Assistant', 'expert', ['street-photographer', 'it-support'], [course('first-aid')]),
+  job('junior-web-developer', 'Junior Web Developer', 'expert', ['street-photographer', 'it-support'], [course('coding-bootcamp')]),
+  // Row 32
+  job('nurse', 'Nurse', 'expert', ['nursing-assistant', 'junior-web-developer'], [course('nursing-school')]),
+  job('journalist', 'Journalist', 'expert', ['nursing-assistant', 'junior-web-developer'], [course('journalism')]),
+  // Row 33
+  job('paramedic', 'Paramedic', 'expert', ['nurse', 'journalist'], [course('driving-license')]),
+  job('web-developer', 'Web Developer', 'expert', ['nurse', 'journalist'], [home(4)]),
+  // Row 34
+  job('teacher', 'Teacher', 'expert', ['paramedic', 'web-developer'], [course('education-degree')]),
+  job('editor', 'Editor', 'expert', ['paramedic', 'web-developer'], [wealth(MILLIONAIRE)]),
+  // Row 35
+  job('head-nurse', 'Head Nurse', 'expert', ['teacher', 'editor'], [home(5)]),
+  job('software-engineer', 'Software Engineer', 'expert', ['teacher', 'editor'], [course('computer-science')]),
+  // Row 36
+  job('lawyer', 'Lawyer', 'expert', ['head-nurse', 'software-engineer'], [course('law-school')]),
+  job('editor-in-chief', 'Editor-in-Chief', 'expert', ['head-nurse', 'software-engineer'], [item('outfit-suit')]),
+  // Row 37
+  job('doctor', 'Doctor', 'expert', ['lawyer', 'editor-in-chief'], [course('medical-school')]),
+  job('senior-engineer', 'Senior Software Engineer', 'expert', ['lawyer', 'editor-in-chief'], [vehicle('vehicle-suv')]),
+  // Row 38
+  job('senior-lawyer', 'Senior Lawyer', 'expert', ['doctor', 'senior-engineer'], [home(6)]),
+  job('architect', 'Architect', 'expert', ['doctor', 'senior-engineer'], [course('architecture')]),
+  // Row 39
+  job('specialist-doctor', 'Specialist Doctor', 'expert', ['senior-lawyer', 'architect'], [home(6)]),
+  job('pilot', 'Pilot', 'expert', ['senior-lawyer', 'architect'], [course('flight-school')]),
+  // Row 40
+  job('veterinarian', 'Veterinarian', 'expert', ['specialist-doctor', 'pilot'], [course('veterinary-school')]),
+  job('team-leader', 'Team Leader', 'expert', ['specialist-doctor', 'pilot'], [item('outfit-suit')]),
+  // Row 41
+  job('judge', 'Judge', 'expert', ['veterinarian', 'team-leader'], [home(7)]),
+  job('construction-project-manager', 'Construction Project Manager', 'expert', ['veterinarian', 'team-leader'], [course('engineering-degree')]),
+  // Row 42
+  job('surgeon', 'Surgeon', 'expert', ['judge', 'construction-project-manager'], [course('surgical-residency')]),
+  job('captain', 'Captain', 'expert', ['judge', 'construction-project-manager'], [vehicle('vehicle-coupe')]),
+  // Row 43
+  job('professor', 'Professor', 'expert', ['surgeon', 'captain'], [course('doctorate')]),
+  job('tv-producer', 'TV Producer', 'expert', ['surgeon', 'captain'], [managers(3)]),
+  // Row 44
+  job('hospital-director', 'Hospital Director', 'expert', ['professor', 'tv-producer'], [course('mba')]),
+  job('engineering-manager', 'Engineering Manager', 'expert', ['professor', 'tv-producer'], [managers(4)]),
+  // Row 45
+  job('rector', 'Rector', 'expert', ['hospital-director', 'engineering-manager'], [home(8)]),
+  job('chief-architect', 'Chief Architect', 'expert', ['hospital-director', 'engineering-manager'], [business('factory')]),
 
-  // Row 13 and up: the top of a company
-  job('ceo', 'CEO', 'top', ['cto', 'cfo', 'chief-commercial-officer', 'coo'], [wealth(MILLIONAIRE), course('mba'), managers(5)]),
+  // ── The top (Zirve): rows 46–54 ──
+  // Row 46
+  job('director', 'Sales Director', 'top', ['rector', 'chief-architect'], [course('mba')]),
+  job('logistics-director', 'Logistics Director', 'top', ['rector', 'chief-architect'], [course('mba')]),
+  // Row 47
+  job('hospitality-director', 'Hospitality Director', 'top', ['director', 'logistics-director'], [home(8)]),
+  job('media-director', 'Media Director', 'top', ['director', 'logistics-director'], [managers(5)]),
+  // Row 48
+  job('legal-director', 'Legal Director', 'top', ['hospitality-director', 'media-director'], [item('outfit-suit')]),
+  job('airline-ops-director', 'Airline Operations Director', 'top', ['hospitality-director', 'media-director'], [vehicle('vehicle-executive')]),
+  // Row 49
+  job('portfolio-manager', 'Portfolio Manager', 'top', ['legal-director', 'airline-ops-director'], [item('outfit-threepiece')]),
+  job('chief-commercial-officer', 'Chief Commercial Officer', 'top', ['legal-director', 'airline-ops-director'], [managers(4)]),
+  // Row 50
+  job('cto', 'Chief Technology Officer', 'top', ['portfolio-manager', 'chief-commercial-officer'], [vehicle('vehicle-executive'), managers(4)]),
+  job('cfo', 'Chief Financial Officer', 'top', ['portfolio-manager', 'chief-commercial-officer'], [item('outfit-tux'), managers(4)]),
+  // Row 51
+  job('coo', 'Chief Operating Officer', 'top', ['cto', 'cfo'], [managers(4)]),
+  // Row 52
+  job('ceo', 'CEO', 'top', ['coo'], [wealth(MILLIONAIRE), course('mba'), managers(5)]),
+  // Row 53
   job('board-member', 'Board Member', 'top', ['ceo'], [wealth(BILLIONAIRE)]),
   job('fund-founder', 'Investment Fund Founder', 'top', ['ceo'], [wealth(BILLIONAIRE), business('tech-startup', 5)]),
+  // Row 54
   job('board-chair', 'Chair of the Board', 'top', ['board-member', 'fund-founder'], [wealth(BILLIONAIRE), item('toy-4')]),
 ];
 
