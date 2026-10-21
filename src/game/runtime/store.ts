@@ -27,7 +27,8 @@ import { claimDaily, offerDaily } from './daily';
 import { collectInvestment, startInvestment } from './investment';
 import type { InvestPlanId } from '../core/config/investments';
 import { ownedProducts, realStore } from './iap';
-import { applyPurchase, applyRevoke, openOffers, refundedToRevoke, storeOwnedToGrant } from './purchases';
+import { PRODUCT_LIST } from '../core/config/iap';
+import { applyPurchase, applyRevoke, offerCardSeen, openOffers, refundedToRevoke, storeOwnedToGrant } from './purchases';
 import {
   levelUpBusiness,
   openBranch,
@@ -151,7 +152,7 @@ export interface GameActions {
      */
     sync(productIds: string[], source: 'open' | 'restore'): number;
     /** The welcome card for the limited offer was shown (it shows once). */
-    offerCardShown(): void;
+    offerCardShown(productKey: string): void;
   };
   story: {
     /** Stops the clock (income and age) while a ceremony plays (story-v2.md §4). */
@@ -508,8 +509,11 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       purchases: {
         apply: (productId) => grant(productId, 'purchase'),
         sync: (productIds, source) => syncStore(productIds, source),
-        offerCardShown: () => {
-          act((s) => (s.purchases.offerCardShown ? s : { ...s, purchases: { ...s.purchases, offerCardShown: true } }));
+        offerCardShown: (productKey) => {
+          act((s) => {
+            const product = PRODUCT_LIST.find((item) => item.key === productKey);
+            return product ? { ...s, purchases: offerCardSeen(s.purchases, product, clock()) } : s;
+          });
         },
       },
       story: {

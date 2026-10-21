@@ -1187,6 +1187,7 @@ export const tr: Messages = {
       headline: 'Ödüllerini reklam izlemeden al.',
       limits: 'Mevcut kullanım sınırları geçerlidir.',
       point3: 'Sonsuza kadar senin',
+      cash: 'Hediye: +{amount} hemen',
       bonus: { one: 'Bir defalık bonus: {count} saat ×2 gelir', other: 'Bir defalık bonus: {count} saat ×2 gelir' },
       active: 'Aktif',
       enabled: 'Reklamsız ödüller açık',

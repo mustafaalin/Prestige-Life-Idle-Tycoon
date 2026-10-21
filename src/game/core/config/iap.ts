@@ -68,7 +68,10 @@ export interface ProductDef {
 const ART = '/assets/iap';
 
 export const PRODUCTS: Record<ProductKey, ProductDef> = {
-  /** Every rewarded ad's reward without the ad, for good; a 2-hour boost to start. */
+  /**
+   * Every rewarded ad's reward without the ad, for good; a 2-hour boost and 3 hours of income to start
+   * (2026-10-21, user: ad-free alone felt like a high price for little).
+   */
   comfort: {
     key: 'comfort',
     id: 'v2_comfort_pack',
@@ -78,7 +81,7 @@ export const PRODUCTS: Record<ProductKey, ProductDef> = {
     lines: 2,
     fallbackPrice: '$7.99',
     boostSeconds: 2 * 3600,
-    incomeSeconds: 0,
+    incomeSeconds: 3 * 3600,
     incomeBonus: 0,
     offerSeconds: 0,
   },

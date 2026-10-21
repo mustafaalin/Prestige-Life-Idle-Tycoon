@@ -264,6 +264,8 @@ function normalizePurchases(raw: unknown): PurchaseProgress {
     owned: [...new Set(stringList(raw.owned))],
     offersFrom: finite(raw.offersFrom, 0),
     offerCardShown: raw.offerCardShown === true,
+    offerDay: typeof raw.offerDay === 'string' ? raw.offerDay : '',
+    offerLast: typeof raw.offerLast === 'string' ? raw.offerLast : '',
   };
 }
 

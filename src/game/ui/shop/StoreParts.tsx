@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import { useId, type CSSProperties, type ReactNode } from 'react';
 import type { ProductDef } from '../../core/config/iap';
 import { useT } from '../../i18n/useT';
 import { purchaseCash } from '../../runtime/purchases';
@@ -24,18 +24,32 @@ export function StarterArt() {
   );
 }
 
-/** The gift box with its lid breathing above it and the check medal. */
-export function ComfortArt() {
+/**
+ * The Comfort Pack at a glance (2026-10-21, user: like the reference shops, an ad button crossed out):
+ * the game's rewarded-ad ticket with a thick gold "no" ring over the ticket, the gift left in view.
+ */
+export function NoAdsArt({ className = 'w-[148px] max-[359px]:w-[125px]' }: { className?: string }) {
+  const id = useId();
   return (
-    <div className="v2-iap-art w-[148px] max-[359px]:w-[125px] aspect-[148/146] shrink-0">
-      <Layer src={STORE_ART.box} className="left-0 w-full" style={{ top: '24%' }} />
-      <Layer src={STORE_ART.lid} className="v2-iap-lid" style={{ width: '89%', left: '5.5%', top: '-4%' }} />
-      <Layer src={STORE_ART.medal} style={{ width: '46.6%', right: '-2%', bottom: 0 }} />
+    <div className={`v2-iap-art aspect-square shrink-0 ${className}`}>
+      <img src={STORE_ART.noAds} alt="" draggable={false} className="absolute inset-0 w-full h-full object-contain" />
+      <svg viewBox="0 0 100 100" className="absolute drop-shadow-[0_3px_3px_rgba(80,30,0,0.45)]" style={{ left: '4%', top: '9%', width: '70%' }} aria-hidden>
+        <defs>
+          <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#fff3b0" />
+            <stop offset="0.45" stopColor="#ffc93a" />
+            <stop offset="1" stopColor="#d88a0c" />
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#8a4a00" strokeWidth="15" />
+        <line x1="22" y1="22" x2="78" y2="78" stroke="#8a4a00" strokeWidth="15" strokeLinecap="round" />
+        <circle cx="50" cy="50" r="40" fill="none" stroke={`url(#${id})`} strokeWidth="10" />
+        <line x1="22" y1="22" x2="78" y2="78" stroke={`url(#${id})`} strokeWidth="10" strokeLinecap="round" />
+      </svg>
     </div>
   );
 }
 
-/** One reward as an object: what it is in big letters (the amount itself, never a formula), then what it means. */
 function Tile({ image, value, note, money = false }: { image: string; value: string; note: string; money?: boolean }) {
   return (
     <div className="v2-iap-reward">
@@ -86,23 +100,6 @@ export function PricePill({ disabled, onClick, children }: { disabled?: boolean;
         onClick();
       }}
       className="v2-iap-pill v2-display text-[18px] break-words"
-    >
-      {children}
-    </button>
-  );
-}
-
-/** The gold buy button; it never cuts the price, a long one wraps. */
-export function BuyButton({ disabled, onClick, children }: { disabled?: boolean; onClick: () => void; children: ReactNode }) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={(event) => {
-        event.stopPropagation();
-        onClick();
-      }}
-      className="v2-iap-buy v2-display text-[16px] break-words"
     >
       {children}
     </button>

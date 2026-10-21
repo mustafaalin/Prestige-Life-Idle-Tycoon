@@ -9,8 +9,10 @@ export const ICONS = {
   shop: `${DIR}/shop.webp`,
   /** The balance in the top bar; coins fly into it. */
   money: `${DIR}/money.webp`,
-  /** One coin, for the flight into the balance. */
+  /** One coin. */
   coin: `${DIR}/coin.webp`,
+  /** Green banknotes, for every flight into the balance and out of it (2026-10-21, user: notes, not coins). */
+  bill: `${DIR}/bill.webp`,
   /** Status: the wealth class and the status bonus. */
   status: `${DIR}/prestige-points.webp`,
   /** The family album: the story moments seen so far. */

@@ -10,7 +10,7 @@ import {
 import { incomePerSecond } from '../core/formulas';
 import { earn } from '../core/state';
 import type { GameStateV2 } from '../core/types';
-import type { AdProgress } from './adRewards';
+import { dayKey, type AdProgress } from './adRewards';
 import type { StoryProgress } from './story';
 
 // What a purchase gives and when an offer shows (docs/monetization-v2.md §5). Pure rules: the store
@@ -24,10 +24,13 @@ export interface PurchaseProgress {
   offersFrom: number;
   /** The welcome card that points at the limited offer was shown (it shows once). */
   offerCardShown: boolean;
+  /** The day (local date key) an offer card last showed, and which product it showed (2026-10-21). */
+  offerDay: string;
+  offerLast: string;
 }
 
 export function createPurchaseProgress(): PurchaseProgress {
-  return { owned: [], offersFrom: 0, offerCardShown: false };
+  return { owned: [], offersFrom: 0, offerCardShown: false, offerDay: '', offerLast: '' };
 }
 
 interface PurchaseContext {
@@ -118,9 +121,22 @@ export function limitedOfferOn(context: Pick<PurchaseContext, 'story' | 'purchas
   return limitedOffer(context, now) !== undefined;
 }
 
-/** The welcome card pointing at the limited offer is due: once, while the offer is on. */
-export function offerCardDue(context: Pick<PurchaseContext, 'story' | 'purchases'>, now: number) {
-  return !context.purchases.offerCardShown && limitedOfferOn(context, now);
+/**
+ * The product the day's offer card shows, or null (2026-10-21, user: show the packs as a special card
+ * once a day). The first card is the welcome one for the limited offer; after that one card a day, at a
+ * quiet moment, for a pack not bought yet, taking turns when there are two.
+ */
+export function offerCardProduct(context: Pick<PurchaseContext, 'story' | 'purchases'>, now: number): ProductDef | null {
+  const { purchases } = context;
+  if (!purchases.offerCardShown) return limitedOffer(context, now) ?? null;
+  if (purchases.offerDay === dayKey(now)) return null;
+  const forSale = storeProducts(context, now).filter((product) => !owns(purchases, product));
+  return forSale.find((product) => product.key !== purchases.offerLast) ?? forSale[0] ?? null;
+}
+
+/** The offer card was shown: once today, and this product goes to the back of the turn. */
+export function offerCardSeen(purchases: PurchaseProgress, product: ProductDef, now: number): PurchaseProgress {
+  return { ...purchases, offerCardShown: true, offerDay: dayKey(now), offerLast: product.key };
 }
 
 /** Starts the limited offers' clock the first time the store is open. */

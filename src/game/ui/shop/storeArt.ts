@@ -6,9 +6,8 @@ export const STORE_ART = {
   cash: `${ART}/starter-cash.webp`,
   coins: `${ART}/starter-coins.webp`,
   hourglass: `${ART}/starter-hourglass.webp`,
-  box: `${ART}/comfort-box.webp`,
-  lid: `${ART}/comfort-lid.webp`,
-  medal: `${ART}/comfort-medal.webp`,
   button: `${ART}/store-button.webp`,
+  /** The rewarded-ad ticket with its gift, large; NoAdsArt draws the gold "no" ring over it. */
+  noAds: `${ART}/no-ads-ticket.webp`,
   scarf: '/assets/scene/sans-scarf.webp',
 };

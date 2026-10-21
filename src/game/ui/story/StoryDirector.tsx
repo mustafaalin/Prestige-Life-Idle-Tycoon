@@ -29,7 +29,7 @@ import {
 } from '../../runtime/story';
 import { useGameV2, useGameV2Events } from '../../runtime/useGameV2';
 import { rewardsStarted } from '../../runtime/adRewards';
-import { offerCardDue } from '../../runtime/purchases';
+import { offerCardProduct } from '../../runtime/purchases';
 import { requestReview, reviewDue } from '../../runtime/review';
 import { RichMoment } from '../richList/RichList';
 import { COINS_LAND_MS } from '../home/coins';
@@ -106,8 +106,8 @@ export function StoryDirector({
   // The lighter cards wait for a quiet moment of a life still going.
   const extrasCanPlay = lifeCanPlay && !quiet && !ending && life === null;
   const rich = extrasCanPlay ? pendingRichMoment(game, state.story) : null;
-  // The welcome card for the limited offer: once, at a quiet moment with nothing else on screen.
-  const offer = extrasCanPlay && rich === null && offerCardDue(state, Date.now());
+  // The day's offer card (the first is the welcome one): at a quiet moment with nothing else on screen.
+  const offer = extrasCanPlay && rich === null ? offerCardProduct(state, Date.now()) : null;
 
   useEffect(() => {
     if (!playing) return;
@@ -313,12 +313,12 @@ export function StoryDirector({
 
   if (offer) {
     const done = (look: boolean) => {
-      actions.purchases.offerCardShown();
-      track('offer_card', { opened: look });
+      actions.purchases.offerCardShown(offer.key);
+      track('offer_card', { opened: look, product: offer.key });
       setQuiet(true);
       if (look) onOpenStore();
     };
-    return <OfferCard onLook={() => done(true)} onLater={() => done(false)} />;
+    return <OfferCard product={offer} onLook={() => done(true)} onLater={() => done(false)} />;
   }
 
   if (mom && !state.offline && !landing) {

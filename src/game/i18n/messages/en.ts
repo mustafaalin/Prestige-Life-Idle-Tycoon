@@ -1188,6 +1188,7 @@ export const en = {
       headline: 'Claim rewards without watching ads.',
       limits: 'Existing usage limits still apply.',
       point3: 'Yours forever',
+      cash: 'Gift: +{amount} right away',
       bonus: { one: 'One-time bonus: {count} hour of ×2 income', other: 'One-time bonus: {count} hours of ×2 income' },
       active: 'Active',
       enabled: 'Ad-free rewards enabled',

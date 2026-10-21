@@ -3,7 +3,7 @@ import { ICONS } from '../icons';
 import { emitWalletHit, onCoinBurst, onCoinSpill } from './coins';
 import { toStage } from '../stage';
 
-// Draws coin bursts: each coin pops out a little, then curves into the wallet in the top bar.
+// Draws money bursts: each banknote pops out a little, then curves into the wallet in the top bar.
 // Every arrival bumps the balance (TopBar listens to emitWalletHit). A burst with a label shows the
 // amount first, so the player reads it before the coins take it to the wallet (a payout's amount flies
 // in with them). A spill is the other
@@ -170,10 +170,10 @@ export function CoinLayer() {
       {falling.map((coin) => (
         <img
           key={coin.id}
-          src={ICONS.coin}
+          src={ICONS.bill}
           alt=""
           draggable={false}
-          className="v2-coin-fall absolute w-6 h-6 drop-shadow-md"
+          className="v2-coin-fall absolute w-7 h-7 drop-shadow-md"
           style={
             {
               left: coin.x - 12,
@@ -204,10 +204,10 @@ export function CoinLayer() {
             }
           >
             <img
-              src={ICONS.coin}
+              src={ICONS.bill}
               alt=""
               draggable={false}
-              className="v2-coin-y block w-6 h-6 drop-shadow-md"
+              className="v2-coin-y block w-7 h-7 drop-shadow-md"
               style={{ '--sy': `${coin.sy}px`, '--dy': `${coin.dy}px`, ...timing } as CSSProperties}
             />
           </span>
