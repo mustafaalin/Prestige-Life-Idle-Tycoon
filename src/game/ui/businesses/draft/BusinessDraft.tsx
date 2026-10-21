@@ -62,11 +62,13 @@ function Row({
   cash,
   onOpen,
   onBuy,
+  onHire,
 }: {
   line: Line;
   cash: number;
   onOpen: () => void;
   onBuy: () => void;
+  onHire: () => void;
 }) {
   const { t, name, money, perMonth } = useT();
   const { def, level, managed } = line;
@@ -76,7 +78,8 @@ function Row({
   const atTop = opened && next === null;
   const price = next ? next.cost : branchCost(def, line.branches);
   const canBranch = atTop && line.branches < BRANCH_CAP;
-  const managerReady = opened && !managed && cash >= (MANAGER_COST[def.id] ?? Infinity);
+  const hireCost = MANAGER_COST[def.id] ?? Infinity;
+  const managerReady = opened && !managed && cash >= hireCost;
   const [bubbles, setBubbles] = useState<number[]>([]);
   const [running, setRunning] = useState(false);
 
@@ -92,7 +95,8 @@ function Row({
   };
 
   return (
-    <Panel accent={managerReady} className="relative p-2.5 flex items-center gap-2.5">
+    <Panel accent={managerReady} className="relative p-2.5 flex flex-col gap-2.5">
+      <div className="flex items-center gap-2.5">
       <button
         type="button"
         onClick={managed || !opened ? onOpen : run}
@@ -124,8 +128,8 @@ function Row({
           </span>
         ))}
         {opened && managed && (
-          <span className="absolute z-10 -left-1.5 -bottom-1.5 flex items-center rounded-full border-2 border-white bg-gradient-to-b from-violet-400 to-indigo-600 pr-1.5 v2-display text-[10px] text-white">
-            <img src={managerPortrait(def.id, 'old')} alt="" className="w-5 h-5 rounded-full object-cover border border-white mr-0.5" />
+          <span className="absolute z-10 -left-2 -bottom-2 flex items-center rounded-full border-2 border-white bg-gradient-to-b from-violet-400 to-indigo-600 pr-1.5 v2-display text-[10px] text-white shadow">
+            <img src={managerPortrait(def.id, 'old')} alt="" className="w-8 h-8 rounded-full object-cover border-2 border-white -ml-0.5 mr-0.5" />
             OTO
           </span>
         )}
@@ -187,10 +191,26 @@ function Row({
         )}
       </div>
 
-      {managerReady && (
-        <span className="absolute -top-2 left-16 rounded-full border-2 border-white bg-gradient-to-b from-amber-300 to-orange-500 px-2 v2-display text-[10px] text-white v2-shadow">
-          Yönetici hazır
-        </span>
+      </div>
+
+      {/* A line without a manager says who could run it, right on the row (user, 2026-10-21). */}
+      {opened && !managed && (
+        <div className={`flex items-center gap-2 rounded-2xl px-2 py-1.5 ${managerReady ? 'bg-amber-50 ring-2 ring-amber-200' : 'bg-violet-50'}`}>
+          <img src={managerPortrait(def.id, 'old')} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white shadow" />
+          <div className="flex-1 min-w-0 leading-tight">
+            <p className="v2-display text-[13px] text-violet-700 truncate">{t(managerKey(def.id, 'name', 'old'))}</p>
+            <p className="text-[10px] font-bold text-violet-600/80">Senin yerine çalıştırır, sen yokken de kazanır</p>
+          </div>
+          <GameButton
+            tone={managerReady ? 'gold' : 'manager'}
+            disabled={!managerReady}
+            onClick={onHire}
+            className="shrink-0 py-1 px-2.5 flex flex-col items-center leading-tight"
+          >
+            <span className="v2-display text-[11px] v2-shadow">İşe al</span>
+            <span className="v2-display text-[12px] v2-shadow tabular-nums">{money(hireCost)}</span>
+          </GameButton>
+        </div>
       )}
     </Panel>
   );
@@ -348,7 +368,14 @@ export function BusinessDraft() {
             <span className="tabular-nums text-indigo-900/50">5/6</span>
           </div>
           {lines.map((line) => (
-            <Row key={line.def.id} line={line} cash={cash} onOpen={() => setOpenId(line.def.id)} onBuy={() => buy(line)} />
+            <Row
+              key={line.def.id}
+              line={line}
+              cash={cash}
+              onOpen={() => setOpenId(line.def.id)}
+              onBuy={() => buy(line)}
+              onHire={() => hire(line)}
+            />
           ))}
           <div className="rounded-[22px] border-2 border-dashed border-indigo-200 bg-white/50 p-2.5 flex items-center gap-2.5">
             <ImageTile className="w-12 h-12">
