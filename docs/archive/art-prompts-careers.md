@@ -1,6 +1,6 @@
 # Meslek ağacının yeni ikonları: GPT komutları
 
-Tarih: 2026-10-21 · İlgili: [career-redesign.md](./career-redesign.md), kurallar [game-design-v2.md §4.4](./game-design-v2.md). Önceki 63 ikonun komutları: [archive/art-prompts-jobs.md](./archive/art-prompts-jobs.md).
+Tarih: 2026-10-21 · İlgili: [career-redesign.md](../career-redesign.md), kurallar [game-design-v2.md §4.4](../game-design-v2.md). Önceki 63 ikonun komutları: [archive/art-prompts-jobs.md](./art-prompts-jobs.md).
 
 Meslek ağacı 104 mesleğe çıktı; **41'inin ikonu yok**. Her ikon tek bir nesne ya da küçük bir nesne grubudur (öncekiler gibi: kasiyerde yazar kasa, garsonda çay tepsisi); insan yok, el yok. Kurslar ikon kullanmıyor (kep simgesi), sekme ikonları kodda; GPT'den yalnız bu 41 meslek ikonu gerekiyor.
 
