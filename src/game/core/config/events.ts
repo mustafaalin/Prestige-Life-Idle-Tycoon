@@ -1,31 +1,100 @@
 import { COLLECT_END_CLASS } from './scene';
 
 // Event cards (game-design §4.7): from Middle Class on, when nothing lies on the ground any more,
-// someone the hero knows calls now and then with a small opportunity. Two answers: the safe one pays
-// a sure amount, the bold one pays a lot more or costs a little, at odds shown on the card. No
-// branches, no lasting effects. Who speaks and with which face: ui/events/eventScript.ts; text in
+// someone the hero knows calls now and then with a small opportunity. Most calls have two answers: the
+// safe one pays a sure amount, the bold one pays a lot more or costs a little, at odds shown on the
+// card (EventKind has the other two kinds). No branches, no lasting effects. Who speaks and with which face: ui/events/eventScript.ts; text in
 // i18n `events.cards.<id>`. Checked by `npm run sim`.
+
+/**
+ * The kinds of call: a safe and a bold answer (the bold one can cost money), a thank-you with a small
+ * gift and no choice, or two equal options that only add flavour and pay the same (2026-10-21, user).
+ */
+export type EventKind = 'choice' | 'thanks' | 'pick';
 
 export interface EventCardDef {
   id: string;
-  /** A manager's card: it only comes once this business has its manager. */
+  /** A manager's card: it only comes once this business has its manager... */
   businessId?: string;
+  /** ...and has reached this look (0 stand, 1 shop, 2 store), so the story grows with the business. */
+  stage?: number;
   /** The card waits for this wealth class (the caller enters the story with its ceremony). */
   fromClass?: number;
+  /** Left out: 'choice'. */
+  kind?: EventKind;
 }
 
+/**
+ * Three cards a manager, one per look of the business (2026-10-21, user: more variety, in order with
+ * the business), and a few from people the hero knows. Old Ray's and Mr. Bryce's cards are theirs as
+ * managers. Who speaks: ui/events/eventScript.ts.
+ */
 export const EVENT_CARDS: EventCardDef[] = [
-  { id: 'wedding' },
+  // flower-stand
+  { id: 'wedding', businessId: 'flower-stand' },
+  { id: 'roses', businessId: 'flower-stand', stage: 1 },
+  { id: 'lobby', businessId: 'flower-stand', stage: 2 },
+  // coffee-cart
+  { id: 'festival', businessId: 'coffee-cart' },
+  { id: 'dessert', businessId: 'coffee-cart', stage: 1, kind: 'pick' },
+  { id: 'roaster', businessId: 'coffee-cart', stage: 2 },
+  // bakery
+  { id: 'bun', businessId: 'bakery' },
+  { id: 'nightshift', businessId: 'bakery', stage: 1, kind: 'thanks' },
+  { id: 'tiers', businessId: 'bakery', stage: 2 },
+  // car-wash
+  { id: 'film', businessId: 'car-wash' },
+  { id: 'tunnelsong', businessId: 'car-wash', stage: 1, kind: 'pick' },
+  { id: 'buses', businessId: 'car-wash', stage: 2 },
+  // mini-market
+  { id: 'neighbor', businessId: 'mini-market' },
+  { id: 'tab', businessId: 'mini-market', stage: 1, kind: 'thanks' },
+  { id: 'villages', businessId: 'mini-market', stage: 2 },
+  // restaurant
+  { id: 'critic', businessId: 'restaurant' },
+  { id: 'soup', businessId: 'restaurant', stage: 1, kind: 'pick' },
+  { id: 'franchise', businessId: 'restaurant', stage: 2 },
+  // beauty-salon
+  { id: 'celebrity', businessId: 'beauty-salon' },
+  { id: 'brides', businessId: 'beauty-salon', stage: 1 },
+  { id: 'nevinhair', businessId: 'beauty-salon', stage: 2, kind: 'thanks' },
+  // real-estate-office
+  { id: 'flat', businessId: 'real-estate-office' },
+  { id: 'listing', businessId: 'real-estate-office', stage: 1, kind: 'pick' },
+  { id: 'tower', businessId: 'real-estate-office', stage: 2 },
+  // logistics-warehouse
+  { id: 'ducks', businessId: 'logistics-warehouse' },
+  { id: 'rush', businessId: 'logistics-warehouse', stage: 1 },
+  { id: 'drones', businessId: 'logistics-warehouse', stage: 2 },
+  // construction
+  { id: 'schoolroof', businessId: 'construction', kind: 'thanks' },
+  { id: 'tender', businessId: 'construction', stage: 1 },
+  { id: 'stadium', businessId: 'construction', stage: 2 },
+  // factory
+  { id: 'solar', businessId: 'factory' },
+  { id: 'staffbus', businessId: 'factory', stage: 1, kind: 'pick' },
+  { id: 'export', businessId: 'factory', stage: 2 },
+  // hotel
+  { id: 'cake', businessId: 'hotel', fromClass: 5 },
+  { id: 'waiters', businessId: 'hotel', stage: 1, kind: 'thanks' },
+  { id: 'stage', businessId: 'hotel', stage: 2 },
+  // media
+  { id: 'liveradio', businessId: 'media' },
+  { id: 'series', businessId: 'media', stage: 1 },
+  { id: 'documentary', businessId: 'media', stage: 2, kind: 'pick' },
+  // tech-startup
+  { id: 'dogapp', businessId: 'tech-startup' },
+  { id: 'robot', businessId: 'tech-startup', stage: 1, kind: 'pick' },
+  { id: 'ipo', businessId: 'tech-startup', stage: 2 },
+  // People the hero knows: Nevin Hanım, Defne, the cousin.
   { id: 'fair' },
   { id: 'coin' },
-  { id: 'festival', businessId: 'coffee-cart' },
-  { id: 'bun', businessId: 'bakery' },
-  { id: 'film', businessId: 'car-wash' },
-  { id: 'neighbor', businessId: 'mini-market' },
-  { id: 'celebrity', businessId: 'beauty-salon' },
-  { id: 'ducks', businessId: 'logistics-warehouse' },
-  // Mr. Bryce works for the hero after the Billionaire ceremony.
-  { id: 'cake', fromClass: 5 },
+  { id: 'nevincookies', kind: 'thanks' },
+  { id: 'nevingarden', kind: 'pick' },
+  { id: 'library' },
+  { id: 'album', kind: 'pick' },
+  { id: 'birthday', kind: 'thanks' },
+  { id: 'cousincar', kind: 'pick' },
 ];
 
 /** Cards start where collecting ends. */

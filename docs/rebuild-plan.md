@@ -82,7 +82,7 @@ Lansman = 1. nesil; 2. ve 3. nesil yayından sonra; Burak hikâyesi kalktı; 80'
 
 - [x] **2.5 Yatırımlar:** Rıza Amca'nın fırsatları (1 / 4 / 8 sa vade).
 - [x] **2.8 Bildirimler:** annenin mesajı, kasa doldu, günlük ödül hazır; günde en fazla bir.
-- [~] **2.4 Olay kartları:** ilk 10 kart oyunda. Kalan: büyük set; iş teklifleri önerisi ([discussion-notes.md §2](./discussion-notes.md)).
+- [~] **2.4 Olay kartları:** 50 kart oyunda (2026-10-21: üç tür, yönetici başına üç kart işletmenin görünümüne bağlı, deste düzeni). Kalan: iş teklifleri önerisi ([discussion-notes.md §2](./discussion-notes.md)).
 - [~] **2.7 Günlük döngü:** günlük ödül oyunda. Kalan: günlük görevler (oynanış keyifli görülürse).
 - [~] **2.9 Monetizasyon:** reklam altyapısı, 19 reklam yeri, IAP 1. adım oyunda ([monetization-v2.md](./monetization-v2.md)). Kalan: IAP 2. adım (Yakut Tasma $4,99, Gece Vardiyası $3,99 yeni çevrimdışına göre), v1'in 8 ürünü pasifleşir.
 - [ ] **2.6 Lüks oyuncaklar sahnede:** jet, helikopter, yat, tekne.

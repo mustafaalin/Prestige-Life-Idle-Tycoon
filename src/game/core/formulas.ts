@@ -11,6 +11,7 @@ import {
   type EventOutcome,
 } from './config/events';
 import { RICH_LIST_ANCHORS, RICH_LIST_ENTRY, RICH_RIVALS } from './config/richList';
+import { businessDef, businessStage } from './economy/business';
 import { autoIncomePerSecond, incomePerSecond } from './economy/income';
 import { heirloomEffect, legacyMultiplier } from './economy/legacy';
 import type { GameStateV2, QuestDef } from './types';
@@ -52,11 +53,13 @@ export function dailyReward(state: GameStateV2, months: number) {
  */
 export function eventCardsFor(state: GameStateV2, classIndex = state.classIndex): EventCardDef[] {
   if (classIndex < EVENT_START_CLASS) return [];
-  return EVENT_CARDS.filter(
-    (card) =>
-      classIndex >= (card.fromClass ?? 0) &&
-      (card.businessId === undefined || state.businesses[card.businessId]?.managed === true),
-  );
+  return EVENT_CARDS.filter((card) => {
+    if (classIndex < (card.fromClass ?? 0)) return false;
+    if (card.businessId === undefined) return true;
+    const business = state.businesses[card.businessId];
+    const def = businessDef(card.businessId);
+    return business?.managed === true && def !== undefined && businessStage(def, business.level) >= (card.stage ?? 0);
+  });
 }
 
 /** What an outcome pays (negative: what a failed bold answer costs, before the zero-cash floor). */
@@ -64,11 +67,18 @@ export function eventReward(state: GameStateV2, outcome: EventOutcome) {
   return incomePerSecond(state, 'active') * EVENT_REWARD_SECONDS[outcome];
 }
 
-/** What a card pays on average when half the answers are safe and half bold (the simulator's player). */
+/**
+ * What a call pays on average among the cards that can come now (the simulator's player): half the
+ * choices safe and half bold; a thank-you or a pick between two equal options pays the safe amount.
+ */
 export function eventAverageReward(state: GameStateV2) {
+  const cards = eventCardsFor(state);
+  if (cards.length === 0) return 0;
   const bold =
     EVENT_BOLD_CHANCE * EVENT_REWARD_SECONDS.win + (1 - EVENT_BOLD_CHANCE) * EVENT_REWARD_SECONDS.lose;
-  return (incomePerSecond(state, 'active') * (EVENT_REWARD_SECONDS.safe + bold)) / 2;
+  const choice = (EVENT_REWARD_SECONDS.safe + bold) / 2;
+  const seconds = cards.reduce((sum, card) => sum + ((card.kind ?? 'choice') === 'choice' ? choice : EVENT_REWARD_SECONDS.safe), 0);
+  return (incomePerSecond(state, 'active') * seconds) / cards.length;
 }
 
 // ── Life clock ────────────────────────────────────────────────────────────────

@@ -53,7 +53,6 @@ Claude + GPT'nin birleşik önerisi (2026-10-20, eski ekonomide ölçüldü): [a
 ## 3. Hikâye
 
 - **Hikâye ayrıntıları:** anne, Rıza'yı tanıyor olmalı (eşinin en yakın arkadaşı); Şans'ın getirdiği şey sınıfa göre değişsin mi; Defne ve kızından mesajlar.
-- **Olay kartları hâlâ az:** 10 kart; deste düzeniyle (2026-10-21) art arda tekrar bitti ama ömür boyunca her kart yine onlarca kez gelir. Kullanıcı: günlük sınır yok, çeşitlilik artsın (işletme / yönetici başına birkaç kart, sırayla); seçenekler konuşuluyor.
 
 ## 4. Ekonomi
 

@@ -23,7 +23,7 @@ import { canWatch, eventAdExtra } from '../../runtime/adRewards';
 import { AdButton } from '../ads/AdButton';
 import { useAdText } from '../ads/useAdText';
 import { nextCaller } from '../../runtime/eventDeck';
-import { eventKey, eventSpeaker, onEventCardRequest } from './eventScript';
+import { eventKey, eventKind, eventSpeaker, onEventCardRequest } from './eventScript';
 import { portalRoot } from '../stage';
 
 // Event cards (game-design §4.7): from Middle Class on, someone the hero knows calls every few
@@ -165,13 +165,16 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
   const { game, state, actions } = useGameV2();
   const adText = useAdText();
   const { t, money } = useT();
+  const kind = eventKind(cardId);
   const [outcome, setOutcome] = useState<EventOutcome | null>(null);
+  /** The option taken on a pick card: its reply is the caller's answer. */
+  const [picked, setPicked] = useState<'a' | 'b' | null>(null);
   // Settled the moment the card is answered (negative: a loss); the top bar shows it once the card is
   // closed, so the coins and the red amount land where the player is looking.
   const [amount, setAmount] = useState(0);
   useEffect(() => () => holdBalance(0), []);
   useMusic('event');
-  const speaker = eventSpeaker(cardId, outcome ?? 'ask');
+  const speaker = eventSpeaker(cardId, picked ? 'win' : (outcome ?? 'ask'));
 
   const answer = (bold: boolean) => {
     const result: EventOutcome = !bold ? 'safe' : Math.random() < EVENT_BOLD_CHANCE ? 'win' : 'lose';
@@ -206,7 +209,7 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
   useBackButton(true, 70, outcome ? collect : onLater);
 
   const titles: Record<EventOutcome, string> = {
-    safe: t('events.safeTitle'),
+    safe: t(kind === 'thanks' ? 'events.thanksTitle' : kind === 'pick' ? 'events.pickTitle' : 'events.safeTitle'),
     win: t('events.winTitle'),
     lose: t('events.loseTitle'),
   };
@@ -231,11 +234,39 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
           {/* The safe answer needs no comment from the caller: the question stays up. */}
           <div className="rounded-[20px] rounded-tl-md bg-slate-50 border-2 border-violet-100 px-4 py-3">
             <p key={outcome ?? 'ask'} className="v2-line-in text-[16px] font-bold leading-snug text-slate-800">
-              {t(eventKey(cardId, outcome === 'win' || outcome === 'lose' ? outcome : 'ask'))}
+              {t(eventKey(cardId, picked ? (picked === 'a' ? 'aReply' : 'bReply') : outcome === 'win' || outcome === 'lose' ? outcome : 'ask'))}
             </p>
           </div>
 
-          {outcome === null ? (
+          {outcome === null && kind === 'thanks' ? (
+            <div className="mt-4 flex flex-col gap-2.5">
+              <GameButton tone="buy" onClick={() => answer(false)} className="w-full px-3 py-2.5 text-center">
+                <span className="block v2-display text-[16px] v2-shadow">{t('events.thanksOk')}</span>
+                <span className="block text-[11px] font-black text-white/90 tabular-nums">
+                  {t('events.sure', { amount: money(eventReward(game, 'safe')) })}
+                </span>
+              </GameButton>
+            </div>
+          ) : outcome === null && kind === 'pick' ? (
+            <div className="mt-4 flex flex-col gap-2.5">
+              {(['a', 'b'] as const).map((option) => (
+                <GameButton
+                  key={option}
+                  tone={option === 'a' ? 'buy' : 'manager'}
+                  onClick={() => {
+                    setPicked(option);
+                    answer(false);
+                  }}
+                  className="w-full px-3 py-2.5 text-center"
+                >
+                  <span className="block v2-display text-[16px] v2-shadow [text-wrap:balance]">{t(eventKey(cardId, option))}</span>
+                  <span className="block text-[11px] font-black text-white/90 tabular-nums">
+                    {t('events.sure', { amount: money(eventReward(game, 'safe')) })}
+                  </span>
+                </GameButton>
+              ))}
+            </div>
+          ) : outcome === null ? (
             <div className="mt-4 flex flex-col gap-2.5">
               <GameButton tone="buy" onClick={() => answer(false)} className="w-full px-3 py-2.5 text-center">
                 <span className="block v2-display text-[16px] v2-shadow [text-wrap:balance]">{t(eventKey(cardId, 'safe'))}</span>

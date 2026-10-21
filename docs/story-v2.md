@@ -238,22 +238,30 @@ Geri dönüşler: babanın deniz sözü (tekne → yat), önsözün yağmuru ve 
 
 ### 4d. Olay kartları (karar 2026-10-12; oyunda)
 
-Yerden toplama Orta Sınıf'ta bitince kahramanı tanıdıkları arar (game-design §4.7): bir fırsat, iki cevap (sağlamcı / cesur), cesur cevabın tutan ve tutmayan birer sonuç cümlesi. Tutmayan cevap biraz para kaybettirir (2026-10-15), bu yüzden kayıp cümlesi paranın nereye gittiğini söyler (kapora, tezgâh parası, depo kirası...). Mizah burada (§2); hiçbir kartın kalıcı sonucu yok, kimse zarar görmez. Tetik kesin: Orta Sınıf töreni; yönetici kartları o yönetici işe alındıysa, Bülent Bey Milyarder töreninden sonra. Yeni görsel yok (ifade portreleri ve yönetici portreleri). Metinler `events.cards.*`; İngilizcesi aynı dosyalarda.
+Yerden toplama Orta Sınıf'ta bitince kahramanı tanıdıkları arar (game-design §4.7). Üç tür çağrı (2026-10-21, kullanıcı): **sağlamcı / cesur** (cesur cevabın tutan ve tutmayan birer sonuç cümlesi; tutmayan biraz para kaybettirir, kayıp cümlesi paranın nereye gittiğini söyler), **teşekkür** (seçim yok, küçük bir hediye) ve **iki eşit seçenek** (riski yok, ikisi aynı ödülü verir, arayan seçime göre cevap verir). Mizah burada (§2); hiçbir kartın kalıcı sonucu yok, kimse zarar görmez.
 
-| Kim | Fırsat | Sağlamcı / Cesur | Tutarsa / tutmazsa |
+**50 kart.** Her yöneticinin üç kartı var, işletmenin üç görünümüne bağlı: tezgâh kartı yönetici gelince, dükkân kartı 6. seviyede, mağaza kartı 11. seviyede desteye girer; kart işletmenin o anki hâlini anlatır. Rıza Amca ve Bülent Bey kendi işletmelerinin kartlarında yüz ifadeleriyle konuşur, diğer yöneticiler portreleriyle. Tanıdıkların kartları (Nevin Hanım, Defne, Kuzen) Orta Sınıf töreninden sonra gelir. Kartlar deste gibi dağıtılır (hepsi çalmadan tekrar yok). Yeni görsel yok. Metinler `events.cards.*` (TR ve EN aynı dosyalarda), sıra ve türler `config/events.ts`.
+
+| Kim | Tezgâh (ilk görünüm) | Dükkân | Mağaza |
 | --- | --- | --- | --- |
-| Rıza Amca | *"Yarına üç yüz gül isteyen bir düğün var evlat. Yetiştiremezsek rezil oluruz."* | Elimizdekini verelim. / Yetiştiririz, Rıza Amca. | *"Üç yüz gül, bir de bahşiş. Gelin halay bile çekti."* / *"Yüz seksende kaldık, kaporayı geri verdik. Gelin yine de gülümsedi."* |
-| Nevin Hanım | *"Kurabiyelerimi kermeste satalım diyorlar. Sen ne dersin evladım?"* | Bir tepsi yeter. / Bütün fırını dolduralım! | *"Öğlene kalmadan bitti. Tarifi soranı kovaladım."* / *"Yağmur yağdı, tezgâh parası boşa gitti. Kurabiyeleri komşulara dağıttık."* |
-| Kuzen | *"Kuzen! Bu coin kesin uçacak. Adı bile ErikCoin!"* | Ben almayayım, kuzen. / Azıcık koy bakalım. | *"Uçtu! Kuzen bile şaşırdı."* / *"Uçmadı. Kuzen “uzun vade” diyor."* |
-| Selin | *"Hafta sonu parkta festival var. Arabayı götüreyim mi? Yağmur da diyorlar gerçi."* | Yerinde kal, Selin. / Götür, şemsiyeyi de al. | *"Kuyruk parkın kapısına kadar uzadı!"* / *"Üç kahve sattım, ikisini ben içtim. Stant parası cepten."* |
-| Hüseyin Usta | *"Erikli bir çörek denedim. Ya çok tutar ya hiç tutmaz."* | Simitle devam, usta. / Vitrine koy gitsin. | *"Sabah yedide bitti. Annen de bir tepsi istedi."* / *"Tutmadı, bir kasa erik gitti. Şans beğendi ama."* |
-| Kemal | *"Abi, bir film ekibi geldi! Arabaları yıkarken çekim yapacaklarmış."* | Biz işimize bakalım. / Çeksinler, köpüğü bol tut! | *"Filmde üç saniye görünüyoruz. Kuyruk var!"* / *"Sahneyi kesmişler. Köpük parası bize kaldı."* |
-| Ayten Abla | *"Annen aradı. Komşunun oğlu iş arıyormuş, depoyu ona emanet edelim mi?"* | Önce kasada başlasın. / Depo ona emanet. | *"Çocuk rafları bir günde dizdi. Annen haklıymış."* / *"Konserveleri alfabeye göre dizerken yarısını ezmiş. Öğrenecek."* |
-| Derya | *"Bir ünlü geliyor! Salonu kapatıp yalnızca ona mı açalım?"* | Kapımız herkese açık. / Kapat, kırmızı halıyı ser! | *"Fotoğrafımızı paylaştı. Telefon susmuyor!"* / *"Gelmedi. Bütün gün kapalıydık, ben de kendi saçımı yaptım."* |
-| Burak | *"Depoya yanlışlıkla 400 koli plastik ördek gelmiş. İade mi edelim, satalım mı?"* | İade et, Burak. / Sat gitsin! | *"Ördekler kapış kapış gitti. Nedenini sorma."* / *"399 koli duruyor, depo kirası bizden. Bir koliyi Şans aldı."* |
-| Bülent Bey | *"Menüye “Patronun Pastası” koymak istiyorum. Doğum günlerinde ikram."* | Menü aynı kalsın. / Koyun. İlk pasta benden. | *"Herkes annesini getiriyor. Rezervasyon doldu."* / *"Pastalar yanmış, hepsini yeniden yaptık. Yine de mum üflediler."* |
+| Rıza Amca (Çiçek) | 300 güllük düğün | Sevgililer Günü gülleri | Otel lobileri |
+| Selin (Kahve) | Parkta festival | Fıstıklı rulo / erikli tart (seçenek) | Kavurma makinesi |
+| Hüseyin Usta (Fırın) | Erikli çörek | Gece vardiyasının teşekkürü | Yedi katlı pasta |
+| Kemal (Oto Yıkama) | Film ekibi | Tünelde rock / arabesk (seçenek) | Belediye otobüsleri |
+| Ayten Abla (Market) | Komşunun oğlu | Veresiye defteri kapandı (teşekkür) | Köylerden sebze |
+| Şef Nazan (Restoran) | Yemek eleştirmeni | Öğrencilere çorba / pilav (seçenek) | Başka şehirde şube |
+| Derya (Güzellik) | Ünlü müşteri | Aynı gün dört gelin | Nevin Hanım'ın saçı (teşekkür) |
+| Cem (Emlak) | Acil satılık daire | İlan fotoğrafı (seçenek) | Kule |
+| Burak (Lojistik) | 400 koli plastik ördek | Bayram öncesi gece vardiyası | Dronla dağıtım |
+| Tekin Usta (İnşaat) | Okulun çatısı (teşekkür) | Hastane ihalesi | Dört ayda stadyum |
+| Nermin Hanım (Fabrika) | Güneş panelleri | Servis rengi (seçenek) | Tek gemiyle ihracat |
+| Bülent Bey (Otel) | "Patronun Pastası" | Garsonların teşekkürü | Denizde sahne |
+| Pelin (Medya) | Canlı yayında dinleyici | Ünlü mü, yeni yüz mü | İlk belgesel (seçenek) |
+| Kuzen (Teknoloji) | "Şans" adlı köpek uygulaması | Robotun adı (seçenek) | Borsaya açılış |
 
-Geri dönüşler: erik (ağaç, reçel), annenin "komşunun oğlu"su, önsözdeki doğum günü pastası.
+Tanıdıklar: Nevin Hanım (kermes, kurabiye teşekkürü, bahçe seçeneği), Defne (kütüphane kermesi, albüm fotoğrafı seçeneği, babaannenin teşekkürü), Kuzen (ErikCoin, düğüne nasıl gideceği seçeneği).
+
+Geri dönüşler: erik (ağaç, reçel, Erik adlı robot), annenin "komşunun oğlu"su, önsözdeki doğum günü pastası, Gündelikçi törenindeki sıcak çorba (öğrencilere çorba), "annesini arayan kovulmaz" kuralı (garsonların teşekkürü), ErikCoin'in "uzun vade"si (borsa), Şans (köpek uygulaması, belgesel, dron).
 
 ### 4e. Zenginler Listesi kartları (karar 2026-10-14; oyunda)
 
