@@ -26,7 +26,7 @@ Claude'un eleştirisi; hiçbiri uygulanmadı, karar bekliyor.
 - **"Çalıştır" küçük hap:** saniyede bir basılacak düğme; resmin tamamı düğme ama görünmüyor.
 - **Boşluk yanlış yerde;** hedef şeridi ~160 px.
 - **Öneri: liste kısa, ayrıntı dokununca** (iş kartındaki gibi). Satır ~130–150 px, ekranda 4–5 işletme: resim (dokun: çalıştır / OTOMATİK), ad, seviye adı · 3/15, tek gelir (aylık), üç parçalı aşama çubuğu, tek ana düğme (sıradaki seviye + fiyat; yönetici alınabilir olunca altın rozet), reklamlar tek küçük simgede (teklif varsa). Karta dokununca pencere: tur tutarı ve sıradaki seviyenin katkısı, yönetici tanıtımı, şubeler, bütün reklam teklifleri, sıradaki bina. Ayrıca: ×2 yalnız üst barda, hedef şeridi tek satır, devre dışı düğme gri ve "$X eksik".
-- **Sıradaki adım (önerilen):** önce kompakt satır + ayrıntı penceresi için tıklanabilir taslak (artifact), kullanıcı onaylayınca oyuna.
+- **Taslak hazır (2026-10-21):** `npm run dev:v2` → `/business-draft.html` (`ui/businesses/draft/`; gerçek görseller ve sayılar, uydurma durum: Orta Sınıf oyuncu). Satır ~95 px, ekranda 5 işletme; resme dokun = Çalıştır, satıra dokun = ayrıntı penceresi (sıradaki seviye, yönetici, şubeler, reklam teklifleri). Kullanıcı onaylayınca oyuna; taslak klasörü o zaman silinir.
 
 ## 1. Görsel
 
