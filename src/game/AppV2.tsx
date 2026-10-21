@@ -8,12 +8,14 @@ import { I18nProvider } from "./i18n/I18nProvider";
 import { loadLocale, type Locale } from "./i18n/locales";
 import { useT } from "./i18n/useT";
 import { installBackButton } from "./runtime/backButton";
+import { installCrashReports } from "./runtime/crashReports";
 import {
   installNotificationTracking,
   loadNotificationsPref,
 } from "./runtime/notifications";
 import { GameV2Provider } from "./runtime/GameV2Provider";
 import { readSave } from "./runtime/storage";
+import { CrashBoundary } from "./ui/CrashScreen";
 import { DevMenu } from "./ui/DevMenu";
 import { ExitHint } from "./ui/home/ExitHint";
 import { HomeScreen } from "./ui/home/HomeScreen";
@@ -52,6 +54,7 @@ export default function AppV2() {
   }, []);
 
   useEffect(() => installBackButton(), []);
+  useEffect(() => installCrashReports(), []);
   // Installed at launch: a tap on a reminder is what opened the app.
   useEffect(() => installNotificationTracking(), []);
 
@@ -69,17 +72,19 @@ export default function AppV2() {
     <I18nProvider initialLocale={locale}>
       <div className="v2-backdrop" />
       <div id={STAGE_ID} className="v2-stage">
-        {prologue === "intro" ? (
-          <Prologue onDone={endPrologue} />
-        ) : (
-          <GameV2Provider saveText={saveText}>
-            <HomeScreen />
-            {DEV_MENU_ENABLED && (
-              <DevMenu onReplayPrologue={() => setPrologue("replay")} />
-            )}
-            {prologue === "replay" && <Prologue onDone={endPrologue} />}
-          </GameV2Provider>
-        )}
+        <CrashBoundary>
+          {prologue === "intro" ? (
+            <Prologue onDone={endPrologue} />
+          ) : (
+            <GameV2Provider saveText={saveText}>
+              <HomeScreen />
+              {DEV_MENU_ENABLED && (
+                <DevMenu onReplayPrologue={() => setPrologue("replay")} />
+              )}
+              {prologue === "replay" && <Prologue onDone={endPrologue} />}
+            </GameV2Provider>
+          )}
+        </CrashBoundary>
         <MockAdOverlay />
         <ExitHint />
       </div>

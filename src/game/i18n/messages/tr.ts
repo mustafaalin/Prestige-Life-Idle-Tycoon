@@ -6,6 +6,8 @@ export const tr: Messages = {
     close: 'Kapat',
     affordIn: '~{duration} sonra alabilirsin',
     rotate: 'Oynamak için telefonunu dik tut.',
+    crashTitle: 'Bir şeyler ters gitti. İlerlemen güvende.',
+    crashRestart: 'Oyunu yeniden başlat',
     exitHint: 'Çıkmak için bir kez daha geri bas',
   },
   hud: {
@@ -995,6 +997,7 @@ export const tr: Messages = {
     mom: 'Annenin sıradaki mesajı',
     notifyTest: 'Deneme bildirimi (5 sn)',
     sceneLab: 'Sahne laboratuvarı',
+    testCrash: 'Deneme çökmesi (Crashlytics)',
     city: 'Şehir (önizleme)',
     cities: { real: 'Gerçek', old: 'Eski şehir', lumen: 'Lumen' },
     look: 'İşletmeler ekranının görünümü',

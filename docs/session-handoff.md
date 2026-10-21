@@ -33,7 +33,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 - **Para:** 19 ödüllü reklam yeri, kilitsiz (reklam izleyen Milyarder'e %47 erken); Mağaza: Rahat Paket $7,99 (reklamsız), Başlangıç Paketi $2,99 (ilk 3 gün $1,49); geri yükleme; Play puanlama penceresi.
 - **Görseller:** 1. neslin bütün görselleri oyunda; son gelen 91'i (14 işletmenin üçer görünümü, 4 yeni yönetici, 51 meslek ve 4 eşya ikonu) 2026-10-21'de bağlandı.
 - **Sahne panosu (DEV, 2026-10-21):** `npm run dev:v2` → `/scene-board.html`; ilk hayatta görülebilen her ev, araç, kıyafet ve tasma (`ui/scene/sceneCombos.ts`, şu an 84 sahne) telefon boyunda, altında yorum kutusu; yorumlar `scene-notes.json`'a (git dışı) yazılır, Claude oradan okur. İlk turun yorumlarıyla poz boyları, ev başına araç yeri ve üç aracın lastik altı düzeltildi; ayak altındaki gölge kaldırıldı (kahramanı havada gösteriyordu).
-- **Altyapı:** kayıt Preferences'ta, Android geri tuşu, güvenli alanlar, yalnız dikey (tablette ortada dikey sütun), yerel bildirimler, Firebase Analytics, ses ve müzik, TR + EN.
+- **Altyapı:** kayıt Preferences'ta, Android geri tuşu, güvenli alanlar, yalnız dikey (tablette ortada dikey sütun), yerel bildirimler, Firebase Analytics ve Crashlytics (JS hataları ölümcül olmayan rapor, çizilemeyen ekranda yeniden başlat), ses ve müzik, TR + EN.
 
 ## Sıradaki
 

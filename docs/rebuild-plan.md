@@ -42,7 +42,8 @@ Kod yapısı kuralları: [game-design-v2.md §7](./game-design-v2.md).
 
 Ekonomi çekirdeği, simülatör, tasarım belgesi, Firebase projesi ve Analytics.
 
-- [ ] **Kullanıcı:** test kullanıcısı listesi (20–50 kişi); Remote Config (2.10) ve Crashlytics.
+- [x] **Crashlytics** (2026-10-21): yerel çökmeler, JS hataları ölümcül olmayan rapor, çizilemeyen ekranda "Oyunu yeniden başlat" (`runtime/crashReports.ts`, `ui/CrashScreen.tsx`); DEV menüsünde deneme çökmesi. iOS'ta dSYM yüklemesi iOS sürümüyle.
+- [ ] **Kullanıcı:** test kullanıcısı listesi (20–50 kişi); Remote Config (2.10).
 
 ## Faz 1 — Dikey dilim ✅ (oyuncu testi kaldı)
 

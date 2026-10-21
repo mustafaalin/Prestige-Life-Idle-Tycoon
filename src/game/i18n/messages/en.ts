@@ -8,6 +8,8 @@ export const en = {
     affordIn: 'Affordable in ~{duration}',
     exitHint: 'Press back again to exit',
     rotate: 'Hold your phone upright to play.',
+    crashTitle: 'Something went wrong. Your progress is safe.',
+    crashRestart: 'Restart the game',
   },
   hud: {
     perMonth: '{amount}/mo',
@@ -996,6 +998,7 @@ export const en = {
     mom: "Mom's next message",
     notifyTest: 'Test notification (5 s)',
     sceneLab: 'Scene lab',
+    testCrash: 'Test crash (Crashlytics)',
     city: 'City (preview)',
     cities: { real: 'Real', old: 'Old city', lumen: 'Lumen' },
     look: 'Look of the Businesses screen',

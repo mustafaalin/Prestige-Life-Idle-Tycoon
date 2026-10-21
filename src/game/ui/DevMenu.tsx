@@ -1,3 +1,4 @@
+import { FirebaseCrashlytics } from '@capacitor-firebase/crashlytics';
 import { X } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { BUSINESSES } from '../core/config/businesses';
@@ -314,6 +315,15 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
             className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
           >
             {t('dev.sceneLab')}
+          </button>
+
+          {/* Crashlytics shows a report only after a real crash and a restart. */}
+          <button
+            type="button"
+            onClick={() => void FirebaseCrashlytics.crash({ message: 'DEV test crash' }).catch(() => {})}
+            className="rounded-2xl py-3.5 font-black text-sm bg-slate-100 text-slate-600 transition-all active:scale-[0.98]"
+          >
+            {t('dev.testCrash')}
           </button>
 
           <button
