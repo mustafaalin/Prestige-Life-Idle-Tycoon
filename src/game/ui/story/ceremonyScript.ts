@@ -97,13 +97,16 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
       ],
     },
   ],
-  // Middle Class (end of the first session): the old house comes back, and the notebook hides a photo.
-  // The question stays open until the next session on purpose (story §4, hook chain).
+  // Middle Class (end of the first session): the old house comes back, the promise from the bus
+  // station is kept and the prologue's birthday cake finally arrives (Mom is there, not on the phone);
+  // the notebook hides a photo. The question stays open until the next session on purpose (story §4).
   3: [
     {
       lines: [
         { speaker: 'hero', face: 'soft', text: 'ceremony.c3.hero' },
-        { speaker: 'mom', face: 'tears', phone: true, text: 'ceremony.c3.mom' },
+        { speaker: 'mom', face: 'tears', text: 'ceremony.c3.mom' },
+        { speaker: 'hero', face: 'happy', text: 'ceremony.c3.hero2' },
+        { speaker: 'mom', face: 'tears', text: 'ceremony.c3.mom2' },
       ],
     },
     { image: panel('attic', { to: 1.02, x: 50, y: 39 }), lines: [{ text: 'ceremony.c3.attic' }, { text: 'ceremony.c3.attic2' }] },
@@ -128,8 +131,9 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
       ],
     },
   ],
-  // Billionaire: the hero buys Mr. Bryce's company and keeps everyone, Bryce included (he comes as
-  // the Hotel Chain's manager when the ceremony's class is reached, businesses.ts CLASS_MANAGER_GIFT).
+  // Billionaire: Mr. Bryce retires and sells; the hero keeps everyone, Bryce included (he comes as the
+  // Hotel Chain's manager when the ceremony's class is reached, businesses.ts CLASS_MANAGER_GIFT), and
+  // the firing from the prologue becomes the new house rule. No ages are said (story §6).
   5: [
     {
       image: panel('restaurant'),
@@ -155,7 +159,7 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
       ],
     },
   ],
-  // Richest Person Alive: the promise from the bus station, and the birthday cake from the prologue.
+  // Richest Person Alive: the big windows Mom asked for (her message), and a cake on time this time.
   7: [
     {
       image: panel('mansion-cake', { to: 1.02, x: 51, y: 35 }),

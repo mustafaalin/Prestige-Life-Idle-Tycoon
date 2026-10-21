@@ -392,7 +392,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       },
       answerEvent: (cardId, outcome) => {
         const before = state.game.cash;
-        actTracked((s) => answerEvent(s, outcome, clock()), 'event_card', () => ({ card_id: cardId, outcome }));
+        actTracked((s) => answerEvent(s, cardId, outcome, clock()), 'event_card', () => ({ card_id: cardId, outcome }));
         return state.game.cash - before;
       },
       levelUpBusiness: (businessId) =>

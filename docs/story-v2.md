@@ -49,7 +49,7 @@ Varis torun: §6 (yayından sonra).
 
 - Genç (17 yaşında başlar), koyu saçlı, gri kapüşonlu ve sırt çantalı; yarı 3D. Yedi kıyafetin pozları ve 4'er ifade portresi oyunda (§8).
 - Geçmiş: babasının küçük mahalle dükkânı yıllar önce battı, aile evini kaybettiler; baba vefat etmiş (ayrıntıya girilmez). Kahraman Bülent Bey'in restoran zincirinde garson, annesiyle restoranın üstündeki personel lojmanında yaşıyor. Önsözde kovulur ve lojmandan çıkarılırlar.
-- Söz: *"Anne, bir gün seni saraylarda yaşatacağım."* Oyunun duygusal omurgası.
+- Söz: *"Anne, bir gün eski evimizi geri alacağım. Pastanı orada keseriz."* Oyunun duygusal omurgası; Orta Sınıf töreninde tutulur (2026-10-21, kullanıcı: saray sözü 1. nesilde kapanmıyordu, pasta milyarderliği beklememeli).
 - İsim: ilk tezgâhtan sonra Rıza Amca sorar. Varsayılan dolu gelir, tek dokunuşla geçilir. En fazla 16 karakter.
 - Duruş sınıfla değişir: sokakta üşüyen, kambur → çalışan, dik → zengin, kendinden emin (§8).
 
@@ -77,7 +77,7 @@ Varis torun: §6 (yayından sonra).
 
 - Restoran zincirinin ve lojmanın sahibi. Kibirli, bağırgan, komik derecede kendini beğenmiş; gerçek bir kötü değil.
 - Önsözde kahramanı annesinin doğum gününde telefonla konuştuğu için kovar.
-- Milyarder töreninde kahraman şirketini satın alır. Dramatik soru intikam değil, *"Ben de onun gibi mi olacağım?"*: kahraman personelin işini korur, Bülent Bey'e de iş teklif eder.
+- Milyarder töreninde Bülent Bey emekliye ayrılıp restoranlarını satar, alıcı kahramandır. Dramatik soru intikam değil, *"Ben de onun gibi mi olacağım?"*: kahraman personelin işini korur, Bülent Bey'i otellerin onur başkanı yapar. Metinler kimsenin yaşını söylemez (2026-10-21, kullanıcı).
 
 ### İşletme yöneticileri (oyunda)
 
@@ -112,7 +112,7 @@ Her işletmenin kendi yöneticisi var: kahramanın yolda tanıştığı insanlar
 2. **Telefon:** Koridorda annesini arıyor: *"İyi ki doğdun anne! Akşam pasta bende."* Anne: *"Ah oğlum... Sen bana yetersin."* Arkada Bülent Bey belirmiş.
 3. **Kovulma:** Bülent Bey: *"Müşteriler bekliyor, sen telefonda mısın?!"* Kahraman: *"Annemin doğum günü, efendim. Bir dakika sür..."* Bülent Bey: *"Kovuldun! Lojmanı da yarın boşaltıyorsun."*
 4. **Kapı önü:** İki eski bavul, üstünde kurdeleli pasta kutusu. Anne: *"Benim yüzümden oldu oğlum..."* Kahraman: *"Hayır anne. Senin hiçbir suçun yok."* Anne: *"Biz neler atlattık. Bunu da atlatırız."*
-5. **Otogar:** Gün batımı, sarılıyorlar. Anne: *"Teyzende kalırım. Sen kendine iyi bak, olur mu?"* Kahraman: *"Anne, bir gün seni saraylarda yaşatacağım."*
+5. **Otogar:** Gün batımı, sarılıyorlar. Anne: *"Teyzende kalırım. Sen kendine iyi bak, olur mu?"* Kahraman: *"Anne, bir gün eski evimizi geri alacağım. Pastanı orada keseriz."*
 6. **Gece, ara sokak:** Yağmur, eski çadır; ıslak bir köpek sokuluyor (Şans). *"O gece yağmur hiç dinmedi."* → *"Ama artık yalnız değildi."*
 
 ### Açılış (oyunda)
@@ -131,28 +131,28 @@ Tören yapısı (plan 1.10, oyunda): "Yeni sınıf" başlığı (konfeti, ses, h
 
 **Defter sorusu oturum sınırını geçer.** Orta Sınıf'ta (botta 1. günün son oturumu) fotoğraf bulunur; kahraman fotoğraftaki adamın Rıza Amca olduğunu görür ama Rıza'nın babasını tanıdığını bilmiyordu. Cevabı Rıza Milyoner'de (ertesi gün) verir. Fotoğrafta Rıza bugünkü hâline çok benzediği için soru "kim?" değil "babamı tanıyor muydu?"
 
-**Önsözün geri dönüşleri:** önsözde yarım kalanlar törenlerde karşılık bulur: telefon yüzünden kovulma → Milyarder'de kahraman Bülent Bey'e *"Annenizi istediğiniz zaman arayabilirsiniz"* der; doğum günü pastası hiç gitmemişti → En Zengin'de pastayı getirir; annenin *"Sen bana yetersin"*i → son cümle *"Sen bana hep yettin."*
+**Önsözün geri dönüşleri:** önsözde yarım kalanlar törenlerde karşılık bulur: otogardaki söz ve hiç gitmeyen doğum günü pastası → Orta Sınıf'ta eski ev geri alınır, pasta gelir, anne *"Sen bana hep yettin"* der (önsözdeki *"Sen bana yetersin"*in karşılığı); telefon yüzünden kovulma → Milyarder'de restoranların yeni kuralı: *"Burada annesini arayan kimse kovulmaz."*
 
 Metinler oyunda: `src/game/i18n/messages/*` → `ceremony.c1…c7`; senaryo (konuşan, ifade, görsel) `src/game/ui/story/ceremonyScript.ts`. Aşağıdaki tablo Türkçe metindir; İngilizcesi aynı dosyalarda.
 
 | # | Sınıf | Tören (konuşan: metin) | Ektiği / kapattığı | Görsel |
 | --- | --- | --- | --- | --- |
-| 0 | Sokakta Yaşayan | Tören yok; önsöz ve açılış | Söz (saray) | |
+| 0 | Sokakta Yaşayan | Tören yok; önsöz ve açılış | Söz (eski ev ve pasta) | |
 | 1 | Gündelikçi ($2K, ~5 dk) | Kahraman: *"Merak etme anne, iyiyim. Bugün sıcak çorba içtim."* · Anne (telefon): *"Sesin güzel geliyor oğlum. Bunu duymak yetti."* · Rıza: *"Eski minibüsüm boşta duruyor. Çadırdan iyidir, anahtar senin."* · Rıza: *"Sen birine çok benziyorsun evlat... Neyse, boş ver."* | Rıza kimi hatırlıyor? Tören bitince minibüse taşınır | Minibüsün önünde çorba |
 | 2 | İşçi Sınıfı ($100K, ~34 dk) | Nevin Hanım: *"Cüzdanımı Şans getirmiş, değil mi? İçinde rahmetli eşimin fotoğrafı vardı."* · Defne: *"Babaannem seni bir haftadır arıyor. Sana kurabiye yaptı, hâlâ sıcak."* · Kahraman: *"Ben bir şey yapmadım. Bulan Şans'tı."* · Kahraman: *"Anne, artık kendi kapım var. Kilitleniyor bile!"* (2026-10-21: tören belli bir ev göstermez, bir sonraki eve taşır) · Anne: *"Ev deyince eski evimiz geldi aklıma. Babanın defteri hâlâ çatı katında."* | Defne (tanışma), defter | Daire kapısı (ilk üç cümle) |
-| 3 | Orta Sınıf ($1M, 21 yaş, 2. gün) | Kahraman: *"Anne... Eski evimizi geri aldım."* · Anne (ağlayan-mutlu): *"Erik ağacı... duruyor mu hâlâ?"* · Anlatım (çatı katı): *"Defter, çatı katında onu bekliyordu."* · *"Sayfaların arasından bir fotoğraf düştü."* · Kahraman (fotoğraf): *"Bu... Rıza Amca mı? Babamı tanıyor muydu?"* | Soru açık kalır | Çatı katı, eski fotoğraf |
+| 3 | Orta Sınıf ($1M, 21 yaş, 2. gün) | Kahraman: *"Anne... Eski evimizi geri aldım."* · Anne (ağlayan-mutlu, yanında; telefonda değil): *"Erik ağacı... duruyor mu hâlâ?"* · Kahraman: *"Duruyor. Pastanı da getirdim. Biraz geç kaldı."* · Anne: *"Ah oğlum... Sen bana hep yettin."* · Anlatım (çatı katı): *"Defter, çatı katında onu bekliyordu."* · *"Sayfaların arasından bir fotoğraf düştü."* · Kahraman (fotoğraf): *"Bu... Rıza Amca mı? Babamı tanıyor muydu?"* | Söz ve pasta kapanır; defter sorusu açık kalır | Çatı katı, eski fotoğraf |
 | 4 | Milyoner ($10M, 26 yaş, 4. gün) | Kahraman: *"Anne... Milyoner oldum. Bu sefer kendime bir ev aldım."* (ilk kendi evin törenle gelir) · Anne: *"Bahçeye iki sandalye koydum. Gel de otur artık."* · Rıza (fotoğraf): *"Bu fotoğraf... Mehmet'in dükkânı bu."* · *"Sen Mehmet'in oğlusun. Nasıl görmedim?"* · Rıza (saati uzatır): *"Bu saat babanındı. Bana emanet etmişti: 'Bir gün oğluma sen verirsin.'"* (2026-10-17: saatin nereden geldiği; devirde ilk yadigâr) | Soru kapanır | Rıza bahçede, erik ağacının altında (fotoğraf anı balonunda) |
-| 5 | Milyarder ($1B, ~70 yaş, 21. gün) | Anlatım: *"Bülent Bey'in restoranları satılığa çıkmıştı. Alıcı, yıllar önce kovduğu garsondu."* · Personel: *"Şirketi siz almışsınız... Bizim işimiz ne olacak?"* · Kahraman: *"Hiçbir şey değişmiyor. Sadece maaşlar artıyor."* · Bülent Bey (şaşkın): *"Ya... ben?"* · Kahraman: *"Size de bir işim var, Bülent Bey."* · *"Annenizi de istediğiniz zaman arayabilirsiniz."* | Önsözdeki kovulma. Bülent Bey, Otel Zinciri'nin yöneticisi olarak bedava gelir (game-design §4.3) | Önsözdeki restoran |
+| 5 | Milyarder ($1B, ~70 yaş, 21. gün) | Anlatım: *"Bülent Bey emekliye ayrılıyor, restoranlarını satıyordu. Alıcı, yıllar önce kovduğu garsondu."* · Personel: *"Şirketi siz almışsınız... Bizim işimiz ne olacak?"* · Kahraman: *"Hiçbir şey değişmiyor. Sadece maaşlar artıyor."* · Bülent Bey (şaşkın): *"Ya... ben?"* · Kahraman: *"Siz de bizimlesiniz, Bülent Bey. Otellerin onur başkanı olun."* · *"Bir de yeni kural: Burada annesini arayan kimse kovulmaz."* | Önsözdeki kovulma. Bülent Bey, Otel Zinciri'nin yöneticisi olarak bedava gelir (game-design §4.3) | Önsözdeki restoran |
 | 6 | Multimilyarder ($100B; 1. nesilde gelmez) | Kahraman: *"Rıza Amca, atölyenin anahtarları. Artık senin."* · Rıza: *"Mehmet'le burayı yıllarca hayal ettik..."* · *"Gel evlat, ilk tahtayı birlikte keselim."* | Annenin "atölye" mesajı | Rıza'nın atölyesi |
-| 7 | Dünyanın En Zengini ($1T; torunla) | Kahraman: *"Sana bir saray sözü vermiştim anne."* · *"Bir de pasta getirdim. Biraz geç kaldı."* · Anne (ağlayan-mutlu): *"Ah oğlum... Sen bana hep yettin."* | Söz, pasta, "sen bana yetersin" | Konağın önü, pasta kutusu |
+| 7 | Dünyanın En Zengini ($1T; torunla) | Kahraman: *"Pencereleri büyük olsun demiştin anne."* · *"Pasta da benden. Bu sefer zamanında."* · Anne (ağlayan-mutlu): *"Ah oğlum... Keşke baban da görseydi."* | Annenin "pencereler" mesajı, Orta Sınıf'taki geç kalan pasta | Konağın önü, pasta kutusu |
 
-Zaman çizelgesi (`npm run sim`, 2026-10-21, bağlı bot): ilk oturumda önsöz, Gündelikçi ve İşçi törenleri; Orta Sınıf 2. gün, Milyoner 4. gün, Milyarder ~21. gün (gündelik oyuncuda 55 yaş, 41. gün). Multimilyarder ve En Zengin törenleri 1. nesilde gelmez (gerçekçi takvim, karar 2026-10-21); atölyenin anahtarı ve saray sözü şimdilik açıkta ([discussion-notes.md §3](./discussion-notes.md)). Törenler arasındaki yılları annenin mesajları, hayat anları (§4c), lüks anları ve olay kartları (§4d) doldurur.
+Zaman çizelgesi (`npm run sim`, 2026-10-21, bağlı bot): ilk oturumda önsöz, Gündelikçi ve İşçi törenleri; Orta Sınıf 2. gün, Milyoner 4. gün, Milyarder ~21. gün (gündelik oyuncuda 55 yaş, 41. gün). Multimilyarder ve En Zengin törenleri 1. nesilde gelmez (gerçekçi takvim, karar 2026-10-21); atölyenin anahtarı şimdilik açıkta ([discussion-notes.md §2](./discussion-notes.md)). Annenin sözü Orta Sınıf'ta kapandığı için 1. nesil yarım söz bırakmaz. Törenler arasındaki yılları annenin mesajları, hayat anları (§4c), lüks anları ve olay kartları (§4d) doldurur.
 
 **Annenin evi:** Faz 1'de iki basamak, ikisi de törenle: eski aile evi (Orta Sınıf; küçük bir bahçesi ve erik ağacı var, Milyoner'deki "iki sandalye" mesajı oraya bağlı) ve konak (En Zengin, 1. nesilde gelmez). Fiyatı yok, gelir bonusu yok. Ara basamaklar §7'de.
 
 ### Anne mesajları (11)
 
-Sadece oyuncunun o anki sınıfının mesajları gelir, sırayla; geçilen sınıfın gösterilmemiş mesajları atlanır, birikenler arka arkaya gösterilmez. Üç mesaj bir sonraki törenin kancasıdır (★). Mesajlar renktir, tören onlara dayanmaz: hızlı oyuncu günde bir mesaj kuralı yüzünden bazılarını hiç görmez (bağlı botta 11'in 7'si; İşçi ve Orta Sınıf mesajları kimseye yetişmiyor), bu yüzden Milyarder töreni satışı kendi ilk cümlesinde söyler (2026-10-13).
+Sadece oyuncunun o anki sınıfının mesajları gelir, sırayla; geçilen sınıfın gösterilmemiş mesajları atlanır, birikenler arka arkaya gösterilmez. Üç mesaj bir sonraki törenin kancasıdır (★). Mesajlar renktir, tören onlara dayanmaz: hızlı oyuncu günde bir mesaj kuralı yüzünden bazılarını hiç görmez, bu yüzden Milyarder töreni satışı kendi ilk cümlesinde söyler (2026-10-13). Yeni tempoda (2026-10-21, simülatörün oturumlarıyla ölçüldü) reklam izlemeyen oyuncu 1. nesilde açılan bütün mesajları görür (Multimilyarder'in ikisi hariç, o sınıf çoğunlukla gelmez); reklam izleyen hızlı oyuncu ilk sınıflardan 1–2 mesajı kaçırır.
 
 | Sınıf | Mesaj (Türkçe; İngilizcesi `mom.*`) |
 | --- | --- |
@@ -162,7 +162,7 @@ Sadece oyuncunun o anki sınıfının mesajları gelir, sırayla; geçilen sın�
 | Milyoner | ★ *"Sandalyeler seni bekliyor. Bu arada Bülent Bey'in restoranları satılıkmış, duydun mu?"* |
 | İşçi töreninden ilk buluşmaya kadar (köprü, §4c) | *"Kurabiye getiren kızı anlatırken sesin bir tuhaftı. Adı neydi... Defne mi?"* |
 | Milyoner | *"Komşular seni gazetede görmüş. Kupürü buzdolabına astım!"* |
-| Milyarder | *"Bülent Bey'e iş vermişsin. Sen gerçekten babanın oğlusun."* |
+| Milyarder | *"Bülent Bey'i kapıda bırakmamışsın. Sen gerçekten babanın oğlusun."* |
 | Milyarder | ★ *"Rıza Amca yıllar sonra kapımı çaldı. Babanla açamadıkları atölyeyi anlattı, gözleri doldu."* |
 | Milyarder | *"Erik ağacı bu yıl çok verdi. Reçel yaptım, sana bir kavanoz ayırdım."* |
 | Multimilyarder | ★ *"Saray maray istemem, biliyorsun. ...Ama pencereleri büyük olsun, çiçeklerim güneş alsın."* |

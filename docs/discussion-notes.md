@@ -47,16 +47,13 @@ Claude + GPT'nin birleşik önerisi (2026-10-20, eski ekonomide ölçüldü): [a
 2. **İş teklifleri:** olay kartlarının büyümüş hâli; tek alan, aynı anda tek iş, 60–90 sn, iki seçenek (para ya da yakın hedefe yardım), çevrimdışında da biter.
 3. **Üç katmanlı hedef:** şimdi / bu oturum / hayatım; hedef rozeti ve hayaller panosu kullanılır.
 4. **Zenginliği hissettirmek:** önemli alımda "Aylık gelir: $120K → $145K" ve hayale kalan süre; tören kartında "1 saniyede el ilanı işinin 3 yıllık maaşı"; Milyon → Milyar geçişinde parıltı.
-5. **Aşamalı projeler:** Rıza'nın atölyesi ve annenin konağı. Yeni ekonomide Multimilyarder ve En Zengin törenleri 1. nesilde gelmediği için bu iki an (atölyenin anahtarı, saray sözü ve pasta) şu an hiç oynamıyor; proje olarak 1. nesle alınabilirler (öneri).
+5. **Aşamalı projeler:** Rıza'nın atölyesi ve annenin konağı. Yeni ekonomide Multimilyarder ve En Zengin törenleri 1. nesilde gelmediği için bu iki an (atölyenin anahtarı, annenin büyük pencereli konağı) şu an hiç oynamıyor; proje olarak 1. nesle alınabilirler (öneri).
 6. **Sonra:** günlük üç görev (oynanış keyifli görülürse), yönetici terfisi, süreli etkinlikler.
 
 ## 3. Hikâye
 
-- **1. neslin kapanmayan sözü:** annene verilen saray sözü ve pasta En Zengin töreninde kapanıyordu; En Zengin artık torunla. 1. nesil Milyarder'de (~70 yaş) ve 80'de "Torununun hikâyesi yakında"yla bitiyor. Sözün 1. nesilde kapanması için seçenekler: §2.5'teki konak projesi, 80 yaş kartına bir balon, ya da Milyarder töreninde ilk adım.
-- **Törenlerin zamanlaması:** Milyarder töreni artık ~70 yaşta (bağlı bot; gündelik 55): kahraman, önsözdeki patronu Bülent Bey'in restoranlarını satın alıyor ve ona iş teklif ediyor; Bülent Bey o yaşta çok yaşlı. "Yaşı çok ilerleyen yan karakterler 55'ten sonra görünmez" kuralıyla (story §6) çelişiyor; törenin metni ya da kişileri gözden geçirilmeli.
-- **İki anne mesajını kimse görmüyor:** İşçi ve Orta Sınıf mesajları günde bir mesaj kuralı yüzünden yetişmiyordu; yeni tempoda yeniden bakılmalı.
 - **Hikâye ayrıntıları:** anne, Rıza'yı tanıyor olmalı (eşinin en yakın arkadaşı); Şans'ın getirdiği şey sınıfa göre değişsin mi; Defne ve kızından mesajlar.
-- **Olay kartları çok tekrar ediyor:** 10 kart, Orta Sınıf'tan ömür sonuna her kart onlarca kez. Büyük set (plan 2.4) gelene kadar: hepsi görülmeden tekrar yok, günde en fazla ~6 kart.
+- **Olay kartları hâlâ az:** 10 kart, deste ve günde 6 çağrıyla (2026-10-21) art arda tekrar bitti ama ömür boyunca her kart yine onlarca kez gelir; büyük set (plan 2.4).
 
 ## 4. Ekonomi
 

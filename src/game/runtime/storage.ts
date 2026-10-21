@@ -3,6 +3,7 @@ import { Preferences } from '@capacitor/preferences';
 import { BUSINESSES, SCHEMA2_LEVEL_MAP } from '../core/config/businesses';
 import { careerDef, LEGACY_CAREER_IDS } from '../core/config/careers';
 import { COURSES, courseDef } from '../core/config/courses';
+import { EVENT_CARDS } from '../core/config/events';
 import { WEALTH_CLASSES } from '../core/config/classes';
 import { HEIRLOOMS } from '../core/config/heirlooms';
 import { HOUSES, LEGACY_HOUSE_TO_HOME } from '../core/config/housing';
@@ -192,6 +193,7 @@ function normalizeOffline(raw: unknown): PendingOffline | null {
 const knownMomMessages = new Set(MOM_MESSAGES.map((message) => message.id));
 const knownLifeMoments = new Set<string>(LIFE_MOMENT_IDS);
 const knownRichMoments = new Set<string>(RICH_MILESTONES.map((milestone) => milestone.id));
+const knownEventCards = new Set(EVENT_CARDS.map((card) => card.id));
 
 /** Saves from before the ceremonies count every class reached as seen, so nobody gets a flood of them. */
 function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
@@ -208,6 +210,9 @@ function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
     guideSeen: stringList(raw.guideSeen),
     guideDone: stringList(raw.guideDone),
     eventAnsweredAt: finite(raw.eventAnsweredAt, 0),
+    eventsHeard: stringList(raw.eventsHeard).filter((id) => knownEventCards.has(id)),
+    eventDay: typeof raw.eventDay === 'string' ? raw.eventDay : '',
+    eventsToday: Math.max(0, Math.floor(finite(raw.eventsToday, 0))),
     richSeen: stringList(raw.richSeen).filter((id) => knownRichMoments.has(id)),
     reviewAsks: Math.floor(finite(raw.reviewAsks, 0)),
     reviewAskedAt: finite(raw.reviewAskedAt, 0),

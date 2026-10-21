@@ -62,7 +62,7 @@ import { STORY_GIFT_FROM_CLASS } from '../core/config/economy';
 import { SECONDS_PER_MONTH } from '../core/config/life';
 import { expectedGain, INVEST_CAP_MONTHS, INVEST_FROM_CLASS, INVEST_PLANS } from '../core/config/investments';
 import { dailyMonths } from '../core/config/daily';
-import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
+import { EVENT_DAILY_MAX, EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
 import { LIFE_MOMENTS, storyRuns } from '../runtime/story';
 import { COLLECT_SPAWN_SECONDS } from '../core/config/scene';
 import { HOUSES } from '../core/config/housing';
@@ -387,6 +387,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
   };
 
   // ── Rewarded ads (runtime/adRewards.ts rules, with the simulator's own clock) ──
+  const calls = { day: 0, count: 0 };
   const ads = profile.ads;
   const watched = {
     returned: false, boostUntil: 0, day: 0, boosts: 0, helps: 0,
@@ -421,6 +422,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       sources.offline += amount;
       if (amount > 0) watched.returned = true;
     }
+    if (day !== calls.day) Object.assign(calls, { day, count: 0 });
     if (day !== watched.day) {
       Object.assign(watched, { day, boosts: 0, helps: 0, experience: 0, courses: 0, balloons: 0, sans: 0, campaigns: 0, quests: 0, events: 0 });
     }
@@ -531,6 +533,9 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     earnTracked(amount);
   };
 
+  /** Event cards answered today: a day has at most EVENT_DAILY_MAX calls (runtime/eventDeck.ts). */
+  const callsOpen = () => eventCardsFor(state).length > 0 && calls.count < EVENT_DAILY_MAX;
+
   /** Bottles a second: none once the ground is empty (Middle Class on). */
   const tapRate = () => (canCollect(state) ? profile.tapsPerSecond(time.activeGeneration) : 0);
 
@@ -540,7 +545,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     bottles: tapRate() * tapValue(state),
     finds: (profile.fetchCatchRate * fetchReward(state) * (doubles() ? AD_FIND_MULTIPLIER : 1)) / fetchAverageSeconds(state),
     events:
-      (eventCardsFor(state).length > 0 ? (profile.eventAnswerRate * eventAverageReward(state)) / EVENT_AVERAGE_SECONDS : 0) *
+      (callsOpen() ? (profile.eventAnswerRate * eventAverageReward(state)) / EVENT_AVERAGE_SECONDS : 0) *
       (extras() ? EVENT_AD_MULTIPLIER : 1),
     // The campaign's extra runs on its business (managed or run by hand while playing).
     campaign:
@@ -570,6 +575,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       sources.bottles += parts.bottles * step;
       sources.finds += parts.finds * step;
       sources.events += parts.events * step;
+      if (callsOpen()) calls.count += (profile.eventAnswerRate * step) / EVENT_AVERAGE_SECONDS;
       sources.adExtras += parts.campaign * step;
       adPaid.business_campaign = (adPaid.business_campaign ?? 0) + parts.campaign * step;
       // Advance the clock first so milestones are logged at the end of the slice, never before it.

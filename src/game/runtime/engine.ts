@@ -2,6 +2,7 @@ import { BUSINESSES } from '../core/config/businesses';
 import type { EventOutcome } from '../core/config/events';
 import {
   cycleRevenue,
+  eventCardsFor,
   eventReward,
   fetchReward,
   globalMultiplier,
@@ -31,6 +32,7 @@ import type { BusinessDef, GameStateV2 } from '../core/types';
 import { CAMPAIGN_FACTOR, COIN_RAIN_VALUE_FACTOR } from '../core/config/ads';
 import { boostFactor, boostShare, campaignFactor, coinRainActive, createAdProgress, tempManagerLeft, type AdProgress } from './adRewards';
 import { createDailyProgress, type DailyProgress } from './daily';
+import { afterAnswer } from './eventDeck';
 import { createInvestProgress, type InvestProgress } from './investment';
 import { createPurchaseProgress, type PurchaseProgress } from './purchases';
 import { createStoryProgress, type StoryProgress } from './story';
@@ -210,12 +212,13 @@ export function tap(state: RuntimeState, now: number): RuntimeState {
  * the time is kept, so closing the game on a bad result neither loses the reward nor rolls again.
  */
 /** A failed bold answer takes money from cash only (never below zero); earnings and class stay. */
-export function answerEvent(state: RuntimeState, outcome: EventOutcome, now: number): RuntimeState {
+export function answerEvent(state: RuntimeState, cardId: string, outcome: EventOutcome, now: number): RuntimeState {
   const amount = eventReward(state.game, outcome);
+  const available = eventCardsFor(state.game).map((card) => card.id);
   return {
     ...state,
     game: amount >= 0 ? earn(state.game, amount) : { ...state.game, cash: Math.max(0, state.game.cash + amount) },
-    story: { ...state.story, eventAnsweredAt: now },
+    story: { ...state.story, eventAnsweredAt: now, ...afterAnswer(state.story, cardId, available, now) },
   };
 }
 
