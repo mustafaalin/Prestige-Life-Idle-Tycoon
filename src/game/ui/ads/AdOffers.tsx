@@ -6,7 +6,8 @@ import { AdButton } from './AdButton';
 
 // The two shapes every new ad place takes (docs/monetization-v2.md §4): one pays money (coins fly to
 // the wallet), the other changes something (time, a stand-in manager). The place decides whether its
-// button is on screen; these only run the ad and the reward.
+// button is on screen; these only run the ad and the reward. Both are chips (AdStrip) with short
+// text from useAdChipText.
 
 /** An ad that pays: `run` grants the reward and returns what it added to the wallet. */
 export function PayAd({
@@ -23,6 +24,7 @@ export function PayAd({
   const { money } = useT();
   return (
     <AdButton
+      chip
       placement={placement}
       className={className}
       onReward={() => {
@@ -52,6 +54,7 @@ export function ActionAd({
 }) {
   return (
     <AdButton
+      chip
       placement={placement}
       className={className}
       onReward={() => {

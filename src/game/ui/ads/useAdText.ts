@@ -15,3 +15,15 @@ export function useAdText() {
   const free = useAdFree();
   return (key: MessageKey, params: MessageParams = {}) => t(key, { ...params, watch: t(free ? 'ads.take' : 'ads.watch') });
 }
+
+/**
+ * The same text for a small ad chip inside a card (2026-10-21, user: full-width ad bars everywhere
+ * were too much): the ticket on the chip already says "ad", so "Watch an ad: " is left out.
+ */
+export function useAdChipText() {
+  const { t, locale } = useT();
+  return (key: MessageKey, params: MessageParams = {}) => {
+    const text = t(key, { ...params, watch: '' }).replace(/^\s*:\s*/, '');
+    return text.charAt(0).toLocaleUpperCase(locale) + text.slice(1);
+  };
+}

@@ -20,9 +20,9 @@ import type { BusinessDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { HelpAd } from '../ads/AdButton';
+import { AdStrip, HelpAd } from '../ads/AdButton';
 import { ActionAd } from '../ads/AdOffers';
-import { useAdText } from '../ads/useAdText';
+import { useAdChipText, useAdText } from '../ads/useAdText';
 import { CAMPAIGN_FACTOR, CAMPAIGN_SECONDS, TEMP_MANAGER_SECONDS } from '../../core/config/ads';
 import { adGift, campaignLeft, canCampaign, canTempManage, tempManagerLeft } from '../../runtime/adRewards';
 import { payout } from '../home/coins';
@@ -100,6 +100,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
   // A campaign (an ad) multiplies what the runs pay; the card shows the multiplied run while it lasts.
   const campaignFactor = campaignOn > 0 ? CAMPAIGN_FACTOR : 1;
   const adText = useAdText();
+  const chipText = useAdChipText();
 
   const managerName = t(managerKey(def.id, 'name'));
   const portrait = managerPortrait(def.id);
@@ -384,42 +385,39 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
         </p>
       )}
 
-      {opened && !managed && <HelpAd cost={hirePrice} />}
-      {next && <HelpAd cost={next.cost} />}
-      {atTop && !atCap && <HelpAd cost={branchPrice} />}
-
-      {/* Ads on the line itself: a stand-in manager until one is hired, a campaign for any opened line. */}
-      {opened && (
-        <div className="flex flex-col gap-1.5">
-          {!managed &&
-            (tempLeft > 0 ? (
-              <p className="px-1 text-[11px] font-bold text-orange-600">
-                {t('ads.tempManagerActive', { duration: duration(Math.ceil(tempLeft)) })}
-              </p>
-            ) : (
-              canTempManage(state, def.id, now) && (
-                <ActionAd
-                  placement="temp_manager"
-                  label={adText('ads.tempManager', { duration: duration(TEMP_MANAGER_SECONDS) })}
-                  run={() => actions.ads.tempManager(def.id)}
-                />
-              )
-            ))}
-          {campaignOn > 0 ? (
-            <p className="px-1 text-[11px] font-bold text-orange-600">
-              {t('ads.campaignActive', { factor: CAMPAIGN_FACTOR, duration: duration(Math.ceil(campaignOn)) })}
-            </p>
-          ) : (
-            canCampaign(state, def.id, now) && (
-              <ActionAd
-                placement="business_campaign"
-                label={adText('ads.campaign', { duration: duration(CAMPAIGN_SECONDS), factor: CAMPAIGN_FACTOR })}
-                run={() => actions.ads.campaign(def.id)}
-              />
-            )
-          )}
-        </div>
+      {/* Running ad effects on the line: a stand-in manager, a campaign. */}
+      {opened && !managed && tempLeft > 0 && (
+        <p className="px-1 text-[11px] font-bold text-orange-600">
+          {t('ads.tempManagerActive', { duration: duration(Math.ceil(tempLeft)) })}
+        </p>
       )}
+      {opened && campaignOn > 0 && (
+        <p className="px-1 text-[11px] font-bold text-orange-600">
+          {t('ads.campaignActive', { factor: CAMPAIGN_FACTOR, duration: duration(Math.ceil(campaignOn)) })}
+        </p>
+      )}
+
+      {/* Every ad offer of the card as chips in one row: a little help toward the next purchase, a
+          stand-in manager until one is hired, a campaign for any opened line. */}
+      <AdStrip>
+        {opened && !managed && <HelpAd cost={hirePrice} />}
+        {next && <HelpAd cost={next.cost} />}
+        {atTop && !atCap && <HelpAd cost={branchPrice} />}
+        {opened && !managed && tempLeft <= 0 && canTempManage(state, def.id, now) && (
+          <ActionAd
+            placement="temp_manager"
+            label={chipText('ads.tempManager', { duration: duration(TEMP_MANAGER_SECONDS) })}
+            run={() => actions.ads.tempManager(def.id)}
+          />
+        )}
+        {opened && campaignOn <= 0 && canCampaign(state, def.id, now) && (
+          <ActionAd
+            placement="business_campaign"
+            label={chipText('ads.campaign', { duration: duration(CAMPAIGN_SECONDS), factor: CAMPAIGN_FACTOR })}
+            run={() => actions.ads.campaign(def.id)}
+          />
+        )}
+      </AdStrip>
 
       {opened && !managed && (
         <div className="flex items-center gap-2 rounded-xl bg-violet-50 px-2 py-1.5">

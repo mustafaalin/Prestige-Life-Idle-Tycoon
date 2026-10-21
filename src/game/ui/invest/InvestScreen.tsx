@@ -7,7 +7,8 @@ import { investAvailable, investCap, investmentDue, type Investment } from '../.
 import { useGameV2 } from '../../runtime/useGameV2';
 import { canRushInvest } from '../../runtime/adRewards';
 import { ActionAd } from '../ads/AdOffers';
-import { useAdText } from '../ads/useAdText';
+import { useAdChipText } from '../ads/useAdText';
+import { AdStrip } from '../ads/AdButton';
 import { payout } from '../home/coins';
 import { Chip, GameButton, GlossyBar, Panel, SectionLabel } from '../kit';
 
@@ -32,7 +33,7 @@ export function InvestScreen() {
   useMusic('calm');
   const { state, actions } = useGameV2();
   const { t } = useT();
-  const adText = useAdText();
+  const adText = useAdChipText();
   // What the last collected deal did, until a new one goes in.
   const [result, setResult] = useState<number | null>(null);
   const active = state.invest.active;
@@ -66,7 +67,9 @@ export function InvestScreen() {
         <>
           <ActiveDeal deal={active} due={due} onCollected={setResult} />
           {!due && canRushInvest(state, Date.now()) && (
-            <ActionAd placement="invest_rush" label={adText('ads.investRush')} run={actions.ads.rushInvest} />
+            <AdStrip>
+              <ActionAd placement="invest_rush" label={adText('ads.investRush')} run={actions.ads.rushInvest} />
+            </AdStrip>
           )}
         </>
       ) : (

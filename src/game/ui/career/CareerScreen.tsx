@@ -11,7 +11,8 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { canFirstSalary, canRushExperience, firstSalaryBonus } from '../../runtime/adRewards';
 import { ActionAd, PayAd } from '../ads/AdOffers';
-import { useAdText } from '../ads/useAdText';
+import { AdStrip } from '../ads/AdButton';
+import { useAdChipText } from '../ads/useAdText';
 import type { FocusTarget } from '../home/focus';
 import { useFocus } from '../home/focus';
 import { ImageTile, Panel, Segmented } from '../kit';
@@ -28,7 +29,7 @@ type Section = 'jobs' | 'courses';
 export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void }) {
   const { game, state, actions } = useGameV2();
   const { t, name, money, perMonth } = useT();
-  const adText = useAdText();
+  const adText = useAdChipText();
   const focus = useFocus();
   const now = Date.now();
 
@@ -86,20 +87,22 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
           )}
         </div>
       </Panel>
-      {current && canFirstSalary(state, now) && (
-        <PayAd
-          placement="first_salary"
-          label={adText('ads.firstSalary', { amount: money(firstSalaryBonus(current)) })}
-          run={actions.ads.firstSalary}
-        />
-      )}
-      {current && canRushExperience(state, now) && (
-        <ActionAd
-          placement="experience_rush"
-          label={adText('ads.experienceRush', { count: EXPERIENCE_RUSH_MONTHS })}
-          run={actions.ads.rushExperience}
-        />
-      )}
+      <AdStrip className="-mt-1">
+        {current && canFirstSalary(state, now) && (
+          <PayAd
+            placement="first_salary"
+            label={adText('ads.firstSalary', { amount: money(firstSalaryBonus(current)) })}
+            run={actions.ads.firstSalary}
+          />
+        )}
+        {current && canRushExperience(state, now) && (
+          <ActionAd
+            placement="experience_rush"
+            label={adText('ads.experienceRush', { count: EXPERIENCE_RUSH_MONTHS })}
+            run={actions.ads.rushExperience}
+          />
+        )}
+      </AdStrip>
 
       <Segmented
         options={[

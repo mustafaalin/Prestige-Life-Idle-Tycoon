@@ -8,8 +8,8 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { adGift, canRushCourse, canWatch, courseRushSeconds, marked } from '../../runtime/adRewards';
 import { ActionAd, PayAd } from '../ads/AdOffers';
-import { HelpAd } from '../ads/AdButton';
-import { useAdText } from '../ads/useAdText';
+import { AdStrip, HelpAd } from '../ads/AdButton';
+import { useAdChipText } from '../ads/useAdText';
 import { Focusable } from '../home/Focusable';
 import { GameButton, ImageTile, Panel, SectionLabel } from '../kit';
 
@@ -19,7 +19,7 @@ import { GameButton, ImageTile, Panel, SectionLabel } from '../kit';
 export function CoursesPanel() {
   const { game, state, actions } = useGameV2();
   const { t, name, money } = useT();
-  const adText = useAdText();
+  const adText = useAdChipText();
   const now = Date.now();
 
   const running = game.course ? courseDef(game.course.id) : undefined;
@@ -56,20 +56,22 @@ export function CoursesPanel() {
           </div>
         </Panel>
       )}
-      {running && canRushCourse(state, now) && (
-        <ActionAd
-          placement="course_rush"
-          label={`${adText('ads.courseRush', { count: rushMonths })} · ${COURSE_RUSH_PER_COURSE - marked(state.ads, `course_rush:${running.id}`)}/${COURSE_RUSH_PER_COURSE}`}
-          run={actions.ads.rushCourse}
-        />
-      )}
-      {diploma && canWatch(state.ads, 'diploma_gift', now) && (
-        <PayAd
-          placement="diploma_gift"
-          label={adText('ads.diploma', { course: name('course', diploma), amount: money(adGift(game)) })}
-          run={() => actions.ads.diploma(diploma.id)}
-        />
-      )}
+      <AdStrip className="-mt-1">
+        {running && canRushCourse(state, now) && (
+          <ActionAd
+            placement="course_rush"
+            label={`${adText('ads.courseRush', { count: rushMonths })} · ${COURSE_RUSH_PER_COURSE - marked(state.ads, `course_rush:${running.id}`)}/${COURSE_RUSH_PER_COURSE}`}
+            run={actions.ads.rushCourse}
+          />
+        )}
+        {diploma && canWatch(state.ads, 'diploma_gift', now) && (
+          <PayAd
+            placement="diploma_gift"
+            label={adText('ads.diploma', { course: name('course', diploma), amount: money(adGift(game)) })}
+            run={() => actions.ads.diploma(diploma.id)}
+          />
+        )}
+      </AdStrip>
 
       <SectionLabel>{t('career.courses')}</SectionLabel>
       {running && <p className="px-1 -mt-1 text-[11px] font-bold text-slate-500">{t('career.courseBusy')}</p>}

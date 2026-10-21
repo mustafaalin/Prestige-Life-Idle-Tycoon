@@ -9,7 +9,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { payout } from '../home/coins';
 import { ICONS } from '../icons';
 import { GameButton } from '../kit';
-import { useAdFree, useAdText } from './useAdText';
+import { useAdChipText, useAdFree } from './useAdText';
 
 // "Watch an ad" offers (docs/monetization-v2.md §4). The button always says what the ad gives, the
 // reward comes only after an ad watched to the end, and when no ad can be shown it says so. It must
@@ -25,9 +25,11 @@ interface AdButtonProps {
   className?: string;
   /** A small button for tight rows (goals, the scene). */
   small?: boolean;
+  /** A chip that sits beside others inside a card (AdStrip), instead of a full-width bar. */
+  chip?: boolean;
 }
 
-export function AdButton({ placement, children, onReward, className = '', small = false }: AdButtonProps) {
+export function AdButton({ placement, children, onReward, className = '', small = false, chip = false }: AdButtonProps) {
   const { t } = useT();
   // The Comfort Pack: the reward comes at once, no ad (runtime/purchases.ts).
   const free = useAdFree();
@@ -65,6 +67,32 @@ export function AdButton({ placement, children, onReward, className = '', small 
     setUnavailable(outcome === 'unavailable');
   };
 
+  if (chip) {
+    return (
+      <div className={`flex flex-col items-end ${className}`}>
+        <button
+          ref={ref}
+          type="button"
+          onClick={watch}
+          disabled={busy}
+          className={`relative overflow-hidden inline-flex items-center gap-1.5 min-h-9 max-w-full rounded-full border-2 border-white/80 bg-gradient-to-b from-orange-400 to-orange-600 v2-glossy shadow-[0_3px_8px_rgba(234,88,12,0.35)] pl-1 pr-3 py-0.5 text-left transition-all active:scale-95 disabled:opacity-60 ${
+            free ? '' : 'v2-ad-shine'
+          }`}
+        >
+          <span className="shrink-0 w-7 h-7 rounded-full bg-white/95 shadow-inner flex items-center justify-center">
+            {free ? (
+              <Gift className="w-4 h-4 text-orange-500" />
+            ) : (
+              <img src={ICONS.adReward} alt="" draggable={false} className="w-6 h-6 object-contain" />
+            )}
+          </span>
+          <span className="v2-display text-[12px] leading-tight text-white v2-shadow">{children}</span>
+        </button>
+        {unavailable && <p className="mt-0.5 text-[10px] font-bold text-slate-500">{t('ads.unavailable')}</p>}
+      </div>
+    );
+  }
+
   return (
     <div className={className}>
       <div className="relative">
@@ -96,6 +124,11 @@ export function AdButton({ placement, children, onReward, className = '', small 
   );
 }
 
+/** Ad chips inside a card, side by side at its right edge; empty when none is offered. */
+export function AdStrip({ className = '', children }: { className?: string; children: ReactNode }) {
+  return <div className={`flex flex-wrap justify-end gap-2 empty:hidden ${className}`}>{children}</div>;
+}
+
 /**
  * "A little help" under a buy button: shown only while what is missing for `cost` is no more than 10%
  * of it and 5 minutes of income, so it is the last step toward a purchase and never a money tap.
@@ -113,12 +146,13 @@ export function HelpAd({ cost, className = '' }: { cost: number; className?: str
 function HelpOffer({ cost, className }: { cost: number; className: string }) {
   const { game, actions } = useGameV2();
   const { money } = useT();
-  const adText = useAdText();
+  const adText = useAdChipText();
   const missing = helpMissing(game, cost);
   const [amount, setAmount] = useState(missing);
   if (missing > amount) setAmount(missing);
   return (
     <AdButton
+      chip
       placement="dream_help"
       className={className}
       onReward={() => {
