@@ -4,7 +4,9 @@ Son güncelleme: 2026-10-17 · İlgili: [story-v2.md §6](./story-v2.md), [game-
 
 Bu belge GPT'ye (VS Code'da) verilir. 2. neslin şehri Lumen'in **46 görselinin** (yönetici 10, ev 11, işletme 9, araç 12, lüks 4) sırasını, referanslarını, kayıt yerini ve doğrudan yapıştırılacak İngilizce komutlarını içerir. Oyuna bağlama (kesim, webp, kod) Claude'un işidir (§7).
 
-**Durum (2026-10-17): 46/46 üretildi ve oyunda.** Kesim, webp ve şehir katmanı (`runtime/city.ts`) yapıldı; teslim notu [archive/lumen-art-handoff.md](./archive/lumen-art-handoff.md). **Yeniden üretilecek tek görsel: Elektrikli Pikap** (`lumen-vehicle-pickup.png`; komut §4.1): neredeyse önden çizildiği için kasası görünmüyor ve Keşif Aracı'yla aynı renk ve silüette (ikisi de zeytin yeşili, kutu gibi); kural her basamakta farklı silüet ve renk. Yeni komutta: kasası açıkça görünsün (önden dörtte üç, biraz daha yandan), Lumen araçlarında olmayan bir renk (öneri: bordo). Evlerin yerleşimi ve araç boyları telefonda bakılacak.
+**Durum (2026-10-21): yayından sonra (2. nesil).** Lansmanda Lumen görünmez. Ekonominin yeniden kurulmasından sonra eksikler: dört yeni işletme (Restoran, Emlak Ofisi, İnşaat, Medya) ve yöneticileri, her işletmenin 2. ve 3. görünümü (Lumen'de şimdilik tek görünüm, yeni dört işletme eski şehrinkini gösterir); bunların komutları 2. nesille yazılır. Bordo pikap üretildi (`art/pilot/17-lumen/lumen-vehicle-pickup.png`, 2026-10-17), oyuna bağlanmadı.
+
+**2026-10-17: 46/46 üretildi ve oyunda.** Kesim, webp ve şehir katmanı (`runtime/city.ts`) yapıldı; teslim notu [archive/lumen-art-handoff.md](./archive/lumen-art-handoff.md). **Yeniden üretilecek tek görsel: Elektrikli Pikap** (`lumen-vehicle-pickup.png`; komut §4.1): neredeyse önden çizildiği için kasası görünmüyor ve Keşif Aracı'yla aynı renk ve silüette (ikisi de zeytin yeşili, kutu gibi); kural her basamakta farklı silüet ve renk. Yeni komutta: kasası açıkça görünsün (önden dörtte üç, biraz daha yandan), Lumen araçlarında olmayan bir renk (öneri: bordo). Evlerin yerleşimi ve araç boyları telefonda bakılacak.
 
 ## 0. GPT için çalışma kuralları
 
@@ -230,11 +232,11 @@ Kontrol: kasa açıkça görünüyor mu, bordo mu (Lumen'de başka bordo araç y
 
 ## 6. Bu belgede olmayanlar
 
-Lumen'e ait ama ayrı turda: 2. neslin kıyafet ve poz seti (varis Ada; story §6), Şans'ın yavrusu (öneri), toplanacaklar (rakamlar aynı olduğu için varisin de toplama aşaması varsa), Lumen törenlerinin hikâye kareleri (törenlerin metni yazılınca), Burak hattı ([art-prompts-burak.md](./art-prompts-burak.md)).
+Lumen'e ait ama ayrı turda: 2. neslin kıyafet ve poz seti (varis Ada; story §6), Şans'ın yavrusu (öneri), toplanacaklar (rakamlar aynı olduğu için varisin de toplama aşaması varsa), Lumen törenlerinin hikâye kareleri (törenlerin metni yazılınca). Burak hikâyesi kaldırıldı ([archive/burak-story.md](./archive/burak-story.md)).
 
 ## 7. Oyuna bağlama (Claude)
 
-Evler `public/assets/scene/lumen-home-N.webp` (1080 genişlik), araçlar `scripts/cutout-vehicle.sh` (beyaz gövdeler `FUZZ=3.5 PALE=1`), lüksler `scripts/cutout-pale.sh`, ikonlar 384 px webp, yönetici portreleri 256 px webp (`public/assets/managers/lumen/`). Ev yerleşimi `stages.ts` `HOME_ART`, araç oranları `VEHICLE_SHAPE`; sahne laboratuvarında ev ev bakılır. Kod tarafında şehre göre görsel seçimi henüz yok.
+Evler `public/assets/scene/lumen-home-N.webp` (1080 genişlik), araçlar `scripts/cutout-vehicle.sh` (beyaz gövdeler `FUZZ=3.5 PALE=1`), lüksler `scripts/cutout-pale.sh`, ikonlar 384 px webp, yönetici portreleri 256 px webp (`public/assets/managers/lumen/`). Ev yerleşimi `stages.ts` `HOME_ART`, araç oranları `VEHICLE_SHAPE`; sahne laboratuvarında ev ev bakılır.
 
 ## Ek: ilk ev karesinin komutu (hazır)
 

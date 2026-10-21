@@ -1,8 +1,8 @@
 # Görsel Komutları: Burak hattı
 
-2026-10-16 · Hikâye ve metinler: [story-v2.md §6a](./story-v2.md) · Genel kurallar: [art-brief-v2.md](./art-brief-v2.md) · Aynı düzende önceki iş: [art-prompts-dynasty.md](./art-prompts-dynasty.md)
+2026-10-16 · Hikâye ve metinler: [story-v2.md §6a](../story-v2.md) · Genel kurallar: [art-brief-v2.md](../art-brief-v2.md) · Aynı düzende önceki iş: [art-prompts-dynasty.md](./art-prompts-dynasty.md)
 
-> **Bekletiliyor (2026-10-21):** Burak hikâyesi kaldırıldı, bu görseller şimdilik üretilmez ([story-v2.md §6a](./story-v2.md)).
+> **Bekletiliyor (2026-10-21):** Burak hikâyesi kaldırıldı, bu görseller şimdilik üretilmez ([story-v2.md §6a](../story-v2.md)).
 
 Bu belge GPT'ye verilir. Burak, Lojistik Deposu'nun düzen takıntılı şefi; çalışarak zenginleşir, 45 yaşında kahramanın ortağı olur, 80 yaşında bütün şirketlerine el koyar, 2. neslin kötüsüdür. Yaşı hiçbir yerde söylenmez. Görselde tek bir görünümü var: **orta yaşlı, saçında ve sakalında kır düşmüş, takım elbiseli** (iki nesilde de aynı).
 

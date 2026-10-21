@@ -1,6 +1,6 @@
 # Idle Guy: Life Simulator incelemesi (rakip analizi)
 
-Tarih: 2026-10-20 · Durum: **araştırma; öneriler kullanıcı kararı bekliyor**. Kaynak: kullanıcının oyundan aldığı 56 ekran görüntüsü (proje kökü, `idle-guy-life-sim oyun ekran görüntüleri/`) ve mağaza sayfası (Heatherglade, Google Play 10M+ indirme, 435K+ yorum, 4,5 yıldız). Bağlam: [engagement-strategy-v2.md](../engagement-strategy-v2.md).
+Tarih: 2026-10-20 · Durum: **araştırma; öneriler kullanıcı kararı bekliyor**. Kaynak: kullanıcının oyundan aldığı 56 ekran görüntüsü (proje kökü, `idle-guy-life-sim oyun ekran görüntüleri/`) ve mağaza sayfası (Heatherglade, Google Play 10M+ indirme, 435K+ yorum, 4,5 yıldız). Bağlam: [engagement-strategy-v2.md](../archive/engagement-strategy-v2.md).
 
 Kullanıcının gözlemi: "Hep yapacak bir şey var. Bir şey yapmak için başka şeyleri de yapmanı istiyor, adım adım. Bizim oyun kadar hızlı zengin olmuyorsun. Daha çok ekran ve menü var."
 

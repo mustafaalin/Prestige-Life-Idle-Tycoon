@@ -1,6 +1,8 @@
 # Görsel Komutları: Ada (2. neslin kahramanı)
 
-2026-10-17 · Hikâye: [story-v2.md §6](./story-v2.md) · Genel kurallar: [art-brief-v2.md](./art-brief-v2.md) · İlk kahramanın aynı işi: [archive/art-prompts-v2-gen1.md §4, §5, §9](./archive/art-prompts-v2-gen1.md) · Ada'nın kılavuzu: [art-prompts-dynasty.md K4a](./art-prompts-dynasty.md)
+2026-10-17 · Hikâye: [story-v2.md §6](./story-v2.md) · Genel kurallar: [art-brief-v2.md](./art-brief-v2.md) · İlk kahramanın aynı işi: [archive/art-prompts-v2-gen1.md §4, §5, §9](./archive/art-prompts-v2-gen1.md) · Ada'nın kılavuzu: [archive/art-prompts-dynasty.md K4a](./archive/art-prompts-dynasty.md)
+
+**Durum (2026-10-21): yayından sonra.** Lansman 1. nesil; bu set 2. nesil güncellemesine kadar bekliyor.
 
 Bu belge GPT'ye verilir. Lumen'de (çift nesiller) sahnede hâlâ ilk kahraman duruyor; bu set onun yerine Ada'yı koyar. İlk kahramanın yedi kıyafet basamağının aynısı: her basamakta kılavuz, üç sahne pozu (bekleme, sevinç, Şans'ı okşama) ve dört ifade portresi.
 
@@ -100,5 +102,5 @@ Create FOUR separate square images, 1024 × 1024 each, one at a time: four close
 ## 5. Bu belgede olmayanlar (sonra)
 
 - Ada'nın tören kareleri: 2. neslin tören metinleri yazılınca.
-- Burak'ın anahtar karesi (B4): Ada'nın son kıyafeti onaylanınca ([art-prompts-burak.md](./art-prompts-burak.md)).
+- Burak'ın kareleri: Burak hikâyesi kaldırıldı (2026-10-21, [archive/burak-story.md](./archive/burak-story.md)).
 - Yaşlı Ada (3. neslin büyükannesi) ve 3. nesilden itibaren Lojistik Deposu'nun yeni yöneticisi.

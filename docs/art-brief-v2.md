@@ -1,8 +1,8 @@
 # Görsel Brifi v2: Sahne aşamaları ve hikâye kareleri
 
-Son güncelleme: 2026-10-15 · İlgili: [story-v2.md §4, §8](./story-v2.md), [discussion-notes.md §1](./discussion-notes.md), kod `src/game/ui/scene/stages.ts`, `src/game/ui/story/ceremonyScript.ts`
+Son güncelleme: 2026-10-21 · İlgili: [story-v2.md §4, §8](./story-v2.md), [discussion-notes.md §1](./discussion-notes.md), kod `src/game/ui/scene/stages.ts`, `src/game/ui/story/ceremonyScript.ts`
 
-Bu belge, oyunun görsellerini üretecek kişiye ya da modele (GPT dahil) verilir. Neyin, hangi boyutta, hangi referansla ve hangi komutla üretileceğini anlatır. Üretilen dosyalar `art/pilot/` altına konur. Oyuna sıkıştırıp bağlamayı Claude yapar (webp, kesim, konum ayarı). Evler ve araçlar için doğrudan yapıştırılacak İngilizce komutlar: [art-prompts-v2.md](./art-prompts-v2.md).
+Bu belge, oyunun görsellerini üretecek kişiye ya da modele (GPT dahil) verilir. Neyin, hangi boyutta, hangi referansla ve hangi komutla üretileceğini anlatır. Üretilen dosyalar `art/pilot/` altına konur. Oyuna sıkıştırıp bağlamayı Claude yapar (webp, kesim, konum ayarı). Bekleyen komutlar [art-prompts-v2.md](./art-prompts-v2.md)'de, bitmiş olanlar [archive/](./archive/)'de.
 
 ## 1. Ne değişiyor
 
@@ -10,18 +10,18 @@ Ana ekran iki şeyi gösterir (karar 2026-10-10):
 
 - **Yer = oyuncunun oturduğu ev.** Mağazada 12 ev var; her biri sahnede ayrı bir arka plan. Taşınınca arka plan değişir. Sınıf töreni kahramanı hikâyenin evine taşır (Gündelikçi → minibüs, İşçi → eski kiralık daire...).
 - **Evin izin verdiği en iyi araç önünde park eder.** Mağazada 12 araç var (ev–araç zinciri, game-design §4.5), yeni hayat araçsız başlar; yenisi alınınca sahneye kayarak gelir.
-- **Kahraman sahip olduğu en iyi kıyafeti giyer** (mağazada 4 kıyafet; sınıf töreni sınıfınkini bedava verir). **Yerdeki toplanacaklar ve Şans'ın tasması sınıfı izler** (tablo aşağıda).
+- **Kahraman sahip olduğu en iyi kıyafeti giyer** (mağazada 7 kıyafet; sınıf töreni sınıfınkini bedava verir; 60 yaştan sonra dede görünümü). **Yerdeki toplanacaklar ve Şans'ın tasması sınıfı izler** (tablo aşağıda).
 
 | Sınıf | Kahramanın yaşı | Kıyafet | Yerdeki toplanacaklar | Şans'ın tasması | Hikâyenin evi |
 | --- | --- | --- | --- | --- | --- |
 | 0 Sokakta Yaşayan | 17 | 1 kapüşonlu (**var**) | Şişe, kutu (**var**) | İp (**var**) | 1 Çadır |
 | 1 Gündelikçi | 17 | 1 kapüşonlu | Şişe, kutu | İp | 2 Eski Minibüs |
-| 2 İşçi Sınıfı | 18 | 2 iş kıyafeti (**var**) | Bozuk para (**var**) | İp | 4 Eski Kiralık Daire |
-| 3 Orta Sınıf | 19 | 3 şık günlük | Yok (toplama biter) | Deri | 6 Sitede Daire |
-| 4 Milyoner | 20 | 3 şık günlük | Yok | Deri | 7 İlk Kendi Evin |
-| 5 Milyarder (ve sonrası, şimdilik) | 22–24 | 4 takım elbise | Yok | Altın | 9 Villa |
+| 2 İşçi Sınıfı | 19 | 2 iş kıyafeti (**var**) | Bozuk para (**var**) | İp | 4 Eski Kiralık Daire |
+| 3 Orta Sınıf | 21 | 3 şık günlük | Yok (toplama biter) | Deri | 6 Sitede Daire |
+| 4 Milyoner | 26 | 3 şık günlük | Yok | Deri | 7 İlk Kendi Evin |
+| 5 Milyarder (1. nesilde son sınıf) | ~70 | takım elbise ve üstü | Yok | Altın | 9 Villa |
 
-Yaşlar `npm run sim` sonucundan alındı.
+Yaşlar `npm run sim` sonucundan alındı (bağlı bot, 2026-10-21). Kıyafetlerin sınıf kilidi ve fiyatları [game-design-v2.md §4.5](./game-design-v2.md).
 
 ## 2. Herkes için kurallar (stil kılavuzu, story §8'den)
 
@@ -163,15 +163,19 @@ Referanslar: sahnenin yeri (ilgili arka plan ya da önsöz karesi) + kahraman k�
 
 On işletmenin ikonu yeni stilde, GPT ile (`art/pilot/10-businesses/`, 1254 px kare, şeffaf zemin; her dosyanın yanında komutu `*-prompt.txt`). Oyunda `public/assets/businesses/v2/<işletme kimliği>.webp` (384 px), `core/config/businesses.ts`. Basamak hissi ikonlarda: açık tezgâh → el arabası → küçük dükkân → ... → cam kule. Kahve Arabası'nın iki denemesinden ikincisi (`coffee-cart-v2.png`, yeşil el arabası) kullanıldı: ilki Çiçek Tezgâhı'yla aynı ahşap tezgâhtı. v1'in 40 ikonu (`public/assets/businesses/small/`, `large/`) v1'de kalır.
 
-**Aşamalar (2026-10-21):** işletmeler artık seviyeyle büyüyor; bu on ikon 1. aşamadır. 2. ve 3. aşama ile dört yeni işletmenin komutları [art-prompts-businesses.md](./art-prompts-businesses.md).
+**Aşamalar (2026-10-21, oyunda):** işletmeler seviyeyle büyür; 14 işletmenin her birinin üç görünümü var: `{id}.webp` (seviye 1–7), `{id}-2.webp` (8–9), `{id}-3.webp` (10 ve şubeler). 2. ve 3. görünüm 1. görünüm referans verilerek üretildi (renk, malzeme, simge korunur, bina büyür). Komutlar [archive/art-prompts-businesses.md](./archive/art-prompts-businesses.md); dört yeni işletmenin yöneticileri `public/assets/managers/` (256 px).
+
+### 4.8 Meslek ve eşya ikonları (oyunda, 2026-10-21)
+
+63 meslek ve 4 eşya ikonu, GPT ile: tek nesne ya da küçük nesne grubu, şeffaf zemin, 48 px'te ayırt edilir, aynı alandaki meslekler farklı nesneyle. Kaynak `art/pilot/11-careers/{kimlik}.png`, `art/pilot/12-icons/gadget-*.png`; oyunda `public/assets/jobs/v2/`, `public/assets/items/v2/` (384 px webp). Komutlar [archive/art-prompts-jobs.md](./archive/art-prompts-jobs.md).
 
 Yeni ikon komutu (özet): *"ONE high-resolution square game business icon for {işletme}. Slight three-quarter view, whole building visible, centered. Genuine transparent background, no ground plane, no frame. Chunky readable simplified shapes for viewing at 76px. NO people, NO text, NO logos."* + stil paragrafı.
 
 ## 5. Bekleyenler
 
-Bu brifteki görsellerin hepsi oyunda. Devrin 15 görseli de oyunda (2026-10-16; beş kılavuzdan 20 portre, üç dede pozu, üç hikâye karesi, dört yadigâr ikonu; [story-v2.md §8](./story-v2.md)); komutlar: [art-prompts-dynasty.md](./art-prompts-dynasty.md). Reklam butonlarının ikonu `ad-reward` (önceden üretilmişti) 2026-10-16'da bağlandı. Yeni görsel gerekince önce GPT, sonra fal.ai. Fularlı Şans'ın 12 görseli (ip, deri, gümüş, altın × oturan, cüzdanlı, uyuyan) ve lükslerin gölgesiz yeni kesimi (`scripts/cutout-pale.sh`) 2026-10-16'da oyunda. Açık kalanlar ([discussion-notes.md §1](./discussion-notes.md)): okşama pozlarında tasma ve fular, önsözün stil kararı (3D denemesi hazır), lükslerin sahnede gösterimi (plan 2.6).
+1. neslin bütün görselleri oyunda ([story-v2.md §8](./story-v2.md)). Bekleyen: önsözün 3D kareleri ve ikon / özellik grafiği seçimi ([art-prompts-v2.md](./art-prompts-v2.md)); 2. nesil (Ada, Lumen) yayından sonra. Açık görsel kararlar [discussion-notes.md §1](./discussion-notes.md). Yeni görsel gerekince önce GPT, sonra fal.ai.
 
-GPT'nin aracı ~1,57 MP veriyor: arka plan 941×1672 (1080 genişliğe büyütülüyor, telefonda kabul edilebilir), pozlar 1000 px yüksekliğe yetiyor.
+GPT'nin aracı ~1,57 MP veriyor: arka plan 941×1672 (1080 genişliğe büyütülüyor, telefonda kabul edilebilir), ikonlar 1254 px kare; bazen kare yerine yatay gelir (mini market 3. görünüm 1536×1024 geldi, kırpılıp kareye ortalandı).
 
 ## 6. Oyuna bağlama (Claude)
 

@@ -1,6 +1,6 @@
 # Prestige Life v2 — Hikaye ve Karakterler
 
-Son güncelleme: 2026-10-16 (Burak hattı: ortaklık, kazık, 2. neslin intikamı; §6) · İlgili: [game-design-v2.md](./game-design-v2.md), [rebuild-plan.md](./rebuild-plan.md)
+Son güncelleme: 2026-10-21 (lansman 1. nesil; Burak hikâyesi kaldırıldı; yeni tempoya göre tören ve an tabloları) · İlgili: [game-design-v2.md](./game-design-v2.md), [rebuild-plan.md](./rebuild-plan.md)
 
 Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor](./report-v2.md) §6 (fakirlikten zenginliğe hissi) ve §7'dir (hanedan, olay kartları).
 
@@ -22,7 +22,7 @@ Bu yüzden Faz 1'de hikâye **sadece kesin gelen tetiklere** bağlı ve küçük
 
 - **Sıcak ve umutlu.** Oyuncu kahramanın iyiliğini ister. Zafer anları duygusaldır, utandırıcı değildir.
 - **Evsizlikle dalga geçilmez.** Sokak zor ama onurlu anlatılır. Mizah kahramanın acizliğinden değil, durumların absürtlüğünden gelir.
-- **1. nesilde intikam yok.** Güç kahramana geçtiğinde nasıl biri olduğunu davranışıyla gösterir (Bülent Bey, §4). **2. neslin hikâyesi intikamdır** (karar 2026-10-16, kullanıcı): torun, dedesini batıran Burak'tan hesap sorar (§6). İntikam şiirsel adaletle biter, acımasızlıkla değil; kimse fiziksel zarar görmez.
+- **1. nesilde intikam yok.** Güç kahramana geçtiğinde nasıl biri olduğunu davranışıyla gösterir (Bülent Bey, §4).
 - **Mizah konuşma balonlarında ve olay kartlarında,** törenlerin duygusal anında değil.
 - **Kısa metin.** Konuşma balonu en fazla 2 satır; tören metni en fazla 3 kısa cümle. 10 saniyede okunur.
 - **Karakter yardım metni değildir.** "Menüye git, şuna bas" demez; eylemi arayüz işareti taşır, karakter duyguyu.
@@ -43,7 +43,7 @@ Bu yüzden Faz 1'de hikâye **sadece kesin gelen tetiklere** bağlı ve küçük
 | Torunu | **Defne** / **Daphne** | Aynı törende tanışma; sonra eş (hayat anları, §4c) |
 | Kızı | Oyuncu verir (varsayılan **Elif** / **Ella**) | 31 yaşında doğar (§4c) |
 
-Varis torun ve kötü karakter Burak (Lojistik Deposu'nun yöneticisi, sonra ortak): §6.
+Varis torun: §6 (yayından sonra).
 
 ### Kahraman
 
@@ -55,10 +55,10 @@ Varis torun ve kötü karakter Burak (Lojistik Deposu'nun yöneticisi, sonra ort
 
 ### Şans (köpek)
 
-- Karışık cins, kırpık kulaklı, tüyleri dağınık bir sokak köpeği. Her zaman sahnede, kahramanın yanında. Zenginleştikçe tasması değişir: ip → deri (Orta Sınıf) → gümüş (Milyoner; görseli bekliyor) → altın (Milyarder; duruşu da rahatlar). Oyunda. Her tasma gelire küçük bir bonus verir (2026-10-15; [game-design §4.5](./game-design-v2.md)).
+- Karışık cins, kırpık kulaklı, tüyleri dağınık bir sokak köpeği. Her zaman sahnede, kahramanın yanında. Zenginleştikçe tasması değişir: ip → deri (Orta Sınıf) → gümüş (Milyoner) → altın (Milyarder; duruşu da rahatlar). Oyunda. Her tasma gelire küçük bir bonus verir (2026-10-15; [game-design §4.5](./game-design-v2.md)).
 - Ona dokunmak para vermez: kahraman onu okşar. 5–10 dakikada bir ağzında bir cüzdanla gelir; oyuncu 12 sn içinde dokunursa kahraman cüzdanı sahibine verir ve teşekkür ödülü alır (oyunda; game-design §4.7). Kahraman bulduğu parayı cebine koymaz.
 - Çevrimdışı kazanç kartında sınıfın tasmasıyla uyur; kart kapanınca küçük bir sıçramayla sahneye döner (oyunda).
-- Ücretli aksesuarlar: Başlangıç Paketi'nin kırmızı fuları (kalıcı +%10; şimdilik yalnız oturan pozda görünür), ileride yakut tasma (+%50; [monetization-v2.md §5](./monetization-v2.md)). Satın almanın sahnede görünen karşılığı.
+- Ücretli aksesuarlar: Başlangıç Paketi'nin kırmızı fuları (kalıcı +%10; oturan, cüzdanlı ve uyuyan pozlarda görünür, okşama pozunda yok), ileride yakut tasma (+%50; [monetization-v2.md §5](./monetization-v2.md)). Satın almanın sahnede görünen karşılığı.
 
 ### Rıza Amca (Old Ray)
 
@@ -90,13 +90,17 @@ Her işletmenin kendi yöneticisi var: kahramanın yolda tanıştığı insanlar
 | Fırın | Hüseyin Usta / Baker Hank | Usta fırıncı |
 | Oto Yıkama | Kemal / Kevin | Neşeli genç usta |
 | Mini Market | Ayten Abla / Aunt Annie | Mahallenin bakkalı, anneyi tanır |
+| Restoran | Şef Nazan / Chef Nadia | Kendinden emin aşçıbaşı (2026-10-21) |
 | Güzellik Salonu | Derya / Dana | İddialı kuaför |
-| Lojistik Deposu | Burak / Brad | Düzen takıntılı depo şefi ("hayallerim de büyük"); 45 yaşında kahramanın ortağı, ömrün sonunda onu batırır, 2. neslin kötüsü (§6) |
+| Emlak Ofisi | Cem / Cam | Güler yüzlü genç emlakçı (2026-10-21) |
+| Lojistik Deposu | Burak / Brad | Düzen takıntılı depo şefi ("hayallerim de büyük"); ördek kartı (§4d). Ortaklık ve kazık hikâyesi kaldırıldı (2026-10-21, [archive/burak-story.md](./archive/burak-story.md)) |
+| İnşaat Şirketi | Tekin Usta / Foreman Ted | Kır bıyıklı, güneş yanığı usta başı (2026-10-21) |
 | Fabrika | Nermin Hanım / Nina | Mühendis, "önce güvenlik" |
 | Otel Zinciri | Bülent Bey / Mr. Bryce | Eski patron; Milyarder töreniyle bedava gelir |
+| Medya Şirketi | Pelin / Paula | Kulaklık mikrofonlu, şık yayın yöneticisi (2026-10-21) |
 | Teknoloji Girişimi | Kuzen / Cousin | Kripto esprili kuzen; olay kartı Orta Sınıf'tan itibaren, yönetici olarak geç gelir (bağlı botta 19. gün) |
 
-**Nesiller boyunca yöneticiler (karar 2026-10-16, kullanıcı; henüz oyunda değil):** her şehrin kendi yönetici seti var ve evler, araçlar gibi nesiller arasında döner. Lumen'in 10 yöneticisi yeni yüzler ([art-prompts-lumen.md §1](./art-prompts-lumen.md)). Bir set yeniden geldiğinde (3. nesil eski şehirde, 4. nesil yine Lumen'de...) portreler aynı kalır ama kişiler başkadır: **önceki yöneticilerin torunları**, her nesil yeni isimlerle; yüz benzerliği aile benzerliği olarak okunur (3. neslin dedesinin görsellerini taşıması gibi). Tek istisna Burak'ın yeri: Burak hattı 2. nesilde kapandığı için (§6a) 3. nesilden itibaren Lojistik Deposu'nun yöneticisi yeni bir yüzdür (1 yeni portre), Burak'ın torunu değildir. İsimler nesil başına bir listeden gelir; olay kartları kişiye değil işletmeye bağlıdır, metinde yöneticinin adı değişken olarak geçer.
+**Nesiller boyunca yöneticiler (karar 2026-10-16, kullanıcı; 2. nesille, yayından sonra):** her şehrin kendi yönetici seti var ve evler, araçlar gibi nesiller arasında döner. Lumen'in 10 yöneticisi yeni yüzler ([art-prompts-lumen.md §1](./art-prompts-lumen.md)). Bir set yeniden geldiğinde (3. nesil eski şehirde, 4. nesil yine Lumen'de...) portreler aynı kalır ama kişiler başkadır: **önceki yöneticilerin torunları**, her nesil yeni isimlerle; yüz benzerliği aile benzerliği olarak okunur (3. neslin dedesinin görsellerini taşıması gibi). İsimler nesil başına bir listeden gelir; olay kartları kişiye değil işletmeye bağlıdır, metinde yöneticinin adı değişken olarak geçer.
 
 ## 4. Nesil 1 hikaye akışı
 
@@ -134,17 +138,17 @@ Metinler oyunda: `src/game/i18n/messages/*` → `ceremony.c1…c7`; senaryo (kon
 | # | Sınıf | Tören (konuşan: metin) | Ektiği / kapattığı | Görsel |
 | --- | --- | --- | --- | --- |
 | 0 | Sokakta Yaşayan | Tören yok; önsöz ve açılış | Söz (saray) | |
-| 1 | Gündelikçi ($1K, ~4,5 dk) | Kahraman: *"Merak etme anne, iyiyim. Bugün sıcak çorba içtim."* · Anne (telefon): *"Sesin güzel geliyor oğlum. Bunu duymak yetti."* · Rıza: *"Eski minibüsüm boşta duruyor. Çadırdan iyidir, anahtar senin."* · Rıza: *"Sen birine çok benziyorsun evlat... Neyse, boş ver."* | Rıza kimi hatırlıyor? Tören bitince minibüse taşınır | Minibüsün önünde çorba |
-| 2 | İşçi Sınıfı ($100K, ~25 dk) | Nevin Hanım: *"Cüzdanımı Şans getirmiş, değil mi? İçinde rahmetli eşimin fotoğrafı vardı."* · Defne: *"Babaannem seni bir haftadır arıyor. Sana kurabiye yaptı, hâlâ sıcak."* · Kahraman: *"Ben bir şey yapmadım. Bulan Şans'tı."* · Kahraman: *"Anne, artık bir dairem var. Kapısı bile kilitleniyor!"* · Anne: *"Ev deyince eski evimiz geldi aklıma. Babanın defteri hâlâ çatı katında."* | Defne (tanışma), defter | Daire kapısı (ilk üç cümle) |
-| 3 | Orta Sınıf ($1M, ~30 dk) | Kahraman: *"Anne... Eski evimizi geri aldım."* · Anne (ağlayan-mutlu): *"Erik ağacı... duruyor mu hâlâ?"* · Anlatım (çatı katı): *"Defter, çatı katında onu bekliyordu."* · *"Sayfaların arasından bir fotoğraf düştü."* · Kahraman (fotoğraf): *"Bu... Rıza Amca mı? Babamı tanıyor muydu?"* | Soru açık kalır | Çatı katı, eski fotoğraf |
-| 4 | Milyoner ($10M, ~40 dk, 1. gün) | Kahraman: *"Anne... Milyoner oldum. Bu sefer kendime bir ev aldım."* (ilk kendi evin törenle gelir) · Anne: *"Bahçeye iki sandalye koydum. Gel de otur artık."* · Rıza (fotoğraf): *"Bu fotoğraf... Mehmet'in dükkânı bu."* · *"Sen Mehmet'in oğlusun. Nasıl görmedim?"* · Rıza (saati uzatır): *"Bu saat babanındı. Bana emanet etmişti: 'Bir gün oğluma sen verirsin.'"* (2026-10-17: saatin nereden geldiği; devirde ilk yadigâr) | Soru kapanır | Rıza bahçede, erik ağacının altında (fotoğraf anı balonunda) |
-| 5 | Milyarder ($1B, ~2. gün) | Anlatım: *"Bülent Bey'in restoranları satılığa çıkmıştı. Alıcı, yıllar önce kovduğu garsondu."* · Personel: *"Şirketi siz almışsınız... Bizim işimiz ne olacak?"* · Kahraman: *"Hiçbir şey değişmiyor. Sadece maaşlar artıyor."* · Bülent Bey (şaşkın): *"Ya... ben?"* · Kahraman: *"Size de bir işim var, Bülent Bey."* · *"Annenizi de istediğiniz zaman arayabilirsiniz."* | Önsözdeki kovulma. Bülent Bey, Otel Zinciri'nin yöneticisi olarak bedava gelir (game-design §4.3) | Önsözdeki restoran |
-| 6 | Multimilyarder ($100B, ~7. gün) | Kahraman: *"Rıza Amca, atölyenin anahtarları. Artık senin."* · Rıza: *"Mehmet'le burayı yıllarca hayal ettik..."* · *"Gel evlat, ilk tahtayı birlikte keselim."* | Annenin "atölye" mesajı | Rıza'nın atölyesi |
-| 7 | Dünyanın En Zengini ($1T, ~15. gün) | Kahraman: *"Sana bir saray sözü vermiştim anne."* · *"Bir de pasta getirdim. Biraz geç kaldı."* · Anne (ağlayan-mutlu): *"Ah oğlum... Sen bana hep yettin."* | Söz, pasta, "sen bana yetersin" | Konağın önü, pasta kutusu |
+| 1 | Gündelikçi ($2K, ~5 dk) | Kahraman: *"Merak etme anne, iyiyim. Bugün sıcak çorba içtim."* · Anne (telefon): *"Sesin güzel geliyor oğlum. Bunu duymak yetti."* · Rıza: *"Eski minibüsüm boşta duruyor. Çadırdan iyidir, anahtar senin."* · Rıza: *"Sen birine çok benziyorsun evlat... Neyse, boş ver."* | Rıza kimi hatırlıyor? Tören bitince minibüse taşınır | Minibüsün önünde çorba |
+| 2 | İşçi Sınıfı ($100K, ~34 dk) | Nevin Hanım: *"Cüzdanımı Şans getirmiş, değil mi? İçinde rahmetli eşimin fotoğrafı vardı."* · Defne: *"Babaannem seni bir haftadır arıyor. Sana kurabiye yaptı, hâlâ sıcak."* · Kahraman: *"Ben bir şey yapmadım. Bulan Şans'tı."* · Kahraman: *"Anne, artık bir dairem var. Kapısı bile kilitleniyor!"* · Anne: *"Ev deyince eski evimiz geldi aklıma. Babanın defteri hâlâ çatı katında."* | Defne (tanışma), defter | Daire kapısı (ilk üç cümle) |
+| 3 | Orta Sınıf ($1M, 21 yaş, 2. gün) | Kahraman: *"Anne... Eski evimizi geri aldım."* · Anne (ağlayan-mutlu): *"Erik ağacı... duruyor mu hâlâ?"* · Anlatım (çatı katı): *"Defter, çatı katında onu bekliyordu."* · *"Sayfaların arasından bir fotoğraf düştü."* · Kahraman (fotoğraf): *"Bu... Rıza Amca mı? Babamı tanıyor muydu?"* | Soru açık kalır | Çatı katı, eski fotoğraf |
+| 4 | Milyoner ($10M, 26 yaş, 4. gün) | Kahraman: *"Anne... Milyoner oldum. Bu sefer kendime bir ev aldım."* (ilk kendi evin törenle gelir) · Anne: *"Bahçeye iki sandalye koydum. Gel de otur artık."* · Rıza (fotoğraf): *"Bu fotoğraf... Mehmet'in dükkânı bu."* · *"Sen Mehmet'in oğlusun. Nasıl görmedim?"* · Rıza (saati uzatır): *"Bu saat babanındı. Bana emanet etmişti: 'Bir gün oğluma sen verirsin.'"* (2026-10-17: saatin nereden geldiği; devirde ilk yadigâr) | Soru kapanır | Rıza bahçede, erik ağacının altında (fotoğraf anı balonunda) |
+| 5 | Milyarder ($1B, ~70 yaş, 21. gün) | Anlatım: *"Bülent Bey'in restoranları satılığa çıkmıştı. Alıcı, yıllar önce kovduğu garsondu."* · Personel: *"Şirketi siz almışsınız... Bizim işimiz ne olacak?"* · Kahraman: *"Hiçbir şey değişmiyor. Sadece maaşlar artıyor."* · Bülent Bey (şaşkın): *"Ya... ben?"* · Kahraman: *"Size de bir işim var, Bülent Bey."* · *"Annenizi de istediğiniz zaman arayabilirsiniz."* | Önsözdeki kovulma. Bülent Bey, Otel Zinciri'nin yöneticisi olarak bedava gelir (game-design §4.3) | Önsözdeki restoran |
+| 6 | Multimilyarder ($100B; 1. nesilde gelmez) | Kahraman: *"Rıza Amca, atölyenin anahtarları. Artık senin."* · Rıza: *"Mehmet'le burayı yıllarca hayal ettik..."* · *"Gel evlat, ilk tahtayı birlikte keselim."* | Annenin "atölye" mesajı | Rıza'nın atölyesi |
+| 7 | Dünyanın En Zengini ($1T; torunla) | Kahraman: *"Sana bir saray sözü vermiştim anne."* · *"Bir de pasta getirdim. Biraz geç kaldı."* · Anne (ağlayan-mutlu): *"Ah oğlum... Sen bana hep yettin."* | Söz, pasta, "sen bana yetersin" | Konağın önü, pasta kutusu |
 
-Zaman çizelgesi (`npm run sim`, 2026-10-15, en iyi oynayan bot): ilk oturumda önsöz, Gündelikçi ve İşçi törenleri; Orta Sınıf ve Milyoner 1. günün sonraki oturumlarında. Engaged oyuncuda Milyarder 2. gün, Multimilyarder 7. gün, En Zengin 15. gün, ömür sonu 25. gün; casual oyuncuda Milyoner 2., Milyarder 4., Multimilyarder 14., En Zengin 31. gün. Törenler arasındaki günleri annenin mesajları, hayat anları (§4c), lüks anları ve olay kartları (§4d) doldurur.
+Zaman çizelgesi (`npm run sim`, 2026-10-21, bağlı bot): ilk oturumda önsöz, Gündelikçi ve İşçi törenleri; Orta Sınıf 2. gün, Milyoner 4. gün, Milyarder ~21. gün (gündelik oyuncuda 55 yaş, 41. gün). Multimilyarder ve En Zengin törenleri 1. nesilde gelmez (gerçekçi takvim, karar 2026-10-21); atölyenin anahtarı ve saray sözü şimdilik açıkta ([discussion-notes.md §3](./discussion-notes.md)). Törenler arasındaki yılları annenin mesajları, hayat anları (§4c), lüks anları ve olay kartları (§4d) doldurur.
 
-**Annenin evi:** Faz 1'de iki basamak, ikisi de törenle: eski aile evi (Orta Sınıf; küçük bir bahçesi ve erik ağacı var, Milyoner'deki "iki sandalye" mesajı oraya bağlı) ve konak (En Zengin). Fiyatı yok, gelir bonusu yok. Ara basamaklar §7'de.
+**Annenin evi:** Faz 1'de iki basamak, ikisi de törenle: eski aile evi (Orta Sınıf; küçük bir bahçesi ve erik ağacı var, Milyoner'deki "iki sandalye" mesajı oraya bağlı) ve konak (En Zengin, 1. nesilde gelmez). Fiyatı yok, gelir bonusu yok. Ara basamaklar §7'de.
 
 ### Anne mesajları (11)
 
@@ -182,24 +186,20 @@ Hikâyenin ikinci saati yaştır. Sınıf törenleri paraya bağlı olduğu içi
 - Kapanış kartı yok: son balon ya da "Geç" anı bitirir. Başlık "28 yaş · Düğün".
 - Aradaki yıllar görselleştirilmez.
 - Kahramanın kızı vardır (cinsiyet sabit, karar 2026-10-11); adını oyuncu verir (doğum anından sonra sorulur; varsayılan **Elif** / **Ella**, en fazla 16 karakter, tek dokunuşla geçilir).
-- En Zengin'den sonra yaş 4 kat hızlı akar (2026-10-16, game-design §4.9): zirveden (bağlı oyuncuda 55 yaş, işletme sınırlarıyla) 80'e ~1,5 saat oyun; aşağıdaki 63, 70 ve 80 süreleri buna göre.
-- Kahramanın görünümü şimdilik yaşlanmaz (karar 2026-10-11: sonra bakılacak; [discussion-notes.md §1](./discussion-notes.md)).
+- Kahraman 60 yaştan sonra dede görünümüne geçer; öncesinde yaşlanmaz ([discussion-notes.md §1](./discussion-notes.md)).
 
-| Yaş | Oyun süresi (engaged bot) | An | Ön koşul | Faz |
-| --- | --- | --- | --- | --- |
-| 18–19 | 32 dk | Defne'yle tanışma (İşçi töreni, oyunda) | | 1 |
-| 25 | ~2 sa 10 dk (4. gün) | İlk buluşma: çay bahçesi | İşçi töreni | 1 |
-| 28 | ~3 sa (5. gün) | Düğün: eski evin bahçesi, erik ağacının altı | Orta Sınıf töreni | 1 |
-| 31 | ~3 sa 45 dk (6. gün) | Kızı doğar; adını oyuncu verir | Düğün | 1 |
-| 38 | ~5 sa 35 dk (9. gün) | Okulun ilk günü | Doğum | Testten sonra |
-| 44 | ~7 sa 10 dk (11. gün) | Kızı ilk parasını Çiçek Tezgâhı'nda kazanır | Doğum | Testten sonra |
-| 45 | ~7,5 sa | Burak'la ortaklık (§6a) | Multimilyarder töreni | Karar 2026-10-16, yapılmadı |
-| 49 | ~8,5 sa (13. gün) | Mezuniyet | Doğum | Testten sonra |
-| 51 | 9 sa 11 dk (14. gün) | En Zengin töreni (sınıf töreni, oyunda) | | 1 |
-| 63 | ~10 sa (15. gün) | Torunu doğar; adını oyuncu verir (Elif sorar) | Doğum | Oyunda (2026-10-16) |
-| 70 | ~10,5 sa (15. gün) | Dede ve torun: çiçek tezgâhı | Torun | Oyunda (2026-10-16) |
-| 80 | 11 sa 5 dk (16. gün) | Kazık: Burak şirketlere el koyar (§6a); devir anından önce, hediye yok | Ortaklık | Karar 2026-10-16, yapılmadı |
-| 80 | 11 sa 5 dk (16. gün) | Torun 17 yaşında: *"Dede, bana ilk işini öğretir misin?"* → devir (§6); hediye yok, emeklilik paneli onu bekler | Torun | Oyunda (2026-10-16) |
+| Yaş | An | Ön koşul | Durum |
+| --- | --- | --- | --- |
+| 18–19 | Defne'yle tanışma (İşçi töreni) | | Oyunda |
+| 25 | İlk buluşma: çay bahçesi | İşçi töreni | Oyunda |
+| 28 | Düğün: eski evin bahçesi, erik ağacının altı | Orta Sınıf töreni | Oyunda |
+| 31 | Kızı doğar; adını oyuncu verir | Düğün | Oyunda |
+| 38 / 44 / 49 | Okulun ilk günü, ilk para (Çiçek Tezgâhı), mezuniyet | Doğum | Fikir (§7) |
+| 63 | Torunu doğar; adını oyuncu verir (Elif sorar) | Doğum | Oyunda |
+| 70 | Dede ve torun: çiçek tezgâhı | Torun | Oyunda |
+| 80 | Babamın saati: devir (§6) | Torun | Kodda; lansmanda oynamaz, yerine bir kez "Torununun hikâyesi yakında" kartı |
+
+Bir yıl 16 dakikalık oyun; bağlı oyuncu 25 yaşa ~2 saatte, 80'e ~17 saatte (24. gün) varır.
 
 **Faz 1 metinleri (3 an, 11 balon + isim sorusu; oyunda, `moments.*`; senaryo `ui/story/lifeScript.ts`):**
 
@@ -213,7 +213,7 @@ Geri dönüşler: kurabiye (İşçi töreni), iki sandalye ve erik reçeli (anne
 
 **Köprü (2026-10-11):** tanışma (18–19 yaş) ile ilk buluşma (25) arasını iki şey bağlar. Annenin Defne mesajı sınıfa bağlı değil: İşçi töreninden ilk buluşmaya kadar, sınıfın kendi mesajlarından önce gelir (hızlı oyuncu kaçıramaz). Mesaj hiç gelmediyse ilk buluşmanın açılış cümlesi aradaki yılları tek başına taşır.
 
-**Devir anları (2026-10-16, oyunda; `LIFE_MOMENTS` 63 / 70 / 80, senaryo `lifeScript.ts`, metinler `moments.{grandchild,grandpa,handover}`):** 80 yaşta (doğal ya da "Şimdi devret" sonrası) kalan anlar arka arkaya oynar, araya 2 dakikalık bekleme girmez; isim sorusu açıkken sıradaki an bekler. Ömür bitmişse hediye yok. Emeklilik paneli bu anlar ve isim bitince açılır (`retirementWaits`). Kızın konuşma etiketi verilen adı, torununki kendi adını taşır. "Şimdi devret" önce "Yıllar geçti…" ekranını gösterir (yaş 80'e sayar). Görseller gelene kadar anlar sahnenin üstünde, portresiz oynar (`PANELS_TO_COME`, `PORTRAITS_TO_COME`; dede portresi yerine smokinli kahraman).
+**Devir anları (`LIFE_MOMENTS` 63 / 70 / 80, senaryo `lifeScript.ts`, metinler `moments.{grandchild,grandpa,handover}`, görseller oyunda):** 63 ve 70 lansmanda oynar. 80 ("Babamın saati") devirle birlikte 2. nesil güncellemesinde açılır (`config/content.ts` `handover`); o zaman kalan anlar arka arkaya oynar, emeklilik paneli onları bekler. Kızın konuşma etiketi verilen adı, torununki kendi adını taşır.
 
 | An | Türkçe | English |
 | --- | --- | --- |
@@ -272,77 +272,20 @@ Kurallar [game-design-v2.md §4.12](./game-design-v2.md). Liste ilerlemeyi göst
 
 Faz 1'de pano sadece statü eşyalarını gösterir (sıradaki ev, araç, kıyafet; gelir bonusu verir). Hikaye hayalleri (küçük mikro hikâyeli tek seferlik alımlar) §7'de bekler.
 
-## 6. Hanedan (Faz 2, ilke kararları)
+## 6. Hanedan (yayından sonra)
 
-> **Lansman kapsamı (2026-10-21):** lansman 1. nesil. 63 (torunun doğumu) ve 70 (dede ve torun) anları oynar; 80'de devir yok: kahraman 80'de kalır, "Torununun hikâyesi yakında" kartı bir kez gelir, oyun ve para sürer. Devir (torun ailenin her şeyiyle 17 yaşında devam eder) 2. nesil güncellemesiyle gelir; aşağıdaki "varis en dipten başlar" kurgusu geçersiz ([economy-rebuild.md §6](./archive/economy-rebuild.md)).
+**Lansman (karar 2026-10-21):** lansman 1. nesil. 63 (torunun doğumu) ve 70 (dede ve torun) anları oynar; 80'de devir yok: kahraman 80'de kalır, "Torununun hikâyesi yakında" kartı bir kez gelir, oyun ve para sürer. Devir 2. nesil güncellemesiyle gelir ([game-design-v2.md §4.10](./game-design-v2.md)).
 
-- **Devir 80 yaşta.** Varis, kahramanın kızının çocuğu: kahraman 63 yaşındayken doğar, devirde 17 yaşındadır (§4c). En Zengin'den sonra "Şimdi devret" kalan yılları atlar ("Yıllar geçti…", sonra 63, 70 ve 80 yaş anları art arda; karar 2026-10-15). Devir hep 80 yaşta ([game-design-v2.md §4.10](./game-design-v2.md)).
-- **Varislerin cinsiyeti (karar 2026-10-15, kullanıcı):** 2. nesil **kız torun** (sabit, seçim yok); 3. nesil **erkek**, ilk kahramanın görselleri (kıyafetler, pozlar, portreler) yeniden kullanılır; sonra kadın, erkek diye sürer. Torunun adını oyuncu koyar (varsayılan **Ada**, EN de Ada).
-- **Dede görünümü (karar 2026-10-15, kullanıcı):** kahraman 60 yaştan sonra tek bir dede görünümüne geçer (kır saç, gözlük, yelek, babadan kalan saat): 3 sahne pozu + 4 portre. Kıyafetlerin gelir bonusu sürer, görünüm yaşa bağlı. 2. nesilde aynı dede torunun rehberi (Rıza Amca'nın kahramana yaptığını yapar). Yetişkin kız (Elif) ve yaşlı Defne kılavuzları hazır ([art-prompts-dynasty.md](./art-prompts-dynasty.md)).
-- **2. nesil yeni şehirde (karar 2026-10-15, kullanıcı):** torun dedesinin adıyla değil kendi adıyla yükselir; yeni işletmeler, evler, görevler, kısa ve dedeli törenler, torunun kendi hayat anları. Neden yeni şehir: eski şehirde aile adı artık Burak'ın (aşağıda). Şehir **Lumen** (öneri): kıyıda yeni kurulmuş modern bir şehir; bugünün şehri + birkaç gelecek dokunuşu (karar 2026-10-16, [art-prompts-lumen.md](./art-prompts-lumen.md)), yıl hiçbir yerde söylenmez. İşletme yöneticileri insan, Lumen'e özgü 10 yeni kişi (karar 2026-10-16, kullanıcı; robot yönetici fikri bırakıldı: robotlardan sonra 3. nesilde yeniden insan yönetici tutarsız durur); setler nesiller arasında döner, dönen setin kişileri öncekilerin torunlarıdır (§3 "Nesiller boyunca yöneticiler"). v1'in görselleri kullanılmaz, her şey yeni üretilir (kullanıcı 2026-10-16).
-- **Varis neden en dipten başlar (karar 2026-10-16, kullanıcı):** dedenin serveti miras kalmaz, ortağı Burak'ın kazığıyla gider (Burak hattı). Burak'ın değersiz bulup bıraktıkları kalır: babanın saati, erik reçeli, Rıza'nın defteri, Şans'ın tasması, aile albümü (yadigârlar) ve köşedeki birkaç Çiçek Tezgâhı (varisin başlangıcı, sayı 2. nesil ekonomisiyle). Miras puanı "itibar"dır: para alınabilir, itibar alınamaz. Eski "servetini vakfa bağışlar" fikri bunun yerine düştü.
-- **Döngü (karar 2026-10-16, kullanıcı):** 3. nesil ilk kahramanın görselleriyle eski şehirde başlar (Ada Burak Holding'i almıştır); yeni hikâye görseli yapılmaz. Nesiller iki set arasında döner: tek nesiller eski şehir ve ilk kahraman, çift nesiller Lumen ve Ada'nın görselleri.
-- **Yazılı hikâye iki nesil (karar 2026-10-16, kullanıcı):** 1. nesil yükseliş, 2. nesil intikam. 2. neslin son töreninden (anahtar) sonra kısa bir "Hikâyenin sonu" ekranı: iki neslin özeti ve "Aile devam ediyor". Oyun bitmez, 1. nesle de dönülmez (yadigârlar ve itibar nesillerle anlam taşır).
-- **3. nesilden sonra: vakıf ve gelenek (karar 2026-10-16, kullanıcı):** her nesil yeniden soyulmaz. Ada finalde Burak'tan aldığı her şeyi aile vakfına bağışlar: *"Bizim ailede herkes bir tezgâhla başlar."* Bundan sonra her varis 80 yaşta servetini vakfa bırakır; torun itibarı (miras puanı) ve yadigârları alır, köşedeki tezgâhla başlar. 1'den 2'ye geçişin nedeni kazıktı (bir kez); sonrası seçilmiş bir aile kuralı. Ada'nın final cümlesi ve devir kalıbı TR/EN olarak 2. neslin metinleriyle yazılacak.
-- **3. neslin başlangıcı (karar 2026-10-16, kullanıcı):** eski şehirde, ilk kahramanın görselleriyle, ama sokaktan değil: Kiralık Oda'da (çadır ve minibüs varisler için atlanır; etkisi `npm run sim` ile ölçülecek), dedesinin dedesinin köşedeki 2 Çiçek Tezgâhı ve yöneticisiyle (Ada'nın başlangıcının aynısı). Toplanacaklar baştan bozuk para (tezgâhın bahşişi; şişe toplama 1. neslin sokak hikâyesi), kıyafet kapüşonlu.
-- **3. neslin hikâyesi: eski şehre geri vermek (karar 2026-10-16, kullanıcı):** her sınıf töreni vakfın 1. nesle bir selamı: Gündelikçi otogarın yanında aşevi ("Rıza Amca'nın Çorbası"), İşçi Şans'ın yavrusunun bulduğu cüzdan sahibine döner (Nevin'in yankısı), Orta Sınıf eski defter vakfın müzesine, Milyoner annenin eski evinin erik ağacı parka, Milyarder önsözdeki restoranda personel işte kalır, Multimilyarder Rıza'nın atölyesi meslek okulu, En Zengin konakta erik reçelli aile sofrası. Rehber büyükanne Ada. Hayat anları yalnız devir kalıbı (63, 70, 80; 80'de servet vakfa, saat teslimi). Metinler sonra yazılacak.
-- **Tören ve hayat anı kareleri yalnız ilk iki nesilde (karar 2026-10-16, kullanıcı):** 3. nesilden sonra törenler evin arka planında portre ve balonla oynar, yeni kare üretilmez. 1. neslin kareleri, hayat anları ve anne mesajları sonraki nesillerde oynamaz; ortaklık ve kazık anları nesle bağlıdır, 1. neslin görselleri onları getirmez. Gereken yeni görseller: yaşlı Ada (kılavuz + 4 portre) ve 3. nesilden itibaren Lojistik Deposu'nun yeni yöneticisi (1 portre).
-- **4. nesil ve sonrası:** setler dönmeye devam eder. Tek nesiller (3, 5, 7...) eski şehirde 3. neslin törenlerini, çift nesiller (4, 6...) Lumen'de 2. neslin törenlerinin Burak'sız sürümünü yeni isimlerle oynar ("aile devam ediyor" modu; tekrar kabul). Burak'sız sürüm 2. neslin metinleri yazılırken birlikte planlanır. Rehber dönüşümlü: büyükanne Ada ve dede görünümü sırayla.
-- Ölüm hiç gösterilmez; anne, Rıza ve Şans'ın varlığı fotoğraflar ve bıraktıkları eserlerle sürer. Yaşı çok ilerleyen yan karakterler (Rıza, Nevin Hanım) kahramanın 55 yaşından sonra kişi olarak görünmez (lüks anlarının metinleri 2026-10-17'de buna göre düzeltildi; jet karesi yenilendi).
-- Açık sorular: [discussion-notes.md §3](./discussion-notes.md).
+Kararlaşanlar (2026-10-15 → 21, kullanıcı); ayrıntılar 2. nesil yazılırken bu bölüme açılır:
 
-### 6a. Burak hattı (karar 2026-10-16, kullanıcı; 1. nesil oyunda 2026-10-16, görselsiz; 2. nesil taslak)
-
-> **Kaldırıldı (2026-10-21, kullanıcı: "burak hikayesini şimdilik kaldıralım, burak sadece bir yönetici olsun").** Ortaklık, annenin uyarısı, 70 yaşın gölge balonları, kazık, Ada'nın yemini ve 2. neslin intikam planı oyunda oynamaz (`config/content.ts` `bradStory: false`); kayıttaki `partner` / `betrayal` kimlikleri durur. Burak yalnız Lojistik Deposu'nun yöneticisi, olay kartıyla. Aşağıdaki metinler ileride hikâye geri gelirse diye duruyor; karar değil.
-
-**Kapsam (karar 2026-10-16, kullanıcı):** Burak hattı yalnız ilk iki nesilde. 2. neslin sonundaki anahtar karesiyle kapanır; 3. nesilde ve sonrasında Burak, ailesi ya da torunu hikâyede yer almaz (Lojistik Deposu'nun yeri yeni bir yöneticiye geçer, §3).
-
-**Kim:** Burak, Lojistik Deposu'nun düzen takıntılı şefi (portresi oyunda). Yaşı hiçbir metinde söylenmez (karar 2026-10-16, kullanıcı: "yaş söylemek zorunda değiliz"); hikâye sade kalır, oğul ya da yeni karakter yok. Acıyı tanıdıklık verir: oyuncu onu olay kartlarında sık görür. İşe alınırken *"Forklift ehliyetim var, hayallerim de büyük."* der; o cümle ilk ipucudur. Çalışarak zenginleşir, kahramanın lojistik ortağı olur, ömrün sonunda bütün şirketlere el koyar. Neden o: oyuncu onu tanıyor (ördek kartı), lojistik bütün işletmelerin ortak damarı, yeni karakter maliyeti yok. Simülatörde iki profil de onu Milyarder ile Multimilyarder arasında işe alıyor (bağlı 4. gün, gündelik 6. gün); işe alınmamışsa ortaklık anı onu tanıtır.
-
-**Kullanıcının kararı:** 2. nesil hikâyesi intikam. Varis döneminde Zenginler Listesi'nin 1. sırasında Burak durur ($950B'den başlar); torunun bütün hedefi onu geçmektir.
-
-**1. nesilde üç iz (kesin tetikler):**
-
-| An | Tetik | Türkçe | English |
-| --- | --- | --- | --- |
-| Ortaklık (hayat anı, kare: el sıkışma) | 45 yaş, Multimilyarder töreni görüldükten sonra; 31 ile 63 arasındaki tek hayat anı | Anlatım: *"Burak artık ördek saymıyordu. Şehirdeki bütün kamyonlar onundu."* · Burak: *"Abi, sevkiyatı tek elden yönetelim. Senin şirketlerin, benim kamyonlarım."* · Kahraman: *"Ördekleri satan adama güvenmeyeceğim de kime güveneceğim?"* · Burak: *"Ortaklığa, abi. Her şey yerli yerinde olacak."* | Narration: *"Brad wasn't counting rubber ducks anymore. Every truck in the city was his."* · Brad: *"Boss, let's run shipping from one desk. Your companies, my trucks."* · Hero: *"If I can't trust the guy who sold the ducks, who can I trust?"* · Brad: *"To the partnership, boss. Everything in its place."* |
-| Annenin uyarısı (anne mesajı) | Ortaklık anından sonraki ilk mesaj (köprü gibi: sınıfa bağlı değil) | *"Burak'ı ortak yapmışsın. O çocuk ördekleri sayarken bile gülmüyordu oğlum."* | *"So Brad is your partner now. That boy didn't smile even while counting ducks, son."* |
-| Gölge (70 yaş anına iki balon, "Önce çiçekleri dizeceksin"den sonra) | Dede ve torun anı | Ada: *"Dede, Burak Amca neden hep telefonda bağırıyor?"* · Dede: *"Hesap yapıyor, kızım. Sen çiçeklerine bak."* | Ada: *"Grandpa, why is Uncle Brad always yelling on the phone?"* · Grandpa: *"He's doing his sums, sweetheart. You mind your flowers."* |
-
-**Kazık (80 yaş, devir dizisinde, saat anından önce; hediye yok; kare: gazete):**
-
-| Türkçe | English |
-| --- | --- |
-| Anlatım: *"Gazete aynı sabah çıktı: 'Burak Holding, eski ortağının bütün şirketlerine el koydu.'"* · Defne: *"Her şeyi almış. Şirketleri, evi... Hepsini."* · Dede: *"Saati almamış. Tezgâhları da. Değersiz bulmuş."* · Dede: *"Para gider, Defne. Saat kaldı, tezgâh kaldı, biz kaldık."* | Narration: *"The paper came out that same morning: 'Brad Holdings seizes all of former partner's companies.'"* · Daphne: *"He took everything. The companies, the house... All of it."* · Grandpa: *"He didn't take the watch. Or the stands. Thought they were worthless."* · Grandpa: *"Money comes and goes, Daphne. The watch stayed, the stands stayed, we stayed."* |
-
-Geri dönüşler: "Sen bana yetersin" (önsöz) dedenin ağzından "biz kaldık"; Burak'ın "her şey yerli yerinde" sözü kazıkta tersine döner.
-
-**Devir anına değişiklik (`moments.handover`):** dedenin *"Sen kimseye söz verme. Sadece başla."* cümlesinden sonra Ada: *"Ben verdim bile dede. Kendime: Burak'ı o listeden indireceğim."* / *"Too late, Grandpa. I made one to myself: Brad is coming off that list."* Kalan balonlar aynı (Şans'ın bileti).
-
-**2. nesilde Zenginler Listesi:** liste baştan görünür (girişi yine $1B'de). 1. sırada "Burak · Lojistik"; bugünkü 1. rakip (Alan Trusk) gibi davranır: $950B'den başlar, torun yaklaşınca hep biraz önde kalır, 2. neslin son töreninde geçilir (eşikler yeni şehirle büyürse onun serveti de). Liste 20 isimde kalsın diye en alttaki rakip çıkar. Altı kart Burak'ın etrafında:
-
-| Sıra | Kim | Türkçe | English |
-| --- | --- | --- | --- |
-| Giriş | Burak | *"Listeye bir tezgâhçı girmiş. Dedene selam söyle, Ada."* | *"A flower-stand girl made the list. Give your grandpa my regards, Ada."* |
-| İlk 1000 | Gazete | *"Dedesinin tezgâhından dünyanın en zengin bin kişisine."* | *"From her grandpa's flower stand to the world's richest thousand."* |
-| İlk 100 | Dede | *"İlk yüzdeymişsin. Burak'ın sekreteri bugün iki kez aradı."* | *"Top hundred, they tell me. Brad's secretary called twice today."* |
-| İlk 10 | Burak | *"Kendi adınla mı? Dedenin de kendi adı vardı. Bak ne oldu."* | *"Your own name? Your grandpa had his own name too. Look what happened."* |
-| İlk 5 | Elif | *"Burak bu sabah anneannemi aramış. Sesi ilk kez titriyormuş."* | *"Brad called Grandma this morning. For the first time, his voice was shaking."* |
-| 2. sıra | Gazete | *"Burak Holding'in hisseleri düşüyor: tezgâhçı kız artık ikinci."* | *"Brad Holdings shares slide: the flower-stand girl is now number two."* |
-
-**2. neslin son töreni (intikam; kare: otogarın karşısındaki bina, anahtar):**
-
-| Türkçe | English |
-| --- | --- |
-| Anlatım: *"Burak Holding'in satış imzası otogarın karşısındaki binada atıldı."* · Burak: *"Her şeyi mi alıyorsun?"* · Ada: *"Hepsini. Bir tezgâh hariç. Anahtarı sende."* · Ada: *"Sıfırdan başlamak nasıl bir şey, sen de gör."* · Dede: *"Önce çiçekleri dizeceksin, Burak."* | Narration: *"Brad Holdings was signed over in the building across from the bus station."* · Brad: *"You're taking everything?"* · Ada: *"All of it. Except one flower stand. The key is yours."* · Ada: *"Now you'll see what starting from nothing feels like."* · Grandpa: *"First, you set out the flowers, Brad."* |
-
-Geri dönüşler: otogar (önsöz, devir), Rıza'nın "Önce çiçekleri dizeceksin" dersi (rehber, 70 yaş), tezgâh (kazıkta "değersiz" bulunan).
-
-**Oyunda (2026-10-16, 1. nesil; görseller gelene kadar Burak yalnız isim etiketiyle konuşur, kareler yok):** `LIFE_MOMENTS` `partner` (45, Multimilyarder töreninden sonra; tören 63'e kadar görülmezse an atlanır, devirden önce görülmemiş eski kayıtta geç oynar) ve `betrayal` (80, devirden hemen önce, hediyesiz, yalnız ortaklık görüldüyse); annenin `partner` mesajı (ortaklıktan sonra, kazığa kadar); 70 yaş anının iki gölge balonu ve devirdeki Ada yemini yalnız ilgili an görüldüyse oynar (`CeremonyLine.when`). Albümde ortaklık yat anından sonra, kazık devirden önce. Görseller gelince: `FACES.burak` + portreler, `lifeScript.ts`'te iki karenin `image`'ı.
-
-**Mekaniğe etkisi:** devirde süren yatırım ve bekleyen günlük ödül varise geçmez (oyunda, 2026-10-16: yatırım dedeye ödenir, teklif silinir). Yeni hayat anı (`partner`, 45) ve kazık anı (`betrayal`, 80) `LIFE_MOMENTS`'e kayıt kimliği olarak eklenir; eski kayıtlar için varsayılan "görülmedi" (ortaklık anı 45'i geçmiş oyuncuya sırası gelince oynar).
-
-**Görsel ihtiyacı (GPT; komutlar [art-prompts-burak.md](./art-prompts-burak.md), anahtar karesi yetişkin Ada'nın görünümünü bekliyor):** takım elbiseli, yaşlanan Burak kılavuzu + 4 portre (mevcut yönetici portresi referans); kareler: el sıkışma (45), gazete (80), anahtar (2. neslin sonu). 2. nesilde Burak orta yaşlı görünür (kır düşmüş saç, takım elbise; 40'lı–50'li yaşlar gibi); yaşı söylenmez, kimse sormaz.
+- **Devir 80 yaşta, torun her şeyle devam eder** (karar 2026-10-20): varis kahramanın kızının çocuğu, 63'te doğar, devirde 17 yaşında; ailenin servetini, işletmelerini ve evlerini alır, kaldığı yerden büyütür. Eski "varis en dipten başlar" ve Burak'ın kazığı kurgusu düştü ([archive/burak-story.md](./archive/burak-story.md)).
+- **Varisler:** 2. nesil kız torun (varsayılan adı **Ada**, oyuncu koyar); 3. nesil erkek, ilk kahramanın görselleriyle; sonra sırayla.
+- **Dede görünümü:** kahraman 60'tan sonra dededir (kır saç, gözlük, yelek, babadan kalan saat; oyunda). 2. nesilde torunun rehberi olur (Rıza Amca'nın kahramana yaptığını yapar). Yaşlı Defne, Elif ve Ada'nın kılavuzları ve portreleri oyunda.
+- **2. nesil Lumen'de:** kıyıda yeni kurulmuş modern bir şehir, "bugünün şehri + birkaç gelecek dokunuşu" ([art-prompts-lumen.md](./art-prompts-lumen.md)); yöneticiler Lumen'e özgü 10 insan. Lumen kodda bir kaplama (`runtime/city.ts`): aynı kimlikler, şehre göre ad, resim ve yönetici. 14 işletmeye ve üç görünüme göre ek görsel gerekir.
+- **Yönetici setleri nesiller arasında döner:** dönen setin kişileri öncekilerin torunları, isimler nesil başına (§3).
+- **Ölüm hiç gösterilmez;** anne, Rıza ve Şans'ın varlığı fotoğraflar ve bıraktıkları eserlerle sürer. Yaşı çok ilerleyen yan karakterler (Rıza, Nevin Hanım) kahramanın 55 yaşından sonra kişi olarak görünmez.
+- **Vakıf ve gelenek** (2026-10-16 kararı; sıfırlamasız devirle yeniden ele alınacak): 3. nesilden itibaren törenler eski şehre geri vermeyi anlatır (Rıza Amca'nın Çorbası, erik ağacı parkı, atölye meslek okulu).
+- Açık sorular: [discussion-notes.md §6](./discussion-notes.md).
 
 ## 7. Sonra: testten sonra ya da Faz 2 (fikir havuzu)
 
@@ -353,9 +296,9 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 - **Yönetici anları:** kilometre taşına bağlı tek anlar. Taslaklar: Selin'in mezuniyeti (*"Diplomamı aldım! Ama arabayı bırakmıyorum."*); Hüseyin Usta'nın babanın çırağı çıkması (*"Ustam Mehmet'ti..."*, fırının duvarına babanın fotoğrafı).
 - **Annenin evi ara basamakları:** memlekette kiralık daire (İşçi), bahçeli ev (Milyoner), deniz kenarında villa (Multimilyarder); hayaller panosunda isteğe bağlı alım, fiyatlar simülatörle.
 - **Hikaye hayalleri:** sıcak bir çorba, Şans'a tasma, annene telefon kontörü, Rıza Amca'ya yeni mont, mahalleye kütüphane. Fiyatı o sınıfın birkaç dakikalık geliri.
-- **Hayat anlarının kalanı (§4c):** okulun ilk günü, ilk para, mezuniyet, torunun doğumu, dede ve torun. Her biri bir kare + 2–3 balon; kızının 3 yaş hâli ve torun için kılavuz gerekir.
+- **Hayat anlarının kalanı (§4c):** okulun ilk günü, ilk para, mezuniyet. Her biri bir kare + 2–3 balon; kızının çocukluk hâli için kılavuz gerekir.
 - **Defne ve kızından mesajlar:** annenin mesaj kanalıyla; En Zengin'den sonra kanal onlara geçer.
-- **4. perde (zirveden ömür sonuna):** oynanabilir vakıf projesi (kütüphane, burs, genç bir girişimciyi yetiştirmek). Zirve sonrası adaylarından biri ([discussion-notes.md §2](./discussion-notes.md), plan 2.12).
+- **4. perde:** oynanabilir vakıf projesi (kütüphane, burs, genç bir girişimciyi yetiştirmek); Rıza'nın atölyesi ve annenin konağı aşamalı proje olarak ([discussion-notes.md §2](./discussion-notes.md)).
 - **Olay kartlarının büyük seti (Faz 2.4; ilk 10 kart oyunda, §4d):** sınıfa göre değişen kartlar. Taslaklar: Rıza (*"Eski atölyeyi yeniden açmak istiyorum, ortak olur musun?"*), Bülent Bey (*"Restoranımı sana satayım, ama bir şartım var..."*).
 - **Şans'ın yavruları** (öneri Milyarder dolayları), dergi kapakları ("Garsondan patrona").
 
@@ -367,7 +310,7 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 
 **Stil kılavuzu (her üretimde uyulur):**
 
-- Araç: fal.ai, `fal-ai/nano-banana-pro/edit` ($0,15/görsel). Arka plan silme `fal-ai/bria/background/remove` ($0,018).
+- Araç: önce GPT (yerleşik görsel üretimi; komutu Claude yazar), gerekirse fal.ai (`fal-ai/nano-banana-pro/edit`, arka plan silme `fal-ai/bria/background/remove`). Kurallar ve boyutlar [art-brief-v2.md](./art-brief-v2.md).
 - Referans görseller, her üretime eklenir: kahraman kılavuzu `art/pilot/01-hero-sheet/A1-semi3d.png`, Şans kılavuzu `art/pilot/02-poses/sans-sheet.png`. Yeni bir karakter önce kendi kılavuzunu alır; kahramanın kılavuzu yanına verilir, boy ve stil eşleşir.
 - Her komutun sonuna aynen eklenen stil paragrafı: *"Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark."*
 - Karakterler ve nesneler düz açık gri zeminde üretilir, sonra arka planı silinir. Arka planlar 9:16, 2K; komuta *"a frame from a 3D CG animated feature film, NO ink outlines, NO cel shading, NO flat 2D cartoon"* eklenir (yoksa stil 2D'ye kayıyor).
@@ -379,65 +322,8 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 - Görsellere yazı, tabela, logo gömülmez (TR/EN).
 - Oyunda: gece sahnelerinde karakterlere hafif soğuk renk tonu ve sıcak kenar ışığı (deneme: `art/pilot/scene-mock-alley.png`).
 
-**Faz 1:**
+**Durum (2026-10-21):** 1. neslin bütün görselleri oyunda: önsöz (6 kare; 3D sürümü bekliyor, [art-prompts-v2.md §2](./art-prompts-v2.md)), 12 ev, 12 araç, 7 kıyafetin pozları ve portreleri, Şans (4 tasma × 3 poz, fularlı ikizler), kadronun portreleri (anne, Rıza, Bülent Bey, Nevin Hanım, Defne), 14 yönetici, 14 işletmenin üçer görünümü, 63 meslek ve 4 eşya ikonu, 7 tören karesi, hayat ve lüks anlarının kareleri, dede pozları, yaşlı Defne / Elif / Ada portreleri, yadigâr ikonları. Kaynaklar `art/pilot/` (git'te değil), oyundaki sıkıştırılmış hâlleri `public/assets/`. Bitmiş komutlar [archive/](./archive/).
 
-| Görsel | Adet | Durum |
-| --- | --- | --- |
-| Önsöz kareleri | 6 | **Tamam** |
-| Kirli ara sokak arka planı | 1 | **Tamam** (`public/assets/scene/alley.webp`) |
-| Şişe, kutu | 3 | **Tamam** |
-| Yönetici portreleri | 10 | **Tamam** (`public/assets/managers/`) |
-| Kahraman: sokak aşaması 5 poz | 5 | **Tamam** (çadırda üşüyen bekleme, başka evlerde umutlu bekleme, toplama, sevinç, Şans'ı okşama) |
-| Kahraman: 6 kıyafet (iş kıyafeti 4 poz, diğerleri toplama pozu olmadan 3'er) + 7 kıyafetin 4'er ifade portresi | 19 poz, 28 portre | **Oyunda** (2026-10-12 → 14; [art-brief-v2.md](./art-brief-v2.md) 4.1) |
-| Şans: oturan, cüzdanlı, uyuyan | 3 × 4 tasma | **Oyunda**: ip, deri, gümüş, altın (gümüş 2026-10-15); yakut hazır; kırmızı fular üç pozda da çizili ikizlerle (2026-10-16), okşama pozunda yok |
-| Tören portreleri: kahraman, anne, Rıza, Bülent Bey (4'er ifade) | 16 | **Tamam** (`public/assets/story/portraits/`, kadro sayfalarından kesildi) |
-| Orta Sınıf: çatı katı ve eski fotoğraf | 2 | **Oyunda** (`public/assets/story/ceremony/`; kaynak `art/pilot/07-story/`). Çatı katı 3. kıyafetle yeniden üretildi (2026-10-13) |
-| Tören kareleri: çorba (Gündelikçi), daire kapısı (İşçi), Rıza bahçede (Milyoner), restoran (Milyarder), atölye (Multimilyarder), konak ve pasta (En Zengin) | 6 | **Oyunda** (2026-10-13, GPT; [art-brief-v2.md](./art-brief-v2.md) 4.5) |
-| Ev arka planları (12) ve araçlar (12) | 24 | **Oyunda** (2026-10-12; arka plan oturulan ev, araç önünde). Liste ve komutlar: [art-brief-v2.md](./art-brief-v2.md), [art-prompts-v2.md](./art-prompts-v2.md) |
-| Toplanacaklar (bozuk para) | 1 sayfa | **Oyunda** |
-| Nevin Hanım ve Defne kılavuzları + portreler (4'er ifade) | 2 sayfa, 8 portre | **Oyunda** (2026-10-11, fal.ai $0,30; `art/pilot/03-cast/`, komutlar [archive/art-prompts-v2-gen1.md §3](./archive/art-prompts-v2-gen1.md)) |
-| İşletme ikonları | 10 | **Oyunda** (2026-10-13, GPT; `public/assets/businesses/v2/`, [art-brief-v2.md](./art-brief-v2.md) 4.7) |
-| Hayat anları: çay bahçesi, bahçe düğünü, bebek | 3 | **Oyunda** (`public/assets/story/life/`) |
-| Lüks anları: tekne, yat, helikopter, jet | 4 | **Oyunda** (§4c) |
-| Devir: dede, yaşlı Defne, Elif ve ayrı Ada 7/17 kılavuzları + 4'er ifade portresi | 5 sayfa, 20 portre | **Oyunda** (2026-10-16; `public/assets/story/portraits/{grandpa,defne-old,elif,ada,ada-child}-*`; 70 yaş anında konuşan çocuk Ada `adaChild`) |
-| Devir: dede idle/joy/pet pozları | 3 | **Oyunda** (`hero-grandpa-*`, `stages.ts` `GRANDPA_ART`; açık krem gömlek için %3 tolerans, alt şerit kuralı yok) |
-| Devir: torunun doğumu, çiçek tezgâhı, saat teslimi | 3 | **Oyunda** (`public/assets/story/life/{grandchild,grandpa,handover}.webp`; kaynak 941 px, 1080'e büyütüldü) |
-| Devir: saat, reçel, defter, tasma yadigâr ikonları | 4 | **Oyunda** (Aile sekmesi; `public/assets/icons/v2/heirloom-*.webp`), aile albümü mevcut ikon |
+## 9. Metinler
 
-Kaynak dosyalar `art/pilot/` (git'te değil), oyundaki sıkıştırılmış hâlleri `public/assets/`. Harcama: plan 1.16.
-
-## 9. Metin ihtiyacı (TR + EN, Faz 1)
-
-| Metin | Adet | Durum |
-| --- | --- | --- |
-| Önsöz | 13 balon | Tamam (`prologue`) |
-| Yönetici cümleleri | 10 × 3 | Tamam (`managers`) |
-| Cüzdan, çevrimdışı ve işe alma kartları | — | Tamam |
-| Tören kartları | 7 tören, 27 balon | **Tamam** (`ceremony`) |
-| Anne mesajları | 11 | **Tamam** (`mom`) |
-| Bildirimler | 2 + izin kartı | **Tamam** (`notify`) |
-| Rıza Amca rehber balonları | 6 + isim sorusu | **Tamam** (`guide`) |
-| Hayat anları | 3 an, 11 balon + isim sorusu | **Tamam** (`moments`) |
-| Olay kartları | 10 kart × 5 cümle | **Tamam** (`events`) |
-| Lüks anları | 4 an | **Tamam** (`moments.{boat,yacht,heli,jet}`) |
-| Zenginler Listesi kartları | 6 | **Tamam** (`richList.moments`) |
-| Tasma kartı | 1 kart, 4 tasma adı | **Tamam** (`ceremony.collar`) |
-
-Metinler `src/game/i18n/` içine, ilgili özellik yazılırken eklenir.
-
-## 10. Mekaniğe etkisi (planla bağ)
-
-| Plan maddesi | Hikaye eklemesi |
-| --- | --- |
-| 1.6 Sahne | Toplama, Şans'ın cüzdanı, oturulan ev ve araç (tamam). Tören kahramanı hikâyenin evine ve kıyafetine taşır (`stages.ts`; kalan görseller [art-brief-v2.md](./art-brief-v2.md)) |
-| 1.7 İşletmeler | Her işletmeye kendi yöneticisi (tamam) |
-| 1.8 Hayaller panosu | Faz 1'de sadece statü eşyaları (§5) |
-| 1.10 Sınıf töreni | 7 tören kartı, defter merakı, annenin evi iki basamağı (§4) |
-| 1.10 ile | Anne mesajları (sınıfa bağlı, günde en fazla 1), aynı balon bileşeniyle |
-| 1.12 Onboarding | Rehber Rıza Amca; ilk tezgâhtan sonra kahramanın adını sorar (tamam) |
-| 1.13 Çevrimdışı kartı | Kartta uyuyan Şans (tamam) |
-| 1.14–1.15 Analitik, test | Tören atlama oranı, Orta Sınıf'a ulaşanın ertesi gün dönüşü (§0) |
-| 1.18 Önsöz | Tamam |
-| 1.20 Hayat anları | Yaşa bağlı 3 an, kızın adı (§4c) |
-| 2.4 Olay kartları | İlk 10 kart (§4d, tamam); büyük set Faz 2 |
-| Faz 2 | Hanedan (§6) ve fikir havuzu (§7) |
+Bütün metinler TR + EN `src/game/i18n/messages/*`'ta: `prologue`, `ceremony`, `mom`, `notify`, `guide`, `moments`, `events`, `richList`, `managers`. Yeni an ya da kart yazılırken ikisi birlikte eklenir.

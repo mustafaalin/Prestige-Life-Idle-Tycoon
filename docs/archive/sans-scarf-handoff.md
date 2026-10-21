@@ -44,4 +44,4 @@ Satırlar: ip, deri, gümüş, altın, yakut. Sütunlar: oturan, cüzdanlı, uyu
 
 Kaynaklar tablodaki dosyalar. WebP hedefleri görevdeki gibi `public/assets/scene/sans-{sit,wallet,sleep}-{rope,leather,silver,gold,ruby}-scarf.webp`. Tasma ve fular sahipliğine göre doğru varyantı seçme, eski fular bindirmesini kaldırma ve oyun içi ölçek kontrolü Claude'un işi. Yeni koda veya varlık eşlemesine bu teslimde müdahale edilmedi.
 
-[Tamamlanan görev ve tam prompt şablonları](./archive/gpt-sans-scarf-task.md).
+[Tamamlanan görev ve tam prompt şablonları](./gpt-sans-scarf-task.md).

@@ -1,14 +1,14 @@
 # Ses ve müzik (v2)
 
-Son güncelleme: 2026-10-17 · Kod: `src/game/runtime/feedback.ts` · Plan: [rebuild-plan.md](./rebuild-plan.md) 1.11 · İlgili: [discussion-notes.md §6](./discussion-notes.md) ("eksik his parçaları")
+Son güncelleme: 2026-10-21 · Kod: `src/game/runtime/feedback.ts` · Bekleyen: yağmur ve ortam sesi ([rebuild-plan.md](./rebuild-plan.md) Faz 1 "His parçaları")
 
-## 1. Durum (2026-10-17)
+## 1. Durum
 
 - **Oyunda:** 14 yeni efekt (ElevenLabs Sound Effects v2, kullanıcı seçti; kaynaklar `art/audio/sfx-2026-10-17/`, komutlar yanında `prompts.txt`, dinleme sayfası `art/audio/listen.html`), 4 müzik, Ayarlar'da "Ses efektleri" ve "Müzik" anahtarları. Oyundaki dosyalar `public/assets/audio/sfx/v2/` (sessizlik kırpıldı, −16 LUFS, mono 96 kbps) ve `public/assets/audio/music/v2/`.
 - `purchase` (2026-10-17): ilk iki deneme "para eksiliyor" hissini vermedi; üç yeni denemeden **c** (paralar kasa çekmecesine düşüyor) seçildi.
 - Seçilenler: purchase-c, click-a, coin-b, levelup-a, payout-a, fanfare-b, page-a, ring-a, message-b, bark-b, arrive-a, reward-b, loss-b, unlock-b.
 
-## 2. Ses efektleri (14; öneri)
+## 2. Ses efektleri (14; oyunda)
 
 İlk dördü v1'in yerine yeni üretilir (iki çizim dili gibi iki ses dili olmasın). Hepsi kısa (0,2–2 sn), aynı "sıcak, oyuncaklı, yumuşak" ailede; sert elektronik bip yok.
 

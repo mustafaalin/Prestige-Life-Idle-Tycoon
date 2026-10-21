@@ -1,6 +1,6 @@
 # İşletme aşamaları ve yeni yöneticiler: GPT komutları
 
-Tarih: 2026-10-21 · İlgili: [economy-rebuild.md §3](./archive/economy-rebuild.md) (seviye + şube modeli), [art-brief-v2.md §4.7](./art-brief-v2.md) (işletme ikonları), [art-prompts-lumen.md §1](./art-prompts-lumen.md) (yönetici portresi kalıbı)
+Tarih: 2026-10-21 · İlgili: [economy-rebuild.md §3](./economy-rebuild.md) (seviye + şube modeli), [art-brief-v2.md §4.7](../art-brief-v2.md) (işletme ikonları), [art-prompts-lumen.md §1](../art-prompts-lumen.md) (yönetici portresi kalıbı)
 
 Bu belge GPT'ye (yerleşik görsel üretimi) verilir. İşletmeler artık adet adet değil seviye seviye büyüyor ve görünüşleri üç aşamada değişiyor: **1. aşama** seviye 1–7 (tezgâh, araba, küçük dükkân), **2. aşama** seviye 8–9 (dükkân, büyük yer), **3. aşama** seviye 10 ve şubeler (mağaza, merkez, zincir). Mevcut 10 ikon 1. aşamadır ve değişmez. Gereken: **10 işletmenin 2. ve 3. aşaması (20)**, **4 yeni işletmenin üç aşaması (12)**, **4 yeni yönetici portresi**. Toplam 36 görsel.
 
@@ -33,7 +33,7 @@ Her komutun sonuna aynen eklenir:
 
 ## 2. Yeni yöneticiler (4 portre)
 
-Kalıp [art-prompts-lumen.md §1](./art-prompts-lumen.md)'deki gibi; referans `art/pilot/06-managers/sheet.png` ve `art/pilot/06-managers/bakery.png`. Kayıt `art/pilot/06-managers/{dosya}`.
+Kalıp [art-prompts-lumen.md §1](../art-prompts-lumen.md)'deki gibi; referans `art/pilot/06-managers/sheet.png` ve `art/pilot/06-managers/bakery.png`. Kayıt `art/pilot/06-managers/{dosya}`.
 
 > Head-and-shoulders portrait of ONE person, the manager of a business in a mobile idle life game, facing the viewer slightly turned, a warm friendly expression, centered, square 1:1 image. Plain flat pastel background in the color given. References from the project: `art/pilot/06-managers/sheet.png` and `art/pilot/06-managers/bakery.png` — match their art style, rendering, framing and finish exactly (the same set of manager portraits), but this is a NEW person who looks clearly different from all of them. Readable at 56 px: one clear accessory, no small clutter. Exactly the head and shoulders, no hands needed. No text, no letters, no numbers, no logos on clothing. Save the image as `art/pilot/06-managers/{FILE}`.
 

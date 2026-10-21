@@ -1,6 +1,6 @@
 # Ekonominin yeniden kurulması (1. nesil, lansman öncesi)
 
-Tarih: 2026-10-20, kararlar 2026-10-21 · Durum: **yön kararlaştı (kullanıcı), sayılar öneri; simülatörle ayarlanacak.** Uygulandıkça kurallar [game-design-v2.md](./game-design-v2.md)'ye taşınır ve buradan silinir. Görevler [rebuild-plan.md](./rebuild-plan.md) "Faz E". İlgili: [engagement-strategy-v2.md](./engagement-strategy-v2.md) (oyuncuyu tutma), [research/idle-guy-comparison-2026-10-20.md](./research/idle-guy-comparison-2026-10-20.md).
+Tarih: 2026-10-20, kararlar 2026-10-21 · Durum: **yön kararlaştı (kullanıcı), sayılar öneri; simülatörle ayarlanacak.** Uygulandıkça kurallar [game-design-v2.md](../game-design-v2.md)'ye taşınır ve buradan silinir. Görevler [rebuild-plan.md](../rebuild-plan.md) "Faz E". İlgili: [engagement-strategy-v2.md](./engagement-strategy-v2.md) (oyuncuyu tutma), [research/idle-guy-comparison-2026-10-20.md](../research/idle-guy-comparison-2026-10-20.md).
 
 ## 1. Kullanıcının kararları (2026-10-20)
 
@@ -12,7 +12,7 @@ Tarih: 2026-10-20, kararlar 2026-10-21 · Durum: **yön kararlaştı (kullanıc�
 6. **Yönetici gelene kadar elle "Çalıştır":** aylık gelire sayılmaz; yönetici atanınca aylığa girer (bugünkü kural sürer).
 7. **Tek tezgâhın bir "Çalıştır"ı bir şişeden belirgin şekilde fazla öder.** Bugün tur $1, şişe $2+: tersine.
 8. **Şişe toplama kalır, ama gelirle katlanarak büyümez:** başta anlamlı, sonra etkisi azalır.
-9. **Kayıt:** şu an oyunu oynayan ve ilerlemesi bozulacak kimse yok, yeni ekonomi bir kez temiz başlatabilir. **Yayından sonra** her güncelleme kayıtları korur ([session-handoff.md](./session-handoff.md) "Kayıt uyumluluğu").
+9. **Kayıt:** şu an oyunu oynayan ve ilerlemesi bozulacak kimse yok, yeni ekonomi bir kez temiz başlatabilir. **Yayından sonra** her güncelleme kayıtları korur ([session-handoff.md](../session-handoff.md) "Kayıt uyumluluğu").
 10. **Kod:** kıdemli yazılımcı gibi, SOLID'e uygun (§7).
 11. **(2026-10-21, §8 cevapları)** Lansmanda kahraman 80'de kalır: "Torununun hikâyesi yakında" der, oyun ve para sürer, devir 2. nesil güncellemesiyle gelir. Burak hikâyesi şimdilik tamamen kalkar, Burak yalnız bir yönetici. Miras puanı, yadigârlar ve "Şimdi devret" lansmanda gizli. Gerçekçi takvim (§2) kabul.
 12. **(2026-10-21)** 1. nesilde **14 işletme**; kıyafetler **7**'de kalır.
@@ -80,7 +80,7 @@ Bugün 10. **Karar (2026-10-21): 1. nesilde 14**, her biri 3 görsel aşamalı. 
 
 - **Meslekler (60+):** satın alınmaz, şartla açılır. Şart türleri: önceki işte deneyim (ay), kurs (para + süre, oyun açıkken ilerler), eşya (telefon → kurye, araba → şoför, takım elbise → satış), adres (ev seviyesi), sınıf. Kariyer ekranı eksik şartı ve "Git"i gösterir (Idle Guy incelemesi §1). Maaş gerçekçi aylık; gelire % bonus yok ya da çok küçük.
 - **Eşyalar:** gerçekçi sabit fiyat, gelir bonusu yok; değeri açtığı şey (iş, ev, olay, yer). Sayı artar, ama kahraman çizimi gerektirmeyenlerle: araçlar (12 → ~20), teknoloji eşyaları (telefon, dizüstü: meslek şartı), mobilya/ev eşyası, lüksler. Kıyafet poz çizimi istediği için 7'de kalır (karar 2026-10-21).
-- **Gelir artışı nereden gelir:** işletme seviyeleri, şubeler, yöneticiler, maaş, kira. Çarpanlar azalır, böylece kartopu küçülür ve sayılar gerçekçi kalır. Tasmalar, fular ve yakut tasmanın %'leri sürer (IAP vaadi; [monetization-v2.md](./monetization-v2.md)).
+- **Gelir artışı nereden gelir:** işletme seviyeleri, şubeler, yöneticiler, maaş, kira. Çarpanlar azalır, böylece kartopu küçülür ve sayılar gerçekçi kalır. Tasmalar, fular ve yakut tasmanın %'leri sürer (IAP vaadi; [monetization-v2.md](../monetization-v2.md)).
 
 ## 6. Hanedan ve lansman kapsamı (karar 2026-10-21)
 
@@ -106,7 +106,7 @@ Ekonomi saf TypeScript `core/`'da kalır (React yok); simülatör aynı çekirde
 1. Görseller GPT'de: 32 işletme aşaması ve 4 yönetici portresi ([art-prompts-businesses.md](./art-prompts-businesses.md)). Dört yeni işletmenin adları ve yöneticileri onaylandı (2026-10-21).
 2. Telefonda ilk his: Çiçek Tezgâhı tablosu, şişe, deneyimle açılan meslekler.
 3. Bot en ucuz kursu seçiyor; gerçek oyuncunun yolu telefonda görülmeli (kurs sayısı ve süreleri).
-4. Gece Vardiyası IAP'ı (çevrimdışı %50 → %100, tavan +2 sa) yeni %20'ye göre yeniden yazılmalı ([monetization-v2.md](./monetization-v2.md) §5).
+4. Gece Vardiyası IAP'ı (çevrimdışı %50 → %100, tavan +2 sa) yeni %20'ye göre yeniden yazılmalı ([monetization-v2.md](../monetization-v2.md) §5).
 
 ## 8b. E1'de yapılanlar (2026-10-21)
 

@@ -68,7 +68,7 @@ Bir işletme tek kart: **açılır, seviye seviye büyür, son seviyede şube a�
 - **Şube:** son seviyede "Yeni şube aç". Şube başına gelir son seviyeninki kadar; ilk şube bütün seviyelerin toplamı kadar (sıfırdan bir mağaza), sonraki her biri ×1,4. Sınır sınıfla: açılış sınıfında 1, sonra 2, 4, 8, 16, 32, sonra sınırsız; tören "İşletmelerin daha çok şube açabilir" der. Ucuz işletmenin şubesi oyunun en iyi yatırımı olmasın diye (×1,15 ve son seviye fiyatında bot Milyoner'e kadar 30 çiçekçi açıyordu).
 - **Yönetici:** açılışın 4 katı (Rıza Amca $5K), bütün şubeleri otomatik ve çevrimdışı çalıştırır. **Yöneticisiz işletme yalnız "Çalıştır"la tek tur döner ve aylık gelire sayılmaz**; yönetici gelince aylığa girer. Her işletmenin yöneticisi bir karakter (story-v2 §3).
 - **Sınıfla açılış:** Çiçek Tezgâhı Sokak, Kahve Arabası Gündelikçi, Fırın ve Oto Yıkama İşçi, Mini Market, Restoran ve Güzellik Salonu Orta Sınıf, Emlak Ofisi, Lojistik, İnşaat ve Fabrika Milyoner, Otel, Medya ve Teknoloji Milyarder.
-- **Görseller:** her işletmenin 3 aşama görseli (`config/businesses.ts` `STAGE_ART`; görseli olmayan aşama bir öncekini gösterir). Dört yeni işletme ve aşamalar GPT'yi bekliyor ([art-prompts-businesses.md](./art-prompts-businesses.md)).
+- **Görseller:** 14 işletmenin her birinin 3 aşama görseli ve yöneticisi oyunda (2026-10-21; `public/assets/businesses/v2/{id}.webp`, `{id}-2.webp`, `{id}-3.webp`; komutlar [archive/art-prompts-businesses.md](./archive/art-prompts-businesses.md)). Lumen'de işletme başına tek görünüm var; dört yeni işletme orada eski şehrin görseli ve yöneticisiyle görünür.
 
 | İşletme | Açılış | Tur, 1. → 10. sv | Aylık, 1. → 10. sv | Açılışın geri dönüşü | İlk şube | Yönetici |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -97,7 +97,7 @@ Bir işletme tek kart: **açılır, seviye seviye büyür, son seviyede şube a�
 - **16 kurs:** İlk Yardım (1 ay, $300), Ehliyet (2 ay), Ağır Vasıta (4 ay, ehliyetten sonra), BT Sertifikası (12 ay), Yazılım Kampı (6 ay), Gazetecilik, Muhasebe (9 ay), Aşçılık, Elektrikçilik (12 ay), Turizm İşletmeciliği, MBA (24 ay, $80K), Hemşirelik (36 ay), Bilgisayar Mühendisliği, İktisat, Mühendislik (48 ay), Tıp (72 ay, $150K). Aynı anda tek kurs, parası baştan, oyun açıkken ilerler.
 - **İş panosu (kariyer ekranı):** şimdiki iş ve kaç aydır orada; süren kurs (kalan ay); "Girebileceğin işler" (şartları tamam, daha çok kazandıran, "İşe gir"); "Hedefindeki işler" (en çok 6; şart listesi ✓ / ○, deneyimde "7/12", eşya, kurs ve adreste "Git"); kurslar ("Açar: …", "Başla"); "Bütün meslekler" alanlara göre. Kariyer düğmesinde "!" daha iyi bir iş alınabilir olunca.
 - **Bağlı botta:** ~29 iş ve kurs adımı; CEO 7 sa 12 dk oyunda (44 yaş).
-- **İkonlar:** 51 meslek ve 4 eşya ikonu GPT'yi bekliyor ([art-prompts-jobs.md](./art-prompts-jobs.md)); şimdilik kariyer ve mağaza simgesi.
+- **İkonlar:** 63 mesleğin ve 4 eşyanın ikonu oyunda (2026-10-21; `public/assets/jobs/v2/`, `public/assets/items/v2/`; komutlar [archive/art-prompts-jobs.md](./archive/art-prompts-jobs.md)).
 
 ### 4.5 Eşyalar (`config/lifestyle.ts`)
 
@@ -231,13 +231,12 @@ Bot her an en kısa sürede kendini ödeyen alımı yapar (optimal); daha çok k
 
 ## 8. Sonraya bırakılanlar ve açık konular
 
-- **Görseller:** 32 işletme aşaması + 4 yönetici ([art-prompts-businesses.md](./art-prompts-businesses.md)), 51 meslek + 4 eşya ikonu ([art-prompts-jobs.md](./art-prompts-jobs.md)).
 - **Her işletmeye kendi seviye tablosu** (bugün 13'ü Çiçek Tezgâhı'nın biçiminde); Fabrika'dan Medya'ya ~8,5 saat yeni işletme yok.
-- **2. nesil:** devir, mirasın sıfırlamasız anlamı, Ada ve Lumen içeriği (§4.10).
+- **2. nesil:** devir, mirasın sıfırlamasız anlamı, Ada ve Lumen içeriği (Lumen 10 işletme için çizildi; 14'e ve üç görünüme göre ek görsel) (§4.10).
 - **Gece Vardiyası IAP'ı** yeni çevrimdışı oranına göre (monetization §5).
 - **Eşyalar meslek dışında bir şey açmıyor** (olay, yer); araç sayısı 12'de (yeni araç sahne kesimi ve zincir yeri ister).
 - **Telefonda bakılacak:** gerçek oyuncunun kurs yolu (bot en ucuzunu seçiyor), tezgâh ve şişenin ilk hissi, iş panosunun uzunluğu.
-- Açık tasarım konuları: [discussion-notes.md](./discussion-notes.md); oyuncuyu tutma önerileri: [engagement-strategy-v2.md](./engagement-strategy-v2.md).
+- Açık tasarım konuları ve oyuncuyu tutma önerileri: [discussion-notes.md](./discussion-notes.md).
 
 ## 9. Rapordan sapmalar
 

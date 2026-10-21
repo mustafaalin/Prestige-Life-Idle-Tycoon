@@ -81,28 +81,15 @@ Hepsi isteğe bağlı ve oyuncunun zaten bulunduğu bir yerde bir düğmenin ark
 
 **Zorla reklam (interstitial) ve banner:** lansmanda yok. 3. günden sonra, çok seyrek bir zorla reklamı yalnızca A/B testiyle deneriz; tutma düşerse kaldırırız.
 
-**Nasıl çalışıyor (oyunda, 2026-10-12; sayılar `core/config/ads.ts`, kurallar `runtime/adRewards.ts`, arayüz `ui/ads/`):**
+**Nasıl çalışıyor (sayılar `core/config/ads.ts`, kurallar `runtime/adRewards.ts`, arayüz `ui/ads/`):**
 
-- **Ne zaman açılır:** ilk oturumda teklif yok (§2.3). Teklifler, oyuncu bir yönetici işe aldıktan ve bir kez çevrimdışı kazanç topladıktan sonra başlar; dört yerin hepsi için aynı kural.
-- **Çevrimdışı +%30 ve Şans ×2:** ödül kartında "Topla"nın üstünde turuncu "Reklam izle: +$X" düğmesi (ne kadar fazla verdiği yanında yazar). Reklam sonuna kadar izlenirse kart artırılmış tutarla toplanır; erken kapatılırsa kart yerinde kalır.
-- **Hızlandırıcı:** ana sahnenin sağında "×2" düğmesi küçük bir kart açar. Bir reklam = 1 saat; kalan sürenin üstüne eklenir, 4 saati aşamaz, günde 6. Gerçek zamanda işler (oyun kapalıyken de); işletmelerin, maaşın ve kiranın getirdiği her şeyi, çevrimdışı kazancın o süreye düşen kısmını ikiye katlar. Elle kazançları (toplama, Şans, olay kartları, hedefler) değiştirmez. Aktifken üst bardaki gelir satırı "×2" ile gösterilir.
-- **Biraz yardım:** satın alma düğmesinin altında, yalnızca eksik tutar fiyatın %10'undan ve 5 dakikalık otomatik gelirden azken çıkar ("Reklam izle: +$X", X = düğme çıktığında eksik olan). Tutar sabit kalır: gelir geldikçe aşağı saymaz; başka bir alışveriş eksik tutarı büyütürse yukarı çıkar. Reklam düğmede yazan tutarı verir (en fazla bu sınır).
-- **Reklam yoksa:** düğmenin altında "Şu an reklam yok" yazar, ödül verilmez.
-- Günlük sayaçlar oyuncunun telefonundaki takvim gününe göre sıfırlanır. Analitik: `ad_offer` (teklif göründü), `ad_watch` (yer, sonuç).
-
-**Ekonomiye etkisi (simülatör, 2026-10-15):** simülatörde "engaged + ads" profili var: günde 3 hızlandırıcı, çevrimdışı reklamı, Şans ×2, günde 2 yardım (yönetici, terfi, eşya ya da ev beklerken eksik sınıra inince, eksik kadar). İlke reklam izleyenin %20–30 hızlı ilerlemesi (§2.1). Ödeyen profiller §5 sonunda.
-
-| | Reklamsız | Reklam izleyen | Fark |
-| --- | --- | --- | --- |
-| Milyarder | 1 sa 22 dk (2. gün) | 1 sa 8 dk (2. gün) | −%17 |
-| Multimilyarder | 4 sa 42 dk (7. gün) | 3 sa 21 dk (5. gün) | −%29 |
-| En Zengin | 10 sa 21 dk (15. gün) | 7 sa 8 dk (11. gün) | −%31 |
-
-**Tören ve hayat anı hediyesi (karar 2026-10-14, kullanıcı):** İşçi'den itibaren törenin "Önce / Şimdi" kartında ve buluşma, düğün, doğumun sonunda küçük bir kartta "Hediye: +$X" satırı, altında turuncu "Reklam izle: +$2X (×2)" (reklamlar açıldıktan sonra, diğer yerlerdeki kuralla) ve "Topla". Hediye, oyun içi gelirin (`incomePerSecond` active: yöneticiler, maaş, kira ve elle çalıştırılan işletmeler; üst bar yalnız otomatik geliri gösterir) **10 dakikası** (`config/economy.ts` `STORY_GIFT_SECONDS`, `formulas.ts` `storyGift`); lüks anlarında yok (oyuncu o an bir şey satın almış). Yalnızca hikâye gerçekten yaşanınca: albümden ya da DEV'den tekrar oynatmada hediye yok. Görüldü işaretiyle aynı adımda ödenir (`store.ts` `seeWithGift`): kart kapanmadan uygulama kapanırsa an yeniden oynar ve hediye yine gelir, iki kez ödenmez; Geri tuşu düz hediyeyi toplar. Analitik: `story_gift` (`kind`, `multiplier`, `amount`), reklamda `ad_watch` (`placement: story_gift_x2`). **Neden 30 değil 10 dakika:** kullanıcı 30'u seçti ama ilk sınıflar dakikalar arayla geldiği için 30 dakikalık gelir Milyoner'i (31 dk, hedef 35+) ve Milyarder'i (2. gün, hedef 3+) hedeflerin önüne çekiyordu; **Gündelikçi'de hediye yok** (kullanıcı, 2026-10-14; `STORY_GIFT_FROM_CLASS` = İşçi): ilk oturumda geliyor, reklam henüz açık değil ve hediye ilk yöneticinin parasını hemen veriyordu (4 dk 33 sn, hedef 5 dk+). Kullanıcı 10 dakikayı onayladı (çok gelirse 7–8). 10, 8 ve 7 dakikada sonuç aynı: Multimilyarder 7. gün 23:00 (hedef 8. gün), yani fark hediyenin büyüklüğünden değil botun oturum saatlerinden; oyun süresi olarak 11 dakika erken (5 sa 3 dk → 4 sa 52 dk). Kabul edildi; diğer bütün hedefler tutuyor. Reklam izleyen En Zengin'e %32 kısa sürede (önce %31).
-
-**Çevrimdışı reklamı +%30, ×2 değil (karar 2026-10-13, kullanıcı):** bir ömürde kazanılan paranın %87'si çevrimdışı kartlardan geliyor (game-design §4.8), bu yüzden kartı ikiye katlamak oyunu yarıya indiriyordu (En Zengin 5 sa 34 dk, −%51; çevrimdışı ×2 tek başına 6 sa 30 dk). Hızlandırıcı ×2 ve Şans ×2 onaylandığı gibi kaldı; payları küçük (günde 3 hızlandırıcı tek başına −%14).
-
-**Yardım eksik tutar kadar; fiyatın %10'u ve 5 dakikalık gelirle sınırlı; 15 dakikalık gelir değil (karar 2026-10-14, kullanıcı):** telefonda yöneticiyi aldıktan sonra ödülün büyük kısmı cüzdanda kalıyordu; düğmedeki tutarın her saniye azalması da rahatsız ediciydi. Yönetici fiyatı işletmenin taban fiyatının 12 katı, toplam gelirin yanında küçük; işletmeyi almak da parayı sıfırladığı için düğme hemen her işletmeden sonra çıkıyordu. Simülatör bu farkı göstermiyor: eski modelde yardım günde 2 kez oturum başında 15 dakikalık gelir veriyordu, yeni modelde gerçekteki gibi bekleme anında eksik kadar veriyor; sonuçlar ±%2 içinde. %10 tek başına geç terfi ve yöneticilerde 18–42 dakikalık gelire denk geliyordu (simülatör ölçümü), bu yüzden ikinci sınır 5 dakika. Reklamsız oyuncunun hedefleri değişmiyor.
+- **Ne zaman açılır:** kilit yok (§2.3); düğme, bulunduğu yer ekrandayken oradadır.
+- **Kartlardaki teklifler** (çevrimdışı, Şans, hediye, günlük, hedef, olay kartı): "Topla"nın üstünde turuncu "Reklam izle: +$X". Reklam sonuna kadar izlenirse artırılmış tutar; erken kapatılırsa kart yerinde kalır.
+- **Hızlandırıcı:** bir reklam = 1 saat ×2, kalan sürenin üstüne, en çok 4 saat, günde 6. Gerçek zamanda işler (oyun kapalıyken de); işletme, maaş ve kira gelirini ve çevrimdışı kazancın o süreye düşen kısmını ikiye katlar; elle kazançları değiştirmez.
+- **Biraz yardım:** satın alma düğmesinin altında, eksik tutar fiyatın %10'undan ve 5 dakikalık otomatik gelirden azken çıkar; tutar düğme çıktığında sabitlenir, aşağı saymaz.
+- **Tören ve hayat anı hediyesi:** oyun içi gelirin 10 dakikası (`STORY_GIFT_SECONDS`), İşçi'den itibaren; Gündelikçi'de ve lüks anlarında yok; albümden tekrar oynatmada yok; görüldü işaretiyle aynı adımda ödenir (iki kez ödenmez).
+- **Çevrimdışı +%30, ×2 değil** (karar 2026-10-13): ×2 çevrimdışı ağırlıklı ekonomide oyunu yarıya indiriyordu.
+- **Reklam yoksa:** "Şu an reklam yok", ödül verilmez. Günlük sayaçlar telefonun takvim gününe göre sıfırlanır. Analitik `ad_offer`, `ad_watch`.
 
 ## 5. IAP ürünleri
 
@@ -119,16 +106,7 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 
 **Mevcut 8 ürün (v1):** 4 para + 4 elmas paketi (`com.prestigelife.*`). v2'de elmas yok. Önerim: bu ürünleri Play Console'da pasifleştirmek, yeni ürünleri yeni kimliklerle açmak. Daha önce satın alanların hakları (tüketilir ürünlerdi) açısından sorun çıkmıyor.
 
-**Ücretli aksesuarların dengesi (simülatör, 2026-10-15; sınıf tasmaları dahil):** ücretli aksesuarlar statü toplamına girmez, ayrı çarpandır ([game-design §4.5](./game-design-v2.md)). Oynanan süreyle:
-
-| Profil | Milyarder | Multimilyarder | En Zengin | Fark (En Zengin) |
-| --- | --- | --- | --- | --- |
-| Bağlı, reklamsız | 1 sa 22 dk (2. gün 23:00) | 4 sa 42 dk (7. gün) | 10 sa 21 dk (15. gün) | — |
-| + fular (+%10) | 1 sa 22 dk | 4 sa 17 dk (7. gün) | 9 sa 25 dk (14. gün) | −%9 |
-| + reklam | 1 sa 8 dk | 3 sa 21 dk (5. gün) | 7 sa 8 dk (11. gün) | −%31 |
-| + reklam + fular + yakut (+%50) | 53 dk (2. gün) | 2 sa 11 dk (4. gün) | 4 sa 28 dk (7. gün) | −%57 |
-
-Fular küçük ve güvenli. Yakut %50 reklamla birleşince zirveyi yarıdan kısa sürede getiriyor ve ömrün kalan ~12 saati boş kalıyor. Yakutu %25'e indirmek bu oyuncuyu yalnız bir gün geciktiriyordu (7. gün yerine 8. gün), ürünü ise zayıflatıyordu. **Karar (kullanıcı, 2026-10-15): yakut %50 kalır, çözüm zirve sonrası içerik** (plan 2.12, Faz 2; adaylar [discussion-notes.md §2](./discussion-notes.md)). Simülatörde `RUBY_COLLAR_TRIAL`; ürün kodlanınca `config/iap.ts`'e taşınır.
+**Ücretli aksesuarlar:** statü toplamına girmez, ayrı çarpandır ([game-design §4.5](./game-design-v2.md)). Yakut %50'de kalır (karar 2026-10-15, kullanıcı: ücretli bonus sonradan düşürülemez). Eski ekonomide reklam + fular + yakut oyuncusu zirveye yarı sürede varıyordu; yeni ekonomide (1. nesil Milyarder'de biter) ödeyen profiller IAP 2. adımla birlikte simülatörde yeniden ölçülecek (`RUBY_COLLAR_TRIAL`).
 
 ## 6. Oyunda nerede görünecek?
 
@@ -161,12 +139,11 @@ Fular küçük ve güvenli. Yakut %50 reklamla birleşince zirveyi yarıdan kıs
 
 ## 8. Uygulama sırası
 
-1. **Ekonomi ayarı (discussion-notes §4) ile birlikte:** ✅ reklam ödülleri ve "reklam izleyen" profili simülatörde (2026-10-12; sonuç §4 sonunda). ✅ 2026-10-15: "fular" ve "reklam + fular + yakut" profilleri (§5 sonunda).
-2. **Reklam altyapısını v2'ye taşı:** ✅ 2026-10-08: `src/game/runtime/ads.ts` (AdMob 8.2.1, UMP + ATT, web'de sahte reklam, Ayarlar'da gizlilik seçenekleri). Ayrıntı: [mobile-ad-integration.md](./mobile-ad-integration.md). AdMob konsolunda GDPR mesajı kullanıcı tarafından oluşturulacak.
-3. **Reklam yerleri 1–4:** ✅ 2026-10-12 (çevrimdışı +%30, Şans ×2, hızlandırıcı, biraz yardım).
-4. **IAP, 1. adım:** ✅ kod 2026-10-14: Rahat Paket ve Yeni Başlangıç Paketi, geri yükleme (aşağıda "IAP nasıl çalışıyor"). Mağaza tarafı kullanıcıda. **2. adım:** Yakut Tasma (kalıcı +%50) ve Gece Vardiyası; ödeyen oyuncu simülasyonu yapıldı (§5), sıra Faz 2'de zirve sonrası içerikten sonra. v1 ürünleri pasifleştirilir.
-5. **Analitik:** ✅ kod tamam (plan 1.14; `ad_watch`, sınıf atlama, oturum). Reklam teklifi ve satın alma olayları reklam yerleri ve IAP ile birlikte.
-6. **Sonra:** ✅ tören ve hayat anı hediyesi ×2 (2026-10-14); ✅ günlük ödül ×2 (2026-10-15), olay kartı ikinci şans (2.4); zorla reklam ve fiyat A/B testleri (Faz 3).
+1. ✅ **Reklam altyapısı** (2026-10-08): `runtime/ads.ts`, ayrıntı [mobile-ad-integration.md](./mobile-ad-integration.md).
+2. ✅ **Reklam yerleri:** 1–4 (2026-10-12), hediye ×2 ve günlük ×2 (2026-10-14/15), 19 yer ve kilitsiz (2026-10-21; §4).
+3. ✅ **IAP 1. adım** (2026-10-14): Rahat Paket, Başlangıç Paketi, geri yükleme (aşağıda). Mağaza tarafı kullanıcıda.
+4. **IAP 2. adım:** Yakut Tasma (kalıcı +%50) ve Gece Vardiyası (yeni çevrimdışı oranına göre yeniden yazılır); v1'in 8 ürünü pasifleştirilir.
+5. **Sonra:** zorla reklam ve fiyat A/B testleri (Faz 3, Remote Config).
 
 ### IAP nasıl çalışıyor (2026-10-14)
 
