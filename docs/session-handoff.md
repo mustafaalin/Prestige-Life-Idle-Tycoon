@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-21 · Dal: `v2-rebuild` · Son sürüm: **AAB 30** (`versionCode` 30, `versionName` 2.0; derlendi, Play'e yüklenmedi)
+Son güncelleme: 2026-10-21 (gece) · Dal: `v2-rebuild` · Son sürüm: **AAB 30** (derlendi, Play'e yüklenmedi). Bu oturumdaki her şey AAB 31'de gelecek (henüz derlenmedi).
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve Faz 2.11'de kaldırılacak. Bu belge günlük tutmaz: her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**. Kararların gerekçesi ve sayılar ilgili belgededir; burada yalnızca özet ve yapılacaklar durur.
 
@@ -29,31 +29,45 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 
 - **Ekonomi (yeniden kuruldu 2026-10-20/21):** gerçekçi takvim (1 ay = 80 sn, 1 yıl = 16 dk, gerçek maaş ve fiyatlar); 14 işletme, her biri 15 seviye (üç görünüm × 5, yeni binada tur ×2) + şube, tur 1 sn; 104 meslekli ağaç (54 satır, satırda 2 iş, sekmeler sırayla, ustalık 3–8 ay, iş değişimi şovu), 24 kurs, 4 meslek açan eşya; 12 ev (kirala → satın al → kiraya ver), 12 araç, 7 kıyafet, 4 lüks (gelir bonusu yok); Şans'ın tasmaları (%2 / %4 / %6); çevrimdışı %20, en çok 1 sa; 8 sınıf, 1. nesilde Milyarder'e kadar (~70 yaş). Kayıt şeması 3 (2026-10-21: 10 → 15 işletme seviyesi).
 - **Hikâye:** önsöz (6 kare), 5 sınıf töreni (Gündelikçi → Milyarder; Multimilyarder ve En Zengin torunla), annenin mesajları, hayat anları (25, 28, 31, 63, 70), 4 lüks anı, 50 olay kartı (üç tür, yönetici kartları işletmenin görünümüne bağlı, deste düzeni), Zenginler Listesi, aile albümü, 60+ dede görünümü. 80'de kahraman kalır: bir kez "Torununun hikâyesi yakında" kartı, oyun sürer. Burak hikâyesi, devir, miras, Aile sekmesi ve Lumen kodda duruyor ama kapalı (`config/content.ts`).
-- **Ana ekran:** oturulan ev ve önündeki araç, kahraman, Şans, yerden toplama (Orta Sınıf'ta biter), hedef rozeti, gelir dökümü, hayaller panosu, ×2 hızlandırıcı, Şans'ı çağır, fırsat balonu; alt menüde İşletmeler, Kariyer, Alışveriş, Yatırım. Rıza Amca rehberi.
-- **Para:** 19 ödüllü reklam yeri, kilitsiz (reklam izleyen Milyarder'e %47 erken); Mağaza: Rahat Paket $7,99 (reklamsız), Başlangıç Paketi $2,99 (ilk 3 gün $1,49); geri yükleme; Play puanlama penceresi.
-- **Görseller:** 1. neslin bütün görselleri oyunda; son gelen 91'i (14 işletmenin üçer görünümü, 4 yeni yönetici, 51 meslek ve 4 eşya ikonu) 2026-10-21'de bağlandı.
+- **Ana ekran:** oturulan ev ve önündeki araç, kahraman, Şans, yerden toplama (Orta Sınıf'ta biter), hedef rozeti (bitince "Ödülü al" ve yanında ×3 reklamı), gelir dökümü, hayaller panosu, ×2 hızlandırıcı, Şans'ı çağır, para yağmuru (30 sn geri sayımlı), fırsat balonu, günde bir teklif kartı; ödüller yeşil banknotlarla bakiyeye uçar; alt menüde İşletmeler, Kariyer, Alışveriş, Yatırım. Rıza Amca rehberi.
+- **İşletmeler ekranı (yeni tasarım, 2026-10-21):** kısa satır: resme dokun = çalıştır, ad, seviye adı · N/15, aylık gelir, üç parçalı aşama çubuğu (tezgâh / dükkân / mağaza), tek ana düğme (Geliştir / Yeni bina ×2 / Aç / Şube) ve eksik tutar ya da yardım reklamı; yöneticisi olmayan satırın altında yönetici şeridi (portre, ad, "İşe al"; para yetince altın); satıra dokununca ayrıntı penceresi (tur kazancı, sıradaki seviye, yönetici, şubeler, reklam teklifleri). Kod `ui/businesses/BusinessCard.tsx`, `BusinessDetails.tsx`, `StageBar.tsx`.
+- **Para:** 19 ödüllü reklam yeri, kilitsiz (reklam izleyen Milyarder'e %47 erken); Mağaza afiş tarzında (Sınırlı teklif, Bedava, Hep senin): Başlangıç Paketi $2,99 (ilk 3 gün $1,49; ×2 4 sa, 1 sa gelir, fular +%10), Rahat Paket $7,99 (reklamsız, 3 sa gelir, ×2 2 sa; simgesi altın yasak çemberli reklam bileti); geri yükleme; Play puanlama penceresi.
+- **Görseller:** 1. neslin bütün görselleri oyunda, GPT'de bekleyen iş yok. 2026-10-21'de bağlananlar: 41 meslek ikonu (104'ün hepsi), önsözün 3D kareleri, dedenin okşama pozu (Şans doğru boyda), Sahil Malikânesi v2 (ev geride), fularlı okşama pozları, McLaren tarzı Süper Otomobil; 11 aracın tekerlek altındaki gri zemin temizlendi (`scripts/vehicle-ground.py`).
 - **Sahne panosu (DEV, 2026-10-21):** `npm run dev:v2` → `/scene-board.html`; ilk hayatta görülebilen her ev, araç, kıyafet ve tasma (`ui/scene/sceneCombos.ts`, şu an 84 sahne) telefon boyunda, altında yorum kutusu; yorumlar `scene-notes.json`'a (git dışı) yazılır, Claude oradan okur. İlk turun yorumlarıyla poz boyları, ev başına araç yeri ve üç aracın lastik altı düzeltildi; ayak altındaki gölge kaldırıldı (kahramanı havada gösteriyordu).
 - **Altyapı:** kayıt Preferences'ta, Android geri tuşu, güvenli alanlar, yalnız dikey (tablette ortada dikey sütun), yerel bildirimler, Firebase Analytics ve Crashlytics (JS hataları ölümcül olmayan rapor, çizilemeyen ekranda yeniden başlat), ses ve müzik, TR + EN.
 
 ## Sıradaki
 
-1. **Meslek ağacı (E7, [career-redesign.md](./career-redesign.md)):** veri, kurallar, ağaç ekranı, iş değişimi şovu, "Usta oldun!" ve 104 mesleğin ikonu oyunda (2026-10-21). 7 ara meslek ve maaş eğrisi onaylandı ([career-redesign.md §8](./career-redesign.md)).
-2. **İşletmeler ekranı yeni tasarımda (2026-10-21):** kısa satır (resme dokun = çalıştır, tek ana düğme, üç parçalı aşama çubuğu, yöneticisi olmayan satırda yönetici şeridi), satıra dokununca ayrıntı penceresi (`ui/businesses/BusinessDetails.tsx`). Telefonda bakılacak.
-3. **AAB 30'u telefonda denemek** (aşağıdaki liste). Play'deki son sürüm AAB 29: 2026-10-15'ten sonraki her şey (ekonominin yeniden kurulması dahil) ilk kez AAB 30'la telefona gidiyor. Şema 2 yüzünden AAB 29 kaydı bir kez sıfırdan başlar (mağaza alımları kalır); yayından sonra bu bir daha yapılmaz.
-4. **Telefon bulgularına göre düzeltme**, özellikle reklam düğmesi kalabalığı (bir işletme kartında 3–4 düğme görünebiliyor) ve yeni ekonominin ilk saati.
-5. **Lansman hazırlığı:** kapalı test 14 günü doldu (~2026-10-20) → Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi.
-6. **Sonra:** IAP 2. adım (Yakut Tasma, Gece Vardiyası), Remote Config, Crashlytics, oyuncuyu tutma önerileri ([discussion-notes.md §2](./discussion-notes.md)). 2. nesil (Ada, Lumen, devir) yayından sonra.
+1. **Kullanıcının kararı bekleniyor:** şişe değeri $3 (Sokak) olunca simülatörün "ilk tur iki şişeden fazla" kontrolü bozuldu (Çiçek Tezgâhı'nın en düşük turu $5 < $6). Seçenekler: Sokak $3 kalır ve Çiçek Tezgâhı'nın ilk turu artar (Claude'un önerisi), ya da Sokak $2'ye döner.
+2. **AAB 31:** karar gelince derlenir (`versionCode` 31), `~/Downloads/prestige-life-v2-31.aab`; telefon testi aşağıdaki listeyle.
+3. **Telefon bulgularına göre düzeltme.**
+4. **Lansman hazırlığı:** Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi; mağaza ekran görüntülerini yeni ekranlarla yenilemek.
+5. **Sonra (lansmandan sonra):** IAP 2. adım (Yakut Tasma, Gece Vardiyası), Remote Config, oyuncuyu tutma önerileri ([discussion-notes.md §2](./discussion-notes.md)), 2. nesil.
 
-## Telefonda test listesi (AAB 30)
+## 2026-10-21 oturumunun kararları (kullanıcı)
+
+Hepsi yapıldı ve commit'lendi; ayrıntıları ilgili belgelerde. Yeni oturum bunları yeniden sormaz, yeniden açmaz.
+
+- **Sahne:** sahne panosu (`/scene-board.html`) ile yorum turu; ayak altındaki gölge kalktı (kahramanı havada gösteriyordu); poz boyları düzeltildi; ev başına araç yeri (E3, E5 öne; E8, E12 geri; E11 için ev yeniden çizildi); Spor Coupe 1,42 m; Süper Otomobil yeni çizim.
+- **Hikâye:** otogardaki söz artık "eski evimizi geri alacağım, pastanı orada keseriz"; Orta Sınıf töreninde ev geri alınır, pasta gelir, anne yanında ("Sen bana hep yettin"); saray sözü kalktı. Milyarder töreninde Bülent Bey emekliye ayrılır, otellerin onur başkanı olur; metinlerde kimsenin yaşı söylenmez.
+- **Olay kartları:** 50 kart; her yöneticinin 3 kartı işletmenin görünümüne bağlı (yeni görünüm yeni kartı ekler, eskiler destede kalır); üç tür (sağlamcı/cesur, teşekkür, iki eşit seçenek); deste düzeni (hepsi çalmadan tekrar yok); **günlük sınır yok**.
+- **Mağaza:** afiş tarzı (referans Idle Guy); ödüller miktarla ("+$277 Bin"); Bedava bölümü (sahnedeki reklamlar); Rahat Paket'e 3 saatlik gelir; reklamsız simgesi kodla (yasak çemberi); her gün bir teklif kartı ana ekranda (alınmamış paket, sırayla; kart satın almaz, Mağaza'yı açar).
+- **Ödül hissi:** uçan para yeşil banknot (bozuk para yok); para yağmurunda bütün yerler dolar, iki kat sık; şişe $3 / $20 / $50; hedef rozetinde ×3 reklamı "Ödülü al"ın yanında.
+- **İşletmeler ekranı:** onaylanan taslak gerçek oyunda (yukarıda).
+- **Crashlytics** eklendi; Firebase'de kullanıcının yapacağı ayar yok (istenirse Crashlytics sayfası bir kez açılır).
+- **Yayın derlemesi** DEV menüsünü kendisi kapatır (`build:v2`).
+
+## Telefonda test listesi (AAB 31)
 
 Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV sürümü, ayrı uygulama "Prestige DEV"). Bulgular gelince madde buradan silinir.
 
 **Daha önce denendi, sorun yok (AAB 28–29):** güncellemede kayıt, mağaza ve yerel para birimi, Başlangıç Paketi'nin ödülleri, Rahat Paket'le "Hemen al ×2", kıyafetlerin sınıf kilidi, akıcılık, TR/EN metinler, bildirimler.
 
 1. **İlk saat:** el ilanı → bulaşıkçı → tezgâh, şişe ve tezgâh turunun hissi, "Çalıştır", ilk yönetici (Rıza Amca), hedef rozeti ve "Git".
-2. **İşletme kartı:** 15 seviye noktası, "Geliştir", 6. ve 11. seviyede yeni bina (altın düğme, ×2) ve "büyüdü!" şovu, 1 sn'lik turda "+$" baloncuğu, şube satırı; yeni görsellerin kartta boyu; reklam düğmelerinin kalabalığı.
+2. **İşletmeler ekranı (yeni):** kısa satırlar, resme dokunup çalıştırma, aşama çubuğu, yönetici şeridi ve "İşe al", ayrıntı penceresi, yeni bina şovu, şube; rehberin işaret ettiği düğmeler.
 3. **Kariyer:** sekmeli ağaç (telefon genişliğinde kutuların dizilişi, çizgiler), şart penceresi ve "Git", ustalık halkası, kurs başlatma, eşya alıp meslek açma.
-4. **Reklamlar:** 19 yerin düğmeleri, gerçek test reklamı, Rahat Paket'le reklamsız ödül, Şans'ı çağır, fırsat balonu, bozuk para yağmuru.
+4. **Reklamlar ve mağaza:** 19 yerin düğmeleri, gerçek test reklamı, Rahat Paket'le reklamsız ödül, Şans'ı çağır, fırsat balonu, para yağmuru (yoğunluk, 30 sn geri sayım), hedefte ×3; yeni mağaza, Bedava bölümü, günlük teklif kartı; yeşil banknot uçuşu.
+10. **Yeni içerik:** 3D önsöz, yeni olay kartları (teşekkür ve seçenek kartları), fularlı okşama pozu, Orta Sınıf'ta pasta, Crashlytics deneme çökmesi (DEV).
 5. **Sınıflar:** Gündelikçi → İşçi → Orta Sınıf (tasma kartı, toplamanın bitişi, olay kartları, yatırım) → Milyoner (ilk kendi ev, gümüş tasma, puanlama penceresi). Milyarder ve 80 yaş DEV sürümüyle.
 6. **Yaşa bağlı anlar:** 25 / 28 / 31, 60+ dede görünümü, 63 ve 70, 80'de "Torununun hikâyesi yakında".
 7. **Günlük ödül ve çevrimdışı kartı:** ertesi gün, ×2 reklamı, kapat-aç sonrası aynı tutar.
@@ -63,15 +77,25 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
 ## Kullanıcının yapacakları
 
 - **Play Console:**
-  - AAB 30'u dahili teste yüklemek (`~/Downloads/prestige-life-v2-30.aab`); sonra kapalı test ve üretim erişimi başvurusu.
+  - AAB 31 derlenince dahili teste yüklemek (AAB 30 hiç yüklenmedi, atlanabilir); sonra üretim erişimi başvurusu.
   - Mağaza sayfası: web sitesi `https://mathgamesstudio.com` (AdMob `app-ads.txt`'yi buradan okur), gizlilik politikası `https://mathgamesstudio.com/games/prestige-life/privacy`.
   - Başlangıç Paketi açıklamasına fuların bonusu (metin [monetization-v2.md §8](./monetization-v2.md)).
   - Veri güvenliği beyanı v2'ye göre ([monetization-v2.md §7](./monetization-v2.md)).
   - v1'in 8 ürününü pasifleştirmek.
   - Mağaza görselleri `~/Downloads/play-store-v2/` (6 ekran × TR/EN, özellik grafiği, ikon 512). Ekran görüntüleri eski ekonomiden; yeni işletme kartı ve iş panosuyla yenilenebilir (kaynak `art/store-v2/`, `capture.mjs` / `compose.mjs` / `feature.mjs`; `playwright-core` projede yok, yerel bir kopya gerekir).
 - **Seçimler:** uygulama ikonu (A, B, C adayları) ve özellik grafiği (C, D) ([art-prompts-v2.md §1](./art-prompts-v2.md)). GPT'de bekleyen başka iş yok (2026-10-21 teslimi oyunda: önsözün 3D kareleri, dedenin okşama pozu, Sahil Malikânesi, fularlı okşama pozları; [archive/art-prompts-2026-10-21.md](./archive/art-prompts-2026-10-21.md)).
+- **`npm run backup`:** `art/` klasörüne 2026-10-21'de yeni GPT görselleri geldi; Drive'a yedeklenmedi.
 - **AdMob:** Play'de web sitesi girildikten sonra app-ads.txt doğrulaması (AdMob → Uygulamalar); Ayarlar → Test cihazları'na telefon.
 - **Oyuncu gözlemi:** 6–8 tanıdıkla (kapalı test verisi çoğunlukla kendi hesapların).
+
+## Çalışma kuralları (kullanıcı, 2026-10-21: konuşulanlar yarım kalıyor, aynı şeyi birkaç kez söylemek zorunda kaldım)
+
+- **Her istek bir yere yazılır.** Kullanıcının bir mesajındaki her madde ya aynı turda yapılır ya da bu belgenin "Sıradaki" bölümüne (karar bekliyorsa discussion-notes'a) yazılır; hiçbiri sadece sohbette kalmaz.
+- **Karar verilince belgeye geçer:** yukarıdaki "oturumun kararları" bölümü ve ilgili belge (tasarım, hikâye, monetizasyon) aynı commit'te güncellenir.
+- **"Yaptım" demeden önce:** commit'li ve ekranda görülmüş olmalı (tarayıcıda ya da telefonda); kullanıcıya nerede göreceği söylenir (geliştirme sunucusu mu, hangi AAB).
+- **Zaten var olan bir şey istenirse** (ör. para yağmurunun geri sayımı) bunu açıkça söyle ve nerede olduğunu göster.
+- **Doğrulama komutu `npm run typecheck`**; `npx tsc -p .` hiçbir dosyayı denetlemiyor (kök tsconfig boş, 2026-10-21'de fark edildi).
+- **Oturum sonunda** bu belge yeniden yazılır: Sıradaki, kararlar, test listesi güncel.
 
 ## Kurallar
 
