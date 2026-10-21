@@ -6,14 +6,12 @@ Son güncelleme: 2026-10-21 (ekonominin yeniden kurulmasından sonra sadeleştir
 
 ## 0. Telefon testi (2026-10-21, kullanıcı; inceleme sürüyor)
 
-Kullanıcının telefonda bulduğu her şey burada; yapılan madde ilgili belgeye taşınır ve buradan silinir.
+Kullanıcının telefonda bulduğu her şey burada; yapılan madde ilgili belgeye taşınır ve buradan silinir. Yapıldı (2026-10-21): şişeler menünün üstünde, Şans alınana kadar bekliyor, "kendini öder" kalktı, kampanya kartta görünüyor, uzun seviye adı taşmıyor.
 
-**Kayıt (öncelik):** güncellemeden sonra oyun baştan başladı. Neden: ekonomi yeniden kurulurken şema 1 → 2 geçişi bilinçli tek seferlik sıfırlamaydı (`storage.ts` `migrate`, eski kayıt `prestige_life_v2_pre_rebuild` altında duruyor). Kullanıcı tekrar hatırlattı: **yayından sonra hiçbir güncelleme ilerlemeyi silmez**. Öneri: farklı sürümlerden örnek kayıtlarla `npm run savecheck` (her şemanın kaydı açılınca para, sınıf, işletmeler, iş korunuyor mu); yayından önce şema 2 → 3 sıfırlaması bir daha yapılmayacak.
+**Kayıt (öncelik):** güncellemeden sonra oyun baştan başladı. Neden: ekonomi yeniden kurulurken şema 1 → 2 geçişi bilinçli tek seferlik sıfırlamaydı (`storage.ts` `migrate`, eski kayıt `prestige_life_v2_pre_rebuild` altında duruyor). Kullanıcı tekrar hatırlattı: **yayından sonra hiçbir güncelleme ilerlemeyi silmez**. `npm run savecheck` kuruldu (session-handoff "Kayıt uyumluluğu"); sıfırlama bir daha yapılmaz.
 
 **Sahne**
-- Şişeler alttaki düğmelerin arkasında kalıyor (tıklanıyor ama görsel olarak hatalı; başka cihazlarda daha kötü olabilir).
 - Bazı evlerin önünde araçlar çok büyük: her ev × araç için ayrı yerleşim (sonra, tek tek bakılacak).
-- Şans bulduğu şeyle gelince havlama sesi ne olduğunu anlatmıyor; Şans bir süre durup gidiyor, başka ekrandaki oyuncu ödülü kaçırıyor. Kullanıcı: alınana kadar beklesin.
 
 **Kariyer**
 - Süre şartları çakışıyor: aynı işten 6 ve 12 ay isteyen iki iş var (bulaşıkçı → garson 6, aşçı 12; mağaza satış danışmanı → satış temsilcisi 12, mağaza müdürü 36). 10 ayda geçen oyuncu 12 ay isteyen işe bir daha giremiyor (kurallar eski işe dönmeye izin veriyor ama ekran daha düşük maaşlı işi göstermiyor). Çok iş "El ilanında 6 ay" istiyor.
@@ -27,11 +25,8 @@ Kullanıcının telefonda bulduğu her şey burada; yapılan madde ilgili belgey
 - Dallanma kalırsa dalları gösteren bir harita (referans `jobs.jpeg`); gerekirse meslek sayısı artar. Hikâyeye uygun olan yapı seçilecek.
 
 **İşletmeler**
-- "Kampanya ×2 15 dk" reklamının ne yaptığı görünmüyor (o işletmenin turları 15 dk ×2 ödüyor ama kartta iz yok).
-- "Kendini 3 yılda öder" yazısı kalksın; maliyet kalsın.
 - Seviyeler 10 (yeni görünüm 8 ve 10'da): eşit aşamalar olsun, 5 + 5 ya da 6 + 6; her aşamanın son seviyesinde "yeni binaya geçiş" bilgisi ve belirgin gelir artışı.
 - Bütün turlar 1 sn; her saniye "+$8" gibi bir kabarcık (yeşil banknot ikonuyla) çıkıp söner. Yöneticiliyse her saniye, değilse "Çalıştır"a basınca.
-- Kahve Arabası'nda "Şemsiye ve tabureler" düğmesi uzun, "Yönetici" düğmesi ekrandan taşıyor: düğme satırı dar ekranda düzgün sarılmalı.
 
 **Sınıf ve eşyalar**
 - İşçi Sınıfı'na çok hızlı geçildi, ev ödülü geldi; yalnız bisiklet varken arka arkaya modern hatchback'e kadar 4 araç alındı. Ya sınıf geçişi yavaşlasın ya önceki araçlar sırayla alınsın ya da başka bir yol.
