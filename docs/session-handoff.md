@@ -38,7 +38,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 ## Sıradaki
 
 1. **Meslek ağacı (E7, [career-redesign.md](./career-redesign.md)):** veri, kurallar, ağaç ekranı, iş değişimi şovu, "Usta oldun!" ve 104 mesleğin ikonu oyunda (2026-10-21). 7 ara meslek ve maaş eğrisi onaylandı ([career-redesign.md §8](./career-redesign.md)).
-2. **İşletmeler ekranının tasarım incelemesini konuşmak** ([discussion-notes.md §0 "İşletmeler ekranı"](./discussion-notes.md)): kullanıcı yeni oturumda konuşmak istedi; önerilen ilk adım tıklanabilir taslak.
+2. **İşletmeler ekranı yeni tasarımda (2026-10-21):** kısa satır (resme dokun = çalıştır, tek ana düğme, üç parçalı aşama çubuğu, yöneticisi olmayan satırda yönetici şeridi), satıra dokununca ayrıntı penceresi (`ui/businesses/BusinessDetails.tsx`). Telefonda bakılacak.
 3. **AAB 30'u telefonda denemek** (aşağıdaki liste). Play'deki son sürüm AAB 29: 2026-10-15'ten sonraki her şey (ekonominin yeniden kurulması dahil) ilk kez AAB 30'la telefona gidiyor. Şema 2 yüzünden AAB 29 kaydı bir kez sıfırdan başlar (mağaza alımları kalır); yayından sonra bu bir daha yapılmaz.
 4. **Telefon bulgularına göre düzeltme**, özellikle reklam düğmesi kalabalığı (bir işletme kartında 3–4 düğme görünebiliyor) ve yeni ekonominin ilk saati.
 5. **Lansman hazırlığı:** kapalı test 14 günü doldu (~2026-10-20) → Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi.

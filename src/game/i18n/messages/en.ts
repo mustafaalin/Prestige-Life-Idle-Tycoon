@@ -413,6 +413,16 @@ export const en = {
     branchCapReached: 'Branch limit · {cap} at {class}',
     branchCapUnlimited: 'Branch limit · no limit at {class}',
     branchCapFull: 'At limit',
+    autoShort: 'AUTO',
+    withManagerShort: 'with a manager',
+    newBuildingShort: 'New building',
+    branchShort: 'Branch',
+    hire: 'Hire',
+    managerShort: 'Runs it for you, earns while you are away',
+    missing: '{amount} short',
+    nextLevel: 'Next level',
+    adOffers: 'With an ad',
+    adOffer: 'An ad offer is waiting',
   },
   managers: {
     'restaurant': {

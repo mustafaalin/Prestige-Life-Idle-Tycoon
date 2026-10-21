@@ -412,6 +412,16 @@ export const tr: Messages = {
     branchCapReached: 'Şube sınırı · {class} olunca {cap}',
     branchCapUnlimited: 'Şube sınırı · {class} olunca sınırsız',
     branchCapFull: 'Sınırda',
+    autoShort: 'OTO',
+    withManagerShort: 'yöneticiyle',
+    newBuildingShort: 'Yeni bina',
+    branchShort: 'Şube',
+    hire: 'İşe al',
+    managerShort: 'Senin yerine çalıştırır, sen yokken de kazanır',
+    missing: '{amount} eksik',
+    nextLevel: 'Sıradaki seviye',
+    adOffers: 'Reklamla',
+    adOffer: 'Reklam teklifi var',
   },
   managers: {
     'restaurant': {
