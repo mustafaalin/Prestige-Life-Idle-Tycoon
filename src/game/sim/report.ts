@@ -78,9 +78,10 @@ export function checkTargets(result: SimResult) {
 
 /**
  * A business's first run must pay at least this many bottles (decided 2026-10-20: one stand's "Run"
- * must clearly beat a bottle; the Flower Stand pays ~12).
+ * must clearly beat a bottle). Since runs take one second (2026-10-21) a run is one tap, like a bottle,
+ * so a tap on "Run" must pay at least two bottles' worth; the Flower Stand pays 2.5.
  */
-export const MIN_RUN_BOTTLES = 5;
+export const MIN_RUN_BOTTLES = 2;
 /** Businesses should earn at least this share of income (bottles excluded) early in the first life. */
 export const MIN_BUSINESS_SHARE = 0.5;
 

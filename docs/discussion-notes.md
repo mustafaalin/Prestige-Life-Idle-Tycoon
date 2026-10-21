@@ -17,7 +17,6 @@ Kullanıcının telefonda bulduğu her şey burada; yapılan madde ilgili belgey
 
 **İşletmeler**
 - Seviyeler 10 (yeni görünüm 8 ve 10'da): eşit aşamalar olsun, 5 + 5 ya da 6 + 6; her aşamanın son seviyesinde "yeni binaya geçiş" bilgisi ve belirgin gelir artışı.
-- Bütün turlar 1 sn; her saniye "+$8" gibi bir kabarcık (yeşil banknot ikonuyla) çıkıp söner. Yöneticiliyse her saniye, değilse "Çalıştır"a basınca.
 
 **Sınıf ve eşyalar**
 - İşçi Sınıfı'na çok hızlı geçildi, ev ödülü geldi; yalnız bisiklet varken arka arkaya modern hatchback'e kadar 4 araç alındı. Ya sınıf geçişi yavaşlasın ya önceki araçlar sırayla alınsın ya da başka bir yol.

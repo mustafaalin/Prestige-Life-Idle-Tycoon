@@ -39,9 +39,9 @@ if (args.includes('--config')) {
       `  ${b.name.padEnd(20)} ${formatMoney(first.cost).padStart(8)}  ${formatMoney(first.revenue).padStart(7)} → ${formatMoney(last.revenue).padStart(7)}  ${monthly(first.revenue).padStart(7)} → ${monthly(last.revenue).padStart(7)}  ${formatDuration(payback).padStart(8)}  ${formatMoney(b.branchCost).padStart(8)}  ${formatMoney(b.managerCost)}`
     );
   }
-  console.log(`Careers: ${CAREERS.length} jobs | name | cost | salary/month`);
+  console.log(`Careers: ${CAREERS.length} jobs | name | row | mastery | starting salary/month`);
   for (const c of CAREERS) {
-    console.log(`  ${c.name.padEnd(30)} ${formatMoney(c.cost).padStart(8)}  ${formatMoney(c.salaryPerSecond * SECONDS_PER_MONTH).padStart(8)}/mo`);
+    console.log(`  ${c.name.padEnd(30)} ${String(c.level).padStart(3)}  ${String(c.masteryMonths).padStart(3)} mo  ${formatMoney(c.salaryPerSecond * SECONDS_PER_MONTH).padStart(8)}/mo`);
   }
 }
 

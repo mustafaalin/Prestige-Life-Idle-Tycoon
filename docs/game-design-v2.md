@@ -66,28 +66,29 @@ Bir işletme tek kart: **açılır, seviye seviye büyür, son seviyede şube a�
 - **10 seviye, üç aşama:** 1–3 işi kurmak (ucuz, hızlı döner), 4–7 verimli çalışmak, 8–10 ölçeği büyütmek. Her seviyenin adı var (`businessLevels`, TR/EN). Görünüm 8. seviyede (dükkân) ve 10. seviyede (mağaza, merkez) değişir; o an kısa bir şov oynar (2026-10-21, `ui/businesses/BusinessShow.tsx`): eski görsel parlar, beyaz bir patlama, yeni görsel büyüyerek gelir, seviye adı kurdelede, konfeti, tur geliri sayarak artar, `grow` sesi. Sıradan seviyede görselin üstünden ışık geçer, kazanç yukarı süzülür, `levelUp` sesi her seviyede biraz daha tiz çalar. Yönetici alımı da şovdur: spot ışığı, yönetici sahneye girer, adı kurdelede, ilk cümlesi yazılır, "OTOMATİK" mührü vurulur, `hire` sesi. Dokunmak şovu sonuna atlatır; azaltılmış harekette doğrudan son kart.
 - **Kart:** seviye adı ve "Seviye n/10", 10 nokta (yeni görünümün başladığı seviye büyük nokta), "Seviye 8: Küçük dükkân" ipucu, "Geliştir" düğmesinde sıradaki seviyenin adı ve fiyatı, altında "Tur $130 → $200" (geri dönüş süresi 2026-10-21 kaldırıldı, kullanıcı). Açılmamış işletmede "Aç" ve "Açınca +$X/ay".
 - **Şube:** son seviyede "Yeni şube aç". Şube başına gelir son seviyeninki kadar; ilk şube bütün seviyelerin toplamı kadar (sıfırdan bir mağaza), sonraki her biri ×1,4. Sınır sınıfla: açılış sınıfında 1, sonra 2, 4, 8, 16, 32, sonra sınırsız; tören "İşletmelerin daha çok şube açabilir" der. Ucuz işletmenin şubesi oyunun en iyi yatırımı olmasın diye (×1,15 ve son seviye fiyatında bot Milyoner'e kadar 30 çiçekçi açıyordu).
+- **Tur 1 saniye** (2026-10-21, kullanıcı; önce 5–15 sn): her tur saniyelik geliri öder, gelir değişmedi. "Çalıştır"a her basış bir tur; yöneticili işletme her saniye öder. Her ödenen turda işletme resminin üstünden banknot ikonlu "+$5" baloncuğu yükselip söner (`ui/businesses/RunBubbles.tsx`; kartta en çok 3).
 - **Yönetici:** açılışın 4 katı (Rıza Amca $5K), bütün şubeleri otomatik ve çevrimdışı çalıştırır. **Yöneticisiz işletme yalnız "Çalıştır"la tek tur döner ve aylık gelire sayılmaz**; yönetici gelince aylığa girer. Her işletmenin yöneticisi bir karakter (story-v2 §3).
 - **Sınıfla açılış:** Çiçek Tezgâhı Sokak, Kahve Arabası Gündelikçi, Fırın ve Oto Yıkama İşçi, Mini Market, Restoran ve Güzellik Salonu Orta Sınıf, Emlak Ofisi, Lojistik, İnşaat ve Fabrika Milyoner, Otel, Medya ve Teknoloji Milyarder.
 - **Görseller:** 14 işletmenin her birinin 3 aşama görseli ve yöneticisi oyunda (2026-10-21; `public/assets/businesses/v2/{id}.webp`, `{id}-2.webp`, `{id}-3.webp`; komutlar [archive/art-prompts-businesses.md](./archive/art-prompts-businesses.md)). Lumen'de işletme başına tek görünüm var; dört yeni işletme orada eski şehrin görseli ve yöneticisiyle görünür.
 
-| İşletme | Açılış | Tur, 1. → 10. sv | Aylık, 1. → 10. sv | Açılışın geri dönüşü | İlk şube | Yönetici |
+| İşletme | Açılış | Tur (1 sn), 1. → 10. sv | Aylık, 1. → 10. sv | Açılışın geri dönüşü | İlk şube | Yönetici |
 | --- | --- | --- | --- | --- | --- | --- |
-| Çiçek Tezgâhı | $1K | $25 → $400 | $400 → $6,4K | 1,25 ay | $167K | $5K |
-| Kahve Arabası | $4K | $37 → $600 | $500 → $8K | 8 ay | $1,34M | $16K |
-| Fırın | $30K | $107 → $1,7K | $1,07K → $17K | 28 ay | $10M | $120K |
-| Oto Yıkama | $120K | $270 → $4,3K | $2,4K → $38K | 50 ay | $40M | $480K |
-| Mini Market | $400K | $625 → $10K | $5K → $80K | 80 ay | $134M | $1,6M |
-| Restoran | $800K | $909 → $14,5K | $7,3K → $116K | 110 ay | $267M | $3,2M |
-| Güzellik Salonu | $1,5M | $1,5K → $23,6K | $10,7K → $172K | 140 ay | $501M | $6M |
-| Emlak Ofisi | $3M | $2,4K → $38,8K | $17,7K → $282K | 170 ay | $1B | $12M |
-| Lojistik Deposu | $10M | $10K → $160K | $66,7K → $1,07M | 150 ay | $3,3B | $40M |
-| İnşaat Şirketi | $25M | $20,8K → $333K | $139K → $2,2M | 180 ay | $8,4B | $100M |
-| Fabrika | $60M | $46K → $743K | $286K → $4,6M | 210 ay | $20B | $240M |
-| Otel Zinciri | $150M | $105K → $1,7M | $600K → $9,6M | 250 ay | $50B | $600M |
-| Medya Şirketi | $400M | $233K → $3,7M | $1,3M → $21M | 300 ay | $134B | $1,6B |
-| Teknoloji Girişimi | $1B | $521K → $8,3M | $2,8M → $44M | 360 ay | $334B | $4B |
+| Çiçek Tezgâhı | $1K | $5 → $80 | $400 → $6,4K | 1,25 ay | $167K | $5K |
+| Kahve Arabası | $4K | $6,3 → $100 | $500 → $8K | 8 ay | $1,34M | $16K |
+| Fırın | $30K | $13 → $214 | $1,07K → $17K | 28 ay | $10M | $120K |
+| Oto Yıkama | $120K | $30 → $480 | $2,4K → $38K | 50 ay | $40M | $480K |
+| Mini Market | $400K | $62 → $1K | $5K → $80K | 80 ay | $134M | $1,6M |
+| Restoran | $800K | $90 → $1,45K | $7,3K → $116K | 110 ay | $267M | $3,2M |
+| Güzellik Salonu | $1,5M | $134 → $2,1K | $10,7K → $172K | 140 ay | $501M | $6M |
+| Emlak Ofisi | $3M | $221 → $3,5K | $17,7K → $282K | 170 ay | $1B | $12M |
+| Lojistik Deposu | $10M | $833 → $13,3K | $66,7K → $1,07M | 150 ay | $3,3B | $40M |
+| İnşaat Şirketi | $25M | $1,7K → $27,8K | $139K → $2,2M | 180 ay | $8,4B | $100M |
+| Fabrika | $60M | $3,6K → $57K | $286K → $4,6M | 210 ay | $20B | $240M |
+| Otel Zinciri | $150M | $7,5K → $120K | $600K → $9,6M | 250 ay | $50B | $600M |
+| Medya Şirketi | $400M | $16,7K → $267K | $1,3M → $21M | 300 ay | $134B | $1,6B |
+| Teknoloji Girişimi | $1B | $34,7K → $556K | $2,8M → $44M | 360 ay | $334B | $4B |
 
-Çiçek Tezgâhı'nın seviyeleri tasarlanmış tablo ($1K, $300, $600, $1,5K, $3K, $6K, $10K, $25K, $40K, $80K; tur $25 → $400); diğer 13 işletme şimdilik onun biçiminden üretiliyor (her birine kendi tablosu sonra).
+Çiçek Tezgâhı'nın seviyeleri tasarlanmış tablo ($1K, $300, $600, $1,5K, $3K, $6K, $10K, $25K, $40K, $80K; tur $5 → $80); diğer 13 işletme şimdilik onun biçiminden üretiliyor (her birine kendi tablosu sonra).
 
 ### 4.4 Meslekler ve kurslar (`config/careers.ts`, `config/courses.ts`, `core/economy/career.ts`)
 

@@ -14,6 +14,13 @@ import { SECONDS_PER_MONTH } from './life';
 const STAGE_BY_LEVEL = [0, 0, 0, 0, 0, 0, 0, 1, 1, 2];
 
 /**
+ * Every run takes one second (2026-10-21, user): "Run" pays a little each tap and a managed line pays
+ * every second, each with a "+$5" bubble over the business. A run pays what the old 5–15 s runs paid
+ * per second, so income is unchanged.
+ */
+export const RUN_SECONDS = 1;
+
+/**
  * The shape every line's ladder follows until each gets its own designed table (plan Faz E2): price
  * and money per run of each level as multiples of level 1. Taken from the Flower Stand draft
  * (docs/game-design-v2.md §4.3): cheap fast steps first, expensive big ones at the end.
@@ -28,8 +35,8 @@ export function roundNice(value: number) {
   return Math.round(value / magnitude) * magnitude;
 }
 
-function ladder(openCost: number, firstMonthly: number, cycleSeconds: number): BusinessLevelDef[] {
-  const firstRevenue = (firstMonthly / SECONDS_PER_MONTH) * cycleSeconds;
+function ladder(openCost: number, firstMonthly: number): BusinessLevelDef[] {
+  const firstRevenue = (firstMonthly / SECONDS_PER_MONTH) * RUN_SECONDS;
   return LADDER_COST.map((costShare, index) => ({
     cost: roundNice(openCost * costShare),
     revenue: roundNice(firstRevenue * LADDER_REVENUE[index]),
@@ -72,44 +79,45 @@ const stageImages = (id: string): string[] =>
 // openCost: opening the business · paybackMonths: game months level 1 takes to repay the opening
 // (bigger businesses repay slower, docs/game-design-v2.md §4.2) · openClass: the class the line opens at.
 // Fourteen lines (decided 2026-10-21).
-const LINES: { id: string; name: string; openCost: number; paybackMonths: number; cycleSeconds: number; openClass: number }[] = [
-  { id: 'flower-stand', name: 'Flower Stand', openCost: 1000, paybackMonths: 1.25, cycleSeconds: 5, openClass: 0 },
-  { id: 'coffee-cart', name: 'Coffee Cart', openCost: 4e3, paybackMonths: 8, cycleSeconds: 6, openClass: 1 },
-  { id: 'bakery', name: 'Bakery', openCost: 3e4, paybackMonths: 28, cycleSeconds: 8, openClass: 2 },
-  { id: 'car-wash', name: 'Car Wash', openCost: 1.2e5, paybackMonths: 50, cycleSeconds: 9, openClass: 2 },
-  { id: 'mini-market', name: 'Mini Market', openCost: 4e5, paybackMonths: 80, cycleSeconds: 10, openClass: 3 },
-  { id: 'restaurant', name: 'Restaurant', openCost: 8e5, paybackMonths: 110, cycleSeconds: 10, openClass: 3 },
-  { id: 'beauty-salon', name: 'Beauty Salon', openCost: 1.5e6, paybackMonths: 140, cycleSeconds: 11, openClass: 3 },
-  { id: 'real-estate-office', name: 'Real Estate Office', openCost: 3e6, paybackMonths: 170, cycleSeconds: 11, openClass: 4 },
-  { id: 'logistics-warehouse', name: 'Logistics Warehouse', openCost: 1e7, paybackMonths: 150, cycleSeconds: 12, openClass: 4 },
-  { id: 'construction', name: 'Construction Company', openCost: 2.5e7, paybackMonths: 180, cycleSeconds: 12, openClass: 4 },
-  { id: 'factory', name: 'Factory', openCost: 6e7, paybackMonths: 210, cycleSeconds: 13, openClass: 4 },
-  { id: 'hotel', name: 'Hotel Chain', openCost: 1.5e8, paybackMonths: 250, cycleSeconds: 14, openClass: 5 },
-  { id: 'media', name: 'Media Company', openCost: 4e8, paybackMonths: 300, cycleSeconds: 14, openClass: 5 },
-  { id: 'tech-startup', name: 'Tech Startup', openCost: 1e9, paybackMonths: 360, cycleSeconds: 15, openClass: 5 },
+const LINES: { id: string; name: string; openCost: number; paybackMonths: number; openClass: number }[] = [
+  { id: 'flower-stand', name: 'Flower Stand', openCost: 1000, paybackMonths: 1.25, openClass: 0 },
+  { id: 'coffee-cart', name: 'Coffee Cart', openCost: 4e3, paybackMonths: 8, openClass: 1 },
+  { id: 'bakery', name: 'Bakery', openCost: 3e4, paybackMonths: 28, openClass: 2 },
+  { id: 'car-wash', name: 'Car Wash', openCost: 1.2e5, paybackMonths: 50, openClass: 2 },
+  { id: 'mini-market', name: 'Mini Market', openCost: 4e5, paybackMonths: 80, openClass: 3 },
+  { id: 'restaurant', name: 'Restaurant', openCost: 8e5, paybackMonths: 110, openClass: 3 },
+  { id: 'beauty-salon', name: 'Beauty Salon', openCost: 1.5e6, paybackMonths: 140, openClass: 3 },
+  { id: 'real-estate-office', name: 'Real Estate Office', openCost: 3e6, paybackMonths: 170, openClass: 4 },
+  { id: 'logistics-warehouse', name: 'Logistics Warehouse', openCost: 1e7, paybackMonths: 150, openClass: 4 },
+  { id: 'construction', name: 'Construction Company', openCost: 2.5e7, paybackMonths: 180, openClass: 4 },
+  { id: 'factory', name: 'Factory', openCost: 6e7, paybackMonths: 210, openClass: 4 },
+  { id: 'hotel', name: 'Hotel Chain', openCost: 1.5e8, paybackMonths: 250, openClass: 5 },
+  { id: 'media', name: 'Media Company', openCost: 4e8, paybackMonths: 300, openClass: 5 },
+  { id: 'tech-startup', name: 'Tech Startup', openCost: 1e9, paybackMonths: 360, openClass: 5 },
 ];
 
 /** The Flower Stand has its own designed table (docs/game-design-v2.md §4.3); the others follow its shape for now. */
 const FLOWER_STAND_LEVELS: BusinessLevelDef[] = [
-  { cost: 1000, revenue: 25, stage: 0 },
-  { cost: 300, revenue: 32, stage: 0 },
-  { cost: 600, revenue: 40, stage: 0 },
-  { cost: 1500, revenue: 55, stage: 0 },
-  { cost: 3000, revenue: 75, stage: 0 },
-  { cost: 6000, revenue: 100, stage: 0 },
-  { cost: 10000, revenue: 130, stage: 0 },
-  { cost: 25000, revenue: 200, stage: 1 },
-  { cost: 40000, revenue: 260, stage: 1 },
-  { cost: 80000, revenue: 400, stage: 2 },
+  { cost: 1000, revenue: 5, stage: 0 },
+  { cost: 300, revenue: 6.4, stage: 0 },
+  { cost: 600, revenue: 8, stage: 0 },
+  { cost: 1500, revenue: 11, stage: 0 },
+  { cost: 3000, revenue: 15, stage: 0 },
+  { cost: 6000, revenue: 20, stage: 0 },
+  { cost: 10000, revenue: 26, stage: 0 },
+  { cost: 25000, revenue: 40, stage: 1 },
+  { cost: 40000, revenue: 52, stage: 1 },
+  { cost: 80000, revenue: 80, stage: 2 },
 ];
 
 /** Old Ray, the first manager: a little dearer than the rule so he comes after the first few minutes of running the stand by hand. */
 const FLOWER_STAND_MANAGER = 5000;
 
 export const BUSINESSES: BusinessDef[] = LINES.map(({ openCost, paybackMonths, openClass, ...line }) => {
-  const levels = line.id === 'flower-stand' ? FLOWER_STAND_LEVELS : ladder(openCost, openCost / paybackMonths, line.cycleSeconds);
+  const levels = line.id === 'flower-stand' ? FLOWER_STAND_LEVELS : ladder(openCost, openCost / paybackMonths);
   return {
     ...line,
+    cycleSeconds: RUN_SECONDS,
     image: `${ART}/${line.id}.webp`,
     stageImages: stageImages(line.id),
     levels,

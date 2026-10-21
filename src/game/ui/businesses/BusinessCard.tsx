@@ -26,6 +26,7 @@ import { useAdChipText, useAdText } from '../ads/useAdText';
 import { CAMPAIGN_FACTOR, CAMPAIGN_SECONDS, TEMP_MANAGER_SECONDS } from '../../core/config/ads';
 import { adGift, campaignLeft, canCampaign, canTempManage, tempManagerLeft } from '../../runtime/adRewards';
 import { payout } from '../home/coins';
+import { RunBubbles } from './RunBubbles';
 import { Focusable } from '../home/Focusable';
 import { levelNameKey } from '../home/questText';
 import { Chip, GameButton, ImageTile, Panel } from '../kit';
@@ -161,6 +162,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
                 />
               )}
             </ImageTile>
+            {opened && <RunBubbles businessId={def.id} />}
             {campaignOn > 0 && (
               <span className="absolute -top-1.5 -right-1.5 rounded-full border-2 border-white bg-gradient-to-b from-amber-400 to-orange-500 v2-glossy px-1.5 v2-display text-[12px] text-white v2-shadow">
                 ×{CAMPAIGN_FACTOR}
