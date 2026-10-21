@@ -10,9 +10,6 @@ Kullanıcının telefonda bulduğu her şey burada; yapılan madde ilgili belgey
 
 **Kayıt (öncelik):** güncellemeden sonra oyun baştan başladı. Neden: ekonomi yeniden kurulurken şema 1 → 2 geçişi bilinçli tek seferlik sıfırlamaydı (`storage.ts` `migrate`, eski kayıt `prestige_life_v2_pre_rebuild` altında duruyor). Kullanıcı tekrar hatırlattı: **yayından sonra hiçbir güncelleme ilerlemeyi silmez**. `npm run savecheck` kuruldu (session-handoff "Kayıt uyumluluğu"); sıfırlama bir daha yapılmaz.
 
-**Sahne**
-- Bazı evlerin önünde araçlar çok büyük: her ev × araç için ayrı yerleşim (sonra, tek tek bakılacak).
-
 **Kariyer:** kararlaştı ([career-redesign.md](./career-redesign.md), kurallar [game-design-v2.md §4.4](./game-design-v2.md)); ekran, iş değişimi şovu ve ikonlar [rebuild-plan.md E7](./rebuild-plan.md)'de. Açık kalan: aylık gelir çok hızlı artıyor (işletmeler). Maaşın payı 23–45 yaşta %2–8; kullanıcı dengeyi bozmasın diye böyle kabul etti (2026-10-21).
 
 ## 1. Görsel

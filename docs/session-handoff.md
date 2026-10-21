@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-21 (gece) · Dal: `v2-rebuild` · Son sürüm: **AAB 30** (derlendi, Play'e yüklenmedi). Bu oturumdaki her şey AAB 31'de gelecek (henüz derlenmedi).
+Son güncelleme: 2026-10-22 · Dal: `v2-rebuild` · Son sürüm: **AAB 30** (Play'e yüklendi, kullanıcı telefonda test etti; bulguların neredeyse hepsi düzeltildi, evlerin önünde büyük duran araçlar dahil). 2026-10-21/22'de yapılanlar AAB 31'de gelecek (henüz derlenmedi).
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve Faz 2.11'de kaldırılacak. Bu belge günlük tutmaz: her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**. Kararların gerekçesi ve sayılar ilgili belgededir; burada yalnızca özet ve yapılacaklar durur.
 
@@ -41,7 +41,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 1b. **IAP para paketleri (2026-10-22, oyunda):** Mağaza'da "Para çantaları" bölümü, 5 tüketilir ürün `v2_cash_1..5` ($0,99 / $2,99 / $4,99 / $9,99 / $14,99 = 15 dk / 1 / 2 / 5 / 10 saatlik gelir; [monetization-v2.md §5](./monetization-v2.md)), görselleri para serisi M2–M6. Lansmanda gelecek. Kullanıcı Play Console'da 5 ürünü açıyor ve RevenueCat'te **tüketilir** işaretliyor (2026-10-22); sonra telefonda gerçek satın alma denenecek.
 2. **AAB 31:** karar gelince derlenir (`versionCode` 31), `~/Downloads/prestige-life-v2-31.aab`; telefon testi aşağıdaki listeyle.
 3. **Telefon bulgularına göre düzeltme.**
-4. **Lansman hazırlığı:** Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi; mağaza ekran görüntülerini yeni ekranlarla yenilemek.
+4. **Lansman hazırlığı:** Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu yeniden tasarlanıyor (özellik grafiği tamam, 2026-10-22; yeni ikon komutları [art-prompts-v2.md §1](./art-prompts-v2.md)); mağaza ekran görüntülerini yeni ekranlarla yenilemek.
 5. **Sonra (lansmandan sonra):** IAP 2. adım (Yakut Tasma, Gece Vardiyası), Remote Config, oyuncuyu tutma önerileri ([discussion-notes.md §2](./discussion-notes.md)), 2. nesil.
 
 ## 2026-10-21 oturumunun kararları (kullanıcı)
@@ -77,13 +77,13 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
 ## Kullanıcının yapacakları
 
 - **Play Console:**
-  - AAB 31 derlenince dahili teste yüklemek (AAB 30 hiç yüklenmedi, atlanabilir); sonra üretim erişimi başvurusu.
+  - AAB 31 derlenince dahili teste yüklemek (AAB 30 yüklendi ve test edildi); sonra üretim erişimi başvurusu.
   - Mağaza sayfası: web sitesi `https://mathgamesstudio.com` (AdMob `app-ads.txt`'yi buradan okur), gizlilik politikası `https://mathgamesstudio.com/games/prestige-life/privacy`.
   - Başlangıç Paketi açıklamasına fuların bonusu (metin [monetization-v2.md §8](./monetization-v2.md)).
   - Veri güvenliği beyanı v2'ye göre ([monetization-v2.md §7](./monetization-v2.md)).
   - v1'in 8 ürününü pasifleştirmek.
   - Mağaza görselleri `~/Downloads/play-store-v2/` (6 ekran × TR/EN, özellik grafiği, ikon 512). Ekran görüntüleri eski ekonomiden; yeni işletme kartı ve iş panosuyla yenilenebilir (kaynak `art/store-v2/`, `capture.mjs` / `compose.mjs` / `feature.mjs`; `playwright-core` projede yok, yerel bir kopya gerekir).
-- **Seçimler:** uygulama ikonu (A, B, C adayları) ve özellik grafiği (C, D) ([art-prompts-v2.md §1](./art-prompts-v2.md)). Para serisi (M1–M6) 2026-10-22'de oyunda: üst bardaki bakiye M3, uçan para ve işletme baloncukları M2 (kullanıcı: tek banknot değil, altın bantlı deste), günlük ödül takvimi M1–M4, ödül kartlarında tutara göre M2–M5, Başlangıç Paketi M3, Rahat Paket M4, para çantaları M2–M6 (`ui/icons.ts` `MONEY`, `ui/piles.ts`). 2026-10-21 teslimi oyunda ([archive/art-prompts-2026-10-21.md](./archive/art-prompts-2026-10-21.md)).
+- **Uygulama ikonu:** A, B, C adayları beğenilmedi (2026-10-22); yeni ikon GPT'de, komutlar [art-prompts-v2.md §1](./art-prompts-v2.md) (D "İkiye bölünmüş yüz", E "Şans'ın iki hâli"). Özellik grafiği tamam. Para serisi (M1–M6) 2026-10-22'de oyunda: üst bardaki bakiye M3, uçan para ve işletme baloncukları M2 (kullanıcı: tek banknot değil, altın bantlı deste), günlük ödül takvimi M1–M4, ödül kartlarında tutara göre M2–M5, Başlangıç Paketi M3, Rahat Paket M4, para çantaları M2–M6 (`ui/icons.ts` `MONEY`, `ui/piles.ts`). 2026-10-21 teslimi oyunda ([archive/art-prompts-2026-10-21.md](./archive/art-prompts-2026-10-21.md)).
 - **`npm run backup`:** `art/` klasörüne 2026-10-21'de yeni GPT görselleri geldi; Drive'a yedeklenmedi.
 - **AdMob:** Play'de web sitesi girildikten sonra app-ads.txt doğrulaması (AdMob → Uygulamalar); Ayarlar → Test cihazları'na telefon.
 - **Oyuncu gözlemi:** 6–8 tanıdıkla (kapalı test verisi çoğunlukla kendi hesapların).
