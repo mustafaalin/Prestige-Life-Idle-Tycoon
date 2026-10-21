@@ -10,6 +10,7 @@ import { retirementWaits, sceneClass, sequelDue, storyRuns } from '../../runtime
 import { useGameV2 } from '../../runtime/useGameV2';
 import { BoostButton } from '../ads/Boost';
 import { OpportunityBalloon, SceneAdButtons } from '../ads/SceneAds';
+import { RainTimer } from '../scene/RainTimer';
 import { useAdText } from '../ads/useAdText';
 import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
@@ -189,6 +190,12 @@ export function HomeScreen() {
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
             <OpportunityBalloon hidden={sheetOpen || state.offline !== null} />
           </div>
+          {/* The coin shower's countdown, high in the middle of the scene. */}
+          {!sheetOpen && (
+            <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-[15%]">
+              <RainTimer />
+            </div>
+          )}
           {/* The income boost floats on the right of the scene, clear of the goals card and the top bar. */}
           {!sheetOpen && (
             <div className="pointer-events-auto absolute right-3 top-[42%] flex flex-col items-center gap-3">

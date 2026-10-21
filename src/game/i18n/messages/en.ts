@@ -600,6 +600,7 @@ export const en = {
     callSans: 'Send Lucky to look',
     callSansWait: 'Lucky is resting · {duration}',
     coinRain: 'Coin shower',
+    coinRainHurry: 'Hurry!',
     coinRainBody: 'For {duration}, coins rain on the ground, each worth three times as much.',
     opportunityTitle: 'An opportunity!',
     opportunityBody: 'The wind blew in a flyer: a one-day job.',

@@ -599,6 +599,7 @@ export const tr: Messages = {
     callSans: 'Şans bir şey bulsun',
     callSansWait: 'Şans dinleniyor · {duration}',
     coinRain: 'Bozuk para yağmuru',
+    coinRainHurry: 'Acele et!',
     coinRainBody: '{duration} boyunca yere bozuk para yağar; her biri 3 kat değerli.',
     opportunityTitle: 'Bir fırsat!',
     opportunityBody: 'Rüzgâr bir el ilanı getirdi: bugüne özel bir iş.',

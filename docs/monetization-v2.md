@@ -73,7 +73,7 @@ Hepsi isteğe bağlı ve oyuncunun zaten bulunduğu bir yerde bir düğmenin ark
 | 15 | Diploma hediyesi (`diploma_gift`) | Kariyer, biten kurs | 2 dk gelir | Kurs başına 1 |
 | 16 | İlk maaş ikramiyesi (`first_salary`) | Kariyer, yeni iş | 1 aylık maaş | İş başına 1 |
 | 17 | Şans'ı çağır (`call_sans`) | Sahnenin sağında yuvarlak düğme | Şans hemen cüzdan getirir | Günde 5, 10 dk arayla |
-| 18 | Bozuk para yağmuru (`coin_rain`) | Sahnenin sağında (Sokak–İşçi, yerde şişe varken) | 30 sn yere 4 kat sık, 3 kat değerli para | Günde 3, 15 dk arayla |
+| 18 | Bozuk para yağmuru (`coin_rain`) | Sahnenin sağında (Sokak–İşçi, yerde şişe varken) | 30 sn yere 4 kat sık, 3 kat değerli para; sahnenin ortasında geri sayım (azalan halka; son 10 sn kırmızı, yanıp söner, "Acele et!"; son 5 sn tık ve titreşim) | Günde 3, 15 dk arayla |
 | 19 | Fırsat balonu (`opportunity`) | 6–10 dk'da bir sahneden 20 sn'de geçen balon; dokununca kart | 1 dk gelir | Günde 8 |
 | — | Olay kartında "ikinci şans" | #13'e katıldı | | |
 
