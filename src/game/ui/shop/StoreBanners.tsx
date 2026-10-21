@@ -68,14 +68,14 @@ export function ComfortBanner({ product }: { product: ProductDef }) {
         </div>
         <NoAdsArt />
       </div>
-      {/* The gifts as objects, like the Starter Pack's: more money, so a bigger pile of banknotes. */}
+      {/* The gifts as objects, like the Starter Pack's: more money, so a bigger picture of the money series. */}
       <div className="grid grid-cols-2 gap-1.5">
         <Tile
           image={STORE_ART.cash}
           value={`+${money(purchaseCash(state.game, state.purchases, product))}`}
           note={t('iap.starter.incomeNote', { count: product.incomeSeconds / 3600 })}
           money
-          piles={3}
+          tier={4}
         />
         <Tile image={STORE_ART.hourglass} value={t('iap.starter.boost')} note={t('iap.starter.boostFor', { count: product.boostSeconds / 3600 })} />
       </div>

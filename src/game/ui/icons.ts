@@ -3,6 +3,13 @@
 
 const DIR = '/assets/icons/v2';
 
+/**
+ * The money series (2026-10-22, art/pilot/15-iap/v2/money-N.png), smallest first: a banknote, a
+ * bundle, three bundles, a pyramid, a briefcase, a vault. Index 0 is M1. A bigger reward gets a
+ * bigger one (ui/piles.ts).
+ */
+export const MONEY = [1, 2, 3, 4, 5, 6].map((tier) => `${DIR}/money-${tier}.webp`);
+
 export const ICONS = {
   business: `${DIR}/business.webp`,
   career: `${DIR}/career.webp`,
@@ -11,8 +18,8 @@ export const ICONS = {
   money: `${DIR}/money.webp`,
   /** One coin. */
   coin: `${DIR}/coin.webp`,
-  /** Green banknotes, for every flight into the balance and out of it (2026-10-21, user: notes, not coins). */
-  bill: `${DIR}/bill.webp`,
+  /** One green banknote (money series M1), for every flight into the balance and out of it (2026-10-21, user: notes, not coins). */
+  bill: `${DIR}/money-1.webp`,
   /** Status: the wealth class and the status bonus. */
   status: `${DIR}/prestige-points.webp`,
   /** The family album: the story moments seen so far. */

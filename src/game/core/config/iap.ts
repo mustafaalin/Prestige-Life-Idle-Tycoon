@@ -69,10 +69,9 @@ const ART = '/assets/iap';
 
 /**
  * A cash bag (2026-10-22, user: five money packs like the reference shop, sized to the player's
- * income): hours of the income while playing, bought again and again. A bigger bag gives more per
- * dollar (15, 20, 24, 30, 30 minutes per $), and none beats the Starter Pack, which also has a boost
- * and the scarf. Pictures: the money series M2–M6 (docs/art-prompts-v2.md §2); until they come, a
- * pile of the Starter Pack's banknotes (ui/shop/CashBags.tsx).
+ * income): hours of the income while playing, bought again and again. Every bigger bag gives more
+ * per dollar (15, 20, 24, 30, 40 minutes per $; user: the more you pay the better). Pictures: the
+ * money series M2–M6 (docs/art-prompts-v2.md §2).
  */
 function cashBag(tier: 1 | 2 | 3 | 4 | 5, fallbackPrice: string, incomeSeconds: number): ProductDef {
   return {
@@ -130,7 +129,7 @@ export const PRODUCTS: Record<ProductKey, ProductDef> = {
   cash2: cashBag(2, '$2.99', 3600),
   cash3: cashBag(3, '$4.99', 2 * 3600),
   cash4: cashBag(4, '$9.99', 5 * 3600),
-  cash5: cashBag(5, '$19.99', 10 * 3600),
+  cash5: cashBag(5, '$14.99', 10 * 3600),
 };
 
 /** Cash bags, smallest first. */

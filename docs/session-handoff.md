@@ -38,8 +38,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 
 ## Sıradaki
 
-1. **Para serisi (GPT, art-prompts-v2 §2):** gelince `money-1..6` oyuna bağlanır, `CashPile` bindirmesi kalkar.
-1b. **IAP para paketleri (2026-10-22, oyunda):** Mağaza'da "Para çantaları" bölümü, 5 tüketilir ürün `v2_cash_1..5` ($0,99 / $2,99 / $4,99 / $9,99 / $19,99 = 15 dk / 1 / 2 / 5 / 10 saatlik gelir; [monetization-v2.md §5](./monetization-v2.md)). Lansmanda gelecek. Yapılacak: Play Console'da 5 ürünü açmak ve RevenueCat'te **tüketilir** işaretlemek; GPT para serisi gelince M2–M6'yı `public/assets/icons/v2/money-{2..6}.webp` olarak koymak (o zamana kadar banknot yığını yer tutar, kod değişmez).
+1b. **IAP para paketleri (2026-10-22, oyunda):** Mağaza'da "Para çantaları" bölümü, 5 tüketilir ürün `v2_cash_1..5` ($0,99 / $2,99 / $4,99 / $9,99 / $14,99 = 15 dk / 1 / 2 / 5 / 10 saatlik gelir; [monetization-v2.md §5](./monetization-v2.md)), görselleri para serisi M2–M6. Lansmanda gelecek. Kullanıcı Play Console'da 5 ürünü açıyor ve RevenueCat'te **tüketilir** işaretliyor (2026-10-22); sonra telefonda gerçek satın alma denenecek.
 2. **AAB 31:** karar gelince derlenir (`versionCode` 31), `~/Downloads/prestige-life-v2-31.aab`; telefon testi aşağıdaki listeyle.
 3. **Telefon bulgularına göre düzeltme.**
 4. **Lansman hazırlığı:** Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi; mağaza ekran görüntülerini yeni ekranlarla yenilemek.
@@ -84,7 +83,7 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
   - Veri güvenliği beyanı v2'ye göre ([monetization-v2.md §7](./monetization-v2.md)).
   - v1'in 8 ürününü pasifleştirmek.
   - Mağaza görselleri `~/Downloads/play-store-v2/` (6 ekran × TR/EN, özellik grafiği, ikon 512). Ekran görüntüleri eski ekonomiden; yeni işletme kartı ve iş panosuyla yenilenebilir (kaynak `art/store-v2/`, `capture.mjs` / `compose.mjs` / `feature.mjs`; `playwright-core` projede yok, yerel bir kopya gerekir).
-- **Seçimler:** uygulama ikonu (A, B, C adayları) ve özellik grafiği (C, D) ([art-prompts-v2.md §1](./art-prompts-v2.md)). GPT'de bekleyen: altı kademeli para serisi ([art-prompts-v2.md §2](./art-prompts-v2.md)). 2026-10-21 teslimi oyunda ([archive/art-prompts-2026-10-21.md](./archive/art-prompts-2026-10-21.md)).
+- **Seçimler:** uygulama ikonu (A, B, C adayları) ve özellik grafiği (C, D) ([art-prompts-v2.md §1](./art-prompts-v2.md)). Para serisi (M1–M6) 2026-10-22'de oyunda: uçan banknot M1, ödül kartlarında tutara göre M2–M5, Başlangıç Paketi M3, Rahat Paket M4, para çantaları M2–M6 (`ui/icons.ts` `MONEY`, `ui/piles.ts`). 2026-10-21 teslimi oyunda ([archive/art-prompts-2026-10-21.md](./archive/art-prompts-2026-10-21.md)).
 - **`npm run backup`:** `art/` klasörüne 2026-10-21'de yeni GPT görselleri geldi; Drive'a yedeklenmedi.
 - **AdMob:** Play'de web sitesi girildikten sonra app-ads.txt doğrulaması (AdMob → Uygulamalar); Ayarlar → Test cihazları'na telefon.
 - **Oyuncu gözlemi:** 6–8 tanıdıkla (kapalı test verisi çoğunlukla kendi hesapların).

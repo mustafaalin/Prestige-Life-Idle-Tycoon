@@ -2,8 +2,8 @@ import { type CSSProperties, type ReactNode } from 'react';
 import type { ProductDef } from '../../core/config/iap';
 import { useT } from '../../i18n/useT';
 import { purchaseCash } from '../../runtime/purchases';
-import { CashPile } from '../CashAmount';
-import type { Piles } from '../piles';
+import { MoneyIcon } from '../CashAmount';
+import type { MoneyTier } from '../piles';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { STORE_ART } from './storeArt';
 
@@ -40,14 +40,14 @@ export function NoAdsArt({ className = 'w-[148px] max-[359px]:w-[125px]' }: { cl
 
 /**
  * One reward as an object: what it is in big letters (the amount itself, never a formula), then what it
- * means. `piles`: a money reward, drawn as that many piles of banknotes instead of `image`.
+ * means. `tier`: a money reward, drawn with that picture of the money series instead of `image`.
  */
-export function Tile({ image, value, note, money = false, piles }: { image: string; value: string; note: string; money?: boolean; piles?: Piles }) {
+export function Tile({ image, value, note, money = false, tier }: { image: string; value: string; note: string; money?: boolean; tier?: MoneyTier }) {
   return (
     <div className="v2-iap-reward">
-      {piles ? (
+      {tier ? (
         <span className="flex justify-center items-end h-[44px]">
-          <CashPile piles={piles} size={piles === 1 ? 44 : 30} />
+          <MoneyIcon tier={tier} size={44} />
         </span>
       ) : (
         <img src={image} alt="" draggable={false} className="block w-[44px] h-[44px] mx-auto object-contain" />
@@ -77,7 +77,7 @@ export function StarterRewards({ product }: { product: ProductDef }) {
   return (
     <div className="grid grid-cols-3 gap-1.5">
       <Tile image={STORE_ART.hourglass} value={t('iap.starter.boost')} note={t('iap.starter.boostFor', { count: boostHours })} />
-      <Tile image={STORE_ART.cash} value={`+${money(cash)}`} note={t('iap.starter.incomeNote', { count: incomeHours })} money piles={1} />
+      <Tile image={STORE_ART.cash} value={`+${money(cash)}`} note={t('iap.starter.incomeNote', { count: incomeHours })} money tier={3} />
       <Tile
         image={STORE_ART.scarf}
         value={t('iap.starter.scarfValue', { percent: Math.round(product.incomeBonus * 100) })}
