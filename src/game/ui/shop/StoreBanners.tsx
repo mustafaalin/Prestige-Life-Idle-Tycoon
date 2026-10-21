@@ -3,7 +3,8 @@ import type { ProductDef } from '../../core/config/iap';
 import { useT } from '../../i18n/useT';
 import { purchaseCash } from '../../runtime/purchases';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { NoAdsArt, StarterArt, StarterRewards } from './StoreParts';
+import { NoAdsArt, StarterArt, StarterRewards, Tile } from './StoreParts';
+import { STORE_ART } from './storeArt';
 
 // The packs' banners (2026-10-21; reference: Idle Guy's shop): what a pack is, shared by the Store
 // (with the price pill under it) and the day's offer card on the home scene (with "View pack").
@@ -62,17 +63,21 @@ export function ComfortBanner({ product }: { product: ProductDef }) {
       <h3 className={TITLE}>{t('iap.comfort.name')}</h3>
       <div className="flex items-center gap-1 min-h-[140px]">
         <div className="flex-1 min-w-0 flex flex-col gap-2">
-          <Checks
-            lines={[
-              t('iap.comfort.line1'),
-              t('iap.comfort.cash', { amount: money(purchaseCash(state.game, state.purchases, product)) }),
-              t('iap.comfort.line2'),
-              t('iap.comfort.point3'),
-            ]}
-          />
+          <Checks lines={[t('iap.comfort.line1'), t('iap.comfort.point3')]} />
           <p className="text-[10px] font-bold text-white/80">{t('iap.comfort.limits')}</p>
         </div>
         <NoAdsArt />
+      </div>
+      {/* The gifts as objects, like the Starter Pack's: more money, so a bigger pile of banknotes. */}
+      <div className="grid grid-cols-2 gap-1.5">
+        <Tile
+          image={STORE_ART.cash}
+          value={`+${money(purchaseCash(state.game, state.purchases, product))}`}
+          note={t('iap.starter.incomeNote', { count: product.incomeSeconds / 3600 })}
+          money
+          piles={3}
+        />
+        <Tile image={STORE_ART.hourglass} value={t('iap.starter.boost')} note={t('iap.starter.boostFor', { count: product.boostSeconds / 3600 })} />
       </div>
     </div>
   );

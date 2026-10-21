@@ -546,6 +546,7 @@ export function Scene() {
           title={t('scene.findTitle')}
           body={t('scene.findBody')}
           amount={`+${money(findOffer)}`}
+          cash={findOffer}
           onCollect={() => collectFind()}
           ad={{
             placement: 'find_x2',

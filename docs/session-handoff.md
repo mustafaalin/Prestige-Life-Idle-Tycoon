@@ -38,7 +38,8 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 
 ## Sıradaki
 
-1. **Kullanıcının kararı bekleniyor:** şişe değeri $3 (Sokak) olunca simülatörün "ilk tur iki şişeden fazla" kontrolü bozuldu (Çiçek Tezgâhı'nın en düşük turu $5 < $6). Seçenekler: Sokak $3 kalır ve Çiçek Tezgâhı'nın ilk turu artar (Claude'un önerisi), ya da Sokak $2'ye döner.
+1. **Para serisi (GPT, art-prompts-v2 §2):** gelince `money-1..6` oyuna bağlanır, `CashPile` bindirmesi kalkar.
+1b. **IAP para paketleri (kullanıcı 2026-10-22: eklenecek):** kaç paket, fiyatlar, "X saatlik gelir" mi sabit tutar mı, lansmanda mı sonra mı: konuşulacak ([discussion-notes.md §4](./discussion-notes.md)).
 2. **AAB 31:** karar gelince derlenir (`versionCode` 31), `~/Downloads/prestige-life-v2-31.aab`; telefon testi aşağıdaki listeyle.
 3. **Telefon bulgularına göre düzeltme.**
 4. **Lansman hazırlığı:** Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi; mağaza ekran görüntülerini yeni ekranlarla yenilemek.
@@ -52,7 +53,7 @@ Hepsi yapıldı ve commit'lendi; ayrıntıları ilgili belgelerde. Yeni oturum b
 - **Hikâye:** otogardaki söz artık "eski evimizi geri alacağım, pastanı orada keseriz"; Orta Sınıf töreninde ev geri alınır, pasta gelir, anne yanında ("Sen bana hep yettin"); saray sözü kalktı. Milyarder töreninde Bülent Bey emekliye ayrılır, otellerin onur başkanı olur; metinlerde kimsenin yaşı söylenmez.
 - **Olay kartları:** 50 kart; her yöneticinin 3 kartı işletmenin görünümüne bağlı (yeni görünüm yeni kartı ekler, eskiler destede kalır); üç tür (sağlamcı/cesur, teşekkür, iki eşit seçenek); deste düzeni (hepsi çalmadan tekrar yok); **günlük sınır yok**.
 - **Mağaza:** afiş tarzı (referans Idle Guy); ödüller miktarla ("+$277 Bin"); Bedava bölümü (sahnedeki reklamlar); Rahat Paket'e 3 saatlik gelir; reklamsız simgesi kodla (yasak çemberi); her gün bir teklif kartı ana ekranda (alınmamış paket, sırayla); kartın düğmesinde fiyat yazar ve doğrudan satın aldırır, hoş geldin fiyatında altında "Sonra $2.99"; "Şimdi değil" yok, büyük çarpı 2 sn sonra gelir (2026-10-22).
-- **Ödül hissi:** uçan para yeşil banknot (bozuk para yok); para yağmurunda bütün yerler dolar, iki kat sık; şişe $3 / $20 / $50; hedef rozetinde ×3 reklamı "Ödülü al"ın yanında.
+- **Ödül hissi:** uçan para yeşil banknot (bozuk para yok); para ödüllerinin tutarı her zaman banknotla gösterilir, büyük ödül daha büyük para (2026-10-22); para yağmurunda bütün yerler dolar, iki kat sık; şişe $2 / $20 / $50 (Sokak $2 kaldı, 2026-10-22); hedef rozetinde ×3 reklamı "Ödülü al"ın yanında.
 - **İşletmeler ekranı:** onaylanan taslak gerçek oyunda (yukarıda).
 - **Crashlytics** eklendi; Firebase'de kullanıcının yapacağı ayar yok (istenirse Crashlytics sayfası bir kez açılır).
 - **Yayın derlemesi** DEV menüsünü kendisi kapatır (`build:v2`).
@@ -83,7 +84,7 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
   - Veri güvenliği beyanı v2'ye göre ([monetization-v2.md §7](./monetization-v2.md)).
   - v1'in 8 ürününü pasifleştirmek.
   - Mağaza görselleri `~/Downloads/play-store-v2/` (6 ekran × TR/EN, özellik grafiği, ikon 512). Ekran görüntüleri eski ekonomiden; yeni işletme kartı ve iş panosuyla yenilenebilir (kaynak `art/store-v2/`, `capture.mjs` / `compose.mjs` / `feature.mjs`; `playwright-core` projede yok, yerel bir kopya gerekir).
-- **Seçimler:** uygulama ikonu (A, B, C adayları) ve özellik grafiği (C, D) ([art-prompts-v2.md §1](./art-prompts-v2.md)). GPT'de bekleyen başka iş yok (2026-10-21 teslimi oyunda: önsözün 3D kareleri, dedenin okşama pozu, Sahil Malikânesi, fularlı okşama pozları; [archive/art-prompts-2026-10-21.md](./archive/art-prompts-2026-10-21.md)).
+- **Seçimler:** uygulama ikonu (A, B, C adayları) ve özellik grafiği (C, D) ([art-prompts-v2.md §1](./art-prompts-v2.md)). GPT'de bekleyen: altı kademeli para serisi ([art-prompts-v2.md §2](./art-prompts-v2.md)). 2026-10-21 teslimi oyunda ([archive/art-prompts-2026-10-21.md](./archive/art-prompts-2026-10-21.md)).
 - **`npm run backup`:** `art/` klasörüne 2026-10-21'de yeni GPT görselleri geldi; Drive'a yedeklenmedi.
 - **AdMob:** Play'de web sitesi girildikten sonra app-ads.txt doğrulaması (AdMob → Uygulamalar); Ayarlar → Test cihazları'na telefon.
 - **Oyuncu gözlemi:** 6–8 tanıdıkla (kapalı test verisi çoğunlukla kendi hesapların).

@@ -19,9 +19,10 @@ export const FETCH_EARLY_MAX_SECONDS = 150;
 /**
  * What one bottle or can pays by class (Street, Day Laborer, Working Class: coins), decided 2026-10-20
  * (docs/game-design-v2.md §4.7): fixed, so collecting matters early and fades as income grows. Raised
- * from 2 / 3 / 5 on 2026-10-21 (user): picking one up should feel like money.
+ * from 2 / 3 / 5 on 2026-10-21 (user): picking one up should feel like money; the street stays at 2
+ * so the first Flower Stand run still beats two bottles (2026-10-22).
  */
-export const BOTTLE_VALUE_BY_CLASS = [3, 20, 50];
+export const BOTTLE_VALUE_BY_CLASS = [2, 20, 50];
 /** The find is worth this many bottles... */
 export const FETCH_BOTTLES = 15;
 /** ...plus this many seconds of income, so it still counts once the ground is empty. */

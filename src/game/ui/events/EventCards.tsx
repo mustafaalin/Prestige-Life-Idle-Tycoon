@@ -25,6 +25,7 @@ import { useAdText } from '../ads/useAdText';
 import { nextCaller } from '../../runtime/eventDeck';
 import { eventKey, eventKind, eventSpeaker, onEventCardRequest } from './eventScript';
 import { portalRoot } from '../stage';
+import { CashAmount } from '../CashAmount';
 
 // Event cards (game-design §4.7): from Middle Class on, someone the hero knows calls every few
 // minutes. The call waits on the home scene until it is answered; the card asks one thing and has a
@@ -300,7 +301,7 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
                   lost ? 'text-rose-400' : 'text-emerald-400'
                 }`}
               >
-                {lost ? `−${money(Math.abs(amount))}` : `+${money(amount)}`}
+                {lost ? `−${money(Math.abs(amount))}` : <CashAmount amount={amount}>+{money(amount)}</CashAmount>}
               </p>
               {/* An ad pays the result again, or takes a loss back and pays the safe answer. */}
               {canWatch(state.ads, 'event_bonus', Date.now()) && (

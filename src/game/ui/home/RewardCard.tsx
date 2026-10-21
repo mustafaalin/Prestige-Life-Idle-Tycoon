@@ -1,3 +1,4 @@
+import { CashAmount } from '../CashAmount';
 import { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useT } from '../../i18n/useT';
@@ -15,6 +16,8 @@ interface RewardCardProps {
   title: string;
   body?: string;
   amount?: string;
+  /** The amount in money, when it is one: banknotes show beside it, more for a bigger reward. */
+  cash?: number;
   note?: string;
   /** Button text; "Collect" by default. */
   actionLabel?: string;
@@ -31,6 +34,7 @@ export function RewardCard({
   title,
   body,
   amount,
+  cash,
   note,
   actionLabel,
   portrait,
@@ -79,7 +83,7 @@ export function RewardCard({
               ref={amountRef}
               className="v2-display v2-outline text-[40px] leading-tight text-emerald-400 tabular-nums my-2"
             >
-              {amount}
+              {cash !== undefined ? <CashAmount amount={cash}>{amount}</CashAmount> : amount}
             </p>
           )}
           {note && <p className="text-[11px] font-semibold text-slate-500 mt-2 mb-3">{note}</p>}

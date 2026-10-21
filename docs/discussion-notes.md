@@ -48,6 +48,7 @@ Kurallar ve sayılar [game-design-v2.md](./game-design-v2.md); sonraya bırakıl
 - **Faz 1 kapısı yeniden yazılmalı:** "ilk oturumda Orta Sınıf ≥ %60" yeni tempoda tutmuyor (Orta Sınıf 21 yaş, bağlı botta 1 sa 11 dk, 2. gün).
 - **Reklam izleyenin erken oyunu:** Orta Sınıf %51, Milyoner %59 erken (×2 hızlandırıcı ilk dakikadan açık). Kullanıcı isterse erken oyun ayrıca frenlenir.
 - **Her işletmeye kendi seviye tablosu;** Fabrika'dan Medya'ya ~8,5 saat yeni işletme yok.
+- **IAP para paketleri (kullanıcı 2026-10-22: eklenecek):** monetization §5'teki "Para çantası" satırı. Konuşulacak: paket sayısı ve fiyatları, tutarın "X saatlik gelir" (oyuncuyla büyür, monetization §1) mi olacağı, lansmanda mı sonra mı. Görseller para serisinin M3–M6'sı (art-prompts-v2 §2).
 - **Gece Vardiyası IAP'ı** %20 / 1 sa çevrimdışına göre yeniden yazılacak.
 - **Yöneticisiz işletmeye dokunma:** AdCap modeli ("Çalıştır" → tek tur). "Dokundukça hızlanır" alternatifi oyun testinden sonra.
 

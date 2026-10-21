@@ -270,6 +270,7 @@ export function HomeScreen() {
           title={t('offline.title')}
           body={t('offline.body', { duration: duration(state.offline.awaySeconds) })}
           amount={`+${money(state.offline.amount)}`}
+          cash={state.offline.amount}
           note={t('offline.cap', { duration: duration(offlineCapHours(game) * 3600) })}
           onCollect={() => {
             const amount = state.offline?.amount ?? 0;

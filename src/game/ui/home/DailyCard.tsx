@@ -1,3 +1,4 @@
+import { CashAmount } from '../CashAmount';
 import { Check } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
@@ -94,7 +95,7 @@ export function DailyCard({ offer, onCollected }: { offer: DailyOffer; onCollect
           <p
             className="v2-display v2-outline text-[40px] leading-tight text-emerald-400 tabular-nums"
           >
-            +{money(offer.amount)}
+            <CashAmount amount={offer.amount}>+{money(offer.amount)}</CashAmount>
           </p>
           <p className="text-[12px] font-bold text-slate-500 mb-3">
             {t('daily.formula', { income: money(monthly), months: offer.months })}
