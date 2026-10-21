@@ -24,7 +24,7 @@ import { AdStrip, HelpAd } from '../ads/AdButton';
 import { ActionAd } from '../ads/AdOffers';
 import { useAdChipText, useAdText } from '../ads/useAdText';
 import { CAMPAIGN_FACTOR, CAMPAIGN_SECONDS, TEMP_MANAGER_SECONDS } from '../../core/config/ads';
-import { adGift, campaignLeft, canCampaign, canTempManage, tempManagerLeft } from '../../runtime/adRewards';
+import { adGift, boostFactor, campaignLeft, canCampaign, canTempManage, tempManagerLeft } from '../../runtime/adRewards';
 import { payout } from '../home/coins';
 import { RunBubbles } from './RunBubbles';
 import { Focusable } from '../home/Focusable';
@@ -103,6 +103,9 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
   const campaignOn = campaignLeft(state.ads, def.id, now);
   // A campaign (an ad) multiplies what the runs pay; the card shows the multiplied run while it lasts.
   const campaignFactor = campaignOn > 0 ? CAMPAIGN_FACTOR : 1;
+  // What a run really pays now: the campaign and the income boost (an ad, ×2 on everything) both count,
+  // so the label matches the "+$" bubble (runtime/engine.ts tick).
+  const payFactor = campaignFactor * boostFactor(state.ads, now);
   const adText = useAdText();
   const chipText = useAdChipText();
 
@@ -233,7 +236,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
                 cycleSeconds={def.cycleSeconds}
                 lastActiveAt={state.lastActiveAt}
                 speed={speed}
-                label={`${t('business.perRun', { amount: money(perRun * campaignFactor) })}${campaignOn > 0 ? ` ×${CAMPAIGN_FACTOR}` : ''}`}
+                label={`${t('business.perRun', { amount: money(perRun * payFactor) })}${payFactor > 1 ? ` ×${payFactor}` : ''}`}
                 detail={!canStart && def.cycleSeconds / speed >= 2 ? duration(Math.ceil(secondsLeft)) : undefined}
               />
             </>
