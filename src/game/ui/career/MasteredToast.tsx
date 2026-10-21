@@ -37,19 +37,22 @@ export function MasteredToast({ onOpen }: { onOpen: () => void }) {
 
   const career = careerDef(shown);
   if (!career) return null;
+  // Centred by its own row: the pop-in animation sets `transform`, so a translate on the banner would be lost.
   return (
-    <button
-      type="button"
-      onClick={() => {
-        setShown(null);
-        onOpen();
-      }}
-      className="v2-pop-in pointer-events-auto absolute left-1/2 -translate-x-1/2 top-2 z-[60] w-[calc(100%-24px)] max-w-[360px] flex items-center gap-2.5 rounded-[20px] border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-2 text-left shadow-xl"
-    >
-      <JobIcon career={career} size={44} mastery={1} />
-      <span className="flex-1 min-w-0 v2-display text-[14px] leading-tight text-white v2-shadow">
-        {t('career.masteredToast', { job: name('career', career) })}
-      </span>
-    </button>
+    <div className="pointer-events-none absolute inset-x-3 top-2 z-[60] flex justify-center">
+      <button
+        type="button"
+        onClick={() => {
+          setShown(null);
+          onOpen();
+        }}
+        className="v2-pop-in pointer-events-auto w-full max-w-[360px] flex items-center gap-2.5 rounded-[20px] border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-2 text-left shadow-xl"
+      >
+        <JobIcon career={career} size={44} mastery={1} />
+        <span className="flex-1 min-w-0 v2-display text-[14px] leading-tight text-white v2-shadow">
+          {t('career.masteredToast', { job: name('career', career) })}
+        </span>
+      </button>
+    </div>
   );
 }

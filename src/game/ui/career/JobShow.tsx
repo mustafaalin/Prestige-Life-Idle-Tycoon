@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { careersAfter } from '../../core/formulas';
 import type { CareerDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
@@ -16,6 +16,8 @@ import { JobIcon } from './JobIcon';
 /** The old job, it slides out, the new one slides in, then the pay counts up. */
 const STEPS = [0, 650, 1100, 1700] as const;
 const REVEAL = 2;
+/** The finished card closes by itself after this long, if the player has not closed it (user 2026-10-21). */
+const AUTO_CLOSE_MS = 3500;
 
 export function JobShow({
   from,
@@ -44,6 +46,17 @@ export function JobShow({
     playSfx('fanfare');
     haptic('medium');
   }, [step]);
+
+  // The latest onClose, so the timer does not restart when the screen re-renders on a tick.
+  const close = useRef(onClose);
+  useEffect(() => {
+    close.current = onClose;
+  });
+  useEffect(() => {
+    if (!done) return;
+    const timer = window.setTimeout(() => close.current(), AUTO_CLOSE_MS);
+    return () => window.clearTimeout(timer);
+  }, [done]);
 
   const skipShow = () => {
     if (!revealed) playSfx('fanfare');
