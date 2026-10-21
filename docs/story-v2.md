@@ -58,7 +58,7 @@ Varis torun: §6 (yayından sonra).
 - Karışık cins, kırpık kulaklı, tüyleri dağınık bir sokak köpeği. Her zaman sahnede, kahramanın yanında. Zenginleştikçe tasması değişir: ip → deri (Orta Sınıf) → gümüş (Milyoner) → altın (Milyarder; duruşu da rahatlar). Oyunda. Her tasma gelire küçük bir bonus verir (2026-10-15; [game-design §4.5](./game-design-v2.md)).
 - Ona dokunmak para vermez: kahraman onu okşar. 5–10 dakikada bir ağzında bir cüzdanla gelir; oyuncu 12 sn içinde dokunursa kahraman cüzdanı sahibine verir ve teşekkür ödülü alır (oyunda; game-design §4.7). Kahraman bulduğu parayı cebine koymaz.
 - Çevrimdışı kazanç kartında sınıfın tasmasıyla uyur; kart kapanınca küçük bir sıçramayla sahneye döner (oyunda).
-- Ücretli aksesuarlar: Başlangıç Paketi'nin kırmızı fuları (kalıcı +%10; oturan, cüzdanlı ve uyuyan pozlarda görünür, okşama pozunda yok), ileride yakut tasma (+%50; [monetization-v2.md §5](./monetization-v2.md)). Satın almanın sahnede görünen karşılığı.
+- Ücretli aksesuarlar: Başlangıç Paketi'nin kırmızı fuları (kalıcı +%10; oturan, cüzdanlı, uyuyan ve okşama pozlarında görünür), ileride yakut tasma (+%50; [monetization-v2.md §5](./monetization-v2.md)). Satın almanın sahnede görünen karşılığı.
 
 ### Rıza Amca (Old Ray)
 

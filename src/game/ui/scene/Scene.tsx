@@ -141,7 +141,7 @@ export function Scene() {
   // The next look and place load while the ceremony plays, so they are there the moment it ends.
   useEffect(() => {
     if (game.classIndex > shownClass) {
-      for (const src of lookImages(classLook(game.classIndex, scarf), heroLook(wornOutfit))) new Image().src = src;
+      for (const src of lookImages(classLook(game.classIndex, scarf), heroLook(wornOutfit, undefined, false, scarf))) new Image().src = src;
     }
   }, [game.classIndex, shownClass, wornOutfit, scarf]);
   useEffect(() => {
@@ -222,7 +222,7 @@ export function Scene() {
   const [shownOutfit, setShownOutfit] = useState(wornOutfit);
   // The first hero turns into the grandfather at 60 (story §6); an heir keeps their outfits.
   const grandpa = game.generation === 1 && heroAge(game).years >= GRANDPA_AGE;
-  const hero = heroLook(shownOutfit, shownHome, grandpa);
+  const hero = heroLook(shownOutfit, shownHome, grandpa, scarf);
   // An outfit without a collect pose stands in with its idle picture: each picture is drawn once.
   const heroPoses = POSE_LIST.filter(
     (key, index) => POSE_LIST.findIndex((other) => hero[other].src === hero[key].src) === index,

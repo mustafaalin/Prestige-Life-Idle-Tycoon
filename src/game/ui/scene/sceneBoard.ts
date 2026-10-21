@@ -16,7 +16,7 @@ import { classLook, FEET_Y, heroLook, homeArt, vehicleArt, vehicleBox, type Hero
 
 /** Index into OUTFITS, or -1: the grandfather look. */
 function heroFor(outfit: number, houseId: string): HeroLook {
-  return outfit < 0 ? heroLook(0, undefined, true) : heroLook(outfit, houseId);
+  return outfit < 0 ? heroLook(0, undefined, true, settings.scarf) : heroLook(outfit, houseId, false, settings.scarf);
 }
 
 const outfitName = (outfit: number) => (outfit < 0 ? 'Dede (60+)' : trContent.lifestyle[OUTFITS[outfit].id] ?? OUTFITS[outfit].name);
