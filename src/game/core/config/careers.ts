@@ -11,12 +11,6 @@ import { SECONDS_PER_MONTH } from './life';
 export const CAREER_TRACKS: CareerTrack[] = ['start', 'food', 'sales', 'transport', 'tech', 'finance', 'trades', 'media', 'health', 'top'];
 
 const ART = '/assets/jobs/v2';
-/** Jobs with their own picture so far; the others show the career icon until theirs is drawn. */
-const JOB_ART = new Set([
-  'flyer-distributor', 'dishwasher', 'cashier', 'waiter', 'delivery-driver', 'sales-representative',
-  'it-support', 'web-developer', 'software-engineer', 'team-leader', 'director', 'ceo',
-]);
-const PENDING_IMAGE = '/assets/icons/v2/career.webp';
 
 // Shorthands for the conditions.
 const job = (careerId: string, months: number): Requirement => ({ type: 'job', careerId, months });
@@ -130,7 +124,7 @@ const JOBS: { id: string; name: string; track: CareerTrack; monthly: number; cos
 
 export const CAREERS: CareerDef[] = JOBS.map(({ monthly, ...job }) => ({
   ...job,
-  image: JOB_ART.has(job.id) ? `${ART}/${job.id}.webp` : PENDING_IMAGE,
+  image: `${ART}/${job.id}.webp`,
   salaryPerSecond: monthly / SECONDS_PER_MONTH,
 }));
 

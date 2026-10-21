@@ -30,3 +30,6 @@ dist-ssr
 art/
 gpt-astra-inceleme/
 rich inc oyun görselleri/
+
+# Reference game screenshots (not ours, never commit)
+idle-guy-life-sim oyun ekran görüntüleri/

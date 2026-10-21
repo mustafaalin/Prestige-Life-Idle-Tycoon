@@ -143,15 +143,20 @@ export function cityName(locale: Locale, kind: ContentKind, id: string): string 
 /** The i18n branch holding the current city's managers. Business level names are the old city's until generation 2 writes Lumen's. */
 export const cityManagers = () => (current === 'lumen' ? 'managersLumen' : 'managers');
 
+/** Lumen's managers drawn so far; the lines added in 2026-10 keep the old city's portrait there until generation 2 draws theirs. */
+const LUMEN_MANAGERS = new Set(['flower-stand', 'coffee-cart', 'bakery', 'car-wash', 'mini-market', 'beauty-salon', 'logistics-warehouse', 'factory', 'hotel', 'tech-startup']);
+
 /** The current city's manager portrait for a business. */
 export const cityManagerPortrait = (businessId: string) =>
-  current === 'lumen' ? `/assets/managers/lumen/${businessId}.webp` : `/assets/managers/${businessId}.webp`;
+  current === 'lumen' && LUMEN_MANAGERS.has(businessId) ? `/assets/managers/lumen/${businessId}.webp` : `/assets/managers/${businessId}.webp`;
 
 const SKINNED = [...BUSINESSES, ...HOUSES, ...VEHICLES, ...LUXURY_TOYS];
 const OLD_IMAGES = new Map(SKINNED.map((def) => [def.id, def.image]));
+const OLD_STAGES = new Map(BUSINESSES.map((def) => [def.id, def.stageImages]));
 
 /**
- * Puts the city's pictures on the shared definitions (only `image` changes: the economy never reads it).
+ * Puts the city's pictures on the shared definitions (only `image` and a business's `stageImages`
+ * change: the economy never reads them). Lumen draws one look per business so far, so it has no stages.
  * Called by the store whenever the state changes, so every screen draws the city of the generation
  * being played; it does nothing while the city stays the same.
  */
@@ -161,5 +166,9 @@ export function applyCity(generationCity: City) {
   current = city;
   for (const def of SKINNED) {
     def.image = (city === 'lumen' ? LUMEN_IMAGES[def.id] : undefined) ?? OLD_IMAGES.get(def.id) ?? def.image;
+  }
+  for (const def of BUSINESSES) {
+    const lumen = city === 'lumen' ? LUMEN_IMAGES[def.id] : undefined;
+    def.stageImages = lumen ? [lumen] : (OLD_STAGES.get(def.id) ?? def.stageImages);
   }
 }

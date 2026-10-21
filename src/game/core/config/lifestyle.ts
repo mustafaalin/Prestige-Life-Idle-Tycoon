@@ -109,7 +109,7 @@ export const LUXURY_TOYS: LifestyleDef[] = TOYS.map((toy, index) => ({
 
 /**
  * Gear (2026-10-21): bought once at a real price, they open jobs (careers.ts) rather than show on the
- * scene. Art comes with the job icons (plan Faz E4); until then they show the shop icon.
+ * scene.
  */
 const GADGET_SPECS: { id: string; name: string; cost: number }[] = [
   { id: 'gadget-phone', name: 'Smartphone', cost: 300 },
@@ -121,7 +121,7 @@ const GADGET_SPECS: { id: string; name: string; cost: number }[] = [
 export const GADGETS: LifestyleDef[] = GADGET_SPECS.map((gadget) => ({
   ...gadget,
   kind: 'gadget',
-  image: '/assets/icons/v2/shop.webp',
+  image: `/assets/items/v2/${gadget.id}.webp`,
   statusBonus: ITEM_STATUS_BONUS,
 }));
 

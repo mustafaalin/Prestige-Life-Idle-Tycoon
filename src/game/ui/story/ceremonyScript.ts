@@ -6,7 +6,7 @@ import type { LifeMomentId } from '../../runtime/story';
 // beats in visual-novel style (portrait + bubble), then the before/now card. Each ceremony answers
 // what the one before planted, and some plant the next. Index = wealth class (WEALTH_CLASSES).
 
-/** `burak` speaks with a name tag only until his portraits come (docs/art-prompts-burak.md). */
+/** `burak` speaks with a name tag only until his portraits come (docs/archive/art-prompts-burak.md). */
 export type CastId =
   | 'hero'
   | 'mom'

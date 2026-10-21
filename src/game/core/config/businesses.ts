@@ -60,26 +60,18 @@ export const BRANCH_CAP_STEPS = [1, 2, 4, 8, 16, 32];
 export const CLASS_MANAGER_GIFT = { classIndex: 5, businessId: 'hotel' };
 
 const ART = '/assets/businesses/v2';
-/** Lines whose art and manager portrait are not drawn yet (plan Faz E3): they show the business icon. */
-export const ART_PENDING = new Set(['restaurant', 'real-estate-office', 'construction', 'media']);
-const PENDING_IMAGE = '/assets/icons/v2/business.webp';
 /**
- * How many of a line's three looks are drawn (prompts: docs/art-prompts-businesses.md). Stage 1 is
- * `{id}.webp`, stages 2 and 3 are `{id}-2.webp` and `{id}-3.webp`; a stage without art shows the one
- * before it. Raise the number when the art arrives.
+ * Every line has three looks (prompts: docs/archive/art-prompts-businesses.md): stage 1 is `{id}.webp`,
+ * stages 2 and 3 are `{id}-2.webp` and `{id}-3.webp`.
  */
-const STAGE_ART: Record<string, number> = {};
+const STAGES = 3;
 
-function stageImages(id: string): string[] {
-  if (ART_PENDING.has(id)) return [];
-  const drawn = STAGE_ART[id] ?? 1;
-  return Array.from({ length: drawn }, (_, stage) => (stage === 0 ? `${ART}/${id}.webp` : `${ART}/${id}-${stage + 1}.webp`));
-}
+const stageImages = (id: string): string[] =>
+  Array.from({ length: STAGES }, (_, stage) => (stage === 0 ? `${ART}/${id}.webp` : `${ART}/${id}-${stage + 1}.webp`));
 
 // openCost: opening the business · paybackMonths: game months level 1 takes to repay the opening
 // (bigger businesses repay slower, docs/game-design-v2.md §4.2) · openClass: the class the line opens at.
-// Fourteen lines (decided 2026-10-21); restaurant, real-estate-office, construction and media are new
-// and wait for their art and managers (plan Faz E3).
+// Fourteen lines (decided 2026-10-21).
 const LINES: { id: string; name: string; openCost: number; paybackMonths: number; cycleSeconds: number; openClass: number }[] = [
   { id: 'flower-stand', name: 'Flower Stand', openCost: 1000, paybackMonths: 1.25, cycleSeconds: 5, openClass: 0 },
   { id: 'coffee-cart', name: 'Coffee Cart', openCost: 4e3, paybackMonths: 8, cycleSeconds: 6, openClass: 1 },
@@ -118,7 +110,7 @@ export const BUSINESSES: BusinessDef[] = LINES.map(({ openCost, paybackMonths, o
   const levels = line.id === 'flower-stand' ? FLOWER_STAND_LEVELS : ladder(openCost, openCost / paybackMonths, line.cycleSeconds);
   return {
     ...line,
-    image: ART_PENDING.has(line.id) ? PENDING_IMAGE : `${ART}/${line.id}.webp`,
+    image: `${ART}/${line.id}.webp`,
     stageImages: stageImages(line.id),
     levels,
     branchCost: roundNice(levels.reduce((sum, level) => sum + level.cost, 0)),
