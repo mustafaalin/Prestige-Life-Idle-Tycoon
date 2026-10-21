@@ -10,23 +10,22 @@ import type { AdPlacement } from '../../runtime/ads';
 import { track } from '../../runtime/analytics';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
-import { buyProduct, storeAvailable } from '../../runtime/iap';
+import { storeAvailable } from '../../runtime/iap';
 import {
   limitedOfferOn,
   offerSecondsLeft,
   owns,
-  purchaseCash,
   saleId,
   storeProducts,
   welcomeSecondsLeft,
 } from '../../runtime/purchases';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { AdButton } from '../ads/AdButton';
-import { payout } from '../home/coins';
 import { requestFind } from '../scene/sceneEvents';
 import { STORE_ART } from './storeArt';
 import { NoAdsArt, PricePill } from './StoreParts';
 import { Checks, ComfortBanner, StarterBanner } from './StoreBanners';
+import { useBuy } from './useBuy';
 import { usePrices } from './usePrices';
 import { useRestore } from './useRestore';
 
@@ -307,19 +306,13 @@ function StarterReceipt({ onDismiss }: { onDismiss: () => void }) {
 }
 
 export function StoreSheet({ onClose }: { onClose: () => void }) {
-  const { state, actions } = useGameV2();
-  const { t, money } = useT();
-  // The store's purchase dialog takes a while; the paid amount is read from the state after it.
-  const stateRef = useRef(state);
-  useEffect(() => {
-    stateRef.current = state;
-  });
+  const { state } = useGameV2();
+  const { t } = useT();
   const now = useNow();
   const price = usePrices();
   const { status: restore, restore: restorePurchases } = useRestore();
-  const [busy, setBusy] = useState<string | null>(null);
-  const [failed, setFailed] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<'starter' | 'comfort' | null>(null);
+  const { buy, busy, failed } = useBuy((product) => setReceipt(product === PRODUCTS.starter ? 'starter' : 'comfort'));
   const body = useRef<HTMLDivElement>(null);
   useBackButton(true, 50, onClose);
 
@@ -333,27 +326,6 @@ export function StoreSheet({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (receipt) body.current?.scrollTo({ top: 0, behavior: 'smooth' });
   }, [receipt]);
-
-  const buy = async (product: ProductDef) => {
-    if (busy) return;
-    playSfx('click');
-    const id = saleId(state.purchases, product, Date.now());
-    setBusy(id);
-    setFailed(null);
-    const outcome = await buyProduct(id);
-    setBusy(null);
-    if (outcome === 'purchased') {
-      // Read before the purchase lands: the same amount applyPurchase pays.
-      const cash = purchaseCash(stateRef.current.game, stateRef.current.purchases, product);
-      actions.purchases.apply(id);
-      playSfx('purchase');
-      haptic('medium');
-      payout({ amount: cash, label: `+${money(cash)}`, count: 14 });
-      setReceipt(product === PRODUCTS.starter ? 'starter' : 'comfort');
-    } else if (outcome === 'unavailable') {
-      setFailed(product.id);
-    }
-  };
 
   const card = (product: ProductDef) => {
     const id = saleId(state.purchases, product, now);

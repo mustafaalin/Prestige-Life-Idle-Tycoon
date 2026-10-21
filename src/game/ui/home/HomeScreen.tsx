@@ -302,7 +302,7 @@ export function HomeScreen() {
       {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
       {incomeOpen && <IncomeSheet onClose={() => setIncomeOpen(false)} />}
 
-      <StoryDirector tabOpen={sheetOpen || eventOpen} hold={albumPlaying} onOpenRichList={openRichList} onOpenStore={openStore} />
+      <StoryDirector tabOpen={sheetOpen || eventOpen} hold={albumPlaying} onOpenRichList={openRichList} />
 
       <CoinLayer />
     </div>

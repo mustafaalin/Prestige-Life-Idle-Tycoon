@@ -58,12 +58,10 @@ export function StoryDirector({
   tabOpen,
   hold = false,
   onOpenRichList,
-  onOpenStore,
 }: {
   tabOpen: boolean;
   hold?: boolean;
   onOpenRichList: () => void;
-  onOpenStore: () => void;
 }) {
   const { game, state, actions } = useGameV2();
   const { t } = useT();
@@ -312,13 +310,12 @@ export function StoryDirector({
   }
 
   if (offer) {
-    const done = (look: boolean) => {
+    const done = (bought: boolean) => {
       actions.purchases.offerCardShown(offer.key);
-      track('offer_card', { opened: look, product: offer.key });
+      track('offer_card', { bought, product: offer.key });
       setQuiet(true);
-      if (look) onOpenStore();
     };
-    return <OfferCard product={offer} onLook={() => done(true)} onLater={() => done(false)} />;
+    return <OfferCard product={offer} onBought={() => done(true)} onLater={() => done(false)} />;
   }
 
   if (mom && !state.offline && !landing) {

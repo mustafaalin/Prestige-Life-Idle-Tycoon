@@ -8,25 +8,25 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { portalRoot } from '../stage';
 import { ComfortBanner, StarterBanner } from './StoreBanners';
 import { PricePill } from './StoreParts';
+import { useBuy } from './useBuy';
 import { usePrices } from './usePrices';
 
 // The day's offer card (2026-10-14 the welcome one; 2026-10-21 once a day, user): at a quiet moment it
-// shows one pack not bought yet as the Store shows it, with its price. It is a paid pack, so "View
-// pack" opens the Store and never buys from here. StoryDirector decides when and which
+// shows one pack not bought yet as the Store shows it. The button says the price and buys at once
+// through the store's own purchase dialog (2026-10-22, user: no detour through the Store); during the
+// welcome price the price it goes up to is written under it. StoryDirector decides when and which
 // (runtime/purchases.ts offerCardProduct).
 
-export function OfferCard({ product, onLook, onLater }: { product: ProductDef; onLook: () => void; onLater: () => void }) {
+export function OfferCard({ product, onBought, onLater }: { product: ProductDef; onBought: () => void; onLater: () => void }) {
   const { state } = useGameV2();
   const { t } = useT();
   const price = usePrices();
+  const { buy, busy, failed } = useBuy(onBought);
   useBackButton(true, 80, onLater);
 
   const now = Date.now();
   const welcome = welcomeSecondsLeft(state.purchases, product, now);
-  const priceLine =
-    welcome > 0
-      ? t('iap.offer.welcome', { price: price(product, saleId(state.purchases, product, now)), later: price(product) })
-      : t('iap.offer.paid', { price: price(product) });
+  const id = saleId(state.purchases, product, now);
 
   return createPortal(
     <div className="fixed inset-0 z-[80] bg-black/45 flex items-center justify-center p-4 overflow-y-auto">
@@ -45,9 +45,15 @@ export function OfferCard({ product, onLook, onLater }: { product: ProductDef; o
           ) : (
             <ComfortBanner product={product} />
           )}
-          <PricePill onClick={onLook}>{t('iap.offer.look')}</PricePill>
+          <PricePill disabled={busy !== null} onClick={() => void buy(product)}>
+            {busy === id ? t('iap.busy') : t('iap.buy', { price: price(product, id) })}
+          </PricePill>
         </div>
-        <p className="mt-2 text-center text-[11px] font-bold text-white/90">{priceLine}</p>
+        {(welcome > 0 || failed) && (
+          <p role={failed ? 'status' : undefined} className="mt-2 text-center text-[12px] font-bold text-white/90">
+            {failed ? t('iap.failed') : t('iap.welcome.later', { price: price(product) })}
+          </p>
+        )}
         <button type="button" onClick={onLater} className="w-full min-h-11 font-bold text-[14px] text-white/80">
           {t('iap.offer.later')}
         </button>
