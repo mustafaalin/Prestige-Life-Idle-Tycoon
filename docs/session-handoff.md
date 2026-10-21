@@ -39,7 +39,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 ## Sıradaki
 
 1. **Para serisi (GPT, art-prompts-v2 §2):** gelince `money-1..6` oyuna bağlanır, `CashPile` bindirmesi kalkar.
-1b. **IAP para paketleri (kullanıcı 2026-10-22: eklenecek):** kaç paket, fiyatlar, "X saatlik gelir" mi sabit tutar mı, lansmanda mı sonra mı: konuşulacak ([discussion-notes.md §4](./discussion-notes.md)).
+1b. **IAP para paketleri (2026-10-22, oyunda):** Mağaza'da "Para çantaları" bölümü, 5 tüketilir ürün `v2_cash_1..5` ($0,99 / $2,99 / $4,99 / $9,99 / $19,99 = 15 dk / 1 / 2 / 5 / 10 saatlik gelir; [monetization-v2.md §5](./monetization-v2.md)). Lansmanda gelecek. Yapılacak: Play Console'da 5 ürünü açmak ve RevenueCat'te **tüketilir** işaretlemek; GPT para serisi gelince M2–M6'yı `public/assets/icons/v2/money-{2..6}.webp` olarak koymak (o zamana kadar banknot yığını yer tutar, kod değişmez).
 2. **AAB 31:** karar gelince derlenir (`versionCode` 31), `~/Downloads/prestige-life-v2-31.aab`; telefon testi aşağıdaki listeyle.
 3. **Telefon bulgularına göre düzeltme.**
 4. **Lansman hazırlığı:** Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi; mağaza ekran görüntülerini yeni ekranlarla yenilemek.

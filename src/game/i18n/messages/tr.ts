@@ -1169,6 +1169,10 @@ export const tr: Messages = {
     },
     owned: 'Sahipsin',
     consumable: 'İstediğin zaman',
+    cash: {
+      note: '{duration} gelir',
+      buy: '{amount} al: {price}',
+    },
     strip: 'Özel teklifler Mağaza\'da',
     open: 'Aç',
     once: 'Tek seferlik',

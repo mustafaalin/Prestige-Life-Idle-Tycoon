@@ -21,7 +21,7 @@ Komutları her adayın yanında `-prompt.txt`; küçük boy karşılaştırması
 
 **Kontrol et:** altısı yan yana konunca boyut sırası tek bakışta okunuyor mu (M1 en küçük, M6 en büyük); 48 px'te bile "para" okunuyor mu; banknotlarda dolar işareti, rakam, yazı yok mu; bozuk para yok mu (kullanıcı: yalnız yeşil banknot); arka plan gerçekten saydam mı?
 
-**Oyuna bağlama (Claude):** webp (M1 96 px, diğerleri 256 px) → `public/assets/icons/v2/money-{1..6}.webp`. Kullanım: uçan para M1 (bugünkü `bill.webp`'nin yerine); ödül kartlarında tutarın yanında ödülün aylık gelire oranına göre M2 (bir aydan az), M3 (altı aya kadar), M4 (iki yıla kadar), M5 (daha fazla); Başlangıç Paketi M3, Rahat Paket M4; IAP para paketleri küçükten büyüğe M3–M6. `CashPile` bindirmesi kalkar.
+**Oyuna bağlama (Claude):** webp (M1 96 px, diğerleri 256 px) → `public/assets/icons/v2/money-{1..6}.webp`. Kullanım: uçan para M1 (bugünkü `bill.webp`'nin yerine); ödül kartlarında tutarın yanında ödülün aylık gelire oranına göre M2 (bir aydan az), M3 (altı aya kadar), M4 (iki yıla kadar), M5 (daha fazla); Başlangıç Paketi M3, Rahat Paket M4; IAP para çantaları küçükten büyüğe M2–M6 (`config/iap.ts` CASH_BAGS bu yolları bekliyor; dosya yokken `ui/shop/CashBags.tsx` banknot yığını gösterir). `CashPile` bindirmesi kalkar.
 
 | # | Kayıt | {KONU} |
 | --- | --- | --- |

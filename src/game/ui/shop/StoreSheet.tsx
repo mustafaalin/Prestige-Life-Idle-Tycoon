@@ -21,6 +21,7 @@ import {
 } from '../../runtime/purchases';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { AdButton } from '../ads/AdButton';
+import { CashBags } from './CashBags';
 import { requestFind } from '../scene/sceneEvents';
 import { STORE_ART } from './storeArt';
 import { NoAdsArt, PricePill } from './StoreParts';
@@ -33,8 +34,8 @@ import { useRestore } from './useRestore';
 // a sheet opened from the round button on the scene, from the first class-up. Products come from
 // config/iap.ts in section order. The Starter Pack and the Comfort Pack have their own cards (layered
 // art, the rewards as objects); a later product gets a plain card until it has its own.
-// A bought permanent product stays as an "active" card; a one-time one leaves, with a short summary
-// of what it gave. Prices are the store's local ones. Restore purchases at the bottom, as in Settings.
+// Cash bags (consumable) sit in a grid of their own (CashBags.tsx). A bought permanent product stays
+// as an "active" card; a one-time one leaves, with a short summary of what it gave. Prices are the store's local ones. Restore purchases at the bottom, as in Settings.
 
 /** Re-renders every half minute so countdowns move. */
 function useNow() {
@@ -312,7 +313,9 @@ export function StoreSheet({ onClose }: { onClose: () => void }) {
   const price = usePrices();
   const { status: restore, restore: restorePurchases } = useRestore();
   const [receipt, setReceipt] = useState<'starter' | 'comfort' | null>(null);
-  const { buy, busy, failed } = useBuy((product) => setReceipt(product === PRODUCTS.starter ? 'starter' : 'comfort'));
+  const { buy, busy, failed } = useBuy((product) =>
+    setReceipt(product === PRODUCTS.starter ? 'starter' : product === PRODUCTS.comfort ? 'comfort' : null),
+  );
   const body = useRef<HTMLDivElement>(null);
   useBackButton(true, 50, onClose);
 
@@ -374,7 +377,11 @@ export function StoreSheet({ onClose }: { onClose: () => void }) {
           return (
             <div key={section} className="flex flex-col gap-2">
               {items.length > 0 && <SectionTitle>{t(`iap.sections.${section}`)}</SectionTitle>}
-              {items.map(card)}
+              {section === 'bundles' ? (
+                items.length > 0 && <CashBags bags={items} price={(product) => price(product)} busy={busy} failed={failed} onBuy={(product) => void buy(product)} />
+              ) : (
+                items.map(card)
+              )}
               {/* The free offers sit right after the first offers, before the permanent ones. */}
               {section === 'limited' && <FreeOffers onClose={onClose} />}
             </div>

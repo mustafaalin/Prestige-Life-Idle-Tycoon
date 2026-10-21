@@ -606,6 +606,19 @@ body {
 }
 .v2-iap-pill:active:not(:disabled) { transform: translate(-50%, 2px); box-shadow: 0 2px 0 #c98a12; }
 .v2-iap-pill:disabled { opacity: 0.75; }
+/* A cash bag's price: the gold pill, sitting in its tile. */
+.v2-iap-buy {
+  min-height: 36px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  border: 2px solid #fff8dc;
+  background: linear-gradient(#ffe27a, #f6b62f);
+  color: #3a2307;
+  box-shadow: 0 3px 0 #c98a12;
+  transition: transform 100ms, box-shadow 100ms;
+}
+.v2-iap-buy:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #c98a12; }
+.v2-iap-buy:disabled { opacity: 0.75; }
 /* The store's section titles: centred capitals in the store's ink, like a shop sign. */
 .v2-iap-section {
   font-family: 'Fredoka', system-ui, sans-serif;

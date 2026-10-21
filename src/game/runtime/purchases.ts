@@ -130,7 +130,8 @@ export function offerCardProduct(context: Pick<PurchaseContext, 'story' | 'purch
   const { purchases } = context;
   if (!purchases.offerCardShown) return limitedOffer(context, now) ?? null;
   if (purchases.offerDay === dayKey(now)) return null;
-  const forSale = storeProducts(context, now).filter((product) => !owns(purchases, product));
+  // Packs only: cash bags stay in the Store.
+  const forSale = storeProducts(context, now).filter((product) => product.kind !== 'consumable' && !owns(purchases, product));
   return forSale.find((product) => product.key !== purchases.offerLast) ?? forSale[0] ?? null;
 }
 

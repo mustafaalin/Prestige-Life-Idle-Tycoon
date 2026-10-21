@@ -10,7 +10,7 @@
 // Product ids are the store ids (Play Console / App Store Connect). They are saved on the player's
 // phone: never rename one (docs/session-handoff.md, "Kayıt uyumluluğu").
 
-export type ProductKey = 'comfort' | 'starter';
+export type ProductKey = 'comfort' | 'starter' | 'cash1' | 'cash2' | 'cash3' | 'cash4' | 'cash5';
 
 /**
  * permanent: bought once, kept for good, shown as owned afterwards. once: bought once, its rewards
@@ -67,6 +67,29 @@ export interface ProductDef {
 
 const ART = '/assets/iap';
 
+/**
+ * A cash bag (2026-10-22, user: five money packs like the reference shop, sized to the player's
+ * income): hours of the income while playing, bought again and again. A bigger bag gives more per
+ * dollar (15, 20, 24, 30, 30 minutes per $), and none beats the Starter Pack, which also has a boost
+ * and the scarf. Pictures: the money series M2–M6 (docs/art-prompts-v2.md §2); until they come, a
+ * pile of the Starter Pack's banknotes (ui/shop/CashBags.tsx).
+ */
+function cashBag(tier: 1 | 2 | 3 | 4 | 5, fallbackPrice: string, incomeSeconds: number): ProductDef {
+  return {
+    key: `cash${tier}`,
+    id: `v2_cash_${tier}`,
+    kind: 'consumable',
+    section: 'bundles',
+    art: `/assets/icons/v2/money-${tier + 1}.webp`,
+    lines: 0,
+    fallbackPrice,
+    boostSeconds: 0,
+    incomeSeconds,
+    incomeBonus: 0,
+    offerSeconds: 0,
+  };
+}
+
 export const PRODUCTS: Record<ProductKey, ProductDef> = {
   /**
    * Every rewarded ad's reward without the ad, for good; a 2-hour boost and 3 hours of income to start
@@ -103,10 +126,18 @@ export const PRODUCTS: Record<ProductKey, ProductDef> = {
     offerSeconds: 0,
     welcome: { id: 'v2_starter_pack_welcome', seconds: 3 * 24 * 3600, fallbackPrice: '$1.49' },
   },
+  cash1: cashBag(1, '$0.99', 15 * 60),
+  cash2: cashBag(2, '$2.99', 3600),
+  cash3: cashBag(3, '$4.99', 2 * 3600),
+  cash4: cashBag(4, '$9.99', 5 * 3600),
+  cash5: cashBag(5, '$19.99', 10 * 3600),
 };
 
+/** Cash bags, smallest first. */
+export const CASH_BAGS: ProductDef[] = [PRODUCTS.cash1, PRODUCTS.cash2, PRODUCTS.cash3, PRODUCTS.cash4, PRODUCTS.cash5];
+
 /** The products on sale, in the order they show within a section. */
-export const PRODUCT_LIST: ProductDef[] = [PRODUCTS.starter, PRODUCTS.comfort];
+export const PRODUCT_LIST: ProductDef[] = [PRODUCTS.starter, PRODUCTS.comfort, ...CASH_BAGS];
 
 /** Every store id of a product: its own and its welcome price's. */
 export function productIds(product: ProductDef) {

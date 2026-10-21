@@ -1170,6 +1170,10 @@ export const en = {
     },
     owned: 'Owned',
     consumable: 'Buy any time',
+    cash: {
+      note: '{duration} of income',
+      buy: 'Buy {amount} for {price}',
+    },
     strip: 'Special offers are in the Store',
     open: 'Open',
     once: 'One time',
