@@ -13,16 +13,7 @@ Kullanıcının telefonda bulduğu her şey burada; yapılan madde ilgili belgey
 **Sahne**
 - Bazı evlerin önünde araçlar çok büyük: her ev × araç için ayrı yerleşim (sonra, tek tek bakılacak).
 
-**Kariyer**
-- Süre şartları çakışıyor: aynı işten 6 ve 12 ay isteyen iki iş var (bulaşıkçı → garson 6, aşçı 12; mağaza satış danışmanı → satış temsilcisi 12, mağaza müdürü 36). 10 ayda geçen oyuncu 12 ay isteyen işe bir daha giremiyor (kurallar eski işe dönmeye izin veriyor ama ekran daha düşük maaşlı işi göstermiyor). Çok iş "El ilanında 6 ay" istiyor.
-- Kullanıcının önerisi: daha dikey meslekler (az yatay dal), düzenli artan maaşlar, her işte tek ve aynı "uzmanlık" süresi (önceki işte uzmanlığı bitirmek) + 2–3 ek şart, böylece diğer geliştirmeler paralel yürür. CEO maaşı $5–10M/ay, CEO'ya oyunda birkaç haftada varılır.
-- Uzmanlık süresi tek olursa iş kartının çevresinde dolan bir şerit; dolunca uzmanlık tamam.
-- Kilitli işlerin adı görünsün, maaşı ve giriş ücreti görünmesin. Giriş ücreti neden var? (kullanıcı ücretsiz sanıyordu; tasarımda $20 → $20K "küçük bedel").
-- Deneyim reklamı: her reklam 3 ay, her işte yalnız 1 kez (şimdi günde 3). Reklamsız paketi olan arka arkaya basıp geçişleri çok hızlı yapıyor. Aylık gelir çok hızlı artıyor.
-- İş değişiminde görsel şölen yok: referans oyunda arka plan kararıyor, eski işin ikonu ve maaşı ortada, kayıp çıkıyor, yenisi kayarak geliyor, maaş eskisinden yenisine sayarak artıyor, "+$X" yazıyor. Daha iyisi tasarlanacak.
-- Eski işler görünmüyor; sıradaki işe dokununca eksik şartları gösteren bir detay penceresi.
-- Kurslar ekranın altında kalmış, ne olduğu anlaşılmıyor: "İşler / Kurslar" sekmeleri.
-- Dallanma kalırsa dalları gösteren bir harita (referans `jobs.jpeg`); gerekirse meslek sayısı artar. Hikâyeye uygun olan yapı seçilecek.
+**Kariyer:** kararlaştı ([career-redesign.md](./career-redesign.md), kurallar [game-design-v2.md §4.4](./game-design-v2.md)); ekran, iş değişimi şovu ve ikonlar [rebuild-plan.md E7](./rebuild-plan.md)'de. Açık kalan: aylık gelir çok hızlı artıyor (işletmeler). Maaşın payı 23–45 yaşta %2–8; kullanıcı dengeyi bozmasın diye böyle kabul etti (2026-10-21).
 
 **İşletmeler**
 - Seviyeler 10 (yeni görünüm 8 ve 10'da): eşit aşamalar olsun, 5 + 5 ya da 6 + 6; her aşamanın son seviyesinde "yeni binaya geçiş" bilgisi ve belirgin gelir artışı.

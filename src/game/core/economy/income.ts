@@ -4,7 +4,7 @@ import { HOUSES } from '../config/housing';
 import type { BusinessDef, GameStateV2, IncomeMode } from '../types';
 import { baseBusinessIncomePerSecond, baseRunRevenue, businessState, isOpened } from './business';
 import { legacyMultiplier } from './legacy';
-import { currentCareer, salaryOf } from './career';
+import { currentSalary } from './career';
 import { collarAt, globalMultiplier, homeBonus, statusBonus } from './multipliers';
 
 // Where income comes from (docs/game-design-v2.md §7). Each source says what it pays per second
@@ -26,7 +26,7 @@ export function uptime(managed: boolean, mode: IncomeMode) {
 }
 
 export function salaryPerSecond(state: GameStateV2) {
-  return salaryOf(currentCareer(state));
+  return currentSalary(state);
 }
 
 /** Base rent per second from owned houses you do not live in (before global multipliers). */

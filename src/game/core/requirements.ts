@@ -1,4 +1,6 @@
+import { careerDef } from './config/careers';
 import { HOUSES } from './config/housing';
+import { VEHICLES } from './config/lifestyle';
 import { SECONDS_PER_MONTH } from './config/life';
 import type { GameStateV2, Requirement } from './types';
 
@@ -18,8 +20,12 @@ export function isMet(state: GameStateV2, requirement: Requirement): boolean {
       return state.lifestyleOwned.includes(requirement.itemId);
     case 'businessLevel':
       return (state.businesses[requirement.businessId]?.level ?? 0) >= requirement.level;
-    case 'job':
-      return jobMonths(state, requirement.careerId) >= requirement.months;
+    case 'mastered':
+      return isMastered(state, requirement.careerId);
+    case 'vehicle':
+      return VEHICLES.some((vehicle, index) => index >= requirement.index && state.lifestyleOwned.includes(vehicle.id));
+    case 'managers':
+      return Object.values(state.businesses).filter((business) => business.managed).length >= requirement.count;
     case 'course':
       return state.coursesDone.includes(requirement.courseId);
     case 'anyOf':
@@ -30,6 +36,17 @@ export function isMet(state: GameStateV2, requirement: Requirement): boolean {
 /** Whole game months worked in a job, now or before. */
 export function jobMonths(state: GameStateV2, careerId: string) {
   return Math.floor((state.jobSeconds[careerId] ?? 0) / SECONDS_PER_MONTH);
+}
+
+/** Share of a job's mastery done (0–1): months worked against the months it takes. */
+export function masteryOf(state: GameStateV2, careerId: string) {
+  const career = careerDef(careerId);
+  if (!career) return 0;
+  return Math.min(1, (state.jobSeconds[careerId] ?? 0) / (career.masteryMonths * SECONDS_PER_MONTH));
+}
+
+export function isMastered(state: GameStateV2, careerId: string) {
+  return masteryOf(state, careerId) >= 1;
 }
 
 /** Every condition not met yet, in the order listed. */

@@ -81,6 +81,11 @@ for (const profile of PROFILES) {
     return `${wealthClass.name} ${event ? Math.floor(START_AGE + event.activeGeneration / SECONDS_PER_YEAR) : '–'}`;
   });
   console.log(`ages (gen 1): ${ages.join(' · ')}`);
+  // The job tree (docs/game-design-v2.md §4.4): each move with the hero's age and salary's share of income.
+  const jobs = result.events
+    .filter((x) => x.kind === 'career' && x.generation === 1)
+    .map((x) => `${x.label.replace(/^Job: /, '').replace(/ \(\+.*\)$/, '')} ${Math.floor(START_AGE + x.activeGeneration / SECONDS_PER_YEAR)} (${Math.round((1 - x.businessShare) * 100)}%)`);
+  console.log(`jobs (gen 1, age, salary share of income): ${jobs.join(' · ')}`);
 
   {
     const earnedTotal = result.events.at(-1);

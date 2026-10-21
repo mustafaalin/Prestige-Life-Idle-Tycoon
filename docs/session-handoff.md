@@ -27,7 +27,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak ye
 
 Ayrıntılar tasarım ve hikâye belgelerinde.
 
-- **Ekonomi (yeniden kuruldu 2026-10-20/21):** gerçekçi takvim (1 ay = 80 sn, 1 yıl = 16 dk, gerçek maaş ve fiyatlar); 14 işletme, her biri 10 seviye + şube, üç görünüm; 63 meslek şartla açılır, 16 kurs, 4 meslek açan eşya, iş panosu; 12 ev (kirala → satın al → kiraya ver), 12 araç, 7 kıyafet, 4 lüks (gelir bonusu yok); Şans'ın tasmaları (%2 / %4 / %6); çevrimdışı %20, en çok 1 sa; 8 sınıf, 1. nesilde Milyarder'e kadar (~70 yaş). Kayıt şeması 2.
+- **Ekonomi (yeniden kuruldu 2026-10-20/21):** gerçekçi takvim (1 ay = 80 sn, 1 yıl = 16 dk, gerçek maaş ve fiyatlar); 14 işletme, her biri 10 seviye + şube, üç görünüm; 104 meslekli ağaç (15 satır, ustalıkla ilerleme, yıllık zam; ekranı henüz eski iş panosu), 24 kurs, 4 meslek açan eşya; 12 ev (kirala → satın al → kiraya ver), 12 araç, 7 kıyafet, 4 lüks (gelir bonusu yok); Şans'ın tasmaları (%2 / %4 / %6); çevrimdışı %20, en çok 1 sa; 8 sınıf, 1. nesilde Milyarder'e kadar (~70 yaş). Kayıt şeması 2.
 - **Hikâye:** önsöz (6 kare), 5 sınıf töreni (Gündelikçi → Milyarder; Multimilyarder ve En Zengin torunla), annenin mesajları, hayat anları (25, 28, 31, 63, 70), 4 lüks anı, 10 olay kartı, Zenginler Listesi, aile albümü, 60+ dede görünümü. 80'de kahraman kalır: bir kez "Torununun hikâyesi yakında" kartı, oyun sürer. Burak hikâyesi, devir, miras, Aile sekmesi ve Lumen kodda duruyor ama kapalı (`config/content.ts`).
 - **Ana ekran:** oturulan ev ve önündeki araç, kahraman, Şans, yerden toplama (Orta Sınıf'ta biter), hedef rozeti, gelir dökümü, hayaller panosu, ×2 hızlandırıcı, Şans'ı çağır, fırsat balonu; alt menüde İşletmeler, Kariyer, Alışveriş, Yatırım. Rıza Amca rehberi.
 - **Para:** 19 ödüllü reklam yeri, kilitsiz (reklam izleyen Milyarder'e %47 erken); Mağaza: Rahat Paket $7,99 (reklamsız), Başlangıç Paketi $2,99 (ilk 3 gün $1,49); geri yükleme; Play puanlama penceresi.
@@ -36,10 +36,11 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 
 ## Sıradaki
 
-1. **AAB 30'u telefonda denemek** (aşağıdaki liste). Play'deki son sürüm AAB 29: 2026-10-15'ten sonraki her şey (ekonominin yeniden kurulması dahil) ilk kez AAB 30'la telefona gidiyor. Şema 2 yüzünden AAB 29 kaydı bir kez sıfırdan başlar (mağaza alımları kalır); yayından sonra bu bir daha yapılmaz.
-2. **Telefon bulgularına göre düzeltme**, özellikle reklam düğmesi kalabalığı (bir işletme kartında 3–4 düğme görünebiliyor) ve yeni ekonominin ilk saati.
-3. **Lansman hazırlığı:** kapalı test 14 günü doldu (~2026-10-20) → Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi.
-4. **Sonra:** IAP 2. adım (Yakut Tasma, Gece Vardiyası), Remote Config, Crashlytics, oyuncuyu tutma önerileri ([discussion-notes.md §2](./discussion-notes.md)). 2. nesil (Ada, Lumen, devir) yayından sonra.
+1. **Meslek ağacı (E7, [career-redesign.md](./career-redesign.md)):** veri ve kurallar kodda (2026-10-21, commit'lenmedi); sırada sekmeli ağaç ekranı, iş değişimi şovu, 41 yeni ikon. 7 ara meslek ve maaş eğrisi onaylandı ([career-redesign.md §8](./career-redesign.md)).
+2. **AAB 30'u telefonda denemek** (aşağıdaki liste). Play'deki son sürüm AAB 29: 2026-10-15'ten sonraki her şey (ekonominin yeniden kurulması dahil) ilk kez AAB 30'la telefona gidiyor. Şema 2 yüzünden AAB 29 kaydı bir kez sıfırdan başlar (mağaza alımları kalır); yayından sonra bu bir daha yapılmaz.
+3. **Telefon bulgularına göre düzeltme**, özellikle reklam düğmesi kalabalığı (bir işletme kartında 3–4 düğme görünebiliyor) ve yeni ekonominin ilk saati.
+4. **Lansman hazırlığı:** kapalı test 14 günü doldu (~2026-10-20) → Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi.
+5. **Sonra:** IAP 2. adım (Yakut Tasma, Gece Vardiyası), Remote Config, Crashlytics, oyuncuyu tutma önerileri ([discussion-notes.md §2](./discussion-notes.md)). 2. nesil (Ada, Lumen, devir) yayından sonra.
 
 ## Telefonda test listesi (AAB 30)
 

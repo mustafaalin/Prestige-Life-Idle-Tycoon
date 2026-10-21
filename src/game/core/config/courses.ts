@@ -12,10 +12,12 @@ const course = (id: string, name: string, cost: number, months: number, requires
   requires,
 });
 
+const after = (courseId: string): Requirement => ({ type: 'course', courseId });
+
 export const COURSES: CourseDef[] = [
   course('first-aid', 'First Aid Certificate', 300, 1),
   course('driving-license', 'Driving License', 800, 2),
-  course('heavy-license', 'Heavy Vehicle License', 2_500, 4, [{ type: 'course', courseId: 'driving-license' }]),
+  course('heavy-license', 'Heavy Vehicle License', 2_500, 4, [after('driving-license')]),
   course('it-certificate', 'IT Certificate', 1_500, 12),
   course('coding-bootcamp', 'Coding Bootcamp', 6_000, 6),
   course('journalism', 'Journalism Course', 4_000, 9),
@@ -29,6 +31,15 @@ export const COURSES: CourseDef[] = [
   course('economics-degree', 'Economics Degree', 30_000, 48),
   course('engineering-degree', 'Engineering Degree', 35_000, 48),
   course('medical-school', 'Medical School', 150_000, 72),
+  // The job tree (2026-10-21): night school is the door to most office and expert jobs.
+  course('night-school', 'Night School', 500, 12),
+  course('education-degree', 'Education Degree', 12_000, 36, [after('night-school')]),
+  course('law-school', 'Law School', 60_000, 48, [after('night-school')]),
+  course('architecture', 'Architecture Degree', 50_000, 48, [after('night-school')]),
+  course('veterinary-school', 'Veterinary School', 70_000, 48, [after('night-school')]),
+  course('flight-school', 'Flight School', 90_000, 18),
+  course('doctorate', 'Doctorate', 40_000, 36, [after('night-school')]),
+  course('surgical-residency', 'Surgical Residency', 200_000, 48, [after('medical-school')]),
 ];
 
 const COURSE_BY_ID = new Map(COURSES.map((entry) => [entry.id, entry]));

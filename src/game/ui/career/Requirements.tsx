@@ -1,5 +1,5 @@
 import { Check, Circle } from 'lucide-react';
-import { jobMonths, isMet } from '../../core/requirements';
+import { isMet, masteryOf } from '../../core/requirements';
 import type { GameStateV2, Requirement } from '../../core/types';
 import type { Translator } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
@@ -9,11 +9,15 @@ import { requirementTarget, requirementText } from './requirementText';
 // What a locked job (or course) still needs, one line per condition, each with "Go" to where it is
 // done (docs/game-design-v2.md §4.4). Shared by every screen that shows conditions.
 
-/** A job requirement's progress ("7/12") when some months are worked but not enough. */
-function progress(state: GameStateV2, requirement: Requirement, t: Translator['t']) {
-  if (requirement.type !== 'job') return null;
-  const done = jobMonths(state, requirement.careerId);
-  return done > 0 && done < requirement.months ? t('requirement.progress', { done, need: requirement.months }) : null;
+/** How far a job's mastery is ("40%") when it is started but not done; an anyOf shows its best option. */
+function progress(state: GameStateV2, requirement: Requirement, t: Translator['t']): string | null {
+  const share =
+    requirement.type === 'mastered'
+      ? masteryOf(state, requirement.careerId)
+      : requirement.type === 'anyOf'
+        ? Math.max(0, ...requirement.options.map((option) => (option.type === 'mastered' ? masteryOf(state, option.careerId) : 0)))
+        : 0;
+  return share > 0 && share < 1 ? t('requirement.progress', { percent: Math.floor(share * 100) }) : null;
 }
 
 export function RequirementList({

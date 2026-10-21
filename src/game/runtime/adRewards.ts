@@ -23,6 +23,7 @@ import { courseDef } from '../core/config/courses';
 import type { EventOutcome } from '../core/config/events';
 import { SECONDS_PER_MONTH } from '../core/config/life';
 import { autoIncomePerSecond, businessState, currentCareer, eventReward, incomePerSecond, isOpened, questReward } from '../core/formulas';
+import { isMastered } from '../core/requirements';
 import { earn } from '../core/state';
 import type { CareerDef, GameStateV2, QuestDef } from '../core/types';
 import type { InvestProgress } from './investment';
@@ -230,19 +231,28 @@ export function applyCourseRush<T extends AdContext>(state: T, now: number): T |
   );
 }
 
+/** Once per job (docs/monetization-v2.md), and only while it is not mastered yet. */
 export function canRushExperience({ game, ads }: AdContext, now: number) {
-  return game.careerId !== null && canWatch(ads, 'experience_rush', now);
+  return (
+    game.careerId !== null &&
+    !isMastered(game, game.careerId) &&
+    marked(ads, `experience_rush:${game.careerId}`) === 0 &&
+    canWatch(ads, 'experience_rush', now)
+  );
 }
 
-/** Months of experience in the job held. */
+/** Months of experience in the job held: its mastery moves on. */
 export function applyExperienceRush<T extends AdContext>(state: T, now: number): T | null {
   const careerId = state.game.careerId;
-  if (careerId === null) return null;
+  if (careerId === null || !canRushExperience(state, now)) return null;
   const add = EXPERIENCE_RUSH_MONTHS * SECONDS_PER_MONTH;
-  return grant(state, 'experience_rush', now, (s) => ({
-    ...s,
-    game: { ...s.game, jobSeconds: { ...s.game.jobSeconds, [careerId]: (s.game.jobSeconds[careerId] ?? 0) + add } },
-  }));
+  return grant(
+    state,
+    'experience_rush',
+    now,
+    (s) => ({ ...s, game: { ...s.game, jobSeconds: { ...s.game.jobSeconds, [careerId]: (s.game.jobSeconds[careerId] ?? 0) + add } } }),
+    `experience_rush:${careerId}`,
+  );
 }
 
 type InvestContext = AdContext & { invest: InvestProgress };

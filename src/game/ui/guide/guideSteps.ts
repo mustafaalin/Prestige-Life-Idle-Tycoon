@@ -54,7 +54,7 @@ export function guideStep(state: RuntimeState): GuideStep | null {
       : step('claim', true, { key: `quest:${FIRST_QUEST}:claim` }, false);
   }
   if (game.careerId === null) {
-    return step('job', game.cash >= FIRST_JOB.cost, { tab: 'career', key: `career:take:${FIRST_JOB.id}` });
+    return step('job', true, { tab: 'career', key: `career:take:${FIRST_JOB.id}` });
   }
   if (stand.level === 0) {
     return step('stand', canAffordStand(game), { tab: 'businesses', key: `business:${STAND.id}:level` });

@@ -14,9 +14,12 @@ import {
   canOpenBranch,
   canOpenBusiness,
   availableCourses,
+  canLeaveCareer,
   careersNeedingCourse,
   currentCareer,
+  currentSalary,
   globalMultiplier,
+  hasWorked,
   heirloomLevel,
   heirloomPrice,
   legacyMultiplier,
@@ -104,8 +107,8 @@ import {
 import { adGift, courseRushSeconds, firstSalaryBonus, opportunityReward, questAdExtra } from '../runtime/adRewards';
 import { CONTENT } from '../core/config/content';
 import { CAREERS } from '../core/config/careers';
-import { LIFESTYLE_ITEMS } from '../core/config/lifestyle';
-import { unmet } from '../core/requirements';
+import { LIFESTYLE_ITEMS, VEHICLES } from '../core/config/lifestyle';
+import { isMastered, unmet } from '../core/requirements';
 
 const ITEM_BY_ID = new Map(LIFESTYLE_ITEMS.map((item) => [item.id, item]));
 
@@ -269,19 +272,22 @@ function candidates(state: GameStateV2): Candidate[] {
     }
   }
 
-  // Jobs (docs/game-design-v2.md §4.4): any better-paying job whose missing conditions are only items the bot
-  // can buy now; the items are bought with it. Courses are started separately (maybeStudy).
-  const salary = currentCareer(state)?.salaryPerSecond ?? 0;
+  // Jobs (docs/game-design-v2.md §4.4): once the job held is mastered, any better-paying job whose missing
+  // conditions are only items or a vehicle the bot can buy now; they are bought with it. Courses are
+  // started separately (maybeStudy).
+  const salary = currentSalary(state);
   for (const career of CAREERS) {
-    if (career.salaryPerSecond <= salary || career.id === state.careerId) continue;
+    if (career.salaryPerSecond <= salary || hasWorked(state, career.id) || !canLeaveCareer(state)) continue;
     const missing = unmet(state, career.requires);
-    const items = missing.flatMap((requirement) => (requirement.type === 'item' ? [ITEM_BY_ID.get(requirement.itemId)] : []));
+    const items = missing.flatMap((requirement) =>
+      requirement.type === 'item' ? [ITEM_BY_ID.get(requirement.itemId)] : requirement.type === 'vehicle' ? [VEHICLES[requirement.index]] : [],
+    );
     if (items.length !== missing.length || items.some((item) => !item || lifestyleLocked(state, item))) continue;
     const gear = items.filter((item) => item !== undefined);
     list.push({
       label: `Job: ${career.name}${gear.length ? ` (+ ${gear.map((item) => item.name).join(', ')})` : ''}`,
       kind: 'career',
-      cost: career.cost + gear.reduce((sum, item) => sum + item.cost, 0),
+      cost: gear.reduce((sum, item) => sum + item.cost, 0),
       apply: (s) => {
         let next: GameStateV2 | null = s;
         for (const item of gear) next = next && buyLifestyle(next, item.id);
@@ -427,8 +433,10 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     if (!extras()) return;
     const limit = (placement: keyof typeof AD_PLACEMENTS) => AD_PLACEMENTS[placement].perDay ?? Infinity;
     // Time: a few months of experience and a course pushed ahead.
-    if (state.careerId !== null && watched.experience < limit('experience_rush')) {
+    // Experience: once per job, while it is not mastered (runtime/adRewards.ts canRushExperience).
+    if (state.careerId !== null && watched.experience < limit('experience_rush') && !isMastered(state, state.careerId) && !watched.rushed[`job:${state.careerId}`]) {
       const careerId = state.careerId;
+      watched.rushed[`job:${careerId}`] = 1;
       state = { ...state, jobSeconds: { ...state.jobSeconds, [careerId]: (state.jobSeconds[careerId] ?? 0) + EXPERIENCE_RUSH_MONTHS * SECONDS_PER_MONTH } };
       watched.experience += 1;
     }
@@ -639,7 +647,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
    */
   const maybeStudy = () => {
     if (state.course) return;
-    const salary = currentCareer(state)?.salaryPerSecond ?? 0;
+    const salary = currentSalary(state);
     const worth = availableCourses(state)
       .filter((course) => careersNeedingCourse(course.id).some((career) => career.salaryPerSecond > salary))
       .sort((a, b) => a.cost - b.cost)[0];

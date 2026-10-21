@@ -1,132 +1,249 @@
 import type { CareerDef, CareerTrack, Requirement } from '../types';
 import { SECONDS_PER_MONTH } from './life';
+import { VEHICLES } from './lifestyle';
 
-// Jobs (docs/game-design-v2.md §4.4, decided 2026-10-20): many jobs in a few fields, one held at a
-// time. A job is never bought with big money: it opens when its conditions are met (months in an
-// earlier job, a course, an item, an address) and costs only a small fee. Salaries follow the in-game
-// calendar (one month = 80 s): what a job pays a month is close to real life. Jobs give no income
-// bonus. Ids are saved (current job, months per job): never rename one.
+// The job tree (docs/game-design-v2.md §4.4, decided 2026-10-21): four tabs, jobs in rows. A job opens
+// when one of the jobs before it (one row lower) is mastered, plus two or three extras (a course, an
+// item, an address, a business, a class). The job held has to be mastered before moving on, and a job
+// once left is never taken again. Pay is set by the row: every move pays nextJobStep() more than the
+// job before it paid at mastery, with a yearly raise while working towards mastery. There is no fee.
+// Ids are saved (current job, months per job): never rename one.
 
-/** The fields in the order the career screen lists them. */
-export const CAREER_TRACKS: CareerTrack[] = ['start', 'food', 'sales', 'transport', 'tech', 'finance', 'trades', 'media', 'health', 'top'];
+/** The tabs in the order the career screen shows them. */
+export const CAREER_TRACKS: CareerTrack[] = ['worker', 'office', 'expert', 'top'];
+
+/** What the first job pays a month. */
+export const FIRST_JOB_MONTHLY = 300;
+
+/**
+ * A new job pays this many times what the job before it (one row lower) paid at mastery: within the
+ * user's +10–25%. Small while the first jobs take under a year to master, so they don't outrun the
+ * first businesses; bigger from row 6, where each job takes years.
+ */
+export function nextJobStep(level: number) {
+  return level <= 5 ? 1.1 : 1.25;
+}
+
+/** Each full game year in a job raises its pay this much, until the job is mastered. */
+export const YEARLY_RAISE = 0.2;
+
+/** Months to master a job in this row: under a year for the first two rows (no raise there), at most 36. */
+export function masteryMonthsAt(level: number) {
+  return Math.min(36, 6 * level - 3);
+}
+
+/** Raises a job in this row gives on the way to mastery (one per full year). */
+export function raisesAt(level: number) {
+  return Math.floor(masteryMonthsAt(level) / 12);
+}
+
+/** Starting pay a month in this row: the row below at mastery, times the step. */
+export function monthlyAt(level: number) {
+  let monthly = FIRST_JOB_MONTHLY;
+  for (let row = 2; row <= level; row += 1) monthly *= (1 + YEARLY_RAISE) ** raisesAt(row - 1) * nextJobStep(row);
+  return monthly;
+}
 
 const ART = '/assets/jobs/v2';
 
-// Shorthands for the conditions.
-const job = (careerId: string, months: number): Requirement => ({ type: 'job', careerId, months });
+// Shorthands for the extras.
 const course = (courseId: string): Requirement => ({ type: 'course', courseId });
 const item = (itemId: string): Requirement => ({ type: 'item', itemId });
-/** Live at this home or a better one (index into HOUSES): 2 = the rented room, an address for a contract. */
+/** Live at this home or a better one (index into HOUSES): 2 = the rented room. */
 const home = (index: number): Requirement => ({ type: 'home', index });
-const anyOf = (...options: Requirement[]): Requirement => ({ type: 'anyOf', options });
+const wealth = (index: number): Requirement => ({ type: 'class', index });
+/** This vehicle or a better one. */
+const vehicle = (itemId: string): Requirement => ({ type: 'vehicle', index: VEHICLES.findIndex((entry) => entry.id === itemId) });
+const business = (businessId: string, level = 1): Requirement => ({ type: 'businessLevel', businessId, level });
+const managers = (count: number): Requirement => ({ type: 'managers', count });
 
-const JOBS: { id: string; name: string; track: CareerTrack; monthly: number; cost: number; requires: Requirement[] }[] = [
-  // The first job: anyone can hand out flyers.
-  { id: 'flyer-distributor', name: 'Flyer Distributor', track: 'start', monthly: 300, cost: 20, requires: [] },
+// Wealth classes by index (classes.ts).
+const DAY_LABORER = 1;
+const WORKING_CLASS = 2;
+const MIDDLE_CLASS = 3;
+const MILLIONAIRE = 4;
+const BILLIONAIRE = 5;
 
-  // Food and hospitality
-  { id: 'dishwasher', name: 'Dishwasher', track: 'food', monthly: 900, cost: 50, requires: [job('flyer-distributor', 6)] },
-  { id: 'waiter', name: 'Waiter', track: 'food', monthly: 1_800, cost: 150, requires: [job('dishwasher', 6), item('outfit-work')] },
-  { id: 'line-cook', name: 'Line Cook', track: 'food', monthly: 2_400, cost: 200, requires: [job('dishwasher', 12)] },
-  { id: 'sous-chef', name: 'Sous Chef', track: 'food', monthly: 4_000, cost: 500, requires: [job('line-cook', 24), course('culinary-school')] },
-  { id: 'head-chef', name: 'Head Chef', track: 'food', monthly: 7_000, cost: 1_000, requires: [job('sous-chef', 36)] },
-  { id: 'restaurant-manager', name: 'Restaurant Manager', track: 'food', monthly: 6_000, cost: 1_000, requires: [anyOf(job('waiter', 36), job('head-chef', 12))] },
-  { id: 'hotel-manager', name: 'Hotel Manager', track: 'food', monthly: 15_000, cost: 3_000, requires: [job('restaurant-manager', 48), course('hospitality-degree')] },
-  { id: 'hospitality-director', name: 'Hospitality Director', track: 'food', monthly: 30_000, cost: 10_000, requires: [job('hotel-manager', 60)] },
+interface JobSpec {
+  id: string;
+  name: string;
+  track: CareerTrack;
+  after: string[];
+  requires?: Requirement[];
+}
 
-  // Retail and sales
-  { id: 'cashier', name: 'Cashier', track: 'sales', monthly: 1_400, cost: 100, requires: [job('flyer-distributor', 6)] },
-  { id: 'shop-assistant', name: 'Shop Assistant', track: 'sales', monthly: 1_700, cost: 150, requires: [job('cashier', 6), item('outfit-work')] },
-  { id: 'sales-representative', name: 'Sales Representative', track: 'sales', monthly: 3_500, cost: 500, requires: [job('shop-assistant', 12), item('gadget-phone')] },
-  { id: 'senior-sales', name: 'Senior Sales Representative', track: 'sales', monthly: 5_000, cost: 1_000, requires: [job('sales-representative', 24), item('vehicle-old-sedan'), course('driving-license')] },
-  { id: 'store-manager', name: 'Store Manager', track: 'sales', monthly: 5_500, cost: 1_000, requires: [job('shop-assistant', 36)] },
-  { id: 'regional-sales-manager', name: 'Regional Sales Manager', track: 'sales', monthly: 9_000, cost: 2_000, requires: [anyOf(job('senior-sales', 36), job('store-manager', 48))] },
-  { id: 'director', name: 'Sales Director', track: 'sales', monthly: 18_000, cost: 5_000, requires: [job('regional-sales-manager', 48), course('mba')] },
-  { id: 'chief-commercial-officer', name: 'Chief Commercial Officer', track: 'sales', monthly: 35_000, cost: 10_000, requires: [job('director', 60)] },
+const job = (id: string, name: string, track: CareerTrack, after: string[], requires: Requirement[] = []): JobSpec => ({
+  id,
+  name,
+  track,
+  after,
+  requires,
+});
 
-  // Transport and logistics
-  { id: 'bike-courier', name: 'Bike Courier', track: 'transport', monthly: 1_200, cost: 50, requires: [job('flyer-distributor', 6), item('vehicle-bike')] },
-  { id: 'delivery-driver', name: 'Delivery Driver', track: 'transport', monthly: 2_500, cost: 300, requires: [job('bike-courier', 12), item('vehicle-scooter')] },
-  { id: 'taxi-driver', name: 'Taxi Driver', track: 'transport', monthly: 2_800, cost: 500, requires: [course('driving-license'), item('vehicle-old-sedan')] },
-  { id: 'truck-driver', name: 'Truck Driver', track: 'transport', monthly: 4_000, cost: 800, requires: [anyOf(job('delivery-driver', 12), job('taxi-driver', 12)), course('heavy-license')] },
-  { id: 'dispatcher', name: 'Dispatcher', track: 'transport', monthly: 3_800, cost: 500, requires: [anyOf(job('delivery-driver', 24), job('taxi-driver', 24)), item('gadget-phone')] },
-  { id: 'warehouse-supervisor', name: 'Warehouse Supervisor', track: 'transport', monthly: 5_000, cost: 800, requires: [job('truck-driver', 24)] },
-  { id: 'logistics-coordinator', name: 'Logistics Coordinator', track: 'transport', monthly: 7_000, cost: 1_500, requires: [anyOf(job('dispatcher', 36), job('warehouse-supervisor', 24)), item('gadget-laptop')] },
-  { id: 'operations-manager', name: 'Operations Manager', track: 'transport', monthly: 12_000, cost: 3_000, requires: [job('logistics-coordinator', 36)] },
-  { id: 'logistics-director', name: 'Logistics Director', track: 'transport', monthly: 22_000, cost: 8_000, requires: [job('operations-manager', 48), course('mba')] },
+// Listed by row; every job's `after` sits in the row above it in this list.
+const JOBS: JobSpec[] = [
+  // Row 1: anyone can hand out flyers.
+  job('flyer-distributor', 'Flyer Distributor', 'worker', []),
 
-  // Technology
-  { id: 'it-support', name: 'IT Support', track: 'tech', monthly: 3_500, cost: 300, requires: [course('it-certificate'), item('gadget-laptop')] },
-  { id: 'junior-web-developer', name: 'Junior Web Developer', track: 'tech', monthly: 4_500, cost: 500, requires: [course('coding-bootcamp'), item('gadget-laptop')] },
-  { id: 'web-developer', name: 'Web Developer', track: 'tech', monthly: 6_500, cost: 800, requires: [anyOf(job('junior-web-developer', 18), job('it-support', 36))] },
-  { id: 'software-engineer', name: 'Software Engineer', track: 'tech', monthly: 9_000, cost: 1_500, requires: [anyOf(job('web-developer', 24), course('computer-science'))] },
-  { id: 'senior-engineer', name: 'Senior Software Engineer', track: 'tech', monthly: 12_000, cost: 2_000, requires: [job('software-engineer', 36)] },
-  { id: 'team-leader', name: 'Team Leader', track: 'tech', monthly: 14_000, cost: 2_500, requires: [job('senior-engineer', 24)] },
-  { id: 'engineering-manager', name: 'Engineering Manager', track: 'tech', monthly: 18_000, cost: 4_000, requires: [job('team-leader', 36)] },
-  { id: 'cto', name: 'Chief Technology Officer', track: 'tech', monthly: 40_000, cost: 10_000, requires: [job('engineering-manager', 60)] },
+  // Row 2
+  job('porter', 'Porter', 'worker', ['flyer-distributor']),
+  job('dishwasher', 'Dishwasher', 'worker', ['flyer-distributor'], [wealth(DAY_LABORER)]),
+  job('cleaner', 'Cleaner', 'worker', ['flyer-distributor'], [item('outfit-work')]),
 
-  // Office and finance
-  { id: 'office-clerk', name: 'Office Clerk', track: 'finance', monthly: 2_000, cost: 150, requires: [job('flyer-distributor', 6), home(2)] },
-  { id: 'bank-teller', name: 'Bank Teller', track: 'finance', monthly: 2_400, cost: 200, requires: [job('office-clerk', 12)] },
-  { id: 'accountant', name: 'Accountant', track: 'finance', monthly: 4_500, cost: 800, requires: [anyOf(job('bank-teller', 12), job('office-clerk', 24)), course('accounting-certificate')] },
-  { id: 'financial-analyst', name: 'Financial Analyst', track: 'finance', monthly: 7_000, cost: 1_500, requires: [course('economics-degree'), item('gadget-laptop')] },
-  { id: 'finance-manager', name: 'Finance Manager', track: 'finance', monthly: 11_000, cost: 3_000, requires: [anyOf(job('accountant', 36), job('financial-analyst', 36))] },
-  { id: 'investment-banker', name: 'Investment Banker', track: 'finance', monthly: 20_000, cost: 5_000, requires: [job('financial-analyst', 36), course('mba')] },
-  { id: 'cfo', name: 'Chief Financial Officer', track: 'finance', monthly: 45_000, cost: 12_000, requires: [anyOf(job('finance-manager', 60), job('investment-banker', 48))] },
+  // Row 3
+  job('bike-courier', 'Bike Courier', 'worker', ['porter'], [item('vehicle-bike')]),
+  job('warehouse-worker', 'Warehouse Worker', 'worker', ['porter'], [item('outfit-work')]),
+  job('construction-laborer', 'Construction Laborer', 'worker', ['porter'], [wealth(DAY_LABORER)]),
+  job('waiter', 'Waiter', 'worker', ['dishwasher'], [item('outfit-work'), home(1)]),
+  job('carpenter-apprentice', 'Carpenter\'s Apprentice', 'worker', ['porter', 'cleaner'], [item('gadget-toolbox')]),
+  job('hospital-porter', 'Hospital Porter', 'worker', ['cleaner'], [home(2)]),
+  job('cashier', 'Cashier', 'office', ['dishwasher', 'cleaner'], [item('outfit-work')]),
 
-  // Construction and trades
-  { id: 'construction-laborer', name: 'Construction Laborer', track: 'trades', monthly: 1_600, cost: 100, requires: [job('flyer-distributor', 6), item('outfit-work')] },
-  { id: 'apprentice-electrician', name: 'Apprentice Electrician', track: 'trades', monthly: 1_900, cost: 150, requires: [job('construction-laborer', 12), item('gadget-toolbox')] },
-  { id: 'electrician', name: 'Electrician', track: 'trades', monthly: 3_800, cost: 500, requires: [job('apprentice-electrician', 24), course('electrician-certificate')] },
-  { id: 'master-electrician', name: 'Master Electrician', track: 'trades', monthly: 5_500, cost: 1_000, requires: [job('electrician', 48)] },
-  { id: 'site-foreman', name: 'Site Foreman', track: 'trades', monthly: 6_000, cost: 1_000, requires: [anyOf(job('construction-laborer', 48), job('electrician', 24))] },
-  { id: 'site-manager', name: 'Site Manager', track: 'trades', monthly: 9_000, cost: 2_000, requires: [job('site-foreman', 36)] },
-  { id: 'construction-project-manager', name: 'Construction Project Manager', track: 'trades', monthly: 15_000, cost: 4_000, requires: [job('site-manager', 48), course('engineering-degree')] },
+  // Row 4
+  job('delivery-driver', 'Delivery Driver', 'worker', ['bike-courier'], [item('vehicle-scooter'), course('driving-license')]),
+  job('security-guard', 'Security Guard', 'worker', ['warehouse-worker', 'hospital-porter'], [course('first-aid')]),
+  job('apprentice-electrician', 'Apprentice Electrician', 'worker', ['construction-laborer'], [item('gadget-toolbox')]),
+  job('line-cook', 'Line Cook', 'worker', ['waiter'], [home(2)]),
+  job('carpenter', 'Carpenter', 'worker', ['carpenter-apprentice'], [business('flower-stand', 5)]),
+  job('nursing-assistant', 'Nursing Assistant', 'expert', ['hospital-porter'], [course('first-aid')]),
+  job('shop-assistant', 'Shop Assistant', 'office', ['cashier'], [item('gadget-phone')]),
+  job('call-center-agent', 'Call Center Agent', 'office', ['cashier'], [item('gadget-phone'), home(2)]),
+  job('street-photographer', 'Street Photographer', 'expert', ['cashier', 'waiter'], [item('gadget-camera')]),
 
-  // Media and creative work
-  { id: 'street-photographer', name: 'Street Photographer', track: 'media', monthly: 1_000, cost: 50, requires: [job('flyer-distributor', 6), item('gadget-camera')] },
-  { id: 'social-media-assistant', name: 'Social Media Assistant', track: 'media', monthly: 2_000, cost: 150, requires: [item('gadget-phone'), home(2)] },
-  { id: 'content-creator', name: 'Content Creator', track: 'media', monthly: 3_500, cost: 500, requires: [anyOf(job('social-media-assistant', 12), job('street-photographer', 24)), item('gadget-laptop')] },
-  { id: 'journalist', name: 'Journalist', track: 'media', monthly: 4_000, cost: 500, requires: [course('journalism'), item('gadget-phone')] },
-  { id: 'editor', name: 'Editor', track: 'media', monthly: 6_000, cost: 1_000, requires: [job('journalist', 36)] },
-  { id: 'tv-producer', name: 'TV Producer', track: 'media', monthly: 10_000, cost: 2_000, requires: [anyOf(job('editor', 36), job('content-creator', 48))] },
-  { id: 'media-director', name: 'Media Director', track: 'media', monthly: 25_000, cost: 6_000, requires: [job('tv-producer', 48)] },
+  // Row 5
+  job('taxi-driver', 'Taxi Driver', 'worker', ['delivery-driver'], [item('vehicle-old-sedan')]),
+  job('senior-security-guard', 'Senior Security Guard', 'worker', ['security-guard'], [wealth(WORKING_CLASS)]),
+  job('electrician', 'Electrician', 'worker', ['apprentice-electrician'], [course('electrician-certificate')]),
+  job('sous-chef', 'Sous Chef', 'worker', ['line-cook'], [course('culinary-school')]),
+  job('master-carpenter', 'Master Carpenter', 'worker', ['carpenter'], [wealth(WORKING_CLASS), item('outfit-work')]),
+  job('nurse', 'Nurse', 'expert', ['nursing-assistant'], [course('nursing-school')]),
+  job('sales-representative', 'Sales Representative', 'office', ['shop-assistant', 'call-center-agent'], [item('vehicle-old-sedan')]),
+  job('office-clerk', 'Office Clerk', 'office', ['call-center-agent', 'shop-assistant'], [course('night-school')]),
+  job('social-media-assistant', 'Social Media Assistant', 'office', ['street-photographer', 'call-center-agent'], [item('gadget-laptop')]),
+  job('it-support', 'IT Support', 'expert', ['call-center-agent'], [course('it-certificate'), item('gadget-laptop')]),
 
-  // Health
-  { id: 'hospital-porter', name: 'Hospital Porter', track: 'health', monthly: 1_800, cost: 100, requires: [job('flyer-distributor', 6), home(2)] },
-  { id: 'nursing-assistant', name: 'Nursing Assistant', track: 'health', monthly: 2_400, cost: 200, requires: [job('hospital-porter', 6), course('first-aid')] },
-  { id: 'nurse', name: 'Nurse', track: 'health', monthly: 4_500, cost: 500, requires: [course('nursing-school')] },
-  { id: 'head-nurse', name: 'Head Nurse', track: 'health', monthly: 7_000, cost: 1_000, requires: [job('nurse', 48)] },
-  { id: 'doctor', name: 'Doctor', track: 'health', monthly: 15_000, cost: 3_000, requires: [course('medical-school')] },
-  { id: 'surgeon', name: 'Surgeon', track: 'health', monthly: 30_000, cost: 8_000, requires: [job('doctor', 60)] },
-  { id: 'hospital-director', name: 'Hospital Director', track: 'health', monthly: 40_000, cost: 12_000, requires: [anyOf(job('surgeon', 36), job('head-nurse', 96)), course('mba')] },
+  // Row 6
+  job('truck-driver', 'Truck Driver', 'worker', ['taxi-driver'], [course('heavy-license')]),
+  job('warehouse-supervisor', 'Warehouse Supervisor', 'worker', ['senior-security-guard', 'taxi-driver'], [item('gadget-phone')]),
+  job('master-electrician', 'Master Electrician', 'worker', ['electrician'], [vehicle('vehicle-hatchback')]),
+  job('head-chef', 'Head Chef', 'worker', ['sous-chef'], [business('restaurant')]),
+  job('furniture-workshop-chief', 'Furniture Workshop Chief', 'worker', ['master-carpenter'], [wealth(MIDDLE_CLASS), business('bakery', 5)]),
+  job('paramedic', 'Paramedic', 'expert', ['nurse'], [course('driving-license')]),
+  job('senior-sales', 'Senior Sales Representative', 'office', ['sales-representative'], [vehicle('vehicle-hatchback')]),
+  job('bank-teller', 'Bank Teller', 'office', ['office-clerk'], [item('outfit-smart')]),
+  job('executive-assistant', 'Executive Assistant', 'office', ['office-clerk'], [item('outfit-smart')]),
+  job('junior-web-developer', 'Junior Web Developer', 'expert', ['it-support'], [course('coding-bootcamp')]),
+  job('content-creator', 'Content Creator', 'office', ['social-media-assistant'], [item('gadget-camera')]),
 
-  // The top: any field's chief can run a company.
-  {
-    id: 'ceo',
-    name: 'CEO',
-    track: 'top',
-    monthly: 60_000,
-    cost: 20_000,
-    requires: [
-      anyOf(
-        job('chief-commercial-officer', 24),
-        job('cto', 24),
-        job('cfo', 24),
-        job('logistics-director', 24),
-        job('media-director', 36),
-        job('hospitality-director', 36),
-        job('hospital-director', 24),
-      ),
-    ],
-  },
+  // Row 7
+  job('dispatcher', 'Dispatcher', 'worker', ['truck-driver', 'warehouse-supervisor'], [wealth(MIDDLE_CLASS)]),
+  job('site-foreman', 'Site Foreman', 'worker', ['master-electrician', 'furniture-workshop-chief'], [home(3)]),
+  job('restaurant-manager', 'Restaurant Manager', 'office', ['head-chef'], [business('restaurant', 5)]),
+  job('head-nurse', 'Head Nurse', 'expert', ['paramedic'], [home(5)]),
+  job('store-manager', 'Store Manager', 'office', ['senior-sales'], [wealth(MIDDLE_CLASS)]),
+  job('real-estate-agent', 'Real Estate Agent', 'office', ['senior-sales'], [wealth(MIDDLE_CLASS), business('real-estate-office')]),
+  job('accountant', 'Accountant', 'office', ['bank-teller'], [course('accounting-certificate')]),
+  job('hr-specialist', 'HR Specialist', 'office', ['executive-assistant'], [item('gadget-laptop')]),
+  job('teacher', 'Teacher', 'expert', ['executive-assistant', 'paramedic'], [course('education-degree')]),
+  job('web-developer', 'Web Developer', 'expert', ['junior-web-developer'], [home(4)]),
+  job('journalist', 'Journalist', 'expert', ['content-creator'], [course('journalism')]),
+
+  // Row 8
+  job('logistics-coordinator', 'Logistics Coordinator', 'office', ['dispatcher'], [item('gadget-laptop'), business('logistics-warehouse')]),
+  job('site-manager', 'Site Manager', 'worker', ['site-foreman'], [vehicle('vehicle-pickup')]),
+  job('food-beverage-manager', 'Food & Beverage Manager', 'office', ['restaurant-manager'], [home(5)]),
+  job('doctor', 'Doctor', 'expert', ['head-nurse'], [course('medical-school')]),
+  job('regional-sales-manager', 'Regional Sales Manager', 'office', ['store-manager', 'real-estate-agent'], [vehicle('vehicle-suv')]),
+  job('financial-analyst', 'Financial Analyst', 'office', ['accountant'], [course('economics-degree')]),
+  job('office-manager', 'Office Manager', 'office', ['hr-specialist'], [item('outfit-coat')]),
+  job('lawyer', 'Lawyer', 'expert', ['teacher', 'hr-specialist'], [course('law-school')]),
+  job('software-engineer', 'Software Engineer', 'expert', ['web-developer'], [course('computer-science')]),
+  job('editor', 'Editor', 'expert', ['journalist'], [wealth(MILLIONAIRE)]),
+
+  // Row 9
+  job('operations-manager', 'Operations Manager', 'office', ['logistics-coordinator', 'office-manager', 'food-beverage-manager'], [business('mini-market')]),
+  job('contractor', 'Contractor', 'worker', ['site-manager'], [business('construction')]),
+  job('architect', 'Architect', 'expert', ['site-manager', 'software-engineer'], [course('architecture')]),
+  job('specialist-doctor', 'Specialist Doctor', 'expert', ['doctor'], [home(6)]),
+  job('veterinarian', 'Veterinarian', 'expert', ['doctor'], [course('veterinary-school')]),
+  job('national-sales-manager', 'National Sales Manager', 'office', ['regional-sales-manager'], [vehicle('vehicle-executive')]),
+  job('finance-manager', 'Finance Manager', 'office', ['financial-analyst'], [home(6)]),
+  job('hr-manager', 'HR Manager', 'office', ['office-manager'], [item('outfit-suit')]),
+  job('senior-lawyer', 'Senior Lawyer', 'expert', ['lawyer'], [home(6)]),
+  job('senior-engineer', 'Senior Software Engineer', 'expert', ['software-engineer'], [vehicle('vehicle-suv')]),
+  job('pilot', 'Pilot', 'expert', ['software-engineer', 'logistics-coordinator'], [course('flight-school')]),
+  job('editor-in-chief', 'Editor-in-Chief', 'expert', ['editor'], [item('outfit-suit')]),
+
+  // Row 10
+  job('hotel-manager', 'Hotel Manager', 'office', ['operations-manager'], [course('hospitality-degree')]),
+  job('supply-chain-manager', 'Supply Chain Manager', 'office', ['operations-manager'], [managers(3)]),
+  job('construction-project-manager', 'Construction Project Manager', 'expert', ['contractor', 'architect'], [course('engineering-degree')]),
+  job('surgeon', 'Surgeon', 'expert', ['specialist-doctor'], [course('surgical-residency')]),
+  job('marketing-manager', 'Marketing Manager', 'office', ['national-sales-manager', 'hr-manager', 'editor-in-chief'], [managers(3)]),
+  job('investment-banker', 'Investment Banker', 'office', ['finance-manager'], [course('mba')]),
+  job('judge', 'Judge', 'expert', ['senior-lawyer'], [home(7)]),
+  job('professor', 'Professor', 'expert', ['senior-lawyer', 'veterinarian'], [course('doctorate')]),
+  job('team-leader', 'Team Leader', 'expert', ['senior-engineer'], [item('outfit-suit')]),
+  job('captain', 'Captain', 'expert', ['pilot'], [vehicle('vehicle-coupe')]),
+  job('tv-producer', 'TV Producer', 'expert', ['editor-in-chief'], [managers(3)]),
+
+  // Row 11: the directors
+  job('hospitality-director', 'Hospitality Director', 'top', ['hotel-manager'], [home(8), business('hotel')]),
+  job('logistics-director', 'Logistics Director', 'top', ['supply-chain-manager'], [course('mba')]),
+  job('chief-architect', 'Chief Architect', 'expert', ['construction-project-manager'], [business('factory')]),
+  job('hospital-director', 'Hospital Director', 'expert', ['surgeon'], [course('mba')]),
+  job('director', 'Sales Director', 'top', ['marketing-manager'], [course('mba')]),
+  job('portfolio-manager', 'Portfolio Manager', 'top', ['investment-banker'], [item('outfit-threepiece')]),
+  job('legal-director', 'Legal Director', 'top', ['judge'], [item('outfit-threepiece')]),
+  job('rector', 'Rector', 'expert', ['professor'], [home(8)]),
+  job('engineering-manager', 'Engineering Manager', 'expert', ['team-leader'], [business('tech-startup')]),
+  job('airline-ops-director', 'Airline Operations Director', 'top', ['captain'], [vehicle('vehicle-offroader')]),
+  job('media-director', 'Media Director', 'top', ['tv-producer', 'marketing-manager'], [business('media')]),
+
+  // Row 12: the chiefs
+  job('cto', 'Chief Technology Officer', 'top', ['engineering-manager'], [vehicle('vehicle-executive'), managers(4)]),
+  job('cfo', 'Chief Financial Officer', 'top', ['portfolio-manager'], [item('outfit-tux'), managers(4)]),
+  job('chief-commercial-officer', 'Chief Commercial Officer', 'top', ['director', 'media-director'], [managers(4)]),
+  job(
+    'coo',
+    'Chief Operating Officer',
+    'top',
+    ['logistics-director', 'hospitality-director', 'legal-director', 'airline-ops-director', 'hospital-director', 'chief-architect', 'rector'],
+    [managers(4)],
+  ),
+
+  // Row 13 and up: the top of a company
+  job('ceo', 'CEO', 'top', ['cto', 'cfo', 'chief-commercial-officer', 'coo'], [wealth(MILLIONAIRE), course('mba'), managers(5)]),
+  job('board-member', 'Board Member', 'top', ['ceo'], [wealth(BILLIONAIRE)]),
+  job('fund-founder', 'Investment Fund Founder', 'top', ['ceo'], [wealth(BILLIONAIRE), business('tech-startup', 5)]),
+  job('board-chair', 'Chair of the Board', 'top', ['board-member', 'fund-founder'], [wealth(BILLIONAIRE), item('toy-4')]),
 ];
 
-export const CAREERS: CareerDef[] = JOBS.map(({ monthly, ...job }) => ({
-  ...job,
-  image: `${ART}/${job.id}.webp`,
-  salaryPerSecond: monthly / SECONDS_PER_MONTH,
-}));
+/** Each job's row: one above the highest job it follows. */
+function levels(specs: JobSpec[]) {
+  const level = new Map<string, number>();
+  for (const spec of specs) {
+    level.set(spec.id, spec.after.length === 0 ? 1 : 1 + Math.max(...spec.after.map((id) => level.get(id) ?? 0)));
+  }
+  return level;
+}
+
+const LEVEL = levels(JOBS);
+
+export const CAREERS: CareerDef[] = JOBS.map(({ id, name, track, after, requires = [] }) => {
+  const level = LEVEL.get(id) ?? 1;
+  return {
+    id,
+    name,
+    track,
+    level,
+    after,
+    image: `${ART}/${id}.webp`,
+    masteryMonths: masteryMonthsAt(level),
+    salaryPerSecond: monthlyAt(level) / SECONDS_PER_MONTH,
+    requires: after.length === 0 ? requires : [{ type: 'anyOf', options: after.map((careerId) => ({ type: 'mastered', careerId })) }, ...requires],
+  };
+});
 
 const CAREER_BY_ID = new Map(CAREERS.map((career) => [career.id, career]));
 

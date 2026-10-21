@@ -1,5 +1,5 @@
 import { BUSINESSES, CLASS_MANAGER_GIFT } from './config/businesses';
-import { careerDef } from './config/careers';
+import { CAREERS, careerDef } from './config/careers';
 import { CONTENT } from './config/content';
 import { courseDef } from './config/courses';
 import { SECONDS_PER_MONTH } from './config/life';
@@ -14,6 +14,7 @@ import { heirloomDef } from './config/heirlooms';
 import {
   ageSpeed,
   canTakeCareer,
+  hasWorked,
   branchCapAt,
   branchCost,
   businessDef,
@@ -189,13 +190,11 @@ export function hireManager(state: GameStateV2, businessId: string): GameStateV2
   return withBusiness(paid, businessId, { ...business, managed: true });
 }
 
-/** Takes a job whose conditions are met. Months worked in the old one stay (experience). */
+/** Takes a job whose conditions are met (no fee). Months worked in the old one stay (its mastery). */
 export function takeCareer(state: GameStateV2, careerId: string): GameStateV2 | null {
   const career = careerDef(careerId);
   if (!career || !canTakeCareer(state, career)) return null;
-  const paid = spend(state, career.cost);
-  if (!paid) return null;
-  return { ...paid, careerId };
+  return { ...state, careerId };
 }
 
 /** Starts a course: paid up front, one at a time. */
@@ -378,8 +377,12 @@ export function questProgress(state: GameStateV2, goal: QuestGoal): { current: n
       return { current: businessState(state, goal.businessId).branches, target: goal.count };
     case 'manager':
       return { current: businessState(state, goal.businessId).managed ? 1 : 0, target: 1 };
-    case 'job':
-      return { current: state.careerId === goal.careerId || (state.jobSeconds[goal.careerId] ?? 0) > 0 ? 1 : 0, target: 1 };
+    case 'job': {
+      // Any job in that row of the tree or higher counts: the tree has many ways up (2026-10-21).
+      const level = careerDef(goal.careerId)?.level ?? 1;
+      const reached = CAREERS.some((career) => career.level >= level && hasWorked(state, career.id));
+      return { current: reached ? 1 : 0, target: 1 };
+    }
     case 'home':
       return { current: houseIndex(state.home), target: goal.index };
     case 'class':

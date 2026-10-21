@@ -7,11 +7,14 @@ import {
   availableCourses,
   betterOpenCareers,
   careersNeedingCourse,
+  canLeaveCareer,
   courseProgress,
   currentCareer,
+  currentSalary,
   globalMultiplier,
+  hasWorked,
 } from '../../core/formulas';
-import { allMet, jobMonths, unmet } from '../../core/requirements';
+import { allMet, isMastered, masteryOf, unmet } from '../../core/requirements';
 import type { CareerDef, GameStateV2, Requirement } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
@@ -44,14 +47,14 @@ const GOAL_JOBS = 6;
 
 /**
  * A job worth aiming for: everything it still needs can be worked on now (a course whose own
- * prerequisites are done, an item, a home, months in a job already held). Jobs behind a job never
+ * prerequisites are done, an item, a home, the mastery of the job held). Jobs behind a job never
  * held stay out of the list until that job is taken.
  */
 function isReachable(state: GameStateV2, career: CareerDef) {
   const reachable = (requirement: Requirement): boolean => {
     switch (requirement.type) {
-      case 'job':
-        return state.careerId === requirement.careerId || jobMonths(state, requirement.careerId) > 0;
+      case 'mastered':
+        return state.careerId === requirement.careerId || isMastered(state, requirement.careerId);
       case 'anyOf':
         return requirement.options.some(reachable);
       case 'course':
@@ -60,7 +63,7 @@ function isReachable(state: GameStateV2, career: CareerDef) {
         return true;
     }
   };
-  return unmet(state, career.requires).every(reachable);
+  return !hasWorked(state, career.id) && unmet(state, career.requires).every(reachable);
 }
 
 export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void }) {
@@ -74,10 +77,8 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
   const multiplier = globalMultiplier(game);
   const salary = (career: CareerDef) => perMonth(career.salaryPerSecond * multiplier);
   const open = betterOpenCareers(game).sort((a, b) => b.salaryPerSecond - a.salaryPerSecond);
-  const currentSalary = current?.salaryPerSecond ?? 0;
-  const goals = CAREERS.filter(
-    (career) => career.salaryPerSecond > currentSalary && !open.includes(career) && isReachable(game, career),
-  )
+  const paid = currentSalary(game);
+  const goals = CAREERS.filter((career) => career.salaryPerSecond > paid && !open.includes(career) && isReachable(game, career))
     .sort((a, b) => a.salaryPerSecond - b.salaryPerSecond)
     .slice(0, GOAL_JOBS);
 
@@ -116,11 +117,13 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
             {current ? name('career', current) : t('career.unemployed')}
           </p>
           <p className="text-[12px] font-bold text-emerald-600">
-            {current ? t('career.salary', { amount: salary(current) }) : t('career.unemployedBody')}
+            {current ? t('career.salary', { amount: perMonth(paid * multiplier) }) : t('career.unemployedBody')}
           </p>
           {current && (
             <p className="text-[11px] font-bold text-violet-600">
-              {t('career.monthsHere', { count: jobMonths(game, current.id) })}
+              {isMastered(game, current.id)
+                ? t('career.mastered')
+                : t('career.mastery', { percent: Math.floor(masteryOf(game, current.id) * 100) })}
             </p>
           )}
         </div>
@@ -175,7 +178,7 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
 
       <SectionLabel>{t('career.openJobs')}</SectionLabel>
       {open.length === 0 ? (
-        <p className="px-1 text-[12px] font-bold text-slate-500">{t('career.noOpen')}</p>
+        <p className="px-1 text-[12px] font-bold text-slate-500">{t(canLeaveCareer(game) ? 'career.noOpen' : 'career.masterFirst')}</p>
       ) : (
         <Panel accent className="overflow-hidden">
           <ul className="divide-y divide-indigo-50">
@@ -189,19 +192,13 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
                   <p className="text-[12px] font-bold text-emerald-600">{t('career.salary', { amount: salary(career) })}</p>
                 </div>
                 <Focusable focusKey={`career:take:${career.id}`} className="shrink-0">
-                  <GameButton
-                    onClick={() => take(career)}
-                    disabled={game.cash < career.cost}
-                    className="py-1.5 px-3 flex flex-col items-center leading-tight"
-                  >
+                  <GameButton onClick={() => take(career)} className="py-2 px-3">
                     <span className="v2-display text-[13px] v2-shadow">{t('career.take')}</span>
-                    <span className="v2-display text-[13px] v2-shadow tabular-nums">{money(career.cost)}</span>
                   </GameButton>
                 </Focusable>
               </li>
             ))}
           </ul>
-          {open[0] && <HelpAd cost={open[0].cost} className="p-2.5 pt-0" />}
         </Panel>
       )}
 
@@ -283,7 +280,7 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
             <ul className="divide-y divide-indigo-50">
               {CAREERS.filter((career) => career.track === track).map((career) => {
                 const held = career.id === game.careerId;
-                const worked = held || jobMonths(game, career.id) > 0;
+                const worked = hasWorked(game, career.id);
                 const locked = !worked && !allMet(game, career.requires);
                 return (
                   <li key={career.id} className={`px-3 py-1.5 flex items-center gap-2 ${held ? 'bg-amber-50' : ''}`}>

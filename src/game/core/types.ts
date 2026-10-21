@@ -44,26 +44,34 @@ export type Requirement =
   | { type: 'home'; index: number }
   | { type: 'item'; itemId: string }
   | { type: 'businessLevel'; businessId: string; level: number }
-  /** Game months worked in a job, now or before (time played, like age). */
-  | { type: 'job'; careerId: string; months: number }
+  /** A job worked to 100% mastery, now or before (docs/game-design-v2.md §4.4). */
+  | { type: 'mastered'; careerId: string }
+  /** Own this vehicle (index into VEHICLES) or a better one. */
+  | { type: 'vehicle'; index: number }
+  /** This many businesses run by a manager. */
+  | { type: 'managers'; count: number }
   /** A finished course. */
   | { type: 'course'; courseId: string }
   /** Any one of these. */
   | { type: 'anyOf'; options: Requirement[] };
 
-/** The field a job belongs to (careers.ts CAREER_TRACKS); the career screen groups jobs by it. */
-export type CareerTrack = 'start' | 'food' | 'sales' | 'transport' | 'tech' | 'finance' | 'trades' | 'media' | 'health' | 'top';
+/** The career screen's tab a job sits in (careers.ts CAREER_TRACKS). */
+export type CareerTrack = 'worker' | 'office' | 'expert' | 'top';
 
 export interface CareerDef {
   id: string;
   name: string;
   image: string;
   track: CareerTrack;
-  /** A small price to take the job (clothes, a fee, a licence card). */
-  cost: number;
-  /** Salary per second; paid automatically, online and offline. */
+  /** Row in the job tree (1 = the first job). Every job before it sits one row lower; the row sets pay and mastery time. */
+  level: number;
+  /** The jobs it follows (one row lower): one of them must be mastered. Empty for the first job. */
+  after: string[];
+  /** Game months of work to reach 100% mastery. */
+  masteryMonths: number;
+  /** Starting salary per second, before the yearly raises; paid automatically, online and offline. */
   salaryPerSecond: number;
-  /** What has to be true before the job can be taken: experience, a course, an item, an address... */
+  /** Every condition: one job of `after` mastered, then the extras (a course, an item, an address...). */
   requires: Requirement[];
 }
 
