@@ -38,10 +38,11 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 ## Sıradaki
 
 1. **Meslek ağacı (E7, [career-redesign.md](./career-redesign.md)):** veri, kurallar ve sekmeli ağaç ekranı kodda (2026-10-21); sırada iş değişimi şovu ve "Usta!" anı; 41 yeni ikonun GPT komutları [art-prompts-careers.md](./art-prompts-careers.md)'de (kullanıcı üretecek). 7 ara meslek ve maaş eğrisi onaylandı ([career-redesign.md §8](./career-redesign.md)).
-2. **AAB 30'u telefonda denemek** (aşağıdaki liste). Play'deki son sürüm AAB 29: 2026-10-15'ten sonraki her şey (ekonominin yeniden kurulması dahil) ilk kez AAB 30'la telefona gidiyor. Şema 2 yüzünden AAB 29 kaydı bir kez sıfırdan başlar (mağaza alımları kalır); yayından sonra bu bir daha yapılmaz.
-3. **Telefon bulgularına göre düzeltme**, özellikle reklam düğmesi kalabalığı (bir işletme kartında 3–4 düğme görünebiliyor) ve yeni ekonominin ilk saati.
-4. **Lansman hazırlığı:** kapalı test 14 günü doldu (~2026-10-20) → Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi.
-5. **Sonra:** IAP 2. adım (Yakut Tasma, Gece Vardiyası), Remote Config, Crashlytics, oyuncuyu tutma önerileri ([discussion-notes.md §2](./discussion-notes.md)). 2. nesil (Ada, Lumen, devir) yayından sonra.
+2. **İşletmeler ekranının tasarım incelemesini konuşmak** ([discussion-notes.md §0 "İşletmeler ekranı"](./discussion-notes.md)): kullanıcı yeni oturumda konuşmak istedi; önerilen ilk adım tıklanabilir taslak.
+3. **AAB 30'u telefonda denemek** (aşağıdaki liste). Play'deki son sürüm AAB 29: 2026-10-15'ten sonraki her şey (ekonominin yeniden kurulması dahil) ilk kez AAB 30'la telefona gidiyor. Şema 2 yüzünden AAB 29 kaydı bir kez sıfırdan başlar (mağaza alımları kalır); yayından sonra bu bir daha yapılmaz.
+4. **Telefon bulgularına göre düzeltme**, özellikle reklam düğmesi kalabalığı (bir işletme kartında 3–4 düğme görünebiliyor) ve yeni ekonominin ilk saati.
+5. **Lansman hazırlığı:** kapalı test 14 günü doldu (~2026-10-20) → Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi.
+6. **Sonra:** IAP 2. adım (Yakut Tasma, Gece Vardiyası), Remote Config, Crashlytics, oyuncuyu tutma önerileri ([discussion-notes.md §2](./discussion-notes.md)). 2. nesil (Ada, Lumen, devir) yayından sonra.
 
 ## Telefonda test listesi (AAB 30)
 

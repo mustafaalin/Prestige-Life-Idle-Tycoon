@@ -15,6 +15,19 @@ Kullanıcının telefonda bulduğu her şey burada; yapılan madde ilgili belgey
 
 **Kariyer:** kararlaştı ([career-redesign.md](./career-redesign.md), kurallar [game-design-v2.md §4.4](./game-design-v2.md)); ekran, iş değişimi şovu ve ikonlar [rebuild-plan.md E7](./rebuild-plan.md)'de. Açık kalan: aylık gelir çok hızlı artıyor (işletmeler). Maaşın payı 23–45 yaşta %2–8; kullanıcı dengeyi bozmasın diye böyle kabul etti (2026-10-21).
 
+**İşletmeler ekranı: tasarım incelemesi (2026-10-21, kullanıcı: "yeni oturumda konuşacağız")**
+Claude'un eleştirisi; hiçbiri uygulanmadı, karar bekliyor.
+- **Yoğunluk düşük:** bir kart ~520 px, telefonda aynı anda 1,5 işletme görünüyor (14 işletme var). AdVenture Capitalist / Idle Miner bir işletmeyi tek satırda gösterir, ayrıntı dokununca.
+- **Aynı bilgi üç birimle:** seviye adı, "Kazanç +$/ay", çubukta "$/tur ×2", "Seviye 6: …", "Tur $7,7 → $9,0", fiyat. Çubuk hızlandırıcılı ($15,4), "Tur" satırı değil ($7,7): çelişki gibi okunuyor.
+- **Turuncu her yerde:** hedef ×3, üst bar ×2, karttaki ×2, seviye ipucu, 1–2 reklam hapı, "Çalıştır". Reklam hapları uzun cümle, kart başına bir satır, yeşil ana düğmeyle yarışıyor.
+- **Yönetici iki kez anlatılıyor:** sağdaki portreli düğme + alttaki "Selin bu işi devralabilir…" satırı. Soluk mor düğme devre dışı mı ikincil mi belli değil.
+- **1 sn'lik turda çubuk titreşim gibi:** yöneticili işletmede saniyede bir dolup boşalıyor; seviye ilerlemesini göstermesi daha anlamlı.
+- **15 nokta okunmuyor:** üç parçalı aşama çubuğu (tezgâh / dükkân / mağaza, her biri 5 çentik) önerisi.
+- **"Çalıştır" küçük hap:** saniyede bir basılacak düğme; resmin tamamı düğme ama görünmüyor.
+- **Boşluk yanlış yerde;** hedef şeridi ~160 px.
+- **Öneri: liste kısa, ayrıntı dokununca** (iş kartındaki gibi). Satır ~130–150 px, ekranda 4–5 işletme: resim (dokun: çalıştır / OTOMATİK), ad, seviye adı · 3/15, tek gelir (aylık), üç parçalı aşama çubuğu, tek ana düğme (sıradaki seviye + fiyat; yönetici alınabilir olunca altın rozet), reklamlar tek küçük simgede (teklif varsa). Karta dokununca pencere: tur tutarı ve sıradaki seviyenin katkısı, yönetici tanıtımı, şubeler, bütün reklam teklifleri, sıradaki bina. Ayrıca: ×2 yalnız üst barda, hedef şeridi tek satır, devre dışı düğme gri ve "$X eksik".
+- **Sıradaki adım (önerilen):** önce kompakt satır + ayrıntı penceresi için tıklanabilir taslak (artifact), kullanıcı onaylayınca oyuna.
+
 **Sınıf ve eşyalar**
 - İşçi Sınıfı'na çok hızlı geçildi, ev ödülü geldi; yalnız bisiklet varken arka arkaya modern hatchback'e kadar 4 araç alındı. Ya sınıf geçişi yavaşlasın ya önceki araçlar sırayla alınsın ya da başka bir yol.
 
