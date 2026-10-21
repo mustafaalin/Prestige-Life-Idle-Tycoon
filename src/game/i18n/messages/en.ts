@@ -1167,6 +1167,7 @@ export const en = {
       later: 'Back tomorrow',
       running: 'Running',
       sansNote: 'Brings a wallet',
+      collected: 'Collected today',
     },
     owned: 'Owned',
     consumable: 'Buy any time',

@@ -5,7 +5,7 @@ import { PRODUCTS, STORE_SECTIONS, type ProductDef } from '../../core/config/iap
 import { canCollect } from '../../core/formulas';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
-import { adCooldownLeft, boostSecondsLeft, boostsLeft, canBoost, canWatch } from '../../runtime/adRewards';
+import { adCooldownLeft, boostSecondsLeft, boostsLeft, canBoost, canWatch, dayKey, rewardsStarted } from '../../runtime/adRewards';
 import type { AdPlacement } from '../../runtime/ads';
 import { track } from '../../runtime/analytics';
 import { useBackButton } from '../../runtime/backButton';
@@ -21,6 +21,8 @@ import {
 } from '../../runtime/purchases';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { AdButton } from '../ads/AdButton';
+import { DailyCard } from '../home/DailyCard';
+import { MONEY } from '../icons';
 import { CashBags } from './CashBags';
 import { requestFind } from '../scene/sceneEvents';
 import { STORE_ART } from './storeArt';
@@ -47,10 +49,18 @@ function useNow() {
   return now;
 }
 
+/**
+ * The store's red dot: a limited offer on show, or the day's reward waiting (2026-10-22, user: a player
+ * who leaves before its card comes finds it in the Store).
+ */
+function storeAlert(state: ReturnType<typeof useGameV2>['state'], now: number) {
+  return limitedOfferOn(state, now) || state.daily.offer !== null;
+}
+
 export function StoreButton({ onOpen }: { onOpen: () => void }) {
   const { state } = useGameV2();
   const { t } = useT();
-  const dot = limitedOfferOn(state, useNow());
+  const dot = storeAlert(state, useNow());
 
   return (
     <button
@@ -158,8 +168,12 @@ function ComfortActive() {
  */
 function FreeOffers({ onClose }: { onClose: () => void }) {
   const { game, state, actions } = useGameV2();
-  const { t, duration } = useT();
+  const { t, duration, money } = useT();
   const now = useNow();
+  const [dailyOpen, setDailyOpen] = useState(false);
+  const daily = state.daily.offer;
+  // Waiting, or collected today; nothing in between (the reward is offered on the next tick).
+  const showDaily = rewardsStarted(state) && (daily !== null || state.daily.claimedDay === dayKey(now));
   const boostLeft = boostSecondsLeft(state.ads, now);
   const sansWait = adCooldownLeft(state.ads, 'call_sans', now);
   const showRain = canCollect(game) && state.ads.coinRainUntil <= now;
@@ -212,7 +226,31 @@ function FreeOffers({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex flex-col gap-2 mb-1">
       <SectionTitle>{t('iap.sections.free')}</SectionTitle>
-      <div className={`grid gap-2 ${tiles.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+      <div className={`grid gap-2 ${tiles.length + (showDaily ? 1 : 0) === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        {/* The day's reward (2026-10-22): its card comes by itself at a quiet moment; here it can be
+            collected any time, with a red mark while it waits. */}
+        {showDaily && (
+          <div className="v2-iap-free relative">
+            {daily && <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full border-2 border-white bg-rose-500 text-white text-[11px] font-black leading-4 shadow">!</span>}
+            <b className="v2-display text-[13px] leading-tight text-[#2b1b6b] break-words">{t('daily.title')}</b>
+            <img src={MONEY[3]} alt="" draggable={false} className="w-14 h-14 object-contain" />
+            <small className="text-[10px] font-bold leading-tight v2-iap-muted tabular-nums">{daily ? `+${money(daily.amount)}` : t('iap.free.collected')}</small>
+            {daily ? (
+              <button
+                type="button"
+                onClick={() => {
+                  playSfx('click');
+                  setDailyOpen(true);
+                }}
+                className="w-full rounded-full py-1.5 v2-display text-[13px] text-white bg-gradient-to-b from-emerald-400 to-green-600 border-2 border-white/70 shadow transition-all active:scale-95"
+              >
+                {t('common.collect')}
+              </button>
+            ) : (
+              <span className="w-full rounded-full bg-slate-200 px-2 py-1.5 text-[11px] font-black text-slate-500">{t('iap.free.later')}</span>
+            )}
+          </div>
+        )}
         {tiles.map((tile) => (
           <div key={tile.key} className="v2-iap-free">
             <b className="v2-display text-[13px] leading-tight text-[#2b1b6b] break-words">{tile.title}</b>
@@ -231,6 +269,7 @@ function FreeOffers({ onClose }: { onClose: () => void }) {
           </div>
         ))}
       </div>
+      {dailyOpen && daily && <DailyCard offer={daily} onCollected={() => setDailyOpen(false)} />}
     </div>
   );
 }
@@ -428,7 +467,7 @@ export function StoreStrip({ onOpen }: { onOpen: () => void }) {
     >
       <img src={STORE_ART.button} alt="" draggable={false} className="w-9 h-9 shrink-0 object-contain drop-shadow" />
       <span className="flex-1 min-w-0 text-left v2-display text-[15px] leading-tight text-white">{t('iap.strip')}</span>
-      {limitedOfferOn(state, now) && <span className="w-3 h-3 shrink-0 rounded-full border-2 border-white bg-rose-500" />}
+      {storeAlert(state, now) && <span className="w-3 h-3 shrink-0 rounded-full border-2 border-white bg-rose-500" />}
       <span className="shrink-0 rounded-full bg-white/25 px-3 py-1 v2-display text-[13px] text-white">{t('iap.open')}</span>
     </button>
   );

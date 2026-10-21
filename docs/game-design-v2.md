@@ -189,7 +189,7 @@ Kurgusal liste; ölçü bu hayatta kazanılan toplam. Düğme Milyoner törenind
 
 ### 4.13 Günlük ödül (`config/daily.ts`, `runtime/daily.ts`)
 
-Aylık gelirin katı: ilk hafta ×2, ×4, ×6, ×8, ×12, ×16, ×20 (7. gün "Şans'ın günü"), sonra her gün ×6, 7. gün ×20 (2026-10-21; çevrimdışı küçülünce eski ×5…×50 Milyoner'i bir sınıf öne çekiyordu). Tutar günün ilk açılışında sabitlenir; gün kaçırmak ceza değil. Reklamla ×2. Reklamlarla aynı anda açılır (bir yönetici ve ilk çevrimdışı kartı).
+Aylık gelirin katı: ilk hafta ×2, ×4, ×6, ×8, ×12, ×16, ×20 (7. gün "Şans'ın günü"), sonra her gün ×6, 7. gün ×20 (2026-10-21; çevrimdışı küçülünce eski ×5…×50 Milyoner'i bir sınıf öne çekiyordu). Tutar günün ilk açılışında sabitlenir; gün kaçırmak ceza değil. Reklamla ×2. Reklamlarla aynı anda açılır (bir yönetici ve ilk çevrimdışı kartı). Ödül toplanana kadar kayıtta bekler: kartı görmeden çıkan oyuncu bir sonraki açılışta görür. Kart sakin bir anda kendiliğinden çıkar; ayrıca Mağaza'nın Bedava bölümünde "Günlük ödül" kutusundan her an toplanır, beklerken mağaza düğmesinde kırmızı nokta ve kutuda "!" olur (2026-10-22, kullanıcı).
 
 ### 4.14 Yatırım: Rıza Amca'nın fırsatları (`config/investments.ts`)
 

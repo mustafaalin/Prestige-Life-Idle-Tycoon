@@ -1166,6 +1166,7 @@ export const tr: Messages = {
       later: 'Yarın yine',
       running: 'Sürüyor',
       sansNote: 'Bir cüzdan getirir',
+      collected: 'Bugün alındı',
     },
     owned: 'Sahipsin',
     consumable: 'İstediğin zaman',
