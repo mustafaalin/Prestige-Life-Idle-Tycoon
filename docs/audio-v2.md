@@ -4,8 +4,9 @@ Son güncelleme: 2026-10-21 · Kod: `src/game/runtime/feedback.ts` · Bekleyen: 
 
 ## 1. Durum
 
-- **Oyunda:** 14 yeni efekt (ElevenLabs Sound Effects v2, kullanıcı seçti; kaynaklar `art/audio/sfx-2026-10-17/`, komutlar yanında `prompts.txt`, dinleme sayfası `art/audio/listen.html`), 4 müzik, Ayarlar'da "Ses efektleri" ve "Müzik" anahtarları. Oyundaki dosyalar `public/assets/audio/sfx/v2/` (sessizlik kırpıldı, −16 LUFS, mono 96 kbps) ve `public/assets/audio/music/v2/`.
+- **Oyunda:** 16 efekt (ElevenLabs Sound Effects v2, kullanıcı seçti; kaynaklar `art/audio/sfx-2026-10-17/`, komutlar yanında `prompts.txt`, dinleme sayfası `art/audio/listen.html`), 4 müzik, Ayarlar'da "Ses efektleri" ve "Müzik" anahtarları. Oyundaki dosyalar `public/assets/audio/sfx/v2/` (sessizlik kırpıldı, −16 LUFS, mono 96 kbps) ve `public/assets/audio/music/v2/`.
 - `purchase` (2026-10-17): ilk iki deneme "para eksiliyor" hissini vermedi; üç yeni denemeden **c** (paralar kasa çekmecesine düşüyor) seçildi.
+- **İşletme şovu (2026-10-21):** iki yeni efekt, `grow` (işletme yeni görünüme geçer) ve `hire` (yönetici alımı); üçer deneme `art/audio/sfx-2026-10-21/` (komutlar `prompts.txt`), dinleme sayfasının başında. Oyunda geçici olarak grow-a ve hire-b; kullanıcı seçince değişir. Sıradan işletme seviyesinde `levelUp` seviye başına %5 tiz çalar (en çok ×1,5; `playSfx(…, { rate })`).
 - Seçilenler: purchase-c, click-a, coin-b, levelup-a, payout-a, fanfare-b, page-a, ring-a, message-b, bark-b, arrive-a, reward-b, loss-b, unlock-b.
 
 ## 2. Ses efektleri (14; oyunda)
@@ -63,4 +64,4 @@ Kaynaklar: [Pixabay lisansı (SSS)](https://pixabay.com/service/faq/), [Pixabay 
 
 ## 5. Efektlerin yerleri (oyunda)
 
-`click` düğmeler · `coin` şişe/para toplama · `purchase` her ilerleme (sahne) · `levelUp` yükseltme, yönetici, kariyer · `payout` ödül kartları, görev, günlük ödül, çevrimdışı, Şans'ın cüzdanı, tören hediyesi, yatırım kazancı · `fanfare` sınıf töreni başlığı · `page` hikâye balonu ve önsöz ilerlerken, hayat anının açılışı · `ring` olay kartının arama düğmesi belirince · `message` annenin mesajı · `bark` Şans cüzdanla gelince ve okşanınca · `arrive` yeni araç · `reward` reklam ödülleri, ×2 · `loss` olay kartı ve yatırım kaybı · `unlock` yadigâr alımı.
+`click` düğmeler · `coin` şişe/para toplama · `purchase` her ilerleme (sahne) · `levelUp` yükseltme (işletmede seviyeyle tizleşir), kariyer · `grow` işletmenin yeni görünümü (şovun patlaması) · `hire` yönetici alımı · `payout` ödül kartları, görev, günlük ödül, çevrimdışı, Şans'ın cüzdanı, tören hediyesi, yatırım kazancı · `fanfare` sınıf töreni başlığı · `page` hikâye balonu ve önsöz ilerlerken, hayat anının açılışı · `ring` olay kartının arama düğmesi belirince · `message` annenin mesajı · `bark` Şans cüzdanla gelince ve okşanınca · `arrive` yeni araç · `reward` reklam ödülleri, ×2 · `loss` olay kartı ve yatırım kaybı · `unlock` yadigâr alımı.

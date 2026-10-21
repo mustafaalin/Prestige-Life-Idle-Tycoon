@@ -4,7 +4,6 @@ import {
   COLLECT_END_CLASS,
   COLLECT_MAX_ON_SCREEN,
   COLLECT_SPAWN_SECONDS,
-  FETCH_WINDOW_SECONDS,
 } from '../../core/config/scene';
 import { AD_FIND_MULTIPLIER } from '../../core/config/ads';
 import { HOUSES } from '../../core/config/housing';
@@ -22,6 +21,7 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { useAdText } from '../ads/useAdText';
 import { useGuideTarget } from '../guide/guideSteps';
 import { burstCoins, payout } from '../home/coins';
+import { useMenuTop } from '../home/menuEdge';
 import { PointingHand } from '../home/Focusable';
 import { RewardCard } from '../home/RewardCard';
 import { useCoverFit } from './coverFit';
@@ -67,7 +67,9 @@ const SPOTS: [number, number][] = [
   [0.85, 0.8],
 ];
 
-/** An item's tap box is 64 px; its centre stays this far from the screen's edges. */
+const LOWEST_SPOT = Math.max(...SPOTS.map(([, y]) => y));
+
+/** An item's tap box is 64 px; its centre stays this far from the screen's edges and the menu's top. */
 const ITEM_EDGE = 40;
 
 const ITEM_FILTER = 'drop-shadow(0 0 6px rgba(255,230,150,0.85)) brightness(1.05)';
@@ -309,11 +311,9 @@ export function Scene() {
     if (finding) playSfx('bark');
   }, [finding]);
   useEffect(() => {
-    if (finding) {
-      // Şans waits with the find, then gives up.
-      const timer = window.setTimeout(() => setFinding(false), FETCH_WINDOW_SECONDS * 1000);
-      return () => window.clearTimeout(timer);
-    }
+    // Şans waits with the find until it is taken (telefon testi 2026-10-21: a player on another screen
+    // missed it); the next one is looked for only after that.
+    if (finding) return;
     const timer = window.setTimeout(() => setFinding(true), random(wait.min, wait.max) * 1000);
     return () => window.clearTimeout(timer);
   }, [finding, findRound, wait.min, wait.max]);
@@ -347,10 +347,15 @@ export function Scene() {
   };
 
   // Where an item lies on screen. Very tall, narrow phones crop the picture's sides past the spots'
-  // margin, so an item never sits closer than its own half width to the screen's edge.
+  // margin, so an item never sits closer than its own half width to the screen's edge; short or wide
+  // phones bring the menu up over the low spots, so an item never sits behind the menu either.
+  const menuTop = useMenuTop();
+  // The whole set of spots moves up together, so the bottles keep their spread instead of lining up.
+  const groundBottom = menuTop - (rootRef.current?.getBoundingClientRect().top ?? 0) - ITEM_EDGE;
+  const groundLift = Math.max(0, fit.y(LOWEST_SPOT) - groundBottom);
   const itemPoint = (item: Item) => {
     const [sx, sy] = SPOTS[item.spot];
-    return { x: Math.min(Math.max(fit.x(sx), ITEM_EDGE), fit.width - ITEM_EDGE), y: fit.y(sy) };
+    return { x: Math.min(Math.max(fit.x(sx), ITEM_EDGE), fit.width - ITEM_EDGE), y: fit.y(sy) - groundLift };
   };
 
   // A bottle near the middle (on screen also on wide phones) and not down by the menu, where the hand

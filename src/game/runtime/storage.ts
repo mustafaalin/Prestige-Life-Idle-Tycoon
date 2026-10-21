@@ -36,7 +36,7 @@ const BACKUP_KEY = 'prestige_life_v2_unreadable';
  * plays v2 yet, docs/archive/economy-rebuild.md §1.9). A one-time step before launch, never again after it.
  */
 const PRE_REBUILD_KEY = 'prestige_life_v2_pre_rebuild';
-const SAVE_SCHEMA = 2;
+export const SAVE_SCHEMA = 2;
 
 interface SaveFile {
   schema: number;

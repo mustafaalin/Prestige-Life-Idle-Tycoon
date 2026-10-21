@@ -20,11 +20,13 @@ export type Sfx =
   | 'arrive'
   | 'reward'
   | 'loss'
-  | 'unlock';
+  | 'unlock'
+  | 'grow'
+  | 'hire';
 
 const SFX = '/assets/audio/sfx/v2';
 
-/** ElevenLabs, chosen by the user 2026-10-17 (art/audio/sfx-2026-10-17). */
+/** ElevenLabs, chosen by the user 2026-10-17 (art/audio/sfx-2026-10-17); grow and hire 2026-10-21. */
 const SFX_FILES: Record<Sfx, string> = {
   click: `${SFX}/click.mp3`,
   coin: `${SFX}/coin.mp3`,
@@ -40,6 +42,8 @@ const SFX_FILES: Record<Sfx, string> = {
   reward: `${SFX}/reward.mp3`,
   loss: `${SFX}/loss.mp3`,
   unlock: `${SFX}/unlock.mp3`,
+  grow: `${SFX}/grow.mp3`,
+  hire: `${SFX}/hire.mp3`,
 };
 
 /** The files are evened out (−16 LUFS); the frequent small sounds sit lower. */
@@ -108,7 +112,8 @@ function poolFor(sound: Sfx) {
   return pool;
 }
 
-export function playSfx(sound: Sfx) {
+/** `rate` plays the sound faster and higher (1 = as recorded): a business climbing its levels climbs in pitch too. */
+export function playSfx(sound: Sfx, { rate = 1 }: { rate?: number } = {}) {
   if (!sfxOn) return;
   try {
     const pool = poolFor(sound);
@@ -118,6 +123,8 @@ export function playSfx(sound: Sfx) {
     const player = pool.players[pool.next];
     pool.next = (pool.next + 1) % POOL_SIZE;
     player.currentTime = 0;
+    player.preservesPitch = rate === 1;
+    player.playbackRate = rate;
     player.play().catch(() => {});
   } catch {
     // No audio on this device.

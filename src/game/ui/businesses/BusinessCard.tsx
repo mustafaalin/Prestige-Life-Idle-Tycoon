@@ -1,7 +1,6 @@
 import { ArrowBigUpDash, Lock, Play, Store } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { WEALTH_CLASSES } from '../../core/config/classes';
-import { SECONDS_PER_MONTH } from '../../core/config/life';
 import {
   branchCapAt,
   branchCost,
@@ -29,8 +28,8 @@ import { adGift, campaignLeft, canCampaign, canTempManage, tempManagerLeft } fro
 import { payout } from '../home/coins';
 import { Focusable } from '../home/Focusable';
 import { levelNameKey } from '../home/questText';
-import { RewardCard } from '../home/RewardCard';
 import { Chip, GameButton, ImageTile, Panel } from '../kit';
+import { GrowShow, HireShow } from './BusinessShow';
 import { CycleBar } from './CycleBar';
 import { managerKey, managerPortrait, type ManagerLine } from './managers';
 
@@ -41,6 +40,9 @@ import { managerKey, managerPortrait, type ManagerLine } from './managers';
 
 /** Most branch icons drawn in the row; more shows as the count alone. */
 const BRANCH_ICONS = 8;
+/** A plain level-up plays `levelUp` this much higher per level, up to the cap (2026-10-21). */
+const LEVEL_PITCH_STEP = 0.05;
+const LEVEL_PITCH_MAX = 1.5;
 
 /** One dot per level; the first level of each new look (shop, store) is a larger dot. */
 function LevelPips({ def, level }: { def: BusinessDef; level: number }) {
@@ -77,12 +79,11 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
   const perRun = cycleRevenue(game, def);
   const monthly = perMonth(perRun / def.cycleSeconds);
 
-  // The next level (or opening the line): what it costs, what a run pays after, how fast it repays.
+  // The next level (or opening the line): what it costs and what a run pays after.
   const next = nextLevel(def, business);
   const places = Math.max(1, locations(business));
   const runNow = levelRevenue(def, level) * places * multiplier;
   const runNext = next ? next.revenue * places * multiplier : runNow;
-  const paybackSeconds = next && runNext > runNow ? (next.cost * def.cycleSeconds) / (runNext - runNow) : null;
 
   // Branches: at the top level, as many as the class allows; a ceremony raises the limit.
   const atTop = isMaxLevel(def, business);
@@ -96,20 +97,19 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
   const now = Date.now();
   const tempLeft = tempManagerLeft(state.ads, def.id, now);
   const campaignOn = campaignLeft(state.ads, def.id, now);
+  // A campaign (an ad) multiplies what the runs pay; the card shows the multiplied run while it lasts.
+  const campaignFactor = campaignOn > 0 ? CAMPAIGN_FACTOR : 1;
   const adText = useAdText();
-  // In the hero's calendar (one month = 80 s of play), like the rest of the economy: "~22 months".
-  const paybackText = (seconds: number) => {
-    const months = Math.max(1, Math.round(seconds / SECONDS_PER_MONTH));
-    if (months < 24) return t('business.paybackMonths', { count: months });
-    const years = Math.round(months / 12);
-    return t('business.paybackYears', { count: years });
-  };
 
   const managerName = t(managerKey(def.id, 'name'));
   const portrait = managerPortrait(def.id);
   const [hired, setHired] = useState(false);
-  // The business took on a new look (stand → shop → store): shown once, with the new picture.
-  const [grown, setGrown] = useState<{ level: number; from: number; to: number } | null>(null);
+  // The business took on a new look (stand → shop → store): played once as a show (BusinessShow.tsx).
+  const [grown, setGrown] = useState<{ level: number; fromImage: string; from: number; to: number } | null>(null);
+  // A plain level-up: light sweeps the picture and the run's gain floats up (the key replays both).
+  const [bump, setBump] = useState<{ key: number; gain: number } | null>(null);
+  // The branch just opened pops into the row.
+  const [newBranch, setNewBranch] = useState<number | null>(null);
   const stageAt = opened ? nextStageLevel(def, level) : null;
   // Tapping a manager's portrait shows one of their lines for a moment.
   const [quote, setQuote] = useState<ManagerLine | null>(null);
@@ -121,7 +121,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
 
   const hire = () => {
     if (!actions.hireManager(def.id)) return;
-    playSfx('levelUp');
+    // The show plays its own sound as the manager steps in.
     haptic('medium');
     setHired(true);
   };
@@ -142,14 +142,38 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
             aria-label={canStart ? t('business.run') : name('business', def)}
             className="relative shrink-0 transition-all active:scale-95 disabled:active:scale-100"
           >
-            <ImageTile className={opened ? 'w-20 h-20' : 'w-[88px] h-[88px]'}>
+            <ImageTile className={`relative overflow-hidden ${opened ? 'w-20 h-20' : 'w-[88px] h-[88px]'}`}>
               <img
+                key={bump?.key}
                 src={businessImage(def, Math.max(level, 1))}
                 alt=""
                 draggable={false}
-                className={opened ? 'w-[70px] h-[70px] object-contain' : 'w-[78px] h-[78px] object-contain grayscale opacity-60'}
+                className={`${bump ? 'v2-bump' : ''} ${
+                  opened ? 'w-[70px] h-[70px] object-contain' : 'w-[78px] h-[78px] object-contain grayscale opacity-60'
+                }`}
               />
+              {bump && (
+                <span
+                  key={`shine-${bump.key}`}
+                  className="v2-tile-shine pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/80 to-transparent"
+                  aria-hidden
+                />
+              )}
             </ImageTile>
+            {campaignOn > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 rounded-full border-2 border-white bg-gradient-to-b from-amber-400 to-orange-500 v2-glossy px-1.5 v2-display text-[12px] text-white v2-shadow">
+                ×{CAMPAIGN_FACTOR}
+              </span>
+            )}
+            {bump && bump.gain > 0 && (
+              <span
+                key={`gain-${bump.key}`}
+                className="v2-float-up pointer-events-none absolute left-1/2 top-1 whitespace-nowrap v2-display v2-outline-thin text-[15px] text-emerald-400 tabular-nums"
+                aria-hidden
+              >
+                +{money(bump.gain)}
+              </span>
+            )}
             {canStart && (
               <span className="v2-nudge absolute left-1/2 -bottom-2.5 flex items-center gap-1 whitespace-nowrap rounded-full border-2 border-white bg-gradient-to-b from-amber-300 to-orange-500 v2-glossy pl-1.5 pr-2.5 py-0.5 v2-display text-[12px] text-white v2-shadow">
                 <Play className="w-3 h-3 fill-white" />
@@ -191,7 +215,9 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
                   {t(levelNameKey(def.id, level))} · {t('business.level', { level, max: def.levels.length })}
                 </span>
                 <span className={managed ? 'text-emerald-600' : 'text-violet-600'}>
-                  {t(managed ? 'business.income' : 'business.withManager', { amount: monthly })}
+                  {t(managed ? 'business.income' : 'business.withManager', {
+                    amount: campaignOn > 0 ? perMonth((perRun * campaignFactor) / def.cycleSeconds) : monthly,
+                  })}
                 </span>
               </p>
               <CycleBar
@@ -201,7 +227,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
                 cycleSeconds={def.cycleSeconds}
                 lastActiveAt={state.lastActiveAt}
                 speed={speed}
-                label={t('business.perRun', { amount: money(perRun) })}
+                label={`${t('business.perRun', { amount: money(perRun * campaignFactor) })}${campaignOn > 0 ? ` ×${CAMPAIGN_FACTOR}` : ''}`}
                 detail={!canStart && def.cycleSeconds / speed >= 2 ? duration(Math.ceil(secondsLeft)) : undefined}
               />
             </>
@@ -240,36 +266,42 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
 
       <div className="flex gap-2">
         {next && (
-          <Focusable focusKey={`business:${def.id}:level`} className="flex-1">
+          <Focusable focusKey={`business:${def.id}:level`} className="flex-1 min-w-0">
             <GameButton
               onClick={() => {
                 if (!actions.levelUpBusiness(def.id)) return;
-                playSfx(opened ? 'levelUp' : 'purchase');
                 haptic('medium');
                 if (opened && businessStage(def, level + 1) > businessStage(def, level)) {
-                  setGrown({ level: level + 1, from: runNow, to: runNext });
+                  // The show plays its own sound with the flash.
+                  setGrown({ level: level + 1, fromImage: businessImage(def, level), from: runNow, to: runNext });
+                  return;
                 }
+                if (opened) playSfx('levelUp', { rate: Math.min(LEVEL_PITCH_MAX, 1 + level * LEVEL_PITCH_STEP) });
+                else playSfx('purchase');
+                setBump({ key: Date.now(), gain: runNext - runNow });
               }}
               disabled={game.cash < next.cost}
               className="w-full h-full min-h-11 py-2 px-3 flex items-center justify-between gap-2"
             >
               <span className="min-w-0 flex items-center gap-1.5 v2-display text-[14px] v2-shadow">
                 {opened && <ArrowBigUpDash className="w-5 h-5 shrink-0" />}
-                <span className="truncate">
+                {/* A long level name ("Umbrellas and stools") takes two lines instead of pushing the row wider. */}
+                <span className="line-clamp-2 break-words text-left leading-tight">
                   {opened ? t(levelNameKey(def.id, level + 1)) : t('business.open')}
                 </span>
               </span>
-              <span className="v2-display text-[14px] v2-shadow tabular-nums">{money(next.cost)}</span>
+              <span className="shrink-0 v2-display text-[14px] v2-shadow tabular-nums">{money(next.cost)}</span>
             </GameButton>
           </Focusable>
         )}
         {atTop && (
-          <Focusable focusKey={`business:${def.id}:branch`} className="flex-1">
+          <Focusable focusKey={`business:${def.id}:branch`} className="flex-1 min-w-0">
             <GameButton
               onClick={() => {
                 if (actions.openBranch(def.id)) {
                   playSfx('purchase');
                   haptic('medium');
+                  setNewBranch(branches + 1);
                 }
               }}
               disabled={atCap || game.cash < branchPrice}
@@ -283,7 +315,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
                     <Store className="w-4 h-4 shrink-0" />
                     <span className="truncate">{t('business.openBranch')}</span>
                   </span>
-                  <span className="v2-display text-[14px] v2-shadow tabular-nums">{money(branchPrice)}</span>
+                  <span className="shrink-0 v2-display text-[14px] v2-shadow tabular-nums">{money(branchPrice)}</span>
                 </>
               )}
             </GameButton>
@@ -316,7 +348,6 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
       {opened && next && (
         <p className="px-1 text-[11px] font-bold text-indigo-900/60">
           {t('business.nextRun', { from: money(runNow), to: money(runNext) })}
-          {paybackSeconds !== null && ` · ${paybackText(paybackSeconds)}`}
         </p>
       )}
 
@@ -329,7 +360,12 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
           </span>
           <span className="flex-1 min-w-0 flex items-center gap-0.5 overflow-hidden" aria-hidden>
             {Array.from({ length: Math.min(branches, BRANCH_ICONS) }, (_, index) => (
-              <Store key={index} className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+              <Store
+                key={index}
+                className={`w-3.5 h-3.5 shrink-0 text-emerald-600 ${
+                  newBranch === branches && index === Math.min(branches, BRANCH_ICONS) - 1 ? 'v2-pop-in' : ''
+                }`}
+              />
             ))}
           </span>
           {!atCap && (
@@ -400,13 +436,16 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
       )}
 
       {grown && (
-        <RewardCard
-          image={businessImage(def, grown.level)}
-          title={t(levelNameKey(def.id, grown.level))}
-          body={t('business.grown', { business: name('business', def) })}
-          note={t('business.nextRun', { from: money(grown.from), to: money(grown.to) })}
+        <GrowShow
+          fromImage={grown.fromImage}
+          toImage={businessImage(def, grown.level)}
+          levelName={t(levelNameKey(def.id, grown.level))}
+          growing={t('business.growing', { business: name('business', def) })}
+          title={t('business.grown', { business: name('business', def) })}
+          fromRun={grown.from}
+          toRun={grown.to}
           actionLabel={t('business.grownOk')}
-          onCollect={() => setGrown(null)}
+          onClose={() => setGrown(null)}
           ad={{
             placement: 'grown_bonus',
             label: adText('ads.grown', { amount: money(adGift(game)) }),
@@ -420,14 +459,14 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
       )}
 
       {hired && (
-        <RewardCard
-          image={portrait}
-          portrait
-          title={managerName}
-          body={`“${t(managerKey(def.id, 'hire'))}”`}
+        <HireShow
+          portrait={portrait}
+          name={managerName}
+          line={t(managerKey(def.id, 'hire'))}
           note={t('business.managerJoined', { name: managerName, business: name('business', def) })}
+          stamp={t('business.auto')}
           actionLabel={t('business.welcome')}
-          onCollect={() => setHired(false)}
+          onClose={() => setHired(false)}
         />
       )}
     </Panel>

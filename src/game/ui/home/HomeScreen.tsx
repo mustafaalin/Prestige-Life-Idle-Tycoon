@@ -36,6 +36,7 @@ import { RetirementPanel } from './RetirementPanel';
 import { IncomeSheet } from './IncomeSheet';
 import { RewardCard } from './RewardCard';
 import { DreamsRow } from './DreamsRow';
+import { useMeasureMenuTop } from './menuEdge';
 import type { FocusTarget } from './focus';
 import { SettingsSheet } from './SettingsSheet';
 import type { TabId } from './tabs';
@@ -157,6 +158,10 @@ export function HomeScreen() {
   const albumStarted = ALBUM.some((entry) => albumSeen(entry, state.story));
   // The Rich List shows itself with the Millionaire ceremony, a class before the list opens.
   const richShown = (storyRuns(game) ? state.story.ceremonySeen : game.classIndex) >= RICH_BUTTON_CLASS;
+  // The scene keeps bottles above the menu (menuEdge.ts).
+  const menuRef = useRef<HTMLDivElement>(null);
+  useMeasureMenuTop(menuRef);
+
   // The Store opens with the first ceremony (runtime/purchases.ts).
   const storeShown = offersOpen(state.story);
 
@@ -211,7 +216,7 @@ export function HomeScreen() {
           <Guide tabOpen={sheetOpen} />
           <EventCards tabOpen={sheetOpen} onOpenChange={setEventOpen} />
         </main>
-        <div className="pointer-events-auto">
+        <div ref={menuRef} className="pointer-events-auto">
           <BottomNav
             open={tab}
             onSelect={selectTab}

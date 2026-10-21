@@ -77,9 +77,9 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
 - **Kimlikler değişmez:** kayıtta duran bir id (işletme, eşya, ev, meslek, kurs, hedef, an, mağaza ürünü) yeniden adlandırılmaz, silinmez; gerekirse eskisi yenisine eşlenir.
 - **Yeni alan varsayılanla gelir:** `normalize*()` her alanı tek tek okur; yeni sistem eski oyuncuya bir anda onlarca kart ya da tören yaşatmaz.
 - **Alınmış olan geri alınmaz:** kural sıkılaşsa da sahip olunan kalır; sınıf hediyeleri `applyClassFloors` ile eksikse verilir.
-- **Şema:** `SAVE_SCHEMA` yalnızca `migrate()`'e adım eklenerek artırılır; okunamayan kayıt `prestige_life_v2_unreadable`'a yedeklenir. Şema 2'nin tek seferlik temiz başlangıcı yayından önceydi; bir daha yapılmaz.
+- **Şema:** `SAVE_SCHEMA` yalnızca `migrate()`'e adım eklenerek artırılır; okunamayan kayıt `prestige_life_v2_unreadable`'a yedeklenir. Şema 2'nin tek seferlik temiz başlangıcı yayından önceydi (2026-10-21; kullanıcı telefonda gördü ve yeniden vurguladı); yayından önce de bir daha yapılmaz.
 - **Kayıt anahtarı** `prestige_life_v2` ve uygulama kimliği değişmez.
-- **Denetim:** kaydı etkileyen her değişiklikte eski bir kayıtla açılış denenir (DEV kaydı ya da betikle `parseRuntime`).
+- **Denetim:** `npm run savecheck` (2026-10-21) `scripts/save-fixtures/` içindeki her eski kaydı bugünün koduyla açar ve ilerlemenin tamamını arar (para, kazanç, sınıf, yaş, iş ve deneyim, kurslar, işletmeler, yöneticiler, şubeler, eşyalar, evler, törenler, kahramanın adı, satın almalar). Kaydı etkileyen her değişiklikte çalışır. Şema her arttığında yükseltmeden önce `npm run savecheck -- --snapshot schemaN-midgame` ile o şemanın örnek kaydı eklenir; örnek kayıtlar sonradan hiç düzenlenmez (eski telefonlarda duran budur).
 
 **Ekran kuralı:** yeni bir açılır kart `createPortal(..., portalRoot())` kullanır (`document.body` değil); ekrandan ölçülen nokta sütuna `toStage()` ile çevrilir; `vw` yerine `var(--stage-w)`.
 

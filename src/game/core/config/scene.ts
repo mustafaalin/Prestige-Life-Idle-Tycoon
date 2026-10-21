@@ -16,8 +16,6 @@ export const FETCH_MAX_SECONDS = 600;
  */
 export const FETCH_EARLY_MIN_SECONDS = 90;
 export const FETCH_EARLY_MAX_SECONDS = 150;
-/** How long Şans waits with the find before giving up. */
-export const FETCH_WINDOW_SECONDS = 12;
 /**
  * What one bottle or can pays by class (Street, Day Laborer, Working Class: coins), decided 2026-10-20
  * (docs/game-design-v2.md §4.7): fixed, so collecting matters early and fades as income grows. A

@@ -1,5 +1,7 @@
 import { X } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
+import { BUSINESSES } from '../core/config/businesses';
+import { businessImage, levelRevenue } from '../core/formulas';
 import { LOCALES, type Locale } from '../i18n/locales';
 import { useT } from '../i18n/useT';
 import { useBackButton } from '../runtime/backButton';
@@ -8,7 +10,10 @@ import { useGameV2 } from '../runtime/useGameV2';
 import { showRewardedAd } from '../runtime/ads';
 import { scheduleTestReminder } from '../runtime/notifications';
 import { LIFE_MOMENTS, LUXURY_MOMENTS } from '../runtime/story';
+import { GrowShow, HireShow } from './businesses/BusinessShow';
+import { managerKey, managerPortrait } from './businesses/managers';
 import { requestEventCard } from './events/eventScript';
+import { levelNameKey } from './home/questText';
 import { LOOKS, setLook, useLook } from './look';
 import { SceneLab } from './scene/SceneLab';
 import { requestFind } from './scene/sceneEvents';
@@ -21,6 +26,8 @@ const CASH_AMOUNTS = [1e3, 1e6, 1e9, 1e12];
 const AWAY_SECONDS = [5 * 60, 60 * 60, 3 * 60 * 60];
 const AGE_YEARS = [10, 40];
 const CEREMONY_CLASSES = [1, 2, 3, 4, 5, 6, 7];
+/** The business show plays for a random line; growing shows its second look (level 8). */
+const SHOW_LEVEL = 8;
 
 function Chip({ active, onClick, children }: { active?: boolean; onClick: () => void; children: ReactNode }) {
   return (
@@ -47,7 +54,8 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 
 export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) {
   const { actions } = useGameV2();
-  const { t, money, duration, locale, setLocale } = useT();
+  const { t, name, money, duration, locale, setLocale } = useT();
+  const [show, setShow] = useState<{ kind: 'grow' | 'hire'; index: number } | null>(null);
   const [open, setOpen] = useState(false);
   const [speed, setSpeed] = useState(actions.dev.getSpeed);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -69,16 +77,52 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
 
   if (lab) return <SceneLab onClose={() => setLab(false)} />;
 
+  const showDef = show ? BUSINESSES[show.index] : null;
+  const showManager = showDef ? t(managerKey(showDef.id, 'name')) : '';
+  const preview =
+    show && showDef ? (
+      show.kind === 'grow' ? (
+        <GrowShow
+          fromImage={businessImage(showDef, SHOW_LEVEL - 1)}
+          toImage={businessImage(showDef, SHOW_LEVEL)}
+          levelName={t(levelNameKey(showDef.id, SHOW_LEVEL))}
+          growing={t('business.growing', { business: name('business', showDef) })}
+          title={t('business.grown', { business: name('business', showDef) })}
+          fromRun={levelRevenue(showDef, SHOW_LEVEL - 1)}
+          toRun={levelRevenue(showDef, SHOW_LEVEL)}
+          actionLabel={t('business.grownOk')}
+          onClose={() => setShow(null)}
+        />
+      ) : (
+        <HireShow
+          portrait={managerPortrait(showDef.id)}
+          name={showManager}
+          line={t(managerKey(showDef.id, 'hire'))}
+          note={t('business.managerJoined', { name: showManager, business: name('business', showDef) })}
+          stamp={t('business.auto')}
+          actionLabel={t('business.welcome')}
+          onClose={() => setShow(null)}
+        />
+      )
+    ) : null;
+  const playShow = (kind: 'grow' | 'hire') => {
+    close();
+    setShow({ kind, index: Math.floor(Math.random() * BUSINESSES.length) });
+  };
+
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="fixed left-1/2 -translate-x-1/2 top-[calc(var(--safe-top)+1px)] z-[200] rounded-full bg-slate-900/80 text-white px-3 py-1.5 text-[10px] font-black transition-all active:scale-90"
-      >
-        {t('dev.open')}
-        {speed !== 1 && ` ×${speed}`}
-      </button>
+      <>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="fixed left-1/2 -translate-x-1/2 top-[calc(var(--safe-top)+1px)] z-[200] rounded-full bg-slate-900/80 text-white px-3 py-1.5 text-[10px] font-black transition-all active:scale-90"
+        >
+          {t('dev.open')}
+          {speed !== 1 && ` ×${speed}`}
+        </button>
+        {preview}
+      </>
     );
   }
 
@@ -229,6 +273,11 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
             >
               {t('dev.notifyTest')}
             </Chip>
+          </Row>
+
+          <Row label={t('dev.businessShow')}>
+            <Chip onClick={() => playShow('grow')}>{t('dev.showGrow')}</Chip>
+            <Chip onClick={() => playShow('hire')}>{t('dev.showHire')}</Chip>
           </Row>
 
           <Row label={t('dev.life')}>

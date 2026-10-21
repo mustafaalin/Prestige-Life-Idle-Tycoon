@@ -17,7 +17,7 @@ Session startup — read in this order:
 
 `docs/v1/` is the v1 archive (`v1/game-rules.md` = v1 rules only). Don't use it for v2 work. `docs/archive/` holds finished one-off v2 documents (deliveries, reviews, GPT prompts); their decisions live in the docs above, so don't read them for the current state.
 
-v2 rules of thumb: players' saves must survive every update (never rename/remove saved ids, defaults for new fields, schema bumps only with a migration; `docs/session-handoff.md` "Kayıt uyumluluğu", `src/game/runtime/storage.ts`); pure-TS economy in `src/game/core/` (no React); every balance change goes through `npm run sim`; every on-screen string via `src/game/i18n/` in both `en` and `tr`; save key `prestige_life_v2`. v2 game look (glossy buttons, Fredoka display font, outlined numbers) comes from `src/game/ui/kit.tsx` and the `v2-*` classes in `src/game/mobile.css`; sounds and haptics via `src/game/runtime/feedback.ts`; rewarded ads via `src/game/runtime/ads.ts`; ceremonies and Mom's messages via `src/game/ui/story/` + `src/game/runtime/story.ts`; event cards via `src/game/core/config/events.ts` + `src/game/ui/events/`; phone reminders via `src/game/runtime/notifications.ts`; the store's rating dialog via `src/game/runtime/review.ts`; analytics events via `track()` in `src/game/runtime/analytics.ts` (Firebase; player actions are tracked in `runtime/store.ts`). Docs are rewritten to the current state, not appended to (see `docs/session-handoff.md`).
+v2 rules of thumb: players' saves must survive every update (never rename/remove saved ids, defaults for new fields, schema bumps only with a migration, `npm run savecheck` after any change that touches saved state; `docs/session-handoff.md` "Kayıt uyumluluğu", `src/game/runtime/storage.ts`); pure-TS economy in `src/game/core/` (no React); every balance change goes through `npm run sim`; every on-screen string via `src/game/i18n/` in both `en` and `tr`; save key `prestige_life_v2`. v2 game look (glossy buttons, Fredoka display font, outlined numbers) comes from `src/game/ui/kit.tsx` and the `v2-*` classes in `src/game/mobile.css`; sounds and haptics via `src/game/runtime/feedback.ts`; rewarded ads via `src/game/runtime/ads.ts`; ceremonies and Mom's messages via `src/game/ui/story/` + `src/game/runtime/story.ts`; event cards via `src/game/core/config/events.ts` + `src/game/ui/events/`; phone reminders via `src/game/runtime/notifications.ts`; the store's rating dialog via `src/game/runtime/review.ts`; analytics events via `track()` in `src/game/runtime/analytics.ts` (Firebase; player actions are tracked in `runtime/store.ts`). Docs are rewritten to the current state, not appended to (see `docs/session-handoff.md`).
 
 ## Commands
 
@@ -26,6 +26,7 @@ npm run dev          # start dev server (v1)
 npm run dev:v2       # start dev server (v2); add `-- --host` to open on a phone
 npm run phone        # v2 on an Android phone with live reload (scripts/phone.mjs; `-- PORT` for a new wireless debugging port, `-- --install` to reinstall)
 npm run sim          # v2 economy simulator (30-day pacing targets)
+npm run savecheck    # v2: old saves (scripts/save-fixtures/) still load with all progress
 npm run backup       # copy git-ignored folders (art/, reference material) to Google Drive
 npm run build        # production build (v1)
 npm run build:v2     # production build (v2)

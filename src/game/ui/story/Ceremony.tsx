@@ -1,5 +1,5 @@
 import { ArrowRight, ChevronRight, Gift, Phone } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { BUSINESSES, CLASS_MANAGER_GIFT } from '../../core/config/businesses';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { AD_STORY_GIFT_MULTIPLIER } from '../../core/config/ads';
@@ -18,6 +18,7 @@ import { AdButton } from '../ads/AdButton';
 import { useAdText } from '../ads/useAdText';
 import { payout } from '../home/coins';
 import { managerKey, managerPortrait } from '../businesses/managers';
+import { Confetti } from '../Confetti';
 import { GameButton } from '../kit';
 import { classLook } from '../scene/stages';
 import { albumOutfit, albumShots, lifeMomentLabel, type AlbumEntry } from './album';
@@ -60,44 +61,7 @@ const TAG_STYLE: Record<CastId, string> = {
   burak: 'from-slate-700 to-zinc-800',
 };
 
-const CONFETTI_COLORS = ['#fbbf24', '#f472b6', '#34d399', '#60a5fa', '#a78bfa', '#fb7185'];
-
 type Phase = 'title' | 'story' | 'interlude' | 'summary';
-
-function Confetti() {
-  // Fixed per mount, so pieces don't jump on re-render.
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: 36 }, (_, index) => ({
-        left: Math.random() * 100,
-        delay: Math.random() * 0.8,
-        duration: 2.2 + Math.random() * 1.6,
-        size: 6 + Math.random() * 6,
-        color: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
-        drift: (Math.random() - 0.5) * 120,
-      })),
-    [],
-  );
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {pieces.map((piece, index) => (
-        <span
-          key={index}
-          className="v2-confetti absolute top-0 rounded-[2px]"
-          style={{
-            left: `${piece.left}%`,
-            width: piece.size,
-            height: piece.size * 1.6,
-            background: piece.color,
-            animationDelay: `${piece.delay}s`,
-            animationDuration: `${piece.duration}s`,
-            ['--drift' as string]: `${piece.drift}px`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 /** How a story beat ended: skipped or not, and the gift's multiplier (none on a replay). */
 type StoryDone = (skipped: boolean, giftMultiplier?: number) => void;
