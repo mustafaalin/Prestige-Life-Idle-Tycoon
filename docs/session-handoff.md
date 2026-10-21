@@ -33,6 +33,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 - **Ana ekran:** oturulan ev ve önündeki araç, kahraman, Şans, yerden toplama (Orta Sınıf'ta biter), hedef rozeti, gelir dökümü, hayaller panosu, ×2 hızlandırıcı, Şans'ı çağır, fırsat balonu; alt menüde İşletmeler, Kariyer, Alışveriş, Yatırım. Rıza Amca rehberi.
 - **Para:** 19 ödüllü reklam yeri, kilitsiz (reklam izleyen Milyarder'e %47 erken); Mağaza: Rahat Paket $7,99 (reklamsız), Başlangıç Paketi $2,99 (ilk 3 gün $1,49); geri yükleme; Play puanlama penceresi.
 - **Görseller:** 1. neslin bütün görselleri oyunda; son gelen 91'i (14 işletmenin üçer görünümü, 4 yeni yönetici, 51 meslek ve 4 eşya ikonu) 2026-10-21'de bağlandı.
+- **Sahne panosu (DEV, 2026-10-21):** `npm run dev:v2` → `/scene-board.html`; ilk hayatta görülebilen her ev, araç, kıyafet ve tasma (`ui/scene/sceneCombos.ts`, şu an 84 sahne) telefon boyunda, altında yorum kutusu; yorumlar `scene-notes.json`'a (git dışı) yazılır, Claude oradan okur. İlk turun yorumlarıyla poz boyları, ev başına araç yeri ve üç aracın lastik altı düzeltildi; ayak altındaki gölge kaldırıldı (kahramanı havada gösteriyordu).
 - **Altyapı:** kayıt Preferences'ta, Android geri tuşu, güvenli alanlar, yalnız dikey (tablette ortada dikey sütun), yerel bildirimler, Firebase Analytics, ses ve müzik, TR + EN.
 
 ## Sıradaki
@@ -69,7 +70,7 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
   - Veri güvenliği beyanı v2'ye göre ([monetization-v2.md §7](./monetization-v2.md)).
   - v1'in 8 ürününü pasifleştirmek.
   - Mağaza görselleri `~/Downloads/play-store-v2/` (6 ekran × TR/EN, özellik grafiği, ikon 512). Ekran görüntüleri eski ekonomiden; yeni işletme kartı ve iş panosuyla yenilenebilir (kaynak `art/store-v2/`, `capture.mjs` / `compose.mjs` / `feature.mjs`; `playwright-core` projede yok, yerel bir kopya gerekir).
-- **Seçimler:** uygulama ikonu (A, B, C adayları) ve özellik grafiği (C, D) ([art-prompts-v2.md §1](./art-prompts-v2.md)); GPT'de önsözün 5 karesi (§2).
+- **Seçimler:** uygulama ikonu (A, B, C adayları) ve özellik grafiği (C, D) ([art-prompts-v2.md §1](./art-prompts-v2.md)); GPT'de önsözün 5 karesi (§2) dedenin küçük Şans'lı okşama pozu (§3) ve daha geride Sahil Malikânesi (§4).
 - **AdMob:** Play'de web sitesi girildikten sonra app-ads.txt doğrulaması (AdMob → Uygulamalar); Ayarlar → Test cihazları'na telefon.
 - **Oyuncu gözlemi:** 6–8 tanıdıkla (kapalı test verisi çoğunlukla kendi hesapların).
 

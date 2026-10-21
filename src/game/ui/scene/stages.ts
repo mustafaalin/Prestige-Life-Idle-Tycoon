@@ -59,28 +59,32 @@ const DIR = '/assets/scene';
 /** An outfit's art. Outfits from Middle Class on have no collect pose (nothing lies on the ground by then). */
 type HeroArt = Omit<HeroLook, 'collect'> & { collect?: PoseArt };
 
-/** Index = outfit (OUTFITS order). Empty = art pending, the outfit before stands in. */
+/**
+ * Index = outfit (OUTFITS order). Empty = art pending, the outfit before stands in. Heights: the head
+ * keeps one size in every pose and Şans in a petting picture matches the sitting one (scene board,
+ * 2026-10-21: the hoodie's petting picture was a fifth too big, its joy a little small).
+ */
 const HERO_ART: (HeroArt | null)[] = [
   // Hoodie: standing up, a hand on the backpack strap, hopeful (in the tent he is cold instead, below).
   {
     idle: { src: `${DIR}/hero-street-hopeful.webp`, height: 0.41, aspect: 0.319, x: 0.4 },
     collect: { src: `${DIR}/hero-street-collect.webp`, height: 0.27, aspect: 0.681, x: 0.4 },
-    joy: { src: `${DIR}/hero-street-joy.webp`, height: 0.41, aspect: 0.528, x: 0.4 },
-    pet: { src: `${DIR}/hero-street-pet-sans.webp`, height: 0.31, aspect: 0.816, x: 0.48, flip: true },
+    joy: { src: `${DIR}/hero-street-joy.webp`, height: 0.424, aspect: 0.528, x: 0.4 },
+    pet: { src: `${DIR}/hero-street-pet-sans.webp`, height: 0.275, aspect: 0.816, x: 0.48, flip: true },
   },
   // Work clothes.
   {
     idle: { src: `${DIR}/hero-work-idle.webp`, height: 0.42, aspect: 0.371, x: 0.4 },
     collect: { src: `${DIR}/hero-work-collect.webp`, height: 0.25, aspect: 0.611, x: 0.4 },
     joy: { src: `${DIR}/hero-work-joy.webp`, height: 0.444, aspect: 0.353, x: 0.4 },
-    pet: { src: `${DIR}/hero-work-pet-sans.webp`, height: 0.25, aspect: 0.839, x: 0.47, flip: true },
+    pet: { src: `${DIR}/hero-work-pet-sans.webp`, height: 0.26, aspect: 0.839, x: 0.47, flip: true },
   },
   // Smart casual: relaxed, a hand in his pocket. A raised fist adds to a joy picture's height; the body
   // stays the idle's size.
   {
     idle: { src: `${DIR}/hero-smart-idle.webp`, height: 0.42, aspect: 0.307, x: 0.4 },
     joy: { src: `${DIR}/hero-smart-joy.webp`, height: 0.451, aspect: 0.328, x: 0.4 },
-    pet: { src: `${DIR}/hero-smart-pet-sans.webp`, height: 0.225, aspect: 1.046, x: 0.49, flip: true },
+    pet: { src: `${DIR}/hero-smart-pet-sans.webp`, height: 0.235, aspect: 1.046, x: 0.49, flip: true },
   },
   // Camel overcoat: hands in the coat pockets, enjoying a cold bright day.
   {
@@ -300,11 +304,17 @@ const HOME_ART: Record<string, Partial<Omit<HomeArt, 'background'>>> = {
   },
   // Old van: the van is far back on the left, so the hero steps right to leave it in view.
   'home-2': { castX: 0.07 },
-  // Rented room and the flats: the door is left of the middle, the hero stands clear of it.
-  'home-3': { castX: 0.07 },
+  // Rented room and the flats: the door is left of the middle, the hero stands clear of it. The room's
+  // and the newer flat's fronts are close, so the car parks further forward (scene board, 2026-10-21).
+  'home-3': { castX: 0.07, layout: { ...DEFAULT_LAYOUT, car: { x: 0.89, y: 0.655 } } },
   // Warm evening light.
   'home-4': { castX: 0.07, light: 'brightness(0.95) saturate(1) sepia(0.12)' },
-  'home-5': { castX: 0.07 },
+  'home-5': { castX: 0.07, layout: { ...DEFAULT_LAYOUT, car: { x: 0.89, y: 0.655 } } },
+  // The suburban house and the mansion stand small and far back: a car parked further back stays
+  // smaller and leaves them in view. The beach estate's front is too shallow for that; its picture is
+  // being redrawn further back (art-prompts-v2 §4).
+  'home-8': { layout: { ...DEFAULT_LAYOUT, car: { x: 0.89, y: 0.57 } } },
+  'home-12': { layout: { ...DEFAULT_LAYOUT, car: { x: 0.87, y: 0.59 } } },
 };
 
 /**
@@ -354,9 +364,11 @@ const VEHICLE_SHAPE: Record<string, VehicleShape> = {
   'vehicle-suv': { metres: 1.7, aspect: 1.442 },
   'vehicle-pickup': { metres: 1.8, aspect: 1.599 },
   'vehicle-executive': { metres: 1.46, aspect: 1.67 },
-  'vehicle-coupe': { metres: 1.3, aspect: 1.642 },
+  // A low car read small next to the others at its real 1.3 m (scene board, 2026-10-21).
+  'vehicle-coupe': { metres: 1.42, aspect: 1.642 },
   'vehicle-offroader': { metres: 1.85, aspect: 1.565 },
-  'vehicle-supercar': { metres: 1.15, aspect: 2.045 },
+  // The orange McLaren-like car (2026-10-21, art/pilot/09-vehicles/vehicle-9-feature-supercar-v1.png).
+  'vehicle-supercar': { metres: 1.15, aspect: 2.338 },
   'vehicle-grand': { metres: 1.55, aspect: 1.758 },
 };
 /** Lumen's vehicles (heights from docs/art-prompts-lumen.md §4, aspects of the cut files, 2026-10-17). */

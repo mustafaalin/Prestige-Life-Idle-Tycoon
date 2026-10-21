@@ -33,3 +33,6 @@ rich inc oyun görselleri/
 
 # Reference game screenshots (not ours, never commit)
 idle-guy-life-sim oyun ekran görüntüleri/
+
+# Scene board notes (scene-board.html, dev server)
+scene-notes.json

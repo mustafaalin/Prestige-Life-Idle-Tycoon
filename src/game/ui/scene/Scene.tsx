@@ -29,7 +29,6 @@ import { onFindRequest } from './sceneEvents';
 import { poseBox, spriteBox, spriteFilter, vehicleStyle } from './place';
 import {
   classLook,
-  FEET_Y,
   heroLook,
   homeArt,
   lookImages,
@@ -412,16 +411,6 @@ export function Scene() {
             />
           )}
 
-          {/* Soft ground shadows keep the cut-out characters standing on the cobbles. */}
-          <span
-            className="absolute rounded-[50%] bg-black/40 blur-[6px]"
-            style={{
-              left: fit.x(0.4 + home.castX) - pictureWidth * 0.11,
-              top: fit.y(FEET_Y) - 8,
-              width: pictureWidth * 0.22,
-              height: 16,
-            }}
-          />
 
           {heroPoses.map((key) => {
             const art = hero[key];

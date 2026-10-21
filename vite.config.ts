@@ -1,4 +1,4 @@
-import { readdirSync, rmSync } from 'node:fs';
+import { readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -48,11 +48,39 @@ function dropV1Assets(): Plugin {
   };
 }
 
+/** Scene board (scene-board.html): its notes are kept in scene-notes.json so they can be read back. */
+function sceneNotes(): Plugin {
+  const file = resolve(process.cwd(), 'scene-notes.json');
+  return {
+    name: 'v2-scene-notes',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/__scene-notes', (req, res) => {
+        if (req.method === 'POST') {
+          let body = '';
+          req.on('data', (chunk) => (body += chunk));
+          req.on('end', () => {
+            writeFileSync(file, body);
+            res.end('ok');
+          });
+          return;
+        }
+        res.setHeader('Content-Type', 'application/json');
+        try {
+          res.end(readFileSync(file, 'utf8'));
+        } catch {
+          res.end('{}');
+        }
+      });
+    },
+  };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const isV2 = loadEnv(mode, process.cwd(), 'VITE_').VITE_GAME_V2 === 'true';
   return {
-    plugins: [react(), ...(isV2 ? [viewportFitCover(), dropV1Assets()] : [])],
+    plugins: [react(), ...(isV2 ? [viewportFitCover(), dropV1Assets(), sceneNotes()] : [])],
     optimizeDeps: {
       exclude: ['lucide-react'],
     },
