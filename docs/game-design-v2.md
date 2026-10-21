@@ -105,7 +105,7 @@ Bir işletme tek kart: **açılır, seviye seviye büyür, son seviyede şube a�
 - **Ekran** (`ui/career/`): üstte şimdiki iş, ustalık halkası, maaş; "Meslekler / Kurslar". Meslekler: İşçi / Ofis / Uzman / Zirve sekmeleri, satırlar ("Sv N") iki sütun, bağlar çizgiyle (ustalaşılan işten çıkan yeşil). Kutuya dokununca ortada küçük kart: maaş, ustalık süresi, şartlar ✓ / ○ ve "Git", açtığı işlerin adları, "İşe gir".
 - **İş değişimi şovu** (`ui/career/JobShow.tsx`): eski iş ortada, sola kayıp çıkar; yenisi sağdan ışınlar ve konfetiyle gelir, `fanfare`; maaş eskisinden yenisine sayar, "+$X/ay", açtığı işler, "Harika!"; oyuncu kapatmazsa 3,5 sn sonra kendisi kapanır. **"Usta oldun!"** (`ui/career/MasteredToast.tsx`): ustalık %100 olunca hangi ekranda olursa olsun üstte 4 sn yeşil şerit, `unlock`; dokununca Kariyer açılır.
 - **Bağlı botta** (`npm run sim`): Kasiyer 28, CEO 58, Yönetim Kurulu Başkanı 69 yaşında (Milyarder şartı). Maaşın gelirdeki payı 23–50 yaşta %1–7, CEO'da ~%24.
-- **İkonlar:** eski 63 mesleğin ikonu oyunda; 41 yeni mesleğin komutları [art-prompts-careers.md](./art-prompts-careers.md) (ikonu olmayan meslekte çanta simgesi).
+- **İkonlar:** 104 mesleğin hepsinin ikonu oyunda (`public/assets/jobs/v2/`; komutlar [archive/art-prompts-careers.md](./archive/art-prompts-careers.md)); resmi yüklenemeyen meslekte çanta simgesi.
 
 ### 4.5 Eşyalar (`config/lifestyle.ts`)
 

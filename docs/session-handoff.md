@@ -15,7 +15,6 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak ye
 | [discussion-notes.md](./discussion-notes.md) | Kararı bekleyen konular (yalnız açık olanlar) |
 | [art-brief-v2.md](./art-brief-v2.md) | Görsellerin kuralları, boyutları, sahne ölçeği, oyuna bağlama |
 | [art-prompts-v2.md](./art-prompts-v2.md) | GPT'yi bekleyen 1. nesil işleri (önsözün 3D kareleri) ve seçim bekleyen ikon / özellik grafiği adayları |
-| [art-prompts-careers.md](./art-prompts-careers.md) | Meslek ağacının 41 yeni ikonu (GPT'yi bekliyor) |
 | [art-prompts-ada.md](./art-prompts-ada.md), [art-prompts-lumen.md](./art-prompts-lumen.md) | 2. neslin görselleri (yayından sonra) |
 | [audio-v2.md](./audio-v2.md) | Ses efektleri ve müzik |
 | [mobile-ad-integration.md](./mobile-ad-integration.md) | v2 reklam altyapısı (AdMob, izin, test) |
@@ -38,7 +37,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 
 ## Sıradaki
 
-1. **Meslek ağacı (E7, [career-redesign.md](./career-redesign.md)):** veri, kurallar, ağaç ekranı, iş değişimi şovu ve "Usta oldun!" kodda (2026-10-21); 41 yeni ikonun GPT komutları [art-prompts-careers.md](./art-prompts-careers.md)'de (kullanıcı üretecek). 7 ara meslek ve maaş eğrisi onaylandı ([career-redesign.md §8](./career-redesign.md)).
+1. **Meslek ağacı (E7, [career-redesign.md](./career-redesign.md)):** veri, kurallar, ağaç ekranı, iş değişimi şovu, "Usta oldun!" ve 104 mesleğin ikonu oyunda (2026-10-21). 7 ara meslek ve maaş eğrisi onaylandı ([career-redesign.md §8](./career-redesign.md)).
 2. **İşletmeler ekranının tasarım incelemesini konuşmak** ([discussion-notes.md §0 "İşletmeler ekranı"](./discussion-notes.md)): kullanıcı yeni oturumda konuşmak istedi; önerilen ilk adım tıklanabilir taslak.
 3. **AAB 30'u telefonda denemek** (aşağıdaki liste). Play'deki son sürüm AAB 29: 2026-10-15'ten sonraki her şey (ekonominin yeniden kurulması dahil) ilk kez AAB 30'la telefona gidiyor. Şema 2 yüzünden AAB 29 kaydı bir kez sıfırdan başlar (mağaza alımları kalır); yayından sonra bu bir daha yapılmaz.
 4. **Telefon bulgularına göre düzeltme**, özellikle reklam düğmesi kalabalığı (bir işletme kartında 3–4 düğme görünebiliyor) ve yeni ekonominin ilk saati.
@@ -93,7 +92,7 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
 
 - `npm run dev:v2` (tarayıcıda DEV menüsü açık); `npm run sim`; `npm run typecheck`; `npx eslint src/game`.
 - **Telefon:** `npm run phone` (Android, kablosuz ya da USB; port değişince `-- PORT`, yerel eklenti değişince `-- --install`). DEV sürümü ayrı uygulama: `com.prestigelife.idletycoon.dev`, "Prestige DEV", kendi kaydı var. Kullanıcının telefonu Samsung Galaxy S24+ (Android 16). Gradle için `JAVA_HOME` Android Studio'nun Java 21'i.
-- **AAB:** `npm run cap:sync:v2`, sonra `android/` içinde `./gradlew bundleRelease` (imza `android/keystore.properties`; DEV menüsü ve test reklamı kapalı olmalı); çıktı `android/app/build/outputs/bundle/release/app-release.aab` → `~/Downloads/prestige-life-v2-<kod>.aab`. Sonraki sürümde `android/app/build.gradle` `versionCode` bir artar.
+- **AAB:** `npm run cap:sync:v2`, sonra `android/` içinde `./gradlew bundleRelease` (imza `android/keystore.properties`; `build:v2` DEV menüsünü kendisi kapatır, test reklamı yalnız geliştirme sunucusunda açık); çıktı `android/app/build/outputs/bundle/release/app-release.aab` → `~/Downloads/prestige-life-v2-<kod>.aab`. Sonraki sürümde `android/app/build.gradle` `versionCode` bir artar.
 - **Kod:** `src/game/` (çekirdek `core/`, simülatör `sim/`, `runtime/`, `i18n/`, `ui/`). Yapı [game-design-v2.md §7](./game-design-v2.md).
 - **Görseller:** önce GPT (komutu Claude yazar), gerekirse fal.ai. Kaynaklar `art/` (git'te değil), oyundakiler `public/assets/` (webp: işletme ve ikonlar 384 px, yönetici portresi 256 px); kurallar [art-brief-v2.md](./art-brief-v2.md), stil [story-v2.md §8](./story-v2.md). Git dışı klasörler Drive'da yedekli; yeni görselden sonra `npm run backup`.
 - **Stüdyo sitesi:** `https://mathgamesstudio.com` (Cloudflare Pages; oyun sayfası, destek, `app-ads.txt`, gizlilik politikası).

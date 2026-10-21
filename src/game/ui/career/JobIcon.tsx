@@ -2,8 +2,8 @@ import { Briefcase } from 'lucide-react';
 import { useState } from 'react';
 import type { CareerDef } from '../../core/types';
 
-// A job's picture, with a ring that fills with its mastery. Jobs whose icon is not drawn yet
-// (docs/art-prompts-careers.md) show a briefcase; hidden jobs show a dark silhouette.
+// A job's picture, with a ring that fills with its mastery. A job whose icon fails to load shows a
+// briefcase; hidden jobs show a dark silhouette.
 
 export function JobIcon({
   career,
