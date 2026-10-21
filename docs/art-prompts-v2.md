@@ -74,3 +74,26 @@ Komutları her adayın yanında `-prompt.txt`; küçük boy karşılaştırması
 
 > Edit image 1, vertical 9:16, same size. Keep the same place, the same white seaside mansion, the same palm trees, the same turquoise sea and sky, the same warm morning light and the same art style. Change ONLY the distance: move the mansion, its stairs, planters and palm trees further back from the camera, as in image 2, so the house looks about 30% smaller and its whole base line (where the walls, stairs and planters meet the ground) sits at 43–45% from the top of the image, like the mansion in image 2. The camera stays at a standing adult's eye level with the horizon at 37% from the top. Fill everything from that base line down to the bottom edge with the same light stone forecourt, extending the paving pattern in correct perspective, flat, dry and completely empty across the full width (two characters stand in the lower center and a full-size car is parked behind them across the center and right). Nothing important in the top 15% or the bottom 10% of the image. A frame from a 3D CG animated feature film, NO ink outlines, NO cel shading, NO flat 2D cartoon. NO people, NO animals, NO vehicles, NO boats, NO objects standing on the forecourt. No text, no labels, no logos, no watermark. Save the image as `art/pilot/05-scene/home-11-beach-v2.png`.
 
+## 5. Okşama pozlarının fularlı ikizleri (karar 2026-10-21)
+
+**Neden:** okşama pozunda kahraman ve Şans tek resimde; Başlangıç Paketi'nin fuları (parayla alınan) okşarken kayboluyor (discussion-notes §1). Kullanıcı yalnız fular için ikiz istedi; tasmalar (bedava) resimdeki gibi kalır. Oturan, cüzdanlı ve uyuyan Şans'ın fularlı ikizleri zaten var; aynı fular, aynı bağlayış.
+
+**Nasıl:** her satır GPT'de ayrı bir "edit". Ekler: (1) tablodaki düzenlenecek resim, (2) `art/pilot/05-scene/sans-sit-rope-scarf.png` (fuların kendisi ve nasıl bağlandığı). Ortak komut aşağıda; `{TASMA}` yerine tablodaki tasma.
+
+**Kontrol et:** kahraman, el, yüz ve duruş birebir aynı mı; fular boynu sarıyor mu (yapıştırılmış gibi değil), tasma fuların üstünde ve künyesi önde mi; kahramanın eli fuların altında kalmıyor mu (el başta, fular boyunda); zemin düz #d9d9d9 mi?
+
+**Oyuna bağlama (Claude):** `scripts/cutout.sh` ile kesilir (beyaz ayakkabılı Şık Günlük %3 toleransla), `public/assets/scene/hero-{kıyafet}-pet-sans-scarf.webp`; `stages.ts`'te okşama pozuna fular ikizi (oturan Şans'taki `SCARF_TWINS` gibi), `heroLook` fular bilgisini alır. Dede satırı, dedenin yeni okşama pozu (§3) gelince onun üstünden yapılır.
+
+| # | Düzenlenecek resim | Tasma | Kayıt |
+| --- | --- | --- | --- |
+| F1 | `art/pilot/05-scene/hero-pet-sans-cut.png` (kapüşonlu) | frayed rope collar | `art/pilot/08-outfits/hero-1-pet-scarf.png` |
+| F2 | `art/pilot/08-outfits/hero-2-pet.png` (iş kıyafeti) | frayed rope collar | `art/pilot/08-outfits/hero-2-pet-scarf.png` |
+| F3 | `art/pilot/08-outfits/hero-3-pet.png` (şık günlük) | brown leather collar with a small round brass tag | `art/pilot/08-outfits/hero-3-pet-scarf.png` |
+| F4 | `art/pilot/08-outfits/hero-5-pet-v2.png` (palto) | brown leather collar with a silver tag | `art/pilot/08-outfits/hero-5-pet-scarf.png` |
+| F5 | `art/pilot/08-outfits/hero-4-pet.png` (takım elbise) | gold collar with a round gold tag | `art/pilot/08-outfits/hero-4-pet-scarf.png` |
+| F6 | `art/pilot/08-outfits/hero-6-pet.png` (üç parçalı) | gold collar with a round gold tag | `art/pilot/08-outfits/hero-6-pet-scarf.png` |
+| F7 | `art/pilot/08-outfits/hero-7-pet.png` (smokin) | gold collar with a round gold tag | `art/pilot/08-outfits/hero-7-pet-scarf.png` |
+| F8 | `art/pilot/16-dynasty/grandpa-pet-v2.png` (dede, §3'ten sonra) | gold collar with a round gold tag | `art/pilot/16-dynasty/grandpa-pet-v2-scarf.png` |
+
+> Precise edit. Image 1 is the edit target: a man petting his dog. Image 2 is a reference for a red bandana scarf only. Add the red scarf from image 2 to the dog: a warm red-orange cotton bandana with small white polka dots, tied around his neck with a small knot and two short ends at the front, the triangle hanging down over his white chest. It must wrap naturally AROUND the neck, following the neck's curve and volume, partly hidden behind the fur at the sides, with soft fabric folds and the same lighting and shading as the dog, so it looks worn, not pasted on. Keep the dog's {TASMA} exactly as it is, worn OVER the scarf: the collar sits on top of the scarf at the neck and its tag hangs in front of the scarf. The man's hand stays where it is, on the dog's head, above the scarf. Preserve EVERYTHING else exactly: the man (face, hair, clothes, hands, pose, size, position), the dog's identity, face, expression, ears, fur, pose and size, the framing and the canvas size. Background stays absolutely uniform flat #d9d9d9 (or transparent if image 1 is transparent): no floor, no shadow, no texture. Same softly illustrated semi-3D rendering as image 1. No text, no labels, no logos, no watermark. Save the image under the name given in the table.
+

@@ -32,7 +32,7 @@ Claude'un eleştirisi; hiçbiri uygulanmadı, karar bekliyor.
 
 Yaklaşım (görsel roman) ve stil (yarı 3D) kararlaştı: [story-v2.md §8](./story-v2.md).
 
-- **Okşama pozunda tasma ve fular sabit (AAB 28 testi):** `hero-*-pet-sans.webp` kahramanla Şans'ı tek resimde çiziyor; tasma hep o resimdeki, fular okşarken kayboluyor. Seçenekler: poz başına varyant (8 poz × 5 tasma, çok) ya da yalnız ücretli olanlar (fular, yakut) için varyant.
+- **Okşama pozunda tasma sabit:** `hero-*-pet-sans.webp` kahramanla Şans'ı tek resimde çiziyor; tasma o resimdeki. Fular için ikizler yapılıyor (2026-10-21, kullanıcı; komutlar [art-prompts-v2.md §5](./art-prompts-v2.md)); bedava tasmalar sabit kalır, yakut gelince (IAP 2. adım) yeniden bakılır.
 - **İki çizim dili:** önsöz 3D'ye geçiyor (karar 2026-10-17; kapı karesi hazır, kalan beşi [art-prompts-v2.md §2](./art-prompts-v2.md)). Açık: sokak kahramanı ve ana kadro portreleri de 3D'ye geçsin mi.
 - **Uygulama ikonu ve özellik grafiği:** adaylar hazır, seçim bekliyor ([art-prompts-v2.md §1](./art-prompts-v2.md)).
 - **Lüks oyuncaklar sahnede (plan 2.6):** jet ve helikopter ara sıra geçer, yat sahil evinde, tekne göl evinde.
