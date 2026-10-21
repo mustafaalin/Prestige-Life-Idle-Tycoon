@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-22 · Dal: `v2-rebuild` · Son sürüm: **AAB 30** (Play'e yüklendi, kullanıcı telefonda test etti; bulguların neredeyse hepsi düzeltildi, evlerin önünde büyük duran araçlar dahil). 2026-10-21/22'de yapılanlar AAB 31'de gelecek (henüz derlenmedi).
+Son güncelleme: 2026-10-22 · Dal: `v2-rebuild` · Son sürüm: **AAB 30** (Play'e yüklendi, kullanıcı telefonda test etti; bulguların neredeyse hepsi düzeltildi, evlerin önünde büyük duran araçlar dahil). **AAB 31** derlendi (2026-10-22, `~/Downloads/prestige-life-v2-31.aab`; 2026-10-21/22'de yapılanların hepsi içinde), dahili teste yüklenmeyi bekliyor.
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve Faz 2.11'de kaldırılacak. Bu belge günlük tutmaz: her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**. Kararların gerekçesi ve sayılar ilgili belgededir; burada yalnızca özet ve yapılacaklar durur.
 
@@ -39,7 +39,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 ## Sıradaki
 
 1b. **IAP para paketleri (2026-10-22, oyunda):** Mağaza'da "Para çantaları" bölümü, 5 tüketilir ürün `v2_cash_1..5` ($0,99 / $2,99 / $4,99 / $9,99 / $14,99 = 15 dk / 1 / 2 / 5 / 10 saatlik gelir; [monetization-v2.md §5](./monetization-v2.md)), görselleri para serisi M2–M6. Lansmanda gelecek. Kullanıcı 5 ürünü Play Console'a ve RevenueCat'e ekledi (2026-10-22). Oyun ürünleri id ile çeker (`runtime/iap.ts` `getProducts`), RevenueCat'te offering gerekmez. Sırada AAB 31'de gerçek satın alma (lisans test hesabıyla).
-2. **AAB 31:** karar gelince derlenir (`versionCode` 31), `~/Downloads/prestige-life-v2-31.aab`; telefon testi aşağıdaki listeyle.
+2. **AAB 31:** derlendi (2026-10-22), `~/Downloads/prestige-life-v2-31.aab`; kullanıcı dahili teste yükleyip aşağıdaki listeyle dener. RevenueCat'te para çantaları Consumable, Rahat ve Başlangıç Paketi Non-consumable (kullanıcı düzeltti, 2026-10-22).
 3. **Telefon bulgularına göre düzeltme.**
 4. **Lansman hazırlığı:** Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu yeniden tasarlanıyor (özellik grafiği tamam, 2026-10-22; yeni ikon komutları [art-prompts-v2.md §1](./art-prompts-v2.md)); mağaza ekran görüntülerini yeni ekranlarla yenilemek.
 5. **Sonra (lansmandan sonra):** IAP 2. adım (Yakut Tasma, Gece Vardiyası), Remote Config, oyuncuyu tutma önerileri ([discussion-notes.md §2](./discussion-notes.md)), 2. nesil.
@@ -77,7 +77,7 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
 ## Kullanıcının yapacakları
 
 - **Play Console:**
-  - AAB 31 derlenince dahili teste yüklemek (AAB 30 yüklendi ve test edildi); sonra üretim erişimi başvurusu.
+  - AAB 31'i dahili teste yüklemek (AAB 30 yüklendi ve test edildi); sonra üretim erişimi başvurusu.
   - Mağaza sayfası: web sitesi `https://mathgamesstudio.com` (AdMob `app-ads.txt`'yi buradan okur), gizlilik politikası `https://mathgamesstudio.com/games/prestige-life/privacy`.
   - Başlangıç Paketi açıklamasına fuların bonusu (metin [monetization-v2.md §8](./monetization-v2.md)).
   - Veri güvenliği beyanı v2'ye göre ([monetization-v2.md §7](./monetization-v2.md)).
