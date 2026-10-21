@@ -134,7 +134,7 @@ export function Scene() {
   const itemArt = (item: Item) => stage.items[item.art % stage.items.length];
   // From Middle Class on the ground is empty; it empties when the ceremony ends, with the rest of the look.
   const collecting = shownClass < COLLECT_END_CLASS;
-  // A ceremony that moves the hero (housing.ts CLASS_HOME_FLOOR) reveals the new home when it ends.
+  // A ceremony that moves the hero (core/state.ts applyClassUp) reveals the new home when it ends.
   const ceremonyWaiting = pendingCeremony(game, state.story) !== null;
   // Old Ray's first step: the hand rests on a bottle until a few are collected.
   const pointAtItem = useGuideTarget()?.key === 'scene:item';

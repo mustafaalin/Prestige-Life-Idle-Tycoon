@@ -50,7 +50,7 @@ Hikâye, karakterler ve ton: [story-v2.md](./story-v2.md).
 | 7 | Dünyanın En Zengini | $1T | 1. nesilde yok (torunla) |
 
 - Sınıf kazanılan toplamdan gelir, harcamak düşürmez. Gündelikçi $2K (2026-10-21; gerçek maaşla $1K ilk tezgâh çalışmadan geliyordu).
-- Her sınıf töreni o sınıfın evini (kiracı, bedava), kıyafetini ve Şans'ın tasmasını verir; Milyoner'de ilk kendi evin, Milyarder'de ilk otel ve yöneticisi Bülent Bey hediye (§4.5, §4.6). Önden alan elindekini korur.
+- Her sınıf töreni kahramanı bir sonraki eve taşır (kiracı, bedava), kıyafetini ve Şans'ın tasmasını verir; Milyoner'de taşındığı ev onun olur, Milyarder'de ilk otel ve yöneticisi Bülent Bey hediye (§4.5, §4.6). Önden alan elindekini korur.
 - Orta Sınıf $1M ve Milyoner $10M (karar 2026-10-08): Milyoner gerçekten milyonlar demek.
 
 ### 4.2 Gerçekçi takvim (karar 2026-10-20/21)
@@ -113,7 +113,7 @@ Gerçek fiyatlı, gelir bonusu yok (karar 2026-10-20); değerleri hayatı göste
 
 | Tür | Liste ve fiyat | Not |
 | --- | --- | --- |
-| Araç (12) | Bisiklet $150, retro skuter $1,2K, emektar sedan $5K, motosiklet $8K, hatchback $18K, SUV $40K, pikap $55K, makam sedanı $90K, spor coupe $180K, lüks arazi aracı $250K, süper otomobil $500K, grand lüks $1,5M | Sırayla; ev–araç zinciri (§4.6). Sahnede evin önünde |
+| Araç (12) | Bisiklet $150, retro skuter $1,2K, emektar sedan $5K, motosiklet $8K, hatchback $18K, SUV $40K, pikap $55K, makam sedanı $90K, spor coupe $180K, lüks arazi aracı $250K, süper otomobil $500K, grand lüks $1,5M | Sırayla; her ev bir araç açar (§4.6). Sahnede evin önünde |
 | Kıyafet (7) | Kapüşonlu (bedava), iş kıyafeti $60, şık günlük $400, deve tüyü palto $1,5K, takım elbise $3K, üç parçalı $8K, smokin $15K | Sınıfla açılır (`minClass`); tören o sınıfınkini verir. Kahraman en iyisini giyer |
 | Lüks (4) | Sürat teknesi $300K, yat $10M, helikopter $15M, jet $60M | İlk alındığında aile anı (story §4c) |
 | Eşya (4) | Akıllı telefon $300, alet çantası $400, fotoğraf makinesi $900, dizüstü $1,2K | Mağazada "Eşyalar" sekmesi; sırasız, meslek açar |
@@ -142,8 +142,8 @@ Tek ev; ana ekranın arka planı o evdir, önünde o evin izin verdiği en iyi a
 
 - Taşınma tek seferlik (depozito + ilk kira), düzenli kira gideri yok; net gelir eksiye düşmez. Yalnız yukarı taşınılır. Ev bonusu yok (2026-10-20); kiralık oda ve üstü bazı mesleklerin "adres" şartı.
 - Sahip olunan ama oturulmayan ev kira getirir: fiyatını 200 ayda öder (~ayda %0,5), çevrimdışı da.
-- **Ev–araç zinciri** (karar 2026-10-11): her araç bir evde açılır, bir evin son aracı alınmadan sonraki eve geçilmez; çadırın önünde yalnız bisiklet. Tören bu kuralın tek istisnası: kahramanı sınıfının evine taşır.
-- **Sınıfın evi** (`CLASS_HOME_FLOOR`): Gündelikçi minibüs, İşçi eski daire, Orta Sınıf sitede daire, Milyoner ilk kendi evin (hediye, sahipli; önceden alan korur), Milyarder villa, Multimilyarder göl evi, En Zengin sahil malikânesi.
+- **Ev–araç zinciri** (karar 2026-10-11; 2026-10-21'den beri birebir): **her ev tam bir araç açar** (çadır bisiklet, minibüs skuter, oda sedan, eski daire motosiklet, … malikâne grand lüks); evin aracı alınmadan sonraki eve geçilmez. Tören bu kuralın tek istisnası.
+- **Tören bir sonraki eve taşır** (2026-10-21, kullanıcı: sabit hikâye evine atlamak 4 aracı birden açıyordu): her sınıf atlama kahramanı oturduğu evden bir üsttekine taşır, kiracı ve bedava; belli bir ev göstermez. **Milyoner** ("Bu sefer kendime bir ev aldım"): bir sonraki ev, o ev yalnız kiralanabiliyorsa satın alınabilir ilk ev (İlk Kendi Evin) sahipli olarak; atlanan evlerin araçları da hediye (`core/state.ts` `applyClassUp`).
 
 ### 4.7 Elle kazanç: Çalıştır, şişe, Şans, olay kartları (`config/scene.ts`, `config/events.ts`, `core/economy/manual.ts`)
 

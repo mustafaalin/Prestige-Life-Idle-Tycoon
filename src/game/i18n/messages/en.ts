@@ -657,7 +657,7 @@ export const en = {
       nevin: "Lucky brought my wallet back, didn't he? My late husband's photo was in it.",
       defne: "Grandma's been looking for you all week. She baked you cookies. Still warm.",
       hero0: "I didn't do anything. Lucky found it.",
-      hero: "Mom, I've got a flat now. The door even locks!",
+      hero: "Mom, I've got my own door now. It even locks!",
       mom: "All this talk of homes... Your father's notebook is still up in the old attic.",
     },
     c3: {

@@ -2,7 +2,7 @@ import { STORY_GIFT_FROM_CLASS } from '../../core/config/economy';
 import { RETIREMENT_AGE } from '../../core/config/life';
 import { useEffect, useRef, useState } from 'react';
 import { awaitsHandover, offlineCapHours, offlineEarnings } from '../../core/formulas';
-import { applyClassFloors, createInitialState } from '../../core/state';
+import { applyClassUp, createInitialState } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { track } from '../../runtime/analytics';
 import {
@@ -50,7 +50,7 @@ import { YearsPassed } from './YearsPassed';
 
 /** A replayed ceremony (dev menu) shows the story's own step: the class before it, then the class itself. */
 function storyStep(classIndex: number) {
-  const at = (index: number) => applyClassFloors({ ...createInitialState(), classIndex: index });
+  const at = (index: number) => applyClassUp({ ...createInitialState(), classIndex: index }, 0);
   return { before: at(classIndex - 1), now: at(classIndex) };
 }
 

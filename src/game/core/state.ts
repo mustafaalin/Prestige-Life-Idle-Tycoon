@@ -4,7 +4,7 @@ import { CONTENT } from './config/content';
 import { courseDef } from './config/courses';
 import { SECONDS_PER_MONTH } from './config/life';
 import { STARTING_CASH } from './config/economy';
-import { CLASS_HOME_FLOOR, FIRST_OWNED_HOME, HOUSES, STARTING_HOME_ID } from './config/housing';
+import { FIRST_OWNED_HOME_CLASS, HOUSES, RENT_ONLY_COUNT, STARTING_HOME_ID } from './config/housing';
 import { LIFE_SECONDS } from './config/life';
 import { CLASS_OUTFIT_FLOOR, LIFESTYLE_ITEMS, OUTFITS, STARTING_LIFESTYLE_IDS, VEHICLES } from './config/lifestyle';
 import { ACTIVE_QUESTS, GENERATED_BRANCH_GOALS, GENERATED_LEVEL_GOALS, GENERATED_QUEST_SECONDS, QUESTS } from './config/quests';
@@ -114,35 +114,57 @@ export function earn(state: GameStateV2, amount: number): GameStateV2 {
     totalEarnings: state.totalEarnings + amount,
     classIndex,
   };
-  return classIndex === state.classIndex ? next : applyClassFloors(next);
+  return classIndex === state.classIndex ? next : applyClassUp(next, state.classIndex);
 }
 
 /**
- * A class-up gives what its story stands in: a hero still below the class's home moves there,
- * rented and free (CLASS_HOME_FLOOR), and gets the class's outfit and the ones before it
- * (CLASS_OUTFIT_FLOOR). Whoever bought ahead keeps what they have. From Millionaire on, the first
- * home of your own is yours (FIRST_OWNED_HOME); from Billionaire on, the first Hotel Chain and its
- * manager are (CLASS_MANAGER_GIFT).
+ * A class-up moves the hero one home up, rented and free, whatever home that is (2026-10-21, user: a
+ * ceremony that jumped to its story's home skipped homes and opened several vehicles at once). The
+ * Millionaire ceremony ("this time I bought myself a home") makes the home it moves to the hero's own:
+ * the next one, or the first one that can be bought, with the vehicles of any home it skips.
+ */
+export function applyClassUp(state: GameStateV2, fromClass: number): GameStateV2 {
+  let next = state;
+  for (let classIndex = fromClass + 1; classIndex <= state.classIndex; classIndex += 1) next = classMove(next, classIndex);
+  return applyClassFloors(next);
+}
+
+function classMove(state: GameStateV2, classIndex: number): GameStateV2 {
+  const at = houseIndex(state.home);
+  if (classIndex !== FIRST_OWNED_HOME_CLASS) {
+    return at + 1 < HOUSES.length ? { ...state, home: HOUSES[at + 1].id } : state;
+  }
+  const target = Math.min(HOUSES.length - 1, Math.max(at + 1, RENT_ONLY_COUNT));
+  const home = HOUSES[target];
+  const skipped = VEHICLES.filter(
+    (vehicle) => (vehicle.home ?? 0) > at && (vehicle.home ?? 0) < target && !state.lifestyleOwned.includes(vehicle.id),
+  ).map((vehicle) => vehicle.id);
+  return {
+    ...state,
+    home: home.id,
+    homesOwned: home.buyCost === null || state.homesOwned.includes(home.id) ? state.homesOwned : [...state.homesOwned, home.id],
+    lifestyleOwned: [...state.lifestyleOwned, ...skipped],
+  };
+}
+
+/**
+ * What a class always comes with, given again on load if missing: the class's outfit and the ones
+ * before it (CLASS_OUTFIT_FLOOR), and from Billionaire on the first Hotel Chain and its manager
+ * (CLASS_MANAGER_GIFT). Whoever bought ahead keeps what they have.
  */
 export function applyClassFloors(state: GameStateV2): GameStateV2 {
-  const homeFloor = CLASS_HOME_FLOOR[Math.min(state.classIndex, CLASS_HOME_FLOOR.length - 1)];
-  const home = houseIndex(state.home) >= homeFloor ? state.home : HOUSES[homeFloor].id;
   const outfitFloor = CLASS_OUTFIT_FLOOR[Math.min(state.classIndex, CLASS_OUTFIT_FLOOR.length - 1)];
   const missing = OUTFITS.slice(0, outfitFloor + 1)
     .map((outfit) => outfit.id)
     .filter((id) => !state.lifestyleOwned.includes(id));
-  const gift = HOUSES[FIRST_OWNED_HOME.houseIndex].id;
-  const gifted = state.classIndex >= FIRST_OWNED_HOME.classIndex && !state.homesOwned.includes(gift);
   const hotel = businessState(state, CLASS_MANAGER_GIFT.businessId);
   const hired = state.classIndex >= CLASS_MANAGER_GIFT.classIndex && !hotel.managed;
-  if (home === state.home && missing.length === 0 && !gifted && !hired) return state;
+  if (missing.length === 0 && !hired) return state;
   return {
     ...state,
     businesses: hired
       ? { ...state.businesses, [CLASS_MANAGER_GIFT.businessId]: { ...hotel, level: Math.max(1, hotel.level), managed: true } }
       : state.businesses,
-    home,
-    homesOwned: gifted ? [...state.homesOwned, gift] : state.homesOwned,
     lifestyleOwned: [...state.lifestyleOwned, ...missing],
   };
 }
@@ -223,7 +245,7 @@ export function bestOwnedLifestyle(state: GameStateV2, kind: LifestyleKind): Lif
 }
 
 // Homes and vehicles climb together (config/lifestyle.ts): a vehicle opens in its home, and the last
-// vehicle a home opens is needed to move on. A class ceremony's free move (applyClassFloors) is the
+// vehicle a home opens is needed to move on. A class ceremony's free move (applyClassUp) is the
 // one way to get ahead of the vehicles; they are caught up in order afterwards.
 
 /** The home a status item waits for, or null when where you live is enough. */

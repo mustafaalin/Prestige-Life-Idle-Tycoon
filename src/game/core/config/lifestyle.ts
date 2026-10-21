@@ -12,22 +12,22 @@ import type { LifestyleDef } from '../types';
 // Homes and vehicles climb together (game-design §4.6, decided 2026-10-11): `home` is the home a
 // vehicle opens in (index into HOUSES), and the last vehicle of a home is needed to move on to the
 // next one. So each home has the car you came with and the one you buy there parked out front, never
-// a supercar by the tent. Only the bike stands by the tent and no car by the van (2026-10-12): the
-// rented room opens two (the old sedan, then the motorcycle), every other home but the last opens one.
+// a supercar by the tent. One home, one vehicle (2026-10-21, user: a class-up that skipped homes opened
+// four vehicles at once): the bike by the tent, the scooter at the van, the grand car at the mansion.
 const V2 = '/assets/vehicles/v2';
 const VEHICLE_SPECS: { id: string; name: string; image: string; cost: number; home: number }[] = [
   { id: 'vehicle-bike', name: 'City Bike', image: `${V2}/vehicle-1.webp`, cost: 150, home: 0 },
   { id: 'vehicle-scooter', name: 'Retro Scooter', image: `${V2}/vehicle-2.webp`, cost: 1_200, home: 1 },
   { id: 'vehicle-old-sedan', name: 'Old Family Sedan', image: `${V2}/vehicle-3.webp`, cost: 5_000, home: 2 },
-  { id: 'vehicle-motorcycle', name: 'Motorcycle', image: `${V2}/vehicle-motorcycle.webp`, cost: 8_000, home: 2 },
-  { id: 'vehicle-hatchback', name: 'Modern Hatchback', image: `${V2}/vehicle-4.webp`, cost: 18_000, home: 3 },
-  { id: 'vehicle-suv', name: 'Family SUV', image: `${V2}/vehicle-5.webp`, cost: 40_000, home: 4 },
-  { id: 'vehicle-pickup', name: 'Pickup Truck', image: `${V2}/vehicle-pickup.webp`, cost: 55_000, home: 5 },
-  { id: 'vehicle-executive', name: 'Executive Sedan', image: `${V2}/vehicle-6.webp`, cost: 90_000, home: 6 },
-  { id: 'vehicle-coupe', name: 'Sports Coupe', image: `${V2}/vehicle-7.webp`, cost: 180_000, home: 7 },
-  { id: 'vehicle-offroader', name: 'Luxury Off-Roader', image: `${V2}/vehicle-8.webp`, cost: 250_000, home: 8 },
-  { id: 'vehicle-supercar', name: 'Supercar', image: `${V2}/vehicle-9.webp`, cost: 500_000, home: 9 },
-  { id: 'vehicle-grand', name: 'Grand Luxury Car', image: `${V2}/vehicle-10.webp`, cost: 1.5e6, home: 10 },
+  { id: 'vehicle-motorcycle', name: 'Motorcycle', image: `${V2}/vehicle-motorcycle.webp`, cost: 8_000, home: 3 },
+  { id: 'vehicle-hatchback', name: 'Modern Hatchback', image: `${V2}/vehicle-4.webp`, cost: 18_000, home: 4 },
+  { id: 'vehicle-suv', name: 'Family SUV', image: `${V2}/vehicle-5.webp`, cost: 40_000, home: 5 },
+  { id: 'vehicle-pickup', name: 'Pickup Truck', image: `${V2}/vehicle-pickup.webp`, cost: 55_000, home: 6 },
+  { id: 'vehicle-executive', name: 'Executive Sedan', image: `${V2}/vehicle-6.webp`, cost: 90_000, home: 7 },
+  { id: 'vehicle-coupe', name: 'Sports Coupe', image: `${V2}/vehicle-7.webp`, cost: 180_000, home: 8 },
+  { id: 'vehicle-offroader', name: 'Luxury Off-Roader', image: `${V2}/vehicle-8.webp`, cost: 250_000, home: 9 },
+  { id: 'vehicle-supercar', name: 'Supercar', image: `${V2}/vehicle-9.webp`, cost: 500_000, home: 10 },
+  { id: 'vehicle-grand', name: 'Grand Luxury Car', image: `${V2}/vehicle-10.webp`, cost: 1.5e6, home: 11 },
 ];
 
 /** Items give no income bonus since the economy rebuild (2026-10-20); the field stays for the collars. */

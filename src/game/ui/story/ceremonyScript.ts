@@ -66,8 +66,8 @@ const panel = (name: string, zoom?: StoryImage['zoom']): StoryImage => ({ src: `
 const OLD_PHOTO: StoryImage = { src: `${IMAGES}/old-photo.webp`, fit: 'contain' };
 
 export const CEREMONIES: Record<number, CeremonyShot[]> = {
-  // Day Laborer: the first warm meal; Old Ray hands over his old van (the hero's next home,
-  // housing.ts CLASS_HOME_FLOOR) and sees someone in the hero's face.
+  // Day Laborer: the first warm meal; Old Ray hands over his old van (the hero's next home: every
+  // class-up moves him one home up, core/state.ts applyClassUp) and sees someone in the hero's face.
   1: [
     {
       image: panel('soup'),

@@ -656,7 +656,7 @@ export const tr: Messages = {
       nevin: 'Cüzdanımı Şans getirmiş, değil mi? İçinde rahmetli eşimin fotoğrafı vardı.',
       defne: 'Babaannem seni bir haftadır arıyor. Sana kurabiye yaptı, hâlâ sıcak.',
       hero0: 'Ben bir şey yapmadım. Bulan Şans\'tı.',
-      hero: 'Anne, artık bir dairem var. Kapısı bile kilitleniyor!',
+      hero: 'Anne, artık kendi kapım var. Kilitleniyor bile!',
       mom: 'Ev deyince eski evimiz geldi aklıma. Babanın defteri hâlâ çatı katında.',
     },
     c3: {

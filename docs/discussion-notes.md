@@ -28,9 +28,6 @@ Claude'un eleştirisi; hiçbiri uygulanmadı, karar bekliyor.
 - **Öneri: liste kısa, ayrıntı dokununca** (iş kartındaki gibi). Satır ~130–150 px, ekranda 4–5 işletme: resim (dokun: çalıştır / OTOMATİK), ad, seviye adı · 3/15, tek gelir (aylık), üç parçalı aşama çubuğu, tek ana düğme (sıradaki seviye + fiyat; yönetici alınabilir olunca altın rozet), reklamlar tek küçük simgede (teklif varsa). Karta dokununca pencere: tur tutarı ve sıradaki seviyenin katkısı, yönetici tanıtımı, şubeler, bütün reklam teklifleri, sıradaki bina. Ayrıca: ×2 yalnız üst barda, hedef şeridi tek satır, devre dışı düğme gri ve "$X eksik".
 - **Sıradaki adım (önerilen):** önce kompakt satır + ayrıntı penceresi için tıklanabilir taslak (artifact), kullanıcı onaylayınca oyuna.
 
-**Sınıf ve eşyalar**
-- İşçi Sınıfı'na çok hızlı geçildi, ev ödülü geldi; yalnız bisiklet varken arka arkaya modern hatchback'e kadar 4 araç alındı. Ya sınıf geçişi yavaşlasın ya önceki araçlar sırayla alınsın ya da başka bir yol.
-
 ## 1. Görsel
 
 Yaklaşım (görsel roman) ve stil (yarı 3D) kararlaştı: [story-v2.md §8](./story-v2.md).

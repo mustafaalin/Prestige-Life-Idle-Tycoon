@@ -72,18 +72,10 @@ export const HOUSES: HouseDef[] = HOMES.map((home, index) => {
 export const STARTING_HOME_ID = HOUSES[0].id;
 
 /**
- * The home each class's story stands in (index = wealth class, value = house index). A class-up
- * moves a hero who is still below it there, rented and free: the Day Laborer ceremony gives Old Ray's
- * van, the Working Class one the flat whose door locks (story-v2 §4). A hero who already moved
- * further stays where they are.
+ * The Millionaire ceremony ("this time I bought myself a home") makes the home it moves the hero to his
+ * own (core/state.ts applyClassUp). Every other class-up moves him one home up, rented and free.
  */
-export const CLASS_HOME_FLOOR = [0, 1, 3, 5, 6, 8, 9, 10];
-
-/**
- * The Millionaire ceremony makes "First Home of Your Own" yours for free (decided 2026-10-12) if it is
- * not yours yet. With real prices (2026-10-21) it can be bought earlier; whoever did keeps it.
- */
-export const FIRST_OWNED_HOME = { classIndex: 4, houseIndex: 6 };
+export const FIRST_OWNED_HOME_CLASS = 4;
 
 /**
  * Saves from before 2026-10-10 had 25 houses (`house-1`…`house-25`); each maps to the new home
