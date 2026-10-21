@@ -43,26 +43,24 @@ export function NameSheet({ speaker, portrait, tone, question, label, defaultNam
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[80] bg-black/35 flex items-end">
+    <div className="fixed inset-0 z-[80] bg-black/35 flex items-center justify-center p-5 overflow-y-auto">
       <form
         onSubmit={submit}
-        className="v2-sheet-in w-full rounded-t-[28px] bg-white shadow-2xl px-5 pt-5 pb-[calc(var(--safe-bottom)+20px)]"
+        className="v2-pop-in w-full max-w-[330px] rounded-[28px] bg-white border-4 border-white shadow-2xl px-4 pb-4 pt-12 relative mt-10"
       >
-        <div className="flex items-start gap-3">
-          {portrait && (
-            <img
-              src={portrait}
-              alt=""
-              draggable={false}
-              className="shrink-0 w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg bg-slate-200"
-            />
-          )}
-          <div className={`flex-1 rounded-[18px] rounded-tl-md border-2 px-3 py-2 ${TONES[tone].bubble}`}>
-            <p className={`text-[10px] font-black uppercase tracking-widest ${TONES[tone].label}`}>{speaker}</p>
-            <p className="text-[15px] font-bold leading-snug text-slate-800">{question}</p>
-          </div>
+        {portrait && (
+          <img
+            src={portrait}
+            alt=""
+            draggable={false}
+            className="absolute left-1/2 -translate-x-1/2 -top-10 w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg bg-slate-200"
+          />
+        )}
+        <div className={`rounded-[18px] border-2 px-3 py-2 text-center ${TONES[tone].bubble}`}>
+          <p className={`text-[10px] font-black uppercase tracking-widest ${TONES[tone].label}`}>{speaker}</p>
+          <p className="text-[15px] font-bold leading-snug text-slate-800">{question}</p>
         </div>
-        <label className="block mt-4">
+        <label className="block mt-3">
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</span>
           <input
             value={name}
@@ -71,10 +69,10 @@ export function NameSheet({ speaker, portrait, tone, question, label, defaultNam
             maxLength={HERO_NAME_MAX}
             autoComplete="off"
             enterKeyHint="done"
-            className="mt-1 w-full rounded-2xl border-2 border-indigo-100 bg-indigo-50/60 px-4 py-3 v2-display text-xl text-indigo-950 outline-none focus:border-violet-400"
+            className="mt-1 w-full rounded-2xl border-2 border-indigo-100 bg-indigo-50/60 px-4 py-2.5 text-center v2-display text-xl text-indigo-950 outline-none focus:border-violet-400"
           />
         </label>
-        <GameButton tone="buy" type="submit" className="w-full mt-4 py-3 v2-display text-lg v2-shadow">
+        <GameButton tone="buy" type="submit" className="w-full mt-3 py-3 v2-display text-lg v2-shadow">
           {confirm}
         </GameButton>
       </form>

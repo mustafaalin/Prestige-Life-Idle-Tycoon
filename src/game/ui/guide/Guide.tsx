@@ -117,7 +117,7 @@ function GuideLine({ face, text, atTop, onRead }: { face: string; text: string; 
         src={portraitOf('riza', face) ?? ''}
         alt=""
         draggable={false}
-        className="absolute left-1 -top-11 w-[72px] h-[72px] rounded-full object-cover border-[3px] border-white shadow-lg bg-slate-200"
+        className="absolute z-10 left-1 -top-11 w-[72px] h-[72px] rounded-full object-cover border-[3px] border-white shadow-lg bg-slate-200"
       />
       <div className="relative rounded-[20px] bg-white/95 border-2 border-white shadow-xl pl-[84px] pr-3 pt-2 pb-1.5 min-h-[64px]">
         <span className="absolute left-[84px] -top-3 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-widest text-white shadow">
