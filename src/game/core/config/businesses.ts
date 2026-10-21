@@ -10,8 +10,12 @@ import { SECONDS_PER_MONTH } from './life';
 // Saved state keeps each line by id with its level and branch count (runtime/storage.ts), so a line
 // may get more levels later, but its id and the meaning of a level number must never change.
 
-/** Look of a business by level: stand for the first seven levels, shop for 8–9, store from 10. */
-const STAGE_BY_LEVEL = [0, 0, 0, 0, 0, 0, 0, 1, 1, 2];
+/**
+ * Look of a business by level (2026-10-21, user: equal stages): three looks of five levels each,
+ * stand 1–5, shop 6–10, store 11–15. Moving into the new building doubles a run's pay.
+ */
+export const LEVELS_PER_STAGE = 5;
+const STAGE_BY_LEVEL = Array.from({ length: 3 * LEVELS_PER_STAGE }, (_, index) => Math.floor(index / LEVELS_PER_STAGE));
 
 /**
  * Every run takes one second (2026-10-21, user): "Run" pays a little each tap and a managed line pays
@@ -22,11 +26,18 @@ export const RUN_SECONDS = 1;
 
 /**
  * The shape every line's ladder follows until each gets its own designed table (plan Faz E2): price
- * and money per run of each level as multiples of level 1. Taken from the Flower Stand draft
- * (docs/game-design-v2.md §4.3): cheap fast steps first, expensive big ones at the end.
+ * and money per run of each level as multiples of level 1. Within a look each level adds a little;
+ * the first level in a new building (6 and 11) costs the most and doubles the run.
  */
-const LADDER_COST = [1, 0.6, 1.2, 3, 6, 12, 20, 50, 80, 160];
-const LADDER_REVENUE = [1, 1.28, 1.6, 2.2, 3, 4, 5.2, 8, 10.4, 16];
+const LADDER_COST = [1, 0.5, 0.9, 1.5, 2.5, 12, 5, 8, 12, 17, 70, 28, 38, 50, 66];
+const LADDER_REVENUE = [1, 1.2, 1.4, 1.65, 1.9, 3.8, 4.3, 4.9, 5.5, 6.2, 12.4, 13.6, 15, 16.5, 18];
+
+/**
+ * Saves from before the 15 levels (schema 2) had 10, with run pay [1, 1.28, 1.6, 2.2, 3, 4, 5.2, 8,
+ * 10.4, 16] × level 1. Each old level maps to the first new level that pays at least as much, so no
+ * one earns less after the update (runtime/storage.ts migrate).
+ */
+export const SCHEMA2_LEVEL_MAP = [1, 3, 4, 6, 6, 7, 9, 11, 11, 14];
 
 /** Rounds to 3 significant digits so generated prices read like designed ones. */
 export function roundNice(value: number) {
@@ -98,17 +109,22 @@ const LINES: { id: string; name: string; openCost: number; paybackMonths: number
 
 /** The Flower Stand has its own designed table (docs/game-design-v2.md §4.3); the others follow its shape for now. */
 const FLOWER_STAND_LEVELS: BusinessLevelDef[] = [
-  { cost: 1000, revenue: 5, stage: 0 },
-  { cost: 300, revenue: 6.4, stage: 0 },
-  { cost: 600, revenue: 8, stage: 0 },
-  { cost: 1500, revenue: 11, stage: 0 },
-  { cost: 3000, revenue: 15, stage: 0 },
-  { cost: 6000, revenue: 20, stage: 0 },
-  { cost: 10000, revenue: 26, stage: 0 },
-  { cost: 25000, revenue: 40, stage: 1 },
-  { cost: 40000, revenue: 52, stage: 1 },
-  { cost: 80000, revenue: 80, stage: 2 },
-];
+  [1000, 5],
+  [250, 6],
+  [450, 7],
+  [750, 8.2],
+  [1250, 9.5],
+  [6000, 19],
+  [2500, 21.5],
+  [4000, 24.5],
+  [6000, 27.5],
+  [8500, 31],
+  [35000, 62],
+  [14000, 68],
+  [19000, 75],
+  [25000, 82],
+  [33000, 90],
+].map(([cost, revenue], index) => ({ cost, revenue, stage: STAGE_BY_LEVEL[index] }));
 
 /** Old Ray, the first manager: a little dearer than the rule so he comes after the first few minutes of running the stand by hand. */
 const FLOWER_STAND_MANAGER = 5000;

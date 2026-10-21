@@ -29,7 +29,7 @@ const retireAtTop = args.includes('--retire-at-top');
 
 
 if (args.includes('--config')) {
-  console.log('Businesses: name | open | run L1 → L10 | /month L1 → L10 | open payback | first branch | manager');
+  console.log('Businesses: name | open | run L1 → L15 | /month L1 → L15 | open payback | first branch | manager');
   for (const b of BUSINESSES) {
     const first = b.levels[0];
     const last = b.levels[b.levels.length - 1];

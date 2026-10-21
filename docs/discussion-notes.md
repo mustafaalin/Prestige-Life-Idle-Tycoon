@@ -15,9 +15,6 @@ Kullanıcının telefonda bulduğu her şey burada; yapılan madde ilgili belgey
 
 **Kariyer:** kararlaştı ([career-redesign.md](./career-redesign.md), kurallar [game-design-v2.md §4.4](./game-design-v2.md)); ekran, iş değişimi şovu ve ikonlar [rebuild-plan.md E7](./rebuild-plan.md)'de. Açık kalan: aylık gelir çok hızlı artıyor (işletmeler). Maaşın payı 23–45 yaşta %2–8; kullanıcı dengeyi bozmasın diye böyle kabul etti (2026-10-21).
 
-**İşletmeler**
-- Seviyeler 10 (yeni görünüm 8 ve 10'da): eşit aşamalar olsun, 5 + 5 ya da 6 + 6; her aşamanın son seviyesinde "yeni binaya geçiş" bilgisi ve belirgin gelir artışı.
-
 **Sınıf ve eşyalar**
 - İşçi Sınıfı'na çok hızlı geçildi, ev ödülü geldi; yalnız bisiklet varken arka arkaya modern hatchback'e kadar 4 araç alındı. Ya sınıf geçişi yavaşlasın ya önceki araçlar sırayla alınsın ya da başka bir yol.
 

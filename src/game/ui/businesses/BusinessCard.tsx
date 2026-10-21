@@ -85,6 +85,9 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
   const places = Math.max(1, locations(business));
   const runNow = levelRevenue(def, level) * places * multiplier;
   const runNext = next ? next.revenue * places * multiplier : runNow;
+  // The next level moves the line into a new building (levels 6 and 11): the button and hint say so.
+  const newBuilding = opened && next !== null && next.stage > businessStage(def, level);
+  const buildingFactor = runNow > 0 ? Math.round(runNext / runNow) : 0;
 
   // Branches: at the top level, as many as the class allows; a ceremony raises the limit.
   const atTop = isMaxLevel(def, business);
@@ -259,10 +262,16 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
       {opened && (
         <div className="flex items-center gap-2 px-1 -mt-1">
           <LevelPips def={def} level={level} />
-          {stageAt !== null && (
-            <span className="min-w-0 truncate text-[11px] font-bold text-amber-600">
-              {t('business.nextStage', { level: stageAt, name: t(levelNameKey(def.id, stageAt)) })}
+          {newBuilding ? (
+            <span className="min-w-0 truncate text-[11px] font-black text-amber-600">
+              {t('business.newBuilding', { name: t(levelNameKey(def.id, level + 1)), factor: buildingFactor })}
             </span>
+          ) : (
+            stageAt !== null && (
+              <span className="min-w-0 truncate text-[11px] font-bold text-amber-600">
+                {t('business.nextStage', { level: stageAt, name: t(levelNameKey(def.id, stageAt)) })}
+              </span>
+            )
           )}
         </div>
       )}
@@ -271,6 +280,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
         {next && (
           <Focusable focusKey={`business:${def.id}:level`} className="flex-1 min-w-0">
             <GameButton
+              tone={newBuilding ? 'gold' : 'buy'}
               onClick={() => {
                 if (!actions.levelUpBusiness(def.id)) return;
                 haptic('medium');
@@ -284,8 +294,13 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
                 setBump({ key: Date.now(), gain: runNext - runNow });
               }}
               disabled={game.cash < next.cost}
-              className="w-full h-full min-h-11 py-2 px-3 flex items-center justify-between gap-2"
+              className="relative w-full h-full min-h-11 py-2 px-3 flex items-center justify-between gap-2"
             >
+              {newBuilding && (
+                <span className="absolute -top-2.5 -right-1.5 rounded-full border-2 border-white bg-gradient-to-b from-rose-400 to-rose-600 px-1.5 v2-display text-[11px] text-white v2-shadow shadow">
+                  ×{buildingFactor}
+                </span>
+              )}
               <span className="min-w-0 flex items-center gap-1.5 v2-display text-[14px] v2-shadow">
                 {opened && <ArrowBigUpDash className="w-5 h-5 shrink-0" />}
                 {/* A long level name ("Umbrellas and stools") takes two lines instead of pushing the row wider. */}

@@ -27,7 +27,7 @@ const AWAY_SECONDS = [5 * 60, 60 * 60, 3 * 60 * 60];
 const AGE_YEARS = [10, 40];
 const CEREMONY_CLASSES = [1, 2, 3, 4, 5, 6, 7];
 /** The business show plays for a random line; growing shows its second look (level 8). */
-const SHOW_LEVEL = 8;
+const SHOW_LEVEL = 6;
 
 function Chip({ active, onClick, children }: { active?: boolean; onClick: () => void; children: ReactNode }) {
   return (

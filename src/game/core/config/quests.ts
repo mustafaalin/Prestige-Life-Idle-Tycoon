@@ -30,12 +30,12 @@ export const QUESTS: QuestDef[] = [
   quest('coffee-open', level('coffee-cart', 1), 100),
   // Old Ray's van comes with the Day Laborer ceremony; the room is the first move you pay for.
   quest('home-room', { type: 'home', index: 2 }, 150),
-  quest('flower-shop', level('flower-stand', 8), 300),
+  quest('flower-shop', level('flower-stand', 6), 300),
   quest('coffee-level-5', level('coffee-cart', 5), 300),
   quest('coffee-manager', { type: 'manager', businessId: 'coffee-cart' }, 600),
   quest('class-2', { type: 'class', index: 2 }, 1000),
   quest('bakery-open', level('bakery', 1), 1000),
-  quest('flower-store', level('flower-stand', 10), 1500),
+  quest('flower-store', level('flower-stand', 11), 1500),
   quest('flower-branch-1', { type: 'branches', businessId: 'flower-stand', count: 1 }, 2000),
   quest('job-4', { type: 'job', careerId: 'waiter' }, 3000),
   quest('bakery-manager', { type: 'manager', businessId: 'bakery' }, 5000),
@@ -49,6 +49,6 @@ export const QUESTS: QuestDef[] = [
 export const ACTIVE_QUESTS = 3;
 /** Generated goals pay this many seconds of active income. */
 export const GENERATED_QUEST_SECONDS = 20;
-/** Levels a generated goal points at (the shop at 8, the store at 10), then branch counts. */
-export const GENERATED_LEVEL_GOALS = [3, 5, 8, 10];
+/** Levels a generated goal points at (the shop at 6, the store at 11, the top at 15), then branch counts. */
+export const GENERATED_LEVEL_GOALS = [3, 6, 11, 15];
 export const GENERATED_BRANCH_GOALS = [1, 3, 5, 10, 20, 50];

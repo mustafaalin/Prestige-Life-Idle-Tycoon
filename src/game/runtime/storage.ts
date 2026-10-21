@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
-import { BUSINESSES } from '../core/config/businesses';
+import { BUSINESSES, SCHEMA2_LEVEL_MAP } from '../core/config/businesses';
 import { careerDef, LEGACY_CAREER_IDS } from '../core/config/careers';
 import { COURSES, courseDef } from '../core/config/courses';
 import { WEALTH_CLASSES } from '../core/config/classes';
@@ -36,7 +36,7 @@ const BACKUP_KEY = 'prestige_life_v2_unreadable';
  * plays v2 yet, docs/archive/economy-rebuild.md §1.9). A one-time step before launch, never again after it.
  */
 const PRE_REBUILD_KEY = 'prestige_life_v2_pre_rebuild';
-export const SAVE_SCHEMA = 2;
+export const SAVE_SCHEMA = 3;
 
 interface SaveFile {
   schema: number;
@@ -370,8 +370,23 @@ function migrate(file: Raw, text: string): Raw | null {
       runtime: { purchases: runtime.purchases, story: { ceremonySeen: 0, notificationsAsked: story.notificationsAsked } },
     };
   }
-  // Add steps here when SAVE_SCHEMA goes up: if (schema < 3) current = { ...current, schema: 3, runtime: ... }.
+  if (schema < 3) {
+    // Businesses went from 10 levels to 15 in three equal looks (2026-10-21): each old level becomes
+    // the first new level that pays at least as much (config/businesses.ts SCHEMA2_LEVEL_MAP).
+    current = { ...current, schema: 3, runtime: withSchema3Levels(current.runtime as Raw) };
+  }
+  // Add steps here when SAVE_SCHEMA goes up: if (schema < 4) current = { ...current, schema: 4, runtime: ... }.
   return current;
+}
+
+function withSchema3Levels(runtime: Raw): Raw {
+  if (!isRecord(runtime.game) || !isRecord(runtime.game.businesses)) return runtime;
+  const businesses: Raw = {};
+  for (const [id, saved] of Object.entries(runtime.game.businesses)) {
+    const level = isRecord(saved) ? Math.floor(finite(saved.level, 0)) : 0;
+    businesses[id] = isRecord(saved) && level > 0 ? { ...saved, level: SCHEMA2_LEVEL_MAP[Math.min(level, SCHEMA2_LEVEL_MAP.length) - 1] } : saved;
+  }
+  return { ...runtime, game: { ...runtime.game, businesses } };
 }
 
 /** Builds the runtime from save text, or starts a new life. Never throws. */
