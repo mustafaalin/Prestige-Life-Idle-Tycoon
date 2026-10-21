@@ -1,4 +1,5 @@
 import { CashAmount } from '../CashAmount';
+import { MONEY } from '../icons';
 import { Check } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
@@ -22,15 +23,8 @@ import { portalRoot } from '../stage';
 // figures and how it was worked out ("your monthly income × 15"). Days ahead show their multiplier,
 // never a dollar figure: that is only known on the day. Day seven is Lucky's: he brings the wallet.
 
-/** The pile grows over the week: a coin, a bill, a wad. */
-const DAY_ART = [
-  '/assets/scene/coin-one.webp',
-  '/assets/scene/coin-one.webp',
-  '/assets/scene/coin-bill.webp',
-  '/assets/scene/coin-bill.webp',
-  '/assets/icons/v2/money.webp',
-  '/assets/icons/v2/money.webp',
-];
+/** The money grows over the week (the money series, 2026-10-22): a note, a bundle, three, a pyramid. */
+const DAY_ART = [MONEY[0], MONEY[0], MONEY[1], MONEY[1], MONEY[2], MONEY[3]];
 
 type DayState = 'done' | 'today' | 'ahead';
 

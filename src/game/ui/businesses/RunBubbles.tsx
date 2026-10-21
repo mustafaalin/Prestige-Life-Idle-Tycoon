@@ -40,7 +40,7 @@ export function RunBubbles({ businessId }: { businessId: string }) {
           key={bubble.id}
           className="v2-run-bubble absolute top-0 flex items-center gap-1 whitespace-nowrap rounded-full border-2 border-white bg-white/95 pl-0.5 pr-2 py-0.5 shadow-md"
         >
-          <img src={ICONS.money} alt="" draggable={false} className="w-6 h-6 object-contain" />
+          <img src={ICONS.bill} alt="" draggable={false} className="w-6 h-6 object-contain" />
           <span className="v2-display text-[14px] text-emerald-600 tabular-nums">+{runMoney(bubble.amount)}</span>
         </span>
       ))}

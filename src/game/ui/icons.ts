@@ -14,12 +14,15 @@ export const ICONS = {
   business: `${DIR}/business.webp`,
   career: `${DIR}/career.webp`,
   shop: `${DIR}/shop.webp`,
-  /** The balance in the top bar; coins fly into it. */
-  money: `${DIR}/money.webp`,
+  /** The balance in the top bar (money series M3, three bundles, 2026-10-22); the money flies into it. */
+  money: `${DIR}/money-3.webp`,
   /** One coin. */
   coin: `${DIR}/coin.webp`,
-  /** One green banknote (money series M1), for every flight into the balance and out of it (2026-10-21, user: notes, not coins). */
-  bill: `${DIR}/money-1.webp`,
+  /**
+   * One bundle with its gold band (money series M2, 2026-10-22, user: not the loose note), for every
+   * flight into the balance and out of it and the businesses' "+$5" bubbles.
+   */
+  bill: `${DIR}/money-2.webp`,
   /** Status: the wealth class and the status bonus. */
   status: `${DIR}/prestige-points.webp`,
   /** The family album: the story moments seen so far. */
