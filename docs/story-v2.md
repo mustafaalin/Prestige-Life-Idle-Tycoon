@@ -330,7 +330,7 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 - Görsellere yazı, tabela, logo gömülmez (TR/EN).
 - Oyunda: gece sahnelerinde karakterlere hafif soğuk renk tonu ve sıcak kenar ışığı (deneme: `art/pilot/scene-mock-alley.png`).
 
-**Durum (2026-10-21):** 1. neslin bütün görselleri oyunda: önsöz (6 kare; 3D sürümü bekliyor, [art-prompts-v2.md §2](./art-prompts-v2.md)), 12 ev, 12 araç, 7 kıyafetin pozları ve portreleri, Şans (4 tasma × 3 poz, fularlı ikizler), kadronun portreleri (anne, Rıza, Bülent Bey, Nevin Hanım, Defne), 14 yönetici, 14 işletmenin üçer görünümü, 63 meslek ve 4 eşya ikonu, 7 tören karesi, hayat ve lüks anlarının kareleri, dede pozları, yaşlı Defne / Elif / Ada portreleri, yadigâr ikonları. Kaynaklar `art/pilot/` (git'te değil), oyundaki sıkıştırılmış hâlleri `public/assets/`. Bitmiş komutlar [archive/](./archive/).
+**Durum (2026-10-21):** 1. neslin bütün görselleri oyunda: önsöz (6 kare, 3D), 12 ev, 12 araç, 7 kıyafetin pozları ve portreleri, Şans (4 tasma × 3 poz, fularlı ikizler; okşama pozlarının da fularlı ikizi var), kadronun portreleri (anne, Rıza, Bülent Bey, Nevin Hanım, Defne), 14 yönetici, 14 işletmenin üçer görünümü, 104 meslek ve 4 eşya ikonu, 7 tören karesi, hayat ve lüks anlarının kareleri, dede pozları, yaşlı Defne / Elif / Ada portreleri, yadigâr ikonları. Kaynaklar `art/pilot/` (git'te değil), oyundaki sıkıştırılmış hâlleri `public/assets/`. Bitmiş komutlar [archive/](./archive/).
 
 ## 9. Metinler
 
