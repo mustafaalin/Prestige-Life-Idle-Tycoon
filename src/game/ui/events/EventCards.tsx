@@ -22,7 +22,7 @@ import { EVENT_AD_MULTIPLIER } from '../../core/config/ads';
 import { canWatch, eventAdExtra } from '../../runtime/adRewards';
 import { AdButton } from '../ads/AdButton';
 import { useAdText } from '../ads/useAdText';
-import { callsLeftToday, nextCaller } from '../../runtime/eventDeck';
+import { nextCaller } from '../../runtime/eventDeck';
 import { eventKey, eventSpeaker, onEventCardRequest } from './eventScript';
 import { portalRoot } from '../stage';
 
@@ -31,7 +31,7 @@ import { portalRoot } from '../stage';
 // safe and a bold answer; a bold one that fails costs money, and the button says how much before the
 // player chooses. The timers live here and start over with each session, like Şans's finds;
 // the time of the last answer is saved, so reopening the game does not bring a call sooner. Who calls
-// is dealt like a deck, at most a few calls a day (runtime/eventDeck.ts).
+// is dealt like a deck (runtime/eventDeck.ts).
 
 const random = (min: number, max: number) => min + Math.random() * (max - min);
 
@@ -46,7 +46,7 @@ export function EventCards({ tabOpen, onOpenChange }: EventCardsProps) {
   const { game, state } = useGameV2();
   const { t } = useT();
   const cards = eventCardsFor(game, sceneClass(game, state.story));
-  const enabled = cards.length > 0 && !awaitsHandover(game) && callsLeftToday(state.story, Date.now()) > 0;
+  const enabled = cards.length > 0 && !awaitsHandover(game);
 
   /** The card whose caller is waiting. */
   const [calling, setCalling] = useState<string | null>(null);

@@ -38,10 +38,6 @@ export const EVENT_FIRST_MAX_SECONDS = 90;
 export const EVENT_MIN_SECONDS = 240;
 export const EVENT_MAX_SECONDS = 360;
 
-/** Calls a day at most: with ten cards more made the same callers ring again and again (2026-10-21).
- * The cards are dealt like a deck (runtime/eventDeck.ts). */
-export const EVENT_DAILY_MAX = 6;
-
 /** What each outcome pays, in seconds of active income; a bold answer that fails costs money (never
  * below zero cash). The bold answer pays only a little more on average (55 s against 45), so always
  * answering bold is not the obvious play (2026-10-12). Since 2026-10-15 a failure loses 20 s instead of

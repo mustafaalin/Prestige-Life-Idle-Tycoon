@@ -218,7 +218,7 @@ export function answerEvent(state: RuntimeState, cardId: string, outcome: EventO
   return {
     ...state,
     game: amount >= 0 ? earn(state.game, amount) : { ...state.game, cash: Math.max(0, state.game.cash + amount) },
-    story: { ...state.story, eventAnsweredAt: now, ...afterAnswer(state.story, cardId, available, now) },
+    story: { ...state.story, eventAnsweredAt: now, eventsHeard: afterAnswer(state.story.eventsHeard, cardId, available) },
   };
 }
 

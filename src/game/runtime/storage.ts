@@ -211,8 +211,6 @@ function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
     guideDone: stringList(raw.guideDone),
     eventAnsweredAt: finite(raw.eventAnsweredAt, 0),
     eventsHeard: stringList(raw.eventsHeard).filter((id) => knownEventCards.has(id)),
-    eventDay: typeof raw.eventDay === 'string' ? raw.eventDay : '',
-    eventsToday: Math.max(0, Math.floor(finite(raw.eventsToday, 0))),
     richSeen: stringList(raw.richSeen).filter((id) => knownRichMoments.has(id)),
     reviewAsks: Math.floor(finite(raw.reviewAsks, 0)),
     reviewAskedAt: finite(raw.reviewAskedAt, 0),

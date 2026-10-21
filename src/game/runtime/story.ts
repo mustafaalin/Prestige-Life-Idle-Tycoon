@@ -30,10 +30,8 @@ export interface StoryProgress {
   guideDone: string[];
   /** When the last event card was answered (ms; 0 = never): reopening the game does not bring the next call sooner. */
   eventAnsweredAt: number;
-  /** The event deck (runtime/eventDeck.ts): cards answered in this round, and today's calls (day key). */
+  /** The event deck (runtime/eventDeck.ts): cards answered in this round. */
   eventsHeard: string[];
-  eventDay: string;
-  eventsToday: number;
   /** Rich List cards already shown (discussion-notes §10). */
   richSeen: string[];
   /** The store's review dialog (runtime/review.ts): how many times it was asked for, and when last (ms; 0 = never). */
@@ -97,8 +95,6 @@ export function createStoryProgress(classIndex = 0): StoryProgress {
     guideDone: [],
     eventAnsweredAt: 0,
     eventsHeard: [],
-    eventDay: '',
-    eventsToday: 0,
     richSeen: [],
     reviewAsks: 0,
     reviewAskedAt: 0,
