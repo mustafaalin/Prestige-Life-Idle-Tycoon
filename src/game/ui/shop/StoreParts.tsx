@@ -1,6 +1,8 @@
 import type { CSSProperties, ReactNode } from 'react';
 import type { ProductDef } from '../../core/config/iap';
 import { useT } from '../../i18n/useT';
+import { purchaseCash } from '../../runtime/purchases';
+import { useGameV2 } from '../../runtime/useGameV2';
 import { STORE_ART } from './storeArt';
 
 // The pieces the Store and the offer card share (design: docs/iap-store-design-handoff.md). The art is
@@ -33,27 +35,60 @@ export function ComfortArt() {
   );
 }
 
-function Tile({ image, title, note }: { image: string; title: string; note: string }) {
+/** One reward as an object: what it is in big letters (the amount itself, never a formula), then what it means. */
+function Tile({ image, value, note, money = false }: { image: string; value: string; note: string; money?: boolean }) {
   return (
-    <div className="v2-iap-tile px-[3px] pt-[7px] pb-2 text-center">
-      <img src={image} alt="" draggable={false} className="block w-[43px] h-[43px] mx-auto object-contain" />
-      <b className="block v2-display text-[12px] max-[359px]:text-[11px] leading-[1.2] my-[3px] break-words">{title}</b>
-      <small className="block text-[10px] leading-[1.3] v2-iap-muted">{note}</small>
+    <div className="v2-iap-reward">
+      <img src={image} alt="" draggable={false} className="block w-[44px] h-[44px] mx-auto object-contain" />
+      <b
+        className={`block v2-display text-[17px] max-[359px]:text-[15px] leading-[1.1] mt-1 break-words ${
+          money ? 'text-emerald-500 v2-outline-thin' : 'text-[#2b1b6b]'
+        }`}
+      >
+        {value}
+      </b>
+      <small className="block mt-0.5 text-[10px] font-bold leading-[1.25] v2-iap-muted">{note}</small>
     </div>
   );
 }
 
-/** The Starter Pack's three rewards, each as its own object. */
+/**
+ * The Starter Pack's three rewards, each as its own object. The income reward says how much money it
+ * is now (2026-10-21, user: "1 hour of income" told the player nothing).
+ */
 export function StarterRewards({ product }: { product: ProductDef }) {
-  const { t } = useT();
+  const { state } = useGameV2();
+  const { t, money } = useT();
   const boostHours = product.boostSeconds / 3600;
   const incomeHours = product.incomeSeconds / 3600;
+  const cash = purchaseCash(state.game, state.purchases, product);
   return (
-    <div className="grid grid-cols-3 gap-1.5 mt-1 mb-3">
-      <Tile image={STORE_ART.hourglass} title={t('iap.starter.boost')} note={t('iap.starter.boostFor', { count: boostHours })} />
-      <Tile image={STORE_ART.cash} title={t('iap.starter.income', { count: incomeHours })} note={t('iap.starter.incomeWhen')} />
-      <Tile image={STORE_ART.scarf} title={t('iap.starter.scarf')} note={t('iap.starter.scarfFor', { percent: Math.round(product.incomeBonus * 100) })} />
+    <div className="grid grid-cols-3 gap-1.5">
+      <Tile image={STORE_ART.hourglass} value={t('iap.starter.boost')} note={t('iap.starter.boostFor', { count: boostHours })} />
+      <Tile image={STORE_ART.cash} value={`+${money(cash)}`} note={t('iap.starter.incomeNote', { count: incomeHours })} money />
+      <Tile
+        image={STORE_ART.scarf}
+        value={t('iap.starter.scarfValue', { percent: Math.round(product.incomeBonus * 100) })}
+        note={t('iap.starter.scarfNote')}
+      />
     </div>
+  );
+}
+
+/** The gold price pill on a banner's bottom edge. */
+export function PricePill({ disabled, onClick, children }: { disabled?: boolean; onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
+      className="v2-iap-pill v2-display text-[18px] break-words"
+    >
+      {children}
+    </button>
   );
 }
 

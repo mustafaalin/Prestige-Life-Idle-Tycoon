@@ -69,7 +69,7 @@ Kurulum: dahili testten (Play sürümü) ya da `npm run phone -- --install` (DEV
   - Veri güvenliği beyanı v2'ye göre ([monetization-v2.md §7](./monetization-v2.md)).
   - v1'in 8 ürününü pasifleştirmek.
   - Mağaza görselleri `~/Downloads/play-store-v2/` (6 ekran × TR/EN, özellik grafiği, ikon 512). Ekran görüntüleri eski ekonomiden; yeni işletme kartı ve iş panosuyla yenilenebilir (kaynak `art/store-v2/`, `capture.mjs` / `compose.mjs` / `feature.mjs`; `playwright-core` projede yok, yerel bir kopya gerekir).
-- **Seçimler:** uygulama ikonu (A, B, C adayları) ve özellik grafiği (C, D) ([art-prompts-v2.md §1](./art-prompts-v2.md)); GPT'de önsözün 5 karesi (§2), dedenin küçük Şans'lı okşama pozu (§3), daha geride Sahil Malikânesi (§4) ve okşama pozlarının fularlı ikizleri (§5, 8 edit).
+- **Seçimler:** uygulama ikonu (A, B, C adayları) ve özellik grafiği (C, D) ([art-prompts-v2.md §1](./art-prompts-v2.md)); GPT'de önsözün 5 karesi (§2), dedenin küçük Şans'lı okşama pozu (§3), daha geride Sahil Malikânesi (§4) ve okşama pozlarının fularlı ikizleri (§5, 8 edit) ve Rahat Paket'in reklamsız simgesi (§6).
 - **AdMob:** Play'de web sitesi girildikten sonra app-ads.txt doğrulaması (AdMob → Uygulamalar); Ayarlar → Test cihazları'na telefon.
 - **Oyuncu gözlemi:** 6–8 tanıdıkla (kapalı test verisi çoğunlukla kendi hesapların).
 

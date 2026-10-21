@@ -1,8 +1,12 @@
 import { Check, Clock, Store, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { BOOST_FACTOR, BOOST_SECONDS, COIN_RAIN_SECONDS } from '../../core/config/ads';
 import { PRODUCTS, STORE_SECTIONS, type ProductDef } from '../../core/config/iap';
+import { canCollect } from '../../core/formulas';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
+import { adCooldownLeft, boostSecondsLeft, boostsLeft, canBoost, canWatch } from '../../runtime/adRewards';
+import type { AdPlacement } from '../../runtime/ads';
 import { track } from '../../runtime/analytics';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
@@ -17,10 +21,11 @@ import {
   welcomeSecondsLeft,
 } from '../../runtime/purchases';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { AdButton } from '../ads/AdButton';
 import { payout } from '../home/coins';
-import { SectionLabel } from '../kit';
+import { requestFind } from '../scene/sceneEvents';
 import { STORE_ART } from './storeArt';
-import { BuyButton, ComfortArt, StarterArt, StarterRewards } from './StoreParts';
+import { ComfortArt, PricePill, StarterArt, StarterRewards } from './StoreParts';
 import { usePrices } from './usePrices';
 import { useRestore } from './useRestore';
 
@@ -78,52 +83,69 @@ interface CardProps {
   onBuy: () => void;
 }
 
+/** The price pill on the banner's edge, and under the banner the regular price or a failure. */
 function BuyRow({ price, welcome, saleId: id, busy, failed, onBuy }: CardProps) {
   const { t } = useT();
   return (
     <>
-      <BuyButton disabled={busy !== null} onClick={onBuy}>
+      <PricePill disabled={busy !== null} onClick={onBuy}>
         {busy === id ? t('iap.busy') : t('iap.buy', { price })}
-      </BuyButton>
-      {welcome && (
-        <p className="mt-1.5 text-[11px] font-bold text-center v2-iap-muted">{t('iap.welcome.later', { price: welcome.later })}</p>
-      )}
-      {failed && (
-        <p role="status" className="mt-2 text-[12px] font-bold text-center v2-iap-muted">
-          {t('iap.failed')}
+      </PricePill>
+      {(welcome || failed) && (
+        <p role={failed ? 'status' : undefined} className="mt-1.5 text-[11px] font-bold text-center v2-iap-muted">
+          {failed ? t('iap.failed') : welcome && t('iap.welcome.later', { price: welcome.later })}
         </p>
       )}
     </>
   );
 }
 
-const TITLE = 'v2-display text-[23px] max-[359px]:text-[21px] leading-[1.1] break-words';
-const HEADLINE = 'v2-display text-[21px] max-[359px]:text-[19px] leading-[1.13] mb-2 break-words';
+/** The store's section titles, centred like a shop sign. */
+function SectionTitle({ children }: { children: string }) {
+  return <h3 className="v2-iap-section mt-1">{children}</h3>;
+}
+
+function Checks({ lines }: { lines: string[] }) {
+  return (
+    <ul className="flex flex-col gap-1">
+      {lines.map((line) => (
+        <li key={line} className="v2-iap-check">
+          <span className="mt-px w-4 h-4 shrink-0 rounded-full bg-emerald-400 border-2 border-white flex items-center justify-center">
+            <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
+          </span>
+          {line}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 /** The Starter Pack: a welcome price with its countdown in the first days, then the regular price. */
 function StarterCard(props: CardProps) {
   const { t, duration } = useT();
   const left = props.welcome?.secondsLeft ?? props.secondsLeft;
   return (
-    <article className="v2-iap-card v2-iap-starter">
-      <div className="flex items-center justify-between gap-2">
-        <span className="v2-iap-badge">{props.welcome ? t('iap.welcome.tag') : t('iap.once')}</span>
-        {Number.isFinite(left) && (
-          <span className="flex items-center gap-1 text-[11px] max-[359px]:text-[10px] font-bold text-[#814307] whitespace-nowrap">
-            <Clock className="w-3.5 h-3.5" />
-            {duration(left)}
-          </span>
-        )}
-      </div>
-      <h3 className={`${TITLE} mt-[11px]`}>{t('iap.starter.name')}</h3>
-      <div className="flex items-center min-h-[148px]">
-        <div className="flex-1 min-w-0 z-[1]">
-          <h4 className={HEADLINE}>{t('iap.starter.headline')}</h4>
-          <p className="text-[11px] leading-[1.4] v2-iap-muted">{t('iap.starter.kind')}</p>
+    <article className="v2-iap-wrap">
+      <div className="v2-iap-banner v2-iap-banner-starter">
+        <div className="v2-rays" aria-hidden />
+        <div className="flex items-center justify-between gap-2">
+          <span className="v2-iap-ribbon">{props.welcome ? t('iap.welcome.tag') : t('iap.once')}</span>
+          {Number.isFinite(left) && (
+            <span className="flex items-center gap-1 rounded-full bg-black/25 px-2 py-0.5 text-[11px] font-black text-white whitespace-nowrap">
+              <Clock className="w-3.5 h-3.5" />
+              {duration(left)}
+            </span>
+          )}
         </div>
-        <StarterArt />
+        <h3 className="v2-iap-title text-center text-[25px] max-[359px]:text-[22px] leading-none mt-2">{t('iap.starter.name')}</h3>
+        <div className="flex items-center min-h-[132px]">
+          <p className="flex-1 min-w-0 v2-display text-[19px] leading-[1.15] text-white [text-shadow:0_2px_3px_rgba(80,20,60,0.5)]">
+            {t('iap.starter.headline')}
+          </p>
+          <StarterArt />
+        </div>
+        <StarterRewards product={props.product} />
       </div>
-      <StarterRewards product={props.product} />
       <BuyRow {...props} />
     </article>
   );
@@ -133,19 +155,20 @@ function ComfortCard(props: CardProps) {
   const { t } = useT();
   if (props.owned) return <ComfortActive />;
   return (
-    <article className="v2-iap-card v2-iap-comfort">
-      <span className="v2-iap-badge">{t('iap.forever')}</span>
-      <h3 className={`${TITLE} mt-[11px]`}>{t('iap.comfort.name')}</h3>
-      <div className="flex items-center min-h-[146px]">
-        <div className="flex-1 min-w-0 z-[1]">
-          <h4 className={HEADLINE}>{t('iap.comfort.headline')}</h4>
-          <p className="text-[11px] leading-[1.4] v2-iap-muted">{t('iap.comfort.limits')}</p>
+    <article className="v2-iap-wrap">
+      <div className="v2-iap-banner v2-iap-banner-comfort">
+        <div className="v2-rays" aria-hidden />
+        <span className="v2-iap-ribbon">{t('iap.forever')}</span>
+        <h3 className="v2-iap-title text-center text-[25px] max-[359px]:text-[22px] leading-none mt-2">{t('iap.comfort.name')}</h3>
+        <div className="flex items-center gap-1 min-h-[140px]">
+          <div className="flex-1 min-w-0 flex flex-col gap-2">
+            <Checks
+              lines={[t('iap.comfort.line1'), t('iap.comfort.line2'), t('iap.comfort.point3')]}
+            />
+            <p className="text-[10px] font-bold text-white/80">{t('iap.comfort.limits')}</p>
+          </div>
+          <ComfortArt />
         </div>
-        <ComfortArt />
-      </div>
-      <div className="flex items-center gap-[7px] rounded-xl bg-[#fffaf2]/80 px-[9px] py-[7px] mb-3 text-[11px] font-bold">
-        <img src={STORE_ART.hourglass} alt="" draggable={false} className="w-[26px] h-[30px] object-contain shrink-0" />
-        {t('iap.comfort.bonus', { count: props.product.boostSeconds / 3600 })}
       </div>
       <BuyRow {...props} />
     </article>
@@ -156,24 +179,107 @@ function ComfortCard(props: CardProps) {
 function ComfortActive() {
   const { t } = useT();
   return (
-    <article className="v2-iap-card v2-iap-owned">
-      <span className="v2-iap-badge inline-flex items-center gap-1">
-        <Check className="w-3 h-3" />
-        {t('iap.comfort.active')}
-      </span>
-      <div className="flex items-center gap-2 min-h-[104px]">
-        <div className="flex-1 min-w-0">
-          <h3 className={`${TITLE} mt-2`}>{t('iap.comfort.name')}</h3>
-          <p className="mt-2 text-[12px] font-bold">{t('iap.comfort.enabled')}</p>
-          <p className="mt-1 text-[11px] leading-[1.4] v2-iap-muted">{t('iap.comfort.limits')}</p>
+    <article className="v2-iap-wrap pb-0">
+      <div className="v2-iap-banner v2-iap-banner-owned">
+        <span className="v2-iap-ribbon inline-flex items-center gap-1">
+          <Check className="w-3 h-3" />
+          {t('iap.comfort.active')}
+        </span>
+        <div className="flex items-center gap-2 min-h-[96px]">
+          <div className="flex-1 min-w-0">
+            <h3 className="v2-iap-title text-[22px] leading-none mt-2">{t('iap.comfort.name')}</h3>
+            <div className="mt-2">
+              <Checks lines={[t('iap.comfort.enabled'), t('iap.comfort.access')]} />
+            </div>
+          </div>
+          <img src="/assets/iap/comfort.webp" alt="" draggable={false} className="w-[88px] h-[88px] object-contain shrink-0" />
         </div>
-        <img src="/assets/iap/comfort.webp" alt="" draggable={false} className="w-[93px] h-[93px] object-contain shrink-0" />
       </div>
-      <p className="mt-1 flex items-center gap-2 rounded-xl bg-[#e4f6e7] p-[11px] text-[12px] font-extrabold text-[#28623c]">
-        <Check className="w-4 h-4 shrink-0" />
-        {t('iap.comfort.access')}
-      </p>
     </article>
+  );
+}
+
+/**
+ * Free things for an ad (2026-10-21, user: the reference shop shows them next to the paid ones). The
+ * same ads as the scene's buttons, with the same daily limits; one that ends on the scene (Şans, the
+ * coin shower) closes the store so the player sees it happen.
+ */
+function FreeOffers({ onClose }: { onClose: () => void }) {
+  const { game, state, actions } = useGameV2();
+  const { t, duration } = useT();
+  const now = useNow();
+  const boostLeft = boostSecondsLeft(state.ads, now);
+  const sansWait = adCooldownLeft(state.ads, 'call_sans', now);
+  const showRain = canCollect(game) && state.ads.coinRainUntil <= now;
+  const tiles: { key: string; image: string; title: string; note: string; ready: boolean; reason: string; placement: AdPlacement; run: () => void }[] = [
+    {
+      key: 'boost',
+      image: STORE_ART.hourglass,
+      title: t('ads.boostTitle', { factor: BOOST_FACTOR }),
+      note: duration(BOOST_SECONDS),
+      ready: canBoost(state, Date.now()),
+      reason: boostsLeft(state.ads, now) <= 0 ? t('iap.free.later') : boostLeft > 0 ? t('iap.free.running') : t('iap.free.later'),
+      placement: 'income_boost',
+      run: () => {
+        if (actions.ads.boost()) playSfx('reward');
+      },
+    },
+    {
+      key: 'sans',
+      image: '/assets/scene/sans-wallet.webp',
+      title: t('ads.callSans'),
+      note: t('iap.free.sansNote'),
+      ready: canWatch(state.ads, 'call_sans', now),
+      reason: sansWait > 0 ? duration(Math.ceil(sansWait)) : t('iap.free.later'),
+      placement: 'call_sans',
+      run: () => {
+        if (!actions.ads.callSans()) return;
+        onClose();
+        requestFind();
+      },
+    },
+    ...(showRain
+      ? [
+          {
+            key: 'rain',
+            image: '/assets/scene/coin-pile.webp',
+            title: t('ads.coinRain'),
+            note: duration(COIN_RAIN_SECONDS),
+            ready: canWatch(state.ads, 'coin_rain', now),
+            reason: t('iap.free.later'),
+            placement: 'coin_rain' as AdPlacement,
+            run: () => {
+              if (!actions.ads.coinRain()) return;
+              playSfx('reward');
+              onClose();
+            },
+          },
+        ]
+      : []),
+  ];
+  return (
+    <div className="flex flex-col gap-2 mb-1">
+      <SectionTitle>{t('iap.sections.free')}</SectionTitle>
+      <div className={`grid gap-2 ${tiles.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        {tiles.map((tile) => (
+          <div key={tile.key} className="v2-iap-free">
+            <b className="v2-display text-[13px] leading-tight text-[#2b1b6b] break-words">{tile.title}</b>
+            <img src={tile.image} alt="" draggable={false} className="w-14 h-14 object-contain" />
+            <small className="text-[10px] font-bold leading-tight v2-iap-muted">{tile.note}</small>
+            {tile.ready ? (
+              <AdButton placement={tile.placement} small className="w-full" onReward={() => {
+                haptic('medium');
+                tile.run();
+              }}>
+                {t('iap.free.get')}
+              </AdButton>
+            ) : (
+              <span className="w-full rounded-full bg-slate-200 px-2 py-1.5 text-[11px] font-black text-slate-500 tabular-nums">{tile.reason}</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -207,7 +313,7 @@ function PlainCard(props: CardProps) {
         </div>
       </div>
       {!owned && (
-        <div className="mt-3">
+        <div className="relative mt-3 pb-[50px]">
           <BuyRow {...props} />
         </div>
       )}
@@ -341,15 +447,13 @@ export function StoreSheet({ onClose }: { onClose: () => void }) {
 
         {STORE_SECTIONS.map((section) => {
           const items = products.filter((product) => product.section === section);
-          if (items.length === 0) return null;
-          // Starter and Comfort carry their kind on a badge; a later section (cash bags) gets its label.
-          return section === 'bundles' ? (
+          return (
             <div key={section} className="flex flex-col gap-2">
-              <SectionLabel>{t(`iap.sections.${section}`)}</SectionLabel>
+              {items.length > 0 && <SectionTitle>{t(`iap.sections.${section}`)}</SectionTitle>}
               {items.map(card)}
+              {/* The free offers sit right after the first offers, before the permanent ones. */}
+              {section === 'limited' && <FreeOffers onClose={onClose} />}
             </div>
-          ) : (
-            items.map(card)
           );
         })}
 

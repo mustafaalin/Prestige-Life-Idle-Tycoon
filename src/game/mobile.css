@@ -553,6 +553,104 @@ body {
   .v2-iap-card, .v2-iap-lid, .v2-iap-float { animation: none; }
 }
 
+/* Store banners (2026-10-21, user: the cards looked plain; reference: Idle Guy's shop): a bright
+   gradient with a sunburst, a thick gold frame, the title in white capitals and the price as a gold
+   pill that sits on the frame's bottom edge. */
+.v2-iap-wrap { position: relative; flex-shrink: 0; padding-bottom: 22px; animation: v2-iap-in 200ms ease-out both; }
+.v2-iap-banner {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 3px solid #ffd257;
+  box-shadow: 0 4px 0 #c98a12, 0 10px 22px rgba(40, 22, 96, 0.22);
+  color: #fff;
+  padding: 12px 12px 36px;
+}
+.v2-iap-banner > .v2-rays { position: absolute; z-index: -1; left: 72%; top: 40%; width: 170%; aspect-ratio: 1; opacity: 0.55; }
+.v2-iap-banner-starter {
+  background: radial-gradient(ellipse at 74% 38%, #ffd98a 0, transparent 52%), linear-gradient(160deg, #ffa53d, #ff5a7a 68%, #c5307c);
+}
+.v2-iap-banner-comfort {
+  background: radial-gradient(ellipse at 76% 38%, #d2bcff 0, transparent 52%), linear-gradient(160deg, #3f86ff, #7a4dff 60%, #c446d6);
+}
+.v2-iap-banner-owned { background: linear-gradient(160deg, #3fbf7a, #2f8f6a); border-color: #b9f1cf; box-shadow: 0 4px 0 #1f6b4b, 0 10px 22px rgba(20, 70, 50, 0.2); padding-bottom: 14px; }
+.v2-iap-title {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #fff;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 4px rgba(60, 20, 70, 0.75);
+}
+.v2-iap-ribbon {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: #fff3c4;
+  color: #8a3b00;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}
+.v2-iap-check { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; font-weight: 800; line-height: 1.25; text-shadow: 0 1px 2px rgba(40, 10, 60, 0.45); }
+.v2-iap-reward {
+  min-width: 0;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.93);
+  box-shadow: 0 3px 0 rgba(120, 40, 80, 0.2);
+  color: var(--iap-ink);
+  text-align: center;
+  padding: 6px 3px 7px;
+}
+.v2-iap-pill {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  min-width: 62%;
+  max-width: 92%;
+  min-height: 46px;
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: 3px solid #fff8dc;
+  background: linear-gradient(#ffe27a, #f6b62f);
+  color: #3a2307;
+  box-shadow: 0 4px 0 #c98a12, 0 6px 14px rgba(60, 30, 0, 0.25);
+  line-height: 1.15;
+  transition: transform 100ms, box-shadow 100ms;
+}
+.v2-iap-pill:active:not(:disabled) { transform: translate(-50%, 2px); box-shadow: 0 2px 0 #c98a12; }
+.v2-iap-pill:disabled { opacity: 0.75; }
+/* The store's section titles: centred capitals in the store's ink, like a shop sign. */
+.v2-iap-section {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #4b3aa6;
+}
+.v2-iap-free {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border-radius: 18px;
+  border: 2px solid #fff;
+  background: linear-gradient(#ffffff, #f1ebff);
+  box-shadow: 0 3px 0 rgba(90, 70, 160, 0.18), 0 6px 14px rgba(56, 42, 106, 0.08);
+  padding: 8px 5px 7px;
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .v2-iap-wrap { animation: none; }
+}
+
 /* The "!" badge (kit AlertBadge): a soft blink so a tab with something to buy catches the eye. */
 @keyframes v2-alert {
   0%, 100% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.55); }
