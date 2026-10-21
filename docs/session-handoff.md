@@ -15,6 +15,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak ye
 | [discussion-notes.md](./discussion-notes.md) | Kararı bekleyen konular (yalnız açık olanlar) |
 | [art-brief-v2.md](./art-brief-v2.md) | Görsellerin kuralları, boyutları, sahne ölçeği, oyuna bağlama |
 | [art-prompts-v2.md](./art-prompts-v2.md) | GPT'yi bekleyen 1. nesil işleri (önsözün 3D kareleri) ve seçim bekleyen ikon / özellik grafiği adayları |
+| [art-prompts-careers.md](./art-prompts-careers.md) | Meslek ağacının 41 yeni ikonu (GPT'yi bekliyor) |
 | [art-prompts-ada.md](./art-prompts-ada.md), [art-prompts-lumen.md](./art-prompts-lumen.md) | 2. neslin görselleri (yayından sonra) |
 | [audio-v2.md](./audio-v2.md) | Ses efektleri ve müzik |
 | [mobile-ad-integration.md](./mobile-ad-integration.md) | v2 reklam altyapısı (AdMob, izin, test) |
@@ -36,7 +37,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
 
 ## Sıradaki
 
-1. **Meslek ağacı (E7, [career-redesign.md](./career-redesign.md)):** veri ve kurallar kodda (2026-10-21, commit'lenmedi); sırada sekmeli ağaç ekranı, iş değişimi şovu, 41 yeni ikon. 7 ara meslek ve maaş eğrisi onaylandı ([career-redesign.md §8](./career-redesign.md)).
+1. **Meslek ağacı (E7, [career-redesign.md](./career-redesign.md)):** veri ve kurallar kodda (2026-10-21, commit'lenmedi); sırada sekmeli ağaç ekranı, iş değişimi şovu; 41 yeni ikonun GPT komutları [art-prompts-careers.md](./art-prompts-careers.md)'de (kullanıcı üretecek). 7 ara meslek ve maaş eğrisi onaylandı ([career-redesign.md §8](./career-redesign.md)).
 2. **AAB 30'u telefonda denemek** (aşağıdaki liste). Play'deki son sürüm AAB 29: 2026-10-15'ten sonraki her şey (ekonominin yeniden kurulması dahil) ilk kez AAB 30'la telefona gidiyor. Şema 2 yüzünden AAB 29 kaydı bir kez sıfırdan başlar (mağaza alımları kalır); yayından sonra bu bir daha yapılmaz.
 3. **Telefon bulgularına göre düzeltme**, özellikle reklam düğmesi kalabalığı (bir işletme kartında 3–4 düğme görünebiliyor) ve yeni ekonominin ilk saati.
 4. **Lansman hazırlığı:** kapalı test 14 günü doldu (~2026-10-20) → Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu ve özellik grafiği seçimi.

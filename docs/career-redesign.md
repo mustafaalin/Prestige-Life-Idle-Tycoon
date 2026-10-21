@@ -201,7 +201,7 @@ Kaynaklar: [Idle Guy (App Store)](https://apps.apple.com/us/app/idle-guy-life-si
 1. Veri: seviyeler, sekmeler, önceki işler, şartlar, yeni şart türleri, yeni kurslar; `npm run sim` ile maaş eğrisi, zirve yaşı, sınıf yaşları (hedef: CEO ~55, YK Başkanı ~70; maaş payı %20–35).
 2. Ekran: sekmeli ağaç, şart penceresi, Kurslar sekmesi, ustalık şeridi.
 3. İş değişimi şovu ve "Usta!" anı, sesi.
-4. Görseller: 34 meslek ikonu ve 8 kurs ikonu (GPT komutlarını Claude yazar), sekme ikonları.
+4. Görseller: 41 meslek ikonu ([art-prompts-careers.md](./art-prompts-careers.md)); kurslar ve sekmeler kod simgesi kullanır.
 
 ## 7. Kararlar
 
