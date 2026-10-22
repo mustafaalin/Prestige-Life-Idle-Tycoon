@@ -1,6 +1,6 @@
-import { Pointer } from 'lucide-react';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useGuideTarget } from '../guide/guideSteps';
+import { ICONS } from '../icons';
 import { clearFocus, useFocus } from './focus';
 
 /** Wraps a button a goal ("Go") or Old Ray's guide can point at. Tapping inside it ends a goal's hint. */
@@ -45,7 +45,13 @@ export function Focusable({
 export function PointingHand({ className }: { className: string }) {
   return (
     <span className={`v2-focus-hand pointer-events-none absolute z-10 ${className}`}>
-      <Pointer className="w-8 h-8 fill-white text-indigo-900 drop-shadow" />
+      {/* A dark outline-like shadow keeps the white glove readable on the light sheets. */}
+      <img
+        src={ICONS.hand}
+        alt=""
+        draggable={false}
+        className="w-9 h-9 object-contain [filter:drop-shadow(0_0_1px_rgba(30,27,75,0.9))_drop-shadow(0_2px_2px_rgba(30,27,75,0.45))]"
+      />
     </span>
   );
 }

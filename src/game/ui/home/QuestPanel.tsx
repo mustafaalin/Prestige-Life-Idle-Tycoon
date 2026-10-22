@@ -300,10 +300,11 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
           <button
             type="button"
             onClick={x3.pack ? x3.take : claim}
-            className={`relative v2-hit shrink-0 rounded-full border-2 ${x3.pack ? 'border-amber-300' : 'border-white'} bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95`}
+            className={`relative v2-hit shrink-0 rounded-full border-2 ${x3.pack ? 'border-amber-300' : 'border-white'} bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95 flex flex-col items-center leading-tight`}
           >
             {t('quests.claim')}
-            {x3.pack && <Cash size={16} className="ml-1 tabular-nums">+{money(questReward(game, quest) * QUEST_AD_MULTIPLIER)}</Cash>}
+            {/* The amount under the label, so a long goal keeps its room beside the button. */}
+            {x3.pack && <Cash size={15} className="tabular-nums">+{money(questReward(game, quest) * QUEST_AD_MULTIPLIER)}</Cash>}
             {x3.pack && <PackMark />}
             {guided && <PointingHand className="-bottom-6 -right-1" />}
           </button>

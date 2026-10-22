@@ -42,6 +42,8 @@ export const ICONS = {
    * pack pays at once, so the player sees the pack at work (2026-10-22, user).
    */
   adFree: '/assets/iap/v2/no-ads.webp',
+  /** Old Ray's guide and a goal's "Go" point with this gloved hand (2026-10-23, GPT, docs/art-prompts-v2.md §0b K1). */
+  hand: `${DIR}/ui-hand.webp`,
   /** Family legacy points; never the status star. */
   legacy: `${DIR}/legacy-points.webp`,
   /** The family heirlooms (the album's is `album`). */
