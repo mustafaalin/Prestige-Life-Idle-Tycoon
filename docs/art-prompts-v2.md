@@ -6,7 +6,7 @@ Her komut GPT'ye olduğu gibi yapıştırılır; stil paragrafı içinde. Üreti
 
 **Arşiv:** 1. neslin bütün komutları [archive/art-prompts-v2-gen1.md](./archive/art-prompts-v2-gen1.md), işletme aşamaları [archive/art-prompts-businesses.md](./archive/art-prompts-businesses.md), meslek ikonları [archive/art-prompts-jobs.md](./archive/art-prompts-jobs.md), devir [archive/art-prompts-dynasty.md](./archive/art-prompts-dynasty.md), para serisi [archive/art-prompts-money.md](./archive/art-prompts-money.md). 2. nesil: [Lumen](./art-prompts-lumen.md), [Ada](./art-prompts-ada.md) (yayından sonra).
 
-## 0. Dede kareleri: 60 yaştan sonra oynayan hikâye anları (2026-10-23, lansmandan önce)
+## 0. Dede kareleri: 60 yaştan sonra oynayan hikâye anları (2026-10-23; beşi de üretildi ve oyunda, arşive taşınabilir)
 
 **Neden:** Milyarder töreni bağlı oyuncuda ~67 yaşta, jet ~70'te gelir; tekne, yat ve helikopter de geç alınabilir. Sahnede kahraman 60'tan sonra dede, ama bu karelerde genç. Her karenin dede sürümü üretilir; kod 60 yaştan sonra (o an oynarken) bunu ve dedenin portresini kullanır (`ui/story/lateLook.ts`, `LATE_READY`'ye anahtar eklenince açılır). Yat karesinde Rıza Amca yok (story-v2 §6: yan karakterler 60'tan sonra görünmez); yerine annenin denizde doğum günü.
 

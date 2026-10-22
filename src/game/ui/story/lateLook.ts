@@ -13,8 +13,8 @@ import { LIFE_SCRIPT } from './lifeScript';
 // (story-v2.md §6): the birthday at sea becomes Mom's. A version plays only once its frame is in place
 // (LATE_READY; prompts in docs/art-prompts-v2.md §0), and the album shows the version that was seen.
 
-/** Keys whose `-old` frame is in public/assets/story/. Add a key when its picture arrives. */
-const LATE_READY = new Set<LateKey>([]);
+/** Keys whose `-old` frame is in public/assets/story/ (all five since 2026-10-23). */
+const LATE_READY = new Set<LateKey>(['c5', 'boat', 'yacht', 'heli', 'jet']);
 
 const frame = (folder: 'ceremony' | 'life', name: string): StoryImage => ({
   src: `/assets/story/${folder}/${name}-old.webp`,

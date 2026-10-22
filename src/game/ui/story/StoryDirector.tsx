@@ -41,7 +41,7 @@ import { portraitOf } from './ceremonyScript';
 import { MomMessage, NotifyPrompt } from './MomMessage';
 import { NameSheet } from './NameSheet';
 import { onStoryRequest } from './storyEvents';
-import { lateKeyOfCeremony, lateKeyOfLife, playsLate, seenLate } from './lateLook';
+import { lateKeyOfCeremony, lateKeyOfLife, playsLate } from './lateLook';
 import { YearsPassed } from './YearsPassed';
 
 // Decides which story moment is on screen (story-v2.md §4): a waiting class-up ceremony first, then a
@@ -237,7 +237,8 @@ export function StoryDirector({
         classIndex={ceremony}
         {...step}
         gift={replay === null && ceremony >= STORY_GIFT_FROM_CLASS}
-        late={replay !== null ? seenLate(lateKey, state.story) : playsLate(lateKey, game)}
+        // A dev replay plays the version for the hero's age now, so both can be tried.
+        late={playsLate(lateKey, game)}
         onDone={(skipped, giftMultiplier) => finishCeremony(ceremony, skipped, giftMultiplier)}
       />
     );
@@ -248,8 +249,7 @@ export function StoryDirector({
     // nothing does once the life is over (the money would only go to the heir's legacy by a hair).
     const gift = replayLife === null && !ending && LIFE_MOMENTS.some((moment) => moment.id === life && moment.gift !== false);
     const lateKey = lateKeyOfLife(life);
-    const late = replayLife !== null ? seenLate(lateKey, state.story) : playsLate(lateKey, game);
-    return <LifeMoment key={life} id={life} gift={gift} late={late} onDone={(skipped, giftMultiplier) => finishLife(life, skipped, giftMultiplier)} />;
+    return <LifeMoment key={life} id={life} gift={gift} late={playsLate(lateKey, game)} onDone={(skipped, giftMultiplier) => finishLife(life, skipped, giftMultiplier)} />;
   }
 
   // Right after the birth; also on the next opening if the app closed before she was named.
