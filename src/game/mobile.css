@@ -675,3 +675,71 @@ body {
 .v2-iap-free > :last-child {
   margin-top: auto;
 }
+
+/* Job tree cards (ui/career/JobTree.tsx, 2026-10-23): a chunky game tile per job, its colour telling its
+   state (done green, held gold, open blue, next white, hidden grey), the icon on a medallion. */
+.v2-job {
+  position: relative;
+  border-radius: 22px;
+  border: 3px solid var(--rim);
+  background: var(--fill);
+  box-shadow: 0 5px 0 var(--edge), 0 8px 14px rgba(30, 27, 75, 0.18);
+  overflow: hidden;
+}
+.v2-job::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 52% 0;
+  border-radius: 18px 18px 40% 40% / 18px 18px 18px 18px;
+  background: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+.v2-job-done { --rim: #4ade80; --edge: #16a34a; --fill: linear-gradient(#f0fdf4, #bbf7d0); --plate: #86efac; }
+.v2-job-held { --rim: #f59e0b; --edge: #b45309; --fill: linear-gradient(#fef9c3, #fbbf24); --plate: #fde68a; --stroke: #92400e;
+  box-shadow: 0 5px 0 var(--edge), 0 0 0 4px rgba(251, 191, 36, 0.35), 0 10px 22px rgba(245, 158, 11, 0.55); }
+.v2-job-open { --rim: #1d4ed8; --edge: #1e3a8a; --fill: linear-gradient(#7dd3fc, #3b82f6); --plate: #bae6fd; --stroke: #1e3a8a; }
+.v2-job-next { --rim: #a5b4fc; --edge: #818cf8; --fill: linear-gradient(#ffffff, #e0e7ff); --plate: #e0e7ff; }
+.v2-job-hidden { --rim: #94a3b8; --edge: #64748b; --fill: linear-gradient(#e2e8f0, #cbd5e1); --plate: #cbd5e1; }
+.v2-job-medal {
+  position: relative;
+  width: 74px;
+  height: 74px;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 40%, #fff 0 45%, var(--plate) 72%);
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(255, 255, 255, 0.7);
+}
+.v2-job-light {
+  color: #fff;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 3px var(--stroke);
+}
+/* Rays behind the job held. */
+@keyframes v2-job-spin { to { transform: rotate(360deg); } }
+.v2-job-rays {
+  position: absolute;
+  inset: -22px;
+  border-radius: 9999px;
+  background: repeating-conic-gradient(rgba(255, 255, 255, 0.75) 0 10deg, rgba(255, 255, 255, 0) 10deg 30deg);
+  -webkit-mask: radial-gradient(circle, #000 35%, transparent 70%);
+  mask: radial-gradient(circle, #000 35%, transparent 70%);
+  animation: v2-job-spin 14s linear infinite;
+}
+/* A light sweeping over a job that can be taken. */
+@keyframes v2-job-shine { 0%, 55% { left: -60%; } 100% { left: 130%; } }
+.v2-job-open::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  width: 40%;
+  left: -60%;
+  transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  animation: v2-job-shine 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .v2-job-rays, .v2-job-open::after { animation: none; }
+}

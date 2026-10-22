@@ -10,15 +10,32 @@ export function JobIcon({
   size,
   mastery,
   hidden = false,
+  plain = false,
 }: {
   career: CareerDef;
   size: number;
   /** 0–1 draws the mastery ring around the picture. */
   mastery?: number;
   hidden?: boolean;
+  /** The picture alone, for a card that draws its own medallion. */
+  plain?: boolean;
 }) {
   const [missing, setMissing] = useState(false);
   const inner = Math.round(size * 0.78);
+  if (plain) {
+    return missing ? (
+      <Briefcase className={hidden ? 'text-indigo-950/30' : 'text-indigo-400'} style={{ width: size * 0.6, height: size * 0.6 }} />
+    ) : (
+      <img
+        src={career.image}
+        alt=""
+        draggable={false}
+        onError={() => setMissing(true)}
+        className={`relative object-contain drop-shadow-md ${hidden ? 'brightness-0 opacity-30' : ''}`}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
   return (
     <div className="relative shrink-0 flex items-center justify-center" style={{ width: size, height: size }}>
       {mastery !== undefined && <MasteryRing size={size} progress={mastery} />}
