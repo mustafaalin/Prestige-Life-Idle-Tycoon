@@ -17,6 +17,7 @@ import {
   applyFirstSalary,
   applyHelp,
   applyInvestRush,
+  applyInvestSpecial,
   applyTempManager,
   eventAdExtra,
   opportunityReward,
@@ -124,6 +125,8 @@ export interface GameActions {
     rushCourse(): boolean;
     rushExperience(): boolean;
     rushInvest(): boolean;
+    /** Old Ray's special deal with `stake` in. */
+    investSpecial(stake: number): boolean;
     tempManager(businessId: string): boolean;
     campaign(businessId: string): boolean;
     /** Claims a finished goal and pays it three times in all. */
@@ -484,6 +487,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         rushCourse: () => act((s) => applyCourseRush(s, clock())),
         rushExperience: () => act((s) => applyExperienceRush(s, clock())),
         rushInvest: () => act((s) => applyInvestRush(s, clock())),
+        investSpecial: (stake) => act((s) => applyInvestSpecial(s, stake, clock())),
         tempManager: (businessId) => act((s) => applyTempManager(s, businessId, clock())),
         campaign: (businessId) => act((s) => applyCampaign(s, businessId, clock())),
         questX3: (questId) => {

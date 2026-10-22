@@ -1,6 +1,6 @@
 # Prestige Life v2 — Reklam ve Uygulama İçi Satın Alma (IAP)
 
-Tarih: 2026-10-08 · Son güncelleme: 2026-10-21 · Durum: **19 ödüllü reklam yeri oyunda (2026-10-21) ve IAP 1. adım (Mağaza, Rahat Paket, Başlangıç Paketi) oyunda; IAP 2. adım (Yakut Tasma, Gece Vardiyası) bekliyor** · İlgili: [report-v2.md](./report-v2.md) §Monetizasyon, [rebuild-plan.md](./rebuild-plan.md) 2.9, [discussion-notes.md](./discussion-notes.md) §4 (ekonomi)
+Tarih: 2026-10-08 · Son güncelleme: 2026-10-21 · Durum: **20 ödüllü reklam yeri oyunda (2026-10-22) ve IAP 1. adım (Mağaza, Rahat Paket, Başlangıç Paketi) oyunda; IAP 2. adım (Yakut Tasma, Gece Vardiyası) bekliyor** · İlgili: [report-v2.md](./report-v2.md) §Monetizasyon, [rebuild-plan.md](./rebuild-plan.md) 2.9, [discussion-notes.md](./discussion-notes.md) §4 (ekonomi)
 
 Kullanıcının isteği: "Ödüllü reklam için detaylı düşün; oyun tasarımı reklam izletmeye uygun olsun. Reklamla bazı şeyleri verebiliriz, IAP ile bir şeyler satabiliriz."
 
@@ -75,6 +75,7 @@ Hepsi isteğe bağlı ve oyuncunun zaten bulunduğu bir yerde bir düğmenin ark
 | 17 | Şans'ı çağır (`call_sans`) | Sahnenin sağında yuvarlak düğme | Şans hemen cüzdan getirir | Günde 5, 10 dk arayla |
 | 18 | Bozuk para yağmuru (`coin_rain`) | Sahnenin sağında (Sokak–İşçi, yerde şişe varken) | 30 sn yere 4 kat sık, 3 kat değerli para; sahnenin ortasında geri sayım (azalan halka; son 10 sn kırmızı, yanıp söner, "Acele et!"; son 5 sn tık ve titreşim) | Günde 3, 15 dk arayla |
 | 19 | Fırsat balonu (`opportunity`) | 6–10 dk'da bir sahneden 20 sn'de geçen balon; dokununca kart | 1 dk gelir | Günde 8 |
+| 20 | Özel fırsat (`invest_special`, 2026-10-22) | Yatırım, "Özel fırsat" kutucuğu | Reklamla açılan 1 sa +%20 yatırım (yatırılan para kadar) | Günde 2 |
 | — | Olay kartında "ikinci şans" | #13'e katıldı | | |
 
 **Simülatör (2026-10-21, "engaged + ads": günde 3 hızlandırıcı, 4 yardım, çevrimdışı ve Şans ×2, hediyeler ×2; yeni yerlerin her biri oturum başına en çok bir kez ve günlük sınırla):** reklamsız oyuncuya göre Orta Sınıf 1 sa 11 dk → 35 dk (%51), Milyoner 2 sa 28 dk → 1 sa 1 dk (%59), Milyarder 14 sa 9 dk → 7 sa 26 dk (**%47**). Yeni yerlerin parası toplamın ~%10'u (kampanya %5,5, fırsat balonu %2,3, Şans %1,9); kurs ve deneyim hızlandırmaları para değil zaman verir. Erken oyunda fark daha büyük, çünkü ×2 hızlandırıcı ilk dakikadan açık. Denenip küçültülenler: kampanya 30 dk ×3 ve balon 5 dk gelirle Milyarder %57 erken; ilk maaş 3 aylık; kart hediyeleri 10 dk gelir (300 dolarlık kursa 18 bin dolar diploma).

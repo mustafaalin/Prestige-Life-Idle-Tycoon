@@ -26,7 +26,7 @@ import { autoIncomePerSecond, businessState, currentCareer, eventReward, incomeP
 import { isMastered } from '../core/requirements';
 import { earn } from '../core/state';
 import type { CareerDef, GameStateV2, QuestDef } from '../core/types';
-import type { InvestProgress } from './investment';
+import { startInvestment, type InvestProgress } from './investment';
 
 // What rewarded ads give and when they can be watched (docs/monetization-v2.md §4). Every place has
 // one line in config/ads.ts AD_PLACEMENTS (daily limit, cooldown); this file holds the counters they
@@ -268,6 +268,11 @@ export function applyInvestRush<T extends InvestContext>(state: T, now: number):
   if (!deal || !canRushInvest(state, now)) return null;
   const until = now + (deal.until - now) * (1 - INVEST_RUSH_SHARE);
   return grant(state, 'invest_rush', now, (s) => ({ ...s, invest: { ...s.invest, active: { ...deal, until } } }), `invest_rush:${deal.startedAt}`);
+}
+
+/** Old Ray's special deal: an ad opens it with `stake` in (the bold deal's `roll` is unused here). */
+export function applyInvestSpecial<T extends InvestContext>(state: T, stake: number, now: number): T | null {
+  return grant(state, 'invest_special', now, (s) => startInvestment(s, 'special', stake, now, 0, true));
 }
 
 // ── Businesses: a stand-in manager, a campaign ──

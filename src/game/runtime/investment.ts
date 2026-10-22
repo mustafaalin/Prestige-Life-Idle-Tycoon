@@ -48,7 +48,7 @@ export function investTabOpen({ game, invest }: InvestContext) {
   return investUnlocked(game) || invest.active !== null;
 }
 
-/** The most that can go in now: five years of income, never more than the wallet. */
+/** The most that can go in now: INVEST_CAP_MONTHS of income, never more than the wallet. */
 export function investCap(game: GameStateV2) {
   return autoIncomePerSecond(game) * SECONDS_PER_MONTH * INVEST_CAP_MONTHS;
 }
@@ -68,8 +68,11 @@ export function startInvestment<T extends InvestContext>(
   stake: number,
   now: number,
   roll: number,
+  /** The ad deal starts only from its ad (adRewards.ts applyInvestSpecial). */
+  viaAd = false,
 ): T | null {
   const plan = investPlan(planId);
+  if (plan?.ad && !viaAd) return null;
   // A little slack: the button's figure was read a moment ago and income keeps the cap moving.
   const amount = Math.min(stake, state.game.cash);
   if (!plan || state.invest.active || !investUnlocked(state.game) || amount <= 0 || amount > investCap(state.game) * 1.01) {

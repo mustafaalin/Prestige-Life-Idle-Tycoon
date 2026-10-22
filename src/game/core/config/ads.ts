@@ -15,6 +15,7 @@ export type AdPlacement =
   | 'course_rush'
   | 'experience_rush'
   | 'invest_rush'
+  | 'invest_special'
   | 'temp_manager'
   | 'business_campaign'
   | 'quest_x3'
@@ -48,6 +49,7 @@ export const AD_PLACEMENTS: Record<AdPlacement, AdPlacementDef> = {
   course_rush: { perDay: 6 },
   experience_rush: { perDay: 3 },
   invest_rush: {},
+  invest_special: { perDay: 2 },
   temp_manager: { perDay: 4 },
   business_campaign: { perDay: 3 },
   quest_x3: { perDay: 10 },

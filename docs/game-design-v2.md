@@ -193,7 +193,7 @@ Aylık gelirin katı: ilk hafta ×2, ×4, ×6, ×8, ×12, ×16, ×20 (7. gün "�
 
 ### 4.14 Yatırım: Rıza Amca'nın fırsatları (`config/investments.ts`)
 
-Orta Sınıf'ta açılır. Üç vade: güvenli 1 sa +%5, dengeli 4 sa +%20, cesur 8 sa %60 +%70 ya da %40 −%20 (sonuç yatırırken çekilir). Aynı anda tek yatırım, en çok **24 aylık gelir** (2026-10-21; önce 60). Vade dolunca bildirim. Bağlı oyuncuda paranın ~%10'u.
+Orta Sınıf'ta açılır. Beş vade (2026-10-22, Idle Guy'ın bankası örnek alındı): hızlı 10 dk +%2, güvenli 1 sa +%7, dengeli 4 sa +%22, cesur 8 sa %60 +%70 ya da %40 −%20 (sonuç yatırırken çekilir), özel fırsat 1 sa +%20 (yalnız reklamla, günde 2). Ekran: yan yana kutucuklar (para görseli, büyük "+%"), dokununca miktar kartı (%25 / %50 / Hepsi, kazanç banknotla). Aynı anda tek yatırım, en çok **24 aylık gelir** (2026-10-21; önce 60; ekrandaki "5 yıllık" yazısı yanlıştı, 2026-10-22'de düzeltildi). Reklamla vade yarıya iner, çubuk tam vadeye göre ilerler. Vade dolunca bildirim. Bağlı oyuncuda paranın ~%11'i (simülatör özel fırsatı oynamaz).
 
 ## 5. Tempo hedefleri ve simülasyon (`npm run sim`)
 
@@ -208,13 +208,13 @@ Bot her an en kısa sürede kendini ödeyen alımı yapar (optimal); daha çok k
 | İşçi Sınıfı | 20 dk – 1 sa | 33 dk 54 sn | 30 dk |
 | Orta Sınıf | 21–26 yaş | 21 yaş (1 sa 11 dk, 2. gün) | 20 yaş (4. gün) |
 | Milyoner | 26–35 yaş | 26 yaş (2 sa 28 dk, 4. gün) | 23 yaş (7. gün) |
-| Milyarder | 50–72 yaş | 70 yaş (14 sa 9 dk, 21. gün) | 55 yaş (41. gün) |
+| Milyarder | 50–72 yaş | 68 yaş (13 sa 41 dk, 20. gün) | 55 yaş (41. gün) |
 | Multimilyarder | 70'ten önce değil | 1. nesilde yok | yok |
 | En Zengin | 1. nesilde yok | yok | yok |
 | 80 yaş | 19–31. gün | 24. gün | 45 günde yok |
 
 - **His kontrolleri:** ilk tur ≥ 5 şişe ($25 / $10), işletmelerin gelirdeki payı Gündelikçi anında, ilk oturum sonunda ve 1. nesil ortancasında ≥ %50 (%56 / %65 / %98).
-- **Paranın kaynakları (bağlı, 45 gün):** çevrimdışı %44, oynarken işletme ve maaş %33, yatırım %10, günlük ödül %6, olay kartı %5, Şans %2, tören ve hayat anı hediyeleri %0,2, hedefler %0,1, şişe ~%0.
+- **Paranın kaynakları (bağlı, 45 gün):** çevrimdışı %44, oynarken işletme ve maaş %33, yatırım %11, günlük ödül %6, olay kartı %5, Şans %2, tören ve hayat anı hediyeleri %0,2, hedefler %0,1, şişe ~%0.
 - **Reklam izleyen** (19 reklam yeri, [monetization-v2.md §4](./monetization-v2.md)): Orta Sınıf 35 dk, Milyoner 1 sa 1 dk, Milyarder 7 sa 26 dk (%47 erken; karar 2026-10-21: %40–50).
 - Komutlar: `npm run sim -- --config`, `--timeline`, `--purchases`, `--sessions`, `--daily-claims`.
 

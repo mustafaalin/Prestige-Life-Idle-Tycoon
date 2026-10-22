@@ -4,7 +4,8 @@ import { WEALTH_CLASSES } from './classes';
 // The player puts savings in for a set time and collects stake and return when it is up. One at a
 // time. Rules: runtime/investment.ts. Checked by `npm run sim`.
 
-export type InvestPlanId = 'safe' | 'balanced' | 'bold';
+/** Saved with a running deal: never rename one. */
+export type InvestPlanId = 'quick' | 'safe' | 'balanced' | 'bold' | 'special';
 
 export interface InvestPlan {
   id: InvestPlanId;
@@ -14,13 +15,24 @@ export interface InvestPlan {
   /** The bold deal only: the chance it pays off, and what it loses otherwise (-0.2 = −20%). */
   chance?: number;
   loss?: number;
+  /** Opens only with a rewarded ad (ad placement `invest_special`). */
+  ad?: boolean;
+  /** Its picture: a step of the money series (ui/icons.ts MONEY), bigger for a bigger deal. */
+  moneyTier: 2 | 3 | 4 | 5 | 6;
 }
 
+/**
+ * Short deals pay a little, long ones a lot (2026-10-22, user, after Idle Guy's bank: a 3-minute deal
+ * beside day-long ones, and an ad deal that pays the most). Was 1 h +5%, 4 h +20%, 8 h bold.
+ */
 export const INVEST_PLANS: InvestPlan[] = [
-  { id: 'safe', hours: 1, gain: 0.05 },
-  { id: 'balanced', hours: 4, gain: 0.2 },
+  { id: 'quick', hours: 1 / 6, gain: 0.02, moneyTier: 2 },
+  { id: 'safe', hours: 1, gain: 0.07, moneyTier: 3 },
+  { id: 'balanced', hours: 4, gain: 0.22, moneyTier: 4 },
   // For the night: like the event cards' bold answer, a big win or a small loss (expected +34%).
-  { id: 'bold', hours: 8, gain: 0.7, chance: 0.6, loss: -0.2 },
+  { id: 'bold', hours: 8, gain: 0.7, chance: 0.6, loss: -0.2, moneyTier: 5 },
+  // Old Ray's special: an ad opens it, an hour for a fifth more (twice a day, config/ads.ts).
+  { id: 'special', hours: 1, gain: 0.2, ad: true, moneyTier: 6 },
 ];
 
 /**

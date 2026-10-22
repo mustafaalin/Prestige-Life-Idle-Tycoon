@@ -732,7 +732,11 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     if (investing.stake > 0 || state.classIndex < INVEST_FROM_CLASS) return;
     // A halved deal (an ad) lets a longer one fit before the next session.
     const length = (hours: number) => hours * 3600 * (extras() ? 1 - INVEST_RUSH_SHARE : 1);
-    const plan = [...INVEST_PLANS].sort((a, b) => b.hours - a.hours).find((entry) => length(entry.hours) <= gapSeconds);
+    // The ad deal is left out: the bot invests as it leaves, not while watching ads.
+    const plan = [...INVEST_PLANS]
+      .filter((entry) => !entry.ad)
+      .sort((a, b) => b.hours - a.hours)
+      .find((entry) => length(entry.hours) <= gapSeconds);
     const stake = Math.min(state.cash, autoIncomePerSecond(state) * SECONDS_PER_MONTH * INVEST_CAP_MONTHS);
     if (!plan || stake <= 0) return;
     state = { ...state, cash: state.cash - stake };
