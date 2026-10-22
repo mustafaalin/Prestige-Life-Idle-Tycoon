@@ -74,16 +74,16 @@ export function JobShow({
         <>
           {revealed && <div className="v2-rays absolute left-1/2 top-1/2 w-[200%] aspect-square" />}
           {revealed && <Confetti count={28} />}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
             {revealed ? (
               <div key="to" className="v2-job-in flex flex-col items-center gap-2">
-                <JobIcon career={to} size={120} />
+                <JobIcon career={to} size={170} />
                 <span className="rounded-full bg-white/95 px-3 py-0.5 v2-display text-[15px] text-indigo-950 shadow">{name('career', to)}</span>
               </div>
             ) : (
               from && (
                 <div key="from" className={`flex flex-col items-center gap-2 ${step >= 1 ? 'v2-job-out' : ''}`}>
-                  <JobIcon career={from} size={104} />
+                  <JobIcon career={from} size={150} />
                   <span className="rounded-full bg-white/80 px-3 py-0.5 v2-display text-[13px] text-indigo-900/70">{name('career', from)}</span>
                 </div>
               )
