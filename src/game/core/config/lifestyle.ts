@@ -56,7 +56,8 @@ const TOYS: { name: string; image: string; cost: number }[] = [
 // buying ahead wears it early. Art: docs/art-brief-v2.md §4.1, scene poses in ui/scene/stages.ts.
 // Money alone does not open an outfit (decided 2026-10-14): `minClass` is the wealth class it opens in,
 // so a Working Class hero wears work clothes at most. Smart casual and the coat open with the class that
-// gives them, so they are never bought; the suit, three-piece and tuxedo can be bought a class early.
+// gives them, so they are never bought; the suit and three-piece can be bought a class early. The tuxedo
+// opens with Billionaire too (2026-10-23, npm run progresscheck): Multibillionaire rarely comes in the first life.
 const OUTFIT_SPECS: { id: string; name: string; image: string; cost: number; minClass: number }[] = [
   { id: 'outfit-hoodie', name: 'Hoodie', image: '/assets/scene/hero-street-idle.webp', cost: 0, minClass: 0 },
   { id: 'outfit-work', name: 'Work Clothes', image: '/assets/scene/hero-work-idle.webp', cost: 60, minClass: 1 },
@@ -64,7 +65,7 @@ const OUTFIT_SPECS: { id: string; name: string; image: string; cost: number; min
   { id: 'outfit-coat', name: 'Camel Overcoat', image: '/assets/scene/hero-coat-idle.webp', cost: 1_500, minClass: 4 },
   { id: 'outfit-suit', name: 'Suit', image: '/assets/scene/hero-suit-idle.webp', cost: 3_000, minClass: 4 },
   { id: 'outfit-threepiece', name: 'Three-Piece Suit', image: '/assets/scene/hero-threepiece-idle.webp', cost: 8_000, minClass: 5 },
-  { id: 'outfit-tux', name: 'Tuxedo', image: '/assets/scene/hero-tux-idle.webp', cost: 15_000, minClass: 6 },
+  { id: 'outfit-tux', name: 'Tuxedo', image: '/assets/scene/hero-tux-idle.webp', cost: 15_000, minClass: 5 },
 ];
 
 

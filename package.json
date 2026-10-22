@@ -20,6 +20,7 @@
     "cap:open:android": "npx cap open android",
     "cap:open:ios": "npx cap open ios",
     "sim": "esbuild scripts/sim-economy.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/sim/sim-economy.mjs --log-level=warning && node node_modules/.cache/sim/sim-economy.mjs",
+    "progresscheck": "esbuild scripts/progress-check.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/sim/progress-check.mjs --log-level=warning && node node_modules/.cache/sim/progress-check.mjs",
     "savecheck": "esbuild scripts/save-check.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/sim/save-check.mjs --log-level=warning && node node_modules/.cache/sim/save-check.mjs"
   },
   "dependencies": {

@@ -27,6 +27,7 @@ npm run dev:v2       # start dev server (v2); add `-- --host` to open on a phone
 npm run phone        # v2 on an Android phone with live reload (scripts/phone.mjs; `-- PORT` for a new wireless debugging port, `-- --install` to reinstall)
 npm run sim          # v2 economy simulator (30-day pacing targets)
 npm run savecheck    # v2: old saves (scripts/save-fixtures/) still load with all progress
+npm run progresscheck # v2: nobody gets stuck (every job, course, home, vehicle, outfit, item reachable)
 npm run backup       # copy git-ignored folders (art/, reference material) to Google Drive
 npm run build        # production build (v1)
 npm run build:v2     # production build (v2)

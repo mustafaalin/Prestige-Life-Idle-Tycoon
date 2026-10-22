@@ -113,6 +113,7 @@ Kurulum: kapalı testten (Play sürümü) ya da `npm run phone -- --install` (DE
 - **Karar verilince belgeye geçer:** yukarıdaki "oturumun kararları" bölümü ve ilgili belge (tasarım, hikâye, monetizasyon) aynı commit'te güncellenir.
 - **"Yaptım" demeden önce:** commit'li ve ekranda görülmüş olmalı (tarayıcıda ya da telefonda); kullanıcıya nerede göreceği söylenir (geliştirme sunucusu mu, hangi AAB).
 - **Zaten var olan bir şey istenirse** (ör. para yağmurunun geri sayımı) bunu açıkça söyle ve nerede olduğunu göster.
+- **Takılma denetimi `npm run progresscheck`** (2026-10-23): oyunun kurallarıyla, parası sınırsız 240 hayat oynar (erken ya da geç zengin, rastgele iş ve kurs seçimi, 80'e kadar kariyeri boşlayan) ve her meslek, kurs, ev, araç, kıyafet, lüks ve eşyanın alınabildiğini denetler. Meslek, kurs, ev, araç ya da sınıf şartı değişince çalışır.
 - **Doğrulama komutu `npm run typecheck`**; `npx tsc -p .` hiçbir dosyayı denetlemiyor (kök tsconfig boş, 2026-10-21'de fark edildi).
 - **Oturum sonunda** bu belge yeniden yazılır: Sıradaki, kararlar, test listesi güncel.
 

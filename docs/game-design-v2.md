@@ -114,7 +114,7 @@ Gerçek fiyatlı, gelir bonusu yok (karar 2026-10-20); değerleri hayatı göste
 | Tür | Liste ve fiyat | Not |
 | --- | --- | --- |
 | Araç (12) | Bisiklet $150, retro skuter $1,2K, emektar sedan $5K, motosiklet $8K, hatchback $18K, SUV $40K, pikap $55K, makam sedanı $90K, spor coupe $180K, lüks arazi aracı $250K, süper otomobil $500K, grand lüks $1,5M | Sırayla; her ev bir araç açar (§4.6). Sahnede evin önünde |
-| Kıyafet (7) | Kapüşonlu (bedava), iş kıyafeti $60, şık günlük $400, deve tüyü palto $1,5K, takım elbise $3K, üç parçalı $8K, smokin $15K | Sınıfla açılır (`minClass`); tören o sınıfınkini verir. Kahraman en iyisini giyer |
+| Kıyafet (7) | Kapüşonlu (bedava), iş kıyafeti $60, şık günlük $400, deve tüyü palto $1,5K, takım elbise $3K, üç parçalı $8K, smokin $15K | Sınıfla açılır (`minClass`); tören o sınıfınkini verir. Kahraman en iyisini giyer. Smokin Milyarder'de açılır (2026-10-23; önce Multimilyarder, 1. nesilde neredeyse hiç gelmediği için hiç alınamıyordu) |
 | Lüks (4) | Sürat teknesi $300K, yat $10M, helikopter $15M, jet $60M | İlk alındığında aile anı (story §4c) |
 | Eşya (4) | Akıllı telefon $300, alet çantası $400, fotoğraf makinesi $900, dizüstü $1,2K | Mağazada "Eşyalar" sekmesi; sırasız, meslek açar |
 
