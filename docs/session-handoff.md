@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-22 · Dal: `v2-rebuild` · Son sürüm: **AAB 30** (Play'e yüklendi, kullanıcı telefonda test etti; bulguların neredeyse hepsi düzeltildi, evlerin önünde büyük duran araçlar dahil). **AAB 31** telefonda denendi. **AAB 32** derlendi (2026-10-22, `~/Downloads/prestige-life-v2-32.aab`; AAB 31 bulgularının düzeltmeleri, yatırım ekranı, ev/araç kariyer şartı içinde), dahili teste yüklenmeyi bekliyor.
+Son güncelleme: 2026-10-22 · Dal: `v2-rebuild` · Son sürüm: **AAB 30** (Play'e yüklendi, kullanıcı telefonda test etti; bulguların neredeyse hepsi düzeltildi, evlerin önünde büyük duran araçlar dahil). **AAB 31** telefonda denendi. **AAB 32** henüz derlenmedi (kullanıcı 2026-10-22'de derlemeyi iptal etti; isteyince derlenir).
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve Faz 2.11'de kaldırılacak. Bu belge günlük tutmaz: her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**. Kararların gerekçesi ve sayılar ilgili belgededir; burada yalnızca özet ve yapılacaklar durur.
 
@@ -48,7 +48,7 @@ Ayrıntılar tasarım ve hikâye belgelerinde.
    - **Yatırım ekranı yeniden (yapıldı, geliştirme sunucusunda görüldü):** beş vade yan yana kutucuklarda (Hızlı 10 dk +%2, Güvenli 1 sa +%7, Dengeli 4 sa +%22, Cesur 8 sa, Özel fırsat 1 sa +%20 reklamla, günde 2; yeni reklam yeri `invest_special`), dokununca miktar kartı, süren yatırımda para görseli, "Geri gelecek" büyük yazı, koyu zeminli süre çubuğu (yarıya inince çubuk da yarıda). Sim: bütün hedefler geçiyor, yatırım payı %11, Milyarder 68 yaş. Üst sınır 24 aylık gelir kaldı; ekrandaki "5 yıllık" yazısı yanlıştı, düzeltildi; kullanıcı 24 ayda kalmayı seçti (2026-10-22).
    - **Meslek değişim şovu (yapıldı):** yeni meslek ikonu 120 → 170 px, eski 104 → 150 px.
    - **Ev ve araç için kariyer şartı (yapıldı, geliştirme sunucusunda görüldü):** her ev ve araç "Sv N bir işte çalış" ister (tablo [game-design-v2.md §4.6](./game-design-v2.md)); mağazada kilitli kartta şart ve Kariyer'e "Git" (`ui/shop/CareerAsk.tsx`). Sim değişmedi (bot ev/araç almıyor, evler törenle geliyor), kayıt denetimi geçti, döngü denetimi temiz.
-   - **Sırada:** kullanıcı AAB 32'yi dahili teste yükleyip bu turdaki değişiklikleri telefonda görür.
+   - **Sırada:** kullanıcı isteyince AAB 32'yi derlemek; kullanıcının bu turdaki değişiklikleri telefonda görmesi.
 4. **Lansman hazırlığı:** Play'den üretim erişimi başvurusu; Play Console işleri (aşağıda); uygulama ikonu yeniden tasarlanıyor (özellik grafiği tamam, 2026-10-22; yeni ikon komutları [art-prompts-v2.md §1](./art-prompts-v2.md)); mağaza ekran görüntülerini yeni ekranlarla yenilemek.
 5. **Sonra (lansmandan sonra):** IAP 2. adım (Yakut Tasma, Gece Vardiyası), Remote Config, oyuncuyu tutma önerileri ([discussion-notes.md §2](./discussion-notes.md)), 2. nesil.
 
