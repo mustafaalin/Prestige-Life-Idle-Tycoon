@@ -55,6 +55,7 @@ export function eventCardsFor(state: GameStateV2, classIndex = state.classIndex)
   if (classIndex < EVENT_START_CLASS) return [];
   return EVENT_CARDS.filter((card) => {
     if (classIndex < (card.fromClass ?? 0)) return false;
+    if (card.untilAge !== undefined && heroAge(state).years >= card.untilAge) return false;
     if (card.businessId === undefined) return true;
     const business = state.businesses[card.businessId];
     const def = businessDef(card.businessId);

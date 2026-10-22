@@ -18,7 +18,8 @@ import { portalRoot } from '../stage';
 
 /** One album picture, cropped to the box `className` gives it. */
 export function AlbumPicture({ entry, className = '' }: { entry: AlbumEntry; className?: string }) {
-  const cover = albumCover(entry);
+  const { state } = useGameV2();
+  const cover = albumCover(entry, state.story);
   if (!cover) return <div className={`bg-gradient-to-b from-amber-200 to-orange-300 ${className}`} />;
   return cover.portrait ? (
     <div className={`bg-gradient-to-b from-amber-200 to-orange-300 flex items-center justify-center ${className}`}>

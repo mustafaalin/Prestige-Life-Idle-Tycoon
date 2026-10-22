@@ -31,6 +31,7 @@ import {
   type CeremonyLine,
   type CeremonyShot,
 } from './ceremonyScript';
+import { lateKeyOfCeremony, lateKeyOfEntry, lateKeyOfLife, lateVersion, seenLate } from './lateLook';
 import { LIFE_OUTFIT, LIFE_SCRIPT } from './lifeScript';
 
 // Class-up ceremony (plan 1.10): "new class" title with confetti → story beats (portrait + bubble,
@@ -73,16 +74,19 @@ interface CeremonyProps {
   now: GameStateV2;
   /** The closing gift is offered (not on a replay). */
   gift: boolean;
+  /** Told in its grandfather version (lateLook.ts). */
+  late: boolean;
   onDone: StoryDone;
 }
 
-export function Ceremony({ classIndex, before, now, gift, onDone }: CeremonyProps) {
+export function Ceremony({ classIndex, before, now, gift, late, onDone }: CeremonyProps) {
   const { t, name } = useT();
   const collar = COLLARS.find((item) => item.fromClass === classIndex);
+  const version = lateVersion(lateKeyOfCeremony(classIndex), late, CEREMONIES[classIndex] ?? [], ceremonyOutfit(classIndex));
   return (
     <StoryPlayer
-      shots={CEREMONIES[classIndex] ?? []}
-      heroOutfit={ceremonyOutfit(classIndex)}
+      shots={version.shots}
+      heroOutfit={version.heroOutfit}
       pill={t('ceremony.newClass')}
       heading={name('wealthClass', WEALTH_CLASSES[classIndex])}
       gift={gift}
@@ -94,15 +98,16 @@ export function Ceremony({ classIndex, before, now, gift, onDone }: CeremonyProp
 }
 
 /** `gift`: the moment closes with a gift card (the moments told by age, not on a replay). */
-export function LifeMoment({ id, gift, onDone }: { id: LifeMomentId; gift: boolean; onDone: StoryDone }) {
+export function LifeMoment({ id, gift, late, onDone }: { id: LifeMomentId; gift: boolean; late: boolean; onDone: StoryDone }) {
   const i18n = useT();
   const { t } = i18n;
   const { state } = useGameV2();
   const heading = t(`moments.${id}.title` as MessageKey);
+  const version = lateVersion(lateKeyOfLife(id), late, LIFE_SCRIPT[id], LIFE_OUTFIT[id]);
   return (
     <StoryPlayer
-      shots={shotsFor(LIFE_SCRIPT[id], state.story.lifeSeen)}
-      heroOutfit={LIFE_OUTFIT[id]}
+      shots={shotsFor(version.shots, state.story.lifeSeen)}
+      heroOutfit={version.heroOutfit}
       opening="page"
       pill={lifeMomentLabel(id, i18n)}
       heading={heading}
@@ -121,10 +126,12 @@ export function StoryReplay({ entry, onDone }: { entry: AlbumEntry; onDone: (ski
   const i18n = useT();
   const { t, name } = i18n;
   const { state } = useGameV2();
+  const key = lateKeyOfEntry(entry);
+  const version = lateVersion(key, seenLate(key, state.story), albumShots(entry), albumOutfit(entry));
   return (
     <StoryPlayer
-      shots={shotsFor(albumShots(entry), state.story.lifeSeen)}
-      heroOutfit={albumOutfit(entry)}
+      shots={shotsFor(version.shots, state.story.lifeSeen)}
+      heroOutfit={version.heroOutfit}
       opening={entry.kind === 'ceremony' ? 'fanfare' : 'page'}
       pill={entry.kind === 'ceremony' ? t('album.title') : lifeMomentLabel(entry.id, i18n)}
       heading={

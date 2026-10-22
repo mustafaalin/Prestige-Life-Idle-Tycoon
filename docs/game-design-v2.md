@@ -95,7 +95,7 @@ Bir işletme tek kart: **açılır, seviye seviye büyür, son seviyede şube a�
 
 **Meslek ağacı** (karar 2026-10-21; süreç [career-redesign.md](./career-redesign.md)). 104 meslek, 54 satır, **satırda en çok 2 iş**. Sekmeler sırayla gelir: İşçi 1–15. satır (29 iş), Ofis 16–29 (28), Uzman 30–45 (32), Zirve 46–54 (15: direktörler, CTO/CFO, COO, CEO 52. satırda, Yönetim Kurulu Üyesi ve Yatırım Fonu Kurucusu, Yönetim Kurulu Başkanı 54. satırda). Her iş bir üstteki satırın iki işinden birinde ustalık ister (ikisi de çizgiyle bağlı).
 
-- **Ustalık ve geçiş:** ustalık `min(8, 3 + ⌊(satır − 1) / 2⌋)` oyun ayı (1. satır 3 ay, 11. satırdan sonra 8 ay); yaklaşık her 8 ayda bir terfi. Şimdiki işte ustalık %100 olmadan iş değiştirilemez; bırakılan işe dönülmez. Seçilmeyen kardeş işler açık kalır: ustalık bitince onlara da girilebilir. Giriş ücreti yok.
+- **Ustalık ve geçiş:** ustalık `min(8, 3 + ⌊(satır − 1) / 2⌋)` oyun ayı (1. satır 3 ay, 11. satırdan sonra 8 ay); yaklaşık her 8 ayda bir terfi. Şimdiki işte ustalık %100 olmadan iş değiştirilemez; bırakılan işe dönülmez. Seçilmeyen kardeş işler açık kalır: ustalık bitince onlara da girilebilir. Giriş ücreti yok. Daha az ödeyen işe ağaçtan tek dokunuşla girilmez: önce iş kartı açılır, "Maaşın düşer: $556/ay → $370/ay. Bıraktığın işe geri dönemezsin." yazar (2026-10-23).
 - **Maaş:** satıra bağlı, iki iş aynı maaşı öder; her satır bir üsttekinin ×1,10 (2–5), ×1,13 (6–45), ×1,25 (46+). **Yıllık zam yok** (2026-10-21, kullanıcı: terfi zaten yılda bir zam gibi). El İlanı $300, 16. satır (Kasiyer) $1,7K, 30. satır $9,3K, CEO $278K, Yönetim Kurulu Başkanı $435K.
 - **Görünürlük:** yapılmış işler, şimdiki iş, şartları tamam olanlar ("İşe gir"; şimdiki iş ustalaşmadıysa soluk) ve sıradaki satır tam görünür (ad, maaş, şartlar); onun altındaki tek satır siluet ve "???"; daha ötesi hiç çizilmez. Henüz ulaşılmayan sekme "Önceki sekmenin işlerinde ilerledikçe açılır" der.
 - **Şartlar** (`core/requirements.ts`): önceki işte ustalık (`mastered`), kurs, eşya, araç (o araç ya da daha iyisi), adres, sınıf, işletme açık ya da seviyesi, yöneticili işletme sayısı, "şunlardan biri".
@@ -157,7 +157,7 @@ Tek ev; ana ekranın arka planı o evdir, önünde o evin izin verdiği en iyi a
 - **"Çalıştır":** yöneticisiz işletmenin tek turu. Çiçek Tezgâhı'nın ilk turu $25, yani ~12 şişe (karar 2026-10-20: tek tezgâhın turu bir şişeden belirgin fazla).
 - **Şişe ve kutular:** sınıfa göre sabit: Sokak $2, Gündelikçi $20, İşçi $50 (bozuk para; 2026-10-21/22, kullanıcı: önce $2 / $3 / $5; Sokak $2 kalır ki ilk tezgâh turu iki şişeden fazla etsin); gelirle büyümez, başta anlamlı, sonra süs. Ekranda en çok 4, 2,5 sn'de bir yenisi. Orta Sınıf'ta biter (kahraman bir daha yere eğilmez); yerini olay kartları alır.
 - **Şans'ın bulduğu:** 5–10 dk'da bir (ilk yöneticiye kadar 1,5–2,5 dk) ağzında cüzdanla gelir ve alınana kadar bekler (2026-10-21; önceden 12 sn); ödül 15 şişe + 30 sn gelir.
-- **Olay kartları** (Orta Sınıf töreninden sonra, oturumun ilk çağrısı 60–90 sn, sonra 4–6 dk'da bir): bir tanıdık arar. 50 kart, üç tür: sağlamcı / cesur (sağlamcı 45 sn gelir kesin, cesur %50 +130 sn ya da −20 sn, para gerçekten eksilir), teşekkür (45 sn) ve iki eşit seçenek (ikisi de 45 sn). Her yöneticinin üç kartı işletmenin üç görünümüne bağlı (story-v2 §4d). Yönetici kartları o yönetici işe alındıysa gelir. Kartlar deste gibi dağıtılır: açık olanların hepsi çalmadan kimse tekrar çalmaz (2026-10-21; 10 kartla aynı kişiler sürekli arıyordu; `runtime/eventDeck.ts`). Günlük sınır yok: uzun oturumda birkaç dakikada bir çağrı gelir (kullanıcı). Ayrıntı ve metinler story-v2 §4d.
+- **Olay kartları** (Orta Sınıf töreninden sonra, oturumun ilk çağrısı 60–90 sn, sonra 4–6 dk'da bir): bir tanıdık arar. 50 kart, üç tür: sağlamcı / cesur (sağlamcı 45 sn gelir kesin, cesur %50 +130 sn ya da −20 sn, para gerçekten eksilir), teşekkür (45 sn) ve iki eşit seçenek (ikisi de 45 sn). Her yöneticinin üç kartı işletmenin üç görünümüne bağlı (story-v2 §4d). Yönetici kartları o yönetici işe alındıysa gelir. Bazı kartların yaş sınırı var (`untilAge`, 2026-10-23): Rıza Amca'nın, Nevin Hanım'ın ve Defne'nin babaannesinden söz eden kartlar kahraman 60 olunca, Nevin'in "Defne seni anlatıp durdu"su 28'de (düğün), Kuzen'in düğün kartı 45'te biter; 60'tan sonra Defne yaşlı portresiyle arar. Kartlar deste gibi dağıtılır: açık olanların hepsi çalmadan kimse tekrar çalmaz (2026-10-21; 10 kartla aynı kişiler sürekli arıyordu; `runtime/eventDeck.ts`). Günlük sınır yok: uzun oturumda birkaç dakikada bir çağrı gelir (kullanıcı). Ayrıntı ve metinler story-v2 §4d.
 - **Toplanan ödülün gösterimi:** kart kapanır, tutar ortada ~0,6 sn durur, paralarla bakiyeye uçar.
 
 ### 4.8 Çevrimdışı kazanç
@@ -173,7 +173,7 @@ Tek ev; ana ekranın arka planı o evdir, önünde o evin izin verdiği en iyi a
 | Başlangıç | 17 yaş |
 | Takvim | 80 sn = 1 ay, 16 dk = 1 yıl; yalnız oyun açıkken (10 sn'den uzun boşluk çevrimdışı). Tam ekran hikâye anlarında durur |
 | 60+ | Kahraman dede görünümünde |
-| 80 | Lansmanda: yaş 80'de durur, bir kez "Torununun hikâyesi yakında" kartı (dede portresi), oyun ve gelir sürer |
+| 80 | Lansmanda: yaş 80'de durur, bir kez "Torununun hikâyesi yakında" kartı (dede portresi), oyun ve gelir sürer; deneyim ve süren kurs da sürer (2026-10-23; yoksa kariyer şartlı ev, araç ve meslekler kalıcı kilitli kalıyordu) |
 | Bir ömür | 63 yıl ≈ 16 sa 48 dk oyun (bağlı oyuncu 24. gün) |
 
 - **Hayat anları** (yaşa bağlı, story §4c): ilk buluşma 25, düğün 28, kızın doğumu 31, torunun doğumu 63, dede ve torun 70; lüks anları ilk alımda. Her an bir hediyeyle kapanır (10 dk gelir, reklamla ×2).
@@ -183,7 +183,7 @@ Tek ev; ana ekranın arka planı o evdir, önünde o evin izin verdiği en iyi a
 
 Kararlar (2026-10-20/21, kullanıcı): 80'de torun ailenin **her şeyiyle** devralır ve kaldığı yerden büyütür (sıfırlama yok); Burak hikâyesi kaldırıldı, Burak yalnız Lojistik'in yöneticisi; 2. ve 3. nesil (Lumen, Ada) yayından sonra.
 
-- **İçerik bayrakları:** `handover` (80'de devir), `legacy` (miras puanı, yadigârlar, "Şimdi devret", Aile sekmesi), `bradStory`; üçü de kapalı. Ekranlar, hikâye ve simülatör yalnız bunlara bakar; 2. nesil güncellemesi bayrakları açar.
+- **İçerik bayrakları:** `handover` (80'de devir), `legacy` (miras puanı, yadigârlar, "Şimdi devret", Aile sekmesi), `bradStory`, `topClassStory` (Multimilyarder ve En Zengin törenlerinin hikâyesi ve onları eken anne mesajları; 80'den sonra oyun sürdüğü için bu sınıflara ulaşılabiliyor, törenleri yalnız başlık ve kapanış kartıyla oynar, 2026-10-23); dördü de kapalı. Ekranlar, hikâye ve simülatör yalnız bunlara bakar; 2. nesil güncellemesi bayrakları açar.
 - **Kodda duran, oynamayan:** miras puanı (`floor(10 × (nesil kazancı / $1M)^(1/3))`), 5 yadigâr (Mehmet'in saati, erik reçeli, Rıza'nın defteri, Şans'ın tasması, aile albümü; `config/heirlooms.ts`), erken devir, emeklilik paneli, Lumen şehri (`runtime/city.ts`), Burak'ın ortaklık ve kazık anları. Kayıt alanları ve kimlikler korunur. Sıfırlamasız devirde mirasın ve yadigârların anlamı 2. nesille yeniden tasarlanacak.
 
 ### 4.11 Hedefler (`config/quests.ts`)

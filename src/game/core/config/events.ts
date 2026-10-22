@@ -1,3 +1,4 @@
+import { GRANDPA_AGE } from './life';
 import { COLLECT_END_CLASS } from './scene';
 
 // Event cards (game-design §4.7): from Middle Class on, when nothing lies on the ground any more,
@@ -22,7 +23,19 @@ export interface EventCardDef {
   fromClass?: number;
   /** Left out: 'choice'. */
   kind?: EventKind;
+  /** The card stops coming at this age of the hero (the caller has grown old, or the story moved on). */
+  untilAge?: number;
 }
+
+/**
+ * Old Ray and Mrs. Nora are not seen in person once the hero is a grandfather (story-v2.md §6): the
+ * 70 moment speaks of Old Ray in the past tense. Their cards, and those about Defne's grandmother, stop.
+ */
+const OLD_FRIENDS_UNTIL = GRANDPA_AGE;
+/** Mrs. Nora's "Defne keeps talking about you" belongs before the wedding (story §4c, 28). */
+const BEFORE_WEDDING = 28;
+/** The cousin's own wedding. */
+const COUSIN_WEDDING_UNTIL = 45;
 
 /**
  * Three cards a manager, one per look of the business (2026-10-21, user: more variety, in order with
@@ -31,9 +44,9 @@ export interface EventCardDef {
  */
 export const EVENT_CARDS: EventCardDef[] = [
   // flower-stand
-  { id: 'wedding', businessId: 'flower-stand' },
-  { id: 'roses', businessId: 'flower-stand', stage: 1 },
-  { id: 'lobby', businessId: 'flower-stand', stage: 2 },
+  { id: 'wedding', businessId: 'flower-stand', untilAge: OLD_FRIENDS_UNTIL },
+  { id: 'roses', businessId: 'flower-stand', stage: 1, untilAge: OLD_FRIENDS_UNTIL },
+  { id: 'lobby', businessId: 'flower-stand', stage: 2, untilAge: OLD_FRIENDS_UNTIL },
   // coffee-cart
   { id: 'festival', businessId: 'coffee-cart' },
   { id: 'dessert', businessId: 'coffee-cart', stage: 1, kind: 'pick' },
@@ -57,7 +70,7 @@ export const EVENT_CARDS: EventCardDef[] = [
   // beauty-salon
   { id: 'celebrity', businessId: 'beauty-salon' },
   { id: 'brides', businessId: 'beauty-salon', stage: 1 },
-  { id: 'nevinhair', businessId: 'beauty-salon', stage: 2, kind: 'thanks' },
+  { id: 'nevinhair', businessId: 'beauty-salon', stage: 2, kind: 'thanks', untilAge: OLD_FRIENDS_UNTIL },
   // real-estate-office
   { id: 'flat', businessId: 'real-estate-office' },
   { id: 'listing', businessId: 'real-estate-office', stage: 1, kind: 'pick' },
@@ -87,14 +100,14 @@ export const EVENT_CARDS: EventCardDef[] = [
   { id: 'robot', businessId: 'tech-startup', stage: 1, kind: 'pick' },
   { id: 'ipo', businessId: 'tech-startup', stage: 2 },
   // People the hero knows: Nevin Hanım, Defne, the cousin.
-  { id: 'fair' },
+  { id: 'fair', untilAge: OLD_FRIENDS_UNTIL },
   { id: 'coin' },
-  { id: 'nevincookies', kind: 'thanks' },
-  { id: 'nevingarden', kind: 'pick' },
+  { id: 'nevincookies', kind: 'thanks', untilAge: BEFORE_WEDDING },
+  { id: 'nevingarden', kind: 'pick', untilAge: OLD_FRIENDS_UNTIL },
   { id: 'library' },
-  { id: 'album', kind: 'pick' },
-  { id: 'birthday', kind: 'thanks' },
-  { id: 'cousincar', kind: 'pick' },
+  { id: 'album', kind: 'pick', untilAge: OLD_FRIENDS_UNTIL },
+  { id: 'birthday', kind: 'thanks', untilAge: OLD_FRIENDS_UNTIL },
+  { id: 'cousincar', kind: 'pick', untilAge: COUSIN_WEDDING_UNTIL },
 ];
 
 /** Cards start where collecting ends. */

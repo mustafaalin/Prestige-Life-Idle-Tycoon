@@ -82,9 +82,13 @@ export function createInitialState(
   };
 }
 
-/** Ages the hero by `seconds` of play (faster at the top class, formulas.ts ageSpeed); stops at the end of life. */
+/**
+ * Ages the hero by `seconds` of play (faster at the top class, formulas.ts ageSpeed); age stops at the
+ * end of life. At launch the hero stays on at 80 (config/content.ts), so experience and a running course
+ * go on there: otherwise the houses, cars and jobs that ask for a career row would stay locked for good.
+ */
 export function live(state: GameStateV2, seconds: number): GameStateV2 {
-  if (seconds <= 0 || state.lifeSeconds >= LIFE_SECONDS) return state;
+  if (seconds <= 0 || (CONTENT.handover && state.lifeSeconds >= LIFE_SECONDS)) return state;
   const lived = seconds * ageSpeed(state);
   return studied({
     ...state,

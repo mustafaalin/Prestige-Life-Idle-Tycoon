@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { createPortal } from 'react-dom';
-import { canLeaveCareer, canTakeCareer, careersAfter, globalMultiplier, jobView } from '../../core/formulas';
+import { canLeaveCareer, canTakeCareer, careersAfter, currentSalary, globalMultiplier, jobView, paysLess } from '../../core/formulas';
 import { isMastered, masteryOf } from '../../core/requirements';
 import type { CareerDef, GameStateV2 } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
@@ -111,6 +111,14 @@ export function JobSheet({
 
           {view === 'open' && !canLeaveCareer(state) && (
             <p className="text-[11px] font-bold text-slate-500 text-center">{t('career.masterFirst')}</p>
+          )}
+          {canTake && paysLess(state, career) && (
+            <p className="rounded-2xl bg-rose-50 px-3 py-2 text-[11px] font-black text-rose-600 text-center">
+              {t('career.paysLess', {
+                from: perMonth(currentSalary(state) * multiplier),
+                to: perMonth(career.salaryPerSecond * multiplier),
+              })}
+            </p>
           )}
           {view === 'open' && (
             <GameButton

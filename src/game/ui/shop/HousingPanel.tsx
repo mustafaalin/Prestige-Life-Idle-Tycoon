@@ -60,6 +60,7 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
   const neededVehicle = next && !nextOwned ? moveUpNeedsVehicle(game) : null;
   // The career the next home asks for (config/housing.ts careerAsk), once its vehicle is there.
   const neededCareer = next && !nextOwned && !neededVehicle ? homeNeedsCareer(game, next) : [];
+  const blocked = neededVehicle !== null || neededCareer.length > 0;
   const rentHint = next && !nextOwned && !neededVehicle && neededCareer.length === 0 ? affordIn(next.moveInCost) : null;
 
   return (
@@ -116,7 +117,8 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
                 <OpensJobs homeIndex={houseIndex(next.id)} />
               </div>
             </div>
-            <Focusable focusKey="shop:house:next">
+            {/* A goal's hand points at what is missing while the move is blocked, not at a dead button. */}
+            <Focusable focusKey={blocked ? '' : 'shop:house:next'}>
               {nextOwned ? (
                 <GameButton onClick={() => actions.moveHome(next.id)} className="w-full min-h-11 py-3 px-4">
                   <span className="v2-display text-[16px] v2-shadow">{t('home.moveFree')}</span>
@@ -124,7 +126,7 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
               ) : (
                 <GameButton
                   onClick={() => actions.rentHome(next.id)}
-                  disabled={game.cash < next.moveInCost || neededVehicle !== null}
+                  disabled={game.cash < next.moveInCost || blocked}
                   className="w-full min-h-11 py-3 px-4 flex items-center justify-between"
                 >
                   <span className="v2-display text-[16px] v2-shadow">{t('home.rentMove')}</span>
@@ -132,7 +134,7 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
                 </GameButton>
               )}
             </Focusable>
-            {!nextOwned && !neededVehicle && <HelpAd cost={next.moveInCost} className="-mt-1" />}
+            {!nextOwned && !blocked && <HelpAd cost={next.moveInCost} className="-mt-1" />}
             {nextPrice !== null && (
               <GameButton
                 tone="soft"
@@ -147,18 +149,22 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
               </GameButton>
             )}
             {neededVehicle ? (
-              <GameButton
-                tone="soft"
-                onClick={onGoVehicles}
-                className="min-h-11 -mt-1 py-2 px-4 flex items-center justify-center gap-1.5"
-              >
-                <Lock className="w-4 h-4 shrink-0" />
-                <span className="v2-display text-[13px]">
-                  {t('home.needsVehicle', { vehicle: name('lifestyle', neededVehicle) })}
-                </span>
-              </GameButton>
+              <Focusable focusKey="shop:house:next" className="-mt-1">
+                <GameButton
+                  tone="soft"
+                  onClick={onGoVehicles}
+                  className="w-full min-h-11 py-2 px-4 flex items-center justify-center gap-1.5"
+                >
+                  <Lock className="w-4 h-4 shrink-0" />
+                  <span className="v2-display text-[13px]">
+                    {t('home.needsVehicle', { vehicle: name('lifestyle', neededVehicle) })}
+                  </span>
+                </GameButton>
+              </Focusable>
             ) : neededCareer.length > 0 ? (
-              <CareerAsk asks={neededCareer} onGo={onGoTo} />
+              <Focusable focusKey="shop:house:next">
+                <CareerAsk asks={neededCareer} onGo={onGoTo} />
+              </Focusable>
             ) : (
               <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
                 {rentHint ?? (ownsHome ? t('home.willRentOut', { amount: rent(home) }) : t('home.noRent'))}

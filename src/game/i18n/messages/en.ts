@@ -631,6 +631,7 @@ export const en = {
     showOk: 'Great!',
     masteredToast: 'You mastered {job}! You can move to a new job.',
     leadsToLabel: 'Leads to:',
+    paysLess: 'Pays less: {from} → {to}. You can\'t go back to the job you leave.',
     takeShort: 'Take',
     left: 'Left',
     take: 'Take the job',
@@ -761,6 +762,8 @@ export const en = {
   dreams: {
     buy: 'Buy!',
     percent: '{percent}%',
+    needRow: 'Lv {level} job',
+    need: { vehicle: 'Ride first', home: 'Move first', class: 'Next class' },
   },
   invest: {
     locked: 'Opens at {class}',
@@ -1018,6 +1021,10 @@ export const en = {
       riza: "Kid, I've sold roses all my life. This much sea is too much for me.",
       mom: 'He kept his word, Ray. This time it really is the sea.',
       riza2: "If Mehmet were here, he'd have taken the wheel by now.",
+      surpriseLate: "Mom's birthday was at sea this year. The whole family came.",
+      momLate: 'I said a lake counts. But this, this really is the sea.',
+      defneLate: 'Blow out the candles before the wind does, Mom!',
+      heroLate: "If Old Ray were here, he'd have taken the wheel by now.",
     },
     heli: {
       title: 'Over the old alley',

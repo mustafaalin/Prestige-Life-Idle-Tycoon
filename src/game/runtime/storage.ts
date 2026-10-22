@@ -19,7 +19,7 @@ import { createDailyProgress, type DailyProgress } from './daily';
 import { createInvestProgress, type Investment, type InvestProgress } from './investment';
 import { investPlan } from '../core/config/investments';
 import { createPurchaseProgress, withAccessories, type PurchaseProgress } from './purchases';
-import { createStoryProgress, HERO_NAME_MAX, LIFE_MOMENT_IDS, MOM_MESSAGES, type StoryProgress } from './story';
+import { createStoryProgress, HERO_NAME_MAX, LATE_KEYS, LIFE_MOMENT_IDS, MOM_MESSAGE_IDS, type StoryProgress } from './story';
 
 // Local save for v2. Separate key from v1 so both games can live side by side until v1 is removed.
 // On phones the save lives in Preferences (SharedPreferences / UserDefaults): the OS may clear a
@@ -190,7 +190,7 @@ function normalizeOffline(raw: unknown): PendingOffline | null {
   return amount > 0 ? { amount, awaySeconds: finite(raw.awaySeconds, 0) } : null;
 }
 
-const knownMomMessages = new Set(MOM_MESSAGES.map((message) => message.id));
+const knownMomMessages = new Set(MOM_MESSAGE_IDS);
 const knownLifeMoments = new Set<string>(LIFE_MOMENT_IDS);
 const knownRichMoments = new Set<string>(RICH_MILESTONES.map((milestone) => milestone.id));
 const knownEventCards = new Set(EVENT_CARDS.map((card) => card.id));
@@ -215,6 +215,7 @@ function normalizeStory(raw: unknown, game: GameStateV2): StoryProgress {
     reviewAsks: Math.floor(finite(raw.reviewAsks, 0)),
     reviewAskedAt: finite(raw.reviewAskedAt, 0),
     sequelSeen: raw.sequelSeen === true,
+    lateSeen: LATE_KEYS.filter((key) => stringList(raw.lateSeen).includes(key)),
   };
 }
 

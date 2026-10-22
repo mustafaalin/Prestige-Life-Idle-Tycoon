@@ -21,6 +21,11 @@ export function currentSalary(state: GameStateV2) {
   return salaryOf(currentCareer(state));
 }
 
+/** The job pays less than the one held now: taking it asks first (a job left is never taken again). */
+export function paysLess(state: GameStateV2, career: CareerDef) {
+  return career.salaryPerSecond < currentSalary(state);
+}
+
 /** Whether a job has been held, now or before (a job once left is never taken again). */
 export function hasWorked(state: GameStateV2, careerId: string) {
   return state.careerId === careerId || (state.jobSeconds[careerId] ?? 0) > 0;

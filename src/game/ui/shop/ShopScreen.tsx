@@ -140,7 +140,8 @@ function LifestylePanel({
                 <OpensJobs itemId={next.id} />
               </div>
             </div>
-            <Focusable focusKey={`shop:${kind}:next`}>
+            {/* A goal's hand points at what is missing while the item is locked, not at a dead button. */}
+            <Focusable focusKey={locked ? '' : `shop:${kind}:next`}>
               <GameButton
                 onClick={() => buy(next.id)}
                 disabled={!canBuy}
@@ -155,27 +156,29 @@ function LifestylePanel({
               </p>
             )}
             {!locked && <HelpAd cost={next.cost} />}
-            {neededClass !== null && (
-              <p className="-mt-1 min-h-11 py-2 px-4 rounded-2xl bg-slate-100 flex items-center justify-center gap-1.5 text-slate-600">
-                <Lock className="w-4 h-4 shrink-0" />
-                <span className="v2-display text-[13px]">
-                  {t('shop.needsClass', { class: name('wealthClass', WEALTH_CLASSES[neededClass]) })}
-                </span>
-              </p>
-            )}
-            {neededHome === null && <CareerAsk asks={neededCareer} onGo={onGoTo} />}
-            {neededHome && (
-              <GameButton
-                tone="soft"
-                onClick={onGoHomes}
-                className="min-h-11 -mt-1 py-2 px-4 flex items-center justify-center gap-1.5"
-              >
-                <Lock className="w-4 h-4 shrink-0" />
-                <span className="v2-display text-[13px]">
-                  {t('shop.needsHome', { home: name('lifestyle', neededHome) })}
-                </span>
-              </GameButton>
-            )}
+            <Focusable focusKey={locked ? `shop:${kind}:next` : ''} className="flex flex-col gap-3 empty:hidden">
+              {neededClass !== null && (
+                <p className="-mt-1 min-h-11 py-2 px-4 rounded-2xl bg-slate-100 flex items-center justify-center gap-1.5 text-slate-600">
+                  <Lock className="w-4 h-4 shrink-0" />
+                  <span className="v2-display text-[13px]">
+                    {t('shop.needsClass', { class: name('wealthClass', WEALTH_CLASSES[neededClass]) })}
+                  </span>
+                </p>
+              )}
+              {neededHome === null && <CareerAsk asks={neededCareer} onGo={onGoTo} />}
+              {neededHome && (
+                <GameButton
+                  tone="soft"
+                  onClick={onGoHomes}
+                  className="min-h-11 -mt-1 py-2 px-4 flex items-center justify-center gap-1.5"
+                >
+                  <Lock className="w-4 h-4 shrink-0" />
+                  <span className="v2-display text-[13px]">
+                    {t('shop.needsHome', { home: name('lifestyle', neededHome) })}
+                  </span>
+                </GameButton>
+              )}
+            </Focusable>
           </div>
         </Panel>
       ) : (

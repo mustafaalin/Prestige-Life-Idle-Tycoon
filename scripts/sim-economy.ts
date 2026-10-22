@@ -9,7 +9,7 @@ import { BUSINESSES } from '../src/game/core/config/businesses';
 import { CAREERS } from '../src/game/core/config/careers';
 import { formatDuration, formatMoney } from '../src/game/core/format';
 import { WEALTH_CLASSES } from '../src/game/core/config/classes';
-import { SECONDS_PER_YEAR, START_AGE } from '../src/game/core/config/life';
+import { RETIREMENT_AGE, SECONDS_PER_YEAR, START_AGE } from '../src/game/core/config/life';
 import { checkFeel, checkTargets, timeline } from '../src/game/sim/report';
 import { PROFILES, simulate } from '../src/game/sim/simulator';
 
@@ -78,7 +78,8 @@ for (const profile of PROFILES) {
   // The hero's age at each class in the first life (age moves only while playing).
   const ages = WEALTH_CLASSES.slice(1).map((wealthClass) => {
     const event = result.events.find((x) => x.kind === 'class' && x.label === wealthClass.name && x.generation === 1);
-    return `${wealthClass.name} ${event ? Math.floor(START_AGE + event.activeGeneration / SECONDS_PER_YEAR) : '–'}`;
+    // Age stops at the end of life while play goes on (config/content.ts): a class reached later reads 80.
+    return `${wealthClass.name} ${event ? Math.min(RETIREMENT_AGE, Math.floor(START_AGE + event.activeGeneration / SECONDS_PER_YEAR)) : '–'}`;
   });
   console.log(`ages (gen 1): ${ages.join(' · ')}`);
   // The job tree (docs/game-design-v2.md §4.4): each move with the hero's age and salary's share of income.

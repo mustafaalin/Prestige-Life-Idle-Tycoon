@@ -10,7 +10,8 @@ import {
   EVENT_MIN_SECONDS,
   type EventOutcome,
 } from '../../core/config/events';
-import { awaitsHandover, eventCardsFor, eventReward } from '../../core/formulas';
+import { GRANDPA_AGE } from '../../core/config/life';
+import { awaitsHandover, eventCardsFor, eventReward, heroAge } from '../../core/formulas';
 import { useT } from '../../i18n/useT';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx, useMusic } from '../../runtime/feedback';
@@ -123,7 +124,7 @@ export function EventCards({ tabOpen, onOpenChange }: EventCardsProps) {
   }
 
   if (tabOpen) return null;
-  const caller = eventSpeaker(calling, 'ask');
+  const caller = eventSpeaker(calling, 'ask', heroAge(game).years >= GRANDPA_AGE);
   return (
     <div className="absolute inset-x-0 bottom-3 flex justify-center">
       <button
@@ -189,7 +190,7 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
   const [amount, setAmount] = useState(0);
   useEffect(() => () => holdBalance(0), []);
   useMusic('event');
-  const speaker = eventSpeaker(cardId, picked ? 'win' : (outcome ?? 'ask'));
+  const speaker = eventSpeaker(cardId, picked ? 'win' : (outcome ?? 'ask'), heroAge(game).years >= GRANDPA_AGE);
 
   const answer = (bold: boolean) => {
     const result: EventOutcome = !bold ? 'safe' : Math.random() < EVENT_BOLD_CHANCE ? 'win' : 'lose';

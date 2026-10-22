@@ -58,7 +58,7 @@ import {
 import { setPlayerProperties, track } from './analytics';
 import { applyCity, cityOf } from './city';
 import { clearSave, parseRuntime, saveRuntime } from './storage';
-import { HERO_NAME_MAX, richMomentsUpTo } from './story';
+import { HERO_NAME_MAX, richMomentsUpTo, type LateKey } from './story';
 
 // Owns the live game: 250 ms tick, autosave, foreground/background handling (web visibility events
 // plus native app pause/resume, which fire more reliably when the phone suspends the app).
@@ -181,6 +181,8 @@ export interface GameActions {
     setGrandchildName(name: string): void;
     /** The "grandchild's story is coming" card at 80 was shown. */
     sequelSeen(): void;
+    /** A story beat played in its grandfather version (ui/story/lateLook.ts). */
+    playedLate(key: LateKey): void;
     /** A Rich List card was shown; it settles the places below it too. */
     richSeen(milestoneId: string): void;
     /** Old Ray's guide (plan 1.12): a step's line was shown / a step was done. */
@@ -542,6 +544,8 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         reviewAsked: () =>
           updateStory((story) => ({ ...story, reviewAsks: story.reviewAsks + 1, reviewAskedAt: clock() })),
         sequelSeen: () => updateStory((story) => (story.sequelSeen ? story : { ...story, sequelSeen: true })),
+        playedLate: (key) =>
+          updateStory((story) => (story.lateSeen.includes(key) ? story : { ...story, lateSeen: [...story.lateSeen, key] })),
         setHeroName: (name) =>
           updateStory((story) => ({ ...story, heroName: name.trim().slice(0, HERO_NAME_MAX) })),
         lifeSeen: (momentIds, giftMultiplier) =>

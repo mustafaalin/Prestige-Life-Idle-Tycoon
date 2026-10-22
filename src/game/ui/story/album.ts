@@ -2,6 +2,7 @@ import { LUXURY_TOYS } from '../../core/config/lifestyle';
 import type { Translator } from '../../i18n/translate';
 import { LIFE_MOMENTS, luxuryOf, type LifeMomentId, type StoryProgress } from '../../runtime/story';
 import { CEREMONIES, ceremonyOutfit, portraitOf, type CeremonyShot } from './ceremonyScript';
+import { lateKeyOfEntry, lateVersion, seenLate } from './lateLook';
 import { LIFE_OUTFIT, LIFE_SCRIPT } from './lifeScript';
 
 // The family album (story-v2.md §7): the class ceremonies and life moments the player has seen, in
@@ -17,7 +18,7 @@ const life = (id: LifeMomentId): AlbumEntry => ({ kind: 'life', id });
  * moments where the simulator buys them: the boat and the yacht before the next class, the helicopter
  * and the jet after Richest.
  */
-export const ALBUM: AlbumEntry[] = [
+const ALL_ENTRIES: AlbumEntry[] = [
   ceremony(1),
   ceremony(2),
   life('date'),
@@ -38,6 +39,13 @@ export const ALBUM: AlbumEntry[] = [
   life('betrayal'),
   life('handover'),
 ];
+
+/** Only pages this build can tell (config/content.ts): switched-off moments would stay empty for good. */
+export const ALBUM: AlbumEntry[] = ALL_ENTRIES.filter((entry) =>
+  entry.kind === 'ceremony'
+    ? (CEREMONIES[entry.classIndex] ?? []).length > 0
+    : luxuryOf(entry.id) !== null || LIFE_MOMENTS.some((moment) => moment.id === entry.id),
+);
 
 export function albumKey(entry: AlbumEntry) {
   return entry.kind === 'ceremony' ? `c${entry.classIndex}` : entry.id;
@@ -67,8 +75,9 @@ export function lifeMomentLabel(id: LifeMomentId, { t, name }: Pick<Translator, 
  * The picture on the album page: the moment's own story frame, or, for a moment told with portraits
  * only, the face of the last one to speak.
  */
-export function albumCover(entry: AlbumEntry): { src: string; portrait: boolean } | null {
-  const shots = albumShots(entry);
+export function albumCover(entry: AlbumEntry, story: StoryProgress): { src: string; portrait: boolean } | null {
+  const key = lateKeyOfEntry(entry);
+  const shots = lateVersion(key, seenLate(key, story), albumShots(entry), albumOutfit(entry)).shots;
   const frame = shots.find((shot) => shot.image?.fit === 'panel')?.image;
   if (frame) return { src: frame.src, portrait: false };
   const spoken = shots.flatMap((shot) => shot.lines).filter((line) => line.speaker !== undefined);

@@ -1,3 +1,4 @@
+import { CONTENT } from '../../core/config/content';
 import { outfitIndex } from '../../core/config/lifestyle';
 import type { MessageKey } from '../../i18n/translate';
 import type { LifeMomentId } from '../../runtime/story';
@@ -64,6 +65,31 @@ export interface CeremonyShot {
 const IMAGES = '/assets/story/ceremony';
 const panel = (name: string, zoom?: StoryImage['zoom']): StoryImage => ({ src: `${IMAGES}/${name}.webp`, fit: 'panel', zoom });
 const OLD_PHOTO: StoryImage = { src: `${IMAGES}/old-photo.webp`, fit: 'contain' };
+
+const TOP_CLASS_CEREMONIES: Record<number, CeremonyShot[]> = {
+  // Multibillionaire: the workshop Old Ray and Dad never opened.
+  6: [
+    {
+      image: panel('workshop'),
+      lines: [
+        { speaker: 'hero', face: 'happy', text: 'ceremony.c6.hero' },
+        { speaker: 'riza', face: 'serious', text: 'ceremony.c6.riza' },
+        { speaker: 'riza', face: 'laugh', text: 'ceremony.c6.riza2' },
+      ],
+    },
+  ],
+  // Richest Person Alive: the big windows Mom asked for (her message), and a cake on time this time.
+  7: [
+    {
+      image: panel('mansion-cake', { to: 1.02, x: 51, y: 35 }),
+      lines: [
+        { speaker: 'hero', face: 'soft', text: 'ceremony.c7.hero' },
+        { speaker: 'hero', face: 'happy', text: 'ceremony.c7.hero2' },
+        { speaker: 'mom', face: 'tears', text: 'ceremony.c7.mom' },
+      ],
+    },
+  ],
+};
 
 export const CEREMONIES: Record<number, CeremonyShot[]> = {
   // Day Laborer: the first warm meal; Old Ray hands over his old van (the hero's next home: every
@@ -148,28 +174,8 @@ export const CEREMONIES: Record<number, CeremonyShot[]> = {
       ],
     },
   ],
-  // Multibillionaire: the workshop Old Ray and Dad never opened.
-  6: [
-    {
-      image: panel('workshop'),
-      lines: [
-        { speaker: 'hero', face: 'happy', text: 'ceremony.c6.hero' },
-        { speaker: 'riza', face: 'serious', text: 'ceremony.c6.riza' },
-        { speaker: 'riza', face: 'laugh', text: 'ceremony.c6.riza2' },
-      ],
-    },
-  ],
-  // Richest Person Alive: the big windows Mom asked for (her message), and a cake on time this time.
-  7: [
-    {
-      image: panel('mansion-cake', { to: 1.02, x: 51, y: 35 }),
-      lines: [
-        { speaker: 'hero', face: 'soft', text: 'ceremony.c7.hero' },
-        { speaker: 'hero', face: 'happy', text: 'ceremony.c7.hero2' },
-        { speaker: 'mom', face: 'tears', text: 'ceremony.c7.mom' },
-      ],
-    },
-  ],
+  // The two top classes tell their story with the grandchild (config/content.ts topClassStory).
+  ...(CONTENT.topClassStory ? TOP_CLASS_CEREMONIES : {}),
 };
 
 /** The shots with the lines this story so far allows (`when`). */

@@ -41,6 +41,7 @@ import { portraitOf } from './ceremonyScript';
 import { MomMessage, NotifyPrompt } from './MomMessage';
 import { NameSheet } from './NameSheet';
 import { onStoryRequest } from './storyEvents';
+import { lateKeyOfCeremony, lateKeyOfLife, playsLate, seenLate } from './lateLook';
 import { YearsPassed } from './YearsPassed';
 
 // Decides which story moment is on screen (story-v2.md §4): a waiting class-up ceremony first, then a
@@ -197,6 +198,8 @@ export function StoryDirector({
       setReplay(null);
       return;
     }
+    const lateKey = lateKeyOfCeremony(classIndex);
+    if (playsLate(lateKey, game)) actions.story.playedLate(lateKey);
     actions.story.ceremonySeen(classIndex, giftMultiplier);
     // A happy moment (Millionaire and after): the store's rating dialog, once the card is gone.
     if (reviewDue(state.story, state.ads, classIndex, Date.now())) {
@@ -213,6 +216,8 @@ export function StoryDirector({
       setReplayLife(null);
       return;
     }
+    const lateKey = lateKeyOfLife(id);
+    if (playsLate(lateKey, game)) actions.story.playedLate(lateKey);
     actions.story.lifeSeen([...luxuryMomentsBelow(id), id], giftMultiplier);
     setQuiet(true);
   };
@@ -225,12 +230,14 @@ export function StoryDirector({
 
   if (ceremony !== null) {
     const step = replay !== null ? storyStep(ceremony) : { before: actions.story.classUpFrom(ceremony), now: game };
+    const lateKey = lateKeyOfCeremony(ceremony);
     return (
       <Ceremony
         key={ceremony}
         classIndex={ceremony}
         {...step}
         gift={replay === null && ceremony >= STORY_GIFT_FROM_CLASS}
+        late={replay !== null ? seenLate(lateKey, state.story) : playsLate(lateKey, game)}
         onDone={(skipped, giftMultiplier) => finishCeremony(ceremony, skipped, giftMultiplier)}
       />
     );
@@ -240,7 +247,9 @@ export function StoryDirector({
     // The moments told by age close with a gift; the luxury moments follow a purchase and do not, and
     // nothing does once the life is over (the money would only go to the heir's legacy by a hair).
     const gift = replayLife === null && !ending && LIFE_MOMENTS.some((moment) => moment.id === life && moment.gift !== false);
-    return <LifeMoment key={life} id={life} gift={gift} onDone={(skipped, giftMultiplier) => finishLife(life, skipped, giftMultiplier)} />;
+    const lateKey = lateKeyOfLife(life);
+    const late = replayLife !== null ? seenLate(lateKey, state.story) : playsLate(lateKey, game);
+    return <LifeMoment key={life} id={life} gift={gift} late={late} onDone={(skipped, giftMultiplier) => finishLife(life, skipped, giftMultiplier)} />;
   }
 
   // Right after the birth; also on the next opening if the app closed before she was named.

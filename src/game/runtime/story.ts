@@ -39,7 +39,13 @@ export interface StoryProgress {
   reviewAskedAt: number;
   /** The "grandchild's story is coming" card at 80 was shown (only while the hand-over is off). */
   sequelSeen: boolean;
+  /** Story beats that played in their grandfather version (ui/story/lateLook.ts): the album shows that one. */
+  lateSeen: LateKey[];
 }
+
+/** Story beats that have a grandfather version, for after 60 (ui/story/lateLook.ts). */
+export const LATE_KEYS = ['c5', 'boat', 'yacht', 'heli', 'jet'] as const;
+export type LateKey = (typeof LATE_KEYS)[number];
 
 export interface MomMessageDef {
   id: string;
@@ -60,7 +66,7 @@ export interface MomMessageDef {
  * before the player moved on are skipped, so Mom never talks about a step that is long past. The
  * one about Defne is the exception: it bridges the years between meeting her and the first date.
  */
-export const MOM_MESSAGES: MomMessageDef[] = [
+const ALL_MOM_MESSAGES: MomMessageDef[] = [
   { id: 'aunt', classIndex: 1 },
   { id: 'curtains', classIndex: 2 },
   { id: 'stair', classIndex: 3 },
@@ -72,9 +78,23 @@ export const MOM_MESSAGES: MomMessageDef[] = [
   { id: 'jam', classIndex: 5 },
   { id: 'windows', classIndex: 6 },
   { id: 'chair', classIndex: 6 },
-  // Mom's warning about Brad (story §6a), after the partnership and before it turns. Off with his story.
-  ...(CONTENT.bradStory ? [{ id: 'partner', classIndex: 6, afterMoment: 'partner' as const, untilMoment: 'betrayal' as const }] : []),
+  // Mom's warning about Brad (story §6a), after the partnership and before it turns.
+  { id: 'partner', classIndex: 6, afterMoment: 'partner', untilMoment: 'betrayal' },
 ];
+
+/**
+ * Messages of switched-off content (config/content.ts): the workshop and the big windows plant the two
+ * top ceremonies, the chair is Old Ray's; Brad's warning goes with his story. Kept as saved ids.
+ */
+const MOM_SWITCHED_OFF = new Set<string>([
+  ...(CONTENT.topClassStory ? [] : ['workshop', 'windows', 'chair']),
+  ...(CONTENT.bradStory ? [] : ['partner']),
+]);
+
+export const MOM_MESSAGES = ALL_MOM_MESSAGES.filter((message) => !MOM_SWITCHED_OFF.has(message.id));
+
+/** Every message id, for the save. */
+export const MOM_MESSAGE_IDS = ALL_MOM_MESSAGES.map((message) => message.id);
 
 /** Mom writes at most once a day... */
 export const MOM_MIN_GAP_MS = 20 * 60 * 60 * 1000;
@@ -99,6 +119,7 @@ export function createStoryProgress(classIndex = 0): StoryProgress {
     reviewAsks: 0,
     reviewAskedAt: 0,
     sequelSeen: false,
+    lateSeen: [],
   };
 }
 

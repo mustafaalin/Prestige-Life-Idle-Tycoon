@@ -46,7 +46,8 @@ function speakerOf(cardId: string): Speaker {
   return BY_CARD[cardId] ?? (businessId ? (BY_BUSINESS[businessId] ?? { manager: businessId }) : COUSIN);
 }
 
-export function eventSpeaker(cardId: string, moment: 'ask' | EventOutcome): { name: MessageKey; portrait: string } {
+/** `grandpa`: the hero is past 60, so Defne, his wife, speaks with her older face. */
+export function eventSpeaker(cardId: string, moment: 'ask' | EventOutcome, grandpa = false): { name: MessageKey; portrait: string } {
   const speaker = speakerOf(cardId);
   if ('manager' in speaker) {
     return {
@@ -58,7 +59,7 @@ export function eventSpeaker(cardId: string, moment: 'ask' | EventOutcome): { na
   const face = moment === 'win' ? speaker.win : moment === 'lose' ? speaker.lose : speaker.ask;
   return {
     name: speaker.name,
-    portrait: portraitOf(speaker.cast as CastId, face) ?? '',
+    portrait: portraitOf(grandpa && speaker.cast === 'defne' ? 'defneOld' : (speaker.cast as CastId), face) ?? '',
   };
 }
 

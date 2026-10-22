@@ -630,6 +630,7 @@ export const tr: Messages = {
     showOk: 'Harika!',
     masteredToast: 'Usta oldun: {job}! Yeni bir işe geçebilirsin.',
     leadsToLabel: 'Açtığı işler:',
+    paysLess: 'Maaşın düşer: {from} → {to}. Bıraktığın işe geri dönemezsin.',
     takeShort: 'İşe gir',
     left: 'Bırakıldı',
     take: 'İşe gir',
@@ -760,6 +761,8 @@ export const tr: Messages = {
   dreams: {
     buy: 'Al!',
     percent: '%{percent}',
+    needRow: 'Sv {level} iş',
+    need: { vehicle: 'Önce araç', home: 'Önce taşın', class: 'Sınıf ister' },
   },
   invest: {
     locked: '{class} olunca açılır',
@@ -1017,6 +1020,10 @@ export const tr: Messages = {
       riza: 'Evlat, ben ömrüm boyunca gül sattım. Bu kadar deniz bana fazla.',
       mom: 'Sözünü tuttu Rıza. Bu sefer gerçekten deniz.',
       riza2: 'Mehmet burada olsaydı, çoktan dümene geçmişti.',
+      surpriseLate: 'Annemin doğum günü bu yıl denizdeydi. Bütün aile gelmişti.',
+      momLate: 'Göl de sayılır demiştim. Ama bu, gerçekten deniz.',
+      defneLate: 'Mumları rüzgâr söndürmeden üfle anne!',
+      heroLate: 'Rıza Amca burada olsaydı, çoktan dümene geçmişti.',
     },
     heli: {
       title: 'Eski sokağın üstünden',

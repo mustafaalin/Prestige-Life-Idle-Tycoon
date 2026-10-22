@@ -1,6 +1,8 @@
 import { Lock } from 'lucide-react';
 import {
-  lifestyleLocked,
+  lifestyleNeedsCareer,
+  lifestyleNeedsClass,
+  lifestyleNeedsHome,
   moveUpNeedsVehicle,
   homeNeedsCareer,
   nextHome,
@@ -8,7 +10,7 @@ import {
   ownsHouse,
 } from '../../core/state';
 import { canCollect } from '../../core/formulas';
-import type { GameStateV2, LifestyleKind } from '../../core/types';
+import type { GameStateV2, LifestyleKind, Requirement } from '../../core/types';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
@@ -19,12 +21,21 @@ import type { FocusTarget, ShopTabId } from './focus';
 // row lives with the menu. Tapping a dream opens the shop on it. When a kind has nothing left, the
 // next luxury takes its place.
 
+/** What other than money stands in the way: a vehicle or a home first, a class, a job row. */
+type DreamBlock = { kind: 'vehicle' } | { kind: 'home' } | { kind: 'class' } | { kind: 'row'; level: number } | null;
+
 interface Dream {
   kind: ShopTabId;
   image: string;
   price: number;
-  /** Something other than money stands in the way (a vehicle to buy first, a class to reach). */
-  locked: boolean;
+  block: DreamBlock;
+}
+
+/** A career block: the job row asked for (the shop's card lists every condition). */
+function careerBlock(unmet: Requirement[]): DreamBlock {
+  if (unmet.length === 0) return null;
+  const row = unmet.find((requirement) => requirement.type === 'jobRow');
+  return row?.type === 'jobRow' ? { kind: 'row', level: row.level } : { kind: 'class' };
 }
 
 function dreamsOf(game: GameStateV2): Dream[] {
@@ -36,14 +47,21 @@ function dreamsOf(game: GameStateV2): Dream[] {
       kind: 'house',
       image: home.image,
       price: owned ? 0 : home.moveInCost,
-      locked: !owned && (moveUpNeedsVehicle(game) !== null || homeNeedsCareer(game, home).length > 0),
+      block: owned ? null : moveUpNeedsVehicle(game) !== null ? { kind: 'vehicle' } : careerBlock(homeNeedsCareer(game, home)),
     });
   }
   const kinds: LifestyleKind[] = ['vehicle', 'outfit', 'toy'];
   for (const kind of kinds) {
     if (dreams.length >= 3) break;
     const item = nextLifestyle(game, kind);
-    if (item) dreams.push({ kind, image: item.image, price: item.cost, locked: lifestyleLocked(game, item) });
+    if (!item) continue;
+    const block: DreamBlock =
+      lifestyleNeedsHome(game, item) !== null
+        ? { kind: 'home' }
+        : lifestyleNeedsClass(game, item) !== null
+          ? { kind: 'class' }
+          : careerBlock(lifestyleNeedsCareer(game, item));
+    dreams.push({ kind, image: item.image, price: item.cost, block });
   }
   return dreams;
 }
@@ -70,10 +88,17 @@ export function DreamsRow({ onGo }: { onGo: (target: FocusTarget) => void }) {
 
 function DreamChip({ dream, cash, onGo }: { dream: Dream; cash: number; onGo: () => void }) {
   const { t } = useT();
+  const locked = dream.block !== null;
   const progress = dream.price <= 0 ? 1 : Math.min(1, cash / dream.price);
-  const ready = progress >= 1 && !dream.locked;
-  // Never "100%" before it can really be bought.
+  const ready = progress >= 1 && !locked;
+  // Never "100%" before it can really be bought; once the money is there, the chip says what is missing.
   const percent = ready ? 100 : Math.min(99, Math.floor(progress * 100));
+  const blockText =
+    progress < 1 || dream.block === null
+      ? null
+      : dream.block.kind === 'row'
+        ? t('dreams.needRow', { level: dream.block.level })
+        : t(`dreams.need.${dream.block.kind}`);
 
   return (
     <button
@@ -97,7 +122,7 @@ function DreamChip({ dream, cash, onGo }: { dream: Dream; cash: number; onGo: ()
           alt=""
           draggable={false}
           className={`shrink-0 w-11 h-9 -mt-2 rounded-lg object-cover border-2 border-white shadow-md ${ready ? 'v2-bob' : ''} ${
-            dream.locked ? 'grayscale opacity-60' : ''
+            locked ? 'grayscale opacity-60' : ''
           }`}
         />
       ) : (
@@ -106,20 +131,20 @@ function DreamChip({ dream, cash, onGo }: { dream: Dream; cash: number; onGo: ()
           alt=""
           draggable={false}
           className={`shrink-0 w-12 h-12 -mt-3 object-contain drop-shadow-lg ${ready ? 'v2-bob' : ''} ${
-            dream.locked ? 'grayscale opacity-60' : ''
+            locked ? 'grayscale opacity-60' : ''
           }`}
         />
       )}
       <span className="flex-1 min-w-0 flex flex-col items-stretch gap-0.5">
         <span className="flex items-center justify-end gap-0.5 v2-display text-[14px] leading-none text-white v2-shadow tabular-nums">
-          {dream.locked && <Lock className="w-3 h-3" strokeWidth={3} />}
-          {ready ? t('dreams.buy') : t('dreams.percent', { percent })}
+          {locked && <Lock className="w-3 h-3 shrink-0" strokeWidth={3} />}
+          {ready ? t('dreams.buy') : blockText ? <span className="text-[11px] truncate">{blockText}</span> : t('dreams.percent', { percent })}
         </span>
         {!ready && (
           <span className="h-1.5 rounded-full bg-black/25 overflow-hidden">
             <span
               className={`block h-full rounded-full bg-gradient-to-r ${
-                dream.locked ? 'from-slate-300 to-slate-400' : 'from-amber-300 to-orange-500'
+                locked ? 'from-slate-300 to-slate-400' : 'from-amber-300 to-orange-500'
               }`}
               style={{ width: `${percent}%` }}
             />

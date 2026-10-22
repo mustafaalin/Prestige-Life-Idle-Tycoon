@@ -1,7 +1,7 @@
 import { Check, Lock } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CAREERS } from '../../core/config/careers';
-import { canTakeCareer, globalMultiplier, jobView, type JobView } from '../../core/formulas';
+import { canTakeCareer, globalMultiplier, jobView, paysLess, type JobView } from '../../core/formulas';
 import { isMastered, masteryOf } from '../../core/requirements';
 import type { CareerDef, CareerTrack, GameStateV2 } from '../../core/types';
 import { useT } from '../../i18n/useT';
@@ -185,7 +185,8 @@ function JobBox({
             <GameButton
               onClick={(event) => {
                 event.stopPropagation();
-                if (canTake) onTake(career);
+                // A job that pays less opens its card first, which says so.
+                if (canTake && !paysLess(state, career)) onTake(career);
                 else onOpen(career);
               }}
               className={`px-2.5 py-0.5 ${canTake ? '' : 'opacity-50'}`}

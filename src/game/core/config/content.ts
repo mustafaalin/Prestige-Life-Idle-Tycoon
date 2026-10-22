@@ -13,4 +13,10 @@ export const CONTENT = {
   legacy: false,
   /** Brad's partnership and betrayal (removed 2026-10-21, user): Brad is only the warehouse manager. */
   bradStory: false,
+  /**
+   * The story of the two top classes (Old Ray's workshop, Mom's mansion) and Mom's messages that plant
+   * it. They belong to the grandchild's generation; at launch a hero who stays on past 80 can still reach
+   * those classes, and their ceremonies then show only the title and the closing card (2026-10-23).
+   */
+  topClassStory: false,
 } as const;
