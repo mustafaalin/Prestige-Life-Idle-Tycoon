@@ -883,6 +883,8 @@ export const tr: Messages = {
     boostBodyFree: 'Kazandığın her şey {duration} boyunca ikiye katlansın. Sen yokken de sürer.',
     boostWatch: '{watch}: {duration} ×{factor}',
     boostActive: '{duration} kaldı',
+    boostStarted: '×{factor} gelir başladı!',
+    boostAdded: '+{duration} eklendi!',
     boostLeft: 'Bugün kalan hak: {count}',
     boostFull: 'Hızlandırıcı dolu. {duration} altına inince yine ekleyebilirsin.',
     boostNone: 'Bugünlük bu kadar. Yarın yine gel!',

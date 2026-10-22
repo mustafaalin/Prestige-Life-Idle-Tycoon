@@ -883,6 +883,8 @@ export const en = {
     boostBody: 'Watch one ad and everything you earn is doubled for {duration}, even while you are away.',
     boostBodyFree: 'Everything you earn is doubled for {duration}, even while you are away.',
     boostWatch: '{watch}: ×{factor} for {duration}',
+    boostStarted: '×{factor} income is on!',
+    boostAdded: '+{duration} added!',
     boostActive: '{duration} left',
     boostLeft: 'Left today: {count}',
     boostFull: 'The boost is full. You can add more once under {duration} is left.',

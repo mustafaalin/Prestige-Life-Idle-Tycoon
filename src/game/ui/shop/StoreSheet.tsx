@@ -31,6 +31,7 @@ import { Checks, ComfortBanner, StarterBanner } from './StoreBanners';
 import { useBuy } from './useBuy';
 import { usePrices } from './usePrices';
 import { useRestore } from './useRestore';
+import { BoostCard } from '../ads/Boost';
 
 // The Store (docs/monetization-v2.md §6, decided 2026-10-14; look: docs/iap-store-design-handoff.md):
 // a sheet opened from the round button on the scene, from the first class-up. Products come from
@@ -171,13 +172,15 @@ function FreeOffers({ onClose }: { onClose: () => void }) {
   const { t, duration, money } = useT();
   const now = useNow();
   const [dailyOpen, setDailyOpen] = useState(false);
+  const [boostOpen, setBoostOpen] = useState(false);
   const daily = state.daily.offer;
   // Waiting, or collected today; nothing in between (the reward is offered on the next tick).
   const showDaily = rewardsStarted(state) && (daily !== null || state.daily.claimedDay === dayKey(now));
   const boostLeft = boostSecondsLeft(state.ads, now);
   const sansWait = adCooldownLeft(state.ads, 'call_sans', now);
   const showRain = canCollect(game) && state.ads.coinRainUntil <= now;
-  const tiles: { key: string; image: string; title: string; note: string; ready: boolean; reason: string; placement: AdPlacement; run: () => void }[] = [
+  // `card`: the tile opens its own card first (the boost says what it gives and how long; it pays from there).
+  const tiles: { key: string; image: string; title: string; note: string; ready: boolean; reason: string; placement: AdPlacement; run: () => void; card?: () => void }[] = [
     {
       key: 'boost',
       image: STORE_ART.hourglass,
@@ -189,6 +192,7 @@ function FreeOffers({ onClose }: { onClose: () => void }) {
       run: () => {
         if (actions.ads.boost()) playSfx('reward');
       },
+      card: () => setBoostOpen(true),
     },
     {
       key: 'sans',
@@ -256,7 +260,18 @@ function FreeOffers({ onClose }: { onClose: () => void }) {
             <b className="v2-display text-[13px] leading-tight text-[#2b1b6b] break-words">{tile.title}</b>
             <img src={tile.image} alt="" draggable={false} className="w-14 h-14 object-contain" />
             <small className="text-[10px] font-bold leading-tight v2-iap-muted">{tile.note}</small>
-            {tile.ready ? (
+            {tile.ready && tile.card ? (
+              <button
+                type="button"
+                onClick={() => {
+                  playSfx('click');
+                  tile.card?.();
+                }}
+                className="w-full rounded-full py-1.5 v2-display text-[13px] text-white bg-gradient-to-b from-emerald-400 to-green-600 border-2 border-white/70 shadow transition-all active:scale-95"
+              >
+                {t('iap.free.get')}
+              </button>
+            ) : tile.ready ? (
               <AdButton placement={tile.placement} small className="w-full" onReward={() => {
                 haptic('medium');
                 tile.run();
@@ -270,6 +285,7 @@ function FreeOffers({ onClose }: { onClose: () => void }) {
         ))}
       </div>
       {dailyOpen && daily && <DailyCard offer={daily} onCollected={() => setDailyOpen(false)} />}
+      {boostOpen && <BoostCard onClose={() => setBoostOpen(false)} />}
     </div>
   );
 }

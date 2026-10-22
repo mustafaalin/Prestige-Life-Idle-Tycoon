@@ -44,11 +44,18 @@ export function BoostButton() {
   );
 }
 
-function BoostCard({ onClose }: { onClose: () => void }) {
+/**
+ * What the boost gives, how long is left and today's uses, with its ad button. Also opened from the
+ * store's free offers (2026-10-23, user: with the Comfort Pack the store's tile paid at once, no card,
+ * no word): once taken the card says so.
+ */
+export function BoostCard({ onClose }: { onClose: () => void }) {
   const { state, actions } = useGameV2();
   const { t, duration } = useT();
   const adText = useAdText();
   const free = useAdFree();
+  /** What the last use did: started the boost, or added to one already running. */
+  const [started, setStarted] = useState<'new' | 'more' | null>(null);
   useBackButton(true, 70, onClose);
 
   const now = Date.now();
@@ -67,6 +74,11 @@ function BoostCard({ onClose }: { onClose: () => void }) {
         </div>
         <div className="px-5 pt-3 pb-5">
           <h2 className="v2-display text-xl text-slate-900">{t('ads.boostTitle', { factor: BOOST_FACTOR })}</h2>
+          {started && (
+            <p key={left > 0 ? Math.round(left / 60) : 0} className="v2-pop-in mt-1 v2-display text-[18px] text-emerald-600">
+              {started === 'more' ? t('ads.boostAdded', { duration: duration(BOOST_SECONDS) }) : t('ads.boostStarted', { factor: BOOST_FACTOR })}
+            </p>
+          )}
           <p className="text-sm font-bold text-slate-600 mt-1">
             {t(free ? 'ads.boostBodyFree' : 'ads.boostBody', { factor: BOOST_FACTOR, duration: duration(BOOST_SECONDS) })}
           </p>
@@ -87,9 +99,11 @@ function BoostCard({ onClose }: { onClose: () => void }) {
               placement="income_boost"
               className="mb-2"
               onReward={() => {
+                const running = boostSecondsLeft(state.ads, Date.now()) > 0;
                 if (!actions.ads.boost()) return;
                 playSfx('reward');
                 haptic('medium');
+                setStarted(running ? 'more' : 'new');
               }}
             >
               {adText('ads.boostWatch', { factor: BOOST_FACTOR, duration: duration(BOOST_SECONDS) })}
