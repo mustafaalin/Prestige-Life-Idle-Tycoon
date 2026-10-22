@@ -33,6 +33,7 @@ import {
 } from './ceremonyScript';
 import { lateKeyOfCeremony, lateKeyOfEntry, lateKeyOfLife, lateVersion, seenLate } from './lateLook';
 import { LIFE_OUTFIT, LIFE_SCRIPT } from './lifeScript';
+import { Cash } from '../CashAmount';
 
 // Class-up ceremony (plan 1.10): "new class" title with confetti → story beats (portrait + bubble,
 // visual-novel style; hero on the right, everyone else on the left) → closing card (what the class
@@ -674,7 +675,7 @@ function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void 
           <Gift className="w-4 h-4" />
           {t('ceremony.gift')}
         </span>
-        <span className="v2-display text-[20px] text-emerald-600 tabular-nums">+{money(amount)}</span>
+        <Cash size={24} className="v2-display text-[20px] text-emerald-600 tabular-nums">+{money(amount)}</Cash>
       </div>
       {/* Inside a tappable card: a tap here must not reach the card. */}
       <div onClick={(event) => event.stopPropagation()}>

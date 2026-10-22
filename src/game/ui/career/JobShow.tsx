@@ -7,6 +7,7 @@ import { OkButton, ShowFrame } from '../businesses/BusinessShow';
 import { reducedMotion, useCountUp, useShowStep } from '../businesses/showTiming';
 import { Confetti } from '../Confetti';
 import { JobIcon } from './JobIcon';
+import { Cash } from '../CashAmount';
 
 // A new job, played as a short show (docs/career-redesign.md §4): the old job sits in the middle and
 // slides out to the left, the new one comes in from the right with rays and confetti, the salary
@@ -93,10 +94,10 @@ export function JobShow({
       }
     >
       <p className="text-[10px] font-black uppercase tracking-widest text-violet-500">{t('career.showTitle')}</p>
-      <p className="mt-1 v2-display text-[26px] leading-tight text-emerald-600 tabular-nums">{perMonth(revealed ? pay : fromPay)}</p>
+      <p className="mt-1 v2-display text-[26px] leading-tight text-emerald-600 tabular-nums"><Cash size={30}>{perMonth(revealed ? pay : fromPay)}</Cash></p>
       {done && toPay > fromPay && (
         <span className="v2-show-ribbon mx-auto mt-1 rounded-full bg-emerald-50 px-3 py-0.5 text-[12px] font-black text-emerald-600">
-          +{perMonth(toPay - fromPay)}
+          <Cash size={16}>+{perMonth(toPay - fromPay)}</Cash>
         </span>
       )}
       {done && opens.length > 0 && (

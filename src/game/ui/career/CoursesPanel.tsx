@@ -12,6 +12,7 @@ import { AdStrip, HelpAd } from '../ads/AdButton';
 import { useAdChipText } from '../ads/useAdText';
 import { Focusable } from '../home/Focusable';
 import { GameButton, ImageTile, Panel, SectionLabel } from '../kit';
+import { Cash } from '../CashAmount';
 
 // The Courses tab of the career screen (docs/game-design-v2.md §4.4): the course running, the ones
 // that can be started ("Opens: …") and the ones finished. One course at a time.
@@ -99,7 +100,7 @@ export function CoursesPanel() {
                     className="py-1.5 px-2.5 flex flex-col items-center leading-tight"
                   >
                     <span className="v2-display text-[12px]">{t('career.courseStart')}</span>
-                    <span className="v2-display text-[12px] tabular-nums">{money(course.cost)}</span>
+                    <Cash size={15} className="v2-display text-[12px] tabular-nums">{money(course.cost)}</Cash>
                   </GameButton>
                 </Focusable>
               </li>

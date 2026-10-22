@@ -32,6 +32,7 @@ import { useAdText } from '../ads/useAdText';
 import { managerKey, managerPortrait } from './managers';
 import { RunBubbles } from './RunBubbles';
 import { StageBar } from './StageBar';
+import { Cash } from '../CashAmount';
 
 // One business line (docs/game-design-v2.md §4.3) as a short row (2026-10-21, user approved the
 // draft): the picture runs it by hand, one line says what it earns a month, a three-part bar shows the
@@ -212,7 +213,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
                   dots below, the branches are under the button. */}
               <span className="text-[11px] font-bold leading-tight text-indigo-700 line-clamp-2">{t(levelNameKey(def.id, level))}</span>
               <span className={`whitespace-nowrap text-[12px] font-black ${managed ? 'text-emerald-600' : 'text-violet-600'}`}>
-                {perMonth((perRun * campaignFactor) / def.cycleSeconds)}
+                <Cash size={15}>{perMonth((perRun * campaignFactor) / def.cycleSeconds)}</Cash>
                 {!managed && <span className="text-[10px] font-bold text-violet-500"> · {t('business.withManagerShort')}</span>}
               </span>
               <StageBar def={def} level={level} />
@@ -240,13 +241,13 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
                   {next ? opened && <ArrowBigUpDash className="w-4 h-4" /> : <Store className="w-3.5 h-3.5" />}
                   {stepLabel}
                 </span>
-                <span className="v2-display text-[13px] v2-shadow tabular-nums">{money(price)}</span>
+                <Cash size={16} className="v2-display text-[13px] v2-shadow tabular-nums">{money(price)}</Cash>
               </GameButton>
             </Focusable>
           )}
           {!next && canStep && (
             <span className="text-[11px] font-black text-emerald-600 tabular-nums whitespace-nowrap">
-              +{perMonth(branchGain / def.cycleSeconds)}
+              <Cash size={14}>+{perMonth(branchGain / def.cycleSeconds)}</Cash>
             </span>
           )}
           {atTop && (
@@ -269,7 +270,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
           )}
           {canStep && game.cash < price && !canHelp(state, now, price) && (
             <span className="text-[10px] font-bold text-indigo-900/50 tabular-nums">
-              {t('business.missing', { amount: money(price - game.cash) })}
+              <Cash size={13}>{t('business.missing', { amount: money(price - game.cash) })}</Cash>
             </span>
           )}
           {canStep && <HelpAd cost={price} />}
@@ -298,7 +299,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
               className="py-1 px-2.5 flex flex-col items-center leading-tight"
             >
               <span className="v2-display text-[11px] v2-shadow">{t('business.hire')}</span>
-              <span className="v2-display text-[12px] v2-shadow tabular-nums">{money(hirePrice)}</span>
+              <Cash size={15} className="v2-display text-[12px] v2-shadow tabular-nums">{money(hirePrice)}</Cash>
             </GameButton>
           </Focusable>
         </div>

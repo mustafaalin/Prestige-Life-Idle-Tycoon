@@ -32,6 +32,7 @@ import { GameButton, ImageTile, Panel } from '../kit';
 import { portalRoot } from '../stage';
 import { managerKey, managerPortrait, type ManagerLine } from './managers';
 import { StageBar } from './StageBar';
+import { Cash } from '../CashAmount';
 
 // A business line's details (2026-10-21, opened by a tap on its row, BusinessCard.tsx): what a run pays
 // and what the next level adds, the manager, the branches and every ad offer of the line.
@@ -149,7 +150,7 @@ export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: B
                 <p className="text-[12px] font-bold text-indigo-900/70">
                   {t('business.nextLevel')}: <span className="text-indigo-950">{t(levelNameKey(def.id, level + 1))}</span>
                 </p>
-                <p className="text-[12px] font-bold text-indigo-900/70">{t('business.nextMonth', { from: perMonth(runNow / def.cycleSeconds), to: perMonth(runNext / def.cycleSeconds) })}</p>
+                <p className="text-[12px] font-bold text-indigo-900/70"><Cash size={15}>{t('business.nextMonth', { from: perMonth(runNow / def.cycleSeconds), to: perMonth(runNext / def.cycleSeconds) })}</Cash></p>
               </>
             )}
             {newBuilding ? (
@@ -175,7 +176,7 @@ export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: B
                 {opened && <ArrowBigUpDash className="w-5 h-5" />}
                 {opened ? t('business.levelUp') : t('business.open')}
               </span>
-              <span className="v2-display text-[14px] v2-shadow tabular-nums">{money(next.cost)}</span>
+              <Cash size={17} className="v2-display text-[14px] v2-shadow tabular-nums">{money(next.cost)}</Cash>
             </GameButton>
             <HelpAd cost={next.cost} className="self-end" />
           </Panel>
@@ -216,7 +217,7 @@ export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: B
                   className="shrink-0 py-1.5 px-2.5 flex flex-col items-center leading-tight"
                 >
                   <span className="v2-display text-[12px] v2-shadow">{t('business.hire')}</span>
-                  <span className="v2-display text-[12px] v2-shadow tabular-nums">{money(hirePrice)}</span>
+                  <Cash size={15} className="v2-display text-[12px] v2-shadow tabular-nums">{money(hirePrice)}</Cash>
                 </GameButton>
               )}
             </div>
@@ -240,7 +241,7 @@ export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: B
                   <Store className="w-4 h-4" />
                   {t('business.openBranch')}
                 </span>
-                <span className="v2-display text-[14px] v2-shadow tabular-nums">{money(branchPrice)}</span>
+                <Cash size={17} className="v2-display text-[14px] v2-shadow tabular-nums">{money(branchPrice)}</Cash>
               </GameButton>
             )}
             {!atCap && <HelpAd cost={branchPrice} className="self-end" />}

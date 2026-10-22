@@ -8,6 +8,7 @@ import { AdCollect } from '../ads/AdButton';
 import { Confetti } from '../Confetti';
 import { portalRoot } from '../stage';
 import { reducedMotion, useCountUp, useShowStep, type Timeline } from './showTiming';
+import { Cash } from '../CashAmount';
 
 // The two big moments of a business line, played as a short show (2026-10-21): every business has
 // three looks of its own and its own manager, so the moment the look changes and the moment a manager
@@ -179,7 +180,7 @@ export function GrowShow({
           <p className="mt-1 text-[11px] font-black uppercase tracking-widest text-slate-400">{t('business.showMonth')}</p>
           <p className="flex flex-wrap items-baseline justify-center gap-x-2 mb-3 tabular-nums">
             <span className="text-sm font-bold text-slate-400 line-through">{perMonth(fromRate)}</span>
-            <span className="v2-display v2-outline text-[30px] leading-tight text-emerald-400">{perMonth(rate)}</span>
+            <Cash size={34} className="v2-display v2-outline text-[30px] leading-tight text-emerald-400">{perMonth(rate)}</Cash>
           </p>
           {ad ? (
             <AdCollect

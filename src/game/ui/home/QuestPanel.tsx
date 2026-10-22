@@ -18,6 +18,7 @@ import { payout } from './coins';
 import { PointingHand } from './Focusable';
 import { questTarget, questText, questVisual, questWhere } from './questText';
 import type { TabId } from './tabs';
+import { Cash } from '../CashAmount';
 
 // Goals (plan 1.12/2.7). On the home scene: a small round badge with the next goal's picture in a
 // progress ring (a finished one jumps first, rings green with a "!" and a Claim button beside it); a tap
@@ -171,7 +172,7 @@ function QuestBadge({ quest, onOpen }: { quest: QuestDef; onOpen: () => void }) 
           onClick={x3.pack ? x3.take : () => claim(quest)}
           className={`relative v2-hit shrink-0 rounded-full border-2 ${x3.pack ? 'border-amber-300' : 'border-white'} bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-3 py-1.5 v2-display text-[13px] text-white v2-shadow transition-all active:scale-95`}
         >
-          {t('quests.claim')} <span className="tabular-nums">+{money(questReward(game, quest) * (x3.pack ? QUEST_AD_MULTIPLIER : 1))}</span>
+          {t('quests.claim')} <Cash size={17} className="tabular-nums">+{money(questReward(game, quest) * (x3.pack ? QUEST_AD_MULTIPLIER : 1))}</Cash>
           {x3.pack && <PackMark />}
           {guided && <PointingHand className="-bottom-6 -right-1" />}
         </button>
@@ -290,7 +291,7 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
               {Math.min(Math.floor(current), target)}/{target}
             </span>
           )}
-          <span className="text-[10px] font-black text-amber-600 tabular-nums">+{money(questReward(game, quest))}</span>
+          <Cash size={14} className="text-[10px] font-black text-amber-600 tabular-nums">+{money(questReward(game, quest))}</Cash>
         </div>
       </div>
 
@@ -302,7 +303,7 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
             className={`relative v2-hit shrink-0 rounded-full border-2 ${x3.pack ? 'border-amber-300' : 'border-white'} bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95`}
           >
             {t('quests.claim')}
-            {x3.pack && <span className="tabular-nums"> +{money(questReward(game, quest) * QUEST_AD_MULTIPLIER)}</span>}
+            {x3.pack && <Cash size={16} className="ml-1 tabular-nums">+{money(questReward(game, quest) * QUEST_AD_MULTIPLIER)}</Cash>}
             {x3.pack && <PackMark />}
             {guided && <PointingHand className="-bottom-6 -right-1" />}
           </button>

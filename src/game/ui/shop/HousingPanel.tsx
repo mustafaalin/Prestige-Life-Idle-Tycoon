@@ -21,6 +21,7 @@ import { Focusable } from '../home/Focusable';
 import { Chip, GameButton, Panel, SectionLabel } from '../kit';
 import { OpensJobs } from './OpensJobs';
 import { Thumb } from './Thumb';
+import { Cash } from '../CashAmount';
 
 // Homes tab: rent → buy → rent out (docs/game-design-v2.md §4.6). You live in one house; the next
 // one up is the dream; houses you own and left pay rent, and there is no moving back into them.
@@ -94,7 +95,7 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
               className="min-h-11 py-2 px-4 flex items-center justify-between"
             >
               <span className="v2-display text-[14px]">{t('home.buyThis')}</span>
-              <span className="v2-display text-[14px] tabular-nums">{money(homePrice)}</span>
+              <Cash size={18} className="v2-display text-[14px] tabular-nums">{money(homePrice)}</Cash>
             </GameButton>
             <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
               {t('home.depositCounted', { amount: money(home.moveInCost) })}
@@ -130,7 +131,7 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
                   className="w-full min-h-11 py-3 px-4 flex items-center justify-between"
                 >
                   <span className="v2-display text-[16px] v2-shadow">{t('home.rentMove')}</span>
-                  <span className="v2-display text-[16px] v2-shadow tabular-nums">{money(next.moveInCost)}</span>
+                  <Cash size={20} className="v2-display text-[16px] v2-shadow tabular-nums">{money(next.moveInCost)}</Cash>
                 </GameButton>
               )}
             </Focusable>
@@ -145,7 +146,7 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
                 <span className="v2-display text-[14px]">
                   {t('home.buyMove')}
                 </span>
-                <span className="v2-display text-[14px] tabular-nums">{money(nextPrice)}</span>
+                <Cash size={18} className="v2-display text-[14px] tabular-nums">{money(nextPrice)}</Cash>
               </GameButton>
             )}
             {neededVehicle ? (
@@ -192,7 +193,7 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
                   <p className="v2-display text-[15px] leading-tight text-indigo-900/50">{name('lifestyle', house)}</p>
                   <p className="text-[11px] font-bold text-indigo-900/40 flex items-center gap-1">
                     <Lock className="w-3 h-3" />
-                    {money(house.moveInCost)}
+                    <Cash size={14}>{money(house.moveInCost)}</Cash>
                   </p>
                 </div>
               </li>
@@ -207,7 +208,7 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
             <SectionLabel>{t('home.properties')}</SectionLabel>
             {totalRent > 0 && (
               <p className="text-[11px] font-black text-emerald-600 px-1">
-                {t('home.totalRent', { amount: perMonth(totalRent) })}
+                <Cash size={15}>{t('home.totalRent', { amount: perMonth(totalRent) })}</Cash>
               </p>
             )}
           </div>
@@ -254,9 +255,9 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
                       className="shrink-0 min-h-11 px-3 flex flex-col items-center justify-center"
                     >
                       <span className="v2-display text-[11px] leading-tight v2-shadow">{t('home.buy')}</span>
-                      <span className="v2-display text-[12px] leading-tight v2-shadow tabular-nums">
+                      <Cash size={15} className="v2-display text-[12px] leading-tight v2-shadow tabular-nums">
                         {money(price)}
-                      </span>
+                      </Cash>
                     </GameButton>
                   </Panel>
                 </li>

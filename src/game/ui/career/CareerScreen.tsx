@@ -21,6 +21,7 @@ import { JobIcon } from './JobIcon';
 import { JobSheet } from './JobSheet';
 import { JobShow } from './JobShow';
 import { JobTree } from './JobTree';
+import { Cash } from '../CashAmount';
 
 // The career screen (docs/career-redesign.md §4): the job held with its mastery ring, then two
 // tabs: the job tree (Worker, Office, Expert, The top) and the courses.
@@ -85,9 +86,9 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
           {current ? (
             <p className="flex items-baseline gap-1.5">
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('income.salary')}</span>
-              <span className="v2-display v2-outline-thin text-[22px] leading-tight text-emerald-400 tabular-nums">
+              <Cash size={26} className="v2-display v2-outline-thin text-[22px] leading-tight text-emerald-400 tabular-nums">
                 {perMonth(currentSalary(game) * globalMultiplier(game))}
-              </span>
+              </Cash>
             </p>
           ) : (
             <p className="text-[12px] font-bold text-emerald-600">{t('career.unemployedBody')}</p>

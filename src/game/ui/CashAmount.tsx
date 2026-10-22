@@ -29,3 +29,16 @@ export function CashAmount({ amount, tier, size = 40, children }: { amount: numb
     </span>
   );
 }
+
+/**
+ * An amount of money in a line or on a button: the banknote icon before it (2026-10-23, user: the money
+ * icon wherever money is shown). Rewards with a big figure use CashAmount.
+ */
+export function Cash({ children, size = 18, className = '' }: { children: ReactNode; size?: number; className?: string }) {
+  return (
+    <span className={`inline-flex items-center gap-1 align-middle ${className}`}>
+      <MoneyIcon tier={2} size={size} />
+      {children}
+    </span>
+  );
+}

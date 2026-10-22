@@ -7,6 +7,7 @@ import { boostFactor } from '../../runtime/adRewards';
 import { useBackButton } from '../../runtime/backButton';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { SectionLabel } from '../kit';
+import { Cash } from '../CashAmount';
 
 // Income breakdown (phone test, 2026-10-15): a tap on the top bar's income shows where the monthly
 // income comes from (businesses with managers, salary, rent) and every bonus on it, so the scarf's and
@@ -59,7 +60,7 @@ export function IncomeSheet({ onClose }: { onClose: () => void }) {
           <div className="rounded-2xl bg-white shadow px-4 py-3 flex items-center justify-between gap-3">
             <span className="text-sm font-bold text-slate-600">{t('income.total')}</span>
             <span className="v2-display text-2xl text-emerald-500 tabular-nums">
-              +{perMonth(total * boost)}
+              <Cash size={28}>+{perMonth(total * boost)}</Cash>
               {boost > 1 && <span className="text-amber-500"> ×{boost}</span>}
             </span>
           </div>

@@ -16,7 +16,7 @@ import { Focusable } from '../home/Focusable';
 import { ICONS } from '../icons';
 import { useFocus, type ShopTabId } from '../home/focus';
 import { Chip, GameButton, Panel, Segmented, SectionLabel, TILE_FACE } from '../kit';
-import { CashAmount } from '../CashAmount';
+import { Cash, CashAmount } from '../CashAmount';
 import { HousingPanel } from './HousingPanel';
 import { StoreStrip } from './StoreSheet';
 import { OpensJobs } from './OpensJobs';
@@ -201,7 +201,7 @@ function LifestylePanel({
                   <p className="v2-display text-[15px] leading-tight text-indigo-900/50">{name('lifestyle', item)}</p>
                   <p className="text-[11px] font-bold text-indigo-900/40 flex items-center gap-1">
                     <Lock className="w-3 h-3" />
-                    {money(item.cost)}
+                    <Cash size={14}>{money(item.cost)}</Cash>
                   </p>
                 </div>
               </li>
@@ -277,7 +277,7 @@ function GadgetPanel() {
                     className="py-2 px-3 flex flex-col items-center leading-tight"
                   >
                     <span className="v2-display text-[13px] v2-shadow">{t('shop.buy')}</span>
-                    <span className="v2-display text-[13px] v2-shadow tabular-nums">{money(gadget.cost)}</span>
+                    <Cash size={16} className="v2-display text-[13px] v2-shadow tabular-nums">{money(gadget.cost)}</Cash>
                   </GameButton>
                 </Focusable>
               )}

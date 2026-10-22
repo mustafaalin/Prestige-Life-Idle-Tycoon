@@ -10,7 +10,7 @@ import { dealDue, investAvailable, investCap, runningDeals, type Investment } fr
 import { useGameV2 } from '../../runtime/useGameV2';
 import { adsLeft, canRushInvest, canWatch } from '../../runtime/adRewards';
 import { AdButton } from '../ads/AdButton';
-import { CashAmount, MoneyIcon } from '../CashAmount';
+import { Cash, CashAmount, MoneyIcon } from '../CashAmount';
 import { payout } from '../home/coins';
 import { BandTile, GameButton, Segmented, SpeakerLine, TilePill } from '../kit';
 import { portalRoot } from '../stage';
@@ -244,7 +244,7 @@ function DealCard({ plan, onClose, onStarted }: { plan: InvestPlan; onClose: () 
               }}
             />
           </div>
-          <p className="text-[12px] font-bold text-slate-600 tabular-nums">{t('invest.stake', { amount: money(stake) })}</p>
+          <p className="text-[12px] font-bold text-slate-600 tabular-nums"><Cash size={16}>{t('invest.stake', { amount: money(stake) })}</Cash></p>
 
           <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">{t('invest.profit')}</p>
           <p className="v2-display v2-outline text-[34px] leading-none text-emerald-400 tabular-nums">
@@ -350,7 +350,7 @@ function RunningTile({ plan, deal, onCollected }: { plan: InvestPlan; deal: Inve
       figure={
         <span className="flex flex-col items-center leading-none">
           <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">{t('invest.back')}</span>
-          <span className="v2-display v2-outline-thin tabular-nums text-emerald-400 text-[18px] max-w-full truncate">{money(back)}</span>
+          <Cash size={20} className="v2-display v2-outline-thin tabular-nums text-emerald-400 text-[18px] max-w-full"><span className="truncate">{money(back)}</span></Cash>
         </span>
       }
       button={button}

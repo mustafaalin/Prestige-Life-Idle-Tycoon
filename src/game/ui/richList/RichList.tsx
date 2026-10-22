@@ -11,6 +11,7 @@ import { managerPortrait } from '../businesses/managers';
 import { GameButton } from '../kit';
 import { portraitOf } from '../story/ceremonyScript';
 import { portalRoot } from '../stage';
+import { Cash } from '../CashAmount';
 
 // The Rich List (discussion-notes §10): a button on the home scene with the hero's place, a sheet with
 // the named top 20, and the short card a new place brings. Fictional; the rank follows this life's
@@ -97,7 +98,7 @@ export function RichListSheet({ onClose }: { onClose: () => void }) {
         <p className="text-[14px] font-black leading-tight text-slate-900 break-words">{entry.name}</p>
         <p className="text-[11px] font-semibold text-slate-500 leading-tight">{entry.detail}</p>
       </div>
-      <span className="shrink-0 text-[14px] font-black text-emerald-600 tabular-nums">{money(entry.fortune)}</span>
+      <Cash size={17} className="shrink-0 text-[14px] font-black text-emerald-600 tabular-nums">{money(entry.fortune)}</Cash>
     </li>
   );
 
@@ -123,7 +124,7 @@ export function RichListSheet({ onClose }: { onClose: () => void }) {
             {rank === null ? <Lock className="inline w-8 h-8 text-slate-400" /> : rankText(rank)}
           </p>
           <p className="text-[12px] font-bold text-slate-500">
-            {t('richList.basis')}: {money(earnings)}
+            {t('richList.basis')}: <Cash size={15}>{money(earnings)}</Cash>
           </p>
           <p className="mt-1.5 text-[13px] font-black text-slate-800">{goal}</p>
           {target.kind !== 'top' && (

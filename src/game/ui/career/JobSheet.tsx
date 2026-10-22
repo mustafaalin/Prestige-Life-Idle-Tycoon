@@ -11,6 +11,7 @@ import { GameButton, GlossyBar } from '../kit';
 import { portalRoot } from '../stage';
 import { JobIcon } from './JobIcon';
 import { RequirementList } from './Requirements';
+import { Cash } from '../CashAmount';
 
 // A job's card (docs/career-redesign.md §4): what it pays, how long mastery takes, what it still
 // needs (each with "Go") and which jobs it opens. Opens from a box in the job tree.
@@ -66,7 +67,7 @@ export function JobSheet({
             {hidden ? '???' : name('career', career)}
           </h3>
           <p className={`mt-1 rounded-full px-3 py-0.5 text-[12px] font-black ${hidden ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-emerald-600'}`}>
-            {t('career.salary', { amount: hidden ? t('career.hiddenSalary') : perMonth(career.salaryPerSecond * multiplier) })}
+            <Cash size={17}>{t('career.salary', { amount: hidden ? t('career.hiddenSalary') : perMonth(career.salaryPerSecond * multiplier) })}</Cash>
           </p>
         </div>
 
