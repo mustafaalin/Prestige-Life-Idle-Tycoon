@@ -35,11 +35,17 @@ export function isMet(state: GameStateV2, requirement: Requirement): boolean {
   }
 }
 
+/** Rows an older save may have skipped (new rows the 2026-10-21 tree put between old ones). A new
+ * player never skips one: a job is open only one row past the jobs reached. */
+const ROWS_AN_OLD_TREE_SKIPS = 2;
+
 /**
  * The highest row of the job tree reached (0 before the first job): the job held or any job held
  * before, counting only jobs reached from the first row, one row after another. A save from an older
  * tree may hold a job that has since moved far up (2026-10-22, phone test: the Cashier, once row 3,
- * now opens the Office tab at row 16); such a job stays held or done but does not count.
+ * now opens the Office tab at row 16); such a job stays held or done but does not count. A job a row
+ * or two above the jobs reached still counts: the 2026-10-21 tree put new rows between old ones (phone
+ * test 2026-10-23: Dishwasher row 2, Waiter now row 4, and the career stopped at row 2).
  */
 export function jobRowReached(state: GameStateV2) {
   const reached = new Set<string>();
@@ -48,7 +54,8 @@ export function jobRowReached(state: GameStateV2) {
   for (const career of CAREERS) {
     const worked = state.careerId === career.id || (state.jobSeconds[career.id] ?? 0) > 0;
     if (!worked) continue;
-    if (career.after.length > 0 && !career.after.some((id) => reached.has(id))) continue;
+    const linked = career.after.length === 0 || career.after.some((id) => reached.has(id));
+    if (!linked && career.level > top + ROWS_AN_OLD_TREE_SKIPS + 1) continue;
     reached.add(career.id);
     top = Math.max(top, career.level);
   }
