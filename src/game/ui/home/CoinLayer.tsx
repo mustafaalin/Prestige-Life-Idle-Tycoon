@@ -53,8 +53,8 @@ interface FallingCoin {
 
 const SPILL_MS = 1500;
 
-/** Half a flying banknote's size (42 px, 2026-10-22, user: ×1.5), so it is centred on its point. */
-const BILL_HALF = 21;
+/** Half a flying banknote's size (34 px, 2026-10-22, user: ×1.2 of the first 28 px), so it is centred on its point. */
+const BILL_HALF = 17;
 
 export function CoinLayer() {
   const [coins, setCoins] = useState<Coin[]>([]);
@@ -176,7 +176,7 @@ export function CoinLayer() {
           src={ICONS.bill}
           alt=""
           draggable={false}
-          className="v2-coin-fall absolute w-[42px] h-[42px] drop-shadow-md"
+          className="v2-coin-fall absolute w-[34px] h-[34px] drop-shadow-md"
           style={
             {
               left: coin.x - BILL_HALF,
@@ -210,7 +210,7 @@ export function CoinLayer() {
               src={ICONS.bill}
               alt=""
               draggable={false}
-              className="v2-coin-y block w-[42px] h-[42px] drop-shadow-md"
+              className="v2-coin-y block w-[34px] h-[34px] drop-shadow-md"
               style={{ '--sy': `${coin.sy}px`, '--dy': `${coin.dy}px`, ...timing } as CSSProperties}
             />
           </span>

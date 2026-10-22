@@ -4,6 +4,9 @@ import { questReward } from '../../core/formulas';
 import { QUEST_AD_MULTIPLIER } from '../../core/config/ads';
 import { canWatch } from '../../runtime/adRewards';
 import { AdButton } from '../ads/AdButton';
+import { useAdFree } from '../ads/useAdText';
+import { track } from '../../runtime/analytics';
+import { ICONS } from '../icons';
 import { activeQuests, isQuestComplete, questProgress } from '../../core/state';
 import type { GameStateV2, QuestDef } from '../../core/types';
 import { useT } from '../../i18n/useT';
@@ -116,10 +119,11 @@ export function QuestPanel({ onGo }: { onGo: GoToQuest }) {
  * that only the open card showed).
  */
 function QuestBadge({ quest, onOpen }: { quest: QuestDef; onOpen: () => void }) {
-  const { game, state, actions } = useGameV2();
+  const { game } = useGameV2();
   const translator = useT();
   const { t, money } = translator;
   const claim = useClaimQuest();
+  const x3 = useQuestX3(quest);
   const guided = useGuideTarget()?.key === `quest:${quest.id}:claim`;
   const { current, target } = questProgress(game, quest.goal);
   const done = current >= target;
@@ -164,25 +168,16 @@ function QuestBadge({ quest, onOpen }: { quest: QuestDef; onOpen: () => void }) 
       {done && (
         <button
           type="button"
-          onClick={() => claim(quest)}
-          className="relative v2-hit shrink-0 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-3 py-1.5 v2-display text-[13px] text-white v2-shadow transition-all active:scale-95"
+          onClick={x3.pack ? x3.take : () => claim(quest)}
+          className={`relative v2-hit shrink-0 rounded-full border-2 ${x3.pack ? 'border-amber-300' : 'border-white'} bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-3 py-1.5 v2-display text-[13px] text-white v2-shadow transition-all active:scale-95`}
         >
-          {t('quests.claim')} <span className="tabular-nums">+{money(questReward(game, quest))}</span>
+          {t('quests.claim')} <span className="tabular-nums">+{money(questReward(game, quest) * (x3.pack ? QUEST_AD_MULTIPLIER : 1))}</span>
+          {x3.pack && <PackMark />}
           {guided && <PointingHand className="-bottom-6 -right-1" />}
         </button>
       )}
-      {done && canWatch(state.ads, 'quest_x3', Date.now()) && (
-        <AdButton
-          small
-          placement="quest_x3"
-          onReward={() => {
-            const amount = actions.ads.questX3(quest.id);
-            if (amount <= 0) return;
-            playSfx('payout');
-            haptic('medium');
-            payout({ amount, label: `+${money(amount)}`, count: 10 });
-          }}
-        >
+      {done && x3.offered && !x3.pack && (
+        <AdButton small placement="quest_x3" onReward={x3.take}>
           ×{QUEST_AD_MULTIPLIER} +{money(questReward(game, quest) * QUEST_AD_MULTIPLIER)}
         </AdButton>
       )}
@@ -213,8 +208,37 @@ export function QuestStrip({ tab, pinnedId, onGo }: { tab: TabId; pinnedId: stri
   );
 }
 
+/**
+ * A finished goal's ×3 ad. With the Comfort Pack (`pack`) it is not a second button: Claim itself pays
+ * three times over and wears the pack's mark (2026-10-22, user: two buttons, one paying less, made no sense).
+ */
+function useQuestX3(quest: QuestDef) {
+  const { state, actions } = useGameV2();
+  const { money } = useT();
+  const free = useAdFree();
+  const offered = canWatch(state.ads, 'quest_x3', Date.now());
+  const take = () => {
+    if (free) track('ad_watch', { placement: 'quest_x3', outcome: 'ad_free' });
+    const amount = actions.ads.questX3(quest.id);
+    if (amount <= 0) return;
+    playSfx('payout');
+    haptic('medium');
+    payout({ amount, label: `+${money(amount)}`, count: 10 });
+  };
+  return { offered, pack: free && offered, take };
+}
+
+/** The Comfort Pack's mark on a button it made pay more: its picture and "×3". */
+function PackMark() {
+  return (
+    <span className="pointer-events-none absolute -top-3 -right-2 flex items-center rounded-full border-2 border-white bg-gradient-to-b from-amber-300 to-orange-500 pr-1.5 v2-display text-[10px] text-white v2-shadow">
+      <img src={ICONS.adFree} alt="" draggable={false} className="w-5 h-5 object-contain" />×{QUEST_AD_MULTIPLIER}
+    </span>
+  );
+}
+
 function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; compact?: boolean }) {
-  const { game, state, actions } = useGameV2();
+  const { game } = useGameV2();
   const translator = useT();
   const { t, money } = translator;
 
@@ -227,6 +251,7 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
 
   const claimQuest = useClaimQuest();
   const claim = () => claimQuest(quest);
+  const x3 = useQuestX3(quest);
 
   return (
     <li className="flex items-center gap-2">
@@ -273,25 +298,17 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
         <div className="shrink-0 flex flex-col items-end gap-1">
           <button
             type="button"
-            onClick={claim}
-            className="relative v2-hit shrink-0 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95"
+            onClick={x3.pack ? x3.take : claim}
+            className={`relative v2-hit shrink-0 rounded-full border-2 ${x3.pack ? 'border-amber-300' : 'border-white'} bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy px-2.5 py-1.5 v2-display text-[12px] text-white v2-shadow transition-all active:scale-95`}
           >
             {t('quests.claim')}
+            {x3.pack && <span className="tabular-nums"> +{money(questReward(game, quest) * QUEST_AD_MULTIPLIER)}</span>}
+            {x3.pack && <PackMark />}
             {guided && <PointingHand className="-bottom-6 -right-1" />}
           </button>
           {/* The same goal paid three times over, for an ad. */}
-          {canWatch(state.ads, 'quest_x3', Date.now()) && (
-            <AdButton
-              small
-              placement="quest_x3"
-              onReward={() => {
-                const amount = actions.ads.questX3(quest.id);
-                if (amount <= 0) return;
-                playSfx('payout');
-                haptic('medium');
-                payout({ amount, label: `+${money(amount)}`, count: 10 });
-              }}
-            >
+          {x3.offered && !x3.pack && (
+            <AdButton small placement="quest_x3" onReward={x3.take}>
               ×{QUEST_AD_MULTIPLIER} +{money(questReward(game, quest) * QUEST_AD_MULTIPLIER)}
             </AdButton>
           )}

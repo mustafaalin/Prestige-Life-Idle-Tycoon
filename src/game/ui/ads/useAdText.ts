@@ -9,11 +9,15 @@ export function useAdFree() {
   return adFree(state.purchases);
 }
 
-/** An ad button's text: "Watch an ad: …", or "Get it now: …" with the Comfort Pack. */
+/**
+ * An ad button's text: "Watch an ad: …"; with the Comfort Pack only what it gives, since the pack's
+ * picture on the button already says it comes at once (2026-10-22, user: "Get it now" everywhere was too much).
+ */
 export function useAdText() {
   const { t } = useT();
   const free = useAdFree();
-  return (key: MessageKey, params: MessageParams = {}) => t(key, { ...params, watch: t(free ? 'ads.take' : 'ads.watch') });
+  const chip = useAdChipText();
+  return (key: MessageKey, params: MessageParams = {}) => (free ? chip(key, params) : t(key, { ...params, watch: t('ads.watch') }));
 }
 
 /**

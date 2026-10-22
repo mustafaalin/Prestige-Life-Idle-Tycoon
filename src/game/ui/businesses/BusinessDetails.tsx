@@ -47,7 +47,7 @@ interface BusinessDetailsProps {
 
 export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: BusinessDetailsProps) {
   const { game, state, actions } = useGameV2();
-  const { t, name, money, runMoney, duration } = useT();
+  const { t, name, money, runMoney, perMonth, duration } = useT();
   const chipText = useAdChipText();
   useBackButton(true, 60, onClose);
 
@@ -149,7 +149,7 @@ export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: B
                 <p className="text-[12px] font-bold text-indigo-900/70">
                   {t('business.nextLevel')}: <span className="text-indigo-950">{t(levelNameKey(def.id, level + 1))}</span>
                 </p>
-                <p className="text-[12px] font-bold text-indigo-900/70">{t('business.nextRun', { from: money(runNow), to: money(runNext) })}</p>
+                <p className="text-[12px] font-bold text-indigo-900/70">{t('business.nextMonth', { from: perMonth(runNow / def.cycleSeconds), to: perMonth(runNext / def.cycleSeconds) })}</p>
               </>
             )}
             {newBuilding ? (
@@ -228,7 +228,7 @@ export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: B
           <Panel className="p-3 flex flex-col gap-2">
             <p className="text-[12px] font-bold text-indigo-900/70 tabular-nums">
               {Number.isFinite(cap) ? t('business.branchesCap', { count: branches, cap }) : t('business.branches', { count: branches })}
-              {!atCap && <span className="ml-1.5 text-emerald-600">{t('business.branchRun', { amount: money(levelRevenue(def, level) * multiplier) })}</span>}
+              {!atCap && <span className="ml-1.5 text-emerald-600">{t('business.branchMonth', { amount: perMonth((levelRevenue(def, level) * multiplier) / def.cycleSeconds) })}</span>}
             </p>
             {!atCap && (
               <GameButton

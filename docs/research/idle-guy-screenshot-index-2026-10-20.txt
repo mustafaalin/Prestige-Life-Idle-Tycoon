@@ -1,56 +1,60 @@
-01: WhatsApp Image 2026-10-20 at 17.54.37 (1).jpeg
-02: WhatsApp Image 2026-10-20 at 17.54.37 (2).jpeg
-03: WhatsApp Image 2026-10-20 at 17.54.37 (3).jpeg
-04: WhatsApp Image 2026-10-20 at 17.54.37.jpeg
-05: WhatsApp Image 2026-10-20 at 17.54.38.jpeg
-06: WhatsApp Image 2026-10-20 at 17.54.41 (1).jpeg
-07: WhatsApp Image 2026-10-20 at 17.54.41.jpeg
-08: WhatsApp Image 2026-10-20 at 17.54.42 (1).jpeg
-09: WhatsApp Image 2026-10-20 at 17.54.42 (2).jpeg
-10: WhatsApp Image 2026-10-20 at 17.54.42 (3).jpeg
-11: WhatsApp Image 2026-10-20 at 17.54.42 (4).jpeg
-12: WhatsApp Image 2026-10-20 at 17.54.42 (5).jpeg
-13: WhatsApp Image 2026-10-20 at 17.54.42 (6).jpeg
-14: WhatsApp Image 2026-10-20 at 17.54.42 (7).jpeg
-15: WhatsApp Image 2026-10-20 at 17.54.42.jpeg
-16: WhatsApp Image 2026-10-20 at 17.54.43 (1).jpeg
-17: WhatsApp Image 2026-10-20 at 17.54.43 (2).jpeg
-18: WhatsApp Image 2026-10-20 at 17.54.43 (3).jpeg
-19: WhatsApp Image 2026-10-20 at 17.54.43 (4).jpeg
-20: WhatsApp Image 2026-10-20 at 17.54.43 (5).jpeg
-21: WhatsApp Image 2026-10-20 at 17.54.43 (6).jpeg
-22: WhatsApp Image 2026-10-20 at 17.54.43 (7).jpeg
-23: WhatsApp Image 2026-10-20 at 17.54.43 (8).jpeg
-24: WhatsApp Image 2026-10-20 at 17.54.43.jpeg
-25: WhatsApp Image 2026-10-20 at 17.54.44 (1).jpeg
-26: WhatsApp Image 2026-10-20 at 17.54.44 (2).jpeg
-27: WhatsApp Image 2026-10-20 at 17.54.44 (3).jpeg
-28: WhatsApp Image 2026-10-20 at 17.54.44 (4).jpeg
-29: WhatsApp Image 2026-10-20 at 17.54.44 (5).jpeg
-30: WhatsApp Image 2026-10-20 at 17.54.44 (6).jpeg
-31: WhatsApp Image 2026-10-20 at 17.54.44 (7).jpeg
-32: WhatsApp Image 2026-10-20 at 17.54.44 (8).jpeg
-33: WhatsApp Image 2026-10-20 at 17.54.44.jpeg
-34: WhatsApp Image 2026-10-20 at 17.54.45 (1).jpeg
-35: WhatsApp Image 2026-10-20 at 17.54.45 (2).jpeg
-36: WhatsApp Image 2026-10-20 at 17.54.45 (3).jpeg
-37: WhatsApp Image 2026-10-20 at 17.54.45 (4).jpeg
-38: WhatsApp Image 2026-10-20 at 17.54.45 (5).jpeg
-39: WhatsApp Image 2026-10-20 at 17.54.45 (6).jpeg
-40: WhatsApp Image 2026-10-20 at 17.54.45 (7).jpeg
-41: WhatsApp Image 2026-10-20 at 17.54.45 (8).jpeg
-42: WhatsApp Image 2026-10-20 at 17.54.45.jpeg
-43: WhatsApp Image 2026-10-20 at 17.54.46 (1).jpeg
-44: WhatsApp Image 2026-10-20 at 17.54.46 (2).jpeg
-45: WhatsApp Image 2026-10-20 at 17.54.46 (3).jpeg
-46: WhatsApp Image 2026-10-20 at 17.54.46 (4).jpeg
-47: WhatsApp Image 2026-10-20 at 17.54.46 (5).jpeg
-48: WhatsApp Image 2026-10-20 at 17.54.46 (6).jpeg
-49: WhatsApp Image 2026-10-20 at 17.54.46 (7).jpeg
-50: WhatsApp Image 2026-10-20 at 17.54.46 (8).jpeg
-51: WhatsApp Image 2026-10-20 at 17.54.46 (9).jpeg
-52: WhatsApp Image 2026-10-20 at 17.54.46.jpeg
-53: WhatsApp Image 2026-10-20 at 17.54.47 (1).jpeg
-54: WhatsApp Image 2026-10-20 at 17.54.47 (2).jpeg
-55: WhatsApp Image 2026-10-20 at 17.54.47 (3).jpeg
-56: WhatsApp Image 2026-10-20 at 17.54.47.jpeg
+# Idle Guy ekran görüntüleri (`idle-guy-life-sim oyun ekran görüntüleri/`, git dışı)
+# 2026-10-22: dosyalar içeriklerine göre yeniden adlandırıldı. Sol: raporlardaki eski numara (idle-guy-comparison-2026-10-20.md), sağ: yeni dosya adı.
+
+01: 01-esya-evler.jpeg
+02: 02-esya-araclar.jpeg
+03: 03-iliskiler-listesi.jpeg
+04: 04-esya-kiyafet-giydirme.jpeg
+05: 05-beceriler-listesi.jpeg
+06: 06-is-sartlari-editor.jpeg
+07: 07-beceriler-listesi-2.jpeg
+08: 08-teklif-para-paketi-indirimli.jpeg
+09: 09-mini-oyunlar-menusu.jpeg
+10: 10-magaza-omur-ve-diger.jpeg
+11: 11-magaza-bilet-kristal-fis.jpeg
+12: 12-magaza-reklamsiz-paketler.jpeg
+13: 13-magaza-para-paketleri.jpeg
+14: 14-magaza-ozel-teklifler.jpeg
+15: (dosya artık yok)
+16: 15-yatirim-banka-sekmesi.jpeg
+17: 16-magaza-bonuslar-indirim.jpeg
+18: 17-karakter-gelistirmeler.jpeg
+19: 18-karakter-aylik-gelir-gider.jpeg
+20: 19-teklif-reklamsiz-indirim.jpeg
+21: 20-ana-ekran-sahne.jpeg
+22: 21-aktivite-etki-karti.jpeg
+23: 22-aktivite-etkiler-bos.jpeg
+24: 23-karakter-gelistirmeler-2.jpeg
+25: 24-aktiviteler-hobiler.jpeg
+26: 25-aktivite-enerji-satin-al.jpeg
+27: 26-aktiviteler-hobiler-animasyon.jpeg
+28: 27-aktiviteler-hobiler-animasyon-2.jpeg
+29: 28-beceriler-seviye-atlama-animasyonu.jpeg
+30: 29-uyari-mutsuzluk.jpeg
+31: 30-aktiviteler-seviye-hazir.jpeg
+32: 31-aktivite-seviye-atlama-onayi.jpeg
+33: 32-aktiviteler-hobiler-2.jpeg
+34: 33-prestij-gorevler.jpeg
+35: 34-yatirim-banka-3dk-calisiyor.jpeg
+36: 35-yatirim-banka-3dk-miktar-secimi.jpeg
+37: 36-yatirim-banka-3dk-calisiyor-2.jpeg
+38: 37-yatirim-banka-1gun-miktar-secimi.jpeg
+39: 38-yatirim-banka-cashback-odulu.jpeg
+40: 39-yatirim-banka-cashback-hazir.jpeg
+41: 40-yatirim-borsa-portfoy.jpeg
+42: 41-beceriler-seviye-atlama-animasyonu-2.jpeg
+43: 42-yatirim-emlak-listesi.jpeg
+44: 43-yatirim-borsa-bedava-paket-odulu.jpeg
+45: 44-yatirim-emlak-gelistirme-2-yildiz.jpeg
+46: 45-yatirim-emlak-gelistirme-1-yildiz.jpeg
+47: 46-yatirim-emlak-gelistirme-0-yildiz.jpeg
+48: 47-yatirim-borsa-sirket-detayi.jpeg
+49: 48-yatirim-emlak-listesi-2.jpeg
+50: 49-yatirim-emlak-satin-alma-onayi.jpeg
+51: 50-olay-kas-agrisi-karti.jpeg
+52: 51-yatirim-emlak-gelistirme-3-yildiz.jpeg
+53: 52-yatirim-borsa-sirket-detayi-2.jpeg
+54: 53-yatirim-borsa-portfoy-2.jpeg
+55: 54-yatirim-borsa-sirketler.jpeg
+56: 55-yatirim-borsa-hisse-alma.jpeg
+--: 56-kariyer-is-agaci.jpeg (eski adı jobs.jpeg)

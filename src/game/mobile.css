@@ -670,3 +670,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .v2-daily-tile, .v2-daily-today { animation: none; }
 }
+
+/* The free offers' button sits at the card's foot, whatever the title's lines (2026-10-22, user). */
+.v2-iap-free > :last-child {
+  margin-top: auto;
+}

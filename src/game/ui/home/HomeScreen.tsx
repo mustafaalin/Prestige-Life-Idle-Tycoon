@@ -283,6 +283,8 @@ export function HomeScreen() {
             state.offline.awaySeconds >= AD_OFFLINE_MIN_SECONDS
               ? {
                   placement: 'offline_x2',
+                  amount: state.offline.amount * AD_OFFLINE_MULTIPLIER,
+                  badge: `+%${Math.round((AD_OFFLINE_MULTIPLIER - 1) * 100)}`,
                   label: adText('ads.more', {
                     amount: money(state.offline.amount * AD_OFFLINE_MULTIPLIER),
                     percent: Math.round((AD_OFFLINE_MULTIPLIER - 1) * 100),

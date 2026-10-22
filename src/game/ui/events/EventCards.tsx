@@ -20,12 +20,12 @@ import { holdBalance, payout, spillCoins } from '../home/coins';
 import { GameButton } from '../kit';
 import { EVENT_AD_MULTIPLIER } from '../../core/config/ads';
 import { canWatch, eventAdExtra } from '../../runtime/adRewards';
-import { AdButton } from '../ads/AdButton';
+import { AdCollect } from '../ads/AdButton';
 import { useAdText } from '../ads/useAdText';
 import { nextCaller } from '../../runtime/eventDeck';
 import { eventKey, eventKind, eventSpeaker, onEventCardRequest } from './eventScript';
 import { portalRoot } from '../stage';
-import { CashAmount } from '../CashAmount';
+import { CashAmount, MoneyIcon } from '../CashAmount';
 
 // Event cards (game-design §4.7): from Middle Class on, someone the hero knows calls every few
 // minutes. The call waits on the home scene until it is answered; the card asks one thing and has a
@@ -155,6 +155,20 @@ export function EventCards({ tabOpen, onOpenChange }: EventCardsProps) {
   );
 }
 
+/** An answer's money on its button: a bundle and the amount, or the loss in red. */
+function Stake({ amount, loss = false }: { amount: string; loss?: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full py-0.5 pl-1 pr-2.5 text-[13px] font-black text-white tabular-nums ${
+        loss ? 'bg-rose-600 pl-2.5' : 'bg-black/20'
+      }`}
+    >
+      {!loss && <MoneyIcon tier={2} size={20} />}
+      {amount}
+    </span>
+  );
+}
+
 interface EventCardProps {
   cardId: string;
   onLater: () => void;
@@ -242,10 +256,7 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
           {outcome === null && kind === 'thanks' ? (
             <div className="mt-4 flex flex-col gap-2.5">
               <GameButton tone="buy" onClick={() => answer(false)} className="w-full px-3 py-2.5 text-center">
-                <span className="block v2-display text-[16px] v2-shadow">{t('events.thanksOk')}</span>
-                <span className="block text-[11px] font-black text-white/90 tabular-nums">
-                  {t('events.sure', { amount: money(eventReward(game, 'safe')) })}
-                </span>
+                <span className="block v2-display text-[17px] v2-shadow">{t('events.thanksOk')}</span>
               </GameButton>
             </div>
           ) : outcome === null && kind === 'pick' ? (
@@ -261,9 +272,6 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
                   className="w-full px-3 py-2.5 text-center"
                 >
                   <span className="block v2-display text-[16px] v2-shadow [text-wrap:balance]">{t(eventKey(cardId, option))}</span>
-                  <span className="block text-[11px] font-black text-white/90 tabular-nums">
-                    {t('events.sure', { amount: money(eventReward(game, 'safe')) })}
-                  </span>
                 </GameButton>
               ))}
             </div>
@@ -271,25 +279,20 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
             <div className="mt-4 flex flex-col gap-2.5">
               <GameButton tone="buy" onClick={() => answer(false)} className="w-full px-3 py-2.5 text-center">
                 <span className="block v2-display text-[16px] v2-shadow [text-wrap:balance]">{t(eventKey(cardId, 'safe'))}</span>
-                <span className="block text-[11px] font-black text-white/90 tabular-nums [text-wrap:balance]">
-                  {t('events.sure', {
-                    amount: money(eventReward(game, 'safe')),
-                  })}
+                <span className="mt-1 flex justify-center">
+                  <Stake amount={`+${money(eventReward(game, 'safe'))}`} />
                 </span>
               </GameButton>
               <GameButton tone="gold" onClick={() => answer(true)} className="w-full px-3 py-2.5 text-center">
                 <span className="block v2-display text-[16px] v2-shadow [text-wrap:balance]">{t(eventKey(cardId, 'bold'))}</span>
-                {/* The stake is spelled out before the choice: the win, and the loss in red. */}
-                <span className="mt-0.5 flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-[11px] font-black text-white/90 tabular-nums">
-                  <span>
-                    {t('events.chance', {
-                      chance: Math.round(EVENT_BOLD_CHANCE * 100),
-                      win: money(eventReward(game, 'win')),
-                    })}
+                {/* The stake is spelled out before the choice: the chance, the win, and the loss in red. */}
+                <span className="mt-1 flex flex-wrap items-center justify-center gap-1.5">
+                  <span className="rounded-full bg-amber-900/35 px-2 py-0.5 text-[12px] font-black text-white tabular-nums">
+                    {t('events.chance', { chance: Math.round(EVENT_BOLD_CHANCE * 100) })}
                   </span>
-                  <span className="rounded-full bg-rose-600/90 px-2 py-px text-white">
-                    {t('events.risk', { lose: money(-eventReward(game, 'lose')) })}
-                  </span>
+                  <Stake amount={`+${money(eventReward(game, 'win'))}`} />
+                  <span className="text-[11px] font-black text-white/85">{t('events.or')}</span>
+                  <Stake amount={`−${money(-eventReward(game, 'lose'))}`} loss />
                 </span>
               </GameButton>
             </div>
@@ -304,37 +307,35 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
                 {lost ? `−${money(Math.abs(amount))}` : <CashAmount amount={amount}>+{money(amount)}</CashAmount>}
               </p>
               {/* An ad pays the result again, or takes a loss back and pays the safe answer. */}
-              {canWatch(state.ads, 'event_bonus', Date.now()) && (
-                <AdButton
-                  placement="event_bonus"
-                  className="mt-2"
-                  onReward={() => {
-                    const extra = actions.ads.eventBonus(outcome);
-                    holdBalance(0);
-                    // What the card ends at: its result and the ad's extra (after a loss, the safe answer).
-                    const total = Math.max(0, amount + extra);
-                    if (total > 0) {
-                      playSfx('payout');
-                      haptic('medium');
-                      payout({ amount: total, label: `+${money(total)}`, count: 12 });
-                    }
-                    onDone();
-                  }}
-                >
-                  {lost
+              <AdCollect
+                placement="event_bonus"
+                className="mt-2"
+                available={canWatch(state.ads, 'event_bonus', Date.now())}
+                adLabel={
+                  lost
                     ? adText('ads.eventSecondChance', { amount: money(eventAdExtra(game, outcome)) })
-                    : adText('ads.double', { amount: money(amount * EVENT_AD_MULTIPLIER), factor: EVENT_AD_MULTIPLIER })}
-                </AdButton>
-              )}
-              {lost ? (
-                <GameButton tone="soft" onClick={collect} className="w-full mt-2 py-3 v2-display text-lg">
-                  {t('events.loseOk')}
-                </GameButton>
-              ) : (
-                <GameButton tone="buy" onClick={collect} className="w-full mt-2 py-3 v2-display text-lg v2-shadow">
-                  {t('common.collect')}
-                </GameButton>
-              )}
+                    : adText('ads.double', { amount: money(amount * EVENT_AD_MULTIPLIER), factor: EVENT_AD_MULTIPLIER })
+                }
+                onReward={() => {
+                  const extra = actions.ads.eventBonus(outcome);
+                  holdBalance(0);
+                  // What the card ends at: its result and the ad's extra (after a loss, the safe answer).
+                  const total = Math.max(0, amount + extra);
+                  if (total > 0) {
+                    playSfx('payout');
+                    haptic('medium');
+                    payout({ amount: total, label: `+${money(total)}`, count: 12 });
+                  }
+                  onDone();
+                }}
+                collectLabel={lost ? t('events.loseOk') : t('common.collect')}
+                collectTone={lost ? 'soft' : 'buy'}
+                onCollect={collect}
+                packLabel={lost ? t('events.secondChance') : undefined}
+                packAmount={`+${money(lost ? Math.max(0, amount + eventAdExtra(game, outcome)) : amount * EVENT_AD_MULTIPLIER)}`}
+                plainAmount={lost ? undefined : `+${money(amount)}`}
+                packBadge={lost ? undefined : `×${EVENT_AD_MULTIPLIER}`}
+              />
             </div>
           )}
         </div>

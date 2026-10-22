@@ -4,7 +4,7 @@ import { useT } from '../../i18n/useT';
 import type { AdPlacement } from '../../runtime/ads';
 import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
-import { AdButton } from '../ads/AdButton';
+import { AdCollect } from '../ads/AdButton';
 import { Confetti } from '../Confetti';
 import { portalRoot } from '../stage';
 import { reducedMotion, useCountUp, useShowStep, type Timeline } from './showTiming';
@@ -90,12 +90,13 @@ interface GrowShowProps {
   levelName: string;
   growing: string;
   title: string;
-  /** The pay of one run before and after. */
-  fromRun: number;
-  toRun: number;
+  /** What the line earns per second before and after; shown as a month (2026-10-22, user). */
+  fromRate: number;
+  toRate: number;
   actionLabel: string;
   onClose: () => void;
-  ad?: { placement: AdPlacement; label: string; onReward: () => void };
+  /** An ad's gift beside "Great!"; `amount` for the Comfort Pack's one button. */
+  ad?: { placement: AdPlacement; label: string; amount: number; onReward: () => void };
 }
 
 /** A business takes on a new look (stand → shop → store). */
@@ -105,17 +106,17 @@ export function GrowShow({
   levelName,
   growing,
   title,
-  fromRun,
-  toRun,
+  fromRate,
+  toRate,
   actionLabel,
   onClose,
   ad,
 }: GrowShowProps) {
-  const { t, money } = useT();
+  const { t, money, perMonth } = useT();
   const { step, done, skip } = useShowStep(GROW_STEPS);
   const revealed = step >= GROW_FLASH;
   const [skipped, setSkipped] = useState(false);
-  const run = useCountUp(fromRun, toRun, done, skipped || reducedMotion());
+  const rate = useCountUp(fromRate, toRate, done, skipped || reducedMotion());
 
   // The flash is the moment: the sound and a firm buzz land with it (at once with reduced motion).
   useEffect(() => {
@@ -175,17 +176,24 @@ export function GrowShow({
       )}
       {done && (
         <>
-          <p className="mt-1 text-[11px] font-black uppercase tracking-widest text-slate-400">{t('business.showRun')}</p>
-          <p className="flex items-baseline justify-center gap-2 mb-3 tabular-nums">
-            <span className="text-sm font-bold text-slate-400 line-through">{money(fromRun)}</span>
-            <span className="v2-display v2-outline text-[34px] leading-tight text-emerald-400">{money(run)}</span>
+          <p className="mt-1 text-[11px] font-black uppercase tracking-widest text-slate-400">{t('business.showMonth')}</p>
+          <p className="flex flex-wrap items-baseline justify-center gap-x-2 mb-3 tabular-nums">
+            <span className="text-sm font-bold text-slate-400 line-through">{perMonth(fromRate)}</span>
+            <span className="v2-display v2-outline text-[30px] leading-tight text-emerald-400">{perMonth(rate)}</span>
           </p>
-          {ad && (
-            <AdButton placement={ad.placement} onReward={ad.onReward} className="mb-2">
-              {ad.label}
-            </AdButton>
+          {ad ? (
+            <AdCollect
+              placement={ad.placement}
+              className="v2-show-ribbon"
+              adLabel={ad.label}
+              onReward={ad.onReward}
+              collectLabel={actionLabel}
+              onCollect={onClose}
+              packAmount={`+${money(ad.amount)}`}
+            />
+          ) : (
+            <OkButton label={actionLabel} onClick={onClose} />
           )}
-          <OkButton label={actionLabel} onClick={onClose} />
         </>
       )}
     </ShowFrame>

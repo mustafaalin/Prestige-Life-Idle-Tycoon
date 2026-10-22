@@ -13,7 +13,7 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { hasScarf } from '../../runtime/purchases';
 import { sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { AdButton } from '../ads/AdButton';
+import { AdCollect } from '../ads/AdButton';
 import { useAdText } from '../ads/useAdText';
 import { classLook } from '../scene/stages';
 import { payout } from './coins';
@@ -94,16 +94,16 @@ export function DailyCard({ offer, onCollected }: { offer: DailyOffer; onCollect
           <p className="text-[12px] font-bold text-slate-500 mb-3">
             {t('daily.formula', { income: money(monthly), months: offer.months })}
           </p>
-          <AdButton placement="daily_x2" onReward={() => collect(2)} className="mb-2">
-            {adText('ads.double', { amount: money(offer.amount * 2), factor: 2 })}
-          </AdButton>
-          <button
-            type="button"
-            onClick={() => collect(1)}
-            className="w-full rounded-2xl py-3 v2-display text-lg text-white v2-shadow bg-gradient-to-b from-emerald-400 to-green-600 border-2 border-white/70 v2-glossy transition-all active:scale-[0.98]"
-          >
-            {t('common.collect')}
-          </button>
+          <AdCollect
+            placement="daily_x2"
+            adLabel={adText('ads.double', { amount: money(offer.amount * 2), factor: 2 })}
+            onReward={() => collect(2)}
+            collectLabel={t('common.collect')}
+            onCollect={() => collect(1)}
+            packAmount={`+${money(offer.amount * 2)}`}
+            plainAmount={`+${money(offer.amount)}`}
+            packBadge="×2"
+          />
           <p className="mt-2.5 text-[11px] font-semibold text-slate-400">{t('daily.noPenalty')}</p>
         </div>
       </div>

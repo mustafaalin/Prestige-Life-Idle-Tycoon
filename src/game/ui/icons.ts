@@ -37,6 +37,11 @@ export const ICONS = {
   invest: `${DIR}/invest.webp`,
   /** A rewarded video (a red play button, 2026-10-22): on every "watch an ad" button. */
   adReward: `${DIR}/ad-reward.webp`,
+  /**
+   * The same play button crossed out in a gold ring (the Comfort Pack's picture): on the offers the
+   * pack pays at once, so the player sees the pack at work (2026-10-22, user).
+   */
+  adFree: '/assets/iap/v2/no-ads.webp',
   /** Family legacy points; never the status star. */
   legacy: `${DIR}/legacy-points.webp`,
   /** The family heirlooms (the album's is `album`). */

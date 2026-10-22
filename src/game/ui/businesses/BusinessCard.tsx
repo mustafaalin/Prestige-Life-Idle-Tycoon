@@ -69,6 +69,8 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
   const atCap = branches >= branchCapAt(def, game.classIndex);
   const price = next ? next.cost : branchCost(def, branches);
   const canStep = next !== null || (atTop && !atCap);
+  /** What one more branch adds to a run: one more place at this level. */
+  const branchGain = levelRevenue(def, level) * multiplier;
 
   const hirePrice = managerCost(game, def);
   const managerReady = opened && !managed && game.cash >= hirePrice;
@@ -170,7 +172,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
                 className="v2-float-up pointer-events-none absolute left-1/2 top-1 whitespace-nowrap v2-display v2-outline-thin text-[15px] text-emerald-400 tabular-nums"
                 aria-hidden
               >
-                +{money(bump.gain)}
+                +{perMonth(bump.gain / def.cycleSeconds)}
               </span>
             )}
             {managed && (
@@ -211,9 +213,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
               <StageBar def={def} level={level} />
             </>
           ) : (
-            <span className="text-[12px] font-bold text-emerald-600">
-              {t('business.openIncome', { amount: perMonth(runNext / def.cycleSeconds) })}
-            </span>
+            <StageBar def={def} level={0} />
           )}
         </button>
 
@@ -239,6 +239,11 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
               </GameButton>
             </Focusable>
           )}
+          {!next && canStep && (
+            <span className="text-[11px] font-black text-emerald-600 tabular-nums whitespace-nowrap">
+              +{perMonth(branchGain / def.cycleSeconds)}
+            </span>
+          )}
           {atTop && atCap && <span className="text-[10px] font-black text-indigo-900/50">{t('business.branchCapFull')}</span>}
           {canStep && game.cash < price && !canHelp(state, now, price) && (
             <span className="text-[10px] font-bold text-indigo-900/50 tabular-nums">
@@ -258,7 +263,9 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
           <div className="flex-1 min-w-0 leading-tight">
             <p className="v2-display text-[13px] text-violet-700 truncate">{managerName}</p>
             <p className="text-[10px] font-bold text-violet-600/80">
-              {tempLeft > 0 ? t('ads.tempManagerActive', { duration: duration(Math.ceil(tempLeft)) }) : t('business.managerShort')}
+              {tempLeft > 0
+                ? t('ads.tempManagerActive', { duration: duration(Math.ceil(tempLeft)) })
+                : t('business.managerShort', { amount: perMonth((perRun * campaignFactor) / def.cycleSeconds) })}
             </p>
           </div>
           <Focusable focusKey={`business:${def.id}:manager`} className="shrink-0">
@@ -295,12 +302,13 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
           levelName={t(levelNameKey(def.id, grown.level))}
           growing={t('business.growing', { business: name('business', def) })}
           title={t('business.grown', { business: name('business', def) })}
-          fromRun={grown.from}
-          toRun={grown.to}
+          fromRate={grown.from / def.cycleSeconds}
+          toRate={grown.to / def.cycleSeconds}
           actionLabel={t('business.grownOk')}
           onClose={() => setGrown(null)}
           ad={{
             placement: 'grown_bonus',
+            amount: adGift(game),
             label: adText('ads.grown', { amount: money(adGift(game)) }),
             onReward: () => {
               const paid = actions.ads.grownBonus(def.id, grown.level);

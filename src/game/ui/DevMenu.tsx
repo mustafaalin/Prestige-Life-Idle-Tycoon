@@ -89,8 +89,8 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
           levelName={t(levelNameKey(showDef.id, SHOW_LEVEL))}
           growing={t('business.growing', { business: name('business', showDef) })}
           title={t('business.grown', { business: name('business', showDef) })}
-          fromRun={levelRevenue(showDef, SHOW_LEVEL - 1)}
-          toRun={levelRevenue(showDef, SHOW_LEVEL)}
+          fromRate={levelRevenue(showDef, SHOW_LEVEL - 1) / showDef.cycleSeconds}
+          toRate={levelRevenue(showDef, SHOW_LEVEL) / showDef.cycleSeconds}
           actionLabel={t('business.grownOk')}
           onClose={() => setShow(null)}
         />

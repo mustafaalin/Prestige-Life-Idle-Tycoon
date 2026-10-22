@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { useT } from '../../i18n/useT';
 import type { AdPlacement } from '../../runtime/ads';
 import { useBackButton } from '../../runtime/backButton';
-import { AdButton } from '../ads/AdButton';
+import { AdCollect } from '../ads/AdButton';
 import { portalRoot } from '../stage';
 
 // A moment the player confirms with one tap: a reward (Şans's find, offline earnings; the amount is
@@ -25,8 +25,11 @@ interface RewardCardProps {
   portrait?: boolean;
   /** Gets the amount's position on screen, so coins can start there. */
   onCollect: (from: { x: number; y: number }) => void;
-  /** "Watch an ad" above the collect button: `label` says what it gives, `onReward` collects with it. */
-  ad?: { placement: AdPlacement; label: string; onReward: (from: { x: number; y: number }) => void };
+  /**
+   * "Watch an ad" above the collect button: `label` says what it gives, `onReward` collects with it;
+   * `amount` is that bigger reward and `badge` what the ad adds ("×2"), for the Comfort Pack's one button.
+   */
+  ad?: { placement: AdPlacement; label: string; amount: number; badge: string; onReward: (from: { x: number; y: number }) => void };
 }
 
 export function RewardCard({
@@ -41,7 +44,7 @@ export function RewardCard({
   onCollect,
   ad,
 }: RewardCardProps) {
-  const { t } = useT();
+  const { t, money } = useT();
   const amountRef = useRef<HTMLParagraphElement>(null);
 
   const amountPlace = () => {
@@ -87,18 +90,26 @@ export function RewardCard({
             </p>
           )}
           {note && <p className="text-[11px] font-semibold text-slate-500 mt-2 mb-3">{note}</p>}
-          {ad && (
-            <AdButton placement={ad.placement} onReward={() => ad.onReward(amountPlace())} className="mb-2">
-              {ad.label}
-            </AdButton>
+          {ad ? (
+            <AdCollect
+              placement={ad.placement}
+              adLabel={ad.label}
+              onReward={() => ad.onReward(amountPlace())}
+              collectLabel={actionLabel ?? t('common.collect')}
+              onCollect={collect}
+              packAmount={`+${money(ad.amount)}`}
+              plainAmount={amount}
+              packBadge={ad.badge}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={collect}
+              className="w-full rounded-2xl py-3 v2-display text-lg text-white v2-shadow bg-gradient-to-b from-emerald-400 to-green-600 border-2 border-white/70 v2-glossy transition-all active:scale-[0.98]"
+            >
+              {actionLabel ?? t('common.collect')}
+            </button>
           )}
-          <button
-            type="button"
-            onClick={collect}
-            className="w-full rounded-2xl py-3 v2-display text-lg text-white v2-shadow bg-gradient-to-b from-emerald-400 to-green-600 border-2 border-white/70 v2-glossy transition-all active:scale-[0.98]"
-          >
-            {actionLabel ?? t('common.collect')}
-          </button>
         </div>
       </div>
     </div>,

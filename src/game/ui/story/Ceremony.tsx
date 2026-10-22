@@ -14,7 +14,7 @@ import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx, useMusic, type Sfx } from '../../runtime/feedback';
 import type { LifeMomentId } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { AdButton } from '../ads/AdButton';
+import { AdCollect } from '../ads/AdButton';
 import { useAdText } from '../ads/useAdText';
 import { payout } from '../home/coins';
 import { managerKey, managerPortrait } from '../businesses/managers';
@@ -669,19 +669,20 @@ function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void 
         </span>
         <span className="v2-display text-[20px] text-emerald-600 tabular-nums">+{money(amount)}</span>
       </div>
-      <AdButton placement="story_gift_x2" className="mt-3" onReward={() => collect(AD_STORY_GIFT_MULTIPLIER)}>
-        {adText('ads.double', { amount: money(amount * AD_STORY_GIFT_MULTIPLIER), factor: AD_STORY_GIFT_MULTIPLIER })}
-      </AdButton>
-      <GameButton
-        tone="buy"
-        onClick={(event) => {
-          event.stopPropagation();
-          collect(1);
-        }}
-        className="w-full mt-2.5 py-3 v2-display text-lg v2-shadow"
-      >
-        {t('common.collect')}
-      </GameButton>
+      {/* Inside a tappable card: a tap here must not reach the card. */}
+      <div onClick={(event) => event.stopPropagation()}>
+        <AdCollect
+          placement="story_gift_x2"
+          className="mt-3"
+          adLabel={adText('ads.double', { amount: money(amount * AD_STORY_GIFT_MULTIPLIER), factor: AD_STORY_GIFT_MULTIPLIER })}
+          onReward={() => collect(AD_STORY_GIFT_MULTIPLIER)}
+          collectLabel={t('common.collect')}
+          onCollect={() => collect(1)}
+          packAmount={`+${money(amount * AD_STORY_GIFT_MULTIPLIER)}`}
+          plainAmount={`+${money(amount)}`}
+          packBadge={`×${AD_STORY_GIFT_MULTIPLIER}`}
+        />
+      </div>
     </>
   );
 }

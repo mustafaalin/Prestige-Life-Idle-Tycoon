@@ -550,6 +550,8 @@ export function Scene() {
           onCollect={() => collectFind()}
           ad={{
             placement: 'find_x2',
+            amount: findOffer * AD_FIND_MULTIPLIER,
+            badge: `×${AD_FIND_MULTIPLIER}`,
             label: adText('ads.double', { amount: money(findOffer * AD_FIND_MULTIPLIER), factor: AD_FIND_MULTIPLIER }),
             onReward: () => collectFind(AD_FIND_MULTIPLIER),
           }}
