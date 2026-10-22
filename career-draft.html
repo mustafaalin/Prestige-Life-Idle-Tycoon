@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kariyer Taslağı</title>
+    <!-- Dev-only draft of the career tree redesign (2026-10-23); not part of the build. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #1a1446 url('/assets/scene/home-8.webp') center / cover fixed;
+        font-family: 'Nunito', system-ui, sans-serif;
+        display: flex;
+        justify-content: center;
+      }
+      .phone { width: 100%; max-width: 400px; min-height: 100vh; background: rgba(15, 12, 50, 0.35); padding: 12px 10px 24px; }
+      .display { font-family: 'Fredoka', system-ui, sans-serif; font-weight: 600; }
+      .money { width: 20px; height: 20px; object-fit: contain; vertical-align: -4px; margin-right: 2px; filter: drop-shadow(0 1px 0 rgba(0,0,0,.15)); }
+
+      /* Sheet */
+      .sheet { border-radius: 28px; overflow: hidden; background: linear-gradient(#eef2ff, #e0e7ff); box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+      .sheet-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: linear-gradient(90deg, #8b5cf6, #6366f1); color: #fff; }
+      .sheet-head img { width: 34px; height: 34px; object-fit: contain; }
+      .sheet-head h1 { margin: 0; font-size: 22px; text-shadow: 0 2px 0 rgba(0,0,0,.2); }
+      .sheet-head .x { margin-left: auto; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,.2); display: grid; place-items: center; font-size: 18px; }
+
+      .current { margin: 12px; padding: 12px; border-radius: 22px; background: #fff; display: flex; gap: 12px; align-items: center; box-shadow: 0 2px 0 #c7d2fe; }
+      .current .ring { width: 64px; height: 64px; border-radius: 50%; padding: 4px; background: conic-gradient(#22c55e 100%, #e5e7eb 0); flex-shrink: 0; }
+      .current .ring img { width: 100%; height: 100%; border-radius: 50%; background: #fff; object-fit: contain; padding: 6px; }
+      .current small { font-size: 10px; font-weight: 900; letter-spacing: .12em; color: #94a3b8; text-transform: uppercase; }
+      .current .name { font-size: 19px; color: #1e1b4b; line-height: 1.1; }
+      .current .pay { font-size: 22px; color: #16a34a; }
+      .current .pay .money { width: 26px; height: 26px; vertical-align: -6px; }
+      .current .note { font-size: 11px; font-weight: 900; color: #16a34a; }
+
+      .tabs { margin: 0 12px 4px; padding: 4px; border-radius: 18px; background: #fff; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+      .tabs span { padding: 8px 0; border-radius: 14px; text-align: center; font-size: 13px; color: #64748b; }
+      .tabs .on { background: linear-gradient(#fbbf24, #f97316); color: #fff; box-shadow: 0 3px 0 #c2410c; text-shadow: 0 1px 0 rgba(0,0,0,.2); }
+      .tabs .lock { opacity: .55; }
+
+      /* Tree */
+      .tree { position: relative; padding: 6px 0 18px; }
+      .row { position: relative; display: grid; grid-template-columns: 44px 1fr 1fr; gap: 10px; align-items: stretch; padding: 10px 12px 10px 6px; }
+      .row:nth-child(odd of .row) { background: rgba(255,255,255,.45); }
+      .row:nth-child(even of .row) { background: rgba(255,255,255,.12); }
+      .lvl { align-self: center; justify-self: center; font-size: 12px; color: #4338ca; background: #fff; border-radius: 999px; padding: 4px 7px; box-shadow: 0 2px 0 #c7d2fe; white-space: nowrap; }
+      .lvl.here { background: linear-gradient(#fde68a, #f59e0b); color: #78350f; box-shadow: 0 2px 0 #b45309; }
+
+      /* Connector between two rows: two drops, one bar, two rises (any job above opens any below) */
+      .gap { position: relative; height: 26px; margin: 0 12px 0 6px; }
+      .gap i { position: absolute; display: block; border-radius: 3px; }
+      .gap .bar { top: 11px; height: 5px; }
+      .gap .up, .gap .down { width: 5px; height: 13px; }
+      .gap .up { top: 0; }
+      .gap .down { top: 13px; }
+      .walked { background: linear-gradient(#fcd34d, #f59e0b); box-shadow: 0 0 8px rgba(245,158,11,.7); }
+      .open { background: #60a5fa; }
+      .future { background: repeating-linear-gradient(90deg, #a5b4fc 0 6px, transparent 6px 11px); }
+      .future.v { background: repeating-linear-gradient(#a5b4fc 0 5px, transparent 5px 9px); }
+
+      .card { position: relative; border-radius: 20px; padding: 10px 6px 0; display: flex; flex-direction: column; align-items: center; text-align: center; min-height: 158px; overflow: hidden; border: 3px solid; }
+      .card .icon { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 3px 2px rgba(0,0,0,.18)); }
+      .card .name { margin-top: 4px; font-size: 15px; line-height: 1.1; min-height: 33px; display: flex; align-items: center; }
+      .card .pay { margin-top: 2px; font-size: 15px; }
+      .card .foot { margin-top: auto; width: calc(100% + 12px); padding: 7px 4px 8px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+      .done { background: linear-gradient(#f0fdf4, #dcfce7); border-color: #86efac; color: #14532d; }
+      .done .icon { filter: saturate(.6) drop-shadow(0 3px 2px rgba(0,0,0,.12)); opacity: .85; }
+      .done .pay { color: #16a34a; opacity: .8; }
+      .done .foot { background: #bbf7d0; color: #15803d; }
+
+      .held { background: linear-gradient(#fef3c7, #fcd34d); border-color: #f59e0b; color: #78350f; box-shadow: 0 0 0 4px rgba(251,191,36,.35), 0 8px 18px rgba(245,158,11,.45); }
+      .held .ribbon { position: absolute; top: 9px; left: -24px; transform: rotate(-35deg); width: 90px; background: linear-gradient(#f97316, #ea580c); color: #fff; font-size: 10px; padding: 2px 0; text-align: center; letter-spacing: .08em; }
+      .held .pay { color: #15803d; }
+      .held .foot { background: linear-gradient(#22c55e, #16a34a); color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.25); }
+      .meter { width: calc(100% - 4px); height: 9px; border-radius: 9px; background: rgba(120,53,15,.18); margin: 6px 0 4px; overflow: hidden; }
+      .meter b { display: block; height: 100%; border-radius: 9px; background: linear-gradient(90deg, #4ade80, #16a34a); }
+
+      .openc { background: linear-gradient(#7dd3fc, #3b82f6); border-color: #1d4ed8; color: #fff; box-shadow: 0 4px 0 #1e3a8a; }
+      .openc .name { text-shadow: 0 2px 0 rgba(30,58,138,.5); }
+      .openc .pay { color: #fff; text-shadow: 0 2px 0 rgba(21,128,61,.8); }
+      .openc .foot { background: linear-gradient(#4ade80, #16a34a); color: #fff; font-size: 16px; text-shadow: 0 2px 0 rgba(0,0,0,.25); box-shadow: inset 0 2px 0 rgba(255,255,255,.35); }
+      .badge { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(#fde047, #f59e0b); color: #7c2d12; display: grid; place-items: center; font-size: 15px; box-shadow: 0 2px 0 #b45309; }
+      .raise { position: absolute; top: 8px; left: 6px; font-size: 11px; color: #fff; background: #16a34a; border-radius: 999px; padding: 1px 6px; box-shadow: 0 2px 0 #14532d; }
+
+      .next { background: linear-gradient(#fff, #eef2ff); border-color: #c7d2fe; color: #1e1b4b; }
+      .next .pay { color: #16a34a; opacity: .75; }
+      .next .foot { background: #e0e7ff; color: #4338ca; font-size: 12px; }
+
+      .hidden { background: linear-gradient(#e2e8f0, #cbd5e1); border-color: #94a3b8; color: #64748b; border-style: dashed; }
+      .hidden .q { font-size: 52px; line-height: 64px; color: #94a3b8; text-shadow: 0 3px 0 #fff; }
+      .hidden .foot { background: rgba(255,255,255,.35); color: #64748b; }
+
+      .legend { margin: 14px 4px 0; padding: 12px; border-radius: 18px; background: rgba(255,255,255,.92); font-size: 12px; color: #334155; line-height: 1.5; }
+      .legend b { color: #1e1b4b; }
+    </style>
+  </head>
+  <body>
+    <div class="phone">
+      <div class="sheet">
+        <div class="sheet-head">
+          <img src="/assets/icons/v2/career.webp" alt="" />
+          <h1 class="display">Kariyer</h1>
+          <span class="x">✕</span>
+        </div>
+
+        <div class="current">
+          <div class="ring"><img src="/assets/jobs/v2/carpenter-apprentice.webp" alt="" /></div>
+          <div>
+            <small>Şu anki işin</small>
+            <div class="name display">Marangoz Çırağı</div>
+            <div class="pay display"><img class="money" src="/assets/icons/v2/money-2.webp" alt="" />$556/ay</div>
+            <div class="note">✓ Usta: yeni bir işe geçebilirsin</div>
+          </div>
+        </div>
+
+        <div class="tabs display">
+          <span class="on">İşçi</span><span class="lock">🔒 Ofis</span><span class="lock">🔒 Uzman</span><span class="lock">🔒 Zirve</span>
+        </div>
+
+        <div class="tree" id="tree"></div>
+      </div>
+
+      <div class="legend">
+        <b>Taslak (kariyer ekranı).</b> Her seviye kendi şeridinde; kartın rengi durumunu söyler:
+        <b>yeşil</b> bitirdiğin iş, <b>altın</b> şimdiki işin, <b>mavi</b> girebileceğin iş (dibinde "İşe gir"),
+        <b>beyaz</b> şartı eksik iş (eksik şart dipte), <b>gri</b> gizli iş. Satırlar arasında tek kavşak: üstteki
+        iki işten herhangi biri alttaki ikisini açar. <b>Altın</b> çizgi senin yürüdüğün yol, <b>mavi</b> şu an açık yol,
+        <b>kesik</b> çizgi henüz kapalı. Para geçen her yerde para ikonu.
+      </div>
+    </div>
+
+    <script>
+      const ICON = (id) => `/assets/jobs/v2/${id}.webp`;
+      const MONEY = '<img class="money" src="/assets/icons/v2/money-2.webp" alt="" />';
+      // The player's save, rows 4–9 (state per job; the walked job of each row; gaps between rows).
+      const ROWS = [
+        { lvl: 4, jobs: [
+          { id: 'warehouse-worker', name: 'Depo İşçisi', pay: 448, state: 'next', need: '🔒 Temizlikçi ustalığı' },
+          { id: 'waiter', name: 'Garson', pay: 448, state: 'done' } ] },
+        { lvl: 5, jobs: [
+          { id: 'construction-laborer', name: 'İnşaat İşçisi', pay: 492, state: 'done' },
+          { id: 'hospital-porter', name: 'Hastane Görevlisi', pay: 492, state: 'open', same: true } ] },
+        { lvl: 6, here: true, jobs: [
+          { id: 'carpenter-apprentice', name: 'Marangoz Çırağı', pay: 556, state: 'held' },
+          { id: 'bike-courier', name: 'Kurye', pay: 556, state: 'open', same: true } ] },
+        { lvl: 7, jobs: [
+          { id: 'security-guard', name: 'Güvenlik Görevlisi', pay: 629, state: 'open' },
+          { id: 'line-cook', name: 'Aşçı', pay: 629, state: 'open' } ] },
+        { lvl: 8, jobs: [
+          { id: 'senior-security-guard', name: 'Kıdemli Güvenlik', pay: 711, state: 'next', need: '🔒 Ehliyet kursu' },
+          { id: 'sous-chef', name: 'Aşçıbaşı Yardımcısı', pay: 711, state: 'next', need: '🔒 Aşçılık kursu' } ] },
+        { lvl: 9, jobs: [ { state: 'hidden' }, { state: 'hidden' } ] },
+      ];
+      // Gap below each row: the colour of each drop (from the cards above) and rise (to the cards below);
+      // `walk` = [column above, column below] of the path the player took, drawn gold over the bar.
+      const GAPS = [
+        { up: ['future', 'walked'], down: ['walked', 'open'], walk: [1, 0] },
+        { up: ['walked', 'future'], down: ['walked', 'open'], walk: [0, 0] },
+        { up: ['walked', 'future'], down: ['open', 'open'] },
+        { up: ['future', 'future'], down: ['future', 'future'] },
+        { up: ['future', 'future'], down: ['future', 'future'] },
+      ];
+      const CUR = 556;
+
+      function card(job) {
+        if (job.state === 'hidden') {
+          return `<div class="card hidden"><div class="q display">?</div><div class="name display">???</div><div class="pay display">${MONEY}???</div><div class="foot display">Yakında görünür</div></div>`;
+        }
+        const pay = `<div class="pay display">${MONEY}$${job.pay}/ay</div>`;
+        const head = `<img class="icon" src="${ICON(job.id)}" alt="" /><div class="name display">${job.name}</div>${pay}`;
+        if (job.state === 'done') return `<div class="card done">${head}<div class="foot display">✓ Usta</div></div>`;
+        if (job.state === 'held') return `<div class="card held"><span class="ribbon display">ŞU AN</span>${head}<div class="meter"><b style="width:100%"></b></div><div class="foot display">✓ Usta oldun!</div></div>`;
+        if (job.state === 'open') {
+          const up = job.pay - CUR;
+          const extra = up > 0 ? `<span class="badge display">!</span><span class="raise display">+$${up}</span>` : '';
+          return `<div class="card openc">${extra}${head}<div class="foot display">İşe gir</div></div>`;
+        }
+        return `<div class="card next">${head}<div class="foot display">${job.need}</div></div>`;
+      }
+
+      function gap(g, el) {
+        // Card centres: column 1 and 2 of the grid (44px label + 10px gaps).
+        const w = el.clientWidth;
+        const col = (w - 44 - 20) / 2;
+        const x1 = 44 + 10 + col / 2 - 2.5;
+        const x2 = x1 + col + 10;
+        const cls = (c) => (c === 'future' ? 'future v' : c);
+        const xs = [x1, x2];
+        const base = g.down.includes('open') ? 'open' : g.down.includes('walked') ? 'open' : 'future';
+        let bar = `<i class="bar ${base}" style="left:${x1}px;width:${x2 - x1 + 5}px"></i>`;
+        if (g.walk && g.walk[0] !== g.walk[1]) {
+          const from = Math.min(xs[g.walk[0]], xs[g.walk[1]]);
+          bar += `<i class="bar walked" style="left:${from}px;width:${x2 - x1 + 5}px"></i>`;
+        }
+        return `${bar}<i class="up ${cls(g.up[0])}" style="left:${x1}px"></i><i class="up ${cls(g.up[1])}" style="left:${x2}px"></i><i class="down ${cls(g.down[0])}" style="left:${x1}px"></i><i class="down ${cls(g.down[1])}" style="left:${x2}px"></i>`;
+      }
+
+      function render() {
+        const tree = document.getElementById('tree');
+        tree.innerHTML = '';
+        ROWS.forEach((row, i) => {
+          const r = document.createElement('div');
+          r.className = 'row';
+          r.innerHTML = `<span class="lvl display ${row.here ? 'here' : ''}">Sv ${row.lvl}</span>${row.jobs.map(card).join('')}`;
+          tree.appendChild(r);
+          if (i < GAPS.length) {
+            const g = document.createElement('div');
+            g.className = 'gap';
+            tree.appendChild(g);
+            g.innerHTML = gap(GAPS[i], g);
+          }
+        });
+      }
+      render();
+      addEventListener('resize', render);
+    </script>
+  </body>
+</html>
