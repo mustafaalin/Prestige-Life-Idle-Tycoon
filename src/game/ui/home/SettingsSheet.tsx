@@ -19,7 +19,14 @@ import { useRestore } from '../shop/useRestore';
 
 // Settings: language, sound effects and music (this device only), reminders (Mom and Lucky, phones only), and the privacy options the consent rules require players to be able to
 // reopen (EEA/UK/Switzerland), "Restore purchases" (Apple requires it; docs/monetization-v2.md §7) and
-// the player id for purchase support.
+// the player id for purchase support, then the privacy policy and the support address (2026-10-22).
+
+/** The privacy policy on the studio site, in the game's language (Play asks for it inside the app too). */
+const PRIVACY_URL: Partial<Record<Locale, string>> & { en: string } = {
+  en: 'https://mathgamesstudio.com/privacy/prestige-life',
+  tr: 'https://mathgamesstudio.com/tr/privacy/prestige-life',
+};
+const SUPPORT_MAIL = 'mailto:mathgamesstudio@gmail.com?subject=Prestige%20Life';
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { t, locale, setLocale } = useT();
@@ -142,6 +149,12 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
             </GameButton>
           )}
           {storeAvailable && <PlayerId />}
+          <div className="mt-2 border-t border-indigo-100 pt-3 flex flex-col gap-3 text-center v2-display text-[14px] text-indigo-800">
+            <a href={PRIVACY_URL[locale] ?? PRIVACY_URL.en} target="_blank" rel="noopener noreferrer">
+              {t('settings.privacyPolicy')}
+            </a>
+            <a href={SUPPORT_MAIL}>{t('settings.support')}</a>
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { FirebaseAnalytics } from '@capacitor-firebase/analytics';
+import { ConsentStatus, ConsentType, FirebaseAnalytics } from '@capacitor-firebase/analytics';
 import { Capacitor } from '@capacitor/core';
 
 // Analytics events (plan 1.14), sent to Firebase Analytics on phones. Firebase itself records
@@ -64,6 +64,18 @@ export function track(event: AnalyticsEvent, params: Params = {}) {
 export function trackScreen(screen: string) {
   if (import.meta.env.DEV) console.debug('[analytics] screen', screen);
   if (native) FirebaseAnalytics.setCurrentScreen({ screenName: screen }).catch(() => {});
+}
+
+/**
+ * Consent mode (2026-10-22): Analytics starts with every consent denied (AndroidManifest.xml). Where EU
+ * rules apply, Google's consent form (UMP) passes the player's own choices to Analytics; where they do
+ * not, the game grants them with this. Called after each consent check (runtime/ads.ts); Firebase keeps
+ * the choice across launches.
+ */
+export function grantAnalyticsConsent() {
+  if (!native) return;
+  const types = [ConsentType.AnalyticsStorage, ConsentType.AdStorage, ConsentType.AdUserData, ConsentType.AdPersonalization];
+  for (const type of types) FirebaseAnalytics.setConsent({ type, status: ConsentStatus.Granted }).catch(() => {});
 }
 
 /** This install's Firebase Analytics id; RevenueCat needs it to send purchase events to Firebase. */

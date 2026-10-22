@@ -1,11 +1,12 @@
 import {
   AdMob,
   AdmobConsentDebugGeography,
+  AdmobConsentStatus,
   RewardAdPluginEvents,
   type RewardAdOptions,
 } from '@capacitor-community/admob';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
-import { track } from './analytics';
+import { grantAnalyticsConsent, track } from './analytics';
 import { holdMusic } from './feedback';
 
 // Rewarded ads for v2 (docs/monetization-v2.md). One entry point: showRewardedAd(placement).
@@ -76,6 +77,9 @@ async function refreshConsent(showFormIfNeeded: boolean) {
   if (showFormIfNeeded && !info.canRequestAds && info.isConsentFormAvailable) {
     info = await AdMob.showConsentForm();
   }
+  // No consent rules where the player is: Analytics may store (it starts denied, AndroidManifest.xml).
+  // Where rules apply, the consent form has already passed the player's choices on to Analytics.
+  if (info.status === AdmobConsentStatus.NOT_REQUIRED) grantAnalyticsConsent();
   setState({
     canRequestAds: info.canRequestAds,
     // The plugin doesn't export its PrivacyOptionsRequirementStatus enum; 'REQUIRED' is its value.

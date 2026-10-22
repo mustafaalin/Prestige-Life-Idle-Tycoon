@@ -128,17 +128,7 @@ Fiyatlar ABD dolarıdır. Türkiye fiyatlarını Google Play ve App Store yerel 
 - **Apple 3.1.1:** Dijital ürünler (kalıcı ×2, reklamsız paket) uygulama içi satın almayla satılır; dışarıya ödeme yönlendirmesi yok ([Apple forum](https://developer.apple.com/forums/thread/748871)). Kalıcı ürünler için **"Satın alımları geri yükle"** düğmesi gerekli.
 - **Yaş sınıflandırması:** Simüle kumar yok. Hedef kitle çocuk değil (Families programına girmiyoruz); reklam içerikleri buna göre filtrelenir.
 - **Kayıt:** Satın alınan kalıcı ürünler, kayıt silinse bile RevenueCat'ten geri yüklenebilmeli. Rakip yorumlarında "VIP'ye £60 verdim, hepsi gitti" şikâyeti var.
-- **Play veri güvenliği beyanı (2026-10-15, AAB 28 için):** v2'nin veri gönderen SDK'ları AdMob, Firebase Analytics ve RevenueCat (Supabase v2 paketinde yok; kahramanın ve kızının adı telefonda kalır, analitiğe gitmez). Kaynaklar: [AdMob](https://developers.google.com/admob/android/privacy/play-data-disclosure) ("collects and shares"), [Google Analytics](https://support.google.com/analytics/answer/11582702), [RevenueCat](https://www.revenuecat.com/docs/platform-resources/google-platform-resources/google-plays-data-safety). Cevaplar: veri toplanıyor **evet**; aktarımda şifreli **evet**; hesap açma **yok**; silme isteği **evet**, e-postayla (gizlilik politikası §6, `mathgamesstudio@gmail.com`).
-
-  | Veri türü | Toplanır | Paylaşılır | Amaç | Kaynak |
-  | --- | --- | --- | --- | --- |
-  | Konum → Yaklaşık konum | Evet | Evet | Reklam, Analiz, Dolandırıcılığı önleme | IP'den (AdMob, Analytics) |
-  | Finansal bilgi → Satın alma geçmişi | Evet | Hayır | Uygulama işlevselliği, Analiz | RevenueCat, Analytics satın alma olayları |
-  | Uygulama etkinliği → Uygulama etkileşimleri | Evet | Evet | Analiz, Reklam, Dolandırıcılığı önleme | Analytics olayları, AdMob |
-  | Uygulama bilgisi ve performansı → Teşhis | Evet | Evet | Analiz, Dolandırıcılığı önleme | AdMob |
-  | Cihaz veya diğer kimlikler | Evet | Evet | Reklam, Analiz, Dolandırıcılığı önleme, Uygulama işlevselliği | Reklam kimliği (AdMob, Analytics), uygulama örneği kimliği, RevenueCat anonim kimliği |
-
-  Hepsi "zorunlu" (kullanıcı kapatamaz), "geçici değil". Toplanmayanlar: ad, e-posta, telefon, kesin konum, mesaj, fotoğraf, kişi, sağlık, dosya, takvim, web geçmişi. Paylaşım AdMob'dan (Google kendisi "shares" diyor); Analytics ve RevenueCat hizmet sağlayıcı sayıldığı için paylaşım değil. Fazla beyan sorun değil, eksik beyan Play'de ret sebebi.
+- **Play veri güvenliği beyanı (2026-10-22 güncellemesi):** önceki AAB 28 tablosu Crashlytics'i ve son entegrasyonları kapsamıyordu. Güncel kod incelemesi, tür bazında beyan tablosu, koşullu alanlar ve Play/Firebase/AdMob adımları için [yayın kontrolü](./legal/play-console-checklist-tr.md) esas alınmalı. “Fazla beyan sorun değil” yaklaşımı kullanılmaz: beyan gerçek veri akışını yansıtmalı. Gizlilik, kullanım şartları ve veri talebi metinleri `docs/legal/` altında EN/TR hazırlandı; web yayını ve rıza/saklama ayarlarının doğrulanması ayrıca gerekli.
 
 ## 8. Uygulama sırası
 
