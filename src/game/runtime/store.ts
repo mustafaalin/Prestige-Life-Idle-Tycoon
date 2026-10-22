@@ -25,7 +25,7 @@ import {
 } from './adRewards';
 import { activeQuests } from '../core/state';
 import { claimDaily, offerDaily } from './daily';
-import { collectInvestment, startInvestment } from './investment';
+import { collectInvestment, runningDeals, startInvestment } from './investment';
 import type { InvestPlanId } from '../core/config/investments';
 import { ownedProducts, realStore } from './iap';
 import { PRODUCT_LIST } from '../core/config/iap';
@@ -107,10 +107,10 @@ export interface GameActions {
   buyHeirloom(id: string): boolean;
   /** Old Ray's deals (runtime/investment.ts). */
   invest: {
-    /** Puts `stake` into a deal; false when not allowed (one at a time, at most the cap). */
+    /** Puts `stake` into a deal; false when not allowed (one of each deal, at most the cap). */
     start(planId: InvestPlanId, stake: number): boolean;
-    /** Collects a deal whose term is up; returns the gain (negative on a loss), or null if none was due. */
-    collect(): number | null;
+    /** Collects a deal whose term is up; returns the gain (negative on a loss), or null if it was not due. */
+    collect(planId: InvestPlanId): number | null;
   };
   /** Rewards of watched ads (call only after showRewardedAd() returned 'rewarded'; adRewards.ts). */
   /**
@@ -124,7 +124,7 @@ export interface GameActions {
     help(cost: number, amount: number): number;
     rushCourse(): boolean;
     rushExperience(): boolean;
-    rushInvest(): boolean;
+    rushInvest(planId: InvestPlanId): boolean;
     /** Old Ray's special deal with `stake` in. */
     investSpecial(stake: number): boolean;
     tempManager(businessId: string): boolean;
@@ -470,12 +470,12 @@ export function createGameStore(saveText: string | null, clock: () => number = D
             plan: planId,
             months: Math.round(stake / Math.max(autoIncomePerSecond(state.game) * SECONDS_PER_MONTH, 1e-9)),
           })),
-        collect: () => {
-          const active = state.invest.active;
-          if (!active) return null;
-          const gain = active.payout - active.stake;
-          const done = actTracked((s) => collectInvestment(s, clock()), 'invest_collect', () => ({
-            plan: active.planId,
+        collect: (planId) => {
+          const deal = state.invest.deals[planId];
+          if (!deal) return null;
+          const gain = deal.payout - deal.stake;
+          const done = actTracked((s) => collectInvestment(s, planId, clock()), 'invest_collect', () => ({
+            plan: planId,
             won: gain >= 0,
           }));
           return done ? gain : null;
@@ -486,7 +486,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         help: (cost, amount) => (act((s) => applyHelp(s, clock(), cost, amount)) ? amount : 0),
         rushCourse: () => act((s) => applyCourseRush(s, clock())),
         rushExperience: () => act((s) => applyExperienceRush(s, clock())),
-        rushInvest: () => act((s) => applyInvestRush(s, clock())),
+        rushInvest: (planId) => act((s) => applyInvestRush(s, planId, clock())),
         investSpecial: (stake) => act((s) => applyInvestSpecial(s, stake, clock())),
         tempManager: (businessId) => act((s) => applyTempManager(s, businessId, clock())),
         campaign: (businessId) => act((s) => applyCampaign(s, businessId, clock())),
@@ -590,7 +590,11 @@ export function createGameStore(saveText: string | null, clock: () => number = D
           act((s) => offerDaily({ ...s, daily: { ...s.daily, claimedDay: '', offer: null } }, clock()));
         },
         investNow: () => {
-          act((s) => (s.invest.active ? { ...s, invest: { ...s.invest, active: { ...s.invest.active, until: clock() } } } : null));
+          act((s) => {
+            const deals = runningDeals(s.invest);
+            if (deals.length === 0) return null;
+            return { ...s, invest: { ...s.invest, deals: Object.fromEntries(deals.map((deal) => [deal.planId, { ...deal, until: clock() }])) } };
+          });
         },
         reset: () => {
           clearSave();

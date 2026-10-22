@@ -16,7 +16,7 @@ import type { GameStateV2 } from '../core/types';
 import { createAdProgress, type AdProgress } from './adRewards';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
 import { createDailyProgress, type DailyProgress } from './daily';
-import { createInvestProgress, type InvestProgress } from './investment';
+import { createInvestProgress, type Investment, type InvestProgress } from './investment';
 import { investPlan } from '../core/config/investments';
 import { createPurchaseProgress, withAccessories, type PurchaseProgress } from './purchases';
 import { createStoryProgress, HERO_NAME_MAX, LIFE_MOMENT_IDS, MOM_MESSAGES, type StoryProgress } from './story';
@@ -285,26 +285,28 @@ function normalizeDaily(raw: unknown): DailyProgress {
   };
 }
 
-/** Saves from before the investment account (2026-10-15) have none running. A deal is never dropped: its money is the player's. */
+function normalizeDeal(raw: unknown): Investment | null {
+  if (!isRecord(raw)) return null;
+  const plan = typeof raw.planId === 'string' ? investPlan(raw.planId) : undefined;
+  const stake = finite(raw.stake, 0);
+  if (!plan || stake <= 0) return null;
+  return { planId: plan.id, stake, payout: finite(raw.payout, stake), startedAt: finite(raw.startedAt, 0), until: finite(raw.until, 0) };
+}
+
+/**
+ * Saves from before the investment account (2026-10-15) have none running; until 2026-10-22 a save held
+ * one deal as `active`. A deal is never dropped: its money is the player's.
+ */
 function normalizeInvest(raw: unknown): InvestProgress {
   const base = createInvestProgress();
   if (!isRecord(raw)) return base;
-  const active = isRecord(raw.active) ? raw.active : null;
-  const plan = active && typeof active.planId === 'string' ? investPlan(active.planId) : undefined;
-  const stake = active ? finite(active.stake, 0) : 0;
-  return {
-    active:
-      active && plan && stake > 0
-        ? {
-            planId: plan.id,
-            stake,
-            payout: finite(active.payout, stake),
-            startedAt: finite(active.startedAt, 0),
-            until: finite(active.until, 0),
-          }
-        : null,
-    made: Math.floor(finite(raw.made, 0)),
-  };
+  const deals: InvestProgress['deals'] = {};
+  const saved = [...(isRecord(raw.deals) ? Object.values(raw.deals) : []), raw.active];
+  for (const entry of saved) {
+    const deal = normalizeDeal(entry);
+    if (deal && !deals[deal.planId]) deals[deal.planId] = deal;
+  }
+  return { deals, made: Math.floor(finite(raw.made, 0)) };
 }
 
 const native = Capacitor.isNativePlatform();

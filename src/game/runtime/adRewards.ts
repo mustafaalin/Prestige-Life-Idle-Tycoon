@@ -20,6 +20,7 @@ import {
   type AdPlacement,
 } from '../core/config/ads';
 import { courseDef } from '../core/config/courses';
+import type { InvestPlanId } from '../core/config/investments';
 import type { EventOutcome } from '../core/config/events';
 import { SECONDS_PER_MONTH } from '../core/config/life';
 import { autoIncomePerSecond, businessState, currentCareer, eventReward, incomePerSecond, isOpened, questReward } from '../core/formulas';
@@ -258,19 +259,25 @@ export function applyExperienceRush<T extends AdContext>(state: T, now: number):
 type InvestContext = AdContext & { invest: InvestProgress };
 
 /** A running deal can be halved once. */
-export function canRushInvest({ ads, invest }: InvestContext, now: number) {
-  const deal = invest.active;
-  return deal !== null && deal.until > now && marked(ads, `invest_rush:${deal.startedAt}`) === 0 && canWatch(ads, 'invest_rush', now);
+export function canRushInvest({ ads, invest }: InvestContext, planId: InvestPlanId, now: number) {
+  const deal = invest.deals[planId];
+  return deal !== undefined && deal.until > now && marked(ads, `invest_rush:${deal.startedAt}`) === 0 && canWatch(ads, 'invest_rush', now);
 }
 
-export function applyInvestRush<T extends InvestContext>(state: T, now: number): T | null {
-  const deal = state.invest.active;
-  if (!deal || !canRushInvest(state, now)) return null;
+export function applyInvestRush<T extends InvestContext>(state: T, planId: InvestPlanId, now: number): T | null {
+  const deal = state.invest.deals[planId];
+  if (!deal || !canRushInvest(state, planId, now)) return null;
   const until = now + (deal.until - now) * (1 - INVEST_RUSH_SHARE);
-  return grant(state, 'invest_rush', now, (s) => ({ ...s, invest: { ...s.invest, active: { ...deal, until } } }), `invest_rush:${deal.startedAt}`);
+  return grant(
+    state,
+    'invest_rush',
+    now,
+    (s) => ({ ...s, invest: { ...s.invest, deals: { ...s.invest.deals, [planId]: { ...deal, until } } } }),
+    `invest_rush:${deal.startedAt}`,
+  );
 }
 
-/** Old Ray's special deal: an ad opens it with `stake` in (the bold deal's `roll` is unused here). */
+/** Old Ray's special deal: an ad opens it with `stake` in. */
 export function applyInvestSpecial<T extends InvestContext>(state: T, stake: number, now: number): T | null {
   return grant(state, 'invest_special', now, (s) => startInvestment(s, 'special', stake, now, 0, true));
 }

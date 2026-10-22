@@ -33,7 +33,7 @@ import { CAMPAIGN_FACTOR, COIN_RAIN_VALUE_FACTOR } from '../core/config/ads';
 import { boostFactor, boostShare, campaignFactor, coinRainActive, createAdProgress, tempManagerLeft, type AdProgress } from './adRewards';
 import { createDailyProgress, type DailyProgress } from './daily';
 import { afterAnswer } from './eventDeck';
-import { createInvestProgress, type InvestProgress } from './investment';
+import { createInvestProgress, runningDeals, type InvestProgress } from './investment';
 import { createPurchaseProgress, type PurchaseProgress } from './purchases';
 import { createStoryProgress, type StoryProgress } from './story';
 
@@ -301,13 +301,12 @@ export function buyHeirloom(state: RuntimeState, id: string) {
 
 /**
  * End of life: the heir takes over with the family legacy; production starts from scratch. Nothing of the
- * old fortune passes on (story-v2.md §6a): a running deal is paid out now, so its gain counts toward the
+ * old fortune passes on (story-v2.md §6a): the running deals are paid out now, so their gains count toward the
  * legacy, and a waiting daily reward worked out from the old income is dropped (the heir's own comes
  * with their income).
  */
 export function retire(state: RuntimeState): RuntimeState | null {
-  const deal = state.invest.active;
-  const settled = deal ? earn(state.game, deal.payout - deal.stake) : state.game;
+  const settled = runningDeals(state.invest).reduce((game, deal) => earn(game, deal.payout - deal.stake), state.game);
   const game = coreRetire(settled);
   return game
     ? {
@@ -315,7 +314,7 @@ export function retire(state: RuntimeState): RuntimeState | null {
         game,
         cycles: emptyCycles(),
         offline: null,
-        invest: { ...state.invest, active: null },
+        invest: { ...state.invest, deals: {} },
         daily: { ...state.daily, offer: null },
       }
     : null;

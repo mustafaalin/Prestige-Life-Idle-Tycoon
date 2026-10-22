@@ -60,7 +60,7 @@ import {
 } from '../core/config/ads';
 import { STORY_GIFT_FROM_CLASS } from '../core/config/economy';
 import { SECONDS_PER_MONTH } from '../core/config/life';
-import { expectedGain, INVEST_CAP_MONTHS, INVEST_FROM_CLASS, INVEST_PLANS } from '../core/config/investments';
+import { expectedGain, INVEST_CAP_MONTHS, INVEST_FROM_CLASS, OFFERED_PLANS } from '../core/config/investments';
 import { dailyMonths } from '../core/config/daily';
 import { EVENT_MAX_SECONDS, EVENT_MIN_SECONDS } from '../core/config/events';
 import { LIFE_MOMENTS, storyRuns } from '../runtime/story';
@@ -626,12 +626,10 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     // "Hand over now" at the top class skips the remaining years.
     if (options.retireAtTop === true && canHandOverEarly(state)) state = handOverEarly(state) ?? state;
     if (!canRetire(state)) return;
-    // A running deal is paid out to the life that ends (runtime/engine.ts retire).
-    if (investing.stake > 0) {
-      const profit = investing.stake * investing.rate;
-      investing.profit += profit;
-      investing.stake = 0;
-      earnTracked(profit);
+    // The running deals are paid out to the life that ends (runtime/engine.ts retire).
+    for (const deal of investing.deals.splice(0)) {
+      investing.profit += deal.stake * deal.rate;
+      earnTracked(deal.stake * deal.rate);
     }
     log('retire', `Life ends, gen ${state.generation} (+${pendingLegacyPoints(state)} legacy)`);
     const next = retire(state);
@@ -716,31 +714,33 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
 
   /**
    * Old Ray's deals (runtime/investment.ts): when a session ends, the bot puts its savings (up to the
-   * cap) into the longest deal that is due by the next session; the bold deal pays its average. The
-   * stake and return come back at the first session after the term.
+   * cap, per deal) into every deal that is due by the next session, the longest first. The stake and
+   * return come back at the first session after the term.
    */
-  const investing = { stake: 0, rate: 0, until: 0, profit: 0, count: 0 };
+  const investing = { deals: [] as { id: string; stake: number; rate: number; until: number }[], profit: 0, count: 0 };
   const collectInvestment = () => {
-    if (investing.stake <= 0 || time.clock < investing.until) return;
-    const profit = investing.stake * investing.rate;
-    state = { ...state, cash: state.cash + investing.stake };
-    investing.profit += profit;
-    investing.stake = 0;
-    earnTracked(profit);
+    for (const deal of investing.deals.filter((entry) => time.clock >= entry.until)) {
+      const profit = deal.stake * deal.rate;
+      state = { ...state, cash: state.cash + deal.stake };
+      investing.profit += profit;
+      earnTracked(profit);
+    }
+    investing.deals = investing.deals.filter((entry) => time.clock < entry.until);
   };
   const invest = (gapSeconds: number) => {
-    if (investing.stake > 0 || state.classIndex < INVEST_FROM_CLASS) return;
+    if (state.classIndex < INVEST_FROM_CLASS) return;
     // A halved deal (an ad) lets a longer one fit before the next session.
     const length = (hours: number) => hours * 3600 * (extras() ? 1 - INVEST_RUSH_SHARE : 1);
     // The ad deal is left out: the bot invests as it leaves, not while watching ads.
-    const plan = [...INVEST_PLANS]
-      .filter((entry) => !entry.ad)
-      .sort((a, b) => b.hours - a.hours)
-      .find((entry) => length(entry.hours) <= gapSeconds);
-    const stake = Math.min(state.cash, autoIncomePerSecond(state) * SECONDS_PER_MONTH * INVEST_CAP_MONTHS);
-    if (!plan || stake <= 0) return;
-    state = { ...state, cash: state.cash - stake };
-    Object.assign(investing, { stake, rate: expectedGain(plan), until: time.clock + length(plan.hours), count: investing.count + 1 });
+    const running = new Set(investing.deals.map((deal) => deal.id));
+    const plans = OFFERED_PLANS.filter((entry) => !entry.ad && !running.has(entry.id) && length(entry.hours) <= gapSeconds).sort((a, b) => b.hours - a.hours);
+    for (const plan of plans) {
+      const stake = Math.min(state.cash, autoIncomePerSecond(state) * SECONDS_PER_MONTH * INVEST_CAP_MONTHS);
+      if (stake <= 0) return;
+      state = { ...state, cash: state.cash - stake };
+      investing.deals.push({ id: plan.id, stake, rate: expectedGain(plan), until: time.clock + length(plan.hours) });
+      investing.count += 1;
+    }
   };
   const schedule: { start: number; minutes: number; day: number }[] = [];
   for (let day = 1; day <= days; day += 1) {

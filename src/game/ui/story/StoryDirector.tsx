@@ -29,6 +29,7 @@ import {
 } from '../../runtime/story';
 import { useGameV2, useGameV2Events } from '../../runtime/useGameV2';
 import { rewardsStarted } from '../../runtime/adRewards';
+import { runningDeals } from '../../runtime/investment';
 import { offerCardProduct } from '../../runtime/purchases';
 import { requestReview, reviewDue } from '../../runtime/review';
 import { RichMoment } from '../richList/RichList';
@@ -169,10 +170,9 @@ export function StoryDirector({
           at: Math.max(now, state.story.momShownAt) + MOM_MIN_GAP_MS,
         }
       : null;
-    const deal = state.invest.active;
-    const invest = deal
-      ? { title: t('ceremony.cast.riza'), body: t('invest.notifyBody'), at: Math.max(now, deal.until) }
-      : null;
+    // One reminder for the deals: when the last running one is due (a short one is collected while playing).
+    const lastDue = Math.max(0, ...runningDeals(state.invest).map((deal) => deal.until));
+    const invest = lastDue > 0 ? { title: t('ceremony.cast.riza'), body: t('invest.notifyBody'), at: Math.max(now, lastDue) } : null;
     // The day's reward: from tomorrow morning, once rewards are offered at all (runtime/daily.ts).
     const tomorrow = new Date(now);
     tomorrow.setHours(24, 0, 0, 0);
