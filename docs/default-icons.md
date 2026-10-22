@@ -2,7 +2,7 @@
 
 Kullanıcı isteği (2026-10-22): oyunda kendi çizilmiş ikonlarımız dışında kalan varsayılan ikonları belirleyip onlar için ikon üretmek. Bunlar `lucide-react` kütüphanesinden gelen düz çizgi ikonlar; geri kalan her şey `public/assets/icons/v2/` ve `ui/icons.ts` içindeki kendi resimlerimiz. Bu liste 2026-10-22 kodundan çıkarıldı; ikon değişince buradan silinir.
 
-**Komutlar hazır (2026-10-23): [art-prompts-v2.md §0b](./art-prompts-v2.md)**, öncelik K (kritik: rehber eli, kilit, tik, çalıştır, geliştir, şube) → S → B. Eski ikon seti kullanılmaz (kullanıcı, 2026-10-23: stile uymuyor); çanta, ev, kıyafet ve araç da yeniden üretilir, stil referansı para serisi ve reklamsız simgesi. Reklam işareti için onaylı kırmızı oynat simgesi bağlanır. Çoğu yerde ikon 12–16 px; kendi ikonumuz en az 16–18 px'te kullanılır, okunmayan yerde düz ikon kalır.
+**Komutlar hazır (2026-10-23): [art-prompts-v2.md §0b](./art-prompts-v2.md)**, öncelik K (kritik: rehber eli, kilit, tik, çalıştır, geliştir, şube) → S → B. Eski ikon seti kullanılmaz (kullanıcı, 2026-10-23: stile uymuyor); çanta, ev, kıyafet ve araç da yeniden üretilir, stil referansı para serisi ve reklamsız simgesi. İşletme satırındaki reklam işareti artık kırmızı reklam ikonumuz (2026-10-23, yapıldı). Çoğu yerde ikon 12–16 px; kendi ikonumuz en az 16–18 px'te kullanılır, okunmayan yerde düz ikon kalır.
 
 Üretim sırası: önce oyuncunun her gün gördükleri (A), sonra ara sıra görülenler (B). C'dekiler küçük arayüz işaretleri, düz vektör kalabilir (kararı kullanıcı verir). Görseller GPT'de (komutları ben yazarım), [art-prompts-v2.md](./art-prompts-v2.md) tarzında; resim ekleyince `npm run backup`.
 
@@ -16,7 +16,6 @@ Kullanıcı isteği (2026-10-22): oyunda kendi çizilmiş ikonlarımız dışın
 | Yükselt oku (`ArrowBigUpDash`) | İşletme kartı ve ayrıntısındaki geliştir düğmesi (`businesses/BusinessCard.tsx`, `BusinessDetails.tsx`), hedef rozeti (`home/QuestPanel.tsx`) | seviye atla |
 | Dükkân (`Store`) | Şube düğmesi (`BusinessCard.tsx`, `BusinessDetails.tsx`), Mağaza başlığı (`shop/StoreSheet.tsx`) | şube / mağaza |
 | Oynat (`Play`) | İşletme "Çalıştır" düğmesi (`BusinessCard.tsx`), albümde video (`story/AlbumSheet.tsx`) | çalıştır / izle |
-| Reklam kartı (`Clapperboard`) | İşletme satırında reklam teklifi işareti (`BusinessCard.tsx`) | reklam fırsatı var |
 | Çanta (`Briefcase`) | Resmi olmayan meslek yerine (`career/JobIcon.tsx`), Kariyer boş durumu (`CareerScreen.tsx`), ev/araç kariyer şartı (`shop/CareerAsk.tsx`) | iş / kariyer |
 | Kep (`GraduationCap`) | Kurslar paneli (`career/CoursesPanel.tsx`) | kurs |
 | Ev / anahtar (`Home`, `KeyRound`) | Evler panelinde kendi ev / kira (`shop/HousingPanel.tsx`), sahnedeki eşya kısayolu (`scene/Scene.tsx`) | ev, kiralık |

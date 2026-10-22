@@ -1,4 +1,4 @@
-import { ArrowBigUpDash, Clapperboard, Lock, Play, Store } from 'lucide-react';
+import { ArrowBigUpDash, Lock, Play, Store } from 'lucide-react';
 import { useState } from 'react';
 import { CAMPAIGN_FACTOR } from '../../core/config/ads';
 import { WEALTH_CLASSES } from '../../core/config/classes';
@@ -33,6 +33,7 @@ import { managerKey, managerPortrait } from './managers';
 import { RunBubbles } from './RunBubbles';
 import { StageBar } from './StageBar';
 import { Cash } from '../CashAmount';
+import { ICONS } from '../icons';
 
 // One business line (docs/game-design-v2.md §4.3) as a short row (2026-10-21, user approved the
 // draft): the picture runs it by hand, one line says what it earns a month, a three-part bar shows the
@@ -205,7 +206,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
         <button type="button" onClick={showDetails} className="flex-1 min-w-0 flex flex-col gap-1 text-left">
           <span className="flex items-start gap-1 min-w-0">
             <span className="v2-display text-[16px] leading-tight text-indigo-950 line-clamp-2">{name('business', def)}</span>
-            {adOffer && <Clapperboard className="shrink-0 w-3.5 h-3.5 text-orange-400" aria-label={t('business.adOffer')} />}
+            {adOffer && <img src={ICONS.adReward} alt={t('business.adOffer')} draggable={false} className="shrink-0 w-5 h-5 object-contain" />}
           </span>
           {opened ? (
             <>

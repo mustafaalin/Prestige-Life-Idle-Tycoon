@@ -68,7 +68,7 @@ Referanslar: 1 `art/pilot/10-life/life-jet-family.png` (kabin ve yerleşim), 2 `
 
 Liste ve nerede kullanıldıkları: [default-icons.md](./default-icons.md). Sıra: **K** kritik (ilk dakikalarda ve her gün, önce bunlar), **S** sık, **B** ara sıra. Eski ikon seti (`art/pilot/12-icons/` içindekiler, ör. `career`, `upgrade`) stile uymadığı için kullanılmaz ve referans verilmez (kullanıcı, 2026-10-23); her şey yeniden üretilir.
 
-**Referanslar (her komuta eklenir):** 1 `art/pilot/15-iap/v2/money-2.png` (banknot destesi), 2 `art/pilot/15-iap/v2/comfort-noads.png` (reklamsız simgesi). Çıktı `art/pilot/12-icons/v2/<ad>.png` (yanına `-prompt.txt`); Claude webp'ye çevirir (`public/assets/icons/v2/`) ve telefon boyunda dener. İşletme satırındaki reklam işareti için üretim yok: oyunda zaten kullanılan, onaylı kırmızı oynat simgesi bağlanacak. **Düz kalanlar:** kapat (X), oklar, şarttaki boş halka.
+**Referanslar (her komuta eklenir):** 1 `art/pilot/15-iap/v2/money-2.png` (banknot destesi), 2 `art/pilot/15-iap/v2/comfort-noads.png` (reklamsız simgesi). Çıktı `art/pilot/12-icons/v2/<ad>.png` (yanına `-prompt.txt`); Claude webp'ye çevirir (`public/assets/icons/v2/`) ve telefon boyunda dener. İşletme satırındaki reklam işareti kırmızı reklam ikonumuzla değiştirildi (üretim yok). **Düz kalanlar:** kapat (X), oklar, şarttaki boş halka.
 
 **Ortak stil paragrafı** (her komutun başında, aynen; sonuna `Subject: …` eklenir):
 
