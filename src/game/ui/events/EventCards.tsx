@@ -1,4 +1,4 @@
-import { Phone } from 'lucide-react';
+import { Gift, Phone } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -159,11 +159,11 @@ export function EventCards({ tabOpen, onOpenChange }: EventCardsProps) {
 function Stake({ amount, loss = false }: { amount: string; loss?: boolean }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full py-0.5 pl-1 pr-2.5 text-[13px] font-black text-white tabular-nums ${
-        loss ? 'bg-rose-600 pl-2.5' : 'bg-black/20'
+      className={`inline-flex items-center gap-1 rounded-full py-0.5 pl-1 pr-2 text-[12px] font-black text-white tabular-nums ${
+        loss ? 'bg-rose-600 pl-2' : 'bg-black/20'
       }`}
     >
-      {!loss && <MoneyIcon tier={2} size={20} />}
+      {!loss && <MoneyIcon tier={2} size={18} />}
       {amount}
     </span>
   );
@@ -260,18 +260,20 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
               </GameButton>
             </div>
           ) : outcome === null && kind === 'pick' ? (
-            <div className="mt-4 flex flex-col gap-2.5">
+            // Two equal answers side by side, each with a surprise gift (2026-10-22, user).
+            <div className="mt-4 grid grid-cols-2 gap-2.5">
               {(['a', 'b'] as const).map((option) => (
                 <GameButton
                   key={option}
-                  tone={option === 'a' ? 'buy' : 'manager'}
+                  tone={option === 'a' ? 'buy' : 'gold'}
                   onClick={() => {
                     setPicked(option);
                     answer(false);
                   }}
-                  className="w-full px-3 py-2.5 text-center"
+                  className="relative w-full min-h-[64px] px-2 pt-3 pb-2 flex items-center justify-center text-center"
                 >
-                  <span className="block v2-display text-[16px] v2-shadow [text-wrap:balance]">{t(eventKey(cardId, option))}</span>
+                  <Gift className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-6 h-6 p-1 rounded-full bg-white text-rose-500 shadow" />
+                  <span className="block v2-display text-[15px] leading-tight v2-shadow [text-wrap:balance]">{t(eventKey(cardId, option))}</span>
                 </GameButton>
               ))}
             </div>
@@ -286,12 +288,11 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
               <GameButton tone="gold" onClick={() => answer(true)} className="w-full px-3 py-2.5 text-center">
                 <span className="block v2-display text-[16px] v2-shadow [text-wrap:balance]">{t(eventKey(cardId, 'bold'))}</span>
                 {/* The stake is spelled out before the choice: the chance, the win, and the loss in red. */}
-                <span className="mt-1 flex flex-wrap items-center justify-center gap-1.5">
-                  <span className="rounded-full bg-amber-900/35 px-2 py-0.5 text-[12px] font-black text-white tabular-nums">
+                <span className="mt-1 flex items-center justify-center gap-1 whitespace-nowrap">
+                  <span className="rounded-full bg-amber-900/35 px-1.5 py-0.5 text-[12px] font-black text-white tabular-nums">
                     {t('events.chance', { chance: Math.round(EVENT_BOLD_CHANCE * 100) })}
                   </span>
                   <Stake amount={`+${money(eventReward(game, 'win'))}`} />
-                  <span className="text-[11px] font-black text-white/85">{t('events.or')}</span>
                   <Stake amount={`−${money(-eventReward(game, 'lose'))}`} loss />
                 </span>
               </GameButton>

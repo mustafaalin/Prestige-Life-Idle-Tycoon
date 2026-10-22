@@ -48,7 +48,6 @@ export const en = {
   events: {
     calling: '{name} is calling',
     chance: '{chance}%',
-    or: 'or',
     safeTitle: 'Safe and sound',
     winTitle: 'It worked!',
     loseTitle: 'Not this time',

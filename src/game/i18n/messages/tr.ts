@@ -47,7 +47,6 @@ export const tr: Messages = {
   events: {
     calling: '{name} arıyor',
     chance: '%{chance}',
-    or: 'ya da',
     safeTitle: 'Sağlam iş',
     winTitle: 'Tuttu!',
     loseTitle: 'Bu sefer olmadı',

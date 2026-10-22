@@ -31,9 +31,17 @@ export function canLeaveCareer(state: GameStateV2) {
   return state.careerId === null || isMastered(state, state.careerId);
 }
 
-/** Whether a job can be taken now: never held, the job held now mastered, its conditions met. */
+/**
+ * Whether a job can be taken now: never held, the job held now mastered, its conditions met, and no
+ * further than one row past the way walked (careerFrontier).
+ */
 export function canTakeCareer(state: GameStateV2, career: CareerDef) {
-  return !hasWorked(state, career.id) && canLeaveCareer(state) && allMet(state, career.requires);
+  return (
+    !hasWorked(state, career.id) &&
+    canLeaveCareer(state) &&
+    career.level <= careerFrontier(state) + 1 &&
+    allMet(state, career.requires)
+  );
 }
 
 /** Jobs that pay more than the one held now and can be taken now. */
@@ -47,9 +55,23 @@ export function canTakeBetterCareer(state: GameStateV2) {
   return betterOpenCareers(state).length > 0;
 }
 
-/** The highest row of the tree reached: the job held or any job held before (0 before the first job). */
+/**
+ * The highest row of the tree reached (0 before the first job): the job held or any job held before,
+ * counting only jobs reached from the first row, one row after another. A save from an older tree may
+ * hold a job that has since moved far up (2026-10-22, phone test: the Cashier, once row 3, now opens the
+ * Office tab at row 16); such a job stays held or done but does not open the rows around it.
+ */
 export function careerFrontier(state: GameStateV2) {
-  return CAREERS.reduce((top, career) => (hasWorked(state, career.id) ? Math.max(top, career.level) : top), 0);
+  const reached = new Set<string>();
+  let top = 0;
+  // CAREERS is listed row by row, so a job's earlier jobs are settled before it.
+  for (const career of CAREERS) {
+    if (!hasWorked(state, career.id)) continue;
+    if (career.after.length > 0 && !career.after.some((id) => reached.has(id))) continue;
+    reached.add(career.id);
+    top = Math.max(top, career.level);
+  }
+  return top;
 }
 
 /**
@@ -62,8 +84,8 @@ export type JobView = 'held' | 'done' | 'open' | 'next' | 'hidden' | 'beyond';
 export function jobView(state: GameStateV2, career: CareerDef): JobView {
   if (state.careerId === career.id) return 'held';
   if (hasWorked(state, career.id)) return 'done';
-  if (allMet(state, career.requires)) return 'open';
   const frontier = careerFrontier(state);
+  if (career.level <= frontier + 1 && allMet(state, career.requires)) return 'open';
   if (career.level <= frontier + 1) return 'next';
   return career.level === frontier + 2 ? 'hidden' : 'beyond';
 }
