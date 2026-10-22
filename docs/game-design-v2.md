@@ -125,6 +125,13 @@ Gerçek fiyatlı, gelir bonusu yok (karar 2026-10-20); değerleri hayatı göste
 
 Tek ev; ana ekranın arka planı o evdir, önünde o evin izin verdiği en iyi araç durur.
 
+**Kariyer şartı (2026-10-22, kullanıcı: yalnız parayla ev ve araç sırayla alınıyordu, kariyer geride kalıyordu):** her ev ve araç "Sv N bir işte çalış" ister (iş ağacında o satıra ya da yukarısına 1. satırdan kesintisiz ulaşmış olmak; şart türü `jobRow`, `config/housing.ts` `careerAsk`). Satırlar, gündelik botun o eşyanın fiyatı 3 aylık gelire indiğinde bulunduğu satırın biraz altında; kariyerini sürdüren oyuncu hiç takılmaz. Mağazada kilitli kartta şart satırı ve Kariyer'e "Git". Tören hediyesi taşınmalar şarta bakmaz; sahip olunan geri alınmaz. Ev ya da araç isteyen her meslek, o eşyanın şartından yukarıda (döngü yok, denetlendi).
+
+| | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Ev: Sv | – | – | – | 1 | 2 | 3 | 4 | 6 | 8 | 11 | 18 | 36 |
+| Araç: Sv | – | 1 | 2 | 3 | 4 | 6 | 7 | 7 | 9 | 10 | 14 | 22 |
+
 | Ev | Taşınma bedeli | Satın alma (×25) |
 | --- | --- | --- |
 | 1 Sokak Çadırı | 0 | — |

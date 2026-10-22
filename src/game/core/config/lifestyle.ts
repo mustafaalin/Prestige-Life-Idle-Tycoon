@@ -1,4 +1,5 @@
 import type { LifestyleDef } from '../types';
+import { careerAsk } from './housing';
 
 // Personal items: vehicles, outfits and luxury toys (homes live in housing.ts). They are never an
 // expense. Since the economy rebuild (decided 2026-10-20, docs/game-design-v2.md §4.5) they cost what
@@ -15,19 +16,19 @@ import type { LifestyleDef } from '../types';
 // a supercar by the tent. One home, one vehicle (2026-10-21, user: a class-up that skipped homes opened
 // four vehicles at once): the bike by the tent, the scooter at the van, the grand car at the mansion.
 const V2 = '/assets/vehicles/v2';
-const VEHICLE_SPECS: { id: string; name: string; image: string; cost: number; home: number }[] = [
-  { id: 'vehicle-bike', name: 'City Bike', image: `${V2}/vehicle-1.webp`, cost: 150, home: 0 },
-  { id: 'vehicle-scooter', name: 'Retro Scooter', image: `${V2}/vehicle-2.webp`, cost: 1_200, home: 1 },
-  { id: 'vehicle-old-sedan', name: 'Old Family Sedan', image: `${V2}/vehicle-3.webp`, cost: 5_000, home: 2 },
-  { id: 'vehicle-motorcycle', name: 'Motorcycle', image: `${V2}/vehicle-motorcycle.webp`, cost: 8_000, home: 3 },
-  { id: 'vehicle-hatchback', name: 'Modern Hatchback', image: `${V2}/vehicle-4.webp`, cost: 18_000, home: 4 },
-  { id: 'vehicle-suv', name: 'Family SUV', image: `${V2}/vehicle-5.webp`, cost: 40_000, home: 5 },
-  { id: 'vehicle-pickup', name: 'Pickup Truck', image: `${V2}/vehicle-pickup.webp`, cost: 55_000, home: 6 },
-  { id: 'vehicle-executive', name: 'Executive Sedan', image: `${V2}/vehicle-6.webp`, cost: 90_000, home: 7 },
-  { id: 'vehicle-coupe', name: 'Sports Coupe', image: `${V2}/vehicle-7.webp`, cost: 180_000, home: 8 },
-  { id: 'vehicle-offroader', name: 'Luxury Off-Roader', image: `${V2}/vehicle-8.webp`, cost: 250_000, home: 9 },
-  { id: 'vehicle-supercar', name: 'Supercar', image: `${V2}/vehicle-9.webp`, cost: 500_000, home: 10 },
-  { id: 'vehicle-grand', name: 'Grand Luxury Car', image: `${V2}/vehicle-10.webp`, cost: 1.5e6, home: 11 },
+const VEHICLE_SPECS: { id: string; name: string; image: string; cost: number; home: number; jobRow: number }[] = [
+  { id: 'vehicle-bike', name: 'City Bike', image: `${V2}/vehicle-1.webp`, cost: 150, home: 0, jobRow: 0 },
+  { id: 'vehicle-scooter', name: 'Retro Scooter', image: `${V2}/vehicle-2.webp`, cost: 1_200, home: 1, jobRow: 1 },
+  { id: 'vehicle-old-sedan', name: 'Old Family Sedan', image: `${V2}/vehicle-3.webp`, cost: 5_000, home: 2, jobRow: 2 },
+  { id: 'vehicle-motorcycle', name: 'Motorcycle', image: `${V2}/vehicle-motorcycle.webp`, cost: 8_000, home: 3, jobRow: 3 },
+  { id: 'vehicle-hatchback', name: 'Modern Hatchback', image: `${V2}/vehicle-4.webp`, cost: 18_000, home: 4, jobRow: 4 },
+  { id: 'vehicle-suv', name: 'Family SUV', image: `${V2}/vehicle-5.webp`, cost: 40_000, home: 5, jobRow: 6 },
+  { id: 'vehicle-pickup', name: 'Pickup Truck', image: `${V2}/vehicle-pickup.webp`, cost: 55_000, home: 6, jobRow: 7 },
+  { id: 'vehicle-executive', name: 'Executive Sedan', image: `${V2}/vehicle-6.webp`, cost: 90_000, home: 7, jobRow: 7 },
+  { id: 'vehicle-coupe', name: 'Sports Coupe', image: `${V2}/vehicle-7.webp`, cost: 180_000, home: 8, jobRow: 9 },
+  { id: 'vehicle-offroader', name: 'Luxury Off-Roader', image: `${V2}/vehicle-8.webp`, cost: 250_000, home: 9, jobRow: 10 },
+  { id: 'vehicle-supercar', name: 'Supercar', image: `${V2}/vehicle-9.webp`, cost: 500_000, home: 10, jobRow: 14 },
+  { id: 'vehicle-grand', name: 'Grand Luxury Car', image: `${V2}/vehicle-10.webp`, cost: 1.5e6, home: 11, jobRow: 22 },
 ];
 
 /** Items give no income bonus since the economy rebuild (2026-10-20); the field stays for the collars. */
@@ -84,10 +85,12 @@ export function legacyOutfitIndex(oldNumber: number) {
   return outfitIndex(oldNumber >= 15 ? 'outfit-suit' : oldNumber >= 11 ? 'outfit-smart' : oldNumber >= 7 ? 'outfit-work' : 'outfit-hoodie');
 }
 
-export const VEHICLES: LifestyleDef[] = VEHICLE_SPECS.map((vehicle) => ({
+// A vehicle asks for a job row like a home does (housing.ts careerAsk).
+export const VEHICLES: LifestyleDef[] = VEHICLE_SPECS.map(({ jobRow, ...vehicle }) => ({
   ...vehicle,
   kind: 'vehicle',
   statusBonus: ITEM_STATUS_BONUS,
+  requires: careerAsk(jobRow),
 }));
 export const OUTFITS: LifestyleDef[] = OUTFIT_SPECS.map((outfit) => ({
   id: outfit.id,

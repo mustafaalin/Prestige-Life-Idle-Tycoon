@@ -52,6 +52,8 @@ export type Requirement =
   | { type: 'managers'; count: number }
   /** A finished course. */
   | { type: 'course'; courseId: string }
+  /** A job held, now or before, in this row of the job tree or higher (homes and vehicles, 2026-10-22). */
+  | { type: 'jobRow'; level: number }
   /** Any one of these. */
   | { type: 'anyOf'; options: Requirement[] };
 
@@ -109,6 +111,8 @@ export interface LifestyleDef {
   home?: number;
   /** Outfits: the wealth class (index into WEALTH_CLASSES) you must reach to buy it, however much cash you have. */
   minClass?: number;
+  /** Vehicles: the career it asks for (a job row reached), none when empty. */
+  requires?: Requirement[];
 }
 
 export interface HouseDef {
@@ -123,6 +127,8 @@ export interface HouseDef {
   homeBonus: number;
   /** Base rent per second it pays when you own it but live elsewhere (before global multipliers). */
   rentPerSecond: number;
+  /** What it asks for besides money to move in (a job row reached), none when empty. */
+  requires: Requirement[];
 }
 
 export interface BusinessState {

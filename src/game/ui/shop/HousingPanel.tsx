@@ -1,4 +1,6 @@
 import { Home, KeyRound, Lock } from 'lucide-react';
+import type { FocusTarget } from '../home/focus';
+import { CareerAsk } from './CareerAsk';
 import { HOUSES } from '../../core/config/housing';
 import { autoIncomePerSecond, globalMultiplier, rentPerSecond } from '../../core/formulas';
 import {
@@ -7,6 +9,7 @@ import {
   housePrice,
   isRenting,
   moveUpNeedsVehicle,
+  homeNeedsCareer,
   nextHome,
   ownsHouse,
 } from '../../core/state';
@@ -26,7 +29,7 @@ import { Thumb } from './Thumb';
 const UPCOMING_COUNT = 3;
 
 
-export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
+export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => void; onGoTo: (target: FocusTarget) => void }) {
   const { game, actions } = useGameV2();
   const { t, name, money, duration, perMonth } = useT();
 
@@ -55,7 +58,9 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
   const nextOwned = next !== null && ownsHouse(game, next.id);
   const nextPrice = next ? housePrice(game, next) : null;
   const neededVehicle = next && !nextOwned ? moveUpNeedsVehicle(game) : null;
-  const rentHint = next && !nextOwned && !neededVehicle ? affordIn(next.moveInCost) : null;
+  // The career the next home asks for (config/housing.ts careerAsk), once its vehicle is there.
+  const neededCareer = next && !nextOwned && !neededVehicle ? homeNeedsCareer(game, next) : [];
+  const rentHint = next && !nextOwned && !neededVehicle && neededCareer.length === 0 ? affordIn(next.moveInCost) : null;
 
   return (
     <div className="flex flex-col gap-3">
@@ -152,6 +157,8 @@ export function HousingPanel({ onGoVehicles }: { onGoVehicles: () => void }) {
                   {t('home.needsVehicle', { vehicle: name('lifestyle', neededVehicle) })}
                 </span>
               </GameButton>
+            ) : neededCareer.length > 0 ? (
+              <CareerAsk asks={neededCareer} onGo={onGoTo} />
             ) : (
               <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
                 {rentHint ?? (ownsHome ? t('home.willRentOut', { amount: rent(home) }) : t('home.noRent'))}

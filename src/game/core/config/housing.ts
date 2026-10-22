@@ -1,4 +1,4 @@
-import type { HouseDef } from '../types';
+import type { HouseDef, Requirement } from '../types';
 import { SECONDS_PER_MONTH } from './life';
 
 // Homes: rent → buy → rent out (docs/game-design-v2.md §4.6). You always live in exactly one house,
@@ -14,23 +14,35 @@ interface HomeSpec {
   /** Scene background, also the shop card. Art list: docs/art-brief-v2.md. */
   image: string;
   moveInCost: number;
+  /** A job held in this row of the job tree or higher (0: none). */
+  jobRow: number;
 }
 
 const SCENE = '/assets/scene';
 
+/**
+ * A home or a vehicle asks for a career too (2026-10-22, user: money alone let a player climb homes and
+ * vehicles while still washing dishes). The row is a little under where a casual player's career is
+ * when the price is three months of income (simulator), so a player who keeps working is never held
+ * up; one who left the job board behind goes back to it.
+ */
+export function careerAsk(jobRow: number): Requirement[] {
+  return jobRow > 0 ? [{ type: 'jobRow', level: jobRow }] : [];
+}
+
 const HOMES: HomeSpec[] = [
-  { name: 'Street Tent', image: `${SCENE}/alley.webp`, moveInCost: 0 },
-  { name: 'Old Van', image: `${SCENE}/home-2.webp`, moveInCost: 500 },
-  { name: 'Rented Room', image: `${SCENE}/home-3.webp`, moveInCost: 800 },
-  { name: 'Old Rental Flat', image: `${SCENE}/home-4.webp`, moveInCost: 1_500 },
-  { name: 'Newer Rental Flat', image: `${SCENE}/home-5.webp`, moveInCost: 3_000 },
-  { name: 'Flat in a Gated Complex', image: `${SCENE}/home-6.webp`, moveInCost: 6_000 },
-  { name: 'First Home of Your Own', image: `${SCENE}/home-7.webp`, moveInCost: 12_000 },
-  { name: 'Suburban House with a Garden', image: `${SCENE}/home-8.webp`, moveInCost: 32_000 },
-  { name: 'Villa', image: `${SCENE}/home-9.webp`, moveInCost: 120_000 },
-  { name: 'Lakeside Glass House', image: `${SCENE}/home-10.webp`, moveInCost: 320_000 },
-  { name: 'Beachfront Estate', image: `${SCENE}/home-11.webp`, moveInCost: 1e6 },
-  { name: 'Grand Mansion', image: `${SCENE}/home-12.webp`, moveInCost: 3.2e6 },
+  { name: 'Street Tent', image: `${SCENE}/alley.webp`, moveInCost: 0, jobRow: 0 },
+  { name: 'Old Van', image: `${SCENE}/home-2.webp`, moveInCost: 500, jobRow: 0 },
+  { name: 'Rented Room', image: `${SCENE}/home-3.webp`, moveInCost: 800, jobRow: 0 },
+  { name: 'Old Rental Flat', image: `${SCENE}/home-4.webp`, moveInCost: 1_500, jobRow: 1 },
+  { name: 'Newer Rental Flat', image: `${SCENE}/home-5.webp`, moveInCost: 3_000, jobRow: 2 },
+  { name: 'Flat in a Gated Complex', image: `${SCENE}/home-6.webp`, moveInCost: 6_000, jobRow: 3 },
+  { name: 'First Home of Your Own', image: `${SCENE}/home-7.webp`, moveInCost: 12_000, jobRow: 4 },
+  { name: 'Suburban House with a Garden', image: `${SCENE}/home-8.webp`, moveInCost: 32_000, jobRow: 6 },
+  { name: 'Villa', image: `${SCENE}/home-9.webp`, moveInCost: 120_000, jobRow: 8 },
+  { name: 'Lakeside Glass House', image: `${SCENE}/home-10.webp`, moveInCost: 320_000, jobRow: 11 },
+  { name: 'Beachfront Estate', image: `${SCENE}/home-11.webp`, moveInCost: 1e6, jobRow: 18 },
+  { name: 'Grand Mansion', image: `${SCENE}/home-12.webp`, moveInCost: 3.2e6, jobRow: 36 },
 ];
 
 /** Houses 1..RENT_ONLY_COUNT (street to the flat in the complex) can only be rented. */
@@ -65,6 +77,7 @@ export const HOUSES: HouseDef[] = HOMES.map((home, index) => {
     buyCost,
     homeBonus: index * HOME_BONUS_PER_TIER,
     rentPerSecond: buyCost === null ? 0 : buyCost / rentPaybackSeconds(),
+    requires: careerAsk(home.jobRow),
   };
 });
 

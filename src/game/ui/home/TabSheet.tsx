@@ -58,7 +58,7 @@ export function TabSheet({
       <div key={tab} className="v2-sheet-body flex-1 overflow-y-auto px-3 py-3 bg-gradient-to-b from-sky-100 to-indigo-100">
         {tab === 'businesses' && <BusinessesScreen />}
         {tab === 'career' && <CareerScreen onGoTo={onGoTo} />}
-        {tab === 'shop' && <ShopScreen onOpenStore={onOpenStore} />}
+        {tab === 'shop' && <ShopScreen onOpenStore={onOpenStore} onGoTo={onGoTo} />}
         {tab === 'invest' && <InvestScreen />}
         {tab === 'family' && <FamilyScreen onClose={onClose} />}
       </div>

@@ -4,7 +4,9 @@ import { GADGETS, LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { autoIncomePerSecond } from '../../core/formulas';
 import { haptic, playSfx } from '../../runtime/feedback';
-import { canBuyNextLifestyle, canMoveUp, lifestyleNeedsClass, lifestyleNeedsHome, nextLifestyle } from '../../core/state';
+import { canBuyNextLifestyle, canMoveUp, lifestyleNeedsCareer, lifestyleNeedsClass, lifestyleNeedsHome, nextLifestyle } from '../../core/state';
+import type { FocusTarget } from '../home/focus';
+import { CareerAsk } from './CareerAsk';
 import type { GameStateV2, LifestyleKind } from '../../core/types';
 import type { MessageKey } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
@@ -42,7 +44,7 @@ function tabReady(game: GameStateV2, tab: ShopTab) {
 }
 
 /** Homes, vehicles, outfits and luxury toys. Status items are bought in order: one clear next dream per category. */
-export function ShopScreen({ onOpenStore }: { onOpenStore: () => void }) {
+export function ShopScreen({ onOpenStore, onGoTo }: { onOpenStore: () => void; onGoTo: (target: FocusTarget) => void }) {
   const { game } = useGameV2();
   const { t } = useT();
   const focus = useFocus();
@@ -72,11 +74,11 @@ export function ShopScreen({ onOpenStore }: { onOpenStore: () => void }) {
       />
 
       {tab === 'house' ? (
-        <HousingPanel onGoVehicles={() => setTab('vehicle')} />
+        <HousingPanel onGoVehicles={() => setTab('vehicle')} onGoTo={onGoTo} />
       ) : tab === 'gadget' ? (
         <GadgetPanel />
       ) : (
-        <LifestylePanel kind={tab} onGoHomes={() => setTab('house')} />
+        <LifestylePanel kind={tab} onGoHomes={() => setTab('house')} onGoTo={onGoTo} />
       )}
 
       <StoreStrip onOpen={onOpenStore} />
@@ -84,7 +86,15 @@ export function ShopScreen({ onOpenStore }: { onOpenStore: () => void }) {
   );
 }
 
-function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: () => void }) {
+function LifestylePanel({
+  kind,
+  onGoHomes,
+  onGoTo,
+}: {
+  kind: LifestyleKind;
+  onGoHomes: () => void;
+  onGoTo: (target: FocusTarget) => void;
+}) {
   const { game, actions } = useGameV2();
   const { t, name, money, duration } = useT();
 
@@ -99,7 +109,8 @@ function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: (
   // A vehicle opens in its home, an outfit in its wealth class (core/state.ts).
   const neededHome = next ? lifestyleNeedsHome(game, next) : null;
   const neededClass = next ? lifestyleNeedsClass(game, next) : null;
-  const locked = neededHome !== null || neededClass !== null;
+  const neededCareer = next ? lifestyleNeedsCareer(game, next) : [];
+  const locked = neededHome !== null || neededClass !== null || neededCareer.length > 0;
   const canBuy = next !== null && !locked && game.cash >= next.cost;
   const secondsToAfford = next && !locked && !canBuy && income > 0 ? (next.cost - game.cash) / income : null;
 
@@ -142,6 +153,7 @@ function LifestylePanel({ kind, onGoHomes }: { kind: LifestyleKind; onGoHomes: (
                 </span>
               </p>
             )}
+            {neededHome === null && <CareerAsk asks={neededCareer} onGo={onGoTo} />}
             {neededHome && (
               <GameButton
                 tone="soft"

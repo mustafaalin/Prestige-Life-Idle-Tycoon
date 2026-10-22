@@ -35,8 +35,8 @@ import {
   pendingLegacyPoints,
   questReward,
 } from './formulas';
-import { allMet } from './requirements';
-import type { BusinessDef, BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind, QuestDef, QuestGoal } from './types';
+import { allMet, unmet } from './requirements';
+import type { BusinessDef, BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind, QuestDef, QuestGoal, Requirement } from './types';
 
 // Pure state transitions. Every action returns a new state, or null when it is not allowed.
 
@@ -258,9 +258,19 @@ export function lifestyleNeedsClass(state: GameStateV2, item: LifestyleDef): num
   return item.minClass !== undefined && item.minClass > state.classIndex ? item.minClass : null;
 }
 
-/** Whether something other than money keeps an item from being bought: its home or its class. */
+/** The career an item asks for and the player lacks (vehicles: a job row, config/housing.ts careerAsk). */
+export function lifestyleNeedsCareer(state: GameStateV2, item: LifestyleDef): Requirement[] {
+  return unmet(state, item.requires ?? []);
+}
+
+/** Whether something other than money keeps an item from being bought: its home, its class or its career. */
 export function lifestyleLocked(state: GameStateV2, item: LifestyleDef) {
-  return lifestyleNeedsHome(state, item) !== null || lifestyleNeedsClass(state, item) !== null;
+  return lifestyleNeedsHome(state, item) !== null || lifestyleNeedsClass(state, item) !== null || lifestyleNeedsCareer(state, item).length > 0;
+}
+
+/** What the next home asks for besides money and vehicles (a job row), none when it is open to you. */
+export function homeNeedsCareer(state: GameStateV2, house: HouseDef): Requirement[] {
+  return unmet(state, house.requires);
 }
 
 /**
@@ -341,7 +351,7 @@ export function isRenting(state: GameStateV2) {
 export function housePrice(state: GameStateV2, house: HouseDef): number | null {
   if (house.buyCost === null || ownsHouse(state, house.id)) return null;
   const stepsUp = houseIndex(house.id) - houseIndex(state.home);
-  if (stepsUp > 1 || (stepsUp === 1 && moveUpNeedsVehicle(state))) return null;
+  if (stepsUp > 1 || (stepsUp === 1 && (moveUpNeedsVehicle(state) || homeNeedsCareer(state, house).length > 0))) return null;
   return house.id === state.home ? house.buyCost - house.moveInCost : house.buyCost;
 }
 
@@ -349,13 +359,18 @@ export function housePrice(state: GameStateV2, house: HouseDef): number | null {
 export function canMoveUp(state: GameStateV2) {
   const next = nextHome(state);
   if (!next) return false;
-  return ownsHouse(state, next.id) || (state.cash >= next.moveInCost && !moveUpNeedsVehicle(state));
+  return (
+    ownsHouse(state, next.id) ||
+    (state.cash >= next.moveInCost && !moveUpNeedsVehicle(state) && homeNeedsCareer(state, next).length === 0)
+  );
 }
 
 /** Rent the next home and move in. Only one rented home at a time: the old lease simply ends. */
 export function rentHome(state: GameStateV2, houseId: string): GameStateV2 | null {
   const next = nextHome(state);
-  if (!next || next.id !== houseId || ownsHouse(state, houseId) || moveUpNeedsVehicle(state)) return null;
+  if (!next || next.id !== houseId || ownsHouse(state, houseId) || moveUpNeedsVehicle(state) || homeNeedsCareer(state, next).length > 0) {
+    return null;
+  }
   const paid = spend(state, next.moveInCost);
   if (!paid) return null;
   return { ...paid, home: houseId };

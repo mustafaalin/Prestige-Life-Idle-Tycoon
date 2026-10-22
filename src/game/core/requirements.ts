@@ -1,4 +1,4 @@
-import { careerDef } from './config/careers';
+import { CAREERS, careerDef } from './config/careers';
 import { HOUSES } from './config/housing';
 import { VEHICLES } from './config/lifestyle';
 import { SECONDS_PER_MONTH } from './config/life';
@@ -28,9 +28,31 @@ export function isMet(state: GameStateV2, requirement: Requirement): boolean {
       return Object.values(state.businesses).filter((business) => business.managed).length >= requirement.count;
     case 'course':
       return state.coursesDone.includes(requirement.courseId);
+    case 'jobRow':
+      return jobRowReached(state) >= requirement.level;
     case 'anyOf':
       return requirement.options.some((option) => isMet(state, option));
   }
+}
+
+/**
+ * The highest row of the job tree reached (0 before the first job): the job held or any job held
+ * before, counting only jobs reached from the first row, one row after another. A save from an older
+ * tree may hold a job that has since moved far up (2026-10-22, phone test: the Cashier, once row 3,
+ * now opens the Office tab at row 16); such a job stays held or done but does not count.
+ */
+export function jobRowReached(state: GameStateV2) {
+  const reached = new Set<string>();
+  let top = 0;
+  // CAREERS is listed row by row, so a job's earlier jobs are settled before it.
+  for (const career of CAREERS) {
+    const worked = state.careerId === career.id || (state.jobSeconds[career.id] ?? 0) > 0;
+    if (!worked) continue;
+    if (career.after.length > 0 && !career.after.some((id) => reached.has(id))) continue;
+    reached.add(career.id);
+    top = Math.max(top, career.level);
+  }
+  return top;
 }
 
 /** Whole game months worked in a job, now or before. */

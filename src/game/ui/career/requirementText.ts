@@ -1,5 +1,5 @@
 import { businessDef } from '../../core/economy/business';
-import { careerDef } from '../../core/config/careers';
+import { CAREERS, careerDef } from '../../core/config/careers';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { courseDef } from '../../core/config/courses';
 import { HOUSES } from '../../core/config/housing';
@@ -42,6 +42,8 @@ export function requirementText(requirement: Requirement, words: Words): string 
       const def = businessDef(requirement.businessId);
       return t('requirement.businessLevel', { business: def ? name('business', def) : requirement.businessId, level: requirement.level });
     }
+    case 'jobRow':
+      return t('requirement.jobRow', { level: requirement.level });
     case 'anyOf':
       return requirement.options.map((option) => requirementText(option, words)).join(t('requirement.or'));
   }
@@ -67,6 +69,11 @@ export function requirementTarget(requirement: Requirement): FocusTarget | null 
       return { tab: 'businesses', key: `business:${requirement.businessId}:level` };
     case 'managers':
       return { tab: 'businesses', key: 'businesses:manager' };
+    case 'jobRow': {
+      // The tab of that row: the first job in it.
+      const career = CAREERS.find((entry) => entry.level === requirement.level);
+      return career ? { tab: 'career', key: `career:take:${career.id}` } : { tab: 'career', key: 'career:jobs' };
+    }
     case 'mastered':
     case 'class':
     case 'anyOf':

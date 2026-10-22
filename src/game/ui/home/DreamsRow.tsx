@@ -2,6 +2,7 @@ import { Lock } from 'lucide-react';
 import {
   lifestyleLocked,
   moveUpNeedsVehicle,
+  homeNeedsCareer,
   nextHome,
   nextLifestyle,
   ownsHouse,
@@ -35,7 +36,7 @@ function dreamsOf(game: GameStateV2): Dream[] {
       kind: 'house',
       image: home.image,
       price: owned ? 0 : home.moveInCost,
-      locked: !owned && moveUpNeedsVehicle(game) !== null,
+      locked: !owned && (moveUpNeedsVehicle(game) !== null || homeNeedsCareer(game, home).length > 0),
     });
   }
   const kinds: LifestyleKind[] = ['vehicle', 'outfit', 'toy'];

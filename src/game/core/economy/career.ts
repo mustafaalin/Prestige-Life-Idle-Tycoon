@@ -1,7 +1,7 @@
 import { CAREERS, careerDef } from '../config/careers';
 import { COURSES, courseDef } from '../config/courses';
 import { SECONDS_PER_MONTH } from '../config/life';
-import { allMet, isMastered } from '../requirements';
+import { allMet, isMastered, jobRowReached } from '../requirements';
 import type { CareerDef, CourseDef, GameStateV2, Requirement } from '../types';
 
 // Jobs and courses (docs/game-design-v2.md §4.4): pure reads; state.ts holds the actions.
@@ -55,23 +55,9 @@ export function canTakeBetterCareer(state: GameStateV2) {
   return betterOpenCareers(state).length > 0;
 }
 
-/**
- * The highest row of the tree reached (0 before the first job): the job held or any job held before,
- * counting only jobs reached from the first row, one row after another. A save from an older tree may
- * hold a job that has since moved far up (2026-10-22, phone test: the Cashier, once row 3, now opens the
- * Office tab at row 16); such a job stays held or done but does not open the rows around it.
- */
+/** The highest row of the tree reached, counting only jobs reached row by row (requirements.ts). */
 export function careerFrontier(state: GameStateV2) {
-  const reached = new Set<string>();
-  let top = 0;
-  // CAREERS is listed row by row, so a job's earlier jobs are settled before it.
-  for (const career of CAREERS) {
-    if (!hasWorked(state, career.id)) continue;
-    if (career.after.length > 0 && !career.after.some((id) => reached.has(id))) continue;
-    reached.add(career.id);
-    top = Math.max(top, career.level);
-  }
-  return top;
+  return jobRowReached(state);
 }
 
 /**

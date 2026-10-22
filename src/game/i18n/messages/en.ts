@@ -659,6 +659,7 @@ export const en = {
     home: 'Address: {home} or better',
     class: 'Reach {class}',
     businessLevel: '{business}: level {level}',
+    jobRow: 'Career: work a job in row {level}',
     or: ' or ',
     go: 'Go',
   },

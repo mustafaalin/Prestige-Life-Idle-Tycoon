@@ -658,6 +658,7 @@ export const tr: Messages = {
     home: 'Adres: {home} ya da daha iyisi',
     class: '{class} ol',
     businessLevel: '{business}: seviye {level}',
+    jobRow: 'Kariyer: Sv {level} bir işte çalış',
     or: ' ya da ',
     go: 'Git',
   },
