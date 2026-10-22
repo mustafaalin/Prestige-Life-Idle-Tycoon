@@ -1,3 +1,4 @@
+import { Lock } from 'lucide-react';
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
 // The game look for screens inside sheets (2026-10-08): glossy buttons, white cards with a soft
@@ -116,14 +117,15 @@ export function AlertBadge({ small = false, className = '' }: { small?: boolean;
   );
 }
 
-/** Segmented control (buy amount, shop categories). */
+/** Segmented control (buy amount, shop categories, a screen's tabs). */
 export function Segmented<T extends string | number>({
   options,
   value,
   onChange,
   dot,
 }: {
-  options: { value: T; label: ReactNode }[];
+  /** A `locked` option shows a lock and its `note` ("Soon") and can't be picked. */
+  options: { value: T; label: ReactNode; locked?: boolean; note?: ReactNode }[];
   value: T;
   onChange: (value: T) => void;
   /** Options with something to do get a blinking "!". */
@@ -137,14 +139,27 @@ export function Segmented<T extends string | number>({
           <button
             key={String(option.value)}
             type="button"
+            disabled={option.locked}
             onClick={() => onChange(option.value)}
-            className={`relative v2-hit flex-1 min-h-9 rounded-xl px-2.5 py-1.5 v2-display text-[13px] transition-all active:scale-95 ${
+            className={`relative v2-hit flex-1 min-h-9 rounded-xl px-2.5 py-1.5 v2-display text-[13px] transition-all active:scale-95 disabled:active:scale-100 ${
               selected
                 ? 'bg-gradient-to-b from-amber-300 to-orange-500 text-white v2-shadow v2-glossy'
-                : 'text-indigo-900/60'
+                : option.locked
+                  ? 'text-indigo-900/40'
+                  : 'text-indigo-900/60'
             }`}
           >
-            {option.label}
+            {option.locked ? (
+              <span className="flex flex-col items-center leading-none">
+                <span className="flex items-center gap-1">
+                  <Lock className="w-3 h-3" strokeWidth={3} />
+                  {option.label}
+                </span>
+                {option.note && <span className="mt-0.5 text-[9px] font-black uppercase tracking-wider">{option.note}</span>}
+              </span>
+            ) : (
+              option.label
+            )}
             {dot?.(option.value) && !selected && (
               <AlertBadge small className="-top-1.5 -right-1" />
             )}
@@ -152,5 +167,85 @@ export function Segmented<T extends string | number>({
         );
       })}
     </div>
+  );
+}
+
+/** The raised white-to-lilac face of a small tile (a deal, an heirloom, an owned item). */
+export const TILE_FACE =
+  'rounded-[18px] border-2 border-white bg-gradient-to-b from-white to-indigo-50 shadow-[0_3px_0_rgba(90,70,160,0.18),0_6px_14px_rgba(56,42,106,0.08)]';
+
+/**
+ * A tile three to a row (2026-10-22, after Idle Guy's bank): a coloured band with its name, a chip,
+ * a picture, a big figure and a button at the foot. Tiles in a row keep one height.
+ */
+export function BandTile({
+  band,
+  title,
+  chip,
+  picture,
+  figure,
+  button,
+  corner,
+  dimmed = false,
+  onClick,
+}: {
+  /** The band's gradient, e.g. `from-sky-400 to-blue-500`. */
+  band: string;
+  title: ReactNode;
+  chip?: ReactNode;
+  picture: ReactNode;
+  figure: ReactNode;
+  button: ReactNode;
+  corner?: ReactNode;
+  dimmed?: boolean;
+  onClick?: () => void;
+}) {
+  const Tag = onClick ? 'button' : 'div';
+  return (
+    <Tag
+      {...(onClick ? { type: 'button' as const, onClick, disabled: dimmed } : {})}
+      className={`relative w-[calc(33.333%-6px)] min-w-[100px] overflow-hidden ${TILE_FACE} flex flex-col items-center pb-2 transition-all ${
+        onClick ? 'active:scale-95' : ''
+      } ${dimmed ? 'opacity-60' : ''}`}
+    >
+      <span className={`w-full bg-gradient-to-r ${band} px-1 py-1 v2-display text-[12px] leading-tight text-white v2-shadow line-clamp-2`}>
+        {title}
+      </span>
+      <span className="mt-1 h-[18px] flex items-center">{chip}</span>
+      {picture}
+      {figure}
+      <span className="h-1.5 shrink-0" aria-hidden />
+      <span className="mt-auto self-stretch mx-1.5">{button}</span>
+      {corner}
+    </Tag>
+  );
+}
+
+/** A small pill button for a tile's foot (the tile itself or the pill takes the tap). */
+export function TilePill({ tone = 'buy', children }: { tone?: Tone; children: ReactNode }) {
+  return (
+    <span
+      className={`flex items-center justify-center gap-1 rounded-full border-2 border-white/70 bg-gradient-to-b ${TONES[tone]} v2-glossy py-1 v2-display text-[12px] v2-shadow tabular-nums`}
+    >
+      {children}
+    </span>
+  );
+}
+
+/** A character's one line at the top of a screen: portrait, name, what they say. */
+export function SpeakerLine({ portrait, name, text }: { portrait: string; name: ReactNode; text: ReactNode }) {
+  return (
+    <Panel className="p-3 flex items-center gap-3">
+      <img
+        src={portrait}
+        alt=""
+        draggable={false}
+        className="shrink-0 w-14 h-14 rounded-full object-cover border-[3px] border-white shadow-md bg-amber-100"
+      />
+      <div className="flex-1 min-w-0">
+        <p className="v2-display text-[13px] text-violet-700">{name}</p>
+        <p className="text-[13px] font-bold leading-snug text-slate-700">{text}</p>
+      </div>
+    </Panel>
   );
 }

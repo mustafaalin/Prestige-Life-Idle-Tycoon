@@ -57,6 +57,8 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
 
   // Taking a job plays its show (JobShow), which has its own sound.
   const [show, setShow] = useState<{ from: CareerDef | undefined; to: CareerDef; fromPay: number; toPay: number } | null>(null);
+  // Once the show closes, the new pay's rise floats up from the salary (like a business level-up).
+  const [raise, setRaise] = useState<{ key: number; gain: number } | null>(null);
   const take = (career: CareerDef) => {
     const from = current;
     const fromPay = currentSalary(game) * globalMultiplier(game);
@@ -67,9 +69,11 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
 
   return (
     <section className="flex flex-col gap-3">
-      <Panel accent={current !== undefined && isMastered(game, current.id) && open.length > 0} className="p-3 flex items-center gap-3">
+      <Panel accent={current !== undefined && isMastered(game, current.id) && open.length > 0} className="relative p-3 flex items-center gap-3">
         {current ? (
-          <JobIcon career={current} size={64} mastery={masteryOf(game, current.id)} />
+          <span key={raise?.key} className={raise ? 'v2-bump' : ''}>
+            <JobIcon career={current} size={64} mastery={masteryOf(game, current.id)} />
+          </span>
         ) : (
           <ImageTile className="w-16 h-16">
             <Briefcase className="w-7 h-7 text-indigo-300" />
@@ -78,9 +82,16 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
         <div className="flex-1 min-w-0">
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('career.current')}</p>
           <p className="v2-display text-[17px] leading-tight text-indigo-950">{current ? name('career', current) : t('career.unemployed')}</p>
-          <p className="text-[12px] font-bold text-emerald-600">
-            {current ? t('career.salary', { amount: perMonth(currentSalary(game) * globalMultiplier(game)) }) : t('career.unemployedBody')}
-          </p>
+          {current ? (
+            <p className="flex items-baseline gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('income.salary')}</span>
+              <span className="v2-display v2-outline-thin text-[22px] leading-tight text-emerald-400 tabular-nums">
+                {perMonth(currentSalary(game) * globalMultiplier(game))}
+              </span>
+            </p>
+          ) : (
+            <p className="text-[12px] font-bold text-emerald-600">{t('career.unemployedBody')}</p>
+          )}
           {current && (
             <p className="text-[11px] font-bold text-violet-600">
               {isMastered(game, current.id)
@@ -91,6 +102,15 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
             </p>
           )}
         </div>
+        {raise && raise.gain > 0 && (
+          <span
+            key={raise.key}
+            className="v2-float-up pointer-events-none absolute left-1/2 top-2 whitespace-nowrap v2-display v2-outline-thin text-[18px] text-emerald-400 tabular-nums"
+            aria-hidden
+          >
+            +{perMonth(raise.gain)}
+          </span>
+        )}
       </Panel>
       <AdStrip className="-mt-1">
         {current && canFirstSalary(state, now) && (
@@ -133,7 +153,15 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
         </>
       )}
 
-      {show && <JobShow {...show} onClose={() => setShow(null)} />}
+      {show && (
+        <JobShow
+          {...show}
+          onClose={() => {
+            setRaise({ key: Date.now(), gain: show.toPay - show.fromPay });
+            setShow(null);
+          }}
+        />
+      )}
       {opened && (
         <JobSheet
           career={opened}

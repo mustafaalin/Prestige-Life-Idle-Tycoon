@@ -1,5 +1,5 @@
-import { Clock, Lock, X } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { Clock, X } from 'lucide-react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { INVEST_CAP_MONTHS, investPlan, OFFERED_PLANS, type InvestPlan } from '../../core/config/investments';
 import type { MessageKey } from '../../i18n/translate';
@@ -12,7 +12,7 @@ import { adsLeft, canRushInvest, canWatch } from '../../runtime/adRewards';
 import { AdButton } from '../ads/AdButton';
 import { CashAmount, MoneyIcon } from '../CashAmount';
 import { payout } from '../home/coins';
-import { GameButton, Panel, Segmented } from '../kit';
+import { BandTile, GameButton, Segmented, SpeakerLine, TilePill } from '../kit';
 import { portalRoot } from '../stage';
 
 // Old Ray's deals (runtime/investment.ts, game-design-v2.md §4.14), redrawn after Idle Guy's bank
@@ -71,35 +71,18 @@ export function InvestScreen() {
 
   return (
     <section className="flex flex-col gap-3">
-      <div className="flex gap-1 rounded-2xl bg-white/70 border-2 border-white p-1 shadow-sm">
-        {TABS.map((tab) => (
-          <div
-            key={tab.id}
-            className={`flex-1 min-h-9 rounded-xl px-1.5 py-1 flex flex-col items-center justify-center leading-none ${
-              tab.open ? 'bg-gradient-to-b from-amber-300 to-orange-500 text-white v2-shadow v2-glossy' : 'text-indigo-900/40'
-            }`}
-          >
-            <span className="flex items-center gap-1 v2-display text-[13px]">
-              {!tab.open && <Lock className="w-3 h-3" strokeWidth={3} />}
-              {t(`invest.tabs.${tab.id}` as MessageKey)}
-            </span>
-            {!tab.open && <span className="mt-0.5 text-[9px] font-black uppercase tracking-wider">{t('invest.soon')}</span>}
-          </div>
-        ))}
-      </div>
+      <Segmented
+        options={TABS.map((tab) => ({
+          value: tab.id,
+          label: t(`invest.tabs.${tab.id}` as MessageKey),
+          locked: !tab.open,
+          note: t('invest.soon'),
+        }))}
+        value="deals"
+        onChange={() => {}}
+      />
 
-      <Panel className="p-3 flex items-center gap-3">
-        <img
-          src={PORTRAIT(line.face as 'warm' | 'laugh' | 'concerned')}
-          alt=""
-          draggable={false}
-          className="shrink-0 w-14 h-14 rounded-full object-cover border-[3px] border-white shadow-md bg-amber-100"
-        />
-        <div className="flex-1 min-w-0">
-          <p className="v2-display text-[13px] text-violet-700">{t('ceremony.cast.riza')}</p>
-          <p className="text-[13px] font-bold leading-snug text-slate-700">{line.text}</p>
-        </div>
-      </Panel>
+      <SpeakerLine portrait={PORTRAIT(line.face as 'warm' | 'laugh' | 'concerned')} name={t('ceremony.cast.riza')} text={line.text} />
 
       {result !== null && <ResultBanner gain={result} />}
 
@@ -152,7 +135,7 @@ function PlanGain({ plan, big = false }: { plan: InvestPlan; big?: boolean }) {
   return (
     <span className="flex flex-col items-center leading-none">
       <span className={`v2-display v2-outline-thin tabular-nums text-emerald-400 ${big ? 'text-[28px]' : 'text-[22px]'}`}>
-        +%{percent(plan.gain)}
+        {t('invest.gainShort', { percent: percent(plan.gain) })}
       </span>
       {plan.chance !== undefined && (
         <span className="mt-0.5 text-[10px] font-black text-rose-500 tabular-nums">
@@ -163,44 +146,10 @@ function PlanGain({ plan, big = false }: { plan: InvestPlan; big?: boolean }) {
   );
 }
 
-/** A deal's tile, the same size whether it waits for money or runs: band, top chip, picture, figure, button. */
-function TileShell({
-  plan,
-  chip,
-  figure,
-  button,
-  corner,
-  dimmed = false,
-  onClick,
-}: {
-  plan: InvestPlan;
-  chip: ReactNode;
-  figure: ReactNode;
-  button: ReactNode;
-  corner?: ReactNode;
-  dimmed?: boolean;
-  onClick?: () => void;
-}) {
+/** A deal's tile, the same size whether it waits for money or runs. */
+function DealTile({ plan, ...rest }: { plan: InvestPlan } & Omit<Parameters<typeof BandTile>[0], 'band' | 'title' | 'picture'>) {
   const { t } = useT();
-  const Tag = onClick ? 'button' : 'div';
-  return (
-    <Tag
-      {...(onClick ? { type: 'button' as const, onClick, disabled: dimmed } : {})}
-      className={`relative w-[calc(33.333%-6px)] min-w-[100px] overflow-hidden rounded-[18px] border-2 border-white bg-gradient-to-b from-white to-indigo-50 shadow-[0_3px_0_rgba(90,70,160,0.18),0_6px_14px_rgba(56,42,106,0.08)] flex flex-col items-center pb-2 transition-all ${
-        onClick ? 'active:scale-95' : ''
-      } ${dimmed ? 'opacity-60' : ''}`}
-    >
-      <span className={`w-full bg-gradient-to-r ${PLAN_LOOK[plan.id].band} px-1 py-1 v2-display text-[12px] text-white v2-shadow truncate`}>
-        {t(planName(plan))}
-      </span>
-      <span className="mt-1 h-[18px] flex items-center">{chip}</span>
-      <MoneyIcon tier={plan.moneyTier} size={50} />
-      {figure}
-      <span className="h-1.5 shrink-0" aria-hidden />
-      <span className="mt-auto self-stretch mx-1.5">{button}</span>
-      {corner}
-    </Tag>
-  );
+  return <BandTile band={PLAN_LOOK[plan.id].band} title={t(planName(plan))} picture={<MoneyIcon tier={plan.moneyTier} size={50} />} {...rest} />;
 }
 
 function PlanTile({ plan, onPick }: { plan: InvestPlan; onPick: () => void }) {
@@ -216,7 +165,7 @@ function PlanTile({ plan, onPick }: { plan: InvestPlan; onPick: () => void }) {
     onPick();
   };
   return (
-    <TileShell
+    <DealTile
       plan={plan}
       dimmed={!ready}
       onClick={pick}
@@ -228,14 +177,10 @@ function PlanTile({ plan, onPick }: { plan: InvestPlan; onPick: () => void }) {
       }
       figure={<PlanGain plan={plan} />}
       button={
-        <span
-          className={`flex items-center justify-center gap-1 rounded-full border-2 border-white/70 bg-gradient-to-b v2-glossy py-1 v2-display text-[12px] text-white v2-shadow ${
-            plan.ad ? 'from-orange-400 to-orange-600' : 'from-emerald-400 to-green-600'
-          }`}
-        >
+        <TilePill tone={plan.ad ? 'ad' : 'buy'}>
           {plan.ad && <img src="/assets/icons/v2/ad-reward.webp" alt="" draggable={false} className="w-4 h-4 object-contain" />}
           {plan.ad ? t('invest.open') : t('invest.put')}
-        </span>
+        </TilePill>
       }
       corner={
         plan.ad && (
@@ -388,7 +333,7 @@ function RunningTile({ plan, deal, onCollected }: { plan: InvestPlan; deal: Inve
   );
 
   return (
-    <TileShell
+    <DealTile
       plan={plan}
       chip={
         // A dark track, so the white time reads on it (2026-10-22, user: white on white).

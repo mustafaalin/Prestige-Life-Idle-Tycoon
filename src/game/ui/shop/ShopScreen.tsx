@@ -15,7 +15,8 @@ import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
 import { ICONS } from '../icons';
 import { useFocus, type ShopTabId } from '../home/focus';
-import { Chip, GameButton, Panel, Segmented, SectionLabel } from '../kit';
+import { Chip, GameButton, Panel, Segmented, SectionLabel, TILE_FACE } from '../kit';
+import { CashAmount } from '../CashAmount';
 import { HousingPanel } from './HousingPanel';
 import { StoreStrip } from './StoreSheet';
 import { OpensJobs } from './OpensJobs';
@@ -113,6 +114,13 @@ function LifestylePanel({
   const locked = neededHome !== null || neededClass !== null || neededCareer.length > 0;
   const canBuy = next !== null && !locked && game.cash >= next.cost;
   const secondsToAfford = next && !locked && !canBuy && income > 0 ? (next.cost - game.cash) / income : null;
+  // The item just bought pops into the collection with a shine (the scene plays the purchase sound).
+  const [justBought, setJustBought] = useState<string | null>(null);
+  const buy = (itemId: string) => {
+    if (!actions.buyLifestyle(itemId)) return;
+    haptic('medium');
+    setJustBought(itemId);
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -126,17 +134,19 @@ function LifestylePanel({
               <Thumb image={next.image} large />
               <div className="flex-1 min-w-0">
                 <p className="v2-display text-xl leading-tight text-indigo-950">{name('lifestyle', next)}</p>
+                <p className="mt-0.5 v2-display v2-outline-thin text-[24px] leading-none text-amber-300 tabular-nums">
+                  <CashAmount amount={next.cost} size={30}>{money(next.cost)}</CashAmount>
+                </p>
                 <OpensJobs itemId={next.id} />
               </div>
             </div>
             <Focusable focusKey={`shop:${kind}:next`}>
               <GameButton
-                onClick={() => actions.buyLifestyle(next.id)}
+                onClick={() => buy(next.id)}
                 disabled={!canBuy}
-                className="w-full py-3 px-4 flex items-center justify-between"
+                className="w-full py-3 px-4 v2-display text-[18px] v2-shadow"
               >
-                <span className="v2-display text-[16px] v2-shadow">{t('shop.buy')}</span>
-                <span className="v2-display text-[16px] v2-shadow tabular-nums">{money(next.cost)}</span>
+                {t('shop.buy')}
               </GameButton>
             </Focusable>
             {secondsToAfford !== null && (
@@ -209,9 +219,15 @@ function LifestylePanel({
             {[...owned].reverse().map((item) => (
               <li
                 key={item.id}
-                className="relative bg-white rounded-2xl border-2 border-white shadow-[0_4px_14px_rgba(30,41,99,0.12)] p-1.5 flex flex-col items-center gap-1"
+                className={`relative overflow-hidden ${TILE_FACE} p-1.5 flex flex-col items-center gap-1 ${item.id === justBought ? 'v2-pop-in' : ''}`}
               >
                 <Thumb image={item.image} />
+                {item.id === justBought && (
+                  <span
+                    className="v2-tile-shine pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/80 to-transparent"
+                    aria-hidden
+                  />
+                )}
                 <span className="w-full text-center text-[11px] font-bold text-slate-500 leading-tight line-clamp-2">
                   {name('lifestyle', item)}
                 </span>

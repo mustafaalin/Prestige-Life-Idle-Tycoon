@@ -1,6 +1,7 @@
-import { ArrowBigUpDash, Clapperboard, Play, Store } from 'lucide-react';
+import { ArrowBigUpDash, Clapperboard, Lock, Play, Store } from 'lucide-react';
 import { useState } from 'react';
 import { CAMPAIGN_FACTOR } from '../../core/config/ads';
+import { WEALTH_CLASSES } from '../../core/config/classes';
 import {
   branchCapAt,
   branchCost,
@@ -66,7 +67,12 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
   const newBuilding = opened && next !== null && next.stage > businessStage(def, level);
   const buildingFactor = runNow > 0 ? Math.round(runNext / runNow) : 0;
   const atTop = isMaxLevel(def, business);
-  const atCap = branches >= branchCapAt(def, game.classIndex);
+  // The branch limit grows with the class (game-design-v2 §4.3): the row shows "Branches 2/4" at the
+  // top level, and at the limit what the next class allows (2026-10-22, user: how many is unclear).
+  const cap = branchCapAt(def, game.classIndex);
+  const atCap = branches >= cap;
+  const nextClass = WEALTH_CLASSES[game.classIndex + 1];
+  const nextCap = nextClass ? branchCapAt(def, game.classIndex + 1) : null;
   const price = next ? next.cost : branchCost(def, branches);
   const canStep = next !== null || (atTop && !atCap);
   /** What one more branch adds to a run: one more place at this level. */
@@ -196,16 +202,15 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
         </Focusable>
 
         <button type="button" onClick={showDetails} className="flex-1 min-w-0 flex flex-col gap-1 text-left">
-          <span className="flex items-center gap-1 min-w-0">
-            <span className="v2-display text-[16px] leading-tight text-indigo-950 truncate">{name('business', def)}</span>
+          <span className="flex items-start gap-1 min-w-0">
+            <span className="v2-display text-[16px] leading-tight text-indigo-950 line-clamp-2">{name('business', def)}</span>
             {adOffer && <Clapperboard className="shrink-0 w-3.5 h-3.5 text-orange-400" aria-label={t('business.adOffer')} />}
           </span>
           {opened ? (
             <>
-              <span className="text-[11px] font-bold text-indigo-700 truncate">
-                {t(levelNameKey(def.id, level))} · {level}/{def.levels.length}
-                {branches > 0 ? ` · ${t('business.branches', { count: branches })}` : ''}
-              </span>
+              {/* The level's name only, never cut on a narrow phone (2026-10-22, user): the level is the
+                  dots below, the branches are under the button. */}
+              <span className="text-[11px] font-bold leading-tight text-indigo-700 line-clamp-2">{t(levelNameKey(def.id, level))}</span>
               <span className={`whitespace-nowrap text-[12px] font-black ${managed ? 'text-emerald-600' : 'text-violet-600'}`}>
                 {perMonth((perRun * campaignFactor) / def.cycleSeconds)}
                 {!managed && <span className="text-[10px] font-bold text-violet-500"> · {t('business.withManagerShort')}</span>}
@@ -244,7 +249,24 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
               +{perMonth(branchGain / def.cycleSeconds)}
             </span>
           )}
-          {atTop && atCap && <span className="text-[10px] font-black text-indigo-900/50">{t('business.branchCapFull')}</span>}
+          {atTop && (
+            <span className="w-[96px] text-center v2-display text-[12px] leading-tight text-indigo-900/70 tabular-nums">
+              {Number.isFinite(cap) ? t('business.branchesCap', { count: branches, cap }) : t('business.branchesNoCap', { count: branches })}
+            </span>
+          )}
+          {atTop && atCap && (
+            <span className="w-[96px] flex flex-col items-center text-center leading-tight">
+              <span className="text-[10px] font-black uppercase tracking-wide text-rose-500">{t('business.branchCapFull')}</span>
+              {nextClass && nextCap !== null && (
+                <span className="text-[10px] font-bold text-indigo-900/50">
+                  <Lock className="inline w-3 h-3 -mt-0.5 mr-0.5" />
+                  {Number.isFinite(nextCap)
+                    ? t('business.branchCapNext', { class: name('wealthClass', nextClass), cap: nextCap })
+                    : t('business.branchCapNextUnlimited', { class: name('wealthClass', nextClass) })}
+                </span>
+              )}
+            </span>
+          )}
           {canStep && game.cash < price && !canHelp(state, now, price) && (
             <span className="text-[10px] font-bold text-indigo-900/50 tabular-nums">
               {t('business.missing', { amount: money(price - game.cash) })}
