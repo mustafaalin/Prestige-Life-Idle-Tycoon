@@ -355,14 +355,18 @@ function RunningTile({ plan, deal, onCollected }: { plan: InvestPlan; deal: Inve
       plan={plan}
       ready={due}
       chip={
-        // A dark track, so the white time reads on it (2026-10-22, user: white on white).
-        <span className="relative block w-[84px] h-[18px] rounded-full bg-indigo-900/80 border border-white overflow-hidden">
-          <span
-            className={`block h-full rounded-full bg-gradient-to-r transition-all duration-500 ${due ? 'from-emerald-300 to-green-500' : 'from-amber-300 to-orange-500'}`}
-            style={{ width: `${progress * 100}%` }}
-          />
-          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white v2-shadow tabular-nums">
-            {due ? t('invest.dueShort') : duration(Math.ceil(left / 1000))}
+        // A dark track, so the white time reads on it (2026-10-22, user: white on white); while the deal runs,
+        // a clock sits on its left end (2026-10-23, user).
+        <span className="relative flex items-center">
+          {!due && <UiIcon name="timer" className="relative z-10 -mr-2.5 w-[22px] h-[22px] drop-shadow" />}
+          <span className="relative block w-[84px] h-[18px] rounded-full bg-indigo-900/80 border border-white overflow-hidden">
+            <span
+              className={`block h-full rounded-full bg-gradient-to-r transition-all duration-500 ${due ? 'from-emerald-300 to-green-500' : 'from-amber-300 to-orange-500'}`}
+              style={{ width: `${progress * 100}%` }}
+            />
+            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white v2-shadow tabular-nums">
+              {due ? t('invest.dueShort') : duration(Math.ceil(left / 1000))}
+            </span>
           </span>
         </span>
       }

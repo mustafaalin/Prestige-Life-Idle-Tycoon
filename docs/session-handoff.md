@@ -95,7 +95,7 @@ Kurulum: kapalı testten (Play sürümü). **Önce** telefonu AdMob test cihazı
 7. **İlk saat (yeni hesap ya da verileri silip):** önsöz, el ilanı → bulaşıkçı → tezgâh, Rıza Amca rehberi ve yeni el ikonu, ilk yönetici, hedef rozeti.
 8. **Günlük ödül ve çevrimdışı kartı:** ertesi gün, ×2 reklamı (gerçek reklam), kapat-aç sonrası aynı tutar.
 9. **Para:** "Satın alımları geri yükle"; Başlangıç Paketi'nin 3 gün sonra $2,99'a dönmesi.
-10. **Yatırım "Topla" (sonraki AAB):** vadesi dolan fırsat altın halkayla parlıyor, parasının arkasında ışınlar dönüyor, "Topla" altın, atıyor ve üstünden ışık geçiyor; "Yatır" artık sakin mavi. Telefonda akıcı mı, göz yoruyor mu.
+10. **Yatırım "Topla" (sonraki AAB):** vadesi dolan fırsat altın halkayla parlıyor, parasının arkasında ışınlar dönüyor, "Topla" altın, atıyor ve üstünden ışık geçiyor; "Yatır" artık sakin mavi; süren fırsatın geri sayım çubuğunun solunda saat ikonu var. Telefonda akıcı mı, göz yoruyor mu.
 
 ## Kullanıcının yapacakları
 
