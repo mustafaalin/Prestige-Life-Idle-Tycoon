@@ -4,7 +4,7 @@ import { UiIcon } from './UiIcon';
 // The game look for screens inside sheets (2026-10-08): glossy buttons, white cards with a soft
 // colored edge, rounded display font. One place, so every tab reads the same.
 
-type Tone = 'buy' | 'manager' | 'gold' | 'soft' | 'ad';
+type Tone = 'buy' | 'manager' | 'gold' | 'soft' | 'ad' | 'invest';
 
 const TONES: Record<Tone, string> = {
   buy: 'from-emerald-400 to-green-600 text-white',
@@ -13,6 +13,8 @@ const TONES: Record<Tone, string> = {
   soft: 'from-white to-indigo-50 text-indigo-700',
   // "Watch an ad" buttons, everywhere.
   ad: 'from-orange-400 to-orange-600 text-white',
+  // Putting money in (Investments): a calm blue, so the gold "Collect" is the one that calls.
+  invest: 'from-sky-400 to-blue-600 text-white',
 };
 
 export const GameButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Tone }>(
@@ -187,6 +189,7 @@ export function BandTile({
   button,
   corner,
   dimmed = false,
+  glow = false,
   onClick,
 }: {
   /** The band's gradient, e.g. `from-sky-400 to-blue-500`. */
@@ -198,6 +201,8 @@ export function BandTile({
   button: ReactNode;
   corner?: ReactNode;
   dimmed?: boolean;
+  /** Something is waiting to be taken: a gold ring breathes around the tile. */
+  glow?: boolean;
   onClick?: () => void;
 }) {
   const Tag = onClick ? 'button' : 'div';
@@ -206,7 +211,7 @@ export function BandTile({
       {...(onClick ? { type: 'button' as const, onClick, disabled: dimmed } : {})}
       className={`relative w-[calc(33.333%-6px)] min-w-[100px] overflow-hidden ${TILE_FACE} flex flex-col items-center pb-2 transition-all ${
         onClick ? 'active:scale-95' : ''
-      } ${dimmed ? 'opacity-60' : ''}`}
+      } ${dimmed ? 'opacity-60' : ''} ${glow ? 'v2-tile-ready' : ''}`}
     >
       <span className={`w-full bg-gradient-to-r ${band} px-1 py-1 v2-display text-[12px] leading-tight text-white v2-shadow line-clamp-2`}>
         {title}

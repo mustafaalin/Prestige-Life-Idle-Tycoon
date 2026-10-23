@@ -148,9 +148,18 @@ function PlanGain({ plan, big = false }: { plan: InvestPlan; big?: boolean }) {
 }
 
 /** A deal's tile, the same size whether it waits for money or runs. */
-function DealTile({ plan, ...rest }: { plan: InvestPlan } & Omit<Parameters<typeof BandTile>[0], 'band' | 'title' | 'picture'>) {
+function DealTile({ plan, ready = false, ...rest }: { plan: InvestPlan; ready?: boolean } & Omit<Parameters<typeof BandTile>[0], 'band' | 'title' | 'picture' | 'glow'>) {
   const { t } = useT();
-  return <BandTile band={PLAN_LOOK[plan.id].band} title={t(planName(plan))} picture={<MoneyIcon tier={plan.moneyTier} size={50} />} {...rest} />;
+  // A deal that is due glows gold with rays behind its money, so the win is felt before the tap.
+  const picture = ready ? (
+    <span className="relative flex">
+      <span className="v2-job-rays v2-ready-rays" aria-hidden />
+      <span className="relative v2-bob"><MoneyIcon tier={plan.moneyTier} size={50} /></span>
+    </span>
+  ) : (
+    <MoneyIcon tier={plan.moneyTier} size={50} />
+  );
+  return <BandTile band={PLAN_LOOK[plan.id].band} title={t(planName(plan))} picture={picture} glow={ready} {...rest} />;
 }
 
 function PlanTile({ plan, onPick }: { plan: InvestPlan; onPick: () => void }) {
@@ -178,8 +187,12 @@ function PlanTile({ plan, onPick }: { plan: InvestPlan; onPick: () => void }) {
       }
       figure={<PlanGain plan={plan} />}
       button={
-        <TilePill tone={plan.ad ? 'ad' : 'buy'}>
-          {plan.ad && <img src="/assets/icons/v2/ad-reward.webp" alt="" draggable={false} className="w-4 h-4 object-contain" />}
+        <TilePill tone={plan.ad ? 'ad' : 'invest'}>
+          {plan.ad ? (
+            <img src="/assets/icons/v2/ad-reward.webp" alt="" draggable={false} className="w-4 h-4 object-contain" />
+          ) : (
+            <MoneyIcon tier={1} size={16} />
+          )}
           {plan.ad ? t('invest.open') : t('invest.put')}
         </TilePill>
       }
@@ -312,8 +325,12 @@ function RunningTile({ plan, deal, onCollected }: { plan: InvestPlan; deal: Inve
   };
 
   const button = due ? (
-    <GameButton onClick={collect} className="w-full min-h-0 py-1 v2-display text-[12px] v2-shadow v2-bob">
-      {t('common.collect')}
+    // Gold, throbbing, a light sweeping over it: "come and take me" (2026-10-23, user).
+    <GameButton tone="gold" onClick={collect} className="v2-collect w-full min-h-0 py-1.5 v2-display text-[14px] v2-shadow">
+      <span className="relative flex items-center justify-center gap-1">
+        <MoneyIcon tier={1} size={20} />
+        {t('common.collect')}
+      </span>
     </GameButton>
   ) : canRushInvest(state, plan.id, now) ? (
     <AdButton
@@ -336,6 +353,7 @@ function RunningTile({ plan, deal, onCollected }: { plan: InvestPlan; deal: Inve
   return (
     <DealTile
       plan={plan}
+      ready={due}
       chip={
         // A dark track, so the white time reads on it (2026-10-22, user: white on white).
         <span className="relative block w-[84px] h-[18px] rounded-full bg-indigo-900/80 border border-white overflow-hidden">

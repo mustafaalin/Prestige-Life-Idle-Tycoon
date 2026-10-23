@@ -743,3 +743,37 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .v2-job-rays, .v2-job-open::after { animation: none; }
 }
+
+/* A due investment (ui/invest/InvestScreen.tsx, 2026-10-23, user: "Collect should call the player"):
+   the tile breathes a gold ring, rays turn behind its money, and the gold button throbs with a light
+   sweeping across it. */
+@keyframes v2-tile-ready {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.9), 0 0 10px 2px rgba(251, 191, 36, 0.45); }
+  50% { box-shadow: 0 0 0 3px rgba(251, 191, 36, 1), 0 0 22px 6px rgba(251, 191, 36, 0.7); }
+}
+.v2-tile-ready { animation: v2-tile-ready 1.2s ease-in-out infinite; }
+.v2-ready-rays {
+  background: repeating-conic-gradient(rgba(251, 191, 36, 0.75) 0 10deg, rgba(251, 191, 36, 0) 10deg 30deg);
+  inset: -18px;
+}
+@keyframes v2-collect {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.07); filter: brightness(1.12); }
+}
+.v2-collect {
+  position: relative;
+  overflow: hidden;
+  animation: v2-collect 0.9s ease-in-out infinite;
+}
+.v2-collect::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.7) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: v2-ad-shine 2s ease-in-out 0.3s infinite;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .v2-tile-ready, .v2-collect, .v2-collect::after, .v2-ready-rays { animation: none; }
+}
