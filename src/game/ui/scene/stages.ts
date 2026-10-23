@@ -395,7 +395,7 @@ const VEHICLE_SHAPE: Record<string, VehicleShape> = {
   'vehicle-pickup': { metres: 1.8, aspect: 1.599 },
   'vehicle-executive': { metres: 1.46, aspect: 1.67 },
   // A low car read small next to the others at its real 1.3 m (scene board, 2026-10-21).
-  'vehicle-coupe': { metres: 1.42, aspect: 1.642 },
+  'vehicle-coupe': { metres: 1.52, aspect: 1.642 },
   'vehicle-offroader': { metres: 1.85, aspect: 1.565 },
   // The orange McLaren-like car (2026-10-21, art/pilot/09-vehicles/vehicle-9-feature-supercar-v1.png).
   'vehicle-supercar': { metres: 1.15, aspect: 2.338 },
@@ -445,10 +445,17 @@ export interface VehicleBox {
   facesLeft: boolean;
 }
 
-/** Where a vehicle stands in front of a home, at real size unless its art is too wide for the lane. */
+/**
+ * Cars stand this much under real size (2026-10-23, user: "the pickup hides the house"). At real size
+ * anything as tall as the hero's eyes reaches the horizon, where the homes stand, so a pickup or an
+ * SUV covered the house behind it wherever it parked. Bikes beside the hero keep their real size.
+ */
+const CAR_SCALE = 0.8;
+
+/** Where a vehicle stands in front of a home, at stage size unless its art is too wide for the lane. */
 export function vehicleBox(vehicle: VehicleArt, layout: HomeLayout): VehicleBox {
   const lane = layout[vehicle.lane];
-  const height = vehicle.metres * METRE * depthScale(lane.y);
+  const height = vehicle.metres * METRE * depthScale(lane.y) * (vehicle.lane === 'car' ? CAR_SCALE : 1);
   const width = height * vehicle.aspect * (16 / 9);
   const facesLeft = lane.facesLeft ?? false;
   const room = facesLeft ? 1 - LANE_START_X - lane.x : lane.x - LANE_START_X;
