@@ -3,7 +3,16 @@ import { GADGETS, LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
 import { WEALTH_CLASSES } from '../../core/config/classes';
 import { autoIncomePerSecond } from '../../core/formulas';
 import { haptic, playSfx } from '../../runtime/feedback';
-import { canBuyNextLifestyle, canMoveUp, lifestyleNeedsCareer, lifestyleNeedsClass, lifestyleNeedsHome, nextLifestyle } from '../../core/state';
+import {
+  bestOwnedLifestyle,
+  canBuyNextLifestyle,
+  canMoveUp,
+  lifestyleNeedsCareer,
+  lifestyleNeedsClass,
+  lifestyleNeedsHome,
+  nextLifestyle,
+  parkedVehicle,
+} from '../../core/state';
 import type { FocusTarget } from '../home/focus';
 import { CareerAsk } from './CareerAsk';
 import type { GameStateV2, LifestyleKind } from '../../core/types';
@@ -14,13 +23,13 @@ import { HelpAd } from '../ads/AdButton';
 import { Focusable } from '../home/Focusable';
 import { ICONS } from '../icons';
 import { useFocus, type ShopTabId } from '../home/focus';
-import { Chip, GameButton, Panel, Segmented, SectionLabel, TILE_FACE } from '../kit';
+import { GameButton, Panel, Segmented, SectionLabel } from '../kit';
 import { Cash, CashAmount } from '../CashAmount';
 import { HousingPanel } from './HousingPanel';
 import { StoreStrip } from './StoreSheet';
 import { OpensJobs } from './OpensJobs';
-import { Thumb } from './Thumb';
-import { UiIcon } from '../UiIcon';
+import { CollectionGrid, MissingRow, Ribbon, Showcase, ShowcasePicture, UpcomingStrip } from './Showcase';
+import { UiIcon, type UiIconName } from '../UiIcon';
 
 type ShopTab = ShopTabId;
 
@@ -72,6 +81,8 @@ export function ShopScreen({ onOpenStore, onGoTo }: { onOpenStore: () => void; o
         value={tab}
         onChange={setTab}
         dot={(kind) => tabReady(game, kind)}
+        // On the icon, so it never reads as the next tab's.
+        dotClassName="top-0 left-[calc(50%+6px)]"
       />
 
       {tab === 'house' ? (
@@ -86,6 +97,13 @@ export function ShopScreen({ onOpenStore, onGoTo }: { onOpenStore: () => void; o
     </section>
   );
 }
+
+/** What buying the next dream does, one line on its card. */
+const PROMISE: Partial<Record<LifestyleKind, { icon: UiIconName; text: MessageKey }>> = {
+  vehicle: { icon: 'car', text: 'shop.promise.vehicle' },
+  outfit: { icon: 'outfit', text: 'shop.promise.outfit' },
+  toy: { icon: 'gift', text: 'shop.promise.toy' },
+};
 
 function LifestylePanel({
   kind,
@@ -114,6 +132,11 @@ function LifestylePanel({
   const locked = neededHome !== null || neededClass !== null || neededCareer.length > 0;
   const canBuy = next !== null && !locked && game.cash >= next.cost;
   const secondsToAfford = next && !locked && !canBuy && income > 0 ? (next.cost - game.cash) / income : null;
+  const luxury = kind === 'toy';
+  const promise = PROMISE[kind];
+  // The one in use: the vehicle out front, the outfit worn (the best owned, as the scene shows it).
+  const inUse = kind === 'vehicle' ? parkedVehicle(game)?.id : kind === 'outfit' ? bestOwnedLifestyle(game, 'outfit')?.id : undefined;
+  const ribbonText = kind === 'vehicle' ? t('shop.parked') : t('shop.wearing');
   // The item just bought pops into the collection with a shine (the scene plays the purchase sound).
   const [justBought, setJustBought] = useState<string | null>(null);
   const buy = (itemId: string) => {
@@ -125,62 +148,53 @@ function LifestylePanel({
   return (
     <div className="flex flex-col gap-3">
       {next ? (
-        <Panel accent className="overflow-hidden">
-          <div className="px-4 py-1.5 bg-gradient-to-r from-amber-300 to-orange-500">
-            <p className="v2-display text-[13px] uppercase tracking-wide text-white v2-shadow">{t('shop.next')}</p>
-          </div>
-          <div className="p-4 flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <Thumb image={next.image} large />
-              <div className="flex-1 min-w-0">
-                <p className="v2-display text-xl leading-tight text-indigo-950">{name('lifestyle', next)}</p>
-                <p className="mt-0.5 v2-display v2-outline-thin text-[24px] leading-none text-amber-300 tabular-nums">
-                  <CashAmount amount={next.cost} size={30}>{money(next.cost)}</CashAmount>
-                </p>
-                <OpensJobs itemId={next.id} />
-              </div>
-            </div>
-            {/* A goal's hand points at what is missing while the item is locked, not at a dead button. */}
-            <Focusable focusKey={locked ? '' : `shop:${kind}:next`}>
-              <GameButton
-                onClick={() => buy(next.id)}
-                disabled={!canBuy}
-                className="w-full py-3 px-4 v2-display text-[18px] v2-shadow"
-              >
-                {t('shop.buy')}
-              </GameButton>
-            </Focusable>
-            {secondsToAfford !== null && (
-              <p className="text-[11px] font-bold text-slate-500 text-center -mt-1">
-                {t('common.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}
-              </p>
-            )}
-            {!locked && <HelpAd cost={next.cost} />}
-            <Focusable focusKey={locked ? `shop:${kind}:next` : ''} className="flex flex-col gap-3 empty:hidden">
+        <Showcase
+          tone={luxury ? (canBuy ? 'lux-ready' : 'lux') : canBuy ? 'ready' : 'dream'}
+          band={t('shop.next')}
+          picture={<ShowcasePicture image={next.image} tall={kind === 'outfit'} rays={canBuy} />}
+          name={name('lifestyle', next)}
+          price={
+            <span className="v2-display v2-outline-thin text-[26px] leading-none text-amber-300 tabular-nums">
+              <CashAmount amount={next.cost} size={30}>{money(next.cost)}</CashAmount>
+            </span>
+          }
+          promise={promise && { icon: promise.icon, text: t(promise.text) }}
+          opens={<OpensJobs itemId={next.id} />}
+        >
+          {/* A goal's hand points at what is missing while the item is locked, not at a dead button. */}
+          {locked ? (
+            <Focusable focusKey={`shop:${kind}:next`} className="flex flex-col gap-2">
               {neededClass !== null && (
-                <p className="-mt-1 min-h-11 py-2 px-4 rounded-2xl bg-slate-100 flex items-center justify-center gap-1.5 text-slate-600">
-                  <UiIcon name="lock" />
-                  <span className="v2-display text-[13px]">
-                    {t('shop.needsClass', { class: name('wealthClass', WEALTH_CLASSES[neededClass]) })}
-                  </span>
-                </p>
+                <MissingRow>{t('shop.needsClass', { class: name('wealthClass', WEALTH_CLASSES[neededClass]) })}</MissingRow>
               )}
               {neededHome === null && <CareerAsk asks={neededCareer} onGo={onGoTo} />}
               {neededHome && (
-                <GameButton
-                  tone="soft"
-                  onClick={onGoHomes}
-                  className="min-h-11 -mt-1 py-2 px-4 flex items-center justify-center gap-1.5"
-                >
+                <GameButton tone="soft" onClick={onGoHomes} className="min-h-12 py-2 px-4 flex items-center justify-center gap-1.5">
                   <UiIcon name="lock" />
-                  <span className="v2-display text-[13px]">
-                    {t('shop.needsHome', { home: name('lifestyle', neededHome) })}
-                  </span>
+                  <span className="v2-display text-[14px]">{t('shop.needsHome', { home: name('lifestyle', neededHome) })}</span>
                 </GameButton>
               )}
             </Focusable>
-          </div>
-        </Panel>
+          ) : (
+            <>
+              <Focusable focusKey={`shop:${kind}:next`}>
+                <GameButton
+                  onClick={() => buy(next.id)}
+                  disabled={!canBuy}
+                  className="w-full py-3 px-4 v2-display text-[20px] v2-shadow"
+                >
+                  {t('shop.buy')}
+                </GameButton>
+              </Focusable>
+              {secondsToAfford !== null && (
+                <p className="text-[12px] font-bold text-indigo-900/60 text-center -mt-1">
+                  {t('common.affordIn', { duration: duration(Math.ceil(secondsToAfford)) })}
+                </p>
+              )}
+              <HelpAd cost={next.cost} />
+            </>
+          )}
+        </Showcase>
       ) : (
         <Panel accent className="p-4 text-center">
           <p className="v2-display text-lg text-indigo-950">{t('shop.allOwned')}</p>
@@ -190,92 +204,64 @@ function LifestylePanel({
       {upcoming.length > 0 && (
         <>
           <SectionLabel>{t('shop.upcoming')}</SectionLabel>
-          <ul className="flex flex-col gap-2">
-            {upcoming.map((item) => (
-              <li
-                key={item.id}
-                className="rounded-[22px] border-2 border-dashed border-indigo-200 bg-white/50 p-2.5 flex items-center gap-3"
-              >
-                <Thumb image={item.image} dim />
-                <div className="flex-1 min-w-0">
-                  <p className="v2-display text-[15px] leading-tight text-indigo-900/50">{name('lifestyle', item)}</p>
-                  <p className="text-[11px] font-bold text-indigo-900/40 flex items-center gap-1">
-                    <UiIcon name="lock" />
-                    <Cash size={14}>{money(item.cost)}</Cash>
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {hiddenCount > 0 && (
-            <p className="text-[11px] font-bold text-indigo-900/40 text-center">
-              {t('shop.more', { count: hiddenCount })}
-            </p>
-          )}
+          <UpcomingStrip
+            items={upcoming.map((item) => ({ id: item.id, image: item.image, name: name('lifestyle', item), price: item.cost }))}
+            more={hiddenCount}
+          />
         </>
       )}
 
       {owned.length > 0 && (
         <>
           <SectionLabel>{t('shop.collection')}</SectionLabel>
-          <ul className="grid grid-cols-3 gap-2">
-            {[...owned].reverse().map((item) => (
-              <li
-                key={item.id}
-                className={`relative overflow-hidden ${TILE_FACE} p-1.5 flex flex-col items-center gap-1 ${item.id === justBought ? 'v2-pop-in' : ''}`}
-              >
-                <Thumb image={item.image} />
-                {item.id === justBought && (
-                  <span
-                    className="v2-tile-shine pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/80 to-transparent"
-                    aria-hidden
-                  />
-                )}
-                <span className="w-full text-center text-[11px] font-bold text-slate-500 leading-tight line-clamp-2">
-                  {name('lifestyle', item)}
-                </span>
-                <UiIcon name="check" className="absolute top-1 right-1 w-5 h-5 drop-shadow" />
-              </li>
-            ))}
-          </ul>
+          <CollectionGrid
+            items={[...owned].reverse().map((item) => ({ id: item.id, image: item.image, name: name('lifestyle', item) }))}
+            ribbon={(id) => (id === inUse ? ribbonText : null)}
+            justBought={justBought}
+          />
         </>
       )}
     </div>
   );
 }
 
-/** Gear: all of it on one list, each with the jobs it opens; bought once, in any order. */
+/** Gear: tiles two to a row, each with the jobs it opens; bought once, in any order. */
 function GadgetPanel() {
   const { game, actions } = useGameV2();
   const { t, name, money } = useT();
   const cheapest = GADGETS.filter((gadget) => !game.lifestyleOwned.includes(gadget.id)).sort((a, b) => a.cost - b.cost)[0];
   return (
-    <Panel className="overflow-hidden">
-      <ul className="divide-y divide-indigo-50">
+    <div className="flex flex-col gap-3">
+      <ul className="grid grid-cols-2 gap-2.5">
         {GADGETS.map((gadget) => {
           const owned = game.lifestyleOwned.includes(gadget.id);
+          const affordable = game.cash >= gadget.cost;
           return (
-            <li key={gadget.id} className="p-3 flex items-center gap-3">
-              <Thumb image={gadget.image} />
-              <div className="flex-1 min-w-0">
-                <p className="v2-display text-[15px] leading-tight text-indigo-950">{name('lifestyle', gadget)}</p>
-                <OpensJobs itemId={gadget.id} />
+            <li
+              key={gadget.id}
+              className={`v2-job ${owned ? 'v2-job-done' : affordable ? 'v2-shop-ready' : 'v2-shop-dream'} p-2 flex flex-col items-center text-center gap-1.5`}
+            >
+              {owned && <Ribbon>{t('shop.have')}</Ribbon>}
+              <div className="v2-job-medal">
+                <img src={gadget.image} alt="" draggable={false} className="relative w-[60px] h-[60px] object-contain drop-shadow-md" />
               </div>
-              {owned ? (
-                <Chip tone="gold">{t('shop.have')}</Chip>
-              ) : (
-                <Focusable focusKey={`shop:gadget:${gadget.id}`} className="shrink-0">
+              <p className="relative v2-display text-[15px] leading-tight text-indigo-950">{name('lifestyle', gadget)}</p>
+              <div className="relative flex-1">
+                <OpensJobs itemId={gadget.id} compact />
+              </div>
+              {!owned && (
+                <Focusable focusKey={`shop:gadget:${gadget.id}`} className="relative w-full">
                   <GameButton
                     onClick={() => {
                       if (!actions.buyLifestyle(gadget.id)) return;
                       playSfx('purchase');
                       haptic('medium');
                     }}
-                    disabled={game.cash < gadget.cost}
-                    className="py-2 px-3 flex flex-col items-center leading-tight"
+                    disabled={!affordable}
+                    className="w-full py-2 px-2 flex items-center justify-center gap-1.5"
                   >
-                    <span className="v2-display text-[13px] v2-shadow">{t('shop.buy')}</span>
-                    <Cash size={16} className="v2-display text-[13px] v2-shadow tabular-nums">{money(gadget.cost)}</Cash>
+                    <span className="v2-display text-[14px] v2-shadow">{t('shop.buy')}</span>
+                    <Cash size={17} className="v2-display text-[14px] v2-shadow tabular-nums">{money(gadget.cost)}</Cash>
                   </GameButton>
                 </Focusable>
               )}
@@ -284,7 +270,7 @@ function GadgetPanel() {
         })}
       </ul>
       {/* A little help toward the cheapest gear not owned yet. */}
-      {cheapest && <HelpAd cost={cheapest.cost} className="p-3 pt-0" />}
-    </Panel>
+      {cheapest && <HelpAd cost={cheapest.cost} />}
+    </div>
   );
 }

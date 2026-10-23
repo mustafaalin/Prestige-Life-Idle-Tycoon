@@ -744,6 +744,27 @@ body {
   .v2-job-rays, .v2-job-open::after { animation: none; }
 }
 
+/* Shop showcase (ui/shop/Showcase.tsx, 2026-10-23, after the job tree): the next dream as a chunky
+   tile with its picture on a stage. White while saving or locked, gold and glowing when it can be
+   bought now, purple and gold for luxury. Built on .v2-job's rim, edge and gloss. */
+.v2-shop-dream { --rim: #a5b4fc; --edge: #818cf8; --fill: linear-gradient(#ffffff, #eef2ff); --stage: radial-gradient(circle at 50% 45%, #ffffff 0 30%, #dbeafe 75%); }
+.v2-shop-ready { --rim: #f59e0b; --edge: #b45309; --fill: linear-gradient(#fffbeb, #fde68a); --stage: radial-gradient(circle at 50% 45%, #ffffff 0 30%, #fde68a 78%);
+  box-shadow: 0 5px 0 var(--edge), 0 0 0 4px rgba(251, 191, 36, 0.3), 0 10px 22px rgba(245, 158, 11, 0.45); }
+.v2-shop-lux { --rim: #a855f7; --edge: #6b21a8; --fill: linear-gradient(#faf5ff, #e9d5ff); --stage: radial-gradient(circle at 50% 45%, #fff7d6 0 28%, #c4b5fd 80%); }
+.v2-shop-lux.v2-shop-ready { --rim: #f59e0b; --stage: radial-gradient(circle at 50% 45%, #fff7d6 0 28%, #f5d0fe 80%); }
+.v2-shop-stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  background: var(--stage);
+  box-shadow: inset 0 -6px 12px rgba(30, 27, 75, 0.08);
+}
+.v2-shop-stage .v2-job-rays { inset: -40%; }
+/* A small upcoming dream in the side-scrolling row. */
+.v2-shop-strip { scrollbar-width: none; }
+.v2-shop-strip::-webkit-scrollbar { display: none; }
+
 /* A due investment (ui/invest/InvestScreen.tsx, 2026-10-23, user: "Collect should call the player"):
    the tile breathes a gold ring, rays turn behind its money, and the gold button throbs with a light
    sweeping across it. */

@@ -125,6 +125,7 @@ export function Segmented<T extends string | number>({
   value,
   onChange,
   dot,
+  dotClassName = '-top-1.5 -right-1',
 }: {
   /** A `locked` option shows a lock and its `note` ("Soon") and can't be picked. */
   options: { value: T; label: ReactNode; locked?: boolean; note?: ReactNode }[];
@@ -132,6 +133,8 @@ export function Segmented<T extends string | number>({
   onChange: (value: T) => void;
   /** Options with something to do get a blinking "!". */
   dot?: (value: T) => boolean;
+  /** Where the "!" sits (default: the option's top-right corner). */
+  dotClassName?: string;
 }) {
   return (
     <div className="v2-segmented flex gap-1 rounded-2xl bg-white/70 border-2 border-white p-1 shadow-sm">
@@ -163,7 +166,7 @@ export function Segmented<T extends string | number>({
               option.label
             )}
             {dot?.(option.value) && !selected && (
-              <AlertBadge small className="-top-1.5 -right-1" />
+              <AlertBadge small className={dotClassName} />
             )}
           </button>
         );

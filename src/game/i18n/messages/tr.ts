@@ -685,6 +685,15 @@ export const tr: Messages = {
     collection: 'Koleksiyonun',
     needsHome: 'Önce taşın: {home}',
     needsClass: '{class} olunca açılır',
+    opensJobs: 'İş açar',
+    promise: {
+      house: 'Ana ekranın bu ev olur',
+      vehicle: 'Evinin önünde durur',
+      outfit: 'Kahramanın hemen giyer',
+      toy: 'Hayatında özel bir an açılır',
+    },
+    parked: 'Önde',
+    wearing: 'Üstünde',
   },
   home: {
     current: 'Evin',

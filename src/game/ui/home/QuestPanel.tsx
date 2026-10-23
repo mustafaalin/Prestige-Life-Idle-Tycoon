@@ -295,7 +295,8 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
       </div>
 
       {done ? (
-        <div className="shrink-0 flex flex-col items-end gap-1">
+        // Room on the left for the ad button's ticket, which sticks out past its edge.
+        <div className={`shrink-0 flex flex-col items-end gap-1 ${x3.offered && !x3.pack ? 'pl-3' : ''}`}>
           <button
             type="button"
             onClick={x3.pack ? x3.take : claim}

@@ -686,6 +686,15 @@ export const en = {
     collection: 'Your collection',
     needsHome: 'Move first: {home}',
     needsClass: 'Opens at {class}',
+    opensJobs: 'Opens jobs',
+    promise: {
+      house: 'Your home screen moves to this house',
+      vehicle: 'Parks in front of your home',
+      outfit: 'Your hero wears it right away',
+      toy: 'Opens a special moment of your life',
+    },
+    parked: 'Out front',
+    wearing: 'Wearing',
   },
   home: {
     current: 'Your home',
