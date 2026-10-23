@@ -67,7 +67,7 @@ export function TopBar({
               src={ICONS.money}
               alt=""
               draggable={false}
-              className={`shrink-0 w-11 max-[380px]:w-8 drop-shadow-md ${bump ? 'v2-bump' : ''}`}
+              className={`shrink-0 w-11 max-[420px]:w-9 max-[380px]:w-8 drop-shadow-md ${bump ? 'v2-bump' : ''}`}
             />
             <div className="min-w-0">
               <p
@@ -85,8 +85,8 @@ export function TopBar({
                 {boost > 1 && ` ×${boost}`}
               </p>
             </div>
-            {/* Narrow phones (320 px) need the room for the money. */}
-            <ChevronRight className="ml-auto shrink-0 w-4 h-4 text-white/50 max-[380px]:hidden" />
+            {/* Phones up to 420 px (most) need the room for the money next to the hero's face. */}
+            <ChevronRight className="ml-auto shrink-0 w-4 h-4 text-white/50 max-[420px]:hidden" />
           </button>
           <div className="shrink-0 flex flex-col items-end gap-1">
             {/* On narrow phones a long class name takes two lines, without its icon. */}

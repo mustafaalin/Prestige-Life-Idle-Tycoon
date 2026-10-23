@@ -31,8 +31,22 @@ interface Spot {
   keep: Box[];
 }
 
+/** The element's box with everything drawn out of it (the speaker's portrait sits above the bubble). */
+function outerRect(element: Element) {
+  let { left, top, right, bottom } = element.getBoundingClientRect();
+  for (const child of element.querySelectorAll('*')) {
+    const rect = child.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) continue;
+    left = Math.min(left, rect.left);
+    top = Math.min(top, rect.top);
+    right = Math.max(right, rect.right);
+    bottom = Math.max(bottom, rect.bottom);
+  }
+  return { left, top, width: right - left, height: bottom - top };
+}
+
 const boxOf = (element: Element, stage: DOMRect): Box => {
-  const rect = element.getBoundingClientRect();
+  const rect = outerRect(element);
   return { x: rect.left - stage.left - PAD, y: rect.top - stage.top - PAD, width: rect.width + PAD * 2, height: rect.height + PAD * 2 };
 };
 

@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { CONTENT } from './src/game/core/config/content';
 
 /** v2 draws edge to edge and pads with safe-area insets (src/game/mobile.css); v1 keeps its viewport. */
 function viewportFitCover(): Plugin {
@@ -13,7 +14,6 @@ function viewportFitCover(): Plugin {
 
 /** Folders under public/assets that only v1 uses (~27 MB); they stay in the repo until v1 is removed (plan 2.11). */
 const V1_ONLY_ASSETS = [
-  'audio/music',
   'businesses/large',
   'businesses/small',
   'houses',
@@ -24,8 +24,20 @@ const V1_ONLY_ASSETS = [
   'outfits',
 ];
 
-/** Folders whose loose files are v1's; v2's own pictures sit in their `v2/` subfolder (~3.5 MB). */
-const V1_LOOSE_FILES = ['icons', 'vehicles'];
+/**
+ * Folders whose loose files are v1's; v2's own files sit in their `v2/` subfolder (~4 MB). The music
+ * folder was dropped whole until 2026-10-24, which left v2's four tracks (music/v2, added 2026-10-17)
+ * out of every build: phones played no music.
+ */
+const V1_LOOSE_FILES = ['icons', 'vehicles', 'audio/music', 'audio/sfx'];
+
+/**
+ * Lumen, generation 2's city (~4.5 MB, runtime/city.ts): no launch player reaches it while the handover
+ * is off; the DEV menu's city preview runs on the dev server, which serves public/ as it is.
+ */
+const LATER_GENERATION_ASSETS = CONTENT.handover
+  ? []
+  : ['businesses/lumen', 'managers/lumen', 'scene/lumen', 'vehicles/lumen'];
 
 /** Keeps v1's pictures out of the v2 build, so they are not shipped inside the app. */
 function dropV1Assets(): Plugin {
@@ -37,7 +49,11 @@ function dropV1Assets(): Plugin {
       outDir = resolve(config.root, config.build.outDir);
     },
     closeBundle() {
-      for (const folder of V1_ONLY_ASSETS) rmSync(resolve(outDir, 'assets', folder), { recursive: true, force: true });
+      for (const folder of [...V1_ONLY_ASSETS, ...LATER_GENERATION_ASSETS]) rmSync(resolve(outDir, 'assets', folder), { recursive: true, force: true });
+      // Finder's folder files come along from public/.
+      for (const file of readdirSync(resolve(outDir), { recursive: true, encoding: 'utf8' })) {
+        if (file.endsWith('.DS_Store')) rmSync(resolve(outDir, file), { force: true });
+      }
       for (const folder of V1_LOOSE_FILES) {
         const dir = resolve(outDir, 'assets', folder);
         for (const entry of readdirSync(dir, { withFileTypes: true })) {

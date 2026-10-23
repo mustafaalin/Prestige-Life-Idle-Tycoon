@@ -61,7 +61,8 @@ export const PROLOGUE: StoryPanel[] = [
   },
   {
     image: `${IMAGE_DIR}/prologue-5-bus.webp`,
-    bubbleY: 0.345,
+    // The hero's head is at 0.30–0.35 in the hug (2026-10-23, user: the bubble covered his face).
+    bubbleY: 0.29,
     speakers: { mom: 0.45, hero: 0.57 },
     lines: [
       { speaker: 'mom', text: 'prologue.busMom' },

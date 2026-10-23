@@ -31,7 +31,7 @@ export function HeroAvatar({ onOpen }: { onOpen: () => void }) {
         onOpen();
       }}
       aria-label={t('profile.open')}
-      className="shrink-0 w-12 h-12 max-[380px]:w-10 max-[380px]:h-10 rounded-full border-2 border-white/70 bg-gradient-to-b from-sky-300 to-indigo-500 shadow-md overflow-hidden transition-all active:scale-90"
+      className="shrink-0 w-12 h-12 max-[420px]:w-10 max-[420px]:h-10 max-[340px]:w-9 max-[340px]:h-9 rounded-full border-2 border-white/70 bg-gradient-to-b from-sky-300 to-indigo-500 shadow-md overflow-hidden transition-all active:scale-90"
     >
       <img src={heroPortrait(game)} alt="" draggable={false} className="w-full h-full object-cover" />
     </button>
