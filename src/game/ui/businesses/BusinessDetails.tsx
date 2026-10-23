@@ -26,7 +26,6 @@ import { haptic } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { HelpAd } from '../ads/AdButton';
 import { ActionAd } from '../ads/AdOffers';
-import { useAdChipText } from '../ads/useAdText';
 import { levelNameKey } from '../home/questText';
 import { GameButton, ImageTile, Panel } from '../kit';
 import { portalRoot } from '../stage';
@@ -50,7 +49,6 @@ interface BusinessDetailsProps {
 export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: BusinessDetailsProps) {
   const { game, state, actions } = useGameV2();
   const { t, name, money, runMoney, perMonth, duration } = useT();
-  const chipText = useAdChipText();
   useBackButton(true, 60, onClose);
 
   const business = businessState(game, def.id);
@@ -91,7 +89,7 @@ export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: B
       <ActionAd
         key="temp"
         placement="temp_manager"
-        label={chipText('ads.tempManager', { duration: duration(TEMP_MANAGER_SECONDS) })}
+        label={t('ads.tempManager', { duration: duration(TEMP_MANAGER_SECONDS) })}
         run={() => actions.ads.tempManager(def.id)}
       />
     ),
@@ -99,7 +97,7 @@ export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: B
       <ActionAd
         key="campaign"
         placement="business_campaign"
-        label={chipText('ads.campaign', { duration: duration(CAMPAIGN_SECONDS), factor: CAMPAIGN_FACTOR })}
+        label={t('ads.campaign', { duration: duration(CAMPAIGN_SECONDS), factor: CAMPAIGN_FACTOR })}
         run={() => actions.ads.campaign(def.id)}
       />
     ),

@@ -116,6 +116,7 @@ export function DevMenu({ onReplayPrologue }: { onReplayPrologue: () => void }) 
       <>
         <button
           type="button"
+          data-spot-keep
           onClick={() => setOpen(true)}
           className="fixed left-1/2 -translate-x-1/2 top-[calc(var(--safe-top)+1px)] z-[200] rounded-full bg-slate-900/80 text-white px-3 py-1.5 text-[10px] font-black transition-all active:scale-90"
         >

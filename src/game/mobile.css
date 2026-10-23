@@ -223,11 +223,11 @@ body {
   100% { transform: scale(1); }
 }
 .v2-bump { animation: v2-bump 260ms ease-out; }
-/* Rewarded-ad buttons (AdButton): the video ticket on the left edge sways a little, and a light sweeps
+/* Rewarded-ad buttons (AdButton): the video ticket on the button sways a little, and a light sweeps
    across the button every few seconds, so an ad offer stands apart from the plain buttons. */
 @keyframes v2-ad-ticket {
-  0%, 100% { transform: translateY(-50%) rotate(-10deg); }
-  50% { transform: translateY(-56%) rotate(-4deg) scale(1.06); }
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(-2deg) scale(1.08); }
 }
 .v2-ad-ticket { animation: v2-ad-ticket 1.8s ease-in-out infinite; }
 .v2-ad-shine::after {
@@ -277,7 +277,7 @@ body {
   .v2-rain-hurry { animation: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .v2-ad-ticket { animation: none; transform: translateY(-50%) rotate(-8deg); }
+  .v2-ad-ticket { animation: none; transform: rotate(-8deg); }
   .v2-ad-shine::after { animation: none; display: none; }
 }
 /* Money leaving the wallet (CoinLayer spill): coins hop out and tumble down, fading; the red amount
@@ -797,4 +797,27 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .v2-tile-ready, .v2-collect, .v2-collect::after, .v2-ready-rays { animation: none; }
+}
+/* The dim around what the guide's hand points at (ui/guide/Spotlight.tsx). */
+@keyframes v2-spot-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.v2-spot-in { animation: v2-spot-in 260ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .v2-spot-in { animation: none; }
+}
+/* Parts of the top bar and the menu that come in the first minutes (ui/home/hudReveal.ts). */
+@keyframes v2-hud-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: none; }
+}
+.v2-hud-in { animation: v2-hud-in 320ms ease-out; }
+@keyframes v2-nav-rise {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: none; }
+}
+.v2-nav-rise { animation: v2-nav-rise 420ms cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+@media (prefers-reduced-motion: reduce) {
+  .v2-hud-in, .v2-nav-rise { animation: none; }
 }

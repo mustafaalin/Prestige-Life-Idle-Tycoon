@@ -15,10 +15,10 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { payout } from '../home/coins';
 import { ICONS } from '../icons';
 import { GameButton } from '../kit';
+import { useRainLook } from '../scene/rainLook';
 import { requestFind } from '../scene/sceneEvents';
 import { portalRoot } from '../stage';
 import { AdButton } from './AdButton';
-import { useAdText } from './useAdText';
 
 // Ads on the home scene (docs/monetization-v2.md §4): round buttons under the income boost (send Şans
 // to look, a coin shower while there is something on the ground) and an opportunity balloon that floats
@@ -77,7 +77,7 @@ function RoundAdButton({ image, label, onClick, disabled }: { image: string; lab
 export function SceneAdButtons() {
   const { game, state, actions } = useGameV2();
   const { t, duration } = useT();
-  const adText = useAdText();
+  const rain = useRainLook();
   const [open, setOpen] = useState<'sans' | 'rain' | null>(null);
   const now = Date.now();
   const sansWait = adCooldownLeft(state.ads, 'call_sans', now);
@@ -94,7 +94,7 @@ export function SceneAdButtons() {
         />
       ) : null}
       {canCollect(game) && !raining && canWatch(state.ads, 'coin_rain', now) && (
-        <RoundAdButton image="/assets/scene/coin-pile.webp" label={t('ads.coinRain')} onClick={() => setOpen('rain')} />
+        <RoundAdButton image={rain.image} label={rain.title} onClick={() => setOpen('rain')} />
       )}
       {open === 'sans' && (
         <AdCard image="/assets/scene/sans-wallet.webp" title={t('ads.callSans')} body={t('scene.findBody')} onClose={() => setOpen(null)}>
@@ -105,17 +105,12 @@ export function SceneAdButtons() {
               if (actions.ads.callSans()) requestFind();
             }}
           >
-            {adText('ads.help', { amount: t('ads.callSans') })}
+            {t('ads.callSansBadge')}
           </AdButton>
         </AdCard>
       )}
       {open === 'rain' && (
-        <AdCard
-          image="/assets/scene/coin-pile.webp"
-          title={t('ads.coinRain')}
-          body={t('ads.coinRainBody', { duration: duration(COIN_RAIN_SECONDS) })}
-          onClose={() => setOpen(null)}
-        >
+        <AdCard image={rain.image} title={rain.title} body={rain.body} onClose={() => setOpen(null)}>
           <AdButton
             placement="coin_rain"
             onReward={() => {
@@ -123,7 +118,7 @@ export function SceneAdButtons() {
               if (actions.ads.coinRain()) playSfx('reward');
             }}
           >
-            {adText('ads.help', { amount: t('ads.coinRain') })}
+            {duration(COIN_RAIN_SECONDS)}
           </AdButton>
         </AdCard>
       )}
@@ -135,7 +130,6 @@ export function SceneAdButtons() {
 export function OpportunityBalloon({ hidden }: { hidden: boolean }) {
   const { game, state, actions } = useGameV2();
   const { t, money } = useT();
-  const adText = useAdText();
   const [flying, setFlying] = useState(false);
   const [open, setOpen] = useState(false);
   const [round, setRound] = useState(0);
@@ -190,7 +184,7 @@ export function OpportunityBalloon({ hidden }: { hidden: boolean }) {
               payout({ amount, label: `+${money(amount)}`, count: 12 });
             }}
           >
-            {adText('ads.opportunity', { amount: money(opportunityReward(game)) })}
+            {t('ads.opportunity', { amount: money(opportunityReward(game)) })}
           </AdButton>
         </AdCard>
       )}

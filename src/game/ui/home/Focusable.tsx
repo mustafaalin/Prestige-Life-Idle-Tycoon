@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useGuideTarget } from '../guide/guideSteps';
+import { spotOf, type SpotMode } from '../guide/spotMode';
 import { ICONS } from '../icons';
 import { clearFocus, useFocus } from './focus';
 
@@ -38,17 +39,20 @@ export function Focusable({
       {active && (
         <>
           <span className="v2-focus-ring pointer-events-none absolute -inset-1 rounded-[20px] border-4 border-amber-300" />
-          <PointingHand className="-bottom-5 -right-2" />
+          <PointingHand className="-bottom-5 -right-2" spot={fromGuide ? spotOf(guide) : undefined} />
         </>
       )}
     </div>
   );
 }
 
-/** The bobbing hand that shows what to tap; `className` places it (absolute). */
-export function PointingHand({ className }: { className: string }) {
+/**
+ * The bobbing hand that shows what to tap; `className` places it (absolute). With `spot`, the screen
+ * around the element it sits in dims (Spotlight.tsx): that element is the hand's parent.
+ */
+export function PointingHand({ className, spot }: { className: string; spot?: SpotMode }) {
   return (
-    <span className={`v2-focus-hand pointer-events-none absolute z-10 ${className}`}>
+    <span data-spot={spot} className={`v2-focus-hand pointer-events-none absolute z-10 ${className}`}>
       {/* A dark outline-like shadow keeps the white glove readable on the light sheets. */}
       <img
         src={ICONS.hand}

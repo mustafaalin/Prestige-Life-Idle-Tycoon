@@ -15,7 +15,6 @@ import { haptic, playSfx, useMusic, type Sfx } from '../../runtime/feedback';
 import type { LifeMomentId } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { AdCollect } from '../ads/AdButton';
-import { useAdText } from '../ads/useAdText';
 import { payout } from '../home/coins';
 import { managerKey, managerPortrait } from '../businesses/managers';
 import { Confetti } from '../Confetti';
@@ -658,7 +657,6 @@ function CollarCard({ collar, onNext }: { collar: CollarDef; onNext: () => void 
 function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void }) {
   const { game } = useGameV2();
   const { t, money } = useT();
-  const adText = useAdText();
   const amount = storyGift(game);
 
   const collect = (multiplier: number) => {
@@ -683,7 +681,7 @@ function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void 
         <AdCollect
           placement="story_gift_x2"
           className="mt-3"
-          adLabel={adText('ads.double', { amount: money(amount * AD_STORY_GIFT_MULTIPLIER), factor: AD_STORY_GIFT_MULTIPLIER })}
+          adLabel={t('ads.double', { amount: money(amount * AD_STORY_GIFT_MULTIPLIER), factor: AD_STORY_GIFT_MULTIPLIER })}
           onReward={() => collect(AD_STORY_GIFT_MULTIPLIER)}
           collectLabel={t('common.collect')}
           onCollect={() => collect(1)}

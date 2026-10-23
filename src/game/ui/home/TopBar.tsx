@@ -7,11 +7,21 @@ import { boostFactor } from '../../runtime/adRewards';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { ICONS } from '../icons';
 import { heldBalance, onCoinSpill, onHeldBalance, onWalletHit } from './coins';
+import { hudReveal } from './hudReveal';
+import { HeroAvatar } from './ProfileSheet';
 
-// Top bar over the scene: money (the target collected bottles fly to), auto income, wealth class,
-// age and progress to the next class. A tap on the money opens the income breakdown (IncomeSheet).
+// Top bar over the scene: the hero's face (opens the profile), money (the target collected bottles fly
+// to), auto income, wealth class, age and progress to the next class. A tap on the money opens the income breakdown (IncomeSheet).
 
-export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () => void; onOpenIncome: () => void }) {
+export function TopBar({
+  onOpenSettings,
+  onOpenIncome,
+  onOpenProfile,
+}: {
+  onOpenSettings: () => void;
+  onOpenIncome: () => void;
+  onOpenProfile: () => void;
+}) {
   const { game, state } = useGameV2();
   const { t, name, money, perMonth } = useT();
   // A watched ad's income boost shows in the income line.
@@ -34,11 +44,17 @@ export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () =>
   const current = WEALTH_CLASSES[game.classIndex];
   const next = WEALTH_CLASSES[game.classIndex + 1];
   const progress = classProgress(game);
+  // The first minutes show only the money (hudReveal.ts); the rest keeps its room until it comes.
+  const reveal = hudReveal(state);
+  const shown = (on: boolean) => (on ? 'v2-hud-in' : 'invisible');
 
   return (
     <header className="px-3 pt-[calc(var(--safe-top)+8px)]">
       <div className="rounded-[22px] bg-gradient-to-b from-[#2b3f87]/95 to-[#1b2758]/95 border-2 border-white/20 shadow-xl px-2.5 pt-2 pb-2.5">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 max-[380px]:gap-1.5">
+          <div className={shown(reveal.avatar)}>
+            <HeroAvatar onOpen={onOpenProfile} />
+          </div>
           <button
             type="button"
             onClick={onOpenIncome}
@@ -63,7 +79,7 @@ export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () =>
                 {money(balance)}
               </p>
               <p
-                className={`v2-display text-[12px] leading-tight v2-shadow tabular-nums truncate ${boost > 1 ? 'text-amber-300' : 'text-emerald-300'}`}
+                className={`v2-display text-[12px] leading-tight v2-shadow tabular-nums truncate ${boost > 1 ? 'text-amber-300' : 'text-emerald-300'} ${shown(reveal.income)}`}
               >
                 +{perMonth(autoIncomePerSecond(game) * boost)}
                 {boost > 1 && ` ×${boost}`}
@@ -74,7 +90,9 @@ export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () =>
           </button>
           <div className="shrink-0 flex flex-col items-end gap-1">
             {/* On narrow phones a long class name takes two lines, without its icon. */}
-            <span className="flex items-center gap-1 rounded-full max-[380px]:rounded-[12px] bg-gradient-to-b from-amber-300 to-orange-500 border border-white/60 v2-glossy pl-1 pr-2.5 max-[380px]:px-2 py-0.5">
+            <span
+              className={`flex items-center gap-1 rounded-full max-[380px]:rounded-[12px] bg-gradient-to-b from-amber-300 to-orange-500 border border-white/60 v2-glossy pl-1 pr-2.5 max-[380px]:px-2 py-0.5 ${shown(reveal.status)}`}
+            >
               <img
                 src={ICONS.status}
                 alt=""
@@ -86,7 +104,7 @@ export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () =>
               </span>
             </span>
             <div className="flex items-center gap-1">
-              <span className="rounded-full bg-black/25 px-2.5 py-0.5 v2-display text-[12px] text-sky-100 tabular-nums">
+              <span className={`rounded-full bg-black/25 px-2.5 py-0.5 v2-display text-[12px] text-sky-100 tabular-nums ${shown(reveal.status)}`}>
                 {t('hud.ageShort', { age: heroAge(game).years })}
               </span>
               <button
@@ -101,7 +119,7 @@ export function TopBar({ onOpenSettings, onOpenIncome }: { onOpenSettings: () =>
           </div>
         </div>
 
-        <div className="relative mt-2 h-[18px] rounded-full bg-black/35 border border-white/10 overflow-hidden">
+        <div className={`relative mt-2 h-[18px] rounded-full bg-black/35 border border-white/10 overflow-hidden ${shown(reveal.status)}`}>
           <div
             className="h-full rounded-full bg-gradient-to-r from-amber-300 to-orange-500 transition-all duration-300"
             style={{ width: `${progress * 100}%` }}

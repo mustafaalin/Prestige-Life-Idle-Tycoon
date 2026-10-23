@@ -175,7 +175,7 @@ function QuestBadge({ quest, onOpen }: { quest: QuestDef; onOpen: () => void }) 
         >
           {t('quests.claim')} <Cash size={17} className="tabular-nums">+{money(questReward(game, quest) * (x3.pack ? QUEST_AD_MULTIPLIER : 1))}</Cash>
           {x3.pack && <PackMark />}
-          {guided && <PointingHand className="-bottom-6 -right-1" />}
+          {guided && <PointingHand className="-bottom-6 -right-1" spot="block" />}
         </button>
       )}
       {done && x3.offered && !x3.pack && (
@@ -306,7 +306,7 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
             {/* The amount under the label, so a long goal keeps its room beside the button. */}
             {x3.pack && <Cash size={15} className="tabular-nums">+{money(questReward(game, quest) * QUEST_AD_MULTIPLIER)}</Cash>}
             {x3.pack && <PackMark />}
-            {guided && <PointingHand className="-bottom-6 -right-1" />}
+            {guided && <PointingHand className="-bottom-6 -right-1" spot="block" />}
           </button>
           {/* The same goal paid three times over, for an ad. */}
           {x3.offered && !x3.pack && (

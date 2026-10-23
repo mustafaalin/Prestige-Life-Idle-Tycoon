@@ -4,7 +4,7 @@ import { UiIcon } from './UiIcon';
 // The game look for screens inside sheets (2026-10-08): glossy buttons, white cards with a soft
 // colored edge, rounded display font. One place, so every tab reads the same.
 
-type Tone = 'buy' | 'manager' | 'gold' | 'soft' | 'ad' | 'invest';
+type Tone = 'buy' | 'manager' | 'gold' | 'soft' | 'ad' | 'invest' | 'danger';
 
 const TONES: Record<Tone, string> = {
   buy: 'from-emerald-400 to-green-600 text-white',
@@ -15,6 +15,8 @@ const TONES: Record<Tone, string> = {
   ad: 'from-orange-400 to-orange-600 text-white',
   // Putting money in (Investments): a calm blue, so the gold "Collect" is the one that calls.
   invest: 'from-sky-400 to-blue-600 text-white',
+  // What cannot be undone ("Start over").
+  danger: 'from-rose-500 to-rose-600 text-white',
 };
 
 export const GameButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Tone }>(

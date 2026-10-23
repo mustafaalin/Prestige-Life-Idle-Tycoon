@@ -1,5 +1,5 @@
 import { RICH_MILESTONES, type RichMilestoneDef } from '../core/config/richList';
-import { awaitsHandover, heroAge, isLifeOver, richListRank } from '../core/formulas';
+import { awaitsHandover, classProgress, heroAge, isLifeOver, richListRank } from '../core/formulas';
 import { CONTENT } from '../core/config/content';
 import { RETIREMENT_AGE } from '../core/config/life';
 import type { GameStateV2 } from '../core/types';
@@ -58,6 +58,14 @@ export interface MomMessageDef {
   untilMoment?: LifeMomentId;
   /** A message that answers a life moment: it shows once that moment has played, ahead of the class's own. */
   afterMoment?: LifeMomentId;
+  /**
+   * The hero's ages it fits (2026-10-23, the long Millionaire years): from `minAge`, and not after
+   * `maxAge`, so a missed "first steps" never arrives when the daughter is grown. Skipped once too late.
+   */
+  minAge?: number;
+  maxAge?: number;
+  /** A class message held back until the bar to the next class is this full (classProgress, 0–1). */
+  nearNext?: number;
 }
 
 /**
@@ -70,9 +78,19 @@ const ALL_MOM_MESSAGES: MomMessageDef[] = [
   { id: 'aunt', classIndex: 1 },
   { id: 'curtains', classIndex: 2 },
   { id: 'stair', classIndex: 3 },
-  { id: 'bryce', classIndex: 4 },
   { id: 'defne', classIndex: 2, untilMoment: 'date' },
   { id: 'clipping', classIndex: 4 },
+  // The daughter growing up, through Mom (2026-10-23): the hero is a Millionaire from ~26 to ~70, and
+  // these keep Mom's voice in those years. Each fits a few years of the daughter's age.
+  { id: 'elifSteps', classIndex: 3, afterMoment: 'birth', minAge: 32, maxAge: 36 },
+  { id: 'elifSchool', classIndex: 3, afterMoment: 'birth', minAge: 37, maxAge: 41 },
+  { id: 'elifJam', classIndex: 3, afterMoment: 'birth', minAge: 42, maxAge: 46 },
+  { id: 'elifStand', classIndex: 3, afterMoment: 'birth', minAge: 47, maxAge: 54 },
+  // Old Ray's goodbye before he leaves the story at 60 (story §6): he hands the hero the stand's key.
+  { id: 'rizaKey', classIndex: 3, afterMoment: 'birth', minAge: 55, maxAge: 59 },
+  // Mr. Bryce's sale, told once the Billionaire bar is half full: the sale is that ceremony (was at
+  // Millionaire, 30–44 years before it; 2026-10-23).
+  { id: 'bryce', classIndex: 4, nearNext: 0.5 },
   { id: 'job', classIndex: 5 },
   { id: 'workshop', classIndex: 5 },
   { id: 'jam', classIndex: 5 },
@@ -213,11 +231,16 @@ function nextAgeMoment(game: GameStateV2, story: StoryProgress): LifeMomentDef |
  * Luxuries are bought in order; when several are due at once (a long time away, or a save from before
  * these moments) the newest plays and the ones below it count as seen with it (they wait in the album).
  */
-export const LUXURY_MOMENTS: { id: LuxuryMomentId; item: string }[] = [
+/**
+ * A luxury's moment plays once it is bought and its people are in the hero's life (2026-10-23): Defne
+ * is his wife on the yacht and in the helicopter, his daughter talks on the jet, drawn about 19. A
+ * luxury bought earlier waits for that; the item itself is the player's at once.
+ */
+export const LUXURY_MOMENTS: { id: LuxuryMomentId; item: string; after?: LifeMomentId; minAge?: number }[] = [
   { id: 'boat', item: 'toy-1' },
-  { id: 'yacht', item: 'toy-2' },
-  { id: 'heli', item: 'toy-3' },
-  { id: 'jet', item: 'toy-4' },
+  { id: 'yacht', item: 'toy-2', after: 'wedding' },
+  { id: 'heli', item: 'toy-3', after: 'wedding' },
+  { id: 'jet', item: 'toy-4', after: 'birth', minAge: 50 },
 ];
 
 /** Every life moment id, for the save and the album. */
@@ -248,7 +271,13 @@ export function pendingLifeMoment(game: GameStateV2, story: StoryProgress): { id
   if (!storyRuns(game) || pendingCeremony(game, story) !== null) return null;
   const next = nextAgeMoment(game, story);
   if (next && heroAge(game).years >= next.age && story.ceremonySeen >= next.afterCeremony) return next;
-  const owned = LUXURY_MOMENTS.filter((moment) => game.lifestyleOwned.includes(moment.item));
+  const age = heroAge(game).years;
+  const owned = LUXURY_MOMENTS.filter(
+    (moment) =>
+      game.lifestyleOwned.includes(moment.item) &&
+      (!moment.after || story.lifeSeen.includes(moment.after)) &&
+      age >= (moment.minAge ?? 0),
+  );
   const newest = owned[owned.length - 1];
   return newest && !story.lifeSeen.includes(newest.id) ? newest : null;
 }
@@ -283,7 +312,12 @@ export function retirementWaits(game: GameStateV2, story: StoryProgress) {
 /** The message Mom has for the current class that has not been shown yet. */
 export function nextMomMessage(game: GameStateV2, story: StoryProgress): MomMessageDef | null {
   if (!storyRuns(game)) return null;
-  const unseen = MOM_MESSAGES.filter((message) => !story.momSeen.includes(message.id));
+  const age = heroAge(game).years;
+  const fits = (message: MomMessageDef) =>
+    age >= (message.minAge ?? 0) &&
+    age <= (message.maxAge ?? Infinity) &&
+    classProgress(game) >= (message.nearNext ?? 0);
+  const unseen = MOM_MESSAGES.filter((message) => !story.momSeen.includes(message.id) && fits(message));
   const bound = (message: MomMessageDef) => message.untilMoment !== undefined || message.afterMoment !== undefined;
   const bridge = unseen.find(
     (message) =>

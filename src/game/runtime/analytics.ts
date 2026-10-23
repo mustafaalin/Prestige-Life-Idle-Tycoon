@@ -25,6 +25,7 @@ export type AnalyticsEvent =
   | 'invest_collect'
   | 'retire'
   | 'hand_over_early'
+  | 'new_game'
   | 'heirloom_buy'
   | 'ad_offer'
   | 'ad_watch'

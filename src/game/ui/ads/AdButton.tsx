@@ -8,27 +8,26 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { payout } from '../home/coins';
 import { ICONS } from '../icons';
 import { GameButton } from '../kit';
-import { useAdChipText, useAdFree } from './useAdText';
+import { useAdFree } from './useAdText';
 
-// "Watch an ad" offers (docs/monetization-v2.md §4). The button always says what the ad gives, the
-// reward comes only after an ad watched to the end, and when no ad can be shown it says so. It must
-// read as an ad at a glance (user 2026-10-16): the rewarded-video ticket sticks out of its left edge
-// and a light sweeps across it now and then.
+// "Watch an ad" offers (docs/monetization-v2.md §4). Every ad button is the same (2026-10-23, user:
+// buttons as long as their text looked ugly): a square orange button with the rewarded-video ticket
+// on it, and under it a label that says what the ad gives ("+$16K", "×2", "+1 mo"), so the player
+// knows before watching. The reward comes only after an ad watched to the end, and when no ad can be
+// shown it says so. With the Comfort Pack the button turns green and wears the crossed-out ad.
 
 interface AdButtonProps {
   placement: AdPlacement;
-  /** What the ad gives, e.g. "+$4.2K". */
+  /** What the ad gives, short: "+$4.2K", "×2", "+1 mo". */
   children: ReactNode;
   /** The ad was watched to the end; `from` is the button's place on screen (where coins start). */
   onReward: (from: { x: number; y: number }) => void;
   className?: string;
-  /** A small button for tight rows (goals, the scene). */
+  /** The smaller size, for tight rows (goals, a running deal). */
   small?: boolean;
-  /** A chip that sits beside others inside a card (AdStrip), instead of a full-width bar. */
-  chip?: boolean;
 }
 
-export function AdButton({ placement, children, onReward, className = '', small = false, chip = false }: AdButtonProps) {
+export function AdButton({ placement, children, onReward, className = '', small = false }: AdButtonProps) {
   const { t } = useT();
   // The Comfort Pack: the reward comes at once, no ad (runtime/purchases.ts).
   const free = useAdFree();
@@ -66,60 +65,44 @@ export function AdButton({ placement, children, onReward, className = '', small 
     setUnavailable(outcome === 'unavailable');
   };
 
-  if (chip) {
-    return (
-      <div className={`flex flex-col items-end ${className}`}>
-        <button
-          ref={ref}
-          type="button"
-          onClick={watch}
-          disabled={busy}
-          className={`relative overflow-hidden inline-flex items-center gap-1.5 min-h-9 max-w-full rounded-full border-2 border-white/80 bg-gradient-to-b from-orange-400 to-orange-600 v2-glossy shadow-[0_3px_8px_rgba(234,88,12,0.35)] pl-1 pr-3 py-0.5 text-left transition-all active:scale-95 disabled:opacity-60 ${
-            free ? '' : 'v2-ad-shine'
-          }`}
-        >
-          <span className="shrink-0 w-7 h-7 rounded-full bg-white/95 shadow-inner flex items-center justify-center">
-            <img src={free ? ICONS.adFree : ICONS.adReward} alt="" draggable={false} className="w-6 h-6 object-contain" />
-          </span>
-          <span className="v2-display text-[12px] leading-tight text-white v2-shadow">{children}</span>
-        </button>
-        {unavailable && <p className="mt-0.5 text-[10px] font-bold text-slate-500">{t('ads.unavailable')}</p>}
-      </div>
-    );
-  }
-
   return (
-    <div className={className}>
-      <div className="relative">
-        {/* With the Comfort Pack the button turns green and wears the pack's crossed-out play button. */}
-        <GameButton
-          ref={ref}
-          tone={free ? 'buy' : 'ad'}
-          onClick={watch}
-          disabled={busy}
-          className={`relative overflow-hidden w-full flex items-center justify-center gap-1.5 v2-ad-shine ${
-            small ? 'min-h-8 py-1 pl-8 pr-2.5' : 'min-h-11 py-2 pl-12 pr-3'
-          } ${free ? '!border-amber-300' : ''}`}
-        >
-          <span className={`v2-display ${small ? 'text-[12px]' : 'text-[14px]'} leading-tight v2-shadow`}>{children}</span>
-        </GameButton>
+    <div className={`inline-flex flex-col items-center shrink-0 ${className}`}>
+      <button
+        ref={ref}
+        type="button"
+        onClick={watch}
+        disabled={busy}
+        aria-label={typeof children === 'string' ? `${free ? '' : `${t('ads.watch')}: `}${children}` : undefined}
+        className={`v2-ad-button relative ${small ? 'w-11 h-11 rounded-xl mb-2' : 'w-14 h-14 rounded-2xl mb-2.5'} border-2 bg-gradient-to-b v2-glossy transition-all active:scale-90 disabled:opacity-60 ${
+          free
+            ? 'border-amber-300 from-emerald-400 to-green-600 shadow-[0_3px_8px_rgba(22,163,74,0.35)]'
+            : 'border-white from-orange-400 to-orange-600 shadow-[0_3px_8px_rgba(234,88,12,0.35)]'
+        }`}
+      >
+        {/* The shine runs in its own clipped box, so the label can hang below the button. */}
+        <span className={`absolute inset-0 overflow-hidden ${small ? 'rounded-[10px]' : 'rounded-[14px]'} ${free ? '' : 'v2-ad-shine'}`} />
         <img
           src={free ? ICONS.adFree : ICONS.adReward}
           alt=""
           draggable={false}
-          className={`v2-ad-ticket pointer-events-none absolute -left-2 top-1/2 ${small ? 'w-8 h-8' : 'w-12 h-12'} object-contain drop-shadow-md ${busy ? 'opacity-50' : ''}`}
+          className={`relative mx-auto ${small ? 'w-8 h-8' : 'w-10 h-10'} object-contain drop-shadow ${free ? '' : 'v2-ad-ticket'}`}
         />
-      </div>
-      {unavailable && (
-        <p className="mt-1 text-[11px] font-bold text-slate-500 text-center">{t('ads.unavailable')}</p>
-      )}
+        <span
+          className={`absolute left-1/2 -translate-x-1/2 ${small ? '-bottom-2' : '-bottom-2.5'} whitespace-nowrap rounded-full border-2 bg-white px-1.5 v2-display ${small ? 'text-[10px]' : 'text-[12px]'} leading-[1.35] tabular-nums shadow ${
+            free ? 'border-emerald-400 text-emerald-600' : 'border-orange-400 text-orange-600'
+          }`}
+        >
+          {children}
+        </span>
+      </button>
+      {unavailable && <p className="mt-0.5 max-w-[9rem] text-[10px] font-bold leading-tight text-slate-500 text-center">{t('ads.unavailable')}</p>}
     </div>
   );
 }
 
 interface AdCollectProps {
   placement: AdPlacement;
-  /** The ad button's text ("Watch an ad: +$16K (×2)"). */
+  /** The ad button's label: what the ad pays ("+$16K"). */
   adLabel: ReactNode;
   onReward: (from: { x: number; y: number }) => void;
   /** The plain button ("Collect") and what it does. */
@@ -195,22 +178,22 @@ export function AdCollect({
   }
 
   return (
-    <div className={className}>
+    <div className={`flex items-start gap-2.5 ${className}`}>
+      <GameButton tone={collectTone} onClick={onCollect} className="flex-1 min-h-14 py-2 v2-display text-lg v2-shadow">
+        {collectLabel}
+      </GameButton>
       {available && (
-        <AdButton placement={placement} onReward={onReward} className="mb-2">
+        <AdButton placement={placement} onReward={onReward}>
           {adLabel}
         </AdButton>
       )}
-      <GameButton tone={collectTone} onClick={onCollect} className="w-full py-3 v2-display text-lg v2-shadow">
-        {collectLabel}
-      </GameButton>
     </div>
   );
 }
 
-/** Ad chips inside a card, side by side at its right edge; empty when none is offered. */
+/** Ad buttons inside a card, side by side at its right edge; empty when none is offered. */
 export function AdStrip({ className = '', children }: { className?: string; children: ReactNode }) {
-  return <div className={`flex flex-wrap justify-end gap-2 empty:hidden ${className}`}>{children}</div>;
+  return <div className={`flex flex-wrap items-start justify-end gap-3 empty:hidden ${className}`}>{children}</div>;
 }
 
 /**
@@ -229,14 +212,12 @@ export function HelpAd({ cost, className = '' }: { cost: number; className?: str
  */
 function HelpOffer({ cost, className }: { cost: number; className: string }) {
   const { game, actions } = useGameV2();
-  const { money } = useT();
-  const adText = useAdChipText();
+  const { t, money } = useT();
   const missing = helpMissing(game, cost);
   const [amount, setAmount] = useState(missing);
   if (missing > amount) setAmount(missing);
   return (
     <AdButton
-      chip
       placement="dream_help"
       className={className}
       onReward={() => {
@@ -247,7 +228,7 @@ function HelpOffer({ cost, className }: { cost: number; className: string }) {
         payout({ amount: paid, label: `+${money(paid)}`, count: 10 });
       }}
     >
-      {adText('ads.help', { amount: money(amount) })}
+      {t('ads.help', { amount: money(amount) })}
     </AdButton>
   );
 }

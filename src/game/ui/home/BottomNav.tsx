@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGuideTarget } from '../guide/guideSteps';
+import { spotOf } from '../guide/spotMode';
 import { AlertBadge } from '../kit';
 import { PointingHand } from './Focusable';
 import { TABS, type TabId } from './tabs';
@@ -29,7 +30,8 @@ const LOCKED_HINT_MS = 2500;
 export function BottomNav({ open, onSelect, attention, locked = {}, top }: BottomNavProps) {
   const { t } = useT();
   // Old Ray's guide points at the tab its next step is in.
-  const guideTab = useGuideTarget()?.tab;
+  const guideTarget = useGuideTarget();
+  const guideTab = guideTarget?.tab;
   const [hint, setHint] = useState<TabId | null>(null);
 
   useEffect(() => {
@@ -100,7 +102,7 @@ export function BottomNav({ open, onSelect, attention, locked = {}, top }: Botto
                 {guideTab === id && !selected && (
                   <>
                     <span className="v2-focus-ring pointer-events-none absolute -inset-1 rounded-[22px] border-4 border-amber-300" />
-                    <PointingHand className="-bottom-3 right-0" />
+                    <PointingHand className="-bottom-3 right-0" spot={spotOf(guideTarget)} />
                   </>
                 )}
               </button>

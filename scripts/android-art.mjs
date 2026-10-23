@@ -1,4 +1,4 @@
-// v2 Android launcher icons and splash screens, rendered from art/store-v2/icon-1024.png and the scene art.
+// v2 Android launcher icons and splash screens, rendered from the store icon (the same picture as on Play) and the scene art.
 // Usage: PLAYWRIGHT=/path/to/playwright-core/index.mjs node scripts/android-art.mjs   (writes into android/app/src/main/res;
 // playwright-core is not a project dependency, any local copy works; renders with the installed Chrome)
 import { readFileSync } from 'node:fs';
@@ -9,7 +9,8 @@ const RES = `${ROOT}/android/app/src/main/res`;
 const FONTS = `${ROOT}/node_modules/@fontsource/fredoka/files`;
 const SCENE = `${ROOT}/public/assets/scene`;
 const data = (path, type) => `data:${type};base64,${readFileSync(path).toString('base64')}`;
-const ICON = data(`${ROOT}/art/store-v2/icon-1024.png`, 'image/png');
+// The Play listing icon (2026-10-22: the two heads, poor and rich). A new icon: change this path and run the script.
+const ICON = data(`${ROOT}/art/store-v2/icon-f-diagonal-heads-v1.png`, 'image/png');
 const art = (file) => data(`${SCENE}/${file}`, 'image/webp');
 const font = (file) => data(`${FONTS}/${file}`, 'font/woff2');
 

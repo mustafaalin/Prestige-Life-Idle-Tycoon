@@ -59,6 +59,7 @@ const MIN_GAP_MS = 70;
 
 const SFX_KEY = 'prestige_v2_sfx';
 const MUSIC_KEY = 'prestige_v2_music';
+const HAPTICS_KEY = 'prestige_v2_haptics';
 
 function readSwitch(key: string) {
   try {
@@ -78,9 +79,11 @@ function writeSwitch(key: string, on: boolean) {
 
 let sfxOn = readSwitch(SFX_KEY);
 let musicOn = readSwitch(MUSIC_KEY);
+let hapticsOn = readSwitch(HAPTICS_KEY);
 
 export const soundEnabled = () => sfxOn;
 export const musicEnabled = () => musicOn;
+export const hapticsEnabled = () => hapticsOn;
 
 export function setSoundEnabled(on: boolean) {
   sfxOn = on;
@@ -91,6 +94,11 @@ export function setMusicEnabled(on: boolean) {
   musicOn = on;
   writeSwitch(MUSIC_KEY, on);
   applyMusic();
+}
+
+export function setHapticsEnabled(on: boolean) {
+  hapticsOn = on;
+  writeSwitch(HAPTICS_KEY, on);
 }
 
 // ── Sound effects ──
@@ -254,6 +262,7 @@ export function useMusic(track: Track, active = true) {
 const native = Capacitor.isNativePlatform();
 
 export function haptic(strength: 'light' | 'medium' = 'light') {
+  if (!hapticsOn) return;
   if (native) {
     Haptics.impact({ style: strength === 'light' ? ImpactStyle.Light : ImpactStyle.Medium }).catch(() => {});
   } else {

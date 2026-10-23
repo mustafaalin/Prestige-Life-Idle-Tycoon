@@ -43,6 +43,7 @@ import { NameSheet } from './NameSheet';
 import { onStoryRequest } from './storyEvents';
 import { lateKeyOfCeremony, lateKeyOfLife, playsLate } from './lateLook';
 import { YearsPassed } from './YearsPassed';
+import { useMomText } from './momText';
 
 // Decides which story moment is on screen (story-v2.md §4): a waiting class-up ceremony first, then a
 // life moment whose age has come (§4c), then (after the offline card) the day's reward, then Mom's
@@ -67,6 +68,7 @@ export function StoryDirector({
 }) {
   const { game, state, actions } = useGameV2();
   const { t } = useT();
+  const momText = useMomText();
   const [replay, setReplay] = useState<number | null>(null);
   const [replayLife, setReplayLife] = useState<LifeMomentId | null>(null);
   // A story beat just ended: the next life moment waits, so two never play back to back.
@@ -167,7 +169,7 @@ export function StoryDirector({
     const momReminder = next
       ? {
           title: t('mom.from'),
-          body: t(`mom.${next.id}` as Parameters<typeof t>[0]),
+          body: momText(next.id),
           at: Math.max(now, state.story.momShownAt) + MOM_MIN_GAP_MS,
         }
       : null;

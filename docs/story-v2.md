@@ -1,6 +1,6 @@
 # Prestige Life v2 — Hikaye ve Karakterler
 
-Son güncelleme: 2026-10-21 (lansman 1. nesil; Burak hikâyesi kaldırıldı; yeni tempoya göre tören ve an tabloları) · İlgili: [game-design-v2.md](./game-design-v2.md), [rebuild-plan.md](./rebuild-plan.md)
+Son güncelleme: 2026-10-23 (lüks anlarına ön koşul; annenin Milyoner yıllarına kızın büyümesi ve Rıza'nın vedası; Bülent Bey'in satış haberi Milyarder'e yaklaşınca) · önceki: 2026-10-21 (lansman 1. nesil; Burak hikâyesi kaldırıldı) · İlgili: [game-design-v2.md](./game-design-v2.md), [rebuild-plan.md](./rebuild-plan.md)
 
 Bu belge hikayenin, karakterlerin ve tonun tek kaynağıdır. Dayanağı [rapor](./report-v2.md) §6 (fakirlikten zenginliğe hissi) ve §7'dir (hanedan, olay kartları).
 
@@ -150,7 +150,7 @@ Zaman çizelgesi (`npm run sim`, 2026-10-21, bağlı bot): ilk oturumda önsöz,
 
 **Annenin evi:** Faz 1'de iki basamak, ikisi de törenle: eski aile evi (Orta Sınıf; küçük bir bahçesi ve erik ağacı var, Milyoner'deki "iki sandalye" mesajı oraya bağlı) ve konak (En Zengin, 1. nesilde gelmez). Fiyatı yok, gelir bonusu yok. Ara basamaklar §7'de.
 
-### Anne mesajları (11)
+### Anne mesajları (16)
 
 Lansmanda atölye, pencereler ve sandalye mesajları kapalı (`CONTENT.topClassStory`; ektikleri törenler 2. nesille gelir), kimlikleri kayıtta korunur. Sadece oyuncunun o anki sınıfının mesajları gelir, sırayla; geçilen sınıfın gösterilmemiş mesajları atlanır, birikenler arka arkaya gösterilmez. Üç mesaj bir sonraki törenin kancasıdır (★). Mesajlar renktir, tören onlara dayanmaz: hızlı oyuncu günde bir mesaj kuralı yüzünden bazılarını hiç görmez, bu yüzden Milyarder töreni satışı kendi ilk cümlesinde söyler (2026-10-13). Yeni tempoda (2026-10-21, simülatörün oturumlarıyla ölçüldü) reklam izlemeyen oyuncu 1. nesilde açılan bütün mesajları görür (Multimilyarder'in ikisi hariç, o sınıf çoğunlukla gelmez); reklam izleyen hızlı oyuncu ilk sınıflardan 1–2 mesajı kaçırır.
 
@@ -159,14 +159,21 @@ Lansmanda atölye, pencereler ve sandalye mesajları kapalı (`CONTENT.topClassS
 | Gündelikçi | *"Teyzen börek yaptı, sana da ayırdık. Kendine iyi bak, olur mu?"* |
 | İşçi | *"Daireni çok merak ettim. Perdeleri ben dikiyorum!"* |
 | Orta Sınıf | *"Eski evde ilk gecem. Üçüncü basamak hâlâ gıcırdıyor."* |
-| Milyoner | ★ *"Sandalyeler seni bekliyor. Bu arada Bülent Bey'in restoranları satılıkmış, duydun mu?"* |
 | İşçi töreninden ilk buluşmaya kadar (köprü, §4c) | *"Kurabiye getiren kızı anlatırken sesin bir tuhaftı. Adı neydi... Defne mi?"* |
 | Milyoner | *"Komşular seni gazetede görmüş. Kupürü buzdolabına astım!"* |
+| Kızın doğumundan sonra, kahraman 32–36 | *"{kız} bugün ilk adımını attı, bahçede! Önce erik ağacına yürüdü, sonra doğru Şans'a."* |
+| 37–41 | *"Bugün {kız} okula başladı. Çantasına kurabiye koydum; Defne'nin babaannesinin tarifi."* |
+| 42–46 | *"Bugün {kız} ile erik reçeli yaptık. Şekeri benden az koyuyor. Kimseye söyleme ama daha güzel olmuş."* |
+| 47–54 | *"{kız} bu yaz Rıza Amca'nın tezgâhında çalışmak istiyor. 'Babam da orada başladı' diyor."* (70'teki dede ve torun anına zemin) |
+| 55–59 (Rıza'nın vedası; 60'tan sonra görünmez) | *"Rıza Amca uğradı, tezgâhın anahtarını bıraktı. 'Çiçekleri dizmeyi artık o bilir' dedi. Çok yaşlanmış ama gözleri hâlâ gülüyor."* |
+| Milyoner, Milyarder çubuğu yarıyı geçince | ★ *"Gazetede okudum: Bülent Bey emekliye ayrılıyor, restoranlarını satacakmış. Hayat ne garip, değil mi?"* (2026-10-23: önceden Milyoner'in başındaydı, satıştan 30–44 yıl önce) |
 | Milyarder | *"Bülent Bey'i kapıda bırakmamışsın. Sen gerçekten babanın oğlusun."* |
 | Milyarder | ★ *"Rıza Amca yıllar sonra kapımı çaldı. Babanla açamadıkları atölyeyi anlattı, gözleri doldu."* |
 | Milyarder | *"Erik ağacı bu yıl çok verdi. Reçel yaptım, sana bir kavanoz ayırdım."* |
 | Multimilyarder | ★ *"Saray maray istemem, biliyorsun. ...Ama pencereleri büyük olsun, çiçeklerim güneş alsın."* |
 | Multimilyarder | *"Rıza Amca bana bir sandalye yapmış. Bahçedekilerden çok daha rahat!"* |
+
+**Milyoner yılları (2026-10-23):** bağlı oyuncu ~26'dan ~70'e Milyoner kalır (simülatörde 4.–19. gün); bu yıllarda annenin sesi kızın büyümesiyle sürer. Bu beş mesaj kızın doğumuna ve yaş aralığına bağlıdır, sınıfın mesajlarından önce gelir; aralığı kaçan atlanır (kız büyümüşken "ilk adım" gelmez). Kızın adı oyuncunun verdiği addır (`{daughter}`; Türkçe metinler isme ek gelmeyecek biçimde yazıldı). Kod `runtime/story.ts` (`minAge`, `maxAge`, `nearNext`), metin `ui/story/momText.ts` üzerinden.
 
 **Kurallar (oyunda, `runtime/story.ts`):** mesaj oturum açılışında gelir, sadece oyuncu en az 1 saat uzak kaldıysa ve son mesajdan 20 saat geçtiyse; o açılışta tören varsa mesaj bir sonraki açılışa kalır; çevrimdışı kartından sonra görünür. Tek cevap "Kalp gönder". Aynı mesaj telefon bildirimi olarak da gelir (§4b).
 
@@ -223,9 +230,9 @@ Geri dönüşler: kurabiye (İşçi töreni), iki sandalye ve erik reçeli (anne
 
 Geri dönüşler: doğum odası ve erik reçeli (kızın doğumu), Rıza'nın "Çiçekleri diz" dersi (rehber), otogar ve annene verilen söz (önsöz), babanın saati (ilk yadigâr).
 
-**Görseller (2026-10-11, fal.ai, 3 kare $0,45):** çay bahçesi, erik ağacının altında düğün, hastane odasında bebek; `public/assets/story/life/`, kaynak `art/pilot/10-life/`. Karelerde kahraman gömlekli ve takım elbiseli, yüzü aynı (yaşlanmıyor).
+**Görseller (2026-10-11, fal.ai, 3 kare $0,45; çay bahçesi, düğün, yat, tekne (ve dede sürümü) ile helikopter 2026-10-23'te GPT ile yarı-3D yeniden çizildi, [art-prompts-v2.md §0c](./art-prompts-v2.md)):** çay bahçesi, erik ağacının altında düğün, hastane odasında bebek; `public/assets/story/life/`, kaynak `art/pilot/10-life/`. Karelerde kahraman gömlekli ve takım elbiseli, yüzü aynı (yaşlanmıyor).
 
-**Lüks anları (karar 2026-10-14, kullanıcı; oyunda):** dört lüksün her biri ilk alındığında aile onu birlikte kullanır; lüks gösteriş değil, verilen sözlerin karşılığı. Tetik kesin: satın alma (`LUXURY_MOMENTS`, `runtime/story.ts`); yaşa bağlı anlardan sonra sıradadır. Lüksler sırayla alındığı için birkaçı birden beklerse (uzun yokluk, bu anlardan önceki bir kayıt) yalnızca en yenisi oynar, alttakiler görülmüş sayılır ve albümde bekler. Albümde etiket yaş değil lüksün adı. Kızın görünüşü tasarlanmadığı için karelerde yok. Görseller `public/assets/story/life/{boat,yacht,heli,jet}.webp`: yat, helikopter ve jet fal.ai (2026-10-14); tekne GPT (2026-10-15; mağazadaki sürat teknesinin aynısı, kaynak `art/pilot/10-life/life-boat-luxury-v2.png`).
+**Lüks anları (karar 2026-10-14, kullanıcı; oyunda):** dört lüksün her biri ilk alındığında aile onu birlikte kullanır; lüks gösteriş değil, verilen sözlerin karşılığı. Tetik kesin: satın alma (`LUXURY_MOMENTS`, `runtime/story.ts`); yaşa bağlı anlardan sonra sıradadır. **Ön koşul (2026-10-23):** karede kim varsa hayatına girmiş olmalı: yat ve helikopter düğünden sonra (Defne eşi), jet kızın doğumundan sonra ve kahraman en az 50 yaşında (Elif karede ~19 yaşında); daha önce alınan lüksün anı bekler, eşya hemen oyuncunundur. Reklam izleyen oyuncu 21'de Milyoner olup helikopteri ilk buluşmadan önce alabiliyordu. Lüksler sırayla alındığı için birkaçı birden beklerse (uzun yokluk, bu anlardan önceki bir kayıt) yalnızca en yenisi oynar, alttakiler görülmüş sayılır ve albümde bekler. Albümde etiket yaş değil lüksün adı. Kızın görünüşü tasarlanmadığı için karelerde yok. Görseller `public/assets/story/life/{boat,yacht,heli,jet}.webp`: yat, helikopter ve jet fal.ai (2026-10-14); tekne GPT (2026-10-15; mağazadaki sürat teknesinin aynısı, kaynak `art/pilot/10-life/life-boat-luxury-v2.png`).
 
 | An | Türkçe | English |
 | --- | --- | --- |

@@ -8,7 +8,6 @@ import { useGameV2 } from '../../runtime/useGameV2';
 import { adGift, canRushCourse, canWatch, courseRushSeconds, marked } from '../../runtime/adRewards';
 import { ActionAd, PayAd } from '../ads/AdOffers';
 import { AdStrip, HelpAd } from '../ads/AdButton';
-import { useAdChipText } from '../ads/useAdText';
 import { Focusable } from '../home/Focusable';
 import { GameButton, ImageTile, Panel, SectionLabel } from '../kit';
 import { Cash } from '../CashAmount';
@@ -20,7 +19,6 @@ import { UiIcon } from '../UiIcon';
 export function CoursesPanel() {
   const { game, state, actions } = useGameV2();
   const { t, name, money } = useT();
-  const adText = useAdChipText();
   const now = Date.now();
 
   const running = game.course ? courseDef(game.course.id) : undefined;
@@ -61,14 +59,14 @@ export function CoursesPanel() {
         {running && canRushCourse(state, now) && (
           <ActionAd
             placement="course_rush"
-            label={`${adText('ads.courseRush', { count: rushMonths })} · ${COURSE_RUSH_PER_COURSE - marked(state.ads, `course_rush:${running.id}`)}/${COURSE_RUSH_PER_COURSE}`}
+            label={`${t('ads.courseRush', { count: rushMonths })} (${COURSE_RUSH_PER_COURSE - marked(state.ads, `course_rush:${running.id}`)}/${COURSE_RUSH_PER_COURSE})`}
             run={actions.ads.rushCourse}
           />
         )}
         {diploma && canWatch(state.ads, 'diploma_gift', now) && (
           <PayAd
             placement="diploma_gift"
-            label={adText('ads.diploma', { course: name('course', diploma), amount: money(adGift(game)) })}
+            label={t('ads.diploma', { course: name('course', diploma), amount: money(adGift(game)) })}
             run={() => actions.ads.diploma(diploma.id)}
           />
         )}

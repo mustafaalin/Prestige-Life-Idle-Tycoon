@@ -83,7 +83,8 @@ export function Guide({ tabOpen }: { tabOpen: boolean }) {
   return (
     <GuideLine
       key={step.id}
-      face={FACE[step.id]}
+      portrait={portraitOf('riza', FACE[step.id]) ?? ''}
+      speaker={t('ceremony.cast.riza')}
       atTop={!tabOpen}
       text={t(`guide.${step.id}` as MessageKey, { name: state.story.heroName })}
       onRead={() => actions.story.guideSeen(step.id)}
@@ -91,7 +92,23 @@ export function Guide({ tabOpen }: { tabOpen: boolean }) {
   );
 }
 
-function GuideLine({ face, text, atTop, onRead }: { face: string; text: string; atTop: boolean; onRead: () => void }) {
+/**
+ * A guide's line in a small bubble with the speaker's face (Old Ray's steps, a feature's first look).
+ * It stays lit and tappable when the screen dims around the hand (Spotlight.tsx, `data-spot-keep`).
+ */
+export function GuideLine({
+  portrait,
+  speaker,
+  text,
+  atTop,
+  onRead,
+}: {
+  portrait: string;
+  speaker: string;
+  text: string;
+  atTop: boolean;
+  onRead: () => void;
+}) {
   const { t } = useT();
 
   // The game re-renders every tick, so the timer reads the latest callback instead of restarting.
@@ -107,6 +124,7 @@ function GuideLine({ face, text, atTop, onRead }: { face: string; text: string; 
   return (
     <button
       type="button"
+      data-spot-keep
       onClick={() => {
         playSfx('click');
         onRead();
@@ -114,14 +132,14 @@ function GuideLine({ face, text, atTop, onRead }: { face: string; text: string; 
       className={`v2-pop-in pointer-events-auto absolute left-3 right-3 z-20 text-left ${atTop ? 'top-[150px]' : 'bottom-3'}`}
     >
       <img
-        src={portraitOf('riza', face) ?? ''}
+        src={portrait}
         alt=""
         draggable={false}
         className="absolute z-10 left-1 -top-11 w-[72px] h-[72px] rounded-full object-cover border-[3px] border-white shadow-lg bg-slate-200"
       />
       <div className="relative rounded-[20px] bg-white/95 border-2 border-white shadow-xl pl-[84px] pr-3 pt-2 pb-1.5 min-h-[64px]">
         <span className="absolute left-[84px] -top-3 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-widest text-white shadow">
-          {t('ceremony.cast.riza')}
+          {speaker}
         </span>
         <p className="pt-1.5 text-[14px] font-bold leading-snug text-slate-800">{text}</p>
         <p className="flex items-center justify-end text-[10px] font-black text-slate-400">

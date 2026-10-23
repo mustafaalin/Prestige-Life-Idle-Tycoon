@@ -27,7 +27,6 @@ import { GameButton, ImageTile, Panel } from '../kit';
 import { BusinessDetails } from './BusinessDetails';
 import { GrowShow, HireShow } from './BusinessShow';
 import { payout } from '../home/coins';
-import { useAdText } from '../ads/useAdText';
 import { managerKey, managerPortrait } from './managers';
 import { RunBubbles } from './RunBubbles';
 import { StageBar } from './StageBar';
@@ -48,7 +47,6 @@ const LEVEL_PITCH_MAX = 1.5;
 export function BusinessCard({ def }: { def: BusinessDef }) {
   const { game, state, actions } = useGameV2();
   const { t, name, money, perMonth, duration } = useT();
-  const adText = useAdText();
   const business = businessState(game, def.id);
   const { level, branches, managed } = business;
   const opened = level > 0;
@@ -334,7 +332,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
           ad={{
             placement: 'grown_bonus',
             amount: adGift(game),
-            label: adText('ads.grown', { amount: money(adGift(game)) }),
+            label: t('ads.grown', { amount: money(adGift(game)) }),
             onReward: () => {
               const paid = actions.ads.grownBonus(def.id, grown.level);
               if (paid > 0) payout({ amount: paid, label: `+${money(paid)}`, count: 10 });

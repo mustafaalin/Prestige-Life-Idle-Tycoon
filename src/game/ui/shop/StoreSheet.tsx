@@ -34,6 +34,7 @@ import { useRestore } from './useRestore';
 import { BoostCard } from '../ads/Boost';
 import { UiIcon } from '../UiIcon';
 import { AlertBadge } from '../kit';
+import { useRainLook } from '../scene/rainLook';
 
 // The Store (docs/monetization-v2.md §6, decided 2026-10-14; look: docs/iap-store-design-handoff.md):
 // a sheet opened from the round button on the scene, from the first class-up. Products come from
@@ -181,6 +182,7 @@ function FreeOffers({ onClose }: { onClose: () => void }) {
   const boostLeft = boostSecondsLeft(state.ads, now);
   const sansWait = adCooldownLeft(state.ads, 'call_sans', now);
   const showRain = canCollect(game) && state.ads.coinRainUntil <= now;
+  const rain = useRainLook();
   // `card`: the tile opens its own card first (the boost says what it gives and how long; it pays from there).
   const tiles: { key: string; image: string; title: string; note: string; ready: boolean; reason: string; placement: AdPlacement; run: () => void; card?: () => void }[] = [
     {
@@ -214,8 +216,8 @@ function FreeOffers({ onClose }: { onClose: () => void }) {
       ? [
           {
             key: 'rain',
-            image: '/assets/scene/coin-pile.webp',
-            title: t('ads.coinRain'),
+            image: rain.image,
+            title: rain.title,
             note: duration(COIN_RAIN_SECONDS),
             ready: canWatch(state.ads, 'coin_rain', now),
             reason: t('iap.free.later'),

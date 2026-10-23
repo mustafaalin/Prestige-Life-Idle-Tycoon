@@ -103,6 +103,11 @@ export interface GameActions {
   retire(): boolean;
   /** "Hand over now" from the top class: skips the remaining years, so the end of life opens. */
   handOverEarly(): boolean;
+  /**
+   * "Start over" (Settings): the save is wiped and a new game starts at the prologue. Permanent store
+   * purchases come back from the store, as on a new phone; consumed cash bags do not.
+   */
+  newGame(): void;
   /** Buys the next level of a family heirloom with legacy points. */
   buyHeirloom(id: string): boolean;
   /** Old Ray's deals (runtime/investment.ts). */
@@ -461,6 +466,14 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         const { generation } = state.game;
         const age = heroAge(state.game).years;
         return actTracked(handOverEarly, 'hand_over_early', () => ({ generation, age }));
+      },
+      newGame: () => {
+        track('new_game', { generation: state.game.generation, age: heroAge(state.game).years });
+        clearSave();
+        commit(createRuntimeState(clock()), [], true);
+        void ownedProducts().then((ids) => {
+          if (ids) syncStore(ids, 'restore');
+        });
       },
       buyHeirloom: (id) => {
         const level = (state.game.heirlooms[id] ?? 0) + 1;

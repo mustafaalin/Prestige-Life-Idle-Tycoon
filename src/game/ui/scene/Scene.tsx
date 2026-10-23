@@ -17,7 +17,6 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { hasScarf } from '../../runtime/purchases';
 import { pendingCeremony, sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { useAdText } from '../ads/useAdText';
 import { useGuideTarget } from '../guide/guideSteps';
 import { burstCoins, payout } from '../home/coins';
 import { useMenuTop } from '../home/menuEdge';
@@ -36,6 +35,7 @@ import {
   type Pose,
 } from './stages';
 import { UiIcon } from '../UiIcon';
+import { useHeroQuip } from './heroQuips';
 
 // The home scene (plan 1.6, discussion-notes §7): the hero and Şans, always on screen, in front of
 // the home you live in, with your best vehicle parked beside them, the hero in the best outfit you own
@@ -124,7 +124,8 @@ function startingItems(): Item[] {
   return items;
 }
 
-export function Scene() {
+/** `covered`: a sheet is over the scene (the hero's lines wait for it to close). */
+export function Scene({ covered = false }: { covered?: boolean }) {
   const { game, state, actions } = useGameV2();
   const shownClass = sceneClass(game, state.story);
   const scarf = hasScarf(state.purchases);
@@ -137,6 +138,7 @@ export function Scene() {
   const ceremonyWaiting = pendingCeremony(game, state.story) !== null;
   // Old Ray's first step: the hand rests on a bottle until a few are collected.
   const pointAtItem = useGuideTarget()?.key === 'scene:item';
+  const quip = useHeroQuip(covered);
 
   // The next look and place load while the ceremony plays, so they are there the moment it ends.
   useEffect(() => {
@@ -148,7 +150,6 @@ export function Scene() {
     new Image().src = homeArt(game.home).background;
   }, [game.home]);
   const { t, money, name } = useT();
-  const adText = useAdText();
   const rootRef = useRef<HTMLDivElement>(null);
   const fit = useCoverFit(rootRef);
   const pictureWidth = fit.h(9 / 16);
@@ -504,7 +505,7 @@ export function Scene() {
                     }}
                   />
                 </span>
-                {pointAtItem && item.id === guidedItem && <PointingHand className="-bottom-4 -right-3" />}
+                {pointAtItem && item.id === guidedItem && <PointingHand className="-bottom-4 -right-3" spot="block" />}
               </button>
             );
           })}
@@ -519,6 +520,19 @@ export function Scene() {
             </span>
           ))}
         </>
+      )}
+
+      {/* The hero's line at one of his firsts (heroQuips.ts), over his head. */}
+      {quip && (
+        <div
+          key={quip}
+          className="v2-pop-in absolute pointer-events-none"
+          style={{ left: fit.x(hero[pose].x + home.castX) + 8, top: poseBox(fit, hero[pose], home.castX).top - 6 }}
+        >
+          <p className="-translate-y-full max-w-[200px] rounded-2xl rounded-bl-sm bg-white border-2 border-white shadow-lg px-3 py-1.5 text-[13px] font-bold leading-snug text-slate-800">
+            {t(quip)}
+          </p>
+        </div>
       )}
 
       {news && (
@@ -552,7 +566,7 @@ export function Scene() {
             placement: 'find_x2',
             amount: findOffer * AD_FIND_MULTIPLIER,
             badge: `×${AD_FIND_MULTIPLIER}`,
-            label: adText('ads.double', { amount: money(findOffer * AD_FIND_MULTIPLIER), factor: AD_FIND_MULTIPLIER }),
+            label: t('ads.double', { amount: money(findOffer * AD_FIND_MULTIPLIER), factor: AD_FIND_MULTIPLIER }),
             onReward: () => collectFind(AD_FIND_MULTIPLIER),
           }}
         />

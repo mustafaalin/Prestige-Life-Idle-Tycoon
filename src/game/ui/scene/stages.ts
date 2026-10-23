@@ -41,12 +41,16 @@ export interface ItemArt {
   width: number;
 }
 
+export type ItemKind = 'bottles' | 'coins';
+
 /** The hero in one outfit. */
 export type HeroLook = Record<Pose, PoseArt>;
 
 export interface ClassLook {
   /** What lies on the ground to collect (bottles in the alley, then coins; nothing from Middle Class on). */
   items: ItemArt[];
+  /** What those are, for the words that name them (the ad shower: "Bottle shower" or "Coin shower"). */
+  itemKind: ItemKind;
   /** Şans sitting, and Şans with a found wallet (his collar changes with the class). */
   sans: SpriteArt;
   find: SpriteArt;
@@ -181,6 +185,7 @@ const STREET: ClassLook = {
     { src: `${DIR}/bottle-brown.webp`, width: 0.14 },
     { src: `${DIR}/can-red.webp`, width: 0.1 },
   ],
+  itemKind: 'bottles',
   sans: { src: `${DIR}/sans-sit.webp`, x: 0.66, y: 0.748, height: 0.15, aspect: 0.645 },
   find: { src: `${DIR}/sans-wallet.webp`, x: 0.72, y: 0.752, height: 0.15, aspect: 0.929 },
   sleep: `${DIR}/sans-sleep.webp`,
@@ -199,6 +204,7 @@ const LOOK_ART: Partial<ClassLook>[] = [
       { src: `${DIR}/coin-pile.webp`, width: 0.12 },
       { src: `${DIR}/coin-bill.webp`, width: 0.13 },
     ],
+    itemKind: 'coins',
   },
   // 3 Middle Class: nothing to collect from here on (COLLECT_END_CLASS). Şans gets a leather collar.
   {
@@ -446,16 +452,26 @@ export interface VehicleBox {
 }
 
 /**
- * Cars stand this much under real size (2026-10-23, user: "the pickup hides the house"). At real size
- * anything as tall as the hero's eyes reaches the horizon, where the homes stand, so a pickup or an
- * SUV covered the house behind it wherever it parked. Bikes beside the hero keep their real size.
+ * Tall cars are drawn shorter than they are (2026-10-23, user: "the pickup hides the house"). At real
+ * size anything as tall as the hero's eyes reaches the horizon, where the homes stand, so a pickup or an
+ * SUV covered the house behind it wherever it parked. A flat 80% fixed that but made low cars tiny
+ * (user, same day: the old sedan "looked fine before"), so only the height above CAR_FULL_METRES is
+ * squeezed: cars up to it keep their real size, a pickup stays about where 80% put it. Bikes beside the
+ * hero are never squeezed.
  */
-const CAR_SCALE = 0.8;
+const CAR_FULL_METRES = 1.4;
+const CAR_TALL_SHARE = 0.2;
+
+/** The height a vehicle is drawn at: real, with the part above CAR_FULL_METRES squeezed for cars. */
+function stageMetres(vehicle: VehicleArt) {
+  if (vehicle.lane !== 'car' || vehicle.metres <= CAR_FULL_METRES) return vehicle.metres;
+  return CAR_FULL_METRES + (vehicle.metres - CAR_FULL_METRES) * CAR_TALL_SHARE;
+}
 
 /** Where a vehicle stands in front of a home, at stage size unless its art is too wide for the lane. */
 export function vehicleBox(vehicle: VehicleArt, layout: HomeLayout): VehicleBox {
   const lane = layout[vehicle.lane];
-  const height = vehicle.metres * METRE * depthScale(lane.y) * (vehicle.lane === 'car' ? CAR_SCALE : 1);
+  const height = stageMetres(vehicle) * METRE * depthScale(lane.y);
   const width = height * vehicle.aspect * (16 / 9);
   const facesLeft = lane.facesLeft ?? false;
   const room = facesLeft ? 1 - LANE_START_X - lane.x : lane.x - LANE_START_X;

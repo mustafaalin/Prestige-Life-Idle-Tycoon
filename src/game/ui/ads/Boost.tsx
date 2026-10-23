@@ -8,7 +8,7 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { GameButton } from '../kit';
 import { AdButton } from './AdButton';
-import { useAdFree, useAdText } from './useAdText';
+import { useAdFree } from './useAdText';
 import { portalRoot } from '../stage';
 
 // The income boost (monetization-v2 §4 #3): a button on the home scene opens a small card; one ad
@@ -52,7 +52,6 @@ export function BoostButton() {
 export function BoostCard({ onClose }: { onClose: () => void }) {
   const { state, actions } = useGameV2();
   const { t, duration } = useT();
-  const adText = useAdText();
   const free = useAdFree();
   /** What the last use did: started the boost, or added to one already running. */
   const [started, setStarted] = useState<'new' | 'more' | null>(null);
@@ -106,7 +105,7 @@ export function BoostCard({ onClose }: { onClose: () => void }) {
                 setStarted(running ? 'more' : 'new');
               }}
             >
-              {adText('ads.boostWatch', { factor: BOOST_FACTOR, duration: duration(BOOST_SECONDS) })}
+              {t('ads.boostWatch', { factor: BOOST_FACTOR, duration: duration(BOOST_SECONDS) })}
             </AdButton>
           )}
           <GameButton tone="soft" onClick={onClose} className="w-full py-2.5 v2-display text-[15px]">

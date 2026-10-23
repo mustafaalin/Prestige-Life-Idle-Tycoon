@@ -13,7 +13,6 @@ import { hasScarf } from '../../runtime/purchases';
 import { sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { AdCollect } from '../ads/AdButton';
-import { useAdText } from '../ads/useAdText';
 import { classLook } from '../scene/stages';
 import { payout } from './coins';
 import { portalRoot } from '../stage';
@@ -32,7 +31,6 @@ type DayState = 'done' | 'today' | 'ahead';
 export function DailyCard({ offer, onCollected }: { offer: DailyOffer; onCollected: () => void }) {
   const { game, state, actions } = useGameV2();
   const { t, money } = useT();
-  const adText = useAdText();
   const { week, days, dayIndex } = dailyWeek(state.daily.claimed);
   const monthly = autoIncomePerSecond(game) * SECONDS_PER_MONTH;
   const wallet = classLook(sceneClass(game, state.story), hasScarf(state.purchases)).find.src;
@@ -96,7 +94,7 @@ export function DailyCard({ offer, onCollected }: { offer: DailyOffer; onCollect
           </p>
           <AdCollect
             placement="daily_x2"
-            adLabel={adText('ads.double', { amount: money(offer.amount * 2), factor: 2 })}
+            adLabel={t('ads.double', { amount: money(offer.amount * 2), factor: 2 })}
             onReward={() => collect(2)}
             collectLabel={t('common.collect')}
             onCollect={() => collect(1)}

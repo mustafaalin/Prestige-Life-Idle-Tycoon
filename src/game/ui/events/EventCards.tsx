@@ -21,7 +21,6 @@ import { GameButton } from '../kit';
 import { EVENT_AD_MULTIPLIER } from '../../core/config/ads';
 import { canWatch, eventAdExtra } from '../../runtime/adRewards';
 import { AdCollect } from '../ads/AdButton';
-import { useAdText } from '../ads/useAdText';
 import { nextCaller } from '../../runtime/eventDeck';
 import { eventKey, eventKind, eventSpeaker, onEventCardRequest } from './eventScript';
 import { portalRoot } from '../stage';
@@ -179,7 +178,6 @@ interface EventCardProps {
 
 function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
   const { game, state, actions } = useGameV2();
-  const adText = useAdText();
   const { t, money } = useT();
   const kind = eventKind(cardId);
   const [outcome, setOutcome] = useState<EventOutcome | null>(null);
@@ -315,8 +313,8 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
                 available={canWatch(state.ads, 'event_bonus', Date.now())}
                 adLabel={
                   lost
-                    ? adText('ads.eventSecondChance', { amount: money(eventAdExtra(game, outcome)) })
-                    : adText('ads.double', { amount: money(amount * EVENT_AD_MULTIPLIER), factor: EVENT_AD_MULTIPLIER })
+                    ? t('ads.eventSecondChance', { amount: money(eventAdExtra(game, outcome)) })
+                    : t('ads.double', { amount: money(amount * EVENT_AD_MULTIPLIER), factor: EVENT_AD_MULTIPLIER })
                 }
                 onReward={() => {
                   const extra = actions.ads.eventBonus(outcome);

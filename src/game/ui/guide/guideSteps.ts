@@ -18,6 +18,11 @@ export type GuideStepId = 'bottles' | 'claim' | 'job' | 'stand' | 'name' | 'run'
 export interface GuideTarget {
   tab?: TabId;
   key: string;
+  /**
+   * A feature's first look (FeatureIntro.tsx), not one of Old Ray's steps: the dimmed screen does not
+   * hold the player, a tap on it closes the intro (Spotlight.tsx).
+   */
+  soft?: boolean;
 }
 
 export interface GuideStep {
@@ -74,14 +79,30 @@ function canAffordStand(game: GameStateV2) {
 export const TALKS_EARLY: GuideStepId[] = ['job', 'stand', 'run'];
 
 // The hand's target, shared with the screens: <Focusable>, the menu, the scene and the goal card.
+// Old Ray's step and a feature's intro set it apart; the step wins (an intro only waits for the guide).
 
+let guide: GuideTarget | null = null;
+let intro: GuideTarget | null = null;
 let current: GuideTarget | null = null;
 const listeners = new Set<() => void>();
 
-export function setGuideTarget(target: GuideTarget | null) {
-  if (current?.key === target?.key && current?.tab === target?.tab) return;
-  current = target;
+const same = (a: GuideTarget | null, b: GuideTarget | null) => a?.key === b?.key && a?.tab === b?.tab && a?.soft === b?.soft;
+
+function update() {
+  const next = guide ?? intro;
+  if (same(current, next)) return;
+  current = next;
   for (const listener of listeners) listener();
+}
+
+export function setGuideTarget(target: GuideTarget | null) {
+  guide = target;
+  update();
+}
+
+export function setIntroTarget(target: GuideTarget | null) {
+  intro = target ? { ...target, soft: true } : null;
+  update();
 }
 
 function subscribe(listener: () => void) {

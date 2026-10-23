@@ -13,6 +13,7 @@ import { portraitOf } from '../story/ceremonyScript';
 import { portalRoot } from '../stage';
 import { Cash } from '../CashAmount';
 import { UiIcon } from '../UiIcon';
+import { useRankText } from './useRankText';
 
 // The Rich List (discussion-notes §10): a button on the home scene with the hero's place, a sheet with
 // the named top 20, and the short card a new place brings. Fictional; the rank follows this life's
@@ -20,12 +21,6 @@ import { UiIcon } from '../UiIcon';
 
 /** The button shows from the Millionaire ceremony on, locked until the list opens at $1B. */
 export const RICH_BUTTON_CLASS = 4;
-
-function useRankText() {
-  const { locale } = useT();
-  const format = new Intl.NumberFormat(locale);
-  return (rank: number) => `#${format.format(rank)}`;
-}
 
 export function RichListButton({ onOpen }: { onOpen: () => void }) {
   const { game } = useGameV2();

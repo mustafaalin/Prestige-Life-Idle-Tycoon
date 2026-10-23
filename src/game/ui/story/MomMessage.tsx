@@ -5,6 +5,7 @@ import { useBackButton } from '../../runtime/backButton';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { GameButton } from '../kit';
 import { portraitOf } from './ceremonyScript';
+import { useMomText } from './momText';
 import { portalRoot } from '../stage';
 import { UiIcon } from '../UiIcon';
 
@@ -12,12 +13,13 @@ import { UiIcon } from '../UiIcon';
 // answer is a heart; it floats up and the card closes. Also the opt-in card for reminders.
 
 /** Mom's face for the messages that are not plain cheerful. */
-const FACE: Record<string, 'smile' | 'teary'> = { stair: 'teary', workshop: 'teary', job: 'teary' };
+const FACE: Record<string, 'smile' | 'teary'> = { stair: 'teary', workshop: 'teary', job: 'teary', rizaKey: 'teary' };
 
 const HEART_MS = 650;
 
 export function MomMessage({ messageId, onClose }: { messageId: string; onClose: () => void }) {
   const { t } = useT();
+  const momText = useMomText();
   const [sent, setSent] = useState(false);
   useEffect(() => playSfx('message'), []);
 
@@ -50,7 +52,7 @@ export function MomMessage({ messageId, onClose }: { messageId: string; onClose:
           {/* Chat bubble from Mom. */}
           <div className="relative rounded-[20px] rounded-tl-md bg-white border-2 border-amber-100 px-4 py-3 shadow-sm">
             <p className="text-[16px] font-bold leading-snug text-slate-800">
-              {t(`mom.${messageId}` as Parameters<typeof t>[0])}
+              {momText(messageId)}
             </p>
           </div>
           <div className="relative mt-4">

@@ -12,11 +12,14 @@ import { BoostButton } from '../ads/Boost';
 import { OpportunityBalloon, SceneAdButtons } from '../ads/SceneAds';
 import { RainTimer } from '../scene/RainTimer';
 import { MasteredToast } from '../career/MasteredToast';
-import { useAdText } from '../ads/useAdText';
 import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
 import { classLook, homeArt } from '../scene/stages';
+import { FeatureIntro } from '../guide/FeatureIntro';
 import { Guide } from '../guide/Guide';
+import { Spotlight } from '../guide/Spotlight';
+import { Focusable } from './Focusable';
+import { hudReveal } from './hudReveal';
 import { ICONS } from '../icons';
 import { ALBUM, albumSeen } from '../story/album';
 import { AlbumSheet } from '../story/AlbumSheet';
@@ -40,6 +43,7 @@ import { RewardCard } from './RewardCard';
 import { DreamsRow } from './DreamsRow';
 import { useMeasureMenuTop } from './menuEdge';
 import type { FocusTarget } from './focus';
+import { ProfileSheet } from './ProfileSheet';
 import { SettingsSheet } from './SettingsSheet';
 import type { TabId } from './tabs';
 import { TabSheet } from './TabSheet';
@@ -52,11 +56,11 @@ import { TopBar } from './TopBar';
 export function HomeScreen() {
   const { game, state, actions } = useGameV2();
   const { t, name, money, duration } = useT();
-  const adText = useAdText();
   const [tab, setTab] = useState<TabId | null>(null);
   // The family tab asks for a look once a session while the hand-over choice is open.
   const [familySeen, setFamilySeen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [incomeOpen, setIncomeOpen] = useState(false);
   // The goal the player last tapped "Go" on; the strip in the open tab keeps showing it.
   const [pinnedQuest, setPinnedQuest] = useState<string | null>(null);
@@ -166,14 +170,16 @@ export function HomeScreen() {
 
   // The Store opens with the first ceremony (runtime/purchases.ts).
   const storeShown = offersOpen(state.story);
+  // What the first minutes show (hudReveal.ts).
+  const reveal = hudReveal(state);
 
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-[#0d1530] select-none">
-      <Scene />
+      <Scene covered={sheetOpen} />
 
       <div className="absolute inset-0 flex flex-col pointer-events-none">
         <div className="pointer-events-auto">
-          <TopBar onOpenSettings={() => setSettingsOpen(true)} onOpenIncome={openIncome} />
+          <TopBar onOpenSettings={() => setSettingsOpen(true)} onOpenIncome={openIncome} onOpenProfile={() => setProfileOpen(true)} />
         </div>
         <main className="relative flex-1">
           {albumOpen ? (
@@ -199,8 +205,9 @@ export function HomeScreen() {
               <RainTimer />
             </div>
           )}
-          {/* The income boost floats on the right of the scene, clear of the goals card and the top bar. */}
-          {!sheetOpen && (
+          {/* The income boost floats on the right of the scene, clear of the goals card and the top bar; it
+              comes with the class bar, so the first minutes are only the bottles (hudReveal.ts). */}
+          {!sheetOpen && reveal.status && (
             <div className="pointer-events-auto absolute right-3 top-[42%] flex flex-col items-center gap-3">
               <BoostButton />
               <SceneAdButtons />
@@ -210,6 +217,7 @@ export function HomeScreen() {
           {!sheetOpen && (albumStarted || richShown || storeShown) && (
             <div className="absolute left-3 top-[42%] flex flex-col gap-3">
               {albumStarted && (
+                <Focusable focusKey="home:album" className="pointer-events-auto rounded-full">
                 <button
                   type="button"
                   onClick={openAlbum}
@@ -218,15 +226,18 @@ export function HomeScreen() {
                 >
                   <img src={ICONS.album} alt="" draggable={false} className="w-11 h-11 object-contain drop-shadow" />
                 </button>
+                </Focusable>
               )}
               {richShown && <RichListButton onOpen={openRichList} />}
               {storeShown && <StoreButton onOpen={openStore} />}
             </div>
           )}
           <Guide tabOpen={sheetOpen} />
+          <FeatureIntro sheetOpen={sheetOpen} eventOpen={eventOpen} albumStarted={albumStarted} />
           <EventCards tabOpen={sheetOpen} onOpenChange={setEventOpen} />
         </main>
-        <div ref={menuRef} className="pointer-events-auto">
+        {/* The menu comes with the first claimed goal (hudReveal.ts); until then it keeps its room. */}
+        <div ref={menuRef} className={reveal.menu ? 'pointer-events-auto v2-nav-rise' : 'invisible'}>
           <BottomNav
             open={tab}
             onSelect={selectTab}
@@ -286,7 +297,7 @@ export function HomeScreen() {
                   placement: 'offline_x2',
                   amount: state.offline.amount * AD_OFFLINE_MULTIPLIER,
                   badge: `+%${Math.round((AD_OFFLINE_MULTIPLIER - 1) * 100)}`,
-                  label: adText('ads.more', {
+                  label: t('ads.more', {
                     amount: money(state.offline.amount * AD_OFFLINE_MULTIPLIER),
                     percent: Math.round((AD_OFFLINE_MULTIPLIER - 1) * 100),
                   }),
@@ -303,10 +314,14 @@ export function HomeScreen() {
         />
       )}
 
+      {/* The dim around the guide's hand, over everything but the cards (ui/guide/Spotlight.tsx). */}
+      <Spotlight />
       {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
+      {profileOpen && <ProfileSheet onClose={() => setProfileOpen(false)} />}
       {incomeOpen && <IncomeSheet onClose={() => setIncomeOpen(false)} />}
 
-      <StoryDirector tabOpen={sheetOpen || eventOpen} hold={albumPlaying} onOpenRichList={openRichList} />
+      {/* A ceremony or life moment waits while the profile or Settings is open, then plays. */}
+      <StoryDirector tabOpen={sheetOpen || eventOpen} hold={albumPlaying || profileOpen || settingsOpen} onOpenRichList={openRichList} />
 
       <CoinLayer />
     </div>

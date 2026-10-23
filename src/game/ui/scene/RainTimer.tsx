@@ -3,10 +3,11 @@ import { COIN_RAIN_SECONDS } from '../../core/config/ads';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { useRainLook } from './rainLook';
 
 // The coin shower's countdown (2026-10-21, user: the player should feel the hurry): big seconds in a
 // ring that drains, red and blinking in the last 10 seconds with "Hurry!", a tick and a buzz each of
-// the last 5.
+// the last 5. Under it, what to tap (\"Tap the bottles!\"), so nobody looks for coins among bottles.
 
 /** From here on the timer turns red and blinks. */
 const HURRY_SECONDS = 10;
@@ -16,6 +17,7 @@ const TICK_SECONDS = 5;
 export function RainTimer() {
   const { state } = useGameV2();
   const { t } = useT();
+  const rain = useRainLook();
   const until = state.ads.coinRainUntil;
   const [now, setNow] = useState(() => Date.now());
   const lastTick = useRef<number | null>(null);
@@ -81,7 +83,7 @@ export function RainTimer() {
           hurry ? 'from-rose-400 to-rose-600' : 'from-amber-300 to-orange-500'
         }`}
       >
-        {hurry ? t('ads.coinRainHurry') : t('ads.coinRain')}
+        {hurry ? t('ads.coinRainHurry') : rain.tap}
       </span>
     </div>
   );
