@@ -221,6 +221,16 @@ export function hireManager(state: GameStateV2, businessId: string): GameStateV2
   return withBusiness(paid, businessId, { ...business, managed: true });
 }
 
+/**
+ * Whether the businesses screen has something the money buys right now: a line to open, a level, a
+ * manager or a branch (the bottom menu's "!", 2026-10-23, user).
+ */
+export function canBuyAnythingInBusinesses(state: GameStateV2) {
+  return BUSINESSES.some(
+    (def) => levelUpBusiness(state, def.id) !== null || hireManager(state, def.id) !== null || openBranch(state, def.id) !== null,
+  );
+}
+
 /** Takes a job whose conditions are met (no fee). Months worked in the old one stay (its mastery). */
 export function takeCareer(state: GameStateV2, careerId: string): GameStateV2 | null {
   const career = careerDef(careerId);

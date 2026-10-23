@@ -33,6 +33,7 @@ import { usePrices } from './usePrices';
 import { useRestore } from './useRestore';
 import { BoostCard } from '../ads/Boost';
 import { UiIcon } from '../UiIcon';
+import { AlertBadge } from '../kit';
 
 // The Store (docs/monetization-v2.md §6, decided 2026-10-14; look: docs/iap-store-design-handoff.md):
 // a sheet opened from the round button on the scene, from the first class-up. Products come from
@@ -76,7 +77,7 @@ export function StoreButton({ onOpen }: { onOpen: () => void }) {
       className="pointer-events-auto relative w-14 h-14 rounded-full border-2 border-white bg-gradient-to-b from-[#9173db] to-[#6244b3] shadow-xl v2-glossy flex items-center justify-center transition-all active:scale-90"
     >
       <img src={STORE_ART.button} alt="" draggable={false} className="w-11 h-11 object-contain drop-shadow" />
-      {dot && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white bg-rose-500 shadow" />}
+      {dot && <AlertBadge small className="-top-1 -right-1" />}
     </button>
   );
 }
@@ -236,7 +237,7 @@ function FreeOffers({ onClose }: { onClose: () => void }) {
             collected any time, with a red mark while it waits. */}
         {showDaily && (
           <div className="v2-iap-free relative">
-            {daily && <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full border-2 border-white bg-rose-500 text-white text-[11px] font-black leading-4 shadow">!</span>}
+            {daily && <AlertBadge small className="-top-1.5 -right-1.5" />}
             <b className="v2-display text-[13px] leading-tight text-[#2b1b6b] break-words">{t('daily.title')}</b>
             <img src={MONEY[3]} alt="" draggable={false} className="w-14 h-14 object-contain" />
             <small className="text-[10px] font-bold leading-tight v2-iap-muted tabular-nums">{daily ? `+${money(daily.amount)}` : t('iap.free.collected')}</small>
@@ -484,7 +485,11 @@ export function StoreStrip({ onOpen }: { onOpen: () => void }) {
     >
       <img src={STORE_ART.button} alt="" draggable={false} className="w-9 h-9 shrink-0 object-contain drop-shadow" />
       <span className="flex-1 min-w-0 text-left v2-display text-[15px] leading-tight text-white">{t('iap.strip')}</span>
-      {storeAlert(state, now) && <span className="w-3 h-3 shrink-0 rounded-full border-2 border-white bg-rose-500" />}
+      {storeAlert(state, now) && (
+        <span className="relative shrink-0 w-[18px] h-[18px]">
+          <AlertBadge small className="inset-0" />
+        </span>
+      )}
       <span className="shrink-0 rounded-full bg-white/25 px-3 py-1 v2-display text-[13px] text-white">{t('iap.open')}</span>
     </button>
   );

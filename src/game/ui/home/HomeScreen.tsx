@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AD_OFFLINE_MIN_SECONDS, AD_OFFLINE_MULTIPLIER } from '../../core/config/ads';
 import { awaitsHandover, canTakeBetterCareer, offlineCapHours } from '../../core/formulas';
-import { bestOwnedLifestyle, canBuyAnythingInShop, canHandOverEarly, parkedVehicle } from '../../core/state';
+import { bestOwnedLifestyle, canBuyAnythingInBusinesses, canBuyAnythingInShop, canHandOverEarly, parkedVehicle } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { initAds } from '../../runtime/ads';
 import { trackScreen } from '../../runtime/analytics';
@@ -231,6 +231,7 @@ export function HomeScreen() {
             open={tab}
             onSelect={selectTab}
             attention={{
+              businesses: canBuyAnythingInBusinesses(game),
               career: canTakeBetterCareer(game),
               shop: canBuyAnythingInShop(game),
               // A deal is due, or the account just opened and was never used.
