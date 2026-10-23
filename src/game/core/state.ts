@@ -5,7 +5,7 @@ import { courseDef } from './config/courses';
 import { SECONDS_PER_MONTH } from './config/life';
 import { STARTING_CASH } from './config/economy';
 import { FIRST_OWNED_HOME_CLASS, HOUSES, RENT_ONLY_COUNT, STARTING_HOME_ID } from './config/housing';
-import { LIFE_SECONDS } from './config/life';
+import { AWAY_AGE_CAP_HOURS, AWAY_AGE_RATE, LIFE_SECONDS } from './config/life';
 import { CLASS_OUTFIT_FLOOR, LIFESTYLE_ITEMS, OUTFITS, STARTING_LIFESTYLE_IDS, VEHICLES } from './config/lifestyle';
 import { ACTIVE_QUESTS, GENERATED_BRANCH_GOALS, GENERATED_LEVEL_GOALS, QUESTS } from './config/quests';
 import { COLLECT_END_CLASS } from './config/scene';
@@ -97,6 +97,11 @@ export function live(state: GameStateV2, seconds: number): GameStateV2 {
     jobSeconds: state.careerId === null ? state.jobSeconds : { ...state.jobSeconds, [state.careerId]: (state.jobSeconds[state.careerId] ?? 0) + lived },
     course: state.course ? { ...state.course, seconds: state.course.seconds + lived } : null,
   });
+}
+
+/** Time away ages the hero a little (config/life.ts AWAY_AGE_RATE); experience and a course run with it. */
+export function liveAway(state: GameStateV2, awaySeconds: number): GameStateV2 {
+  return live(state, Math.min(Math.max(0, awaySeconds), AWAY_AGE_CAP_HOURS * 3600) * AWAY_AGE_RATE);
 }
 
 /** A course whose months are done is finished. */

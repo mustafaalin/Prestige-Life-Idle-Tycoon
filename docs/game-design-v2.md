@@ -11,7 +11,7 @@ Bu belge v2'nin tek doğruluk kaynağıdır. Gerekçesi [report-v2.md](./report-
 - Gerçekçi bir hayat ekonomisi: ekranda yazan aylık tutarlar gerçek hayattakine yakın, fiyatlar katlanmaz; küçük iş hızlı, büyük iş yavaş kendini öder (§4.2).
 - İşletmeler seviye seviye büyür (tezgâh → dükkân → mağaza → şubeler), meslekler şartlarla açılır (deneyim, kurs, eşya, adres).
 - 7 basamaklı, törenli sınıf merdiveni; her basamakta sahne, ev, araç, kıyafet değişir.
-- Bir ömür: kahraman 17 yaşında başlar, yaş yalnız oyun açıkken ilerler (16 dk = 1 yıl). **Lansmanda 80'de devir yok**: kahraman 80'de kalır, "Torununun hikâyesi yakında" der, oyun sürer; devir (torun ailenin her şeyiyle devam eder) 2. nesil güncellemesiyle gelir (§4.10).
+- Bir ömür: kahraman 17 yaşında başlar, yaş oyun açıkken ilerler (16 dk = 1 yıl), oyun kapalıyken de biraz (§4.9). **Lansmanda 80'de devir yok**: kahraman 80'de kalır, "Torununun hikâyesi yakında" der, oyun sürer; devir (torun ailenin her şeyiyle devam eder) 2. nesil güncellemesiyle gelir (§4.10).
 - Tanıdıklardan gelen olay kartları: bir fırsat, iki cevap.
 
 Hikâye, karakterler ve ton: [story-v2.md](./story-v2.md).
@@ -57,7 +57,7 @@ Hikâye, karakterler ve ton: [story-v2.md](./story-v2.md).
 
 Bir oyun ayı 80 sn, bir yıl 16 dk. **Aylık tutarlar gerçek hayata yakın**: el ilanı dağıtan ayda $300, CEO $60K; çiçek tezgâhı ayda $400, çiçekçi mağazası $6.400; fabrika ayda milyonlar. Yavaşlık fiyatların katlanmasından değil, büyük işlerin geri dönüşünün uzamasından gelir: tezgâh kendini 1,25 ayda, Teknoloji Girişimi 360 ayda (30 yıl) öder. Eşyalar gerçek fiyatlı (bisiklet $150, ilk kendi ev $300K, jet $60M) ve gelire bonus vermez; değerleri açtıkları meslekler ve gösterdikleri hayattır.
 
-Bunun için çevrimdışı kazanç küçük tutulur (%20, en çok 1 sa; §4.8): yaş yalnız oyun açıkken akar, %50 ve 2 saatte paranın %76'sı oyun kapalıyken geliyor ve takvim fiilen 4 kat hızlı işliyordu.
+Bunun için çevrimdışı kazanç küçük tutulur (%20, en çok 1 sa; §4.8): yaş esas olarak oyun açıkken akar, %50 ve 2 saatte paranın %76'sı oyun kapalıyken geliyor ve takvim fiilen 4 kat hızlı işliyordu.
 
 ### 4.3 İşletmeler (`config/businesses.ts`, `core/economy/business.ts`)
 
@@ -171,10 +171,11 @@ Tek ev; ana ekranın arka planı o evdir, önünde o evin izin verdiği en iyi a
 | Kural | Değer |
 | --- | --- |
 | Başlangıç | 17 yaş |
-| Takvim | 80 sn = 1 ay, 16 dk = 1 yıl; yalnız oyun açıkken (10 sn'den uzun boşluk çevrimdışı). Tam ekran hikâye anlarında durur |
+| Takvim | 80 sn = 1 ay, 16 dk = 1 yıl oyun açıkken (10 sn'den uzun boşluk çevrimdışı). Tam ekran hikâye anlarında durur |
+| Oyun kapalıyken | Geçen sürenin %0,2'si yaşa eklenir, her ayrılışta en çok 24 saati sayılır (`AWAY_AGE_RATE`, `AWAY_AGE_CAP_HOURS`; 2026-10-23, kullanıcı). 2–3 günde bir 2–3 dk oynayan oyuncu parasının ~%90'ını oyun dışında (çevrimdışı, günlük ödül, yatırım) kazanıp 20 yaşında Milyoner, 32'de Milyarder oluyordu; şimdi her dönüş ~3 dk (~2 ay) yaşlandırır: 23 ve 48 yaş (`npm run sim -- --rare`). Bağlı oyuncuya günde ~3 dk ekler |
 | 60+ | Kahraman dede görünümünde |
 | 80 | Lansmanda: yaş 80'de durur, bir kez "Torununun hikâyesi yakında" kartı (dede portresi), oyun ve gelir sürer; deneyim ve süren kurs da sürer (2026-10-23; yoksa kariyer şartlı ev, araç ve meslekler kalıcı kilitli kalıyordu) |
-| Bir ömür | 63 yıl ≈ 16 sa 48 dk oyun (bağlı oyuncu 24. gün) |
+| Bir ömür | 63 yıl ≈ 16 sa 48 dk oyun; kapalı zamanla bağlı oyuncu 15 sa 45 dk oyunda, 23. günde 80 |
 
 - **Hayat anları** (yaşa bağlı, story §4c): ilk buluşma 25, düğün 28, kızın doğumu 31, torunun doğumu 63, dede ve torun 70; lüks anları ilk alımda. Her an bir hediyeyle kapanır (10 dk gelir, reklamla ×2).
 - Deneyim ve kurslar da yaşla ilerler.
@@ -206,7 +207,7 @@ Orta Sınıf'ta açılır. Üç fırsat, hiçbiri kaybettirmez (2026-10-22, kull
 
 ## 5. Tempo hedefleri ve simülasyon (`npm run sim`)
 
-Bot her an en kısa sürede kendini ödeyen alımı yapar (optimal); daha çok kazandıran ve eksiği yalnız eşya olan işi eşyasıyla alır, kurs yokken daha iyi bir iş açan en ucuz kursu başlatır. Profiller: bağlı (1. gün 30 + 10 + 7 dk, sonra 6 × 7 dk; hedefler buna göre), gündelik (3 × 5 dk), reklam izleyen, fularlı, reklam + fular + yakut. Hedefler yaşa bağlı (`sim/report.ts`):
+Bot her an en kısa sürede kendini ödeyen alımı yapar (optimal); daha çok kazandıran ve eksiği yalnız eşya olan işi eşyasıyla alır, kurs yokken daha iyi bir iş açan en ucuz kursu başlatır. Profiller: bağlı (1. gün 30 + 10 + 7 dk, sonra 6 × 7 dk; hedefler buna göre), gündelik (3 × 5 dk), reklam izleyen, fularlı, reklam + fular + yakut. Hedefler yaşa bağlı (`sim/report.ts`; yaş, simülasyondaki kahramanın gerçek yaşı: oyun + kapalı zamanın payı):
 
 | Kilometre taşı | Hedef | Bağlı bot | Gündelik bot |
 | --- | --- | --- | --- |
@@ -215,21 +216,22 @@ Bot her an en kısa sürede kendini ödeyen alımı yapar (optimal); daha çok k
 | İlk yönetici | 8–25 dk | 12 dk 49 sn | 14 dk 49 sn |
 | Gündelikçi | 4–15 dk | 4 dk 37 sn | 5 dk 54 sn |
 | İşçi Sınıfı | 20 dk – 1 sa | 33 dk 54 sn | 30 dk |
-| Orta Sınıf | 21–26 yaş | 21 yaş (1 sa 11 dk, 2. gün) | 20 yaş (4. gün) |
-| Milyoner | 26–35 yaş | 26 yaş (2 sa 28 dk, 4. gün) | 23 yaş (7. gün) |
-| Milyarder | 50–72 yaş | 67 yaş (13 sa 23 dk, 20. gün) | 51 yaş (37. gün) |
+| Orta Sınıf | 21–26 yaş | 21 yaş (1 sa 15 dk, 2. gün) | 21 yaş (4. gün) |
+| Milyoner | 26–35 yaş | 26 yaş (2 sa 25 dk, 4. gün) | 24 yaş (7. gün) |
+| Milyarder | 50–72 yaş | 70 yaş (13 sa 17 dk, 20. gün) | 56 yaş (36. gün) |
 | Multimilyarder | 70'ten önce değil | 1. nesilde yok | yok |
 | En Zengin | 1. nesilde yok | yok | yok |
-| 80 yaş | 19–31. gün | 24. gün | 45 günde yok |
+| 80 yaş | 19–31. gün | 23. gün | 45 günde yok |
 
 - **His kontrolleri:** ilk tur ≥ 5 şişe ($25 / $10), işletmelerin gelirdeki payı Gündelikçi anında, ilk oturum sonunda ve 1. nesil ortancasında ≥ %50 (%56 / %65 / %98).
 - **Paranın kaynakları (bağlı, 45 gün):** çevrimdışı %41, oynarken işletme ve maaş %30, yatırım %17, günlük ödül %6, olay kartı %4, Şans %2, tören ve hayat anı hediyeleri %0,2, hedefler %0,1, şişe ~%0.
 - **Reklam izleyen** (19 reklam yeri, [monetization-v2.md §4](./monetization-v2.md)): Orta Sınıf 35 dk, Milyoner 1 sa 1 dk, Milyarder 7 sa 26 dk (%47 erken; karar 2026-10-21: %40–50).
-- Komutlar: `npm run sim -- --config`, `--timeline`, `--purchases`, `--sessions`, `--daily-claims`.
+- **Seyrek oyuncu** (2–3 günde bir 2–3 dk, `--rare`, 400 gün; hedef profili değil): Orta Sınıf 20, Milyoner 23 (46. gün), Milyarder 48 yaş (236. gün); paranın %34'ü yatırım, %28'i çevrimdışı, %25'i günlük ödül, %9'u oyun.
+- Komutlar: `npm run sim -- --config`, `--timeline`, `--purchases`, `--sessions`, `--daily-claims`, `--quests`, `--rare`.
 
 ## 6. Simülasyondan öğrenilenler
 
-1. **Çevrimdışı kazanç takvimi bozar.** Yaş yalnız oynarken akınca, oyun kapalıyken kazanılan para yaşa göre ölçülen her hedefi öne çeker; %50 / 2 saatte paranın %76'sı oradan geliyordu. %20 / 1 saatle %44 (§4.2).
+1. **Çevrimdışı kazanç takvimi bozar.** Yaş yalnız oynarken akınca, oyun kapalıyken kazanılan para yaşa göre ölçülen her hedefi öne çeker; %50 / 2 saatte paranın %76'sı oradan geliyordu. %20 / 1 saatle %44 (§4.2). Seyrek oyuncuda bu hâlâ yaşı geride bırakıyordu; kapalı zaman artık yaşı da biraz ilerletir (§4.9).
 2. **En ucuz işletmenin şubesi her şeyi yutar.** Şube son seviye fiyatına ve ×1,15'le satılınca Çiçek Tezgâhı şubeleri Milyoner'e kadar gelirin %80'iydi; şube sıfırdan bir mağaza kadar pahalı ve ×1,4 (§4.3).
 3. **Toplu ödüller takvimle büyür.** Çevrimdışı küçülünce günlük ödül ve yatırım oransal olarak büyüdü (günün ödülü Milyoner'i bir sınıf öne çekti); ikisi de küçültüldü (§4.13, §4.14).
 4. **Erken meslekler ucuz kısayol olmasın.** Yalnız eşya isteyen bir iş (fotoğraf makinesiyle sokak fotoğrafçılığı) 3. dakikada geliri üçe katlıyordu; başlangıç işlerinin hepsi 6 ay el ilanı deneyimi ister.

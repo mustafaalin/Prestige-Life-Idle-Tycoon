@@ -1,5 +1,6 @@
 import { SECONDS_PER_MONTH } from '../src/game/core/config/life';
-// Usage: npm run sim [-- --days 45 --timeline --purchases --sessions --offline-cap 8 --daily-claims --quests]
+// Usage: npm run sim [-- --days 45 --timeline --purchases --sessions --offline-cap 8 --daily-claims --quests --rare]
+//   --rare                 only the player who opens the game every 2–3 days for 2–3 minutes, over 400 days
 //   --purchases            add every purchase to the timeline
 //   --offline-cap <hours>  try another offline cap (default: OFFLINE_CAP_HOURS)
 //   --daily-claims         list the first daily rewards (day, amount, class)
@@ -11,11 +12,12 @@ import { formatDuration, formatMoney } from '../src/game/core/format';
 import { WEALTH_CLASSES } from '../src/game/core/config/classes';
 import { RETIREMENT_AGE, SECONDS_PER_YEAR, START_AGE } from '../src/game/core/config/life';
 import { checkFeel, checkTargets, timeline } from '../src/game/sim/report';
-import { PROFILES, simulate } from '../src/game/sim/simulator';
+import { PROFILES, RARE_PLAYER, simulate } from '../src/game/sim/simulator';
 
 const args = process.argv.slice(2);
 const daysArg = args.indexOf('--days');
-const days = daysArg >= 0 ? Number(args[daysArg + 1]) : 45;
+const rareOnly = args.includes('--rare');
+const days = daysArg >= 0 ? Number(args[daysArg + 1]) : rareOnly ? 400 : 45;
 const showTimeline = args.includes('--timeline');
 const showSessions = args.includes('--sessions');
 const showPurchases = args.includes('--purchases');
@@ -47,7 +49,7 @@ if (args.includes('--config')) {
 
 let failures = 0;
 
-for (const profile of PROFILES) {
+for (const profile of rareOnly ? [RARE_PLAYER] : PROFILES) {
   const started = Date.now();
   const result = simulate(profile, days, { offlineCapHours, retireAtTop });
   const variant = offlineCapHours !== undefined ? `, offline cap ${offlineCapHours}h` : '';
@@ -88,13 +90,13 @@ for (const profile of PROFILES) {
   const ages = WEALTH_CLASSES.slice(1).map((wealthClass) => {
     const event = result.events.find((x) => x.kind === 'class' && x.label === wealthClass.name && x.generation === 1);
     // Age stops at the end of life while play goes on (config/content.ts): a class reached later reads 80.
-    return `${wealthClass.name} ${event ? Math.min(RETIREMENT_AGE, Math.floor(START_AGE + event.activeGeneration / SECONDS_PER_YEAR)) : '–'}`;
+    return `${wealthClass.name} ${event ? Math.min(RETIREMENT_AGE, Math.floor(START_AGE + event.lifeSeconds / SECONDS_PER_YEAR)) : '–'}`;
   });
   console.log(`ages (gen 1): ${ages.join(' · ')}`);
   // The job tree (docs/game-design-v2.md §4.4): each move with the hero's age and salary's share of income.
   const jobs = result.events
     .filter((x) => x.kind === 'career' && x.generation === 1)
-    .map((x) => `${x.label.replace(/^Job: /, '').replace(/ \(\+.*\)$/, '')} ${Math.floor(START_AGE + x.activeGeneration / SECONDS_PER_YEAR)} (${Math.round((1 - x.businessShare) * 100)}%)`);
+    .map((x) => `${x.label.replace(/^Job: /, '').replace(/ \(\+.*\)$/, '')} ${Math.floor(START_AGE + x.lifeSeconds / SECONDS_PER_YEAR)} (${Math.round((1 - x.businessShare) * 100)}%)`);
   console.log(`jobs (gen 1, age, salary share of income): ${jobs.join(' · ')}`);
 
   {

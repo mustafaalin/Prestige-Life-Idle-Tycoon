@@ -8,12 +8,13 @@ import type { SimEvent, SimResult } from './simulator';
 // The bot buys optimally; real players are typically 1.3–1.8× slower, so late-game windows
 // for the bot sit earlier than the design targets for real players.
 
-type Clockish = Pick<SimEvent, 'clock' | 'activeTotal'>;
+type Clockish = Pick<SimEvent, 'clock' | 'activeTotal' | 'lifeSeconds'>;
 
 export interface PacingTarget {
   label: string;
   find: (events: SimEvent[]) => SimEvent | undefined;
-  measure: 'active' | 'clock';
+  /** Played time, calendar time, or the hero's age (life clock). */
+  measure: 'active' | 'clock' | 'age';
   min: number;
   max: number;
   /** Not reaching it at all also passes (a class the first life need not reach). */
@@ -38,10 +39,10 @@ export const PACING_TARGETS: PacingTarget[] = [
   { label: 'First manager', find: (e) => e.find((x) => x.kind === 'manager'), measure: 'active', min: 8 * 60, max: 25 * 60 },
   { label: 'Day Laborer (gen 1)', find: firstClass('Day Laborer', 1), measure: 'active', min: 4 * 60, max: 15 * 60 },
   { label: 'Working Class (gen 1)', find: firstClass('Working Class', 1), measure: 'active', min: 20 * 60, max: HOUR },
-  { label: 'Middle Class (gen 1, age 21–26)', find: firstClass('Middle Class', 1), measure: 'active', min: lifeAge(21), max: lifeAge(26) },
-  { label: 'Millionaire (gen 1, age 26–35)', find: firstClass('Millionaire', 1), measure: 'active', min: lifeAge(26), max: lifeAge(35) },
-  { label: 'Billionaire (gen 1, age 50–72)', find: firstClass('Billionaire', 1), measure: 'active', min: lifeAge(50), max: lifeAge(72) },
-  { label: 'Multibillionaire (gen 1, not before 70)', find: firstClass('Multibillionaire', 1), measure: 'active', min: lifeAge(70), max: Infinity, optional: true },
+  { label: 'Middle Class (gen 1, age 21–26)', find: firstClass('Middle Class', 1), measure: 'age', min: lifeAge(21), max: lifeAge(26) },
+  { label: 'Millionaire (gen 1, age 26–35)', find: firstClass('Millionaire', 1), measure: 'age', min: lifeAge(26), max: lifeAge(35) },
+  { label: 'Billionaire (gen 1, age 50–72)', find: firstClass('Billionaire', 1), measure: 'age', min: lifeAge(50), max: lifeAge(72) },
+  { label: 'Multibillionaire (gen 1, not before 70)', find: firstClass('Multibillionaire', 1), measure: 'age', min: lifeAge(70), max: Infinity, optional: true },
   { label: 'Richest (not in gen 1)', find: firstClass('Richest Person Alive', 1), measure: 'active', min: Infinity, max: Infinity, optional: true },
   { label: `First life ends (age ${RETIREMENT_AGE})`, find: (e) => e.find((x) => x.kind === 'retire'), measure: 'clock', min: 18 * DAY, max: 30 * DAY },
 ];
@@ -54,16 +55,21 @@ export function formatClock(seconds: number) {
   return `D${day} ${hours}:${minutes}`;
 }
 
+const ageOf = (lifeSeconds: number) => Math.min(RETIREMENT_AGE, Math.floor(START_AGE + lifeSeconds / SECONDS_PER_YEAR));
+
 function describe(event: Clockish) {
-  return `${formatClock(event.clock)}  (played ${formatDuration(event.activeTotal)})`;
+  return `${formatClock(event.clock)}  (played ${formatDuration(event.activeTotal)}, age ${ageOf(event.lifeSeconds)})`;
 }
 
 export function checkTargets(result: SimResult) {
   return PACING_TARGETS.map((target) => {
     const event = target.find(result.events);
-    const value = event ? (target.measure === 'active' ? event.activeTotal : event.clock) : Number.POSITIVE_INFINITY;
+    const value = event
+      ? target.measure === 'active' ? event.activeTotal : target.measure === 'age' ? event.lifeSeconds : event.clock
+      : Number.POSITIVE_INFINITY;
     const pass = (event === undefined && target.optional === true) || (value >= target.min && value <= target.max);
-    const bound = (seconds: number) => (target.measure === 'active' ? formatDuration(seconds) : formatClock(seconds));
+    const bound = (seconds: number) =>
+      target.measure === 'active' ? formatDuration(seconds) : target.measure === 'age' ? `age ${ageOf(seconds)}` : formatClock(seconds);
     const range = !Number.isFinite(target.min)
       ? 'never'
       : !Number.isFinite(target.max)

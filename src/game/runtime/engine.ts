@@ -27,6 +27,7 @@ import {
   rentHome as coreRentHome,
   retire as coreRetire,
   live,
+  liveAway,
 } from '../core/state';
 import type { BusinessDef, GameStateV2 } from '../core/types';
 import { CAMPAIGN_FACTOR, COIN_RAIN_VALUE_FACTOR } from '../core/config/ads';
@@ -163,7 +164,7 @@ export function tick(state: RuntimeState, now: number, speed = 1): { state: Runt
   // A watched ad's income boost multiplies everything the game earns by itself.
   const boost = boostFactor(state.ads, now);
   return {
-    // Only open-app time ages the hero; resume() (time away) never does.
+    // Open-app time ages the hero in full; resume() (time away) only a little (liveAway).
     state: { ...state, game: live(earn(state.game, (earned + steady) * boost), seconds), cycles, lastActiveAt: now },
     payouts: boost === 1 ? payouts : payouts.map((payout) => ({ ...payout, amount: payout.amount * boost })),
   };
@@ -181,7 +182,7 @@ export function resume(state: RuntimeState, now: number): { state: RuntimeState;
   // The income boost runs in real time: the part of the absence it covers earns double.
   const boosted = 1 + (boostFactor(state.ads, state.lastActiveAt) - 1) * boostShare(state.ads, state.lastActiveAt, now);
   const offlineAmount = offlineEarnings(state.game, away) * boosted;
-  const base = { ...state, game: earn(state.game, earned), cycles, lastActiveAt: now };
+  const base = { ...state, game: liveAway(earn(state.game, earned), away), cycles, lastActiveAt: now };
 
   if (away < OFFLINE_MIN_SECONDS || offlineAmount <= 0) {
     return { state: { ...base, game: earn(base.game, offlineAmount) }, payouts };

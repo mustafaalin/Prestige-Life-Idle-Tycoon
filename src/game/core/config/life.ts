@@ -1,5 +1,5 @@
-// The hero's life clock (docs/game-design-v2.md §4.9). Age moves only while the game is open;
-// time away earns money but never ages the hero. At the end of life the hero retires and the heir takes over.
+// The hero's life clock (docs/game-design-v2.md §4.9). Age moves while the game is open, and a little
+// while it is closed (AWAY_AGE_RATE). At the end of life the hero retires and the heir takes over.
 
 /** Age the hero (and every heir) starts at. */
 export const START_AGE = 17;
@@ -25,3 +25,12 @@ export const GRANDPA_AGE = 60;
  * the wait for the hand-over stays short. The hero is ~51 at the last ceremony.
  */
 export const TOP_CLASS_AGE_SPEED = 4;
+/**
+ * Time away ages the hero a little (2026-10-23, user): this share of the time away, counting at most
+ * AWAY_AGE_CAP_HOURS of each absence. Someone who plays 2–3 minutes every few days earns most of their
+ * money away (offline, the daily reward, Old Ray's deals) and was a Millionaire at 20, a Billionaire at
+ * 32; each return now adds ~3 minutes of life (about 2 months): 23 and 48 (npm run sim -- --rare). The
+ * engaged player's breaks add some 3 minutes a day (Billionaire at 70, target ≤ 72).
+ */
+export const AWAY_AGE_RATE = 0.002;
+export const AWAY_AGE_CAP_HOURS = 24;

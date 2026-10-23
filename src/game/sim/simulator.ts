@@ -85,6 +85,7 @@ import {
   isQuestComplete,
   lifestyleLocked,
   live,
+  liveAway,
   moveUpNeedsVehicle,
   nextHome,
   nextLifestyle,
@@ -195,6 +196,8 @@ export interface SimEvent {
   activeTotal: number;
   /** Seconds of actual play in the current generation. */
   activeGeneration: number;
+  /** The hero's life clock right after the event (play and a little of the time away, core/state.ts liveAway). */
+  lifeSeconds: number;
   /** Active income per second right after the event. */
   income: number;
   /** Share of that income coming from businesses (the rest is salary and rent). */
@@ -370,6 +373,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       label,
       generation: state.generation,
       ...time,
+      lifeSeconds: state.lifeSeconds,
       income: incomePerSecond(state, 'active'),
       businessShare: businessShare(state),
       idleIncome: incomePerSecond(state, 'idle'),
@@ -434,6 +438,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       if (away >= AD_OFFLINE_MIN_SECONDS && doubles()) amount *= AD_OFFLINE_MULTIPLIER;
       time.clock = start;
       earnTracked(amount, 'offline');
+      state = liveAway(state, away);
       sources.offline += amount;
       if (amount > 0) watched.returned = true;
     }
@@ -873,6 +878,21 @@ export const CASUAL_PLAYER: PlayerProfile = {
   tapsPerSecond: earlyTapping,
   fetchCatchRate: 0.5,
   eventAnswerRate: 0.7,
+};
+
+/**
+ * Opens the game every 2–3 days for 2–3 minutes (the install day 5): most of the money comes while
+ * away. Not one of the target profiles; `npm run sim -- --rare` runs it over 400 days (2026-10-23).
+ */
+export const RARE_PLAYER: PlayerProfile = {
+  ...CASUAL_PLAYER,
+  name: 'rare',
+  sessionsForDay: (day) => {
+    if (day === 1) return [{ startHour: 19, minutes: 5 }];
+    // Days 3, 6, 8, 11, 13, ...: two days, then three.
+    const cycle = (day - 1) % 5;
+    return cycle === 0 || cycle === 2 ? [{ startHour: 20, minutes: 2.5 }] : [];
+  },
 };
 
 /**
