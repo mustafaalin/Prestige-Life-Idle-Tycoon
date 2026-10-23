@@ -1,4 +1,4 @@
-import { ArrowBigUpDash, Lock, Store, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CAMPAIGN_FACTOR, CAMPAIGN_SECONDS, TEMP_MANAGER_SECONDS } from '../../core/config/ads';
@@ -33,6 +33,7 @@ import { portalRoot } from '../stage';
 import { managerKey, managerPortrait, type ManagerLine } from './managers';
 import { StageBar } from './StageBar';
 import { Cash } from '../CashAmount';
+import { UiIcon } from '../UiIcon';
 
 // A business line's details (2026-10-21, opened by a tap on its row, BusinessCard.tsx): what a run pays
 // and what the next level adds, the manager, the branches and every ad offer of the line.
@@ -173,7 +174,7 @@ export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: B
               className="py-2.5 px-3 flex items-center justify-between gap-2"
             >
               <span className="flex items-center gap-1.5 v2-display text-[14px] v2-shadow">
-                {opened && <ArrowBigUpDash className="w-5 h-5" />}
+                {opened && <UiIcon name="upgrade" className="w-5 h-5" />}
                 {opened ? t('business.levelUp') : t('business.open')}
               </span>
               <Cash size={17} className="v2-display text-[14px] v2-shadow tabular-nums">{money(next.cost)}</Cash>
@@ -238,7 +239,7 @@ export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: B
                 className="py-2.5 px-3 flex items-center justify-between gap-2"
               >
                 <span className="flex items-center gap-1.5 v2-display text-[14px] v2-shadow">
-                  <Store className="w-4 h-4" />
+                  <UiIcon name="branch" className="w-5 h-5" />
                   {t('business.openBranch')}
                 </span>
                 <Cash size={17} className="v2-display text-[14px] v2-shadow tabular-nums">{money(branchPrice)}</Cash>
@@ -247,7 +248,7 @@ export function BusinessDetails({ def, onClose, onLevelUp, onBranch, onHire }: B
             {!atCap && <HelpAd cost={branchPrice} className="self-end" />}
             {atCap && nextClass && nextCap !== null && (
               <p className="flex items-center gap-1 text-[11px] font-bold text-indigo-900/50">
-                <Lock className="w-3 h-3 shrink-0" />
+                <UiIcon name="lock" />
                 {Number.isFinite(nextCap)
                   ? t('business.branchCapReached', { class: name('wealthClass', nextClass), cap: nextCap })
                   : t('business.branchCapUnlimited', { class: name('wealthClass', nextClass) })}

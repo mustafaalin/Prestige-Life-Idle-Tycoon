@@ -1,8 +1,8 @@
-import { Check, Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useT } from '../../i18n/useT';
 import { haptic } from '../../runtime/feedback';
 import { playerId } from '../../runtime/iap';
+import { UiIcon } from '../UiIcon';
 
 // Settings → Player ID (docs/monetization-v2.md §8, "Destek"): the RevenueCat id, so a player who
 // writes "I paid but got nothing" can send it and their purchases are found in RevenueCat → Customers.
@@ -58,7 +58,7 @@ export function PlayerId() {
         }
         className="shrink-0 flex items-center gap-1 rounded-xl bg-indigo-100 px-2.5 py-2 text-[12px] font-black text-indigo-700 transition-all active:scale-95"
       >
-        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+        <UiIcon name={copied ? 'check' : 'copy'} className="w-5 h-5" />
         {t(copied ? 'iap.copied' : 'iap.copy')}
       </button>
     </div>

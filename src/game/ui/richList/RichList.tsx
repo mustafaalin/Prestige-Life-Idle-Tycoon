@@ -1,4 +1,4 @@
-import { Lock, Newspaper, Trophy, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { RICH_LIST_ENTRY, RICH_RIVALS, type RichMilestoneDef } from '../../core/config/richList';
 import { richListRank, richListTarget, rivalFortune } from '../../core/formulas';
@@ -12,6 +12,7 @@ import { GameButton } from '../kit';
 import { portraitOf } from '../story/ceremonyScript';
 import { portalRoot } from '../stage';
 import { Cash } from '../CashAmount';
+import { UiIcon } from '../UiIcon';
 
 // The Rich List (discussion-notes §10): a button on the home scene with the hero's place, a sheet with
 // the named top 20, and the short card a new place brings. Fictional; the rank follows this life's
@@ -43,9 +44,9 @@ export function RichListButton({ onOpen }: { onOpen: () => void }) {
       aria-label={t('richList.open')}
       className="pointer-events-auto relative w-14 h-14 rounded-full border-2 border-white bg-gradient-to-b from-amber-200 to-orange-400 shadow-xl v2-glossy flex items-center justify-center transition-all active:scale-90"
     >
-      <Trophy className="w-7 h-7 text-white drop-shadow" />
+      <UiIcon name="trophy" className="w-7 h-7 drop-shadow" />
       <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white bg-indigo-600 px-1.5 py-px v2-display text-[11px] leading-tight text-white tabular-nums shadow">
-        {rank === null ? <Lock className="w-3 h-3 my-0.5" /> : rankText(rank)}
+        {rank === null ? <UiIcon name="lock" className="w-4 h-4 my-0.5" /> : rankText(rank)}
       </span>
     </button>
   );
@@ -105,7 +106,7 @@ export function RichListSheet({ onClose }: { onClose: () => void }) {
   return (
     <div className="v2-sheet-in absolute inset-x-2 top-2 bottom-1 flex flex-col rounded-[28px] bg-indigo-100 shadow-2xl overflow-hidden pointer-events-auto">
       <div className="shrink-0 flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-violet-500 to-indigo-500">
-        <Trophy className="w-8 h-8 text-amber-300 drop-shadow" />
+        <UiIcon name="trophy" className="w-9 h-9 drop-shadow" />
         <h2 className="flex-1 min-w-0 v2-display v2-outline-thin text-xl text-white truncate">{t('richList.title')}</h2>
         <button
           type="button"
@@ -121,7 +122,7 @@ export function RichListSheet({ onClose }: { onClose: () => void }) {
         <div className="rounded-[22px] bg-white border-2 border-amber-200 px-4 py-3 text-center shadow-[0_4px_14px_rgba(30,41,99,0.12)]">
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{heroName}</p>
           <p className="v2-display text-4xl text-indigo-700 tabular-nums leading-tight">
-            {rank === null ? <Lock className="inline w-8 h-8 text-slate-400" /> : rankText(rank)}
+            {rank === null ? <UiIcon name="lock" className="inline-block w-8 h-8" /> : rankText(rank)}
           </p>
           <p className="text-[12px] font-bold text-slate-500">
             {t('richList.basis')}: <Cash size={15}>{money(earnings)}</Cash>
@@ -186,7 +187,7 @@ export function RichMoment({
             <img src={portrait} alt="" draggable={false} className="w-14 h-14 rounded-full object-cover border-[3px] border-white shadow bg-amber-100" />
           ) : (
             <span className="w-14 h-14 rounded-full border-[3px] border-white bg-white/90 shadow flex items-center justify-center">
-              <Newspaper className="w-7 h-7 text-slate-700" />
+              <UiIcon name="newspaper" className="w-8 h-8" />
             </span>
           )}
           <div className="flex-1 min-w-0">

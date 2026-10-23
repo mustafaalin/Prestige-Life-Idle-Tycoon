@@ -1,4 +1,3 @@
-import { Briefcase } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { EXPERIENCE_RUSH_MONTHS } from '../../core/config/ads';
 import { CAREER_TRACKS, careerDef } from '../../core/config/careers';
@@ -22,6 +21,7 @@ import { JobSheet } from './JobSheet';
 import { JobShow } from './JobShow';
 import { JobTree } from './JobTree';
 import { Cash } from '../CashAmount';
+import { UiIcon } from '../UiIcon';
 
 // The career screen (docs/career-redesign.md §4): the job held with its mastery ring, then two
 // tabs: the job tree (Worker, Office, Expert, The top) and the courses.
@@ -77,7 +77,7 @@ export function CareerScreen({ onGoTo }: { onGoTo: (target: FocusTarget) => void
           </span>
         ) : (
           <ImageTile className="w-16 h-16">
-            <Briefcase className="w-7 h-7 text-indigo-300" />
+            <UiIcon name="job" className="w-8 h-8" />
           </ImageTile>
         )}
         <div className="flex-1 min-w-0">

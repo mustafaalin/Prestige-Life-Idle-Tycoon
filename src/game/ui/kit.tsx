@@ -1,5 +1,5 @@
-import { Lock } from 'lucide-react';
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { UiIcon } from './UiIcon';
 
 // The game look for screens inside sheets (2026-10-08): glossy buttons, white cards with a soft
 // colored edge, rounded display font. One place, so every tab reads the same.
@@ -152,7 +152,7 @@ export function Segmented<T extends string | number>({
             {option.locked ? (
               <span className="flex flex-col items-center leading-none">
                 <span className="flex items-center gap-1">
-                  <Lock className="w-3 h-3" strokeWidth={3} />
+                  <UiIcon name="lock" />
                   {option.label}
                 </span>
                 {option.note && <span className="mt-0.5 text-[9px] font-black uppercase tracking-wider">{option.note}</span>}

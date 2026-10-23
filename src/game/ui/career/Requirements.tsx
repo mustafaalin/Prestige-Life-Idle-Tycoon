@@ -1,10 +1,11 @@
-import { Check, Circle } from 'lucide-react';
+import { Circle } from 'lucide-react';
 import { isMet, masteryOf } from '../../core/requirements';
 import type { GameStateV2, Requirement } from '../../core/types';
 import type { Translator } from '../../i18n/translate';
 import { useT } from '../../i18n/useT';
 import type { FocusTarget } from '../home/focus';
 import { requirementTarget, requirementText } from './requirementText';
+import { UiIcon } from '../UiIcon';
 
 // What a locked job (or course) still needs, one line per condition, each with "Go" to where it is
 // done (docs/game-design-v2.md §4.4). Shared by every screen that shows conditions.
@@ -41,7 +42,7 @@ export function RequirementList({
         return (
           <li key={index} className="flex items-center gap-1.5 text-[11px] font-bold leading-tight">
             {met ? (
-              <Check className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+              <UiIcon name="check" />
             ) : (
               <Circle className="w-3 h-3 shrink-0 text-indigo-300" />
             )}

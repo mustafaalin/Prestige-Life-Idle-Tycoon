@@ -1,4 +1,4 @@
-import { Bell, Music, RotateCcw, ShieldCheck, Volume2, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useState } from 'react';
 import { LOCALES, type Locale } from '../../i18n/locales';
 import { useT } from '../../i18n/useT';
@@ -16,6 +16,7 @@ import { useAdsState } from '../../runtime/useAds';
 import { GameButton, Segmented, SectionLabel } from '../kit';
 import { PlayerId } from '../shop/PlayerId';
 import { useRestore } from '../shop/useRestore';
+import { UiIcon } from '../UiIcon';
 
 // Settings: language, sound effects and music (this device only), reminders (Mom and Lucky, phones only), and the privacy options the consent rules require players to be able to
 // reopen (EEA/UK/Switzerland), "Restore purchases" (Apple requires it; docs/monetization-v2.md §7) and
@@ -86,13 +87,13 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
           />
 
           <GameButton tone="soft" onClick={toggleSound} className="mt-1 py-2.5 px-4 flex items-center gap-3 text-left">
-            <Volume2 className="w-6 h-6 shrink-0" />
+            <UiIcon name="sound" className="w-7 h-7" />
             <span className="flex-1 v2-display text-[15px]">{t('settings.sound')}</span>
             <Switch on={sound} />
           </GameButton>
 
           <GameButton tone="soft" onClick={toggleMusic} className="py-2.5 px-4 flex items-center gap-3 text-left">
-            <Music className="w-6 h-6 shrink-0" />
+            <UiIcon name="music" className="w-7 h-7" />
             <span className="flex-1 v2-display text-[15px]">{t('settings.music')}</span>
             <Switch on={music} />
           </GameButton>
@@ -103,7 +104,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
               onClick={toggleNotify}
               className="mt-1 py-2.5 px-4 flex items-center gap-3 text-left"
             >
-              <Bell className="w-6 h-6 shrink-0" />
+              <UiIcon name="bell" className="w-7 h-7" />
               <span className="flex-1 flex flex-col">
                 <span className="v2-display text-[15px]">{t('settings.notifications')}</span>
                 <span className="text-[11px] font-bold text-indigo-900/60">{t('settings.notificationsBody')}</span>
@@ -118,7 +119,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
               onClick={() => void showPrivacyOptions()}
               className="mt-1 py-2.5 px-4 flex items-center gap-3 text-left"
             >
-              <ShieldCheck className="w-6 h-6 shrink-0" />
+              <UiIcon name="privacy" className="w-7 h-7" />
               <span className="flex flex-col">
                 <span className="v2-display text-[15px]">{t('settings.privacy')}</span>
                 <span className="text-[11px] font-bold text-indigo-900/60">{t('settings.privacyBody')}</span>
@@ -133,7 +134,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
               disabled={restore === 'busy'}
               className="mt-1 py-2.5 px-4 flex items-center gap-3 text-left"
             >
-              <RotateCcw className="w-6 h-6 shrink-0" />
+              <UiIcon name="restore" className="w-7 h-7" />
               <span className="flex flex-col">
                 <span className="v2-display text-[15px]">{t('iap.restore')}</span>
                 <span className="text-[11px] font-bold text-indigo-900/60">

@@ -1,6 +1,5 @@
 import { CashAmount } from '../CashAmount';
 import { MONEY } from '../icons';
-import { Check } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { dailyWeek } from '../../core/config/daily';
@@ -18,6 +17,7 @@ import { useAdText } from '../ads/useAdText';
 import { classLook } from '../scene/stages';
 import { payout } from './coins';
 import { portalRoot } from '../stage';
+import { UiIcon } from '../UiIcon';
 
 // The daily reward (runtime/daily.ts): the week's seven days as a calendar, today's amount in big
 // figures and how it was worked out ("your monthly income × 15"). Days ahead show their multiplier,
@@ -182,9 +182,7 @@ function LuckyDay({ months, wallet, state }: { months: number; wallet: string; s
 function DoneMark() {
   return (
     <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-      <span className="w-8 h-8 rounded-full bg-gradient-to-b from-emerald-400 to-green-600 border-2 border-white shadow-md flex items-center justify-center">
-        <Check className="w-5 h-5 text-white" strokeWidth={3.5} />
-      </span>
+      <UiIcon name="check" className="w-9 h-9 drop-shadow-md" />
     </span>
   );
 }

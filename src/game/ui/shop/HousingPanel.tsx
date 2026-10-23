@@ -1,4 +1,3 @@
-import { Home, KeyRound, Lock } from 'lucide-react';
 import type { FocusTarget } from '../home/focus';
 import { CareerAsk } from './CareerAsk';
 import { HOUSES } from '../../core/config/housing';
@@ -22,6 +21,7 @@ import { Chip, GameButton, Panel, SectionLabel } from '../kit';
 import { OpensJobs } from './OpensJobs';
 import { Thumb } from './Thumb';
 import { Cash } from '../CashAmount';
+import { UiIcon } from '../UiIcon';
 
 // Homes tab: rent → buy → rent out (docs/game-design-v2.md §4.6). You live in one house; the next
 // one up is the dream; houses you own and left pay rent, and there is no moving back into them.
@@ -75,13 +75,13 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
           </div>
           {renting && (
             <Chip tone="gold">
-              <KeyRound className="w-3 h-3" />
+              <UiIcon name="key" />
               {t('home.renting')}
             </Chip>
           )}
           {ownsHome && (
             <Chip tone="buy">
-              <Home className="w-3 h-3" />
+              <UiIcon name="home" />
               {t('home.owned')}
             </Chip>
           )}
@@ -156,7 +156,7 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
                   onClick={onGoVehicles}
                   className="w-full min-h-11 py-2 px-4 flex items-center justify-center gap-1.5"
                 >
-                  <Lock className="w-4 h-4 shrink-0" />
+                  <UiIcon name="lock" />
                   <span className="v2-display text-[13px]">
                     {t('home.needsVehicle', { vehicle: name('lifestyle', neededVehicle) })}
                   </span>
@@ -192,7 +192,7 @@ export function HousingPanel({ onGoVehicles, onGoTo }: { onGoVehicles: () => voi
                 <div className="flex-1 min-w-0">
                   <p className="v2-display text-[15px] leading-tight text-indigo-900/50">{name('lifestyle', house)}</p>
                   <p className="text-[11px] font-bold text-indigo-900/40 flex items-center gap-1">
-                    <Lock className="w-3 h-3" />
+                    <UiIcon name="lock" />
                     <Cash size={14}>{money(house.moveInCost)}</Cash>
                   </p>
                 </div>

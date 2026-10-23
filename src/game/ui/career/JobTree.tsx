@@ -1,4 +1,3 @@
-import { Lock } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { CAREERS } from '../../core/config/careers';
 import { SECONDS_PER_MONTH } from '../../core/config/life';
@@ -10,6 +9,7 @@ import { MoneyIcon } from '../CashAmount';
 import { Focusable } from '../home/Focusable';
 import { JobIcon } from './JobIcon';
 import { requirementText } from './requirementText';
+import { UiIcon } from '../UiIcon';
 
 // One tab of the job tree (docs/career-redesign.md §4, look redone 2026-10-23 after the reference game):
 // each row in its own band, the jobs of a row side by side as game tiles whose colour tells their state.
@@ -123,7 +123,7 @@ export function JobTree({
   if (jobs.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 py-10 text-center">
-        <Lock className="w-8 h-8 text-indigo-300" />
+        <UiIcon name="lock" className="w-9 h-9 opacity-70" />
         <p className="px-6 text-[13px] font-bold text-indigo-900/50">{t('career.trackLocked')}</p>
       </div>
     );
@@ -246,9 +246,7 @@ function JobCard({
           </>
         )}
         {view === 'next' && (
-          <span className="absolute z-[2] top-2 right-2 w-[26px] h-[26px] rounded-full bg-indigo-500 grid place-items-center shadow-[0_2px_0_#3730a3]">
-            <Lock className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-          </span>
+          <UiIcon name="lock" className="absolute z-[2] top-1.5 right-1.5 w-[26px] h-[26px] drop-shadow" />
         )}
 
         <div className="v2-job-medal">

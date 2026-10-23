@@ -1,4 +1,3 @@
-import { ArrowBigUpDash, Lock, Play, Store } from 'lucide-react';
 import { useState } from 'react';
 import { CAMPAIGN_FACTOR } from '../../core/config/ads';
 import { WEALTH_CLASSES } from '../../core/config/classes';
@@ -34,6 +33,7 @@ import { RunBubbles } from './RunBubbles';
 import { StageBar } from './StageBar';
 import { Cash } from '../CashAmount';
 import { ICONS } from '../icons';
+import { UiIcon } from '../UiIcon';
 
 // One business line (docs/game-design-v2.md §4.3) as a short row (2026-10-21, user approved the
 // draft): the picture runs it by hand, one line says what it earns a month, a three-part bar shows the
@@ -196,7 +196,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
             )}
             {canStart && (
               <span className="v2-nudge absolute z-10 left-1/2 -bottom-2 flex items-center gap-0.5 whitespace-nowrap rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 v2-glossy pl-1 pr-2 v2-display text-[11px] text-white v2-shadow">
-                <Play className="w-3 h-3 fill-white" />
+                <UiIcon name="run" className="w-4 h-4 -ml-0.5" />
                 {t('business.run')}
               </span>
             )}
@@ -225,8 +225,9 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
         </button>
 
         <div className="shrink-0 flex flex-col items-end gap-1">
+          {/* Before the last level a branch goal points here too: upgrading is the way to the branches. */}
           {canStep && (
-            <Focusable focusKey={`business:${def.id}:${next ? 'level' : 'branch'}`}>
+            <Focusable focusKey={next ? [`business:${def.id}:level`, `business:${def.id}:branch`] : `business:${def.id}:branch`}>
               <GameButton
                 tone={newBuilding ? 'gold' : 'buy'}
                 disabled={game.cash < price}
@@ -239,7 +240,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
                   </span>
                 )}
                 <span className="flex items-center gap-1 v2-display text-[12px] v2-shadow">
-                  {next ? opened && <ArrowBigUpDash className="w-4 h-4" /> : <Store className="w-3.5 h-3.5" />}
+                  {next ? opened && <UiIcon name="upgrade" /> : <UiIcon name="branch" />}
                   {stepLabel}
                 </span>
                 <Cash size={16} className="v2-display text-[13px] v2-shadow tabular-nums">{money(price)}</Cash>
@@ -261,7 +262,7 @@ export function BusinessCard({ def }: { def: BusinessDef }) {
               <span className="text-[10px] font-black uppercase tracking-wide text-rose-500">{t('business.branchCapFull')}</span>
               {nextClass && nextCap !== null && (
                 <span className="text-[10px] font-bold text-indigo-900/50">
-                  <Lock className="inline w-3 h-3 -mt-0.5 mr-0.5" />
+                  <UiIcon name="lock" className="inline-block w-4 h-4 -mt-1 mr-0.5" />
                   {Number.isFinite(nextCap)
                     ? t('business.branchCapNext', { class: name('wealthClass', nextClass), cap: nextCap })
                     : t('business.branchCapNextUnlimited', { class: name('wealthClass', nextClass) })}

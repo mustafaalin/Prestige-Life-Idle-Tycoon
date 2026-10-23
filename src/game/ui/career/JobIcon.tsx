@@ -1,6 +1,6 @@
-import { Briefcase } from 'lucide-react';
 import { useState } from 'react';
 import type { CareerDef } from '../../core/types';
+import { UiIcon } from '../UiIcon';
 
 // A job's picture, with a ring that fills with its mastery. A job whose icon fails to load shows a
 // briefcase; hidden jobs show a dark silhouette.
@@ -24,7 +24,7 @@ export function JobIcon({
   const inner = Math.round(size * 0.78);
   if (plain) {
     return missing ? (
-      <Briefcase className={hidden ? 'text-indigo-950/30' : 'text-indigo-400'} style={{ width: size * 0.6, height: size * 0.6 }} />
+      <UiIcon name="job" className={hidden ? 'brightness-0 opacity-30' : ''} style={{ width: size * 0.6, height: size * 0.6 }} />
     ) : (
       <img
         src={career.image}
@@ -44,7 +44,7 @@ export function JobIcon({
         style={{ width: inner, height: inner }}
       >
         {missing ? (
-          <Briefcase className={hidden ? 'text-indigo-950/40' : 'text-indigo-400'} style={{ width: inner * 0.5, height: inner * 0.5 }} />
+          <UiIcon name="job" className={hidden ? 'brightness-0 opacity-40' : ''} style={{ width: inner * 0.5, height: inner * 0.5 }} />
         ) : (
           <img
             src={career.image}

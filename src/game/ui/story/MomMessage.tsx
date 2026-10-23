@@ -1,4 +1,3 @@
-import { Heart, Phone } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useT } from '../../i18n/useT';
@@ -7,6 +6,7 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { GameButton } from '../kit';
 import { portraitOf } from './ceremonyScript';
 import { portalRoot } from '../stage';
+import { UiIcon } from '../UiIcon';
 
 // Mom's message on a return session (story-v2.md §4): a phone-style card with her portrait. The only
 // answer is a heart; it floats up and the card closes. Also the opt-in card for reminders.
@@ -44,7 +44,7 @@ export function MomMessage({ messageId, onClose }: { messageId: string; onClose:
           <div className="flex-1">
             <p className="v2-display v2-outline-thin text-xl text-white">{t('mom.from')}</p>
           </div>
-          <Phone className="w-5 h-5 text-white/90" />
+          <UiIcon name="call" className="w-6 h-6" />
         </div>
         <div className="px-4 pt-4 pb-5">
           {/* Chat bubble from Mom. */}
@@ -55,10 +55,10 @@ export function MomMessage({ messageId, onClose }: { messageId: string; onClose:
           </div>
           <div className="relative mt-4">
             {sent && (
-              <Heart className="v2-float-up absolute left-1/2 -translate-x-1/2 -top-6 w-10 h-10 fill-rose-500 text-rose-500 pointer-events-none" />
+              <UiIcon name="heart" className="v2-float-up absolute left-1/2 -translate-x-1/2 -top-6 w-10 h-10" />
             )}
             <GameButton tone="gold" onClick={send} className="w-full py-3 v2-display text-lg v2-shadow flex items-center justify-center gap-2">
-              <Heart className="w-5 h-5 fill-white" />
+              <UiIcon name="heart" className="w-6 h-6 drop-shadow" />
               {t('mom.reply')}
             </GameButton>
           </div>

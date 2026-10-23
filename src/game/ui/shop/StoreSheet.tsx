@@ -1,4 +1,4 @@
-import { Check, Store, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { BOOST_FACTOR, BOOST_SECONDS, COIN_RAIN_SECONDS } from '../../core/config/ads';
 import { PRODUCTS, STORE_SECTIONS, type ProductDef } from '../../core/config/iap';
@@ -22,7 +22,7 @@ import {
 import { useGameV2 } from '../../runtime/useGameV2';
 import { AdButton } from '../ads/AdButton';
 import { DailyCard } from '../home/DailyCard';
-import { MONEY } from '../icons';
+import { ICONS, MONEY } from '../icons';
 import { CashBags } from './CashBags';
 import { requestFind } from '../scene/sceneEvents';
 import { STORE_ART } from './storeArt';
@@ -32,6 +32,7 @@ import { useBuy } from './useBuy';
 import { usePrices } from './usePrices';
 import { useRestore } from './useRestore';
 import { BoostCard } from '../ads/Boost';
+import { UiIcon } from '../UiIcon';
 
 // The Store (docs/monetization-v2.md §6, decided 2026-10-14; look: docs/iap-store-design-handoff.md):
 // a sheet opened from the round button on the scene, from the first class-up. Products come from
@@ -145,7 +146,7 @@ function ComfortActive() {
     <article className="v2-iap-wrap pb-0">
       <div className="v2-iap-banner v2-iap-banner-owned">
         <span className="v2-iap-ribbon inline-flex items-center gap-1">
-          <Check className="w-3 h-3" />
+          <UiIcon name="check" />
           {t('iap.comfort.active')}
         </span>
         <div className="flex items-center gap-2 min-h-[96px]">
@@ -312,7 +313,7 @@ function PlainCard(props: CardProps) {
           <ul className="flex flex-col gap-0.5">
             {Array.from({ length: product.lines }, (_, index) => (
               <li key={index} className="flex items-start gap-1.5 text-[12px] font-bold leading-snug v2-iap-muted">
-                <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-emerald-500" />
+                <UiIcon name="check" className="w-4 h-4 mt-0.5" />
                 {t(`iap.${product.key}.line${index + 1}` as MessageKey, { percent: Math.round(product.incomeBonus * 100) })}
               </li>
             ))}
@@ -349,7 +350,7 @@ function StarterReceipt({ onDismiss }: { onDismiss: () => void }) {
       <ul className="mt-2 flex flex-col gap-2 text-[12px] font-bold">
         {lines.map((line) => (
           <li key={line} className="flex items-start gap-2">
-            <Check className="w-4 h-4 shrink-0 text-[#287340]" />
+            <UiIcon name="check" />
             {line}
           </li>
         ))}
@@ -407,7 +408,7 @@ export function StoreSheet({ onClose }: { onClose: () => void }) {
   return (
     <div className="v2-iap v2-sheet-in absolute inset-x-2 top-2 bottom-1 flex flex-col rounded-[28px] bg-[#efeafb] shadow-2xl overflow-hidden pointer-events-auto">
       <div className="shrink-0 flex items-center gap-2 pl-3.5 pr-1.5 py-1 bg-gradient-to-r from-[#7965cd] to-[#584aaf]">
-        <Store className="w-7 h-7 text-white drop-shadow" />
+        <img src={ICONS.shop} alt="" draggable={false} className="w-8 h-8 object-contain drop-shadow" />
         <h2 className="flex-1 min-w-0 v2-display v2-outline-thin text-[23px] text-white truncate">{t('iap.store')}</h2>
         <button
           type="button"

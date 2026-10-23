@@ -1,4 +1,3 @@
-import { GraduationCap } from 'lucide-react';
 import { COURSE_RUSH_PER_COURSE } from '../../core/config/ads';
 import { courseDef } from '../../core/config/courses';
 import { SECONDS_PER_MONTH } from '../../core/config/life';
@@ -13,6 +12,7 @@ import { useAdChipText } from '../ads/useAdText';
 import { Focusable } from '../home/Focusable';
 import { GameButton, ImageTile, Panel, SectionLabel } from '../kit';
 import { Cash } from '../CashAmount';
+import { UiIcon } from '../UiIcon';
 
 // The Courses tab of the career screen (docs/game-design-v2.md §4.4): the course running, the ones
 // that can be started ("Opens: …") and the ones finished. One course at a time.
@@ -42,7 +42,7 @@ export function CoursesPanel() {
       {running && (
         <Panel className="p-3 flex items-center gap-3">
           <ImageTile className="w-12 h-12">
-            <GraduationCap className="w-7 h-7 text-violet-500" />
+            <UiIcon name="course" className="w-8 h-8" />
           </ImageTile>
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-black uppercase tracking-widest text-violet-700/70">{t('career.courseRunning')}</p>
@@ -82,7 +82,7 @@ export function CoursesPanel() {
             const opens = careersNeedingCourse(course.id).map((career) => name('career', career));
             return (
               <li key={course.id} className="px-3 py-2 flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 shrink-0 text-violet-400" />
+                <UiIcon name="course" className="w-6 h-6" />
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-bold leading-tight text-indigo-950">
                     {name('course', course)}

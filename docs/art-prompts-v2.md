@@ -64,7 +64,7 @@ Referanslar: 1 `art/pilot/10-life/life-jet-family.png` (kabin ve yerleşim), 2 `
 >
 > A polished frame from a 3D CG animated feature film, NO ink outlines, NO cel shading, NO flat 2D cartoon. Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
 
-## 0b. Kendi ikonlarımız: varsayılan ikonların yerine (2026-10-23, kritik olanlar önce)
+## 0b. Kendi ikonlarımız: varsayılan ikonların yerine (2026-10-23; 24 ikonun hepsi üretildi ve oyunda, arşive taşınabilir)
 
 Liste ve nerede kullanıldıkları: [default-icons.md](./default-icons.md). Sıra: **K** kritik (ilk dakikalarda ve her gün, önce bunlar), **S** sık, **B** ara sıra. Eski ikon seti (`art/pilot/12-icons/` içindekiler, ör. `career`, `upgrade`) stile uymadığı için kullanılmaz ve referans verilmez (kullanıcı, 2026-10-23); her şey yeniden üretilir.
 

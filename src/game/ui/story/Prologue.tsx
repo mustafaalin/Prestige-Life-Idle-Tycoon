@@ -1,10 +1,11 @@
-import { ChevronRight, Phone } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useT } from '../../i18n/useT';
 import { track } from '../../runtime/analytics';
 import { playSfx, useMusic } from '../../runtime/feedback';
 import { useCoverFit } from '../scene/coverFit';
 import { PROLOGUE, type Speaker } from './prologueScript';
+import { UiIcon } from '../UiIcon';
 
 // The opening story (plan 1.18): full-screen comic panels with a slow camera push, one line at a time.
 // The speech bubble sits above the speakers' heads with its tail pointing at whoever talks.
@@ -135,7 +136,7 @@ export function Prologue({ onDone }: { onDone: () => void }) {
               <span
                 className={`absolute -top-3 left-4 flex items-center gap-1 rounded-full bg-gradient-to-r ${TAG_STYLE[line.speaker]} px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow`}
               >
-                {line.phone && <Phone className="w-3 h-3" />}
+                {line.phone && <UiIcon name="call" />}
                 {t(`prologue.speaker.${line.speaker}`)}
               </span>
               <p className="text-[15px] font-bold leading-snug text-slate-800">{t(line.text)}</p>

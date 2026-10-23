@@ -1,4 +1,3 @@
-import { Check, Lock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { GADGETS, LIFESTYLE_ITEMS } from '../../core/config/lifestyle';
 import { WEALTH_CLASSES } from '../../core/config/classes';
@@ -21,6 +20,7 @@ import { HousingPanel } from './HousingPanel';
 import { StoreStrip } from './StoreSheet';
 import { OpensJobs } from './OpensJobs';
 import { Thumb } from './Thumb';
+import { UiIcon } from '../UiIcon';
 
 type ShopTab = ShopTabId;
 
@@ -159,7 +159,7 @@ function LifestylePanel({
             <Focusable focusKey={locked ? `shop:${kind}:next` : ''} className="flex flex-col gap-3 empty:hidden">
               {neededClass !== null && (
                 <p className="-mt-1 min-h-11 py-2 px-4 rounded-2xl bg-slate-100 flex items-center justify-center gap-1.5 text-slate-600">
-                  <Lock className="w-4 h-4 shrink-0" />
+                  <UiIcon name="lock" />
                   <span className="v2-display text-[13px]">
                     {t('shop.needsClass', { class: name('wealthClass', WEALTH_CLASSES[neededClass]) })}
                   </span>
@@ -172,7 +172,7 @@ function LifestylePanel({
                   onClick={onGoHomes}
                   className="min-h-11 -mt-1 py-2 px-4 flex items-center justify-center gap-1.5"
                 >
-                  <Lock className="w-4 h-4 shrink-0" />
+                  <UiIcon name="lock" />
                   <span className="v2-display text-[13px]">
                     {t('shop.needsHome', { home: name('lifestyle', neededHome) })}
                   </span>
@@ -200,7 +200,7 @@ function LifestylePanel({
                 <div className="flex-1 min-w-0">
                   <p className="v2-display text-[15px] leading-tight text-indigo-900/50">{name('lifestyle', item)}</p>
                   <p className="text-[11px] font-bold text-indigo-900/40 flex items-center gap-1">
-                    <Lock className="w-3 h-3" />
+                    <UiIcon name="lock" />
                     <Cash size={14}>{money(item.cost)}</Cash>
                   </p>
                 </div>
@@ -234,9 +234,7 @@ function LifestylePanel({
                 <span className="w-full text-center text-[11px] font-bold text-slate-500 leading-tight line-clamp-2">
                   {name('lifestyle', item)}
                 </span>
-                <span className="absolute top-1 right-1 w-5 h-5 rounded-full border-2 border-white bg-gradient-to-b from-emerald-400 to-green-600 text-white flex items-center justify-center">
-                  <Check className="w-3 h-3" />
-                </span>
+                <UiIcon name="check" className="absolute top-1 right-1 w-5 h-5 drop-shadow" />
               </li>
             ))}
           </ul>

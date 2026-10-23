@@ -1,4 +1,4 @@
-import { Lock, Play, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { WEALTH_CLASSES } from '../../core/config/classes';
@@ -12,6 +12,7 @@ import { ICONS } from '../icons';
 import { ALBUM, albumCover, albumKey, albumSeen, lifeMomentLabel, type AlbumEntry } from './album';
 import { StoryReplay } from './Ceremony';
 import { portalRoot } from '../stage';
+import { UiIcon } from '../UiIcon';
 
 // The family album (story-v2.md §7): one page with every story moment, the ones lived as pictures,
 // the rest locked. Tapping a picture plays that moment again; nothing is saved, paid or stopped by it.
@@ -102,16 +103,14 @@ export function AlbumSheet({ onClose, onReplay }: { onClose: () => void; onRepla
                   >
                     <div className="relative">
                       <AlbumPicture entry={entry} className="w-full aspect-[4/5] rounded-2xl" />
-                      <span className="absolute right-1.5 bottom-1.5 w-7 h-7 rounded-full bg-black/45 flex items-center justify-center">
-                        <Play className="w-3.5 h-3.5 text-white fill-white" />
-                      </span>
+                      <UiIcon name="run" className="absolute right-1.5 bottom-1.5 w-8 h-8 drop-shadow" />
                     </div>
                     {caption}
                   </button>
                 ) : (
                   <div className="h-full rounded-[22px] bg-white/60 border-2 border-white p-1.5">
                     <div className="w-full aspect-[4/5] rounded-2xl bg-slate-200 flex flex-col items-center justify-center gap-1.5 px-2 text-center">
-                      <Lock className="w-6 h-6 text-slate-400" />
+                      <UiIcon name="lock" className="w-7 h-7 opacity-80" />
                       <span className="text-[11px] font-semibold text-slate-500">{t('album.locked')}</span>
                     </div>
                     {caption}

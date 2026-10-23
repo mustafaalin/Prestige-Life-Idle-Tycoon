@@ -1,5 +1,5 @@
 // The shared raster icons (docs/design-art-production-plan.md §3), in one place so a screen never
-// spells a path. Small functional marks (arrows, close, lock, check) stay vector (lucide).
+// spells a path. Only the small functional marks (close, arrows, the empty ring) stay vector (lucide).
 
 const DIR = '/assets/icons/v2';
 
@@ -51,4 +51,34 @@ export const ICONS = {
   heirloomJam: `${DIR}/heirloom-jam.webp`,
   heirloomNotebook: `${DIR}/heirloom-notebook.webp`,
   heirloomCollar: `${DIR}/heirloom-collar.webp`,
+};
+
+/**
+ * Our own interface icons (2026-10-23, GPT, docs/art-prompts-v2.md §0b), in place of the default line
+ * icons: drawn through UiIcon (ui/UiIcon.tsx), at 16 px or more so they stay readable.
+ */
+export const UI_ICONS = {
+  lock: `${DIR}/ui-lock.webp`,
+  check: `${DIR}/ui-check.webp`,
+  run: `${DIR}/ui-run.webp`,
+  upgrade: `${DIR}/ui-upgrade.webp`,
+  branch: `${DIR}/ui-branch.webp`,
+  timer: `${DIR}/ui-timer.webp`,
+  gift: `${DIR}/ui-gift.webp`,
+  call: `${DIR}/ui-call.webp`,
+  heart: `${DIR}/ui-heart.webp`,
+  course: `${DIR}/ui-course.webp`,
+  key: `${DIR}/ui-key.webp`,
+  job: `${DIR}/ui-job.webp`,
+  home: `${DIR}/ui-home.webp`,
+  outfit: `${DIR}/ui-outfit.webp`,
+  car: `${DIR}/ui-car.webp`,
+  trophy: `${DIR}/ui-trophy.webp`,
+  newspaper: `${DIR}/ui-newspaper.webp`,
+  sound: `${DIR}/ui-sound.webp`,
+  music: `${DIR}/ui-music.webp`,
+  bell: `${DIR}/ui-bell.webp`,
+  privacy: `${DIR}/ui-privacy.webp`,
+  restore: `${DIR}/ui-restore.webp`,
+  copy: `${DIR}/ui-copy.webp`,
 };

@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev:v2": "vite --mode v2",
     "build": "vite build",
-    "build:v2": "VITE_DEV_MENU=false vite build --mode v2",
+    "build:v2": "VITE_DEV_MENU=false VITE_ADMOB_TESTING=false VITE_ADMOB_DEBUG_EEA=false vite build --mode v2",
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",

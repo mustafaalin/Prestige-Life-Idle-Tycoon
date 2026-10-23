@@ -1,4 +1,4 @@
-import { Clock, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { INVEST_CAP_MONTHS, investPlan, OFFERED_PLANS, type InvestPlan } from '../../core/config/investments';
@@ -14,6 +14,7 @@ import { Cash, CashAmount, MoneyIcon } from '../CashAmount';
 import { payout } from '../home/coins';
 import { BandTile, GameButton, Segmented, SpeakerLine, TilePill } from '../kit';
 import { portalRoot } from '../stage';
+import { UiIcon } from '../UiIcon';
 
 // Old Ray's deals (runtime/investment.ts, game-design-v2.md §4.14), redrawn after Idle Guy's bank
 // (2026-10-22, user: "a game, not an accounting app"): Ray says one line, the running deal shows its
@@ -171,7 +172,7 @@ function PlanTile({ plan, onPick }: { plan: InvestPlan; onPick: () => void }) {
       onClick={pick}
       chip={
         <span className="flex items-center gap-0.5 rounded-full bg-indigo-100 px-1.5 py-px text-[10px] font-black text-indigo-700 tabular-nums">
-          <Clock className="w-3 h-3" strokeWidth={3} />
+          <UiIcon name="timer" />
           {duration(plan.hours * 3600)}
         </span>
       }
@@ -227,7 +228,7 @@ function DealCard({ plan, onClose, onStarted }: { plan: InvestPlan; onClose: () 
             <div className="flex flex-col items-center gap-1">
               <PlanGain plan={plan} big />
               <span className="flex items-center gap-1 rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-black text-indigo-700 tabular-nums">
-                <Clock className="w-3.5 h-3.5" strokeWidth={3} />
+                <UiIcon name="timer" />
                 {duration(plan.hours * 3600)}
               </span>
             </div>

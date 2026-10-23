@@ -3,20 +3,24 @@ import { useGuideTarget } from '../guide/guideSteps';
 import { ICONS } from '../icons';
 import { clearFocus, useFocus } from './focus';
 
-/** Wraps a button a goal ("Go") or Old Ray's guide can point at. Tapping inside it ends a goal's hint. */
+/**
+ * Wraps a button a goal ("Go") or Old Ray's guide can point at. Tapping inside it ends a goal's hint.
+ * Several keys: the button is the way to more than one goal (e.g. upgrading on the way to a branch).
+ */
 export function Focusable({
   focusKey,
   className = '',
   children,
 }: {
-  focusKey: string;
+  focusKey: string | readonly string[];
   className?: string;
   children: ReactNode;
 }) {
   const focus = useFocus();
   const guide = useGuideTarget();
-  const fromGoal = focus?.target.key === focusKey;
-  const fromGuide = guide?.key === focusKey;
+  const keys: readonly string[] = typeof focusKey === 'string' ? [focusKey] : focusKey;
+  const fromGoal = focus !== null && focus !== undefined && keys.includes(focus.target.key);
+  const fromGuide = guide !== null && guide !== undefined && keys.includes(guide.key);
   const active = fromGoal || fromGuide;
   const ref = useRef<HTMLDivElement>(null);
   const focusId = fromGoal ? focus.id : fromGuide ? 'guide' : null;

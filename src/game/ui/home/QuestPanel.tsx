@@ -1,4 +1,4 @@
-import { ArrowBigUpDash, ChevronRight, ChevronUp } from 'lucide-react';
+import { ChevronRight, ChevronUp } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { questReward } from '../../core/formulas';
 import { QUEST_AD_MULTIPLIER } from '../../core/config/ads';
@@ -19,6 +19,7 @@ import { PointingHand } from './Focusable';
 import { questTarget, questText, questVisual, questWhere } from './questText';
 import type { TabId } from './tabs';
 import { Cash } from '../CashAmount';
+import { UiIcon } from '../UiIcon';
 
 // Goals (plan 1.12/2.7). On the home scene: a small round badge with the next goal's picture in a
 // progress ring (a finished one jumps first, rings green with a "!" and a Claim button beside it); a tap
@@ -268,9 +269,7 @@ function QuestRow({ quest, onGo, compact }: { quest: QuestDef; onGo: GoToQuest; 
           className={visual.cover || visual.round ? 'w-full h-full object-cover' : 'w-[85%] h-[85%] object-contain'}
         />
         {visual.upgrade && (
-          <span className="absolute -right-0.5 -bottom-0.5 rounded-full bg-gradient-to-b from-amber-300 to-orange-500 border-2 border-white">
-            <ArrowBigUpDash className="w-3.5 h-3.5 text-white" />
-          </span>
+          <UiIcon name="upgrade" className="absolute -right-1 -bottom-1 w-5 h-5 drop-shadow" />
         )}
       </div>
 

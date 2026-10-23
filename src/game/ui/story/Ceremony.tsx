@@ -1,4 +1,4 @@
-import { ArrowRight, ChevronRight, Gift, Phone } from 'lucide-react';
+import { ArrowRight, ChevronRight } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { BUSINESSES, CLASS_MANAGER_GIFT } from '../../core/config/businesses';
 import { WEALTH_CLASSES } from '../../core/config/classes';
@@ -34,6 +34,7 @@ import {
 import { lateKeyOfCeremony, lateKeyOfEntry, lateKeyOfLife, lateVersion, seenLate } from './lateLook';
 import { LIFE_OUTFIT, LIFE_SCRIPT } from './lifeScript';
 import { Cash } from '../CashAmount';
+import { UiIcon } from '../UiIcon';
 
 // Class-up ceremony (plan 1.10): "new class" title with confetti → story beats (portrait + bubble,
 // visual-novel style; hero on the right, everyone else on the left) → closing card (what the class
@@ -672,7 +673,7 @@ function StoryGift({ onCollect }: { onCollect: (giftMultiplier: number) => void 
     <>
       <div className="mt-3 flex items-center justify-between gap-2 rounded-2xl bg-emerald-50 border-2 border-emerald-100 px-3 py-2">
         <span className="flex items-center gap-1.5 text-[12px] font-black text-emerald-700">
-          <Gift className="w-4 h-4" />
+          <UiIcon name="gift" className="w-5 h-5" />
           {t('ceremony.gift')}
         </span>
         <Cash size={24} className="v2-display text-[20px] text-emerald-600 tabular-nums">+{money(amount)}</Cash>
@@ -750,7 +751,7 @@ function Dialogue({ line, heroOutfit, delay }: { line: Extract<CeremonyLine, { s
         <span
           className={`absolute -top-3 ${right ? 'right-[136px]' : portrait ? 'left-[136px]' : 'left-4'} flex items-center gap-1 rounded-full bg-gradient-to-r ${TAG_STYLE[line.speaker]} px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow`}
         >
-          {line.phone && <Phone className="w-3 h-3" />}
+          {line.phone && <UiIcon name="call" />}
           {label}
         </span>
         <p className="text-[16px] font-bold leading-snug text-slate-800">{t(line.text)}</p>

@@ -1,4 +1,3 @@
-import { Lock } from 'lucide-react';
 import {
   lifestyleNeedsCareer,
   lifestyleNeedsClass,
@@ -15,6 +14,7 @@ import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import type { FocusTarget, ShopTabId } from './focus';
+import { UiIcon } from '../UiIcon';
 
 // The dreams board (plan 1.8): the next home, vehicle and outfit sit in a row on top of the bottom
 // menu, each with how close the wallet is ("62%"). The scene owns the middle of the screen, so the
@@ -137,7 +137,7 @@ function DreamChip({ dream, cash, onGo }: { dream: Dream; cash: number; onGo: ()
       )}
       <span className="flex-1 min-w-0 flex flex-col items-stretch gap-0.5">
         <span className="flex items-center justify-end gap-0.5 v2-display text-[14px] leading-none text-white v2-shadow tabular-nums">
-          {locked && <Lock className="w-3 h-3 shrink-0" strokeWidth={3} />}
+          {locked && <UiIcon name="lock" />}
           {ready ? t('dreams.buy') : blockText ? <span className="text-[11px] truncate">{blockText}</span> : t('dreams.percent', { percent })}
         </span>
         {!ready && (

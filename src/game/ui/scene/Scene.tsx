@@ -1,4 +1,3 @@
-import { Car, Heart, Home, Shirt } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import {
   COLLECT_END_CLASS,
@@ -36,6 +35,7 @@ import {
   vehicleBox,
   type Pose,
 } from './stages';
+import { UiIcon } from '../UiIcon';
 
 // The home scene (plan 1.6, discussion-notes §7): the hero and Şans, always on screen, in front of
 // the home you live in, with your best vehicle parked beside them, the hero in the best outfit you own
@@ -515,7 +515,7 @@ export function Scene() {
               className="v2-float-up absolute pointer-events-none v2-display v2-outline-thin whitespace-nowrap text-xl text-emerald-300"
               style={{ left: floater.x, top: floater.y }}
             >
-              {floater.text ?? <Heart className="w-8 h-8 fill-rose-500 text-rose-500" />}
+              {floater.text ?? <UiIcon name="heart" className="w-9 h-9" />}
             </span>
           ))}
         </>
@@ -529,11 +529,11 @@ export function Scene() {
         >
           <span className="flex items-center gap-1.5 rounded-full bg-gradient-to-b from-amber-300 to-orange-500 border-2 border-white v2-glossy px-3.5 py-1.5 v2-display text-[15px] text-white v2-shadow">
             {news.kind === 'home' ? (
-              <Home className="w-4 h-4" />
+              <UiIcon name="home" className="w-5 h-5" />
             ) : news.kind === 'outfit' ? (
-              <Shirt className="w-4 h-4" />
+              <UiIcon name="outfit" className="w-5 h-5" />
             ) : (
-              <Car className="w-4 h-4" />
+              <UiIcon name="car" className="w-5 h-5" />
             )}
             {news.text}
           </span>

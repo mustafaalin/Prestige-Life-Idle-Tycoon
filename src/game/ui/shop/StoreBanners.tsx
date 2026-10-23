@@ -1,10 +1,10 @@
-import { Check, Clock } from 'lucide-react';
 import type { ProductDef } from '../../core/config/iap';
 import { useT } from '../../i18n/useT';
 import { purchaseCash } from '../../runtime/purchases';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { NoAdsArt, StarterArt, StarterRewards, Tile } from './StoreParts';
 import { STORE_ART } from './storeArt';
+import { UiIcon } from '../UiIcon';
 
 // The packs' banners (2026-10-21; reference: Idle Guy's shop): what a pack is, shared by the Store
 // (with the price pill under it) and the day's offer card on the home scene (with "View pack").
@@ -14,9 +14,7 @@ export function Checks({ lines }: { lines: string[] }) {
     <ul className="flex flex-col gap-1">
       {lines.map((line) => (
         <li key={line} className="v2-iap-check">
-          <span className="mt-px w-4 h-4 shrink-0 rounded-full bg-emerald-400 border-2 border-white flex items-center justify-center">
-            <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
-          </span>
+          <UiIcon name="check" className="mt-px w-4 h-4" />
           {line}
         </li>
       ))}
@@ -36,7 +34,7 @@ export function StarterBanner({ product, welcome, secondsLeft }: { product: Prod
         <span className="v2-iap-ribbon">{welcome ? t('iap.welcome.tag') : t('iap.once')}</span>
         {Number.isFinite(secondsLeft) && secondsLeft > 0 && (
           <span className="flex items-center gap-1 rounded-full bg-black/25 px-2 py-0.5 text-[11px] font-black text-white whitespace-nowrap">
-            <Clock className="w-3.5 h-3.5" />
+            <UiIcon name="timer" />
             {duration(secondsLeft)}
           </span>
         )}

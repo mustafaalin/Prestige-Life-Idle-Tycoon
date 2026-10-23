@@ -1,4 +1,3 @@
-import { Lock } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useT } from '../../i18n/useT';
 import { haptic, playSfx } from '../../runtime/feedback';
@@ -6,6 +5,7 @@ import { useGuideTarget } from '../guide/guideSteps';
 import { AlertBadge } from '../kit';
 import { PointingHand } from './Focusable';
 import { TABS, type TabId } from './tabs';
+import { UiIcon } from '../UiIcon';
 
 // Bottom menu over the scene: glossy buttons that open the tab sheets. Tapping the open one closes it.
 // The scene owns the middle and top of the screen, so new screens get a button here (a second row if
@@ -80,9 +80,7 @@ export function BottomNav({ open, onSelect, attention, locked = {}, top }: Botto
                   }`}
                 />
                 {lockedHint !== undefined && (
-                  <span className="absolute -top-2 -right-1.5 w-6 h-6 rounded-full bg-gradient-to-b from-slate-500 to-slate-700 border-2 border-white flex items-center justify-center shadow">
-                    <Lock className="w-3 h-3 text-white" strokeWidth={3} />
-                  </span>
+                  <UiIcon name="lock" className="absolute -top-2 -right-1.5 w-6 h-6 drop-shadow" />
                 )}
                 {hint === id && lockedHint !== undefined && (
                   <span className="v2-pop-in absolute bottom-full right-0 mb-8 w-max max-w-[15rem] rounded-xl bg-white px-2.5 py-1.5 shadow-xl v2-display text-[12px] text-indigo-950 pointer-events-none">

@@ -1,4 +1,3 @@
-import { Gift, Phone } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -27,6 +26,7 @@ import { nextCaller } from '../../runtime/eventDeck';
 import { eventKey, eventKind, eventSpeaker, onEventCardRequest } from './eventScript';
 import { portalRoot } from '../stage';
 import { CashAmount, MoneyIcon } from '../CashAmount';
+import { UiIcon } from '../UiIcon';
 
 // Event cards (game-design §4.7): from Middle Class on, someone the hero knows calls every few
 // minutes. The call waits on the home scene until it is answered; the card asks one thing and has a
@@ -149,7 +149,7 @@ export function EventCards({ tabOpen, onOpenChange }: EventCardsProps) {
           <span className="v2-display text-[15px] text-white v2-shadow whitespace-nowrap">
             {t('events.calling', { name: t(caller.name) })}
           </span>
-          <Phone className="w-4 h-4 text-white" />
+          <UiIcon name="call" className="w-5 h-5" />
         </span>
       </button>
     </div>
@@ -243,7 +243,7 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
             className="v2-pop-in w-16 h-16 rounded-full object-cover border-[3px] border-white shadow"
           />
           <p className="flex-1 v2-display v2-outline-thin text-xl text-white">{t(speaker.name)}</p>
-          <Phone className="w-5 h-5 text-white/90" />
+          <UiIcon name="call" className="w-6 h-6" />
         </div>
 
         <div className="px-4 pt-4 pb-5">
@@ -273,7 +273,7 @@ function EventCard({ cardId, onLater, onAnswered, onDone }: EventCardProps) {
                   }}
                   className="relative w-full min-h-[64px] px-2 pt-3 pb-2 flex items-center justify-center text-center"
                 >
-                  <Gift className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-6 h-6 p-1 rounded-full bg-white text-rose-500 shadow" />
+                  <UiIcon name="gift" className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-8 h-8 drop-shadow" />
                   <span className="block v2-display text-[15px] leading-tight v2-shadow [text-wrap:balance]">{t(eventKey(cardId, option))}</span>
                 </GameButton>
               ))}
