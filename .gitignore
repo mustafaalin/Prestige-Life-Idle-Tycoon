@@ -36,3 +36,6 @@ idle-guy-life-sim oyun ekran görüntüleri/
 
 # Scene board notes (scene-board.html, dev server)
 scene-notes.json
+
+# Scratch files from image generation and other local tools
+tmp/
