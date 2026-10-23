@@ -7,7 +7,7 @@ import { STARTING_CASH } from './config/economy';
 import { FIRST_OWNED_HOME_CLASS, HOUSES, RENT_ONLY_COUNT, STARTING_HOME_ID } from './config/housing';
 import { LIFE_SECONDS } from './config/life';
 import { CLASS_OUTFIT_FLOOR, LIFESTYLE_ITEMS, OUTFITS, STARTING_LIFESTYLE_IDS, VEHICLES } from './config/lifestyle';
-import { ACTIVE_QUESTS, GENERATED_BRANCH_GOALS, GENERATED_LEVEL_GOALS, GENERATED_QUEST_SECONDS, QUESTS } from './config/quests';
+import { ACTIVE_QUESTS, GENERATED_BRANCH_GOALS, GENERATED_LEVEL_GOALS, QUESTS } from './config/quests';
 import { COLLECT_END_CLASS } from './config/scene';
 import { WEALTH_CLASSES } from './config/classes';
 import { heirloomDef } from './config/heirlooms';
@@ -441,12 +441,12 @@ export function isQuestComplete(state: GameStateV2, quest: QuestDef) {
   return current >= target;
 }
 
-/** Business goals the written list already pays for; no generated goal repeats them. */
-const WRITTEN_GOALS = new Set(
-  QUESTS.flatMap((quest) => {
+/** Business goals the written list already pays for (milestone key → written goal id); no generated goal repeats them. */
+const WRITTEN_GOALS = new Map(
+  QUESTS.flatMap((quest): [string, string][] => {
     const goal = quest.goal;
-    if (goal.type === 'level') return [`level:${goal.businessId}:${goal.level}`];
-    if (goal.type === 'branches') return [`branches:${goal.businessId}:${goal.count}`];
+    if (goal.type === 'level') return [[`level:${goal.businessId}:${goal.level}`, quest.id]];
+    if (goal.type === 'branches') return [[`branches:${goal.businessId}:${goal.count}`, quest.id]];
     return [];
   }),
 );
@@ -463,26 +463,45 @@ function costToBranches(def: BusinessDef, business: BusinessState, count: number
   return cost;
 }
 
+interface Rung {
+  quest: QuestDef;
+  /** Money still needed (0: reached). */
+  cost: number;
+  /** The class allows it now (branch counts above the class's cap do not). */
+  allowed: boolean;
+}
+
 /**
- * A business's generated goal: its first level milestone not claimed yet, then its branch milestones.
- * A reached milestone stays up (and comes first) until its reward is collected. Branch goals the
- * class does not allow yet are left out, or they would sit on screen undoable.
+ * The goal a ladder of milestones shows, past the last one claimed (written or generated): the highest
+ * one already reached, so a player who raced ahead claims once instead of a pile of equal rewards, else
+ * the next one if the class allows it. Milestones the written list pays for are left to it.
  */
-function generatedGoal(state: GameStateV2, def: BusinessDef): { quest: QuestDef; cost: number } | null {
+function ladderGoal(state: GameStateV2, rungs: Rung[]): Rung | null {
+  const claimed = (id: string) => state.questsDone.includes(id) || state.questsDone.includes(WRITTEN_GOALS.get(id) ?? '');
+  let from = 0;
+  rungs.forEach((rung, index) => {
+    if (claimed(rung.quest.id)) from = index + 1;
+  });
+  const open = rungs.slice(from).filter((rung) => !WRITTEN_GOALS.has(rung.quest.id));
+  const reached = open.filter((rung) => rung.cost === 0);
+  if (reached.length > 0) return reached[reached.length - 1];
+  const next = open[0];
+  return next?.allowed ? next : null;
+}
+
+/** A business's generated goal: from its level milestones, then from its branch milestones. */
+function generatedGoal(state: GameStateV2, def: BusinessDef): Rung | null {
   const business = businessState(state, def.id);
   if (!isOpened(business)) return null;
-  const goal = (id: string, questGoal: QuestGoal, cost: number) => ({
-    quest: { id, goal: questGoal, rewardSeconds: GENERATED_QUEST_SECONDS, rewardMin: 0 },
-    cost,
-  });
-  const open = (id: string) => !state.questsDone.includes(id) && !WRITTEN_GOALS.has(id);
-  const level = GENERATED_LEVEL_GOALS.find((target) => target <= def.levels.length && open(`level:${def.id}:${target}`));
-  if (level !== undefined) {
-    return goal(`level:${def.id}:${level}`, { type: 'level', businessId: def.id, level }, costToLevel(def, business, level));
-  }
-  const count = GENERATED_BRANCH_GOALS.find((target) => open(`branches:${def.id}:${target}`));
-  if (count === undefined || count > branchCapAt(def, state.classIndex)) return null;
-  return goal(`branches:${def.id}:${count}`, { type: 'branches', businessId: def.id, count }, costToBranches(def, business, count));
+  const rung = (id: string, goal: QuestGoal, cost: number, allowed = true): Rung => ({ quest: { id, goal, rewardMin: 0 }, cost, allowed });
+  const levels = GENERATED_LEVEL_GOALS.filter((target) => target <= def.levels.length).map((target) =>
+    rung(`level:${def.id}:${target}`, { type: 'level', businessId: def.id, level: target }, costToLevel(def, business, target)),
+  );
+  const cap = branchCapAt(def, state.classIndex);
+  const branches = GENERATED_BRANCH_GOALS.map((count) =>
+    rung(`branches:${def.id}:${count}`, { type: 'branches', businessId: def.id, count }, costToBranches(def, business, count), count <= cap),
+  );
+  return ladderGoal(state, levels) ?? ladderGoal(state, branches);
 }
 
 /**

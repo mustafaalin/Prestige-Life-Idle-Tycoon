@@ -154,12 +154,16 @@ export type QuestGoal =
   /** Vehicles bought (the free starting one doesn't count). */
   | { type: 'vehicle'; count: number };
 
+/** How hard a goal that buys nothing is (a job, a class, collecting): its reward in seconds of income (config/quests.ts). */
+export type QuestTier = 'easy' | 'medium' | 'hard';
+
 export interface QuestDef {
   id: string;
   goal: QuestGoal;
-  /** Reward = max(rewardMin, active income × rewardSeconds). */
-  rewardSeconds: number;
+  /** Reward = max(rewardMin, a share of the goal's price); a goal that buys nothing pays seconds of income by tier (formulas.ts questReward). */
   rewardMin: number;
+  /** Goals that buy nothing: how hard it is (default medium). Purchase goals ignore it. */
+  tier?: QuestTier;
 }
 
 export interface GameStateV2 {

@@ -1,5 +1,5 @@
 import { SECONDS_PER_MONTH } from '../src/game/core/config/life';
-// Usage: npm run sim [-- --days 45 --timeline --purchases --sessions --offline-cap 8 --daily-claims]
+// Usage: npm run sim [-- --days 45 --timeline --purchases --sessions --offline-cap 8 --daily-claims --quests]
 //   --purchases            add every purchase to the timeline
 //   --offline-cap <hours>  try another offline cap (default: OFFLINE_CAP_HOURS)
 //   --daily-claims         list the first daily rewards (day, amount, class)
@@ -61,6 +61,15 @@ for (const profile of PROFILES) {
         : undefined;
     console.log(timeline(result, 400, kinds).join('\n'));
     console.log('');
+  }
+
+  if (args.includes('--quests')) {
+    // First-life goals (played time): done, on screen, claimed; reward; "already done" = finished before it was shown.
+    const time = (seconds: number | null) => (seconds === null ? 'never' : formatDuration(seconds)).padStart(9);
+    console.log(`  ${'goal'.padEnd(28)} ${'done'.padStart(9)} ${'shown'.padStart(9)} ${'claimed'.padStart(9)}  reward`);
+    for (const goal of result.goals) {
+      console.log(`  ${goal.id.padEnd(28)} ${time(goal.reached)} ${time(goal.shown)} ${time(goal.claimed)}  ${formatMoney(goal.reward).padStart(8)}${goal.doneWhenShown ? '  already done' : ''}`);
+    }
   }
 
   for (const check of checkTargets(result)) {

@@ -2,6 +2,8 @@ import { LIFE_SECONDS, SECONDS_PER_MONTH, SECONDS_PER_YEAR, START_AGE, TOP_CLASS
 import { WEALTH_CLASSES } from './config/classes';
 import { CONTENT } from './config/content';
 import { STORY_GIFT_SECONDS } from './config/economy';
+import { VEHICLES } from './config/lifestyle';
+import { QUEST_PRICE_SHARE, QUEST_TIER_SECONDS } from './config/quests';
 import {
   EVENT_BOLD_CHANCE,
   EVENT_CARDS,
@@ -11,10 +13,10 @@ import {
   type EventOutcome,
 } from './config/events';
 import { RICH_LIST_ANCHORS, RICH_LIST_ENTRY, RICH_RIVALS } from './config/richList';
-import { businessDef, businessStage } from './economy/business';
+import { branchCost, businessDef, businessStage, managerCost } from './economy/business';
 import { autoIncomePerSecond, incomePerSecond } from './economy/income';
 import { heirloomEffect, legacyMultiplier } from './economy/legacy';
-import type { GameStateV2, QuestDef } from './types';
+import type { GameStateV2, QuestDef, QuestGoal } from './types';
 
 // Game rules that read the economy: goals, story gifts, the daily reward, event cards, the life
 // clock, wealth classes and the Rich List. The economy itself lives in core/economy/ (businesses,
@@ -27,12 +29,44 @@ export * from './economy/legacy';
 export * from './economy/manual';
 export * from './economy/multipliers';
 
-/** What claiming a goal pays: a little early on, then a slice of income. */
+/** Vehicle prices from the cheapest: a "buy N vehicles" goal is priced at the Nth cheapest. */
+const VEHICLE_PRICES = VEHICLES.map((vehicle) => vehicle.cost).sort((a, b) => a - b);
+
+/**
+ * What a goal's purchase costs, the base of its reward: the level it points at (that one step), the
+ * branch, the manager, the vehicle. Null for goals that buy nothing (a job, a home, a class, collecting).
+ */
+export function questPrice(state: GameStateV2, goal: QuestGoal): number | null {
+  switch (goal.type) {
+    case 'level':
+      return businessDef(goal.businessId)?.levels[goal.level - 1]?.cost ?? null;
+    case 'branches': {
+      const def = businessDef(goal.businessId);
+      return def ? branchCost(def, goal.count - 1) : null;
+    }
+    case 'manager': {
+      const def = businessDef(goal.businessId);
+      return def ? managerCost(state, def) : null;
+    }
+    case 'vehicle':
+      return VEHICLE_PRICES[goal.count - 1] ?? null;
+    default:
+      return null;
+  }
+}
+
+/**
+ * What claiming a goal pays (2026-10-23): a share of what it cost, so a big purchase pays more than a
+ * bike and the goals on screen show different amounts; a goal that buys nothing pays seconds of income
+ * by how hard it is. `rewardMin` is the floor early on.
+ */
 export function questReward(state: GameStateV2, quest: QuestDef) {
-  return Math.max(
-    quest.rewardMin * legacyMultiplier(state),
-    incomePerSecond(state, 'active') * quest.rewardSeconds,
-  );
+  const price = questPrice(state, quest.goal);
+  const reward =
+    price !== null
+      ? price * QUEST_PRICE_SHARE
+      : incomePerSecond(state, 'active') * QUEST_TIER_SECONDS[quest.tier ?? 'medium'];
+  return Math.max(quest.rewardMin * legacyMultiplier(state), reward);
 }
 
 /** The gift that closes a ceremony or a life moment (config/economy.ts STORY_GIFT_SECONDS). */

@@ -2,6 +2,7 @@
 // when each milestone happens. Runs headless (no React, no storage). Entry: scripts/sim-economy.ts.
 
 import { BUSINESSES } from '../core/config/businesses';
+import { QUESTS } from '../core/config/quests';
 import { WEALTH_CLASSES } from '../core/config/classes';
 import { PRODUCTS, SPECIAL_SHOP_CEREMONY } from '../core/config/iap';
 import { RICH_MILESTONES } from '../core/config/richList';
@@ -221,6 +222,21 @@ export interface SimResult {
   sources: Record<MoneySource, number>;
   /** Money the places added 2026-10-21 paid, by place (time rushes and event bonuses are not money here). */
   adPaid: Record<string, number>;
+  /** First-life goals: when each came on screen, when it was claimed, what it paid (npm run sim -- --quests). */
+  goals: GoalLog[];
+}
+
+export interface GoalLog {
+  id: string;
+  /** Seconds of play when the goal first came on screen. */
+  shown: number;
+  /** It was already done the moment it came on screen. */
+  doneWhenShown: boolean;
+  /** Seconds of play when it was first done, on screen or not (null: never). */
+  reached: number | null;
+  /** Seconds of play when it was claimed (null: never). */
+  claimed: number | null;
+  reward: number;
 }
 
 export type MoneySource = 'work' | 'bottles' | 'finds' | 'events' | 'quests' | 'gifts' | 'daily' | 'deals' | 'offline' | 'help' | 'adExtras';
@@ -596,9 +612,34 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     }
   };
 
+  const goals: GoalLog[] = [];
+  const goalLog = new Map<string, GoalLog>();
+  /** When each written goal was first done, on screen or not. */
+  const writtenReached = new Map<string, number>();
+  /** Notes the goals on screen the first time each shows up, and when written goals get done (first life only). */
+  const noteGoals = () => {
+    if (state.generation !== 1) return;
+    for (const quest of QUESTS) {
+      if (!writtenReached.has(quest.id) && isQuestComplete(state, quest)) writtenReached.set(quest.id, time.activeTotal);
+    }
+    for (const quest of activeQuests(state)) {
+      const entry = goalLog.get(quest.id);
+      if (entry) {
+        if (entry.reached === null && isQuestComplete(state, quest)) entry.reached = time.activeTotal;
+        continue;
+      }
+      const done = isQuestComplete(state, quest);
+      const shown = time.activeTotal;
+      const added: GoalLog = { id: quest.id, shown, doneWhenShown: done, reached: writtenReached.get(quest.id) ?? (done ? shown : null), claimed: null, reward: 0 };
+      goalLog.set(quest.id, added);
+      goals.push(added);
+    }
+  };
+
   /** The bot claims every finished goal right away. */
   const claimGoals = () => {
     for (let guard = 0; guard < 20; guard += 1) {
+      noteGoals();
       const done = activeQuests(state).find((quest) => isQuestComplete(state, quest));
       if (!done) return;
       const before = state.classIndex;
@@ -607,6 +648,8 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       if (!next) return;
       if (extra > 0) watched.quests += 1;
       sources.quests += next.generationEarnings - state.generationEarnings;
+      const entry = goalLog.get(done.id);
+      if (entry) Object.assign(entry, { claimed: time.activeTotal, reward: next.generationEarnings - state.generationEarnings });
       state = next;
       adExtra(extra, 'quest_x3');
       for (let index = before + 1; index <= state.classIndex; index += 1) log('class', WEALTH_CLASSES[index].name);
@@ -775,6 +818,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     investCount: investing.count,
     sources: { ...sources, daily: daily.paid, deals: investing.profit },
     adPaid,
+    goals,
   };
 }
 
