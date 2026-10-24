@@ -7,6 +7,7 @@ import "./mobile.css";
 import { I18nProvider } from "./i18n/I18nProvider";
 import { loadLocale, type Locale } from "./i18n/locales";
 import { useT } from "./i18n/useT";
+import { checkConsentEarly } from "./runtime/ads";
 import { installBackButton } from "./runtime/backButton";
 import { installCrashReports } from "./runtime/crashReports";
 import {
@@ -57,6 +58,8 @@ export default function AppV2() {
   useEffect(() => installCrashReports(), []);
   // Installed at launch: a tap on a reminder is what opened the app.
   useEffect(() => installNotificationTracking(), []);
+  // Before the prologue, so its events count for the player (runtime/ads.ts).
+  useEffect(() => checkConsentEarly(), []);
 
   const loaded = saveText !== undefined && locale !== null;
   useEffect(() => {

@@ -69,11 +69,29 @@ export function subscribeAds(listener: () => void) {
 
 let initPromise: Promise<void> | null = null;
 
-async function refreshConsent(showFormIfNeeded: boolean) {
-  let info = await AdMob.requestConsentInfo({
+const consentRequest = () =>
+  AdMob.requestConsentInfo({
     testDeviceIdentifiers: testDevices,
     debugGeography: debugEea ? AdmobConsentDebugGeography.EEA : undefined,
   });
+
+/**
+ * At launch, before the prologue: asks only whether consent rules apply here (no form, no ads SDK).
+ * Where they do not, Analytics may store at once, so a new player's first minutes (the prologue, Old
+ * Ray's guide) reach the funnel tied to the player instead of as anonymous pings. The form itself
+ * still waits for initAds, after the prologue.
+ */
+export function checkConsentEarly() {
+  if (!native) return;
+  consentRequest()
+    .then((info) => {
+      if (info.status === AdmobConsentStatus.NOT_REQUIRED) grantAnalyticsConsent();
+    })
+    .catch(() => {});
+}
+
+async function refreshConsent(showFormIfNeeded: boolean) {
+  let info = await consentRequest();
   if (showFormIfNeeded && !info.canRequestAds && info.isConsentFormAvailable) {
     info = await AdMob.showConsentForm();
   }
