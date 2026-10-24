@@ -137,8 +137,15 @@ function DreamChip({ dream, cash, onGo }: { dream: Dream; cash: number; onGo: ()
       )}
       <span className="flex-1 min-w-0 flex flex-col items-stretch gap-0.5">
         <span className="flex items-center justify-end gap-0.5 v2-display text-[14px] leading-none text-white v2-shadow tabular-nums">
-          {locked && <UiIcon name="lock" />}
-          {ready ? t('dreams.buy') : blockText ? <span className="text-[11px] truncate">{blockText}</span> : t('dreams.percent', { percent })}
+          {/* What is missing says it all; the lock would leave it no room on a narrow phone ("Ön…"). */}
+          {locked && !blockText && <UiIcon name="lock" />}
+          {ready ? (
+            t('dreams.buy')
+          ) : blockText ? (
+            <span className="text-[11px] leading-[1.05] text-right line-clamp-2">{blockText}</span>
+          ) : (
+            t('dreams.percent', { percent })
+          )}
         </span>
         {!ready && (
           <span className="h-1.5 rounded-full bg-black/25 overflow-hidden">

@@ -769,7 +769,7 @@ export const en = {
   },
   offline: {
     title: 'Welcome back!',
-    body: 'You were away for {duration}. Your managers earned:',
+    body: 'You were away for {duration}. Meanwhile you earned:',
     cap: 'Earnings pile up for at most {duration}; it grows as you climb classes.',
   },
   dreams: {
@@ -1208,7 +1208,7 @@ export const en = {
     channel: 'Mom and Lucky',
   },
   intro: {
-    shop: 'You need a place to settle down, son. Shopping has homes and clothes. A roof over your head first.',
+    shop: 'Shopping has bikes, clothes, even homes, son. Get yourself a bike first, so you don\'t walk to work.',
     courses: 'You\'re never too old to learn, kid. Finish one of the courses in Career, and new doors open.',
     invest: 'Don\'t keep your money under the mattress, kid. I\'ve got deals in Invest; they work while you\'re away.',
     album: 'I put the photos in the album. Take a look now and then, will you?',

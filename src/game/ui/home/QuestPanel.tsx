@@ -83,7 +83,8 @@ export function QuestPanel({ onGo }: { onGo: GoToQuest }) {
     <section
       ref={panel}
       aria-label={t('quests.title')}
-      className="pointer-events-auto absolute left-3 top-2 w-[min(270px,calc(100%-24px))]"
+      // Open, the list reaches down past the round album / Rich List buttons: it lies over them.
+      className={`pointer-events-auto absolute left-3 top-2 w-[min(270px,calc(100%-24px))] ${expanded ? 'z-10' : ''}`}
     >
       {expanded ? (
         <div className="v2-pop-in rounded-2xl bg-white/90 backdrop-blur-sm border-2 border-white shadow-lg px-2 py-1.5">

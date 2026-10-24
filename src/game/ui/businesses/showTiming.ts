@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 
 // Timing for the short shows (a business growing, a manager joining, a new job): steps on a timeline
 // that a tap can jump to the end of, and numbers that count up.
@@ -10,9 +10,30 @@ const COUNT_MS = 900;
 
 export const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
+// Shows on screen right now: Old Ray's guide waits while one plays, so his line is not lost under it.
+let showsOpen = 0;
+const showListeners = new Set<() => void>();
+const subscribeShows = (listener: () => void) => {
+  showListeners.add(listener);
+  return () => showListeners.delete(listener);
+};
+
+/** Whether a show is on screen. */
+export function useShowOpen() {
+  return useSyncExternalStore(subscribeShows, () => showsOpen > 0);
+}
+
 /** The step a show has reached; `skip` jumps to the last one. */
 export function useShowStep(steps: Timeline) {
   const last = steps.length - 1;
+  useEffect(() => {
+    showsOpen += 1;
+    showListeners.forEach((listener) => listener());
+    return () => {
+      showsOpen -= 1;
+      showListeners.forEach((listener) => listener());
+    };
+  }, []);
   const [step, setStep] = useState(() => (reducedMotion() ? last : 0));
   useEffect(() => {
     if (step >= last) return;

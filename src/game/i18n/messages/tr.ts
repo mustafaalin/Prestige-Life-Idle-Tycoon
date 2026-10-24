@@ -768,7 +768,7 @@ export const tr: Messages = {
   },
   offline: {
     title: 'Tekrar hoş geldin!',
-    body: '{duration} uzaktaydın. Yöneticilerin kazandı:',
+    body: '{duration} uzaktaydın. Bu sürede kazandın:',
     cap: 'Kazanç en fazla {duration} birikir; sınıf atladıkça bu süre uzar.',
   },
   dreams: {
@@ -1207,7 +1207,7 @@ export const tr: Messages = {
     channel: 'Annen ve Şans',
   },
   intro: {
-    shop: 'Bir yere yerleşmeden olmaz oğlum. Alışveriş\'te ev de var, kıyafet de. Önce başını sokacak bir yer.',
+    shop: 'Alışveriş\'te bisiklet de var, kıyafet de, ev de oğlum. Önce bir bisiklet al, işe yürüyerek gitme.',
     courses: 'Okumanın yaşı yok evlat. Kariyer\'deki kurslardan birini bitir, yeni kapılar açılır.',
     invest: 'Paranı yastık altında tutma evlat. Yatırım\'da benim fırsatlarım var; sen yokken de çalışır.',
     album: 'Fotoğrafları albüme koydum. Ara sıra bak, olur mu?',

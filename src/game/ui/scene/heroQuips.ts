@@ -3,12 +3,13 @@ import type { MessageKey } from '../../i18n/translate';
 import type { RuntimeState } from '../../runtime/engine';
 import { storyRuns } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { useGuideLineOpen } from '../guide/guideLines';
 
 // The hero says something at his firsts (2026-10-23, user, after Idle Guy, where the hero keeps talking
 // about what just happened): the first paycheck, the first run of his own stand, the first manager, the
 // first diploma. Each comes from the moment the game state crosses it in this session (from none to
 // one), so it plays once in a life and an update never brings old firsts back; nothing is saved. Said
-// over the hero on the scene, it waits while a sheet covers the scene.
+// over the hero on the scene, it waits while a sheet covers the scene or someone else is talking.
 
 /** How long the bubble stays. */
 export const QUIP_MS = 3800;
@@ -35,6 +36,8 @@ export function useHeroQuip(covered: boolean): MessageKey | null {
   const before = useRef<boolean[] | null>(null);
   const [queue, setQueue] = useState<MessageKey[]>([]);
   const [saying, setSaying] = useState<MessageKey | null>(null);
+  const talking = useGuideLineOpen();
+  const waiting = covered || talking;
 
   const now = QUIPS.map((quip) => quip.done(state));
   const key = now.join();
@@ -49,10 +52,10 @@ export function useHeroQuip(covered: boolean): MessageKey | null {
   }, [key, runs]);
 
   useEffect(() => {
-    if (covered || saying || queue.length === 0) return;
+    if (waiting || saying || queue.length === 0) return;
     setSaying(queue[0]);
     setQueue((current) => current.slice(1));
-  }, [covered, saying, queue]);
+  }, [waiting, saying, queue]);
 
   useEffect(() => {
     if (!saying) return;

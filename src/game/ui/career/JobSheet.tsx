@@ -85,7 +85,8 @@ export function JobSheet({
             !hidden && <p className="text-[11px] font-bold text-slate-500 text-center">{t('career.masteryTime', { count: career.masteryMonths })}</p>
           )}
 
-          {(view === 'open' || view === 'next' || hidden) && (
+          {/* The first job needs nothing: no empty box. */}
+          {(view === 'open' || view === 'next' || hidden) && (career.requires ?? []).length > 0 && (
             <div className="rounded-2xl bg-indigo-50/70 px-3 py-2.5">
               <p className="mb-1.5 text-[10px] font-black uppercase tracking-widest text-indigo-900/40">{t('career.needs')}</p>
               <RequirementList

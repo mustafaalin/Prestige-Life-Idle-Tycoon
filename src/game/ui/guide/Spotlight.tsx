@@ -31,10 +31,14 @@ interface Spot {
   keep: Box[];
 }
 
-/** The element's box with everything drawn out of it (the speaker's portrait sits above the bubble). */
+/**
+ * The element's box with everything drawn out of it (the speaker's portrait sits above the bubble).
+ * Rising "+$X" labels are left out: they fly off for a moment and would stretch the hole with them.
+ */
 function outerRect(element: Element) {
   let { left, top, right, bottom } = element.getBoundingClientRect();
   for (const child of element.querySelectorAll('*')) {
+    if (child.closest('.v2-float-up')) continue;
     const rect = child.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) continue;
     left = Math.min(left, rect.left);

@@ -40,7 +40,7 @@ export function HeroAvatar({ onOpen }: { onOpen: () => void }) {
 
 export function ProfileSheet({ onClose }: { onClose: () => void }) {
   const { game, state, actions } = useGameV2();
-  const { t, name, money } = useT();
+  const { t, name, money, locale } = useT();
   const rankText = useRankText();
   const [renaming, setRenaming] = useState(false);
   useBackButton(!renaming, 60, onClose);
@@ -87,7 +87,7 @@ export function ProfileSheet({ onClose }: { onClose: () => void }) {
             }}
             className="flex items-center gap-1.5 rounded-full px-3 py-0.5 transition-all active:scale-95"
           >
-            <span className="v2-display text-[24px] leading-tight text-indigo-950 break-all">{heroName || t('richList.you')}</span>
+            <span className="v2-display text-[24px] leading-tight text-indigo-950 [overflow-wrap:anywhere]">{heroName || t('richList.you')}</span>
             <span className="shrink-0 w-7 h-7 rounded-full bg-gradient-to-b from-violet-400 to-indigo-600 border-2 border-white shadow flex items-center justify-center">
               <Pencil className="w-3.5 h-3.5 text-white" aria-label={t('profile.rename')} />
             </span>
@@ -105,8 +105,8 @@ export function ProfileSheet({ onClose }: { onClose: () => void }) {
             </Stat>
             <Stat label={t('profile.job')}>{career ? name('career', career) : t('career.unemployed')}</Stat>
             <Stat label={t('richList.title')}>{rank === null ? '—' : rankText(rank)}</Stat>
-            <Stat label={t('profile.bottles')}>{game.bottles.toLocaleString()}</Stat>
-            <Stat label={t('profile.finds')}>{game.finds.toLocaleString()}</Stat>
+            <Stat label={t('profile.bottles')}>{game.bottles.toLocaleString(locale)}</Stat>
+            <Stat label={t('profile.finds')}>{game.finds.toLocaleString(locale)}</Stat>
           </dl>
         </div>
       </div>

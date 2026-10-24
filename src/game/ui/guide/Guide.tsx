@@ -8,13 +8,15 @@ import { track } from '../../runtime/analytics';
 import { playSfx } from '../../runtime/feedback';
 import { pendingCeremony } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
+import { useShowOpen } from '../businesses/showTiming';
 import { portraitOf } from '../story/ceremonyScript';
 import { NameSheet } from '../story/NameSheet';
+import { lineOpened } from './guideLines';
 import { guideStep, setGuideTarget, TALKS_EARLY, type GuideStepId } from './guideSteps';
 
 // Old Ray's guide on the home screen (plan 1.12; steps in guideSteps.ts): his line in a small bubble (under
 // the goals card on the scene, where the bottles are not; above the menu in a tab), the hand on what to tap, and the sheet that asks the hero's name. It steps aside while a
-// ceremony, the offline card or the end of life is on screen.
+// ceremony, a show (a new job, a business growing), the offline card or the end of life is on screen.
 
 /** A line goes away by itself after this long (it counts as read). */
 const LINE_MS = 9000;
@@ -35,7 +37,8 @@ export function Guide({ tabOpen }: { tabOpen: boolean }) {
   const { game, state, actions } = useGameV2();
   const { t } = useT();
   const step = guideStep(state);
-  const hidden = pendingCeremony(game, state.story) !== null || state.offline !== null || awaitsHandover(game);
+  const showOpen = useShowOpen();
+  const hidden = pendingCeremony(game, state.story) !== null || state.offline !== null || awaitsHandover(game) || showOpen;
   const stepId = step?.id ?? null;
 
   // A new object every render; setGuideTarget only tells the screens when the target really changes.
@@ -120,6 +123,7 @@ export function GuideLine({
     const timer = window.setTimeout(() => read.current(), LINE_MS);
     return () => window.clearTimeout(timer);
   }, []);
+  useEffect(lineOpened, []);
 
   return (
     <button
