@@ -4,7 +4,10 @@ Parts are the see-through layers of the mannequin and of three outfit pictures d
 with the original pictures' pixels put back by project_layers.py (art/pilot/18-rig/rig-dressed/),
 all on the same 1280 canvas, so they stack with no offsets.
 Slots are view model booleans (top, bottom, shoes); each drives one state machine layer
-that shows or hides the slot's parts. The game sets them; nothing else changes.
+that shows or hides the slot's parts. The face takes two more view model inputs: `talking`
+(the mouth runs through speech shapes) and `mood` (0 neutral, 1 smile, 2 laugh, 3 sad: the mouth
+at rest, and the one he goes back to when he stops talking). The game sets them; nothing else changes.
+Eye and mouth patches come from face_patches.py.
 Usage: python3 scripts/rig/gen3.py art/pilot/18-rig/rive/dressrig
 """
 import os, sys
@@ -32,11 +35,15 @@ SRC = {
     "eyelash-r": (M, "16-eyelash-r", None), "eyebrow-l": (M, "17-eyebrow-l", None),
     "eyebrow-r": (M, "18-eyebrow-r", None), "front-hair": (M, "19-front hair", None),
 }
-# Eye patches from the side face close-ups (eye_patches.py): blink, half blink, glances.
+# Patches from the side face close-ups: eye states (blink, half blink, glances) and mouths.
 EYE_STATES = ["blink", "halfblink", "look-left", "neutral"]
 for st in EYE_STATES:
     for s in "lr":
         SRC[f"eyes-{st}-{s}"] = ("eyes", f"{st}-{s}", None)
+MOODS = ["mouth", "mouth-smile", "mouth-laugh", "mouth-sad"]   # index = view model `mood`
+TALK = ["mouth-talk-a", "mouth-talk-e", "mouth-talk-o"]
+for m in MOODS[1:] + TALK:
+    SRC[m] = ("mouth", m[len("mouth-"):], None)
 SLOTS = ["top", "bottom", "shoes"]
 
 os.makedirs(os.path.join(PROJ, "parts"), exist_ok=True)
@@ -105,12 +112,17 @@ for s in "lr":
     eyes += [node(f"eye-{s}", HEAD, HEAD, [image(f"eyelash-{s}", HEAD), image(f"irides-{s}", HEAD),
                                            image(f"eyewhite-{s}", HEAD)])]
 iris = {}
+# The mouth is a Solo: one of its children shows (the mannequin's own mouth at rest).
+mouth = (f'<Solo x="0" y="0" activeComponentId="{{active}}" name="Mouth" id="{{solo}}">\n'
+         + "\n".join(image(m, HEAD) for m in MOODS + TALK) + "\n</Solo>")
+ids["Mouth"] = nid()
+mouth = mouth.replace("{active}", ids["mouth"]).replace("{solo}", ids["Mouth"])
 # Each eye state is one node over both eyes; the blink states sit above the glances.
 eye_patches = [node(f"eyes-{st}", HEAD, HEAD, [image(f"eyes-{st}-{s}", HEAD) for s in "lr"])
                .replace("<Node ", '<Node opacity="0" ', 1) for st in EYE_STATES]   # hidden at rest
 features = node("features", HEAD, HEAD,
                 [image("eyebrow-l", HEAD), image("eyebrow-r", HEAD)] + eye_patches + eyes
-                + [image("nose", HEAD), image("mouth", HEAD)])
+                + [image("nose", HEAD), mouth])
 head = node("Head", HEAD, BODY, [image("front-hair", HEAD), features, image("face", HEAD), image("ears", HEAD)])
 arm_near = node("ArmNear", ARM_NEAR, BODY, [image("arm-near", ARM_NEAR)])
 sleeve_near = slot_node("top-sleeve-near", ARM_NEAR, BODY, ["sleeve-near"])
@@ -128,12 +140,16 @@ scene_nodes = "\n".join([body_front, legs, body_back])
 
 # ---- view model ---------------------------------------------------------------------------
 VM, VMI = nid(), nid()
-VMP = {s: nid() for s in SLOTS}
+BOOLS, NUMBERS = SLOTS + ["talking"], ["mood"]
+VMP = {s: nid() for s in BOOLS + NUMBERS}
 viewmodel = (f'<ViewModel defaultInstanceId="{VMI}" name="Hero" id="{VM}">\n'
-             + "".join(f'    <ViewModelPropertyBoolean name="{s}" id="{VMP[s]}"/>\n' for s in SLOTS)
+             + "".join(f'    <ViewModelPropertyBoolean name="{s}" id="{VMP[s]}"/>\n' for s in BOOLS)
+             + "".join(f'    <ViewModelPropertyNumber name="{s}" id="{VMP[s]}"/>\n' for s in NUMBERS)
              + f'    <ViewModelInstance exports="true" name="Default" id="{VMI}">\n'
              + "".join(f'        <ViewModelInstanceBoolean propertyValue="false" viewModelPropertyId="{VMP[s]}"/>\n'
-                       for s in SLOTS)
+                       for s in BOOLS)
+             + "".join(f'        <ViewModelInstanceNumber propertyValue="0" viewModelPropertyId="{VMP[s]}"/>\n'
+                       for s in NUMBERS)
              + '    </ViewModelInstance>\n</ViewModel>')
 
 # ---- animation helpers ---------------------------------------------------------------------
@@ -211,6 +227,23 @@ for s in SLOTS:
     on = anim(f"{s}-on", 1, shown(1), "oneShot")
     slot_anims[s] = (off, on)
 
+# Mouth: one held pose per mood, and a talk loop (2.4 s, uneven rhythm with short pauses).
+def mouth_keys(seq, end):
+    keys = "".join(f'<KeyFrameId value="{ids[m]}" frame="{int(t * S)}"/>' for t, m in seq)
+    return (f'<KeyedObject objectId="{ids["Mouth"]}"><KeyedProperty property="activeComponentId">'
+            f'{keys}<KeyFrameId value="{ids[seq[0][1]]}" frame="{end}"/></KeyedProperty></KeyedObject>')
+mood_anims = [anim(f"mood-{i}", 1, [mouth_keys([(0, m)], 1)], "oneShot") for i, m in enumerate(MOODS)]
+a, e, o, rest = TALK + ["mouth"]
+talk_seq = [(0, a), (.12, e), (.24, rest), (.34, o), (.48, a), (.6, e), (.72, rest), (.98, a), (1.1, o),
+            (1.24, e), (1.36, a), (1.5, rest), (1.8, e), (1.92, a), (2.06, o), (2.2, rest)]
+talk_anim = anim("talk", int(2.4 * S), [mouth_keys(talk_seq, int(2.4 * S))])
+
+def vm_number(s, value, op=0):
+    return (f'<TransitionViewModelCondition opValue="{op}"><TransitionPropertyViewModelComparator><BindablePropertyNumber>'
+            f'<DataBindContext sourcePathIds="{VM}-{VMP[s]}" propertyKey="636"/>'
+            f'</BindablePropertyNumber></TransitionPropertyViewModelComparator>'
+            f'<TransitionValueNumberComparator value="{value}"/></TransitionViewModelCondition>')
+
 def vm_condition(s, value):
     return (f'<TransitionViewModelCondition><TransitionPropertyViewModelComparator><BindablePropertyBoolean>'
             f'<DataBindContext sourcePathIds="{VM}-{VMP[s]}" propertyKey="634"/>'
@@ -239,7 +272,26 @@ for s in SLOTS:
     </AnimationState>
 </StateMachineLayer>''')
 
-all_anims = [a for _, a in loops] + [a for pair in slot_anims.values() for _, a in pair]
+# Mouth layer: mood states, all linked to each other and to Talk.
+mood_states = [nid() for _ in MOODS]
+talk_state = nid()
+states = []
+for i, (aid, _) in enumerate(mood_anims):
+    tr = [f'<StateTransition stateToId="{talk_state}">{vm_condition("talking", "true")}</StateTransition>']
+    tr += [f'<StateTransition stateToId="{mood_states[j]}">{vm_number("mood", j)}</StateTransition>'
+           for j in range(len(MOODS)) if j != i]
+    states.append(f'<AnimationState x="{100 * i}" animationId="{aid}" id="{mood_states[i]}">' + "".join(tr) + '</AnimationState>')
+tr = [f'<StateTransition stateToId="{mood_states[j]}">{vm_condition("talking", "false")}{vm_number("mood", j)}</StateTransition>'
+      for j in range(len(MOODS))]
+states.append(f'<AnimationState x="150" y="150" animationId="{talk_anim[0]}" id="{talk_state}">' + "".join(tr) + '</AnimationState>')
+layers.append(f'''<StateMachineLayer name="mouth" id="{nid()}">
+    <AnyState x="200" y="-120"/><ExitState x="400" y="-120"/>
+    <EntryState><StateTransition stateToId="{mood_states[0]}"/></EntryState>
+    {chr(10).join(states)}
+</StateMachineLayer>''')
+
+all_anims = ([a for _, a in loops] + [a for pair in slot_anims.values() for _, a in pair]
+             + [a for _, a in mood_anims] + [talk_anim[1]])
 rml = f'''<Rive version="1" kind="fragment">
 {chr(10).join(assets)}
 {viewmodel}
