@@ -268,6 +268,129 @@ Liste ve nerede kullanıldıkları: [default-icons.md](./default-icons.md). Sır
 
 > ONE separate production UI icon for Prestige Life Idle Tycoon, part of the same family as the game's money icons; the reference images show the exact style to match (the green banknote bundle and the red no-ads play button). Style: the existing game's warm, soft, illustrated semi-3D icon family exactly: rounded chunky simple shapes, smooth glossy surfaces, soft upper-left key light, restrained highlights, saturated cheerful colours. No hyperreal textures, no photo look, no ink outline, no cel shading. This icon is shown VERY SMALL on a phone (16–24 CSS pixels, sometimes 32), so: ONE single object, bold instantly readable silhouette, thick parts, two or three main colours, almost no small details, no thin lines. Actual transparent background with real alpha, NO checkerboard, NO solid backdrop, NO ground or cast shadow, no glow, no badge frame. Centre the object in a square canvas with at least 12 percent fully transparent padding on ALL sides, nothing clipped. No text, letters, numbers, labels, logos, people or extra objects. Target 1024x1024 PNG. Subject: Two overlapping rounded white document cards, the front one with a light blue edge.
 
+## 0d. Beceriler (2026-10-25; dördü de üretildi ve oyunda, arşive taşınabilir)
+
+0b'deki gibi: aynı referanslar ve aynı ortak stil paragrafı, çıktı `art/pilot/12-icons/v2/<ad>.png`; Claude webp'ye çevirip `public/assets/icons/v2/`'ye koyar ve `ui/icons.ts` (`self`) ile `ui/self/SelfScreen.tsx` (`SKILL_MARK`) içindeki geçici işaretlerin yerine bağlar.
+
+**S1 Beceriler sekmesi** → `art/pilot/12-icons/v2/skills-tab.png` · Alt menüdeki "Beceriler" düğmesi (eski adı "Kendim") (bugün kahramanın yüzü). Diğer sekme ikonları gibi büyük (48 px) görünür
+
+> ONE separate production UI icon for Prestige Life Idle Tycoon, part of the same family as the game's money icons; the reference images show the exact style to match (the green banknote bundle and the red no-ads play button). Style: the existing game's warm, soft, illustrated semi-3D icon family exactly: rounded chunky simple shapes, smooth glossy surfaces, soft upper-left key light, restrained highlights, saturated cheerful colours. No hyperreal textures, no photo look, no ink outline, no cel shading. This icon is shown VERY SMALL on a phone (16–24 CSS pixels, sometimes 32), so: ONE single object, bold instantly readable silhouette, thick parts, two or three main colours, almost no small details, no thin lines. Actual transparent background with real alpha, NO checkerboard, NO solid backdrop, NO ground or cast shadow, no glow, no badge frame. Centre the object in a square canvas with at least 12 percent fully transparent padding on ALL sides, nothing clipped. No text, letters, numbers, labels, logos, people or extra objects. Target 1024x1024 PNG. Subject: A chunky dumbbell crossed with a small open book, a friendly self-improvement mark: dark-grey dumbbell with round blue weights, a red-covered book behind it.
+
+**S2 Güç** → `art/pilot/12-icons/v2/skill-strength.png` · Beceriler sekmesinde Güç kartı (bugün 💪)
+
+> ONE separate production UI icon for Prestige Life Idle Tycoon, part of the same family as the game's money icons; the reference images show the exact style to match (the green banknote bundle and the red no-ads play button). Style: the existing game's warm, soft, illustrated semi-3D icon family exactly: rounded chunky simple shapes, smooth glossy surfaces, soft upper-left key light, restrained highlights, saturated cheerful colours. No hyperreal textures, no photo look, no ink outline, no cel shading. This icon is shown VERY SMALL on a phone (16–24 CSS pixels, sometimes 32), so: ONE single object, bold instantly readable silhouette, thick parts, two or three main colours, almost no small details, no thin lines. Actual transparent background with real alpha, NO checkerboard, NO solid backdrop, NO ground or cast shadow, no glow, no badge frame. Centre the object in a square canvas with at least 12 percent fully transparent padding on ALL sides, nothing clipped. No text, letters, numbers, labels, logos, people or extra objects. Target 1024x1024 PNG. Subject: A single bold flexed arm bicep, warm skin tone, a short sky-blue sleeve at the shoulder, cheerful and strong.
+
+**S3 Zekâ** → `art/pilot/12-icons/v2/skill-smarts.png` · Beceriler sekmesinde Zekâ kartı (bugün 📚)
+
+> ONE separate production UI icon for Prestige Life Idle Tycoon, part of the same family as the game's money icons; the reference images show the exact style to match (the green banknote bundle and the red no-ads play button). Style: the existing game's warm, soft, illustrated semi-3D icon family exactly: rounded chunky simple shapes, smooth glossy surfaces, soft upper-left key light, restrained highlights, saturated cheerful colours. No hyperreal textures, no photo look, no ink outline, no cel shading. This icon is shown VERY SMALL on a phone (16–24 CSS pixels, sometimes 32), so: ONE single object, bold instantly readable silhouette, thick parts, two or three main colours, almost no small details, no thin lines. Actual transparent background with real alpha, NO checkerboard, NO solid backdrop, NO ground or cast shadow, no glow, no badge frame. Centre the object in a square canvas with at least 12 percent fully transparent padding on ALL sides, nothing clipped. No text, letters, numbers, labels, logos, people or extra objects. Target 1024x1024 PNG. Subject: A small stack of two thick books, red and green covers with cream pages, a round yellow light bulb glowing softly on top.
+
+**S4 Karizma** → `art/pilot/12-icons/v2/skill-charisma.png` · Beceriler sekmesinde Karizma kartı (bugün 💬)
+
+> ONE separate production UI icon for Prestige Life Idle Tycoon, part of the same family as the game's money icons; the reference images show the exact style to match (the green banknote bundle and the red no-ads play button). Style: the existing game's warm, soft, illustrated semi-3D icon family exactly: rounded chunky simple shapes, smooth glossy surfaces, soft upper-left key light, restrained highlights, saturated cheerful colours. No hyperreal textures, no photo look, no ink outline, no cel shading. This icon is shown VERY SMALL on a phone (16–24 CSS pixels, sometimes 32), so: ONE single object, bold instantly readable silhouette, thick parts, two or three main colours, almost no small details, no thin lines. Actual transparent background with real alpha, NO checkerboard, NO solid backdrop, NO ground or cast shadow, no glow, no badge frame. Centre the object in a square canvas with at least 12 percent fully transparent padding on ALL sides, nothing clipped. No text, letters, numbers, labels, logos, people or extra objects. Target 1024x1024 PNG. Subject: Two overlapping rounded speech bubbles, one white and one sunny yellow, with a tiny red heart inside the front bubble.
+
+## 0e. Parçalı kahraman (Rive pilotu, sokak kıyafeti) (2026-10-25; açı hafif yana çevrildi: R1 yeniden, sonra R3 yeniden)
+
+**Neden:** kahraman Rive'da göz kırpsın, konuşsun, kollarını oynatsın, başını hafif çevirsin; bugünkü pozlar (idle, mutlu, endişeli, kararlı, sevinç) parçalardan üretilsin ([research/character-animation-2026-10-25.md](./research/character-animation-2026-10-25.md) §7). Pilot yalnız sokak kıyafeti. **Kimlik kesinlikle değişmez:** her komutta kılavuz `art/pilot/01-hero-sheet/A1-semi3d.png` ilk ve belirleyici referans.
+
+**Sıra:** önce R1 (temel poz) üretilir ve Claude'a gösterilir; onaylanınca R2 (parçalar) ve R3 (yüz seti) R1 referans verilerek üretilir. Hepsi aynı tuvalde (1024×1536 dikey) ve aynı yerde olmalı; küçük kaymaları Claude hizalar. Çıktılar `art/pilot/18-rig/` altına komuttaki adla (yanına `-prompt.txt`). Bir parça kimliği bozarsa (yüz, saç, renkler, oran) düzeltilmeye çalışılmaz, yeniden üretilir.
+
+**see-through denendi (2026-10-25):** çevrimiçi demo R1'i 21 katmana ayırdı ve arkada kalan yerleri doldurdu: arka ve ön saç, kulaklar, yüzsüz yüz derisi, göz akı, iris, kirpik (sağ / sol), kaşlar, burun, ağız, boyun, kolsuz gövde (askılarla), iki kol (kolluk ve elle, sağ / sol), kot, ayakkabılar. Üst üste konunca R1'le neredeyse aynı (yalnız boyun kapüşonun altında kalıyor, sıra düzeltilir). Çıktı `art/pilot/18-rig/seethrough/` (`rig-base.psd`). **R2 büyük olasılıkla gereksiz**; R3 (özellikle konuşma ağızları, kaş ve göz çeşitleri) hâlâ gerekli.
+
+**Açı değişti (2026-10-25, kullanıcı):** kahraman sahnede hafif soluna (ekranın sağına, Şans'a ve ekranın ortasına) dönük durur, bugünkü sahne pozları gibi. Önden yapılan pilot (R1, see-through, R3, R2, önden manken) `art/pilot/18-rig/front/` altında; parçalı kahraman orada denendi ve çalıştı. Aşağıdaki **R1 (yandan)** yeni temel; R3 ve §0f bu yeni `rig-base.png` ile yeniden üretilir. R2 gerekmiyor (see-through daha iyi).
+
+### R1 (yandan) Temel poz → `art/pilot/18-rig/rig-base.png`
+
+Referanslar: 1 `art/pilot/01-hero-sheet/A1-semi3d.png` (kimlik ve kıyafet; açı için ortadaki yandan duruşu, ama ondan daha az dönük), 2 `art/pilot/05-scene/hero-idle-cut.png` (bugünkü sahne pozunun açısı, ışığı ve ölçeği; pozu kopyalanmaz), 3 `art/pilot/18-rig/front/rig-base-front.png` (aynı karakterin önden rig pozu: kollar, eller ve kadraj böyle olacak, yalnız açı değişecek).
+
+> Create ONE vertical image, 1024 × 1536: a full-body character in a neutral "rig pose" for 2D cutout animation in a mobile game. Reference 1 is AUTHORITATIVE for identity and clothes: the SAME young man, about 17: same face, brown eyes, thick dark eyebrows, messy dark brown hair, skin tone, nose, ears and body proportions; dark charcoal hoodie with drawstrings and a kangaroo pocket, a small worn hole on one sleeve, light grey t-shirt collar, brown backpack straps over both shoulders (the backpack itself behind him), dark blue jeans torn at the knees, worn grey canvas sneakers. Reference 3 shows the rig pose of this same character from the front: keep its arms, hands, framing and calm expression, but turn the whole body. ANGLE: a gentle three-quarter view, the whole body and head turned about 20 degrees to HIS LEFT, so he faces toward the RIGHT side of the image, like the current scene pose in Reference 2 (do NOT copy its hands-in-pockets pose or its hunching). Both eyes and both ears are visible; the far side of the face is only slightly narrower. Pose: standing straight, weight on both feet, feet a little apart and pointing the same way as the body; BOTH arms hang down relaxed and slightly away from the body, with a clear gap of background between each arm and the torso from about the elbow to the hand, including the FAR arm (it is partly behind the torso at the shoulder but its forearm and hand are fully visible and do not overlap the body); elbows slightly bent; both hands open and relaxed, fingers together, fully visible, not touching anything. Head in line with the body, eyes looking in the same direction the head faces (slightly to the right of the camera), neutral calm face with a faint hopeful softness, mouth closed, eyes fully open. Nothing overlaps: hands do not cover the legs, hair does not cover the eyes. Exactly two arms and two hands, natural five-finger hands. The whole figure fills the height with a small margin (head top about 3% from the top edge, soles about 3% from the bottom edge), centred horizontally. Plain flat light grey background (#d9d9d9), no floor line, no cast shadow, no props.
+>
+> Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
+
+### R1 (önden, eski; `front/rig-base-front.png`)
+
+
+Referanslar: 1 `art/pilot/01-hero-sheet/A1-semi3d.png` (kimlik ve kıyafet; en soldaki önden duruşu), 2 `art/pilot/05-scene/hero-idle-cut.png` (yalnız ışık, ölçek ve işleme kalitesi; pozu kopyalanmaz).
+
+> Create ONE vertical image, 1024 × 1536: a full-body character in a neutral "rig pose" for 2D cutout animation in a mobile game. Reference 1 is AUTHORITATIVE for identity and clothes: the SAME young man, about 17, exactly as the FRONT VIEW (leftmost figure) of the guide: same face, brown eyes, thick dark eyebrows, messy dark brown hair, skin tone, nose, ears and body proportions; dark charcoal hoodie with drawstrings and a kangaroo pocket, a small worn hole on one sleeve, light grey t-shirt collar, brown backpack straps over both shoulders (the backpack itself behind him), dark blue jeans torn at the knees, worn grey canvas sneakers. Reference 2 is only for lighting, scale and rendering quality; do NOT copy its pose (no hands in pockets, no hunching). Pose: standing straight, facing the camera almost frontally (turned at most 10 degrees to his left), weight on both feet, feet a little apart; BOTH arms hang down relaxed and slightly away from the body so there is a clear gap of background between each arm and the torso from armpit to hand; elbows slightly bent; both hands open and relaxed, fingers together, palms facing the thighs, fully visible and not touching anything. Head straight, looking at the camera, neutral calm face with a faint hopeful softness, mouth closed, eyes fully open. Nothing overlaps: arms do not cross the torso, hands do not cover the legs, hair does not cover the eyes. Exactly two arms and two hands, natural five-finger hands. The whole figure fills the height with a small margin (head top about 3% from the top edge, soles about 3% from the bottom edge), centred horizontally. Plain flat light grey background (#d9d9d9), no floor line, no cast shadow, no props.
+>
+> Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
+
+### R2 Parçalar (R1 onaylanınca) → `art/pilot/18-rig/part-*.png`
+
+Referanslar: 1 `art/pilot/18-rig/rig-base.png` (R1; belirleyici), 2 `art/pilot/01-hero-sheet/A1-semi3d.png`. Her parça **ayrı bir görsel**, tek tek üretilir. "Sol / sağ" **görüntünün** solu ve sağıdır (izleyenin gözüyle). Her komutun başına bu ortak kısım eklenir:
+
+> Use Reference 1 as the exact source image. Produce ONE vertical image, 1024 × 1536, the same canvas, scale and position as Reference 1: the part below stays at EXACTLY the same place, size, angle, colours, lighting and rendering as in Reference 1, as if everything else were cut away. Everything that is not this part is removed and replaced by plain flat light grey (#d9d9d9). Do not redraw or restyle the part, do not change the face, hair or clothes. This is a cutout-animation part sheet for 2D rigging. No text, no labels, no logos, no watermark.
+
+Sonra parça başına (ortak kısmın arkasına):
+
+| Dosya | Eklenecek cümle |
+| --- | --- |
+| `part-head.png` | `Part: the HEAD with all of its hair and both ears, cut at the jaw line; extend the neck skin 6% further down below the jaw (it will tuck under the hood), with a clean soft end.` |
+| `part-torso.png` | `Part: the TORSO only: the hoodie body with the hood, drawstrings and kangaroo pocket, the t-shirt collar, the neck, and the backpack straps, WITHOUT both arms and WITHOUT the head. Where the arms used to cover the hoodie, complete the hoodie naturally (its sides and armholes), and close each shoulder with a rounded sleeve cap. The backpack visible behind the shoulders stays.` |
+| `part-legs.png` | `Part: the LEGS: the jeans from the waistband down, both sneakers; the bottom edge of the hoodie removed and the jeans waist completed underneath it for 5% more height.` |
+| `part-upperarm-left.png` | `Part: ONLY the upper arm on the LEFT side of the image, from the shoulder to the elbow, in its hoodie sleeve; complete the shoulder end as a rounded joint and extend the elbow end slightly with a rounded overlap so it can rotate.` |
+| `part-forearm-left.png` | `Part: ONLY the forearm and hand on the LEFT side of the image, from the elbow to the fingertips, sleeve cuff included; extend the elbow end slightly with a rounded overlap so it can rotate.` |
+| `part-upperarm-right.png` | Aynı, `RIGHT side of the image` |
+| `part-forearm-right.png` | Aynı, `RIGHT side of the image` |
+| `part-backpack.png` | `Part: ONLY the backpack body visible behind his shoulders and sides (no straps, no person); complete the parts hidden behind his body as a plain backpack back.` |
+
+### R3 Yüz seti (R1 onaylanınca) → `art/pilot/18-rig/face-*.png`
+
+Referanslar: 1 `art/pilot/18-rig/rig-base.png`, 2 `art/pilot/01-hero-sheet/A1-semi3d.png` (ifade portreleri: sağdaki dört yüz). Her ifade **ayrı bir görsel**. Claude bu görsellerden yalnız göz, kaş ve ağız bölgelerini keser; bu yüzden **kafa, saç, ışık ve kadraj her görselde aynı kalmalı**, yalnız istenen yüz parçası değişir. Ortak kısım:
+
+> Use Reference 1 as the exact source. Produce ONE square image, 1024 × 1024: a close-up of the SAME head from Reference 1 (same angle, same face, hair, ears, skin, lighting and rendering), framed from just above the hair to just below the chin, the head centred and filling about 85% of the height, plain flat light grey background (#d9d9d9). The head does not move or turn between images and the hair stays identical; ONLY the facial feature described below changes, everything else is pixel-for-pixel the same as the neutral face. Reference 2 shows how his expressions look; match that face. No text, no labels, no logos, no watermark.
+
+| Dosya | Eklenecek cümle |
+| --- | --- |
+| `face-neutral.png` | `Neutral: calm, eyes open looking at the camera, mouth closed, relaxed brows (the same face as Reference 1).` |
+| `face-blink.png` | `Only the eyes change: both eyes fully CLOSED with relaxed lids and lashes, a natural blink. Brows and mouth exactly as neutral.` |
+| `face-halfblink.png` | `Only the eyes change: both eyes HALF closed, upper lids at the middle of the iris. Brows and mouth exactly as neutral.` |
+| `face-look-left.png` | `Only the eyes change: both irises looking to the LEFT side of the image. Brows and mouth exactly as neutral.` |
+| `face-look-right.png` | `Only the eyes change: both irises looking to the RIGHT side of the image. Brows and mouth exactly as neutral.` |
+| `face-smile.png` | `Only the mouth changes: a warm closed-mouth smile. Eyes and brows exactly as neutral.` |
+| `face-laugh.png` | `Only the mouth changes: a wide open happy smile showing the upper teeth. Eyes and brows exactly as neutral.` |
+| `face-sad.png` | `Only the mouth changes: mouth closed and turned down at the corners, a little sad. Eyes and brows exactly as neutral.` |
+| `face-talk-a.png` | `Only the mouth changes: mouth open mid-word as when saying "ah", relaxed, teeth slightly visible. Eyes and brows exactly as neutral.` |
+| `face-talk-o.png` | `Only the mouth changes: lips rounded and slightly open as when saying "oh". Eyes and brows exactly as neutral.` |
+| `face-talk-e.png` | `Only the mouth changes: mouth slightly open and wide as when saying "eh", teeth slightly visible. Eyes and brows exactly as neutral.` |
+| `face-brows-worried.png` | `Only the eyebrows change: raised and drawn together in the middle, worried. Eyes and mouth exactly as neutral.` |
+| `face-brows-determined.png` | `Only the eyebrows change: lowered and straight, determined, not angry. Eyes and mouth exactly as neutral.` |
+| `face-brows-raised.png` | `Only the eyebrows change: both raised high, surprised. Eyes and mouth exactly as neutral.` |
+
+Not: eller (yumruk, el sallama, işaret) ve kaldırılmış kol açıları pilotun ikinci turunda, kemikle yapılan hareket görüldükten sonra istenir.
+
+## 0f. Manken ve giydirilen kıyafetler (Rive pilotu, 2026-10-25, bekliyor)
+
+**Neden:** kahraman bir kez "manken" olarak kurulur (yüz, ifadeler, hareketler); kıyafetler ayrı resimler olarak üstüne giydirilir: üst, alt, ayakkabı, aksesuar yuvaları (Idle Guy'ın kıyafet ekranı gibi; [research/character-animation-2026-10-25.md](./research/character-animation-2026-10-25.md) §9). Oyunda kıyafet ayrı bir resimdir; aşağıdaki "mankenin üstünde çiz, sonra kes" yalnız üretim yöntemi (GPT kıyafeti tek başına bizim gövdeye birebir oturtmakta zorlanır). Kesmeyi Claude yapar (manken ile giyinik görsel arasındaki fark + see-through).
+
+**Sıra:** M1 → Claude kontrol eder → G1–G3 (ve karşılaştırma için Y1). Hepsi 1024×1536, R1 ile aynı tuval ve poz. Çıktı `art/pilot/18-rig/` altına komuttaki adla (yanına `-prompt.txt`). Kimlik kılavuz `art/pilot/01-hero-sheet/A1-semi3d.png`'den değişmez.
+
+### M1 Manken → `art/pilot/18-rig/manken.png`
+
+Referanslar: 1 `art/pilot/18-rig/rig-base.png` (poz, kadraj, ışık; belirleyici), 2 `art/pilot/01-hero-sheet/A1-semi3d.png` (kimlik).
+
+> Use Reference 1 as the exact source image. Produce ONE vertical image, 1024 × 1536, the same canvas, framing, pose, scale and lighting as Reference 1: the SAME young man (face, hair, skin tone and body proportions as Reference 2), standing in exactly the same pose, the arms in exactly the same position and angle, the same open relaxed hands, the head, face and hair pixel-for-pixel as in Reference 1. Only his clothes change: he now wears a a plain skin-tight light grey sleeveless undershirt (a simple tank top that follows the body like a second skin, tucked in, no loose fabric), plain dark grey skin-tight athletic compression shorts ending at mid-thigh (they follow the shape of the hips and thighs exactly, no flare, no loose leg openings), and plain white ankle socks, no shoes. His arms are bare from the shoulder, his legs bare from mid-thigh; natural slim body of a 17-year-old, no muscles emphasised. No backpack, no straps, no jewellery, no logos. Exactly two arms and two hands, natural five-finger hands. Plain flat light grey background (#d9d9d9), no floor line, no cast shadow.
+>
+> Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
+
+### G1–G3 Mankene giydir (M1 onaylanınca)
+
+Referanslar: 1 `art/pilot/18-rig/manken.png` (belirleyici: değişmeyecek her şey), 2 `art/pilot/18-rig/rig-base.png` (kıyafetin tasarımı). Ortak kısım, her komutun başına:
+
+> Use Reference 1 as the exact source image and keep it unchanged pixel for pixel: the same canvas, pose, arm positions, hands, head, face, hair, lighting and background. Add ONLY the garment described below, worn naturally on this exact body in this exact pose, with folds and shading that follow the soft light from the upper left. Take the garment's design, colours and details from Reference 2. Everything not covered by the garment stays exactly as in Reference 1 (the tank top, shorts, socks or bare skin that remain visible). Exactly two arms and two hands. No text, no labels, no logos, no watermark.
+
+| Dosya | Eklenecek cümle |
+| --- | --- |
+| `wear-hoodie.png` | `Garment: the dark charcoal hoodie from Reference 2 with its hood, grey drawstrings, kangaroo pocket, ribbed cuffs and hem, the small worn hole on the sleeve, and the brown backpack straps over both shoulders with the backpack behind him. The sleeves cover both arms down to the wrists; the hands stay exactly as in Reference 1. The shorts and socks below stay unchanged.` |
+| `wear-jeans.png` | `Garment: the dark blue jeans from Reference 2, torn at both knees, slightly frayed hems, covering both legs from the waist down to the ankles over the socks. The tank top, arms and hands stay unchanged; the jeans waistband sits at the waist under the tank top's hem.` |
+| `wear-sneakers.png` | `Garment: the worn grey canvas sneakers with white rubber toe caps and laces from Reference 2, on both feet over the socks. Everything above the ankles stays unchanged (bare lower legs and shorts).` |
+
+### Y1 Karşılaştırma: kıyafet tek başına (M1 onaylanınca) → `art/pilot/18-rig/alone-hoodie.png`
+
+Referanslar: 1 `art/pilot/18-rig/manken.png`, 2 `art/pilot/18-rig/rig-base.png`.
+
+> Produce ONE vertical image, 1024 × 1536, the same canvas as Reference 1. Draw ONLY the dark charcoal hoodie from Reference 2 (hood, drawstrings, kangaroo pocket, ribbed cuffs and hem, the small hole on the sleeve) together with the brown backpack straps, exactly as it would sit on the body in Reference 1: the same position, size, shoulder width and arm angles, as if worn by an invisible person; the neck opening, the sleeve ends and the inside of the hood are empty. No person, no skin, no hands, no head. Plain flat light grey background (#d9d9d9), no cast shadow. Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows. No text, no labels, no logos, no watermark.
+
 ## 1. Uygulama ikonu ve özellik grafiği
 
 **Durum (2026-10-22):** özellik grafiği tamam. İkon yeniden tasarlanıyor: A, B, C beğenilmedi. Yeni adaylar D ve E (aşağıda); ikisi de üretilip Play Console'daki mağaza girişi deneyiyle (Store listing experiments) karşılaştırılabilir.

@@ -206,7 +206,7 @@ v1 wiring (RevenueCat keys and ad unit IDs are reused by v2):
 
 ### Character Animation Status (v1)
 
-v2 uses a visual-novel approach (decided 2026-10-08): consistent static poses, expression portraits, speech bubbles and comic-panel story scenes; no code-only squash/jump as character animation. Art style decided (semi-3D, `docs/story-v2.md` §8); optional AI video for special moments: `docs/discussion-notes.md` §1.
+v2 scene hero: a Rive cutout rig is being piloted since 2026-10-25 (Rive CLI at `~/.rive/bin/rive`, see-through layer split, mannequin + outfit slots, three-quarter pose; `docs/research/character-animation-2026-10-25.md`, prompts `docs/art-prompts-v2.md` §0e–0f). Otherwise v2 uses a visual-novel approach (decided 2026-10-08): consistent static poses, expression portraits, speech bubbles and comic-panel story scenes; no code-only squash/jump as character animation. Art style decided (semi-3D, `docs/story-v2.md` §8); optional AI video for special moments: `docs/discussion-notes.md` §1.
 
 
 - Outfit images follow naming: `ch-N-1.png` (idle static), `ch-N-2.png` (celebrate static).
