@@ -22,6 +22,7 @@ EYES = ["neutral", "look-left", "look-right", "halfblink", "blink"]
 MOUTHS = ["smile", "laugh", "sad", "talk-a", "talk-e", "talk-o"]
 PAD = {"r": (10, 9), "l": (8, 9)}  # extra room around each eye's lash box (x, y)
 MOUTH_PAD = (14, 9, 12, 20)        # left, top, right, bottom of the mouth layer (laughing opens down)
+EDGE = (3, 4)                      # px kept clear of the face outline, then px of fade
 
 
 def layer(name):
@@ -55,7 +56,10 @@ def mouth_box():
 
 
 CAN = canvas()
-FACE = layer("face")[..., 3].astype(np.float32) / 255   # patches stay inside the face outline
+# Patches stay inside the face outline and fade out before it: the close-ups' jaw line sits a pixel
+# or two off the mannequin's and would show as a second line.
+_face = (layer("face")[..., 3] > 128).astype(np.uint8)
+FACE = np.clip((cv2.distanceTransform(_face, cv2.DIST_L2, 5) - EDGE[0]) / EDGE[1], 0, 1).astype(np.float32)
 BOXES = {"eyes": {s: eye_box(s) for s in "rl"}, "mouth": {"": mouth_box()}}
 fx0, fy0, fx1, fy1 = bbox(layer("face")[..., 3])
 HEAD = (fx0 - 50, fy0 - 60, fx1 + 50, fy1 + 10)
