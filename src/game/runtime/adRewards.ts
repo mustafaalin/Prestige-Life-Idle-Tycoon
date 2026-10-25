@@ -1,5 +1,6 @@
 import {
   AD_GIFT_SECONDS,
+  AD_SKILL_LEVELS,
   AD_PLACEMENTS,
   BOOST_FACTOR,
   BOOST_MAX_SECONDS,
@@ -23,10 +24,20 @@ import { courseDef } from '../core/config/courses';
 import type { InvestPlanId } from '../core/config/investments';
 import type { EventOutcome } from '../core/config/events';
 import { SECONDS_PER_MONTH } from '../core/config/life';
-import { autoIncomePerSecond, businessState, currentCareer, eventReward, incomePerSecond, isOpened, questReward } from '../core/formulas';
+import {
+  autoIncomePerSecond,
+  businessState,
+  canTrainSkill,
+  currentCareer,
+  eventReward,
+  incomePerSecond,
+  isOpened,
+  questReward,
+  skillAdOpen,
+} from '../core/formulas';
 import { isMastered } from '../core/requirements';
-import { earn } from '../core/state';
-import type { CareerDef, GameStateV2, QuestDef } from '../core/types';
+import { earn, giveSkillLevels } from '../core/state';
+import type { CareerDef, GameStateV2, QuestDef, SkillId } from '../core/types';
 import { startInvestment, type InvestProgress } from './investment';
 
 // What rewarded ads give and when they can be watched (docs/monetization-v2.md §4). Every place has
@@ -254,6 +265,21 @@ export function applyExperienceRush<T extends AdContext>(state: T, now: number):
     (s) => ({ ...s, game: { ...s.game, jobSeconds: { ...s.game.jobSeconds, [careerId]: (s.game.jobSeconds[careerId] ?? 0) + add } } }),
     `experience_rush:${careerId}`,
   );
+}
+
+// ── Skills ──
+
+/**
+ * The training skill can take two levels at once (2026-10-25, user, after Idle Guy's "+2 levels"),
+ * once until one of its levels finishes by training.
+ */
+export function canGiveSkillLevels({ game, ads }: AdContext, skillId: SkillId, now: number) {
+  return game.training === skillId && canTrainSkill(game, skillId) && skillAdOpen(game, skillId) && canWatch(ads, 'skill_levels', now);
+}
+
+export function applySkillLevels<T extends AdContext>(state: T, skillId: SkillId, now: number): T | null {
+  if (!canGiveSkillLevels(state, skillId, now)) return null;
+  return grant(state, 'skill_levels', now, (s) => ({ ...s, game: giveSkillLevels(s.game, skillId, AD_SKILL_LEVELS) }));
 }
 
 type InvestContext = AdContext & { invest: InvestProgress };

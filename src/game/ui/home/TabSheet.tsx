@@ -7,6 +7,7 @@ import { CareerScreen } from '../career/CareerScreen';
 import { FamilyScreen } from '../family/FamilyScreen';
 import { InvestScreen } from '../invest/InvestScreen';
 import { useLook } from '../look';
+import { SelfScreen } from '../self/SelfScreen';
 import { ShopScreen } from '../shop/ShopScreen';
 import { QuestStrip, type GoToQuest } from './QuestPanel';
 import { TABS, type TabId } from './tabs';
@@ -58,6 +59,7 @@ export function TabSheet({
       <div key={tab} className="v2-sheet-body flex-1 overflow-y-auto px-3 py-3 bg-gradient-to-b from-sky-100 to-indigo-100">
         {tab === 'businesses' && <BusinessesScreen />}
         {tab === 'career' && <CareerScreen onGoTo={onGoTo} />}
+        {tab === 'self' && <SelfScreen />}
         {tab === 'shop' && <ShopScreen onOpenStore={onOpenStore} onGoTo={onGoTo} />}
         {tab === 'invest' && <InvestScreen />}
         {tab === 'family' && <FamilyScreen onClose={onClose} />}

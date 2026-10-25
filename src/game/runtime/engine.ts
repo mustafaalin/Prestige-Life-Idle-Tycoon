@@ -23,13 +23,17 @@ import {
   moveHome as coreMoveHome,
   openBranch as coreOpenBranch,
   startCourse as coreStartCourse,
+  startTraining as coreStartTraining,
+  stopTraining as coreStopTraining,
+  collectSkill as coreCollectSkill,
+  train,
   takeCareer as coreTakeCareer,
   rentHome as coreRentHome,
   retire as coreRetire,
   live,
   liveAway,
 } from '../core/state';
-import type { BusinessDef, GameStateV2 } from '../core/types';
+import type { BusinessDef, GameStateV2, SkillId } from '../core/types';
 import { CAMPAIGN_FACTOR, COIN_RAIN_VALUE_FACTOR } from '../core/config/ads';
 import { boostFactor, boostShare, campaignFactor, coinRainActive, createAdProgress, tempManagerLeft, type AdProgress } from './adRewards';
 import { createDailyProgress, type DailyProgress } from './daily';
@@ -165,7 +169,8 @@ export function tick(state: RuntimeState, now: number, speed = 1): { state: Runt
   const boost = boostFactor(state.ads, now);
   return {
     // Open-app time ages the hero in full; resume() (time away) only a little (liveAway).
-    state: { ...state, game: live(earn(state.game, (earned + steady) * boost), seconds), cycles, lastActiveAt: now },
+    // Skills train in real time (the dev speed-up included, so a test does not wait for hours).
+    state: { ...state, game: train(live(earn(state.game, (earned + steady) * boost), seconds), seconds), cycles, lastActiveAt: now },
     payouts: boost === 1 ? payouts : payouts.map((payout) => ({ ...payout, amount: payout.amount * boost })),
   };
 }
@@ -182,7 +187,8 @@ export function resume(state: RuntimeState, now: number): { state: RuntimeState;
   // The income boost runs in real time: the part of the absence it covers earns double.
   const boosted = 1 + (boostFactor(state.ads, state.lastActiveAt) - 1) * boostShare(state.ads, state.lastActiveAt, now);
   const offlineAmount = offlineEarnings(state.game, away) * boosted;
-  const base = { ...state, game: liveAway(earn(state.game, earned), away), cycles, lastActiveAt: now };
+  // Skills train in full while away: a finished training waits for the player who comes back.
+  const base = { ...state, game: train(liveAway(earn(state.game, earned), away), away), cycles, lastActiveAt: now };
 
   if (away < OFFLINE_MIN_SECONDS || offlineAmount <= 0) {
     return { state: { ...base, game: earn(base.game, offlineAmount) }, payouts };
@@ -272,6 +278,18 @@ export function takeCareer(state: RuntimeState, careerId: string) {
 
 export function startCourse(state: RuntimeState, courseId: string) {
   return withGame(state, coreStartCourse(state.game, courseId));
+}
+
+export function startTraining(state: RuntimeState, skillId: SkillId) {
+  return withGame(state, coreStartTraining(state.game, skillId));
+}
+
+export function stopTraining(state: RuntimeState) {
+  return withGame(state, coreStopTraining(state.game));
+}
+
+export function collectSkill(state: RuntimeState, skillId: SkillId) {
+  return withGame(state, coreCollectSkill(state.game, skillId));
 }
 
 export function buyLifestyle(state: RuntimeState, itemId: string) {

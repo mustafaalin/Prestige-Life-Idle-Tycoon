@@ -2,6 +2,7 @@ import { BUSINESSES, CLASS_MANAGER_GIFT } from './config/businesses';
 import { CAREERS, careerDef } from './config/careers';
 import { CONTENT } from './config/content';
 import { courseDef } from './config/courses';
+import { MAX_SKILL_LEVEL, SKILL_BANK_MAX, skillDef, trainingSeconds } from './config/skills';
 import { SECONDS_PER_MONTH } from './config/life';
 import { STARTING_CASH } from './config/economy';
 import { FIRST_OWNED_HOME_CLASS, HOUSES, RENT_ONLY_COUNT, STARTING_HOME_ID } from './config/housing';
@@ -14,6 +15,7 @@ import { heirloomDef } from './config/heirlooms';
 import {
   ageSpeed,
   canTakeCareer,
+  canTrainSkill,
   hasWorked,
   branchCapAt,
   branchCost,
@@ -36,7 +38,7 @@ import {
   questReward,
 } from './formulas';
 import { allMet, unmet } from './requirements';
-import type { BusinessDef, BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind, QuestDef, QuestGoal, Requirement } from './types';
+import type { BusinessDef, BusinessState, GameStateV2, HouseDef, LifestyleDef, LifestyleKind, QuestDef, QuestGoal, Requirement, SkillId } from './types';
 
 // Pure state transitions. Every action returns a new state, or null when it is not allowed.
 
@@ -69,6 +71,11 @@ export function createInitialState(
     jobSeconds: {},
     coursesDone: [],
     course: null,
+    skills: {},
+    skillBank: {},
+    skillProgress: {},
+    training: null,
+    skillAdUsed: [],
     lifestyleOwned: [...STARTING_LIFESTYLE_IDS],
     home: STARTING_HOME_ID,
     homesOwned: [],
@@ -102,6 +109,68 @@ export function live(state: GameStateV2, seconds: number): GameStateV2 {
 /** Time away ages the hero a little (config/life.ts AWAY_AGE_RATE); experience and a course run with it. */
 export function liveAway(state: GameStateV2, awaySeconds: number): GameStateV2 {
   return live(state, Math.min(Math.max(0, awaySeconds), AWAY_AGE_CAP_HOURS * 3600) * AWAY_AGE_RATE);
+}
+
+/**
+ * Real time passing, open or closed (docs/game-design-v2.md §4.15): the training skill goes on level
+ * after level by itself; each finished level waits to be collected, and once SKILL_BANK_MAX wait the
+ * training holds until the player collects them.
+ */
+export function train(state: GameStateV2, seconds: number): GameStateV2 {
+  const skillId = state.training;
+  if (seconds <= 0 || skillId === null) return state;
+  const level = state.skills[skillId] ?? 0;
+  let bank = state.skillBank[skillId] ?? 0;
+  let progress = (state.skillProgress[skillId] ?? 0) + seconds;
+  while (bank < SKILL_BANK_MAX && level + bank < MAX_SKILL_LEVEL && progress >= trainingSeconds(level + bank)) {
+    progress -= trainingSeconds(level + bank);
+    bank += 1;
+  }
+  // Waiting (full, or at the top): the time does not pile up toward the next level.
+  if (bank >= SKILL_BANK_MAX || level + bank >= MAX_SKILL_LEVEL) progress = 0;
+  // A level trained the normal way opens the skill's ad levels again (2026-10-25, user).
+  const trained = bank > (state.skillBank[skillId] ?? 0);
+  return {
+    ...state,
+    skillAdUsed: trained ? state.skillAdUsed.filter((id) => id !== skillId) : state.skillAdUsed,
+    skillBank: { ...state.skillBank, [skillId]: bank },
+    skillProgress: { ...state.skillProgress, [skillId]: progress },
+    training: level + bank >= MAX_SKILL_LEVEL ? null : skillId,
+  };
+}
+
+/** Trains this skill from now on (free); the one training before keeps its progress. */
+export function startTraining(state: GameStateV2, skillId: SkillId): GameStateV2 | null {
+  if (!skillDef(skillId) || state.training === skillId || !canTrainSkill(state, skillId)) return null;
+  return { ...state, training: skillId };
+}
+
+/** Pauses the training skill; its progress stays for when it trains again. */
+export function stopTraining(state: GameStateV2): GameStateV2 | null {
+  return state.training === null ? null : { ...state, training: null };
+}
+
+/** Collects the levels a skill trained; a full skill goes on training. */
+export function collectSkill(state: GameStateV2, skillId: SkillId): GameStateV2 | null {
+  const bank = state.skillBank[skillId] ?? 0;
+  if (bank <= 0) return null;
+  return {
+    ...state,
+    skills: { ...state.skills, [skillId]: Math.min(MAX_SKILL_LEVEL, (state.skills[skillId] ?? 0) + bank) },
+    skillBank: { ...state.skillBank, [skillId]: 0 },
+  };
+}
+
+/**
+ * Levels given at once (a rewarded ad), collected right away; never past the top. Once per skill until
+ * one of its levels finishes by training (train), so ads alone never climb every level.
+ */
+export function giveSkillLevels(state: GameStateV2, skillId: SkillId, levels: number): GameStateV2 {
+  const level = state.skills[skillId] ?? 0;
+  const room = MAX_SKILL_LEVEL - level - (state.skillBank[skillId] ?? 0);
+  const added = Math.max(0, Math.min(levels, room));
+  if (added <= 0) return state;
+  return { ...state, skills: { ...state.skills, [skillId]: level + added }, skillAdUsed: [...new Set([...state.skillAdUsed, skillId])] };
 }
 
 /** A course whose months are done is finished. */

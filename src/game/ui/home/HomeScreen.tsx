@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AD_OFFLINE_MIN_SECONDS, AD_OFFLINE_MULTIPLIER } from '../../core/config/ads';
-import { awaitsHandover, canTakeBetterCareer, offlineCapHours } from '../../core/formulas';
+import { awaitsHandover, canTakeBetterCareer, offlineCapHours, skillsNeedLook, skillsOpen } from '../../core/formulas';
 import { bestOwnedLifestyle, canBuyAnythingInBusinesses, canBuyAnythingInShop, canHandOverEarly, parkedVehicle } from '../../core/state';
 import { useT } from '../../i18n/useT';
 import { initAds } from '../../runtime/ads';
@@ -12,11 +12,13 @@ import { BoostButton } from '../ads/Boost';
 import { OpportunityBalloon, SceneAdButtons } from '../ads/SceneAds';
 import { RainTimer } from '../scene/RainTimer';
 import { MasteredToast } from '../career/MasteredToast';
+import { SkillToast } from '../self/SkillToast';
 import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
 import { classLook, homeArt } from '../scene/stages';
 import { FeatureIntro } from '../guide/FeatureIntro';
 import { Guide } from '../guide/Guide';
+import { FIND_KEY, useGuideTarget } from '../guide/guideSteps';
 import { Spotlight } from '../guide/Spotlight';
 import { Focusable } from './Focusable';
 import { hudReveal } from './hudReveal';
@@ -139,6 +141,19 @@ export function HomeScreen() {
     setTab(null);
   }, [sceneKey, tab]);
 
+  // Old Ray's step after the first job is on the home scene (Şans's first find): the tab closes once
+  // the job's show has played (2026-10-24, user).
+  const guideKey = useGuideTarget()?.key;
+  const anySheet = tab !== null || albumOpen || richOpen || storeOpen;
+  useEffect(() => {
+    if (guideKey !== FIND_KEY || !anySheet) return;
+    clearFocus();
+    setTab(null);
+    setAlbumOpen(false);
+    setRichOpen(false);
+    setStoreOpen(false);
+  }, [guideKey, anySheet]);
+
   const openIncome = () => {
     playSfx('click');
     haptic('light');
@@ -199,6 +214,7 @@ export function HomeScreen() {
           </div>
           {/* The job held reaches mastery: a banner at the top, wherever the player is. */}
           <MasteredToast onOpen={() => selectTab('career')} />
+          <SkillToast onOpen={() => selectTab('self')} />
           {/* The coin shower's countdown, high in the middle of the scene. */}
           {!sheetOpen && (
             <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-[15%]">
@@ -244,6 +260,8 @@ export function HomeScreen() {
             attention={{
               businesses: canBuyAnythingInBusinesses(game),
               career: canTakeBetterCareer(game),
+              // Nothing trains, or levels wait to be collected.
+              self: skillsOpen(game) && skillsNeedLook(game),
               shop: canBuyAnythingInShop(game),
               // A deal is due, or the account just opened and was never used.
               invest: investTabOpen(state) && (investmentDue(state.invest, Date.now()) || state.invest.made === 0),
@@ -251,6 +269,7 @@ export function HomeScreen() {
             }}
             top={sheetOpen ? undefined : <DreamsRow onGo={goToDream} />}
             locked={{
+              ...(skillsOpen(game) ? {} : { self: t('skills.locked') }),
               ...(investTabOpen(state)
                 ? {}
                 : { invest: t('invest.locked', { class: name('wealthClass', WEALTH_CLASSES[INVEST_FROM_CLASS]) }) }),

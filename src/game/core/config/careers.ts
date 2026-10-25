@@ -1,10 +1,12 @@
 import type { CareerDef, CareerTrack, Requirement } from '../types';
+import { jobSkillRequirements } from './jobSkills';
 import { SECONDS_PER_MONTH } from './life';
 import { VEHICLES } from './lifestyle';
 
 // The job tree (docs/game-design-v2.md §4.4, decided 2026-10-21): jobs in rows of at most two, the
 // four tabs one after another (Worker, Office, Expert, The top). A job opens when a job of the row
-// above it is mastered, plus one to three extras (a course, an item, an address, a business, a class).
+// above it is mastered, plus one to three extras (a course, an item, an address, a business, a class)
+// and skill levels (jobSkills.ts, 2026-10-25).
 // The job held has to be mastered before moving on; a job once left is never taken again. Pay is set
 // by the row: each row pays nextJobStep() more than the one above it, so a promotion comes about every
 // eight game months. There is no fee and no yearly raise. Ids are saved (current job, months per job):
@@ -266,7 +268,11 @@ export const CAREERS: CareerDef[] = JOBS.map(({ id, name, track, after, requires
     image: `${ART}/${id}.webp`,
     masteryMonths: masteryMonthsAt(level),
     salaryPerSecond: monthlyAt(level) / SECONDS_PER_MONTH,
-    requires: after.length === 0 ? requires : [{ type: 'anyOf', options: after.map((careerId) => ({ type: 'mastered', careerId })) }, ...requires],
+    requires: [
+      ...(after.length === 0 ? [] : [{ type: 'anyOf' as const, options: after.map((careerId) => ({ type: 'mastered' as const, careerId })) }]),
+      ...requires,
+      ...jobSkillRequirements(id, level),
+    ],
   };
 });
 

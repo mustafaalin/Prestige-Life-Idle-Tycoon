@@ -47,6 +47,9 @@ import {
   heroAge,
   storyGift,
   dailyReward,
+  canTrainSkill,
+  nextSkillAsk,
+  skillLevel,
 } from '../core/formulas';
 import {
   AD_OFFLINE_MIN_SECONDS,
@@ -91,7 +94,11 @@ import {
   nextLifestyle,
   ownsHouse,
   startCourse,
+  startTraining,
+  collectSkill,
+  giveSkillLevels,
   takeCareer,
+  train,
   rentHome,
   handOverEarly,
   retire,
@@ -99,6 +106,7 @@ import {
 import { HEIRLOOMS } from '../core/config/heirlooms';
 import {
   AD_PLACEMENTS,
+  AD_SKILL_LEVELS,
   CAMPAIGN_FACTOR,
   CAMPAIGN_SECONDS,
   COURSE_RUSH_PER_COURSE,
@@ -117,7 +125,8 @@ const ITEM_BY_ID = new Map(LIFESTYLE_ITEMS.map((item) => [item.id, item]));
 /** How many new looks the businesses have taken on in all (shop, store). */
 const totalStages = (state: GameStateV2) =>
   BUSINESSES.reduce((sum, def) => sum + businessStage(def, businessState(state, def.id).level), 0);
-import type { GameStateV2 } from '../core/types';
+import type { GameStateV2, SkillId } from '../core/types';
+import { SKILL_IDS } from '../core/config/skills';
 
 export interface Session {
   /** Hour of day the session starts (0–24). */
@@ -411,7 +420,7 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
   const watched = {
     returned: false, boostUntil: 0, day: 0, boosts: 0, helps: 0,
     // The places added 2026-10-21: today's counts, the campaign running and the courses rushed.
-    experience: 0, courses: 0, balloons: 0, sans: 0, campaigns: 0, quests: 0, events: 0,
+    experience: 0, courses: 0, balloons: 0, sans: 0, campaigns: 0, quests: 0, events: 0, skillLevels: 0,
     campaignUntil: 0, campaignBusiness: '', rushed: {} as Record<string, number>,
   };
   // Ads have no lock since 2026-10-21: a button is there whenever its place is on screen.
@@ -438,12 +447,13 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       if (away >= AD_OFFLINE_MIN_SECONDS && doubles()) amount *= AD_OFFLINE_MULTIPLIER;
       time.clock = start;
       earnTracked(amount, 'offline');
-      state = liveAway(state, away);
+      // Skills train in full while away (core/state.ts train).
+      state = train(liveAway(state, away), away);
       sources.offline += amount;
       if (amount > 0) watched.returned = true;
     }
     if (day !== watched.day) {
-      Object.assign(watched, { day, boosts: 0, helps: 0, experience: 0, courses: 0, balloons: 0, sans: 0, campaigns: 0, quests: 0, events: 0 });
+      Object.assign(watched, { day, boosts: 0, helps: 0, experience: 0, courses: 0, balloons: 0, sans: 0, campaigns: 0, quests: 0, events: 0, skillLevels: 0 });
     }
     if (!ads || !adsOpen()) return;
     const left = Math.max(0, watched.boostUntil - time.clock);
@@ -609,7 +619,8 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
       claimDaily();
       // The hero ages only while playing; retirement comes at the end of life.
       const coursesBefore = state.coursesDone.length;
-      state = live(state, step);
+      state = train(live(state, step), step);
+      maybeTrain();
       // A finished course: its diploma gift (an ad).
       if (extras() && state.coursesDone.length > coursesBefore) adExtra(adGift(state), 'diploma_gift');
       maybeRetire();
@@ -705,11 +716,40 @@ export function simulate(profile: PlayerProfile, days: number, options: SimOptio
     }
   };
 
+  /**
+   * Skills (docs/game-design-v2.md §4.15): the bot collects the levels a skill trained whenever it
+   * looks (every slice while playing, on coming back), and trains the skill the nearest job up the tree
+   * asks more of (the biggest gap on a tie), else the lowest one. Progress is kept per skill, so
+   * switching costs nothing. The ads profile takes two levels for the training skill when it can.
+   */
+  const pickSkill = (): SkillId | null => {
+    let best: { id: SkillId; row: number; gap: number } | null = null;
+    for (const id of SKILL_IDS) {
+      if (!canTrainSkill(state, id)) continue;
+      const ask = nextSkillAsk(state, id);
+      const row = ask ? ask.career.level : Infinity;
+      const gap = ask ? ask.level - skillLevel(state, id) : -skillLevel(state, id);
+      if (!best || row < best.row || (row === best.row && gap > best.gap)) best = { id, row, gap };
+    }
+    return best?.id ?? null;
+  };
+  const maybeTrain = () => {
+    for (const id of SKILL_IDS) state = collectSkill(state, id) ?? state;
+    const id = pickSkill();
+    if (id && state.training !== id) state = startTraining(state, id) ?? state;
+    const training = state.training;
+    if (extras() && training && watched.skillLevels < (AD_PLACEMENTS.skill_levels.perDay ?? Infinity)) {
+      state = giveSkillLevels(state, training, AD_SKILL_LEVELS);
+      watched.skillLevels += 1;
+    }
+  };
+
   const playSession = (sessionSeconds: number) => {
     const end = time.clock + sessionSeconds;
     maybeRetire();
     while (time.clock < end) {
       maybeStudy();
+      maybeTrain();
       const rate = activeRate();
       let best: { candidate: Candidate; wait: number; score: number } | null = null;
       for (const candidate of candidates(state)) {

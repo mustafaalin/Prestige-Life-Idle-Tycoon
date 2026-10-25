@@ -52,10 +52,20 @@ export type Requirement =
   | { type: 'managers'; count: number }
   /** A finished course. */
   | { type: 'course'; courseId: string }
+  /** A skill trained to this level or higher (config/skills.ts). */
+  | { type: 'skill'; skillId: SkillId; level: number }
   /** A job held, now or before, in this row of the job tree or higher (homes and vehicles, 2026-10-22). */
   | { type: 'jobRow'; level: number }
   /** Any one of these. */
   | { type: 'anyOf'; options: Requirement[] };
+
+export type SkillId = 'strength' | 'smarts' | 'charisma';
+
+/** A skill trained for free on a real-time timer (docs/game-design-v2.md §4.15). */
+export interface SkillDef {
+  id: SkillId;
+  name: string;
+}
 
 /** The career screen's tab a job sits in (careers.ts CAREER_TRACKS). */
 export type CareerTrack = 'worker' | 'office' | 'expert' | 'top';
@@ -184,6 +194,16 @@ export interface GameStateV2 {
   coursesDone: string[];
   /** The course being taken, one at a time, and the seconds of play spent on it. */
   course: { id: string; seconds: number } | null;
+  /** Skill levels collected, by id (0 when missing). Kept for the life. */
+  skills: Partial<Record<SkillId, number>>;
+  /** Levels trained but not collected yet, by id (at most SKILL_BANK_MAX; training waits when full). */
+  skillBank: Partial<Record<SkillId, number>>;
+  /** Real seconds into each skill's next level, kept when the player switches to another skill. */
+  skillProgress: Partial<Record<SkillId, number>>;
+  /** The skill training now (one at a time), or null. */
+  training: SkillId | null;
+  /** Skills whose ad levels are used; each opens again when a level of that skill finishes by training. */
+  skillAdUsed: SkillId[];
   lifestyleOwned: string[];
   /** Id of the house you live in (rented unless it is in homesOwned). */
   home: string;

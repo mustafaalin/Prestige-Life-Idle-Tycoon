@@ -17,7 +17,7 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { hasScarf } from '../../runtime/purchases';
 import { pendingCeremony, sceneClass } from '../../runtime/story';
 import { useGameV2 } from '../../runtime/useGameV2';
-import { useGuideTarget } from '../guide/guideSteps';
+import { FIND_KEY, useGuideTarget } from '../guide/guideSteps';
 import { burstCoins, payout } from '../home/coins';
 import { useMenuTop } from '../home/menuEdge';
 import { PointingHand } from '../home/Focusable';
@@ -70,6 +70,9 @@ const LOWEST_SPOT = Math.max(...SPOTS.map(([, y]) => y));
 
 /** An item's tap box is 64 px; its centre stays this far from the screen's edges and the menu's top. */
 const ITEM_EDGE = 40;
+
+/** Şans runs in this soon when Old Ray's step sends for his first find. */
+const FIND_CALLED_MS = 1200;
 
 const ITEM_FILTER = 'drop-shadow(0 0 6px rgba(255,230,150,0.85)) brightness(1.05)';
 
@@ -137,7 +140,12 @@ export function Scene({ covered = false }: { covered?: boolean }) {
   // A ceremony that moves the hero (core/state.ts applyClassUp) reveals the new home when it ends.
   const ceremonyWaiting = pendingCeremony(game, state.story) !== null;
   // Old Ray's first step: the hand rests on a bottle until a few are collected.
-  const pointAtItem = useGuideTarget()?.key === 'scene:item';
+  const guideTarget = useGuideTarget();
+  const pointAtItem = guideTarget?.key === 'scene:item';
+  // His step after the first job: Şans runs in with his first find, the hand on it. While another of his
+  // steps holds the screen, Şans waits, so he never turns up behind the dim (2026-10-24, user).
+  const findCalled = guideTarget?.key === FIND_KEY;
+  const findHeld = guideTarget !== null && !guideTarget.soft && !findCalled;
   const quip = useHeroQuip(covered);
 
   // The next look and place load while the ceremony plays, so they are there the moment it ends.
@@ -311,6 +319,8 @@ export function Scene({ covered = false }: { covered?: boolean }) {
   };
 
   const [finding, setFinding] = useState(false);
+  // Tapping Şans with the wallet shows what it's worth; the money comes when the card is collected.
+  const [findOffer, setFindOffer] = useState<number | null>(null);
   const [findRound, setFindRound] = useState(0);
   const wait = fetchSeconds(game);
 
@@ -321,10 +331,11 @@ export function Scene({ covered = false }: { covered?: boolean }) {
   useEffect(() => {
     // Şans waits with the find until it is taken (telefon testi 2026-10-21: a player on another screen
     // missed it); the next one is looked for only after that.
-    if (finding) return;
-    const timer = window.setTimeout(() => setFinding(true), random(wait.min, wait.max) * 1000);
+    if (finding || findHeld || findOffer !== null) return;
+    const delay = findCalled ? FIND_CALLED_MS : random(wait.min, wait.max) * 1000;
+    const timer = window.setTimeout(() => setFinding(true), delay);
     return () => window.clearTimeout(timer);
-  }, [finding, findRound, wait.min, wait.max]);
+  }, [finding, findHeld, findCalled, findOffer, findRound, wait.min, wait.max]);
 
   useEffect(
     () =>
@@ -334,9 +345,6 @@ export function Scene({ covered = false }: { covered?: boolean }) {
       }),
     [],
   );
-
-  // Tapping Şans with the wallet shows what it's worth; the money comes when the card is collected.
-  const [findOffer, setFindOffer] = useState<number | null>(null);
 
   const openFind = (event: MouseEvent) => {
     event.stopPropagation();
@@ -369,9 +377,13 @@ export function Scene({ covered = false }: { covered?: boolean }) {
   // A bottle near the middle (on screen also on wide phones) and not down by the menu, where the hand
   // below it would sit on the buttons.
   const guideScore = (item: Item) => Math.abs(SPOTS[item.spot][0] - 0.45) + (SPOTS[item.spot][1] > 0.8 ? 1 : 0);
-  const guidedItem = pointAtItem
-    ? items.reduce<Item | null>((best, item) => (!best || guideScore(item) < guideScore(best) ? item : best), null)?.id
-    : undefined;
+  // The hand stays on its bottle until that one is picked up: a new bottle never takes it away (2026-10-24, user).
+  const guidedRef = useRef<number | undefined>(undefined);
+  if (!pointAtItem) guidedRef.current = undefined;
+  else if (!items.some((item) => item.id === guidedRef.current)) {
+    guidedRef.current = items.reduce<Item | null>((best, item) => (!best || guideScore(item) < guideScore(best) ? item : best), null)?.id;
+  }
+  const guidedItem = guidedRef.current;
 
   // The "while you were away" card shows Şans asleep, so he is not also sitting behind it; when the
   // card closes he is back with a small pop.
@@ -387,7 +399,8 @@ export function Scene({ covered = false }: { covered?: boolean }) {
   }, [asleep, later]);
 
   const ready = fit.width > 0;
-  const sansVisible = !finding && !asleep && pose !== 'pet';
+  const showFind = finding && !asleep && !findHeld;
+  const sansVisible = !showFind && !asleep && pose !== 'pet';
 
   return (
     <div ref={rootRef} className="absolute inset-0 overflow-hidden bg-[#0d1530]">
@@ -458,12 +471,13 @@ export function Scene({ covered = false }: { covered?: boolean }) {
             </button>
           )}
 
-          {finding && !asleep && (
+          {showFind && (
             <button
               type="button"
               onClick={openFind}
               aria-label={t('scene.findHint')}
-              className="absolute v2-run-in transition-transform active:scale-95"
+              // Above the bottles while the hand is on him, so a bottle lying over him does not take the tap.
+              className={`absolute v2-run-in transition-transform active:scale-95 ${findCalled ? 'z-10' : ''}`}
               style={spriteBox(fit, stage.find, home.castX)}
             >
               <span className="v2-pulse-ring absolute left-1/2 top-1/2 w-full aspect-square rounded-full border-4 border-amber-300" />
@@ -477,6 +491,7 @@ export function Scene({ covered = false }: { covered?: boolean }) {
               <span className="absolute right-0 -top-9 whitespace-nowrap rounded-full bg-gradient-to-b from-amber-300 to-orange-500 border-2 border-white v2-glossy px-3 py-1 v2-display text-[13px] text-white v2-shadow">
                 {t('scene.findHint')}
               </span>
+              {findCalled && <PointingHand className="-bottom-3 right-0" spot="block" />}
             </button>
           )}
 

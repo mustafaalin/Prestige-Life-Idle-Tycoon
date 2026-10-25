@@ -1,7 +1,7 @@
 // Usage: npm run progresscheck
 // Can a player get stuck? Plays many lives with today's rules and unlimited money (money is never the
 // lock here) and checks that every job, course, home, vehicle, outfit, luxury and item can still be had,
-// whatever the player chose before: random jobs (also lower-paid ones), random courses, getting rich
+// whatever the player chose before: random jobs (also lower-paid ones), random courses and skills, getting rich
 // early or late, or ignoring the career until 80. A run that cannot move on any more is printed with
 // what it was missing. Bundled with esbuild and run in Node, like the simulator.
 
@@ -12,6 +12,7 @@ import { COURSES } from '../src/game/core/config/courses';
 import { HOUSES } from '../src/game/core/config/housing';
 import { SECONDS_PER_MONTH } from '../src/game/core/config/life';
 import { LIFESTYLE_ITEMS } from '../src/game/core/config/lifestyle';
+import { SKILL_IDS } from '../src/game/core/config/skills';
 import { canLeaveCareer, canTakeCareer, heroAge } from '../src/game/core/formulas';
 import {
   buyHome,
@@ -25,7 +26,10 @@ import {
   nextHome,
   rentHome,
   startCourse,
+  startTraining,
+  collectSkill,
   takeCareer,
+  train,
 } from '../src/game/core/state';
 import type { GameStateV2 } from '../src/game/core/types';
 
@@ -111,6 +115,13 @@ function study(state: GameStateV2): GameStateV2 {
   return startable.length > 0 ? (startCourse(state, pick(startable).id) ?? state) : state;
 }
 
+/** Collects every skill's waiting levels and trains a random skill (skills are free, so this is never a lock). */
+function practise(state: GameStateV2): GameStateV2 {
+  for (const id of SKILL_IDS) state = collectSkill(state, id) ?? state;
+  const startable = SKILL_IDS.filter((id) => startTraining(state, id) !== null);
+  return startable.length > 0 ? (startTraining(state, pick(startable)) ?? state) : state;
+}
+
 interface Missing {
   jobs: string[];
   courses: string[];
@@ -138,16 +149,17 @@ function play(profile: Profile): { state: GameStateV2; turns: number; missing: M
   let turn = 0;
   for (; turn < MAX_TURNS; turn += 1) {
     state = rich(classUp(state, profile, turn));
-    const before = JSON.stringify([state.careerId, state.coursesDone, state.course?.id, state.home, state.lifestyleOwned.length]);
+    const before = JSON.stringify([state.careerId, state.coursesDone, state.course?.id, state.home, state.lifestyleOwned.length, state.skills]);
     let got: number;
     [state, got] = shop(state);
-    state = study(work(state, profile));
-    state = rich(live(state, TURN_SECONDS));
-    const changed = got > 0 || JSON.stringify([state.careerId, state.coursesDone, state.course?.id, state.home, state.lifestyleOwned.length]) !== before;
+    state = practise(study(work(state, profile)));
+    state = rich(train(live(state, TURN_SECONDS), TURN_SECONDS));
+    const changed = got > 0 || JSON.stringify([state.careerId, state.coursesDone, state.course?.id, state.home, state.lifestyleOwned.length, state.skills]) !== before;
     quiet = changed || heroAge(state).years < 80 ? 0 : quiet + 1;
     if (complete(missing(state))) break;
     // Waiting is not being stuck: quiet turns only count once the life clock has run out.
-    if (quiet >= QUIET_TURNS && state.course === null) break;
+    // A running course or skill training is waiting too: skills go on after 80 (real time).
+    if (quiet >= QUIET_TURNS && state.course === null && state.training === null) break;
   }
   return { state, turns: turn, missing: missing(state) };
 }

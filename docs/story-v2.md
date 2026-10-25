@@ -119,7 +119,7 @@ Her işletmenin kendi yöneticisi var: kahramanın yolda tanıştığı insanlar
 
 Kirli bir ara sokak; kahraman çadırın önünde üşüyor, yanında Şans. 4 şişe/kutu ile başlanır, 2,5 sn'de bir yenisi belirir; dokununca paralar kavisle bakiyeye uçar, kahraman toplama pozuna geçer. Ara sıra Şans cüzdanla gelir.
 
-**Rehber (1.12, oyunda):** Rıza Amca ilk dakikalarda 6 kısa cümle söyler (şişeler, matbaa, tezgâh, isim, çiçekleri dizmek, yardımcı); ilk tezgâhtan sonra kahramanın adını sorar, yönetici olunca rehberlik biter (`guide` metinleri).
+**Rehber (1.12, oyunda):** Rıza Amca ilk dakikalarda 7 kısa cümle söyler (şişeler, matbaa, Şans'ın ilk buluntusu, tezgâh, isim, çiçekleri dizmek, yardımcı); el bir şeyi gösterirken cümlesi o adım bitene kadar ekranda kalır (dokununca kapanmaz). İlk işten sonra sekme kapanır, Şans ilk cüzdanla koşar gelir, Rıza onu gösterir (2026-10-24, kullanıcı). İlk tezgâhtan sonra kahramanın adını sorar, yönetici olunca rehberlik biter (`guide` metinleri).
 
 **Bekleyenler:** yağmur sesi.
 
@@ -320,6 +320,8 @@ Karar değil, havuz. Test sonucuna göre seçilir; her biri açılırken tetik v
 - **Şans'ın yavruları** (öneri Milyarder dolayları), dergi kapakları ("Garsondan patrona").
 
 ## 8. Görsel ihtiyaç listesi
+
+**Güncelleme (2026-10-25):** sahnedeki kahraman için Rive ile parçalı, hareketli bir sürüm deneniyor (göz kırpma, konuşma, baş dönmesi, ifadeler; manken + giydirilen kıyafetler, hafif yandan duruş): [research/character-animation-2026-10-25.md](./research/character-animation-2026-10-25.md). Tutarsa sahne kahramanı hareketli olur; hikâye kareleri ve portreler görsel roman olarak kalır.
 
 **Yaklaşım: görsel roman (karar 2026-10-08).** Karakterler tutarlı durağan pozlar ve ifade portreleriyle anlatılır; konuşanlar balonla. Hareket yerine davranış: yaşam aşamasına göre farklı pozlar. Durağan resmi kodla zıplatmak/esnetmek karakter animasyonu sayılmaz. Gerçek animasyon en fazla 2–3 büyük an için ve isteğe bağlı ([discussion-notes.md](./discussion-notes.md) §1).
 

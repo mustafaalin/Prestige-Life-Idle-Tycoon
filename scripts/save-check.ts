@@ -9,9 +9,12 @@ import './save-check-env';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { BUSINESSES } from '../src/game/core/config/businesses';
+import { careerDef } from '../src/game/core/config/careers';
+import { SKILL_IDS } from '../src/game/core/config/skills';
 import { COURSES } from '../src/game/core/config/courses';
 import { HOUSES } from '../src/game/core/config/housing';
 import { SECONDS_PER_MONTH } from '../src/game/core/config/life';
+import { allMet } from '../src/game/core/requirements';
 import type { GameStateV2 } from '../src/game/core/types';
 import { createRuntimeState, type RuntimeState } from '../src/game/runtime/engine';
 import { parseRuntime, SAVE_SCHEMA } from '../src/game/runtime/storage';
@@ -47,6 +50,10 @@ function midGame(): RuntimeState {
       waiter: 2 * SECONDS_PER_MONTH,
     },
     coursesDone: [COURSES[0].id],
+    skills: { strength: 4, charisma: 3 },
+    skillBank: { strength: 1 },
+    skillProgress: { smarts: 10 },
+    training: 'smarts',
     lifestyleOwned: [...runtime.game.lifestyleOwned, 'vehicle-bike', 'vehicle-scooter', 'outfit-work', 'gadget-phone'],
     home: HOUSES[3].id,
     lifeSeconds: 5 * 16 * 60,
@@ -92,6 +99,16 @@ function check(name: string, fixture: Fixture): string[] {
   const months = (game: GameStateV2) => Object.values(game.jobSeconds).reduce((sum, seconds) => sum + seconds, 0);
   expect(months(after) >= months(before), `job experience ${months(before)} s → ${months(after)} s`);
   expect(after.coursesDone.length >= before.coursesDone.length, `courses ${before.coursesDone.length} → ${after.coursesDone.length}`);
+  // Skills (2026-10-25): never lower; a save from before them gets what its job asks for, so the
+  // player is not held back by a condition that came after the job.
+  for (const id of SKILL_IDS) {
+    const was = before.skills?.[id] ?? 0;
+    expect((after.skills[id] ?? 0) >= was, `skill ${id} ${was} → ${after.skills[id] ?? 0}`);
+  }
+  const job = careerDef(after.careerId);
+  if (job && before.skills === undefined) {
+    expect(allMet(after, job.requires.filter((requirement) => requirement.type === 'skill')), `job ${job.id}'s skills not given`);
+  }
   for (const [id, business] of Object.entries(before.businesses)) {
     const now = after.businesses[id];
     if (business.level === 0) continue;

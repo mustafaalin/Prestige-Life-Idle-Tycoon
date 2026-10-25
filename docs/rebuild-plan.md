@@ -1,6 +1,6 @@
 # Prestige Life v2 — Yeniden Yapım Planı
 
-Son güncelleme: 2026-10-21 · Dal: `v2-rebuild` · Rapor (neden): [report-v2.md](./report-v2.md) · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikâye: [story-v2.md](./story-v2.md) · Açık kararlar: [discussion-notes.md](./discussion-notes.md)
+Son güncelleme: 2026-10-25 · Dal: `v2-rebuild` · Rapor (neden): [report-v2.md](./report-v2.md) · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikâye: [story-v2.md](./story-v2.md) · Açık kararlar: [discussion-notes.md](./discussion-notes.md)
 
 ## Amaç
 
@@ -85,6 +85,10 @@ Lansman = 1. nesil; 2. ve 3. nesil yayından sonra; Burak hikâyesi kalktı; 80'
 - [~] **2.4 Olay kartları:** 50 kart oyunda (2026-10-21: üç tür, yönetici başına üç kart işletmenin görünümüne bağlı, deste düzeni). Kalan: iş teklifleri önerisi ([discussion-notes.md §2](./discussion-notes.md)).
 - [~] **2.7 Günlük döngü:** günlük ödül oyunda. Kalan: günlük görevler (oynanış keyifli görülürse).
 - [~] **2.9 Monetizasyon:** reklam altyapısı, 19 reklam yeri, IAP 1. adım oyunda ([monetization-v2.md](./monetization-v2.md)). Kalan: IAP 2. adım (Yakut Tasma $4,99, Gece Vardiyası $3,99 yeni çevrimdışına göre), v1'in 8 ürünü pasifleşir.
+- [x] **2.14 Beceriler** (2026-10-25, kodda, commit ve telefon denemesi bekliyor): Güç / Zekâ / Karizma, Beceriler sekmesi ([game-design-v2.md §4.15](./game-design-v2.md)).
+- [ ] **2.15 Mutluluk, sağlık ve hobiler** (kararlar verildi, telefon denemesinden sonra): üst barda iki çubuk, yalnız terfi alt sınırı, 12 hobi ayrı yuva ve ayrı ekran ([research/life-features-2026-10-25.md](./research/life-features-2026-10-25.md)).
+- [ ] **2.16 Defne ile bağ** (etkileşimli; aynı belge §6).
+- [ ] **2.17 Hareketli parçalı kahraman (Rive)** (pilot sürüyor): manken + giydirilen kıyafet yuvaları, göz kırpma, konuşma, baş dönmesi, ifadeler ([research/character-animation-2026-10-25.md](./research/character-animation-2026-10-25.md)); ayrı dalda, lansmanı beklemez.
 - [ ] **2.6 Lüks oyuncaklar sahnede:** jet, helikopter, yat, tekne.
 - [ ] **2.10 Remote Config:** denge değerlerini güncellemesiz değiştirmek.
 - [ ] **2.11 v1'in kaldırılması:** banka, sağlık/mutluluk, v1 görevleri, Supabase senkronu; eski oyunculara hoş geldin hediyesi.

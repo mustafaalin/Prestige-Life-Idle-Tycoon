@@ -30,6 +30,8 @@ export function isMet(state: GameStateV2, requirement: Requirement): boolean {
       return state.coursesDone.includes(requirement.courseId);
     case 'jobRow':
       return jobRowReached(state) >= requirement.level;
+    case 'skill':
+      return (state.skills[requirement.skillId] ?? 0) >= requirement.level;
     case 'anyOf':
       return requirement.options.some((option) => isMet(state, option));
   }

@@ -13,6 +13,11 @@ export const MONEY = [1, 2, 3, 4, 5, 6].map((tier) => `${DIR}/money-${tier}.webp
 export const ICONS = {
   business: `${DIR}/business.webp`,
   career: `${DIR}/career.webp`,
+  /** The "Me" tab and the three skills (2026-10-25, GPT, docs/art-prompts-v2.md §0d). */
+  self: `${DIR}/skills.webp`,
+  skillStrength: `${DIR}/skill-strength.webp`,
+  skillSmarts: `${DIR}/skill-smarts.webp`,
+  skillCharisma: `${DIR}/skill-charisma.webp`,
   shop: `${DIR}/shop.webp`,
   /** The balance in the top bar (money series M3, three bundles, 2026-10-22); the money flies into it. */
   money: `${DIR}/money-3.webp`,

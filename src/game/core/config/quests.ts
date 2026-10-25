@@ -21,13 +21,14 @@ export const QUESTS: QuestDef[] = [
   // A job comes first; the Flower Stand is opened from the savings (2026-10-09).
   quest('collect-5', { type: 'collect', count: 5 }, 3, 'easy'),
   quest('job-1', { type: 'job', careerId: 'flyer-distributor' }, 5, 'easy'),
-  // Something to buy while saving for the stand (2026-10-13).
-  quest('vehicle-2', { type: 'vehicle', count: 1 }, 8),
   quest('collect-30', { type: 'collect', count: 30 }, 30, 'easy'),
   quest('find-1', { type: 'find', count: 1 }, 50, 'easy'),
   quest('flower-open', level('flower-stand', 1), 20),
   quest('flower-level-3', level('flower-stand', 3), 40),
   quest('job-2', { type: 'job', careerId: 'dishwasher' }, 15),
+  // The bike after the dishwasher job, when the Bike Courier job it opens is one row away (2026-10-25,
+  // user: a bike was odd while living in a tent with no job asking for it).
+  quest('vehicle-2', { type: 'vehicle', count: 1 }, 8),
   quest('flower-manager', { type: 'manager', businessId: 'flower-stand' }, 100),
   quest('flower-level-5', level('flower-stand', 5), 60),
   quest('job-4', { type: 'job', careerId: 'waiter' }, 100),

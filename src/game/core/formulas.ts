@@ -28,6 +28,7 @@ export * from './economy/income';
 export * from './economy/legacy';
 export * from './economy/manual';
 export * from './economy/multipliers';
+export * from './economy/skills';
 
 /** Vehicle prices from the cheapest: a "buy N vehicles" goal is priced at the Nth cheapest. */
 const VEHICLE_PRICES = VEHICLES.map((vehicle) => vehicle.cost).sort((a, b) => a - b);

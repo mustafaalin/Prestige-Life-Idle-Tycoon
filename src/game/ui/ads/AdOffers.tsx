@@ -45,16 +45,19 @@ export function ActionAd({
   label,
   run,
   className = '',
+  small = false,
 }: {
   placement: AdPlacement;
   label: string;
   run: () => boolean;
   className?: string;
+  small?: boolean;
 }) {
   return (
     <AdButton
       placement={placement}
       className={className}
+      small={small}
       onReward={() => {
         if (!run()) return;
         playSfx('levelUp');

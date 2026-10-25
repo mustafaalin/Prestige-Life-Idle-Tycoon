@@ -44,6 +44,8 @@ export function requirementText(requirement: Requirement, words: Words): string 
     }
     case 'jobRow':
       return t('requirement.jobRow', { level: requirement.level });
+    case 'skill':
+      return t('requirement.skill', { skill: t(`skills.names.${requirement.skillId}`), level: requirement.level });
     case 'anyOf':
       return requirement.options.map((option) => requirementText(option, words)).join(t('requirement.or'));
   }
@@ -74,6 +76,8 @@ export function requirementTarget(requirement: Requirement): FocusTarget | null 
       const career = CAREERS.find((entry) => entry.level === requirement.level);
       return career ? { tab: 'career', key: `career:take:${career.id}` } : { tab: 'career', key: 'career:jobs' };
     }
+    case 'skill':
+      return { tab: 'self', key: `skill:${requirement.skillId}:train` };
     case 'mastered':
     case 'class':
     case 'anyOf':

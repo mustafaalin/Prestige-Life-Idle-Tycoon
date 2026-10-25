@@ -2,9 +2,9 @@ import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import type { EventOutcome } from '../core/config/events';
 import { SECONDS_PER_MONTH, SECONDS_PER_YEAR } from '../core/config/life';
-import { ageSpeed, autoIncomePerSecond, fetchReward, heroAge, storyGift } from '../core/formulas';
+import { ageSpeed, autoIncomePerSecond, fetchReward, heroAge, skillLevel, storyGift } from '../core/formulas';
 import { earn, live } from '../core/state';
-import type { GameStateV2 } from '../core/types';
+import type { GameStateV2, SkillId } from '../core/types';
 import {
   adGift,
   applyBoost,
@@ -13,6 +13,7 @@ import {
   applyCardAd,
   applyCoinRain,
   applyCourseRush,
+  applySkillLevels,
   applyExperienceRush,
   applyFirstSalary,
   applyHelp,
@@ -43,6 +44,9 @@ import {
   hireManager,
   moveHome,
   startCourse,
+  startTraining,
+  stopTraining,
+  collectSkill,
   takeCareer,
   rentHome,
   resume,
@@ -90,6 +94,12 @@ export interface GameActions {
   startCycle(businessId: string): boolean;
   takeCareer(careerId: string): boolean;
   startCourse(courseId: string): boolean;
+  /** Trains this skill from now on (one at a time). */
+  startTraining(skillId: SkillId): boolean;
+  /** Pauses the training skill; its progress stays. */
+  stopTraining(): boolean;
+  /** Collects the levels a skill trained; returns how many (0 if none). */
+  collectSkill(skillId: SkillId): number;
   buyLifestyle(itemId: string): boolean;
   /** Claims a finished goal; returns what it paid (0 if it could not be claimed). */
   claimQuest(questId: string): number;
@@ -128,6 +138,8 @@ export interface GameActions {
     /** A little help toward something that costs `cost`: pays the `amount` its button showed; returns it (0 if not allowed). */
     help(cost: number, amount: number): number;
     rushCourse(): boolean;
+    /** Two levels for the training skill. */
+    skillLevels(skillId: SkillId): boolean;
     rushExperience(): boolean;
     rushInvest(planId: InvestPlanId): boolean;
     /** Old Ray's special deal with `stake` in. */
@@ -426,6 +438,18 @@ export function createGameStore(saveText: string | null, clock: () => number = D
       },
       takeCareer: (careerId) => actTracked((s) => takeCareer(s, careerId), 'job_take', () => ({ career_id: careerId })),
       startCourse: (courseId) => actTracked((s) => startCourse(s, courseId), 'course_start', () => ({ course_id: courseId })),
+      startTraining: (skillId) =>
+        actTracked((s) => startTraining(s, skillId), 'skill_train', () => ({ skill_id: skillId, level: skillLevel(state.game, skillId) })),
+      stopTraining: () => {
+        const skillId = state.game.training;
+        return actTracked((s) => stopTraining(s), 'skill_pause', () => ({ skill_id: skillId ?? '' }));
+      },
+      collectSkill: (skillId) => {
+        const levels = state.game.skillBank[skillId] ?? 0;
+        return actTracked((s) => collectSkill(s, skillId), 'skill_collect', () => ({ skill_id: skillId, levels, level: skillLevel(state.game, skillId) }))
+          ? levels
+          : 0;
+      },
       buyLifestyle: (itemId) => actTracked((s) => buyLifestyle(s, itemId), 'lifestyle_buy', () => ({ item_id: itemId })),
       claimQuest: (questId) => {
         const before = state.game.cash;
@@ -500,6 +524,7 @@ export function createGameStore(saveText: string | null, clock: () => number = D
         boost: () => act((s) => applyBoost(s, clock())),
         help: (cost, amount) => (act((s) => applyHelp(s, clock(), cost, amount)) ? amount : 0),
         rushCourse: () => act((s) => applyCourseRush(s, clock())),
+        skillLevels: (skillId) => act((s) => applySkillLevels(s, skillId, clock())),
         rushExperience: () => act((s) => applyExperienceRush(s, clock())),
         rushInvest: (planId) => act((s) => applyInvestRush(s, planId, clock())),
         investSpecial: (stake) => act((s) => applyInvestSpecial(s, stake, clock())),

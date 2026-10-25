@@ -7,12 +7,12 @@ import { storyRuns } from '../../runtime/story';
 import type { TabId } from '../home/tabs';
 
 // Old Ray's guide for the first minutes (plan 1.12, story-v2.md §3): bottles → claim the first goal →
-// a job → the Flower Stand → the hero's name → the first run → Old Ray as manager. Each step is read
+// a job → back home to Şans's first find → the first skill training → the Flower Stand → the hero's name → the first run → Old Ray as manager. Each step is read
 // from the game state, so a save that is past a step never sees it. Old Ray says one short line per
 // step (the feeling); a pointing hand shows the action (story §2: a character is not a help text).
 // The hand waits until the step can be done (enough cash), so it never points at a grey button.
 
-export type GuideStepId = 'bottles' | 'claim' | 'job' | 'stand' | 'name' | 'run' | 'manager';
+export type GuideStepId = 'bottles' | 'claim' | 'job' | 'find' | 'train' | 'stand' | 'name' | 'run' | 'manager';
 
 /** What the hand points at: a <Focusable> key, inside `tab` when it is set (the menu button first). */
 export interface GuideTarget {
@@ -38,6 +38,8 @@ const STAND = BUSINESSES[0];
 /** Bottles before the first goal is done (quests.ts `collect-5`). */
 const FIRST_BOTTLES = 5;
 export const FIRST_QUEST = 'collect-5';
+/** Şans with a find in his mouth, on the scene. */
+export const FIND_KEY = 'scene:find';
 
 /** The step the player is on, or null when the guide is over (or for an heir, who knows the way). */
 export function guideStep(state: RuntimeState): GuideStep | null {
@@ -61,6 +63,10 @@ export function guideStep(state: RuntimeState): GuideStep | null {
   if (game.careerId === null) {
     return step('job', true, { tab: 'career', key: `career:take:${FIRST_JOB.id}` });
   }
+  // The job taken, the tab closes and Şans runs in with his first find (2026-10-24, user).
+  if (stand.level === 0 && game.finds === 0) return step('find', true, { key: FIND_KEY });
+  // Then the first training: something to do for free while saving up for the stand (2026-10-25, user).
+  if (stand.level === 0 && !hasTrained(game)) return step('train', true, { tab: 'self', key: `skill:${FIRST_SKILL}:train` });
   if (stand.level === 0) {
     return step('stand', canAffordStand(game), { tab: 'businesses', key: `business:${STAND.id}:level` });
   }
@@ -69,6 +75,13 @@ export function guideStep(state: RuntimeState): GuideStep | null {
     return step('run', !state.cycles[STAND.id].running, { tab: 'businesses', key: `business:${STAND.id}:run` });
   }
   return step('manager', game.cash >= STAND.managerCost, { tab: 'businesses', key: `business:${STAND.id}:manager` });
+}
+
+/** The skill the second jobs ask for (porter and dishwasher: config/jobSkills.ts). */
+const FIRST_SKILL = 'strength';
+
+function hasTrained(game: GameStateV2) {
+  return game.training !== null || Object.values(game.skills).some((level) => (level ?? 0) > 0);
 }
 
 function canAffordStand(game: GameStateV2) {

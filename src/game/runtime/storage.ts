@@ -10,9 +10,11 @@ import { HOUSES, LEGACY_HOUSE_TO_HOME } from '../core/config/housing';
 import { LIFE_SECONDS } from '../core/config/life';
 import { legacyOutfitIndex, legacyVehicleCount, LIFESTYLE_ITEMS, OUTFITS, VEHICLES } from '../core/config/lifestyle';
 import { RICH_MILESTONES } from '../core/config/richList';
+import { MAX_SKILL_LEVEL, SKILL_BANK_MAX, SKILL_IDS, skillDef, skillLevelForRow } from '../core/config/skills';
+import { jobRowReached } from '../core/requirements';
 import { classIndexFor } from '../core/formulas';
 import { applyClassFloors, createInitialState } from '../core/state';
-import type { GameStateV2 } from '../core/types';
+import type { GameStateV2, SkillId } from '../core/types';
 import { createAdProgress, type AdProgress } from './adRewards';
 import { createRuntimeState, emptyCycles, type CycleState, type PendingOffline, type RuntimeState } from './engine';
 import { createDailyProgress, type DailyProgress } from './daily';
@@ -108,7 +110,7 @@ function normalizeGame(raw: unknown): GameStateV2 {
   const savedClass = Math.min(Math.floor(finite(raw.classIndex, 0)), WEALTH_CLASSES.length - 1);
 
   // A class reached before the class homes and outfits existed still gets them.
-  return applyClassFloors({
+  const game = applyClassFloors({
     version: 2,
     cash: finite(raw.cash, base.cash),
     generationEarnings,
@@ -121,6 +123,12 @@ function normalizeGame(raw: unknown): GameStateV2 {
     jobSeconds: normalizeSeconds(raw.jobSeconds, (id) => careerDef(id) !== undefined),
     coursesDone: stringList(raw.coursesDone).filter((id) => courseDef(id) !== undefined),
     course: normalizeCourse(raw.course),
+    skills: normalizeLevels(raw.skills, MAX_SKILL_LEVEL),
+    skillBank: normalizeLevels(raw.skillBank, SKILL_BANK_MAX),
+    skillProgress: normalizeSkillSeconds(raw.skillProgress),
+    training: normalizeTraining(raw.training),
+    // Saves from before the once-per-level ad (2026-10-25) have it open.
+    skillAdUsed: stringList(raw.skillAdUsed).filter((id): id is SkillId => skillDef(id) !== undefined),
     lifestyleOwned: [...new Set([...base.lifestyleOwned, ...legacyOutfits, ...legacyVehicles, ...savedItems])],
     home,
     homesOwned,
@@ -135,6 +143,42 @@ function normalizeGame(raw: unknown): GameStateV2 {
     // Saves from before the heirlooms (2026-10-15) have none: their legacy points are now there to spend.
     heirlooms: normalizeHeirlooms(raw.heirlooms),
   });
+  // Saves from before the skills (2026-10-25) get the levels their career already asks for, so a
+  // player is never held back by a condition that came after their job.
+  return isRecord(raw.skills) ? game : { ...game, skills: skillsForRow(jobRowReached(game)) };
+}
+
+/** Known skills only, whole levels, never past `max`. */
+function normalizeLevels(raw: unknown, max: number): GameStateV2['skills'] {
+  const levels: GameStateV2['skills'] = {};
+  if (!isRecord(raw)) return levels;
+  for (const id of SKILL_IDS) {
+    const level = Math.min(Math.floor(finite(raw[id], 0)), max);
+    if (level > 0) levels[id] = level;
+  }
+  return levels;
+}
+
+/** Seconds into each known skill's next level. */
+function normalizeSkillSeconds(raw: unknown): GameStateV2['skillProgress'] {
+  const seconds: GameStateV2['skillProgress'] = {};
+  if (!isRecord(raw)) return seconds;
+  for (const id of SKILL_IDS) {
+    const value = finite(raw[id], 0);
+    if (value > 0) seconds[id] = value;
+  }
+  return seconds;
+}
+
+/** The training skill: a known id, or null. */
+function normalizeTraining(raw: unknown): GameStateV2['training'] {
+  return skillDef(typeof raw === 'string' ? raw : null)?.id ?? null;
+}
+
+/** Every skill at the level a job in this row asks of its main skill. */
+function skillsForRow(row: number): GameStateV2['skills'] {
+  const level = skillLevelForRow(row);
+  return level > 0 ? Object.fromEntries(SKILL_IDS.map((id) => [id, level])) : {};
 }
 
 /** The job held: its id, or the old single ladder's index (saves from before 2026-10-21). */

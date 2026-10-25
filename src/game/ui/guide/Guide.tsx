@@ -25,6 +25,8 @@ const FACE: Record<GuideStepId, 'warm' | 'laugh' | 'concerned'> = {
   bottles: 'warm',
   claim: 'warm',
   job: 'warm',
+  find: 'laugh',
+  train: 'warm',
   stand: 'warm',
   name: 'laugh',
   run: 'laugh',
@@ -60,11 +62,13 @@ export function Guide({ tabOpen }: { tabOpen: boolean }) {
     track('tutorial_step', { step: stepId ?? 'done' });
   }, [stepId]);
 
+  // While the hand shows what to do, his line stays until it is done: a tap or a timer used to take it
+  // away for good (2026-10-24, user). An early line (what to save up for) is read once and goes.
+  const pointing = step !== null && step.target !== null;
   const speaking =
     step !== null &&
     step.talks &&
-    !state.story.guideSeen.includes(step.id) &&
-    (step.ready || TALKS_EARLY.includes(step.id));
+    (pointing || (!state.story.guideSeen.includes(step.id) && (step.ready || TALKS_EARLY.includes(step.id))));
 
   if (hidden || !step) return null;
   // Asked right after the first business (story §3).
@@ -89,6 +93,7 @@ export function Guide({ tabOpen }: { tabOpen: boolean }) {
       portrait={portraitOf('riza', FACE[step.id]) ?? ''}
       speaker={t('ceremony.cast.riza')}
       atTop={!tabOpen}
+      sticky={pointing}
       text={t(`guide.${step.id}` as MessageKey, { name: state.story.heroName })}
       onRead={() => actions.story.guideSeen(step.id)}
     />
@@ -104,12 +109,15 @@ export function GuideLine({
   speaker,
   text,
   atTop,
+  sticky = false,
   onRead,
 }: {
   portrait: string;
   speaker: string;
   text: string;
   atTop: boolean;
+  /** Stays until its step is done: no timer, a tap does not close it. */
+  sticky?: boolean;
   onRead: () => void;
 }) {
   const { t } = useT();
@@ -120,9 +128,10 @@ export function GuideLine({
     read.current = onRead;
   });
   useEffect(() => {
+    if (sticky) return;
     const timer = window.setTimeout(() => read.current(), LINE_MS);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [sticky]);
   useEffect(lineOpened, []);
 
   return (
@@ -130,6 +139,7 @@ export function GuideLine({
       type="button"
       data-spot-keep
       onClick={() => {
+        if (sticky) return;
         playSfx('click');
         onRead();
       }}
@@ -146,10 +156,14 @@ export function GuideLine({
           {speaker}
         </span>
         <p className="pt-1.5 text-[14px] font-bold leading-snug text-slate-800">{text}</p>
-        <p className="flex items-center justify-end text-[10px] font-black text-slate-400">
-          {t('common.close')}
-          <ChevronRight className="w-3.5 h-3.5" />
-        </p>
+        {sticky ? (
+          <div className="h-1.5" />
+        ) : (
+          <p className="flex items-center justify-end text-[10px] font-black text-slate-400">
+            {t('common.close')}
+            <ChevronRight className="w-3.5 h-3.5" />
+          </p>
+        )}
       </div>
     </button>
   );

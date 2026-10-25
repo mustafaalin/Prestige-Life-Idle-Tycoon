@@ -34,6 +34,8 @@ Yaşlar `npm run sim` sonucundan alındı (bağlı bot, 2026-10-21). Kıyafetler
 - **Kahramanın yüzü her görselde aynı:** her kahraman görseline kılavuz `art/pilot/01-hero-sheet/A1-semi3d.png` referans olarak verilir. Tek referansla stil 2D'ye kayıyor; sahne ve hikâye karelerinde üç referans verilir: kahraman kılavuzu + bir kahraman pozu (`art/pilot/02-poses/hero-joy.png`) + yarı 3D bir arka plan (`art/pilot/02-poses/alley.png`).
 - **Kadro kılavuzları:** anne `art/pilot/03-cast/mom-sheet.png`, Rıza Amca `art/pilot/03-cast/riza-sheet.png`, Bülent Bey `art/pilot/03-cast/bulent-sheet.png`, Şans `art/pilot/02-poses/sans-sheet.png`.
 
+**Hareketli kahraman (2026-10-25, pilot):** Rive için kahraman hafif yandan (≈20°) bir temel pozdan parçalara ayrılır, kıyafetler mankenin üstüne ayrı resimler olarak giydirilir; komutlar [art-prompts-v2.md §0e, §0f](./art-prompts-v2.md), yöntem [research/character-animation-2026-10-25.md](./research/character-animation-2026-10-25.md).
+
 ## 3. Teknik özellikler
 
 | Tür | Boyut | Zemin | Not |

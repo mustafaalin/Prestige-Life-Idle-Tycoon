@@ -26,6 +26,7 @@ export type AdPlacement =
   | 'call_sans'
   | 'coin_rain'
   | 'opportunity'
+  | 'skill_levels'
   | 'dev_test';
 
 export interface AdPlacementDef {
@@ -60,6 +61,7 @@ export const AD_PLACEMENTS: Record<AdPlacement, AdPlacementDef> = {
   call_sans: { perDay: 5, cooldownSeconds: 10 * 60 },
   coin_rain: { perDay: 3, cooldownSeconds: 15 * 60 },
   opportunity: { perDay: 8 },
+  skill_levels: { perDay: 6 },
   dev_test: {},
 };
 
@@ -125,5 +127,7 @@ export const COIN_RAIN_VALUE_FACTOR = 3;
 export const OPPORTUNITY_SECONDS = 60;
 export const OPPORTUNITY_MIN_GAP_SECONDS = 6 * 60;
 export const OPPORTUNITY_MAX_GAP_SECONDS = 10 * 60;
+/** The training skill: one ad gives it this many levels at once (2026-10-25, user, after Idle Guy). */
+export const AD_SKILL_LEVELS = 2;
 /** How long the balloon stays on screen. */
 export const OPPORTUNITY_WINDOW_SECONDS = 20;
