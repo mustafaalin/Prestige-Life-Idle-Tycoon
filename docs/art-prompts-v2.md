@@ -452,6 +452,16 @@ Referanslar: 1 `art/pilot/18-rig/manken.png` (belirleyici), 2 kıyafetin bugünk
 
 Not: uzun palto (`coat`) üst parçası kalçayı geçer; bu doğru, kesilmez. Sıra önerisi: önce `work` üçlüsü, Claude kontrol eder (kesme ve hizalama çalışıyor mu), sonra kalan beşi.
 
+## 0i. Kalkık el, avuç içi öne (Rive, 2026-10-26)
+
+**Neden:** sevinçte kalkan sağ elde izleyici elin dış yüzünü görüyor (kullanıcı: "avuç içi değil dış taraf bakıyor"). Sarkık elin resmi ayna çevrilerek kullanılıyordu; ayna avuç içini öne getirmez. Kol kalkınca el bu yeni resimle değişir. Çıktı `art/pilot/18-rig/hand-palm.png` (yanına `-prompt.txt`).
+
+Referanslar: 1 `art/pilot/18-rig/manken.png` (kimlik, ten rengi, ışık; belirleyici), 2 `art/pilot/18-rig/ref-cheer-arm.png` (kolun kalkık hâli: elin yeri, büyüklüğü ve bileğin açısı buradan; elin kendisi yanlış, kopyalanmaz).
+
+> Create ONE square image, 1024 × 1024: only the RIGHT hand of the young man in Reference 1, raised in a friendly wave, PALM FACING THE VIEWER. Open hand, fingers straight and close together with a little space between them, the thumb relaxed and pointing to the RIGHT side of the image; the inside of the palm, the finger pads and the palm lines are visible; we do not see the back of the hand or the nails. The hand is upright (fingers up), tilted about 15 degrees to the right like the raised hand in Reference 2, and it is the same size relative to the body as the hand in Reference 1. Show the hand and about 6 cm of the wrist below it; the wrist ends in a straight horizontal cut at the bottom, no sleeve, no forearm, nothing else of the body. Same skin tone, same soft key light from the upper left, same stylized semi-3D animated-film look as Reference 1. The hand fills about 60% of the image height, centred, with clear margins. Plain flat light grey background (#d9d9d9), no shadow, no props. Exactly five fingers. No text, no labels, no logos, no watermark.
+
+Kontrol: beş parmak, avuç içi görünüyor, başparmak sağda, ten referansla aynı. Yanlışsa düzeltilmeye çalışılmaz, yeniden üretilir.
+
 ## 1. Uygulama ikonu ve özellik grafiği
 
 **Durum (2026-10-22):** özellik grafiği tamam. İkon yeniden tasarlanıyor: A, B, C beğenilmedi. Yeni adaylar D ve E (aşağıda); ikisi de üretilip Play Console'daki mağaza girişi deneyiyle (Store listing experiments) karşılaştırılabilir.
