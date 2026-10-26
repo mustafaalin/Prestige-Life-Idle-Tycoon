@@ -51,6 +51,8 @@ def manken_layer(name, cut_=40):
 SHORTS = manken_layer("04-bottomwear") & (1 - manken_layer("06-topwear")) & (1 - arms)
 FEET_FROM = 1050   # canvas row: shoes are looked for below it only
 NEAR, FAR, TANK = manken_layer("05-handwear-r"), manken_layer("00-handwear-l"), manken_layer("06-topwear")
+TORSO = TANK | manken_layer("04-bottomwear")   # the mannequin's body, whole (see-through fills it in)
+SIDE_PAD = 14   # px: how far a top stands out from the body under the near arm
 HEAD = manken_layer("08-face") | manken_layer("19-front hair") | manken_layer("01-back hair") | manken_layer("07-ears")
 DISK = lambda r: cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
 
@@ -66,8 +68,9 @@ def clean(m, min_area=800):
 
 # px: how far a sleeve reaches out from the bare arm under it, on the arm's outer side and on the side
 # toward the body (there the jacket's body starts right away; the far sleeve shows only a sliver
-# beside the body, wider it takes the breast pocket)
-SLEEVE = {"near": (34, 6), "far": (12, 0)}
+# beside the body, wider it takes the breast pocket). On the outer side nothing but the sleeve is
+# there above the wrist, so it takes all of it (a coat's wide sleeve reaches far past the arm).
+SLEEVE = {"near": (200, 6), "far": (200, 0)}
 WRIST = {"near": 622, "far": 642}  # canvas rows (gen3 JOINTS): below them a sleeve takes no garment,
                                    # only its hand (a coat's skirt hangs beside the hand)
 
@@ -85,6 +88,19 @@ def fill(rgb, src, hidden):
     out = rgb.copy()
     out[hidden > 0] = near[hidden > 0]
     return out
+
+
+EDGE = 3   # px: a part's outer band, where the picture's edge blends into the grey background
+
+
+def clean_edge(rgb, a):
+    """the outer band takes the colour of the part a few px inside: the picture's anti-aliased
+    edge is half background grey, a light line along a dark sleeve once the background is gone."""
+    inner = cv2.erode((a > 0.98).astype(np.uint8), DISK(EDGE))
+    band = ((a > 0) & (inner == 0)).astype(np.uint8)
+    if not inner.any() or not band.any():
+        return rgb
+    return fill(rgb, inner, band)
 
 
 def top(im):
@@ -122,8 +138,16 @@ def top(im):
     c = im.astype(int)
     skin = (c[..., 0] > 150) & (c[..., 0] - c[..., 2] > 40)
     label[skin & (rows >= WRIST["near"] - 40) & (d_near < 12)] = 0
-    label[skin & (NEAR == 0) & (rows >= WRIST["far"] - 40) & (d_far < 12)] = 2
-    out = {}
+    # ...and a shirt cuff the picture draws a little toward the body from the mannequin's wrist
+    light = (c.min(axis=2) > 165) & (c.max(axis=2) - c.min(axis=2) < 50)   # white or pale blue
+    label[skin & (NEAR == 0) & (rows >= WRIST["far"] - 40) & (d_far < 24)] = 2   # (a camel coat's
+    label[light & (NEAR == 0) & (rows >= WRIST["far"] - 40) & (d_far < 30)] = 2  # skirt reads as skin)
+    # where the mannequin's far hand was and the picture shows background (its hand is drawn a
+    # little elsewhere): not part of the body (the sleeve keeps its light cuff)
+    worn = worn & ~((label == 1) & (d_far < 24) & (rows >= WRIST["far"] - 40) & (dist < 40) & ~skin)
+    # a cuff wider than the bare wrist, below the wrist row: still the sleeve's
+    label[(label == 1) & ~skin & (d_near < 10) & (rows >= WRIST["near"]) & (TANK == 0)] = 0
+    out, masks = {}, {}
     for k, name in enumerate(["near", "body", "far"]):
         m = cv2.morphologyEx((worn & (label == k)).astype(np.uint8), cv2.MORPH_OPEN, DISK(2))
         n, lab, stats, _ = cv2.connectedComponentsWithStats(m)
@@ -134,18 +158,32 @@ def top(im):
         _, lab = cv2.connectedComponents((((dist < 24) & (m > 0)) | (m == 0)).astype(np.uint8), connectivity=4)
         outside = np.isin(lab, np.unique(lab[m == 0])) & (lab > 0)
         m = (m.astype(bool) & ~outside).astype(np.uint8)
+        side = None
+        if name == "body":
+            # Behind the near sleeve the picture has no body side (the arm covers it); a raised arm
+            # uncovers it. The side follows the mannequin's body, SIDE_PAD out: what the picture has
+            # there beyond it goes, what it lacks inside it is filled (both only under the sleeve,
+            # so nothing seen at rest changes).
+            under = cv2.dilate(NEAR | masks["near"], DISK(6)).astype(bool)
+            xs_ = np.arange(m.shape[1])[None, :]
+            has = TORSO.any(axis=1)
+            left = np.where(has, TORSO.argmax(axis=1), 0)[:, None] - SIDE_PAD
+            right = np.where(has, m.shape[1] - 1 - TORSO[:, ::-1].argmax(axis=1), -1)[:, None]
+            band = has[:, None] & (rows < WRIST["near"]) & (rows >= np.nonzero(m.any(axis=1))[0].min())
+            band &= rows <= np.nonzero(m.any(axis=1))[0].max()
+            m = (m.astype(bool) & ~(under & band & (xs_ < left))).astype(np.uint8)
+            side = (under & band & (xs_ >= left) & (xs_ <= right) & (m == 0)).astype(np.uint8)
         rgb, a = im.copy(), alpha * m
-        hidden = None
-        if name == "body":     # behind the near arm: inside the body's outline (its convex hull)
-            hull = np.zeros_like(m)
-            cv2.fillPoly(hull, [cv2.convexHull(cv2.findNonZero(m))], 1)
-            hidden = hull & NEAR & (1 - m)
-        if name == "far":      # behind the body, a band along the far sleeve's edge
-            hidden = cv2.dilate(m, DISK(30)) & FAR & (1 - m)
+        hidden = side
+        if name == "far":      # behind the body, a band along the far sleeve's edge (above the wrist:
+            hidden = cv2.dilate(m, DISK(30)) & FAR & (1 - m)   # the picture's hand is not the mannequin's)
+            hidden[WRIST["far"]:] = 0
         if hidden is not None and hidden.any():
             # colour from a few px inside the part: its very edge is light (anti-aliased background)
             rgb = fill(rgb, cv2.erode((m & (alpha > 0.98)).astype(np.uint8), DISK(4)), hidden)
             a = np.maximum(a, hidden.astype(float))
+        masks[name] = m
+        rgb = clean_edge(rgb, a)
         out[TOP_LAYERS[name]] = np.dstack([rgb, (a * 255).astype(np.uint8)])
     return out
 
@@ -173,7 +211,7 @@ def garment(im, part):
         rgb = cv2.inpaint(np.ascontiguousarray(rgb), under, 9, cv2.INPAINT_TELEA)
     alpha = cut(im, BG) * m
     alpha = np.maximum(alpha, under.astype(float))
-    return rgb, alpha
+    return clean_edge(rgb, alpha), alpha
 
 
 if __name__ == "__main__":

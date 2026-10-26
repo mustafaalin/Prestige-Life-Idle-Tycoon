@@ -3,8 +3,8 @@
 Parts are the see-through layers of the mannequin and of three outfit pictures drawn on it,
 with the original pictures' pixels put back by project_layers.py (art/pilot/18-rig/rig-dressed/),
 all on the same 1280 canvas, so they stack with no offsets.
-Slots are view model booleans (top, bottom, shoes); each drives one state machine layer
-that shows or hides the slot's parts. Arms bend: each arm and sleeve image is a mesh skinned to a
+Slots are view model numbers (top, bottom, shoes: 0 = bare, then OUTFITS in the game's order);
+each drives one state machine layer that shows that outfit's parts and hides the others. Arms bend: each arm and sleeve image is a mesh skinned to a
 shoulder -> elbow -> wrist bone chain; `cheer` (boolean) raises the near arm in a fist pump. The face takes two more view model inputs: `talking`
 (the mouth runs through speech shapes) and `mood` (the mouth and brows at rest, and the face he
 goes back to when he stops talking; see MOOD_FACES). The game sets them; nothing else changes.
@@ -19,16 +19,17 @@ PROJ = sys.argv[1]
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 R = os.path.join(ROOT, "art/pilot/18-rig/rig-dressed/")
 M, H, J, K = "manken", "hoodie", "jeans", "sneakers"
+# Slot value - 1, in the order of the game's outfits (core/config/lifestyle.ts); the street outfit's
+# parts come from see-through (project_layers.py), the rest from wear_cut.py.
+OUTFITS = ["hoodie", "work", "smart", "coat", "suit", "threepiece", "tux"]
 OX, OY, W, H_ = 170, 0, 730, 1260   # room on the left for the raised arm
 
 # name: (source folder, layer file, slot)
 SRC = {
-    "arm-far": (M, "00-handwear-l", None), "sleeve-far": (H, "00-handwear-l", "top"),
+    "arm-far": (M, "00-handwear-l", None),
     "back-hair": (M, "01-back hair", None), "legs": (M, "02-legwear", None),
-    "sneakers": (K, "03-footwear", "shoes"), "shorts": (M, "04-bottomwear", None),
-    "jeans": (J, "03-bottomwear", "bottom"), "neck": (M, "03-neck", None),
+    "shorts": (M, "04-bottomwear", None), "neck": (M, "03-neck", None),
     "arm-near": (M, "05-handwear-r", None), "tank": (M, "06-topwear", None),
-    "hoodie": (H, "05-topwear", "top"), "sleeve-near": (H, "06-handwear-r", "top"),
     "ears": (M, "07-ears", None), "face": (M, "08-face", None), "mouth": (M, "09-mouth", None),
     "nose": (M, "10-nose", None), "eyewhite-r": (M, "11-eyewhite-r", None),
     "eyewhite-l": (M, "12-eyewhite-l", None), "irides-l": (M, "13-irides-l", None),
@@ -36,6 +37,13 @@ SRC = {
     "eyelash-r": (M, "16-eyelash-r", None), "eyebrow-l": (M, "17-eyebrow-l", None),
     "eyebrow-r": (M, "18-eyebrow-r", None), "front-hair": (M, "19-front hair", None),
 }
+for o in OUTFITS:
+    street = o == "hoodie"
+    SRC[f"sleeve-far-{o}"] = (H if street else f"{o}-top", "00-handwear-l", "top")
+    SRC[f"top-{o}"] = (H if street else f"{o}-top", "05-topwear", "top")
+    SRC[f"sleeve-near-{o}"] = (H if street else f"{o}-top", "06-handwear-r", "top")
+    SRC[f"bottom-{o}"] = (J, "03-bottomwear", "bottom") if street else (f"{o}-bottom", "bottomwear", "bottom")
+    SRC[f"shoes-{o}"] = (K, "03-footwear", "shoes") if street else (f"{o}-shoes", "footwear", "shoes")
 # Patches from the side face close-ups: eye states (blink, half blink, glances) and mouths.
 EYE_STATES = ["blink", "halfblink", "look-left", "neutral"]
 for st in EYE_STATES:
@@ -248,8 +256,10 @@ def skinned_image(name, arm, pivot, cell=(20, 16)):
             + f'<Skin tx="{x0 - ART[0]:.2f}" ty="{y0 - ART[1]:.2f}" name="Skin">{tendons}</Skin></Mesh></Image>')
 
 # Outfit slots split across draw depths; each piece gets its own node, all keyed together.
-SLOT_NODES = {"top": ["top-sleeve-far", "top-body", "top-sleeve-near"], "bottom": ["bottom-jeans"],
-              "shoes": ["shoes-sneakers"]}
+# slot -> outfit -> its nodes.
+SLOT_NODES = {"top": {o: [f"top-sleeve-far-{o}", f"top-body-{o}", f"top-sleeve-near-{o}"] for o in OUTFITS},
+              "bottom": {o: [f"slot-bottom-{o}"] for o in OUTFITS},
+              "shoes": {o: [f"slot-shoes-{o}"] for o in OUTFITS}}
 
 # ---- hierarchy (top-most first) ----------------------------------------------------------
 eyes = []
@@ -278,22 +288,25 @@ near_bones = arm_bones("near", ARM_NEAR)
 far_bones = arm_bones("far", ARM_FAR)
 arm_near = node("ArmNear", ARM_NEAR, BODY, [skinned_image("arm-near-top", "near", ARM_NEAR), near_bones])
 arm_near_low = node("ArmNearLow", ARM_NEAR, BODY, [skinned_image("arm-near-low", "near", ARM_NEAR)])
-sleeve_near = node("top-sleeve-near", ARM_NEAR, BODY, [skinned_image("sleeve-near", "near", ARM_NEAR)])
-torso = node("Torso", BODY, BODY, [slot_node("top-body", BODY, BODY, ["hoodie"]), image("tank", BODY)])
+sleeve_near = node("SleeveNear", ARM_NEAR, BODY, [node(f"top-sleeve-near-{o}", ARM_NEAR, ARM_NEAR,
+                                                      [skinned_image(f"sleeve-near-{o}", "near", ARM_NEAR)]) for o in OUTFITS])
+torso = node("Torso", BODY, BODY, [slot_node(f"top-body-{o}", BODY, BODY, [f"top-{o}"]) for o in OUTFITS] + [image("tank", BODY)])
 body_front = node("Body", BODY, ART, [head, sleeve_near, arm_near_low, torso, arm_near, image("neck", BODY)])
 
-legs = node("Legs", BODY, ART, [slot_node("bottom-jeans", BODY, BODY, ["jeans"]), image("shorts", BODY),
-                                 slot_node("shoes-sneakers", BODY, BODY, ["sneakers"]), image("legs", BODY)])
+legs = node("Legs", BODY, ART, [slot_node(f"slot-bottom-{o}", BODY, BODY, [f"bottom-{o}"]) for o in OUTFITS]
+            + [image("shorts", BODY)]
+            + [slot_node(f"slot-shoes-{o}", BODY, BODY, [f"shoes-{o}"]) for o in OUTFITS] + [image("legs", BODY)])
 
 hair_back = node("HeadBack", HEAD, BODY, [image("back-hair", HEAD)])
-arm_far = node("ArmFar", ARM_FAR, BODY, [node("top-sleeve-far", ARM_FAR, ARM_FAR, [skinned_image("sleeve-far", "far", ARM_FAR)]),
-                                         skinned_image("arm-far", "far", ARM_FAR), far_bones])
+arm_far = node("ArmFar", ARM_FAR, BODY, [node(f"top-sleeve-far-{o}", ARM_FAR, ARM_FAR, [skinned_image(f"sleeve-far-{o}", "far", ARM_FAR)])
+                                         for o in OUTFITS] + [skinned_image("arm-far", "far", ARM_FAR), far_bones])
 body_back = node("BodyBack", BODY, ART, [hair_back, arm_far])
 scene_nodes = "\n".join([body_front, legs, body_back])
 
 # ---- view model ---------------------------------------------------------------------------
 VM, VMI = nid(), nid()
-BOOLS, NUMBERS = SLOTS + ["talking", "cheer"], ["mood"]
+BOOLS, NUMBERS = ["talking", "cheer"], SLOTS + ["mood"]
+DEFAULTS = {s: 1 for s in SLOTS}   # the street outfit, the game's first
 VMP = {s: nid() for s in BOOLS + NUMBERS}
 viewmodel = (f'<ViewModel defaultInstanceId="{VMI}" name="Hero" id="{VM}">\n'
              + "".join(f'    <ViewModelPropertyBoolean name="{s}" id="{VMP[s]}"/>\n' for s in BOOLS)
@@ -301,7 +314,7 @@ viewmodel = (f'<ViewModel defaultInstanceId="{VMI}" name="Hero" id="{VM}">\n'
              + f'    <ViewModelInstance exports="true" name="Default" id="{VMI}">\n'
              + "".join(f'        <ViewModelInstanceBoolean propertyValue="false" viewModelPropertyId="{VMP[s]}"/>\n'
                        for s in BOOLS)
-             + "".join(f'        <ViewModelInstanceNumber propertyValue="0" viewModelPropertyId="{VMP[s]}"/>\n'
+             + "".join(f'        <ViewModelInstanceNumber propertyValue="{DEFAULTS.get(s, 0)}" viewModelPropertyId="{VMP[s]}"/>\n'
                        for s in NUMBERS)
              + '    </ViewModelInstance>\n</ViewModel>')
 
@@ -368,17 +381,17 @@ d = 13 * S
 tilt = [(0, 0.0), (int(3.0 * S), 0.03), (int(5.5 * S), 0.0), (int(8.0 * S), -0.025), (int(10.5 * S), 0.0), (d, 0.0)]
 loops.append(anim("Head", d, [track("Head", "rotation", tilt), track("HeadBack", "rotation", tilt)]))
 
-# Slot layers: one Off and one On pose per slot (single-frame, held).
+# Slot layers: one held pose per slot value (0 = bare, then each outfit).
 slot_anims = {}
 # Parts a worn slot replaces: the sleeves carry their own hands, and the bare arm would peek out
 # at the shoulder cap.
 SLOT_HIDES = {"top": ["arm-near-top", "arm-near-low", "arm-far"], "bottom": [], "shoes": []}
 for s in SLOTS:
-    shown = lambda v: ([track(n, "opacity", [(0, v, "hold")]) for n in SLOT_NODES[s]]
-                       + [track(n, "opacity", [(0, 1 - v, "hold")]) for n in SLOT_HIDES[s]])
-    off = anim(f"{s}-off", 1, shown(0), "oneShot")
-    on = anim(f"{s}-on", 1, shown(1), "oneShot")
-    slot_anims[s] = (off, on)
+    def worn(v):
+        keys = [track(n, "opacity", [(0, 1 if k == v else 0, "hold")])
+                for k, o in enumerate(OUTFITS, 1) for n in SLOT_NODES[s][o]]
+        return keys + [track(n, "opacity", [(0, 0 if v else 1, "hold")]) for n in SLOT_HIDES[s]]
+    slot_anims[s] = [anim(f"{s}-{v}", 1, worn(v), "oneShot") for v in range(len(OUTFITS) + 1)]
 
 # Mouth: one held pose per mood, and a talk loop (2.4 s, uneven rhythm with short pauses).
 def solo_keys(solo_, seq, end):
@@ -458,17 +471,15 @@ for i, (aid, _) in enumerate(loops):
     <AnimationState x="200" animationId="{aid}" id="{st}"/>
 </StateMachineLayer>''')
 for s in SLOTS:
-    (off_id, _), (on_id, _) = slot_anims[s]
-    so, sn = nid(), nid()
+    sids = [nid() for _ in slot_anims[s]]
+    states = [f'<AnimationState x="{100 * v}" animationId="{aid}" id="{sids[v]}">'
+              + "".join(f'<StateTransition stateToId="{sids[k]}">{vm_number(s, k)}</StateTransition>'
+                        for k in range(len(sids)) if k != v) + '</AnimationState>'
+              for v, (aid, _) in enumerate(slot_anims[s])]
     layers.append(f'''<StateMachineLayer name="slot-{s}" id="{nid()}">
     <AnyState x="200" y="-120"/><ExitState x="400" y="-120"/>
-    <EntryState><StateTransition stateToId="{so}"/></EntryState>
-    <AnimationState x="100" animationId="{off_id}" id="{so}">
-        <StateTransition stateToId="{sn}">{vm_condition(s, "true")}</StateTransition>
-    </AnimationState>
-    <AnimationState x="300" animationId="{on_id}" id="{sn}">
-        <StateTransition stateToId="{so}">{vm_condition(s, "false")}</StateTransition>
-    </AnimationState>
+    <EntryState><StateTransition stateToId="{sids[DEFAULTS[s]]}"/></EntryState>
+    {chr(10).join(states)}
 </StateMachineLayer>''')
 
 # Mouth layer: mood states, all linked to each other and to Talk.
@@ -509,7 +520,7 @@ layers.append(f'''<StateMachineLayer name="arms" id="{nid()}">
     </AnimationState>
 </StateMachineLayer>''')
 
-all_anims = ([a for _, a in loops] + [arms_rest[1], cheer_anim[1], raise_anim[1], lower_anim[1]] + [a for pair in slot_anims.values() for _, a in pair]
+all_anims = ([a for _, a in loops] + [arms_rest[1], cheer_anim[1], raise_anim[1], lower_anim[1]] + [a for anims_ in slot_anims.values() for _, a in anims_]
              + [a for _, a in mood_anims] + [talk_anim[1]])
 rml = f'''<Rive version="1" kind="fragment">
 {chr(10).join(assets)}
