@@ -34,7 +34,7 @@ Koda yeni bir olay ya da parametre eklenince **aynı commit'te** bu belge günce
 | `house_id` | Olay | `home_change` | kiralanan / alınan ev | 2026-10-26 kayıtlı |
 | `card_id` | Olay | `event_card` | açılan olay kartı | 2026-10-26 kayıtlı |
 | `plan` | Olay | `invest_start`, `invest_collect` | seçilen yatırım fırsatı | 2026-10-26 kayıtlı |
-| `life_minutes` | Olay (metrik, Standard) | `class_up` | kahramanın oyun içi yaşı, dakika | boyut arşivlendi (2026-10-26); metrik olarak açıldığı teyit bekliyor |
+| `life_minutes` | Olay (metrik, Standard) | `class_up` | kahramanın oyun içi yaşı, dakika | 2026-10-26 kayıtlı (metrik) |
 | `class_index` | Kullanıcı | oyuncu özelliği | oyuncunun şu anki sınıfı | 2026-10-26 kayıtlı |
 | `generation` | Kullanıcı | oyuncu özelliği | kaçıncı nesil | 2026-10-26 kayıtlı |
 
