@@ -17,24 +17,24 @@ Koda yeni bir olay ya da parametre eklenince **aynı commit'te** bu belge günce
 | Ad | Kapsam | Hangi olaylarda | Ne anlatır | Kayıt |
 | --- | --- | --- | --- | --- |
 | `placement` | Olay | `ad_offer`, `ad_watch` | reklamın hangi düğmeden önerildiği / izlendiği | 2026-10-26 kayıtlı |
-| `step` | Olay | `tutorial_step` | rehberde gelinen adım (oyuncu nerede bırakıyor) | bekliyor |
-| `outcome` | Olay | `ad_watch`, `purchase_result`, `app_update` | reklam bitti mi, satın alma tamamlandı mı, güncelleme kabul edildi mi | bekliyor |
-| `kind` | Olay | `story_view`, `notification_open` | hikâye anının / bildirimin türü | bekliyor |
-| `id` | Olay | `story_view`, `notification_open`, `app_update` | hangi an, bildirim ya da sürüm | bekliyor |
-| `skipped` | Olay | `story_view` | hikâye "Geç" ile atlandı mı | bekliyor |
-| `quest_id` | Olay | `quest_claim` | ödülü alınan hedef | bekliyor |
-| `career_id` | Olay | `job_take` | geçilen meslek | bekliyor |
+| `step` | Olay | `tutorial_step` | rehberde gelinen adım (oyuncu nerede bırakıyor) | 2026-10-26 kayıtlı |
+| `outcome` | Olay | `ad_watch`, `purchase_result`, `app_update` | reklam bitti mi, satın alma tamamlandı mı, güncelleme kabul edildi mi | 2026-10-26 kayıtlı |
+| `kind` | Olay | `story_view`, `notification_open` | hikâye anının / bildirimin türü | 2026-10-26 kayıtlı |
+| `id` | Olay | `story_view`, `notification_open`, `app_update` | hangi an, bildirim ya da sürüm | 2026-10-26 kayıtlı |
+| `skipped` | Olay | `story_view` | hikâye "Geç" ile atlandı mı | 2026-10-26 kayıtlı |
+| `quest_id` | Olay | `quest_claim` | ödülü alınan hedef | 2026-10-26 kayıtlı |
+| `career_id` | Olay | `job_take` | geçilen meslek | 2026-10-26 kayıtlı |
 | `course_id` | Olay | `course_start` | başlatılan kurs | bekliyor |
 | `skill_id` | Olay | `skill_train`, `skill_pause`, `skill_collect` | çalışılan beceri | bekliyor |
-| `business_id` | Olay | `business_level`, `business_branch`, `manager_hire` | işletme | bekliyor |
-| `level` | Olay | `business_level`, `skill_train`, `skill_collect` | çıkılan seviye | bekliyor |
-| `class_index` | Olay | `class_up`, `story_view`, `retire`, `review_prompt` | sınıf | bekliyor |
-| `product_id` | Olay | `purchase_start`, `purchase_result`, `purchase_applied`, `purchase_revoked` | mağaza ürünü | bekliyor |
+| `business_id` | Olay | `business_level`, `business_branch`, `manager_hire` | işletme | 2026-10-26 kayıtlı |
+| `level` | Olay | `business_level`, `skill_train`, `skill_collect` | çıkılan seviye | 2026-10-26 kayıtlı |
+| `class_index` | Olay | `class_up`, `story_view`, `retire`, `review_prompt` | sınıf | 2026-10-26 kayıtlı |
+| `product_id` | Olay | `purchase_start`, `purchase_result`, `purchase_applied`, `purchase_revoked` | mağaza ürünü | 2026-10-26 kayıtlı |
 | `item_id` | Olay | `lifestyle_buy` | alınan araç / kıyafet / lüks / eşya | bekliyor |
 | `house_id` | Olay | `home_change` | kiralanan / alınan ev | bekliyor |
 | `card_id` | Olay | `event_card` | açılan olay kartı | bekliyor |
 | `plan` | Olay | `invest_start`, `invest_collect` | seçilen yatırım fırsatı | bekliyor |
-| `life_minutes` | Olay (metrik, Standard) | `class_up` | kahramanın oyun içi yaşı, dakika | bekliyor |
+| `life_minutes` | Olay (metrik, Standard) | `class_up` | kahramanın oyun içi yaşı, dakika | bekliyor (yanlışlıkla boyut olarak açıldı: boyut arşivlenip metrik açılmalı) |
 | `class_index` | Kullanıcı | oyuncu özelliği | oyuncunun şu anki sınıfı | bekliyor |
 | `generation` | Kullanıcı | oyuncu özelliği | kaçıncı nesil | bekliyor |
 
