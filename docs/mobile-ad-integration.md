@@ -1,6 +1,6 @@
 # Mobile Ad Integration (v2)
 
-Son güncelleme: 2026-10-21; 19 reklam yeri bağlı ([monetization-v2.md §4](./monetization-v2.md)).
+Son güncelleme: 2026-10-26; 21 reklam yeri bağlı ([monetization-v2.md §4](./monetization-v2.md)).
 
 v2'nin reklam katmanı v1'den ayrı: `src/game/runtime/ads.ts` (kararlar: [monetization-v2.md](./monetization-v2.md)).
 

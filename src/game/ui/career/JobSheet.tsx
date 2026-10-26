@@ -13,7 +13,7 @@ import { JobIcon } from './JobIcon';
 import { RequirementList } from './Requirements';
 import { Cash } from '../CashAmount';
 
-// A job's card (docs/career-redesign.md §4): what it pays, how long mastery takes, what it still
+// A job's card (docs/archive/career-redesign.md §4): what it pays, how long mastery takes, what it still
 // needs (each with "Go") and which jobs it opens. Opens from a box in the job tree.
 
 export function JobSheet({

@@ -434,7 +434,7 @@ Referanslar: 1 `art/pilot/19-sans-rig/sans-base.png` (belirleyici: değişmeyece
 
 Not: oyunda fular tasmanın altında durur (katman sırası), bu yüzden fular tek başına çizilir; tasma onun üstüne takılır. Okşama, cüzdan ve uyuma pozları ilk turda resim olarak kalır; rig beğenilirse sırayla bakılır.
 
-## 0h. Kalan 6 kıyafet mankene (Rive, 2026-10-26; work, smart, coat, suit üçlüleri ve threepiece-top geldi, kontrol edildi; threepiece-bottom/shoes ve tux üçlüsü bekleniyor)
+## 0h. Kalan 6 kıyafet mankene (Rive, 2026-10-26; 18 görsel geldi ve kontrol edildi; see-through ile kesilecek)
 
 **Neden:** sıradaki 8. adım (handoff); §0f'deki sokak kıyafetiyle aynı yol. Her kıyafet üç parça: üst (dışta ne varsa hepsiyle: ceket, palto, yelek, gömlek, kravat), alt, ayakkabı. Lansmanda takım olarak giyilse de parçalar ayrı üretilir; parça parça satış kararı ne olursa olsun işe yarar. Kesmeyi Claude yapar.
 
@@ -452,7 +452,7 @@ Referanslar: 1 `art/pilot/18-rig/manken.png` (belirleyici), 2 kıyafetin bugünk
 
 Not: uzun palto (`coat`) üst parçası kalçayı geçer; bu doğru, kesilmez. Sıra önerisi: önce `work` üçlüsü, Claude kontrol eder (kesme ve hizalama çalışıyor mu), sonra kalan beşi.
 
-## 0i. Kalkık el, avuç içi öne (Rive, 2026-10-26)
+## 0i. Kalkık el, avuç içi öne (Rive, 2026-10-26; geldi, onaylandı, rigde)
 
 **Neden:** sevinçte kalkan sağ elde izleyici elin dış yüzünü görüyor (kullanıcı: "avuç içi değil dış taraf bakıyor"). Sarkık elin resmi ayna çevrilerek kullanılıyordu; ayna avuç içini öne getirmez. Kol kalkınca el bu yeni resimle değişir. Çıktı `art/pilot/18-rig/hand-palm.png` (yanına `-prompt.txt`).
 

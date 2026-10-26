@@ -1,6 +1,6 @@
 # Prestige Life v2 — Yeniden Yapım Planı
 
-Son güncelleme: 2026-10-25 · Dal: `v2-rebuild` · Rapor (neden): [report-v2.md](./report-v2.md) · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikâye: [story-v2.md](./story-v2.md) · Açık kararlar: [discussion-notes.md](./discussion-notes.md)
+Son güncelleme: 2026-10-26 · Dal: `v2-rebuild` · Rapor (neden): [report-v2.md](./report-v2.md) · Tasarım: [game-design-v2.md](./game-design-v2.md) · Hikâye: [story-v2.md](./story-v2.md) · Açık kararlar: [discussion-notes.md](./discussion-notes.md)
 
 ## Amaç
 
@@ -28,7 +28,7 @@ src/game/
     formulas.ts, state.ts, format.ts
   sim/             Dengeleme botu, tempo ve his hedefleri (`npm run sim`)
   runtime/         Canlı oyun: store (tick, kayıt, olaylar), engine, storage, story, ads + adRewards, iap + purchases,
-                   daily, investment, notifications, analytics, review, city (Lumen kaplaması), feedback (ses, haptik), backButton
+                   daily, investment, notifications, analytics, review, appUpdate, city (Lumen kaplaması), feedback (ses, haptik), backButton
   i18n/            messages/<dil>.ts (arayüz), content/<dil>.ts (içerik adları), sayı biçimi
   ui/              home, scene, story, events, guide, businesses, career, shop, invest, richList, family, ads; kit.tsx, DevMenu.tsx
   AppV2.tsx        v2 kökü (VITE_GAME_V2=true)
@@ -72,7 +72,7 @@ Lansman = 1. nesil; 2. ve 3. nesil yayından sonra; Burak hikâyesi kalktı; 80'
 - [x] **E2 Sayılar:** 14 işletme, gerçek maaş ve fiyatlar, eşya ve meslek bonusu yok, çevrimdışı %20 / 1 sa.
 - [x] **E3 Arayüz:** işletme kartı (seviye noktaları, "büyüdü!" kartı, takvimle geri dönüş, şube), 36 görsel (2026-10-21).
 - [x] **E4 Meslekler:** 63 meslek, 16 kurs, 4 eşya, iş panosu, 55 ikon (2026-10-21).
-- [x] **E7 Meslek ağacı** (karar 2026-10-21, [career-redesign.md](./career-redesign.md)): ✅ 1. adım: 104 meslek, 15 satır, ustalık, yıllık zam, 8 yeni kurs, yeni şart türleri (araç, yöneticili işletme), deneyim reklamı işte bir kez, simülatör raporu. ✅ 2. sekmeli ağaç ekranı, şart penceresi, Kurslar sekmesi, ustalık halkası. ✅ İkinci düzen: satırda 2 iş, sekmeler sırayla, ustalık 3–8 ay, yıllık zam yok. ✅ 3. iş değişimi şovu ve "Usta oldun!" şeridi. ✅ 4. 41 yeni meslek ikonu (komutlar [archive/art-prompts-careers.md](./archive/art-prompts-careers.md); kurslar ve sekmeler kod simgesi kullanır).
+- [x] **E7 Meslek ağacı** (karar 2026-10-21, [archive/career-redesign.md](./archive/career-redesign.md)): ✅ 1. adım: 104 meslek, 15 satır, ustalık, yıllık zam, 8 yeni kurs, yeni şart türleri (araç, yöneticili işletme), deneyim reklamı işte bir kez, simülatör raporu. ✅ 2. sekmeli ağaç ekranı, şart penceresi, Kurslar sekmesi, ustalık halkası. ✅ İkinci düzen: satırda 2 iş, sekmeler sırayla, ustalık 3–8 ay, yıllık zam yok. ✅ 3. iş değişimi şovu ve "Usta oldun!" şeridi. ✅ 4. 41 yeni meslek ikonu (komutlar [archive/art-prompts-careers.md](./archive/art-prompts-careers.md); kurslar ve sekmeler kod simgesi kullanır).
 - [x] **E5 Lansman kapsamı:** içerik bayrakları (`config/content.ts`), Burak hikâyesi oynamaz, 80'de "Torununun hikâyesi yakında", Aile sekmesi ve miras gizli.
 - [~] **E6 Bütünleme:** ✅ ödül tutarları ölçüldü, tasarım belgesi yeniden yazıldı, 19 ödüllü reklam yeri, belgeler sadeleşti, AAB 30 (2026-10-21). Kalan: telefonda test ve bulgular → lansman.
 
@@ -84,11 +84,12 @@ Lansman = 1. nesil; 2. ve 3. nesil yayından sonra; Burak hikâyesi kalktı; 80'
 - [x] **2.8 Bildirimler:** annenin mesajı, kasa doldu, günlük ödül hazır; günde en fazla bir.
 - [~] **2.4 Olay kartları:** 50 kart oyunda (2026-10-21: üç tür, yönetici başına üç kart işletmenin görünümüne bağlı, deste düzeni). Kalan: iş teklifleri önerisi ([discussion-notes.md §2](./discussion-notes.md)).
 - [~] **2.7 Günlük döngü:** günlük ödül oyunda. Kalan: günlük görevler (oynanış keyifli görülürse).
-- [~] **2.9 Monetizasyon:** reklam altyapısı, 19 reklam yeri, IAP 1. adım oyunda ([monetization-v2.md](./monetization-v2.md)). Kalan: IAP 2. adım (Yakut Tasma $4,99, Gece Vardiyası $3,99 yeni çevrimdışına göre), v1'in 8 ürünü pasifleşir.
-- [x] **2.14 Beceriler** (2026-10-25, kodda, commit ve telefon denemesi bekliyor): Güç / Zekâ / Karizma, Beceriler sekmesi ([game-design-v2.md §4.15](./game-design-v2.md)).
+- [~] **2.9 Monetizasyon:** reklam altyapısı, 21 reklam yeri, IAP 1. adım oyunda ([monetization-v2.md](./monetization-v2.md)). Kalan: IAP 2. adım (Yakut Tasma $4,99, Gece Vardiyası $3,99 yeni çevrimdışına göre), v1'in 8 ürünü pasifleşir.
+- [x] **2.14 Beceriler** (2026-10-25, AAB 34'te; telefon denemesi bekliyor): Güç / Zekâ / Karizma, Beceriler sekmesi ([game-design-v2.md §4.15](./game-design-v2.md)).
 - [ ] **2.15 Mutluluk, sağlık ve hobiler** (kararlar verildi, telefon denemesinden sonra): üst barda iki çubuk, yalnız terfi alt sınırı, 12 hobi ayrı yuva ve ayrı ekran ([research/life-features-2026-10-25.md](./research/life-features-2026-10-25.md)).
 - [ ] **2.16 Defne ile bağ** (etkileşimli; aynı belge §6).
-- [ ] **2.17 Hareketli parçalı kahraman (Rive)** (pilot sürüyor): manken + giydirilen kıyafet yuvaları, göz kırpma, konuşma, baş dönmesi, ifadeler ([research/character-animation-2026-10-25.md](./research/character-animation-2026-10-25.md)); ayrı dalda, lansmanı beklemez.
+- [~] **2.17 Hareketli kahraman ve Şans (Rive)** ([research/character-animation-2026-10-25.md](./research/character-animation-2026-10-25.md); durum [session-handoff.md](./session-handoff.md) §2): ✅ kahraman rigi (göz, ağız, 7 ifade, kollar, avuç içi öne el sallama), ✅ Şans rigi (tasma ve fular yuvaları). Kalan: 6 kıyafetin see-through ile kesilmesi (Kaggle), sonra hepsi birlikte oyuna (kullanıcı 2026-10-26: bütün animasyonlar bitmeden hiçbiri oyuna girmez).
+- [x] **2.18 Güncelleme teklifi** (2026-10-26, AAB 34): Play In-App Updates, esnek; ilk kez 35 çıkınca görünür (`runtime/appUpdate.ts`).
 - [ ] **2.6 Lüks oyuncaklar sahnede:** jet, helikopter, yat, tekne.
 - [ ] **2.10 Remote Config:** denge değerlerini güncellemesiz değiştirmek.
 - [ ] **2.11 v1'in kaldırılması:** banka, sağlık/mutluluk, v1 görevleri, Supabase senkronu; eski oyunculara hoş geldin hediyesi.

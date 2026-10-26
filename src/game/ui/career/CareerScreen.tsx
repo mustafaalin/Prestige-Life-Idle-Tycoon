@@ -22,7 +22,7 @@ import { JobTree } from './JobTree';
 import { Cash } from '../CashAmount';
 import { UiIcon } from '../UiIcon';
 
-// The career screen (docs/career-redesign.md §4): the job held with its mastery ring, then two
+// The career screen (docs/archive/career-redesign.md §4): the job held with its mastery ring, then two
 // tabs: the job tree (Worker, Office, Expert, The top) and the courses.
 
 type Section = 'jobs' | 'courses';

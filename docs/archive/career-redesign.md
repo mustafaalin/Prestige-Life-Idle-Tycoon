@@ -1,6 +1,6 @@
 # Kariyerin yeniden tasarımı (öneri 2, 2026-10-21)
 
-Durum: **onaylandı (2026-10-21); 1. adım (veri, kurallar, simülatör) kodda.** Geçerli kurallar ve sayılar artık [game-design-v2.md §4.4](./game-design-v2.md)'te ve `config/careers.ts`'te; aşağıdaki §2–3 öneri hâlidir, uygulamada değişenler §8'de. Ekran (§4) ve görseller sırada; bitince bu belge [archive/](./archive/)'e gider. İlk öneri (13 basamaklı merdiven) beğenilmedi: kısa soluklu ve az meslekliydi. Karar verilince kurallar [game-design-v2.md §4.4](./game-design-v2.md)'e taşınır, bu belge [archive/](./archive/)'e gider.
+Durum: **onaylandı (2026-10-21); 1. adım (veri, kurallar, simülatör) kodda.** Geçerli kurallar ve sayılar artık [game-design-v2.md §4.4](../game-design-v2.md)'te ve `config/careers.ts`'te; aşağıdaki §2–3 öneri hâlidir, uygulamada değişenler §8'de. Ekran (§4) ve görseller sırada; bitince bu belge [archive/](./)'e gider. İlk öneri (13 basamaklı merdiven) beğenilmedi: kısa soluklu ve az meslekliydi. Karar verilince kurallar [game-design-v2.md §4.4](../game-design-v2.md)'e taşınır, bu belge [archive/](./)'e gider.
 
 ## 1. Araştırma
 
@@ -201,7 +201,7 @@ Kaynaklar: [Idle Guy (App Store)](https://apps.apple.com/us/app/idle-guy-life-si
 1. Veri: seviyeler, sekmeler, önceki işler, şartlar, yeni şart türleri, yeni kurslar; `npm run sim` ile maaş eğrisi, zirve yaşı, sınıf yaşları (hedef: CEO ~55, YK Başkanı ~70; maaş payı %20–35).
 2. Ekran: sekmeli ağaç, şart penceresi, Kurslar sekmesi, ustalık şeridi.
 3. İş değişimi şovu ve "Usta!" anı, sesi.
-4. Görseller: 41 meslek ikonu oyunda (2026-10-21; komutlar [archive/art-prompts-careers.md](./archive/art-prompts-careers.md)); kurslar ve sekmeler kod simgesi kullanır.
+4. Görseller: 41 meslek ikonu oyunda (2026-10-21; komutlar [archive/art-prompts-careers.md](./art-prompts-careers.md)); kurslar ve sekmeler kod simgesi kullanır.
 
 ## 7. Kararlar
 

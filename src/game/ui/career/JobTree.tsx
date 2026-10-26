@@ -11,7 +11,7 @@ import { JobIcon } from './JobIcon';
 import { requirementText } from './requirementText';
 import { UiIcon } from '../UiIcon';
 
-// One tab of the job tree (docs/career-redesign.md §4, look redone 2026-10-23 after the reference game):
+// One tab of the job tree (docs/archive/career-redesign.md §4, look redone 2026-10-23 after the reference game):
 // each row in its own band, the jobs of a row side by side as game tiles whose colour tells their state.
 // Between two rows one junction: the jobs above drop to a bar, the jobs below rise from it (any job
 // above opens any job below). The path walked is gold, a path open now blue, the rest dotted. Lines

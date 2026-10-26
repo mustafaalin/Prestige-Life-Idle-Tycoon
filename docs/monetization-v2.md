@@ -1,6 +1,6 @@
 # Prestige Life v2 — Reklam ve Uygulama İçi Satın Alma (IAP)
 
-Tarih: 2026-10-08 · Son güncelleme: 2026-10-21 · Durum: **20 ödüllü reklam yeri oyunda (2026-10-22) ve IAP 1. adım (Mağaza, Rahat Paket, Başlangıç Paketi) oyunda; IAP 2. adım (Yakut Tasma, Gece Vardiyası) bekliyor** · İlgili: [report-v2.md](./report-v2.md) §Monetizasyon, [rebuild-plan.md](./rebuild-plan.md) 2.9, [discussion-notes.md](./discussion-notes.md) §4 (ekonomi)
+Tarih: 2026-10-08 · Son güncelleme: 2026-10-26 · Durum: **21 ödüllü reklam yeri oyunda (21. beceri, 2026-10-25) ve IAP 1. adım (Mağaza, Rahat Paket, Başlangıç Paketi) oyunda; IAP 2. adım (Yakut Tasma, Gece Vardiyası) bekliyor** · İlgili: [report-v2.md](./report-v2.md) §Monetizasyon, [rebuild-plan.md](./rebuild-plan.md) 2.9, [discussion-notes.md](./discussion-notes.md) §4 (ekonomi)
 
 Kullanıcının isteği: "Ödüllü reklam için detaylı düşün; oyun tasarımı reklam izletmeye uygun olsun. Reklamla bazı şeyleri verebiliriz, IAP ile bir şeyler satabiliriz."
 

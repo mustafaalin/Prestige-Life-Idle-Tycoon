@@ -6,7 +6,7 @@ import { haptic, playSfx } from '../../runtime/feedback';
 import { useGameV2 } from '../../runtime/useGameV2';
 import { JobIcon } from './JobIcon';
 
-// The "Master!" moment (docs/career-redesign.md §4): the job held reaches 100% mastery wherever the
+// The "Master!" moment (docs/archive/career-redesign.md §4): the job held reaches 100% mastery wherever the
 // player is, so a banner drops in at the top for a few seconds; a tap opens the career screen.
 
 const SHOW_MS = 4000;

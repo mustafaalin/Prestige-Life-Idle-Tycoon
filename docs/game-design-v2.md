@@ -93,7 +93,7 @@ Bir işletme tek kart: **açılır, seviye seviye büyür, son seviyede şube a�
 
 ### 4.4 Meslekler ve kurslar (`config/careers.ts`, `config/courses.ts`, `core/economy/career.ts`)
 
-**Meslek ağacı** (karar 2026-10-21; süreç [career-redesign.md](./career-redesign.md)). 104 meslek, 54 satır, **satırda en çok 2 iş**. Sekmeler sırayla gelir: İşçi 1–15. satır (29 iş), Ofis 16–29 (28), Uzman 30–45 (32), Zirve 46–54 (15: direktörler, CTO/CFO, COO, CEO 52. satırda, Yönetim Kurulu Üyesi ve Yatırım Fonu Kurucusu, Yönetim Kurulu Başkanı 54. satırda). Her iş bir üstteki satırın iki işinden birinde ustalık ister (ikisi de çizgiyle bağlı).
+**Meslek ağacı** (karar 2026-10-21; süreç [archive/career-redesign.md](./archive/career-redesign.md)). 104 meslek, 54 satır, **satırda en çok 2 iş**. Sekmeler sırayla gelir: İşçi 1–15. satır (29 iş), Ofis 16–29 (28), Uzman 30–45 (32), Zirve 46–54 (15: direktörler, CTO/CFO, COO, CEO 52. satırda, Yönetim Kurulu Üyesi ve Yatırım Fonu Kurucusu, Yönetim Kurulu Başkanı 54. satırda). Her iş bir üstteki satırın iki işinden birinde ustalık ister (ikisi de çizgiyle bağlı).
 
 - **Ustalık ve geçiş:** ustalık `min(8, 3 + ⌊(satır − 1) / 2⌋)` oyun ayı (1. satır 3 ay, 11. satırdan sonra 8 ay); yaklaşık her 8 ayda bir terfi. Şimdiki işte ustalık %100 olmadan iş değiştirilemez; bırakılan işe dönülmez. Seçilmeyen kardeş işler açık kalır: ustalık bitince onlara da girilebilir. Giriş ücreti yok. Daha az ödeyen işe ağaçtan tek dokunuşla girilmez: önce iş kartı açılır, "Maaşın düşer: $556/ay → $370/ay. Bıraktığın işe geri dönemezsin." yazar (2026-10-23).
 - **Maaş:** satıra bağlı, iki iş aynı maaşı öder; her satır bir üsttekinin ×1,10 (2–5), ×1,13 (6–45), ×1,25 (46+). **Yıllık zam yok** (2026-10-21, kullanıcı: terfi zaten yılda bir zam gibi). El İlanı $300, 16. satır (Kasiyer) $1,7K, 30. satır $9,3K, CEO $278K, Yönetim Kurulu Başkanı $435K.
@@ -238,7 +238,7 @@ Bot her an en kısa sürede kendini ödeyen alımı yapar (optimal); daha çok k
 
 - **His kontrolleri:** ilk tur ≥ 5 şişe ($25 / $10), işletmelerin gelirdeki payı Gündelikçi anında, ilk oturum sonunda ve 1. nesil ortancasında ≥ %50 (%56 / %65 / %98).
 - **Paranın kaynakları (bağlı, 45 gün):** çevrimdışı %41, oynarken işletme ve maaş %30, yatırım %17, günlük ödül %6, olay kartı %4, Şans %2, tören ve hayat anı hediyeleri %0,2, hedefler %0,1, şişe ~%0.
-- **Reklam izleyen** (19 reklam yeri, [monetization-v2.md §4](./monetization-v2.md)): Orta Sınıf 35 dk, Milyoner 1 sa 1 dk, Milyarder 7 sa 26 dk (%47 erken; karar 2026-10-21: %40–50).
+- **Reklam izleyen** (21 reklam yeri, [monetization-v2.md §4](./monetization-v2.md)): Orta Sınıf 35 dk, Milyoner 1 sa 1 dk, Milyarder 7 sa 26 dk (%47 erken; karar 2026-10-21: %40–50).
 - **Seyrek oyuncu** (2–3 günde bir 2–3 dk, `--rare`, 400 gün; hedef profili değil): Orta Sınıf 20, Milyoner 23 (46. gün), Milyarder 48 yaş (236. gün); paranın %34'ü yatırım, %28'i çevrimdışı, %25'i günlük ödül, %9'u oyun.
 - Komutlar: `npm run sim -- --config`, `--timeline`, `--purchases`, `--sessions`, `--daily-claims`, `--quests`, `--rare`.
 
@@ -260,6 +260,7 @@ Bot her an en kısa sürede kendini ödeyen alımı yapar (optimal); daha çok k
 - **İçerik bayrakları** `core/config/content.ts`: lansmanın neyi içerdiği tek yerde (§4.10).
 - **Kayıt** (`runtime/storage.ts`): kararlı string kimlikler (işletme seviyesi sayıyla: `{ level, branches, managed }`), yeni alan varsayılanla, şema yalnız `migrate()` adımıyla. Şema 2 (2026-10-21): şema 1 kayıt bir kez sıfırdan başladı (yalnız mağaza alımları ve bildirim cevabı kaldı, eski kayıt `prestige_life_v2_pre_rebuild`'de); **yayından sonra bu bir daha yapılmaz** (session-handoff "Kayıt uyumluluğu").
 - **Ekran çekirdeği bilmez:** ekranlar `core`'dan okur, ekonomi hesaplamaz.
+- **Platform işleri** `runtime/` içinde, her biri tek dosya: reklam (`ads.ts`, kurallar `adRewards.ts`), satın alma (`iap.ts`, `purchases.ts`), bildirim, analitik (olaylar [analytics-v2.md](./analytics-v2.md)), çökme raporu, puanlama penceresi (`review.ts`), Play güncelleme teklifi (`appUpdate.ts`: açılıştan ~8 sn sonra Play'in penceresi, iniş arka planda, inince "Yeni sürüm hazır" şeridi `ui/home/UpdateToast.tsx`; zorunlu değil; AAB 34'ten itibaren).
 
 ## 8. Sonraya bırakılanlar ve açık konular
 

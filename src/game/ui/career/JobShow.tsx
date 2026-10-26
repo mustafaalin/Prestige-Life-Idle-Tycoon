@@ -9,7 +9,7 @@ import { Confetti } from '../Confetti';
 import { JobIcon } from './JobIcon';
 import { Cash } from '../CashAmount';
 
-// A new job, played as a short show (docs/career-redesign.md §4): the old job sits in the middle and
+// A new job, played as a short show (docs/archive/career-redesign.md §4): the old job sits in the middle and
 // slides out to the left, the new one comes in from the right with rays and confetti, the salary
 // counts up from the old pay to the new with "+$X/mo", and the jobs it opens are listed. A tap jumps
 // to the end; with reduced motion the show starts there.
