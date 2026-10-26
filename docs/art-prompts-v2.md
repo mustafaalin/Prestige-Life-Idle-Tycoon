@@ -391,6 +391,67 @@ Referanslar: 1 `art/pilot/18-rig/manken.png`, 2 `art/pilot/18-rig/rig-base.png`.
 
 > Produce ONE vertical image, 1024 × 1536, the same canvas as Reference 1. Draw ONLY the dark charcoal hoodie from Reference 2 (hood, drawstrings, kangaroo pocket, ribbed cuffs and hem, the small hole on the sleeve) together with the brown backpack straps, exactly as it would sit on the body in Reference 1: the same position, size, shoulder width and arm angles, as if worn by an invisible person; the neck opening, the sleeve ends and the inside of the hood are empty. No person, no skin, no hands, no head. Plain flat light grey background (#d9d9d9), no cast shadow. Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows. No text, no labels, no logos, no watermark.
 
+## 0g. Parçalı Şans (Rive, 2026-10-26, görseller geldi, rig kuruldu)
+
+**Neden:** Şans sahnede canlı dursun: kuyruk sallama, nefes, kulak oynatma, baş eğme, göz kırpma, arada dil çıkarıp soluma. Tek parça resim + mesh (kahramandaki gibi); tasmalar ve fular **ayrı yuva**: köpek bir kez kurulur, ip / deri / gümüş / altın / yakut tasma ve kırmızı fular üstüne takılır (bugün her tasma × poz için ayrı resim var). **Kimlik değişmez:** referans 1 her komutta belirleyici.
+
+**Sıra:** önce D1 üretilir ve Claude'a gösterilir; onaylanınca D2 (yüz) ve K1–K6 (tasmalar, fular) D1 referans verilerek üretilir. Hepsi 1024×1536 dikey, aynı tuval ve aynı yer; küçük kaymaları Claude hizalar, tasmayı D1 ile giyinik görselin farkından Claude keser. Çıktılar `art/pilot/19-sans-rig/` altına komuttaki adla (yanına `-prompt.txt`). Bir görsel kimliği bozarsa (yüz, kulaklar, tüy rengi, oran) düzeltilmeye çalışılmaz, yeniden üretilir.
+
+### D1 Temel poz → `art/pilot/19-sans-rig/sans-base.png` (2026-10-26 geldi, onaylandı)
+
+Referanslar: 1 `art/pilot/02-poses/sans-sit-cut.png` (kimlik, poz, açı; belirleyici), 2 `art/pilot/02-poses/sans-sheet.png` (aynı köpeğin karakter sayfası).
+
+> Create ONE vertical image, 1024 × 1536: a full-body dog character in a neutral "rig pose" for 2D cutout animation in a mobile game. Reference 1 is AUTHORITATIVE for identity: the SAME scruffy mixed-breed street dog: same warm tan-golden fur with a cream-white muzzle, chest and paws, same shaggy fur strands, same big round brown eyes with soft highlights, thick expressive brows, black nose, same body proportions and size. His ears stay ASYMMETRICAL exactly as in Reference 1: one ear stands UP with a small notch torn out of its tip, the other ear folds DOWN. Pose: sitting upright exactly as in Reference 1, the same body angle and camera angle, front paws together on the ground, hind legs folded. Only these things change for rigging: (1) NO collar and nothing on the neck: the neck and chest fur are fully visible and complete. (2) The head is held straight and upright, only a very slight tilt (much less than Reference 1), looking at the camera, calm friendly face, mouth closed, eyes fully open. (3) The tail curves up and away from the body to the LEFT side of the image with a clear gap of background between the tail and the body and legs along its whole length; the tail does not touch or overlap anything. (4) Both ears are fully visible with a little background around them; the folded ear does not cover the eye or the face. Nothing overlaps: paws do not cover each other. Exactly four legs. The whole dog fills about 85% of the height, centred horizontally, with clear margins on all sides. Plain flat light grey background (#d9d9d9), no floor line, no cast shadow, no props.
+>
+> Art style (match the reference exactly): stylized semi-3D animated-film look, soft key light from the upper left, warm palette, soft shadows, clean readable shapes for a small phone screen, eye-level camera. No text, no labels, no logos, no watermark.
+
+### D2 Yüz seti → `art/pilot/19-sans-rig/face-*.png` (2026-10-26 geldi, onaylandı)
+
+Referans: 1 `art/pilot/19-sans-rig/sans-base.png`. Claude bu görsellerden yalnız göz ve ağız bölgesini keser; bu yüzden **köpek, kulaklar, ışık ve kadraj her görselde aynı kalmalı**. Ortak kısım:
+
+> Use Reference 1 as the exact source image. Produce ONE vertical image, 1024 × 1536, the same canvas, framing, pose, scale, lighting and background as Reference 1: the SAME dog, pixel-for-pixel identical (head, ears, fur, body, tail, position). ONLY the facial feature described below changes. No text, no labels, no logos, no watermark.
+
+| Dosya | Eklenecek cümle |
+| --- | --- |
+| `face-blink.png` | `Only the eyes change: both eyes fully CLOSED with relaxed lids, a natural blink. Nose, mouth and brows exactly as Reference 1.` |
+| `face-pant.png` | `Only the mouth changes: mouth open in a happy relaxed pant, the pink tongue hanging out a little over the lower teeth, the corners of the mouth turned up like a dog's smile. Eyes and brows exactly as Reference 1.` |
+| `face-happy.png` | `Only the eyes and mouth change: eyes softly squinting with joy (curved, half closed), mouth open in a happy pant with the tongue out as a dog smiles when petted. Brows, nose, ears exactly as Reference 1.` |
+
+### K1–K6 Tasmalar ve fular → `art/pilot/19-sans-rig/wear-*.png` (2026-10-26 geldi, onaylandı)
+
+Referanslar: 1 `art/pilot/19-sans-rig/sans-base.png` (belirleyici: değişmeyecek her şey), 2 bugünkü oturan resim (tasmanın tasarımı; tabloda). Ortak kısım:
+
+> Use Reference 1 as the exact source image and keep it unchanged pixel for pixel: the same canvas, dog, pose, head, ears, fur, tail, lighting and background. Add ONLY the item described below around his neck, worn naturally: it wraps AROUND the neck following its curve and volume, partly hidden by the fur at the sides, with the same soft light from the upper left and soft shading, so it looks worn, not pasted on. Take the item's design, material and colours from Reference 2 only; do not copy anything else from Reference 2 (its pose, head tilt, framing). Do not repaint or move the dog. No text, no labels, no logos, no watermark.
+
+| Dosya | Referans 2 | Eklenecek cümle |
+| --- | --- | --- |
+| `wear-rope.png` | `02-poses/sans-sit-cut.png` | `Item: a simple worn, frayed rope tied around the neck with a small knot at the front and a short loose end hanging down.` |
+| `wear-leather.png` | `05-scene/sans-sit-leather.png` | `Item: the brown leather collar from Reference 2 with its small metal buckle and its hanging tag, exactly that design.` |
+| `wear-silver.png` | `05-scene/sans-sit-silver.png` | `Item: the polished silver collar from Reference 2 with its buckle and its hanging tag, exactly that design.` |
+| `wear-gold.png` | `05-scene/sans-sit-gold.png` | `Item: the polished gold collar from Reference 2 with its buckle and its round hanging gold tag, exactly that design.` |
+| `wear-ruby.png` | `05-scene/sans-sit-ruby.png` | `Item: the gold collar with a row of small deep crimson faceted rubies and the round ruby pendant from Reference 2, exactly that design.` |
+| `wear-scarf.png` | `05-scene/sans-sit-rope-scarf.png` | `Item: ONLY the red-orange cotton bandana with small white polka dots from Reference 2, tied around the neck with a small knot, the triangle hanging down over his white chest. NO collar and NO rope: the bandana alone.` |
+
+Not: oyunda fular tasmanın altında durur (katman sırası), bu yüzden fular tek başına çizilir; tasma onun üstüne takılır. Okşama, cüzdan ve uyuma pozları ilk turda resim olarak kalır; rig beğenilirse sırayla bakılır.
+
+## 0h. Kalan 6 kıyafet mankene (Rive, 2026-10-26; work, smart, coat, suit üçlüleri ve threepiece-top geldi, kontrol edildi; threepiece-bottom/shoes ve tux üçlüsü bekleniyor)
+
+**Neden:** sıradaki 8. adım (handoff); §0f'deki sokak kıyafetiyle aynı yol. Her kıyafet üç parça: üst (dışta ne varsa hepsiyle: ceket, palto, yelek, gömlek, kravat), alt, ayakkabı. Lansmanda takım olarak giyilse de parçalar ayrı üretilir; parça parça satış kararı ne olursa olsun işe yarar. Kesmeyi Claude yapar.
+
+Referanslar: 1 `art/pilot/18-rig/manken.png` (belirleyici), 2 kıyafetin bugünkü sahne resmi `public/assets/scene/hero-<kıyafet>-idle.webp` (yalnız tasarım; pozu kopyalanmaz). Çıktı `art/pilot/18-rig/wear-<kıyafet>-<parça>.png`. Ortak kısım (§0f'nin aynısı, bir cümle eklendi):
+
+> Use Reference 1 as the exact source image and keep it unchanged pixel for pixel: the same canvas, pose, arm positions, hands, head, face, hair, lighting and background. Add ONLY the garment described below, worn naturally on this exact body in this exact pose, with folds and shading that follow the soft light from the upper left. Take the garment's design, colours and details from Reference 2 only; do NOT copy Reference 2's pose, arm positions, hands, face or framing. Everything not covered by the garment stays exactly as in Reference 1 (the tank top, shorts, socks or bare skin that remain visible). Exactly two arms and two hands. No text, no labels, no logos, no watermark.
+
+Üç parça cümlesi (her kıyafet için aynı; `<kıyafet>` = `work`, `smart`, `coat`, `suit`, `threepiece`, `tux`):
+
+| Dosya | Eklenecek cümle |
+| --- | --- |
+| `wear-<kıyafet>-top.png` | `Garment: EVERYTHING he wears above the waist in Reference 2, all layers together exactly as they are layered there (for example jacket or coat over shirt, vest, tie, bow tie), with its collar, buttons, pockets and cuffs. The sleeves cover both arms down to the wrists; the hands stay exactly as in Reference 1. The shorts and socks below stay unchanged.` |
+| `wear-<kıyafet>-bottom.png` | `Garment: ONLY the trousers from Reference 2 (with the belt if he wears one there), covering both legs from the waist down to the ankles over the socks. The tank top, arms and hands stay unchanged; the waistband sits at the waist under the tank top's hem.` |
+| `wear-<kıyafet>-shoes.png` | `Garment: ONLY the shoes from Reference 2, on both feet over the socks. Everything above the ankles stays unchanged (bare lower legs and shorts).` |
+
+Not: uzun palto (`coat`) üst parçası kalçayı geçer; bu doğru, kesilmez. Sıra önerisi: önce `work` üçlüsü, Claude kontrol eder (kesme ve hizalama çalışıyor mu), sonra kalan beşi.
+
 ## 1. Uygulama ikonu ve özellik grafiği
 
 **Durum (2026-10-22):** özellik grafiği tamam. İkon yeniden tasarlanıyor: A, B, C beğenilmedi. Yeni adaylar D ve E (aşağıda); ikisi de üretilip Play Console'daki mağaza girişi deneyiyle (Store listing experiments) karşılaştırılabilir.
