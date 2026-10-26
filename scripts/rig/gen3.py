@@ -90,6 +90,18 @@ for name, cut in SPLITS.items():
         meta[f"{name}-{part}"] = box
 
 
+# The raised near hand shows its palm (art/pilot/18-rig/hand-palm.png, art-prompts-v2 §0i): the
+# hanging hand turned over would show its back. Cut from its grey background; the wrist is the bottom.
+_p = np.asarray(Image.open(os.path.join(ROOT, "art/pilot/18-rig/hand-palm.png")).convert("RGB")).astype(float)
+_edge = np.concatenate([_p[:8].reshape(-1, 3), _p[-8:].reshape(-1, 3), _p[:, :8].reshape(-1, 3), _p[:, -8:].reshape(-1, 3)])
+_d = np.linalg.norm(_p - np.median(_edge, axis=0), axis=2)   # the background's own grey
+_palm = Image.fromarray(np.dstack([_p, np.clip((_d - 10) / 16, 0, 1) * 255]).astype(np.uint8))
+_palm = _palm.crop(_palm.getbbox())
+_palm.save(os.path.join(PROJ, "parts", "palm.png"), optimize=True)
+meta["palm"] = (0, 0) + _palm.size
+PALM_HAND = 0.76   # of the picture's height, wrist crease to fingertip (the rest is wrist)
+
+
 def top_centre(name, rows=30):
     m = masks[name]
     y0 = meta[name][1]
@@ -146,8 +158,10 @@ bones = {}   # arm -> [(id, world angle, world position)] for the bind pose
 def angle(a, b):
     return math.atan2(b[1] - a[1], b[0] - a[0])
 
-def arm_bones(arm, pivot):
-    """RootBone chain inside the arm's node (which sits at `pivot`); returns the RML."""
+def arm_bones(arm, pivot, inside=None):
+    """RootBone chain inside the arm's node (which sits at `pivot`); returns the RML. `inside`:
+    {bone name: RML} put inside that bone (in its space: origin at its start, x along it)."""
+    inside = inside or {}
     j = JOINTS[arm]
     out, prev, chain = "", 0.0, []
     for k, nm in enumerate(BONE_NAMES):
@@ -161,6 +175,7 @@ def arm_bones(arm, pivot):
                     f'rotation="{th:.5f}" name="{arm}-{nm}" id="{i}">')
         else:
             out += f'<Bone length="{length:.2f}" rotation="{th - prev:.5f}" name="{arm}-{nm}" id="{i}">'
+        out += inside.get(nm, "")
         prev = th
     out += "</Bone>" * (len(BONE_NAMES) - 1) + "</RootBone>"
     bones[arm] = chain
@@ -284,10 +299,23 @@ features = node("features", HEAD, HEAD,
                 + [image("nose", HEAD), mouth])
 head = node("Head", HEAD, BODY, [image("front-hair", HEAD), features, image("face", HEAD), image("ears", HEAD)])
 # Bones first: the skinned images below need their ids.
-near_bones = arm_bones("near", ARM_NEAR)
+# The palm rides on the forearm, its wrist crease at the wrist joint, fingers along the bone; drawn
+# just over the bare forearm (above the torso, under the sleeves' cuffs). Hidden at rest.
+sh_, el_, wr_, tip_ = JOINTS["near"]
+palm_scale = math.dist(wr_, tip_) / (PALM_HAND * meta["palm"][3])
+palm_rules, palm_target = nid(), nid()
+ids["palm"] = nid()
+palm = (f'<Image x="{math.dist(el_, wr_) - (1 - PALM_HAND) * meta["palm"][3] * palm_scale:.2f}" y="0" '
+        f'rotation="{math.pi / 2:.5f}" scaleX="{palm_scale:.4f}" scaleY="{palm_scale:.4f}" originX="0.5" originY="1" '
+        f'opacity="0" assetId="{asset("palm")}" name="palm" id="{ids["palm"]}">'
+        f'<DrawRules drawTargetId="{palm_target}" name="Rules" id="{palm_rules}">'
+        f'<DrawTarget drawableId="ARM_LOW_ID" placementValue="before" name="Over forearm" id="{palm_target}"/>'
+        f'</DrawRules></Image>')
+near_bones = arm_bones("near", ARM_NEAR, {"fore": palm})
 far_bones = arm_bones("far", ARM_FAR)
 arm_near = node("ArmNear", ARM_NEAR, BODY, [skinned_image("arm-near-top", "near", ARM_NEAR), near_bones])
 arm_near_low = node("ArmNearLow", ARM_NEAR, BODY, [skinned_image("arm-near-low", "near", ARM_NEAR)])
+arm_near = arm_near.replace("ARM_LOW_ID", ids["arm-near-low"])
 sleeve_near = node("SleeveNear", ARM_NEAR, BODY, [node(f"top-sleeve-near-{o}", ARM_NEAR, ARM_NEAR,
                                                       [skinned_image(f"sleeve-near-{o}", "near", ARM_NEAR)]) for o in OUTFITS])
 torso = node("Torso", BODY, BODY, [slot_node(f"top-body-{o}", BODY, BODY, [f"top-{o}"]) for o in OUTFITS] + [image("tank", BODY)])
@@ -422,10 +450,13 @@ def pose_tracks(frames, d_):
 d = int(4.4 * S)
 arm_rest = {**arm_pose("near", (0, 0)), **arm_pose("far", (0, 0))}
 bent = {**arm_pose("near", (0, -0.07)), **arm_pose("far", (0, -0.05))}
-# The near hand turns over when the arm is up (scaleY -1 mirrors it across the forearm): the
-# hanging hand rotated past 90 degrees would show its thumb on the wrong side.
+# The near hand turns over when the arm is up: the hanging hand (its piece of each arm mesh) folds
+# away to the wrist and the palm picture shows (keys: 1 = hanging hand, -1 = palm).
 def hand_turn(keys):
-    return track("near-hand", "scaleY", keys)
+    k = lambda f: [(x[0], f(x[1])) + tuple(x[2:]) for x in keys]
+    return "\n".join([track("near-hand", "scaleX", k(lambda v: 1 if v > 0 else 0.001)),
+                       track("near-hand", "scaleY", k(lambda v: 1 if v > 0 else 0.001)),
+                       track("palm", "opacity", k(lambda v: 0 if v > 0 else 1))])
 arms_rest = anim("arms-rest", d, pose_tracks([(0, arm_rest), (d // 2, bent)], d) + [hand_turn([(0, 1), (d, 1)])])
 d = int(0.7 * S)
 # Near arm out to the side (away from the face), forearm up, fist above the shoulder; far arm
