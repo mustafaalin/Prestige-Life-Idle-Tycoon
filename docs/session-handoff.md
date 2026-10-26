@@ -18,6 +18,7 @@ Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak ye
 | [art-prompts-v2.md](./art-prompts-v2.md) | GPT komutları (§0e, §0f: Rive manken ve kıyafetler) |
 | [art-prompts-ada.md](./art-prompts-ada.md), [art-prompts-lumen.md](./art-prompts-lumen.md) | 2. neslin görselleri (yayından sonra) |
 | [audio-v2.md](./audio-v2.md) | Ses efektleri ve müzik |
+| [analytics-v2.md](./analytics-v2.md) | Firebase olayları, parametreleri, hangileri özel boyut olarak kayıtlı |
 | [mobile-ad-integration.md](./mobile-ad-integration.md) | v2 reklam altyapısı (AdMob, izin, test) |
 | [legal/](./legal/) | Gizlilik, şartlar, veri talepleri (EN/TR), Play Console kontrol listesi |
 | [report-v2.md](./report-v2.md) | **Neden?** Değişmez; tasarım belgesiyle çelişirse tasarım geçerli |
@@ -104,7 +105,7 @@ Sonraki AAB (34) ya da `npm run phone` ile. Önce **telefondaki mevcut kayıtla*
 - **Kapalı test:** 12 testçiyi 14 gün testte tutmak; sonra üretim erişimine yeniden başvurmak.
 - **Play Console:** telefon ekran görüntülerini `~/Downloads/play-store-v2/` ile değiştirmek (8 ekran × TR/EN, özellik grafiği, ikon; kaynak `art/store-v2/`; yeniden üretmek: `npm run build:v2`, `npx vite preview --mode v2 --port 5198 --strictPort`, `node art/store-v2/capture.mjs <ham>`, `node art/store-v2/compose.mjs <ham> <çıktı> node_modules/@fontsource/fredoka/files`); Başlangıç Paketi açıklamasına fuların bonusu ([monetization-v2.md §8](./monetization-v2.md)); v1'in 8 ürününü pasifleştirmek.
 - **AdMob:** app-ads.txt doğrulaması; telefonu test cihazı yapmak.
-- **GA4 özel boyutları (lansmandan önce, geriye dönük dolmaz):** Firebase → Analytics → Custom definitions, Scope: Event, parametre adıyla: `step`, `placement`, `outcome`, `kind`, `skipped`, `quest_id`, `career_id`, `business_id`, `level`, `class_index`, `product_id`, `id`. Custom metric: `life_minutes`. User scope: `class_index`, `generation`.
+- **Firebase'e kaydet (GA4 özel boyutları, lansmandan önce, geriye dönük dolmaz):** [analytics-v2.md](./analytics-v2.md) tablosunda "bekliyor" olanlar (`placement` 2026-10-26 kaydedildi). Yeni olay / parametre eklendikçe buraya madde düşer.
 - **Karar:** 13–15 yaş ve AdMob rıza yaşı.
 - **`npm run backup`:** yeni art (Rive pilotu dahil) Drive'a yedeklenmeli.
 - **Oyuncu gözlemi:** 6–8 tanıdıkla (kapalı test verisi çoğunlukla kendi hesapların).
