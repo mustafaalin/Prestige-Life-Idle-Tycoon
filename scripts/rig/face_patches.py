@@ -1,11 +1,11 @@
-"""Face patches for the angled rig: eye states (blink, half blink, glances) and mouths
-(expressions, talking), cut from the side face close-ups.
+"""Face patches for the angled rig: eye states (blink, half blink, glances), mouths
+(expressions, talking) and brows (worried, determined, raised), cut from the side face close-ups.
 
 Each face-*.png close-up is fitted onto the rig's canvas (rotation + scale + shift, SIFT on the
 parts of the head that do not change: hair, ears, nose, jaw), then the region around each eye or
 the mouth is cut with a soft elliptical edge, kept inside the face layer and colour-matched to the
 mannequin's skin around it.
-Writes art/pilot/18-rig/rig-dressed/{eyes,mouth}/<state>[-<l|r>].png on the 1280 canvas (same as
+Writes art/pilot/18-rig/rig-dressed/{eyes,mouth,brows}/<state>[-<l|r>].png on the 1280 canvas (same as
 the other layers, so gen3.py stacks them with no offsets) and a preview sheet.
 
 Usage: python3 scripts/rig/face_patches.py <preview.png>
@@ -20,6 +20,8 @@ LAYERS = R + "rig-dressed/manken/"
 OUT = R + "rig-dressed/"
 EYES = ["neutral", "look-left", "look-right", "halfblink", "blink"]
 MOUTHS = ["smile", "laugh", "sad", "talk-a", "talk-e", "talk-o"]
+BROWS = ["brows-worried", "brows-determined", "brows-raised"]
+BROW_PAD = (9, 8, 9, 4)            # left, top, right, bottom of each brow layer
 PAD = {"r": (10, 9), "l": (8, 9)}  # extra room around each eye's lash box (x, y)
 MOUTH_PAD = (14, 9, 12, 20)        # left, top, right, bottom of the mouth layer (laughing opens down)
 EDGE = (3, 4)                      # px kept clear of the face outline, then px of fade
@@ -49,6 +51,12 @@ def eye_box(s):
     return x0 - px, y0 - py, x1 + px, y1 + py
 
 
+def brow_box(s):
+    x0, y0, x1, y1 = bbox(layer(f"eyebrow-{s}")[..., 3])
+    l, t, r, b = BROW_PAD
+    return x0 - l, y0 - t, x1 + r, y1 + b
+
+
 def mouth_box():
     x0, y0, x1, y1 = bbox(layer("mouth")[..., 3])
     l, t, r, b = MOUTH_PAD
@@ -58,9 +66,17 @@ def mouth_box():
 CAN = canvas()
 # Patches stay inside the face outline and fade out before it: the close-ups' jaw line sits a pixel
 # or two off the mannequin's and would show as a second line.
-_face = (layer("face")[..., 3] > 128).astype(np.uint8)
+# The face layer has holes where see-through cut the brows, eyes and mouth out: take the face with
+# its features and fill the holes, so only the real outline counts.
+_face = sum((layer(n)[..., 3] > 128).astype(np.uint8) for n in
+            ("face", "nose", "mouth", "eyebrow-l", "eyebrow-r", "eyelash-l", "eyelash-r", "eyewhite-l", "eyewhite-r"))
+_face = (_face > 0).astype(np.uint8)
+_cnts, _ = cv2.findContours(_face, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+cv2.drawContours(_face, _cnts, -1, 1, cv2.FILLED)
 FACE = np.clip((cv2.distanceTransform(_face, cv2.DIST_L2, 5) - EDGE[0]) / EDGE[1], 0, 1).astype(np.float32)
-BOXES = {"eyes": {s: eye_box(s) for s in "rl"}, "mouth": {"": mouth_box()}}
+BOXES = {"eyes": {s: eye_box(s) for s in "rl"}, "mouth": {"": mouth_box()},
+         "brows": {s: brow_box(s) for s in "rl"}}
+GROUPS = (("eyes", EYES), ("mouth", MOUTHS), ("brows", BROWS))
 fx0, fy0, fx1, fy1 = bbox(layer("face")[..., 3])
 HEAD = (fx0 - 50, fy0 - 60, fx1 + 50, fy1 + 10)
 
@@ -89,13 +105,17 @@ def fit(img):
     return M, int(inl.sum()), len(good)
 
 
-def soft_mask(w, h, feather):
+def soft_mask(w, h, feather, rect=False):
+    """An ellipse, or a rectangle (brows: an arched brow's ends sit in the corners), with a soft edge."""
     m = np.zeros((h, w), np.float32)
-    cv2.ellipse(m, (w // 2, h // 2), (int(w / 2 - feather), int(h / 2 - feather)), 0, 0, 360, 1, -1)
+    if rect:
+        m[feather:h - feather, feather:w - feather] = 1
+    else:
+        cv2.ellipse(m, (w // 2, h // 2), (int(w / 2 - feather), int(h / 2 - feather)), 0, 0, 360, 1, -1)
     return cv2.GaussianBlur(m, (0, 0), feather / 2)
 
 
-def cut(w, box, path):
+def cut(w, box, path, rect=False):
     x0, y0, x1, y1 = box
     crop = w[y0:y1, x0:x1].astype(np.float32)
     base = CAN[y0:y1, x0:x1].astype(np.float32)
@@ -105,35 +125,37 @@ def cut(w, box, path):
     crop += base[rim].mean(0) - crop[rim].mean(0)
     full = np.zeros((1280, 1280, 4), np.uint8)
     full[y0:y1, x0:x1, :3] = np.clip(crop, 0, 255)
-    full[y0:y1, x0:x1, 3] = (soft_mask(x1 - x0, y1 - y0, 5) * inside * 255).astype(np.uint8)
+    full[y0:y1, x0:x1, 3] = (soft_mask(x1 - x0, y1 - y0, 5 if not rect else 3, rect) * inside * 255).astype(np.uint8)
     cv2.imwrite(path, full)
 
 
 report = {}
-for st in sorted(set(EYES) | set(MOUTHS)):
+for st in sorted(set(EYES) | set(MOUTHS) | set(BROWS)):
     img = cv2.imread(R + f"face-{st}.png")
     M, inl, n = fit(img)
     sc = float(np.hypot(*M[0, :2]))
     report[st] = f"{inl}/{n} inliers, scale {sc:.3f}, rot {np.degrees(np.arctan2(M[1, 0], M[0, 0])):.2f}"
     w = cv2.warpAffine(img, M, (1280, 1280), flags=cv2.INTER_AREA if sc < 1 else cv2.INTER_CUBIC)
-    for group, states in (("eyes", EYES), ("mouth", MOUTHS)):
+    for group, states in GROUPS:
         if st in states:
             os.makedirs(OUT + group, exist_ok=True)
             for s, box in BOXES[group].items():
-                cut(w, box, OUT + f"{group}/{st}{'-' + s if s else ''}.png")
+                name = st[len("brows-"):] if group == "brows" else st
+                cut(w, box, OUT + f"{group}/{name}{'-' + s if s else ''}.png", rect=group == "brows")
 
 for k, v in report.items():
     print(k, v)
 print("boxes", BOXES)
 
 # Preview, 4x: the original head, then each state's patches over it.
-x0, y0 = BOXES["eyes"]["r"][0] - 30, BOXES["eyes"]["r"][1] - 30
+x0, y0 = BOXES["eyes"]["r"][0] - 30, BOXES["brows"]["r"][1] - 15
 x1, y1 = BOXES["eyes"]["l"][2] + 15, BOXES["mouth"][""][3] + 12
 tiles = [CAN[y0:y1, x0:x1]]
-for group, states in (("eyes", EYES), ("mouth", MOUTHS)):
+for group, states in GROUPS:
     for st in states:
         c = CAN.astype(np.float32)
-        for f in glob.glob(OUT + f"{group}/{st}*.png"):
+        name = st[len("brows-"):] if group == "brows" else st
+        for f in glob.glob(OUT + f"{group}/{name}*.png"):
             p = cv2.imread(f, cv2.IMREAD_UNCHANGED).astype(np.float32)
             a = p[..., 3:] / 255
             c = c * (1 - a) + p[..., :3] * a

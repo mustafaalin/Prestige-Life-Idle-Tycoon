@@ -4,13 +4,14 @@ Parts are the see-through layers of the mannequin and of three outfit pictures d
 with the original pictures' pixels put back by project_layers.py (art/pilot/18-rig/rig-dressed/),
 all on the same 1280 canvas, so they stack with no offsets.
 Slots are view model booleans (top, bottom, shoes); each drives one state machine layer
-that shows or hides the slot's parts. The face takes two more view model inputs: `talking`
-(the mouth runs through speech shapes) and `mood` (0 neutral, 1 smile, 2 laugh, 3 sad: the mouth
-at rest, and the one he goes back to when he stops talking). The game sets them; nothing else changes.
+that shows or hides the slot's parts. Arms bend: each arm and sleeve image is a mesh skinned to a
+shoulder -> elbow -> wrist bone chain; `cheer` (boolean) raises the near arm in a fist pump. The face takes two more view model inputs: `talking`
+(the mouth runs through speech shapes) and `mood` (the mouth and brows at rest, and the face he
+goes back to when he stops talking; see MOOD_FACES). The game sets them; nothing else changes.
 Eye and mouth patches come from face_patches.py.
 Usage: python3 scripts/rig/gen3.py art/pilot/18-rig/rive/dressrig
 """
-import os, sys
+import base64, math, os, sys
 import numpy as np
 from PIL import Image
 
@@ -18,7 +19,7 @@ PROJ = sys.argv[1]
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 R = os.path.join(ROOT, "art/pilot/18-rig/rig-dressed/")
 M, H, J, K = "manken", "hoodie", "jeans", "sneakers"
-OX, OY, W, H_ = 380, 0, 520, 1260
+OX, OY, W, H_ = 170, 0, 730, 1260   # room on the left for the raised arm
 
 # name: (source folder, layer file, slot)
 SRC = {
@@ -40,10 +41,22 @@ EYE_STATES = ["blink", "halfblink", "look-left", "neutral"]
 for st in EYE_STATES:
     for s in "lr":
         SRC[f"eyes-{st}-{s}"] = ("eyes", f"{st}-{s}", None)
-MOODS = ["mouth", "mouth-smile", "mouth-laugh", "mouth-sad"]   # index = view model `mood`
+MOUTHS = ["mouth", "mouth-smile", "mouth-laugh", "mouth-sad"]
 TALK = ["mouth-talk-a", "mouth-talk-e", "mouth-talk-o"]
-for m in MOODS[1:] + TALK:
+for m in MOUTHS[1:] + TALK:
     SRC[m] = ("mouth", m[len("mouth-"):], None)
+BROWS = ["brows", "brows-worried", "brows-determined", "brows-raised"]   # "brows" = the mannequin's own
+for b in BROWS[1:]:
+    for s in "lr":
+        SRC[f"{b}-{s}"] = ("brows", f"{b[len('brows-'):]}-{s}", None)
+# View model `mood` (index): (mouth, brows).
+MOOD_FACES = [("mouth", "brows"),                       # 0 neutral
+              ("mouth-smile", "brows"),                 # 1 smile
+              ("mouth-laugh", "brows-raised"),          # 2 laugh
+              ("mouth-sad", "brows-worried"),           # 3 sad
+              ("mouth", "brows-worried"),               # 4 worried
+              ("mouth", "brows-determined"),            # 5 determined
+              ("mouth-talk-o", "brows-raised")]         # 6 surprised
 SLOTS = ["top", "bottom", "shoes"]
 
 os.makedirs(os.path.join(PROJ, "parts"), exist_ok=True)
@@ -102,6 +115,85 @@ def slot_node(name, pivot, parent_pivot, parts):
     """A slot part sits in its own node so its state machine layer can fade it."""
     return node(name, pivot, parent_pivot, [image(p, pivot) for p in parts])
 
+# ---- arms: bones and skinned meshes ----------------------------------------------------------
+# Joints on the canvas, from the arm layers' width profile (elbow and wrist = the narrow rows).
+JOINTS = {"near": [(534, 300), (498, 465), (488, 612), (500, 740)],   # shoulder, elbow, wrist, hand tip
+          "far": [(698, 305), (721, 455), (774, 632), (775, 739)]}
+BONE_NAMES = ["upper", "fore", "hand"]
+bones = {}   # arm -> [(id, world angle, world position)] for the bind pose
+
+def angle(a, b):
+    return math.atan2(b[1] - a[1], b[0] - a[0])
+
+def arm_bones(arm, pivot):
+    """RootBone chain inside the arm's node (which sits at `pivot`); returns the RML."""
+    j = JOINTS[arm]
+    out, prev, chain = "", 0.0, []
+    for k, nm in enumerate(BONE_NAMES):
+        a, b = j[k], j[k + 1]
+        th = angle(a, b)
+        i = nid(); ids[f"{arm}-{nm}"] = i
+        chain.append((i, th, (a[0] - ART[0], a[1] - ART[1]), th - prev))
+        length = math.dist(a, b)
+        if k == 0:
+            out += (f'<RootBone x="{a[0] - pivot[0]:.2f}" y="{a[1] - pivot[1]:.2f}" length="{length:.2f}" '
+                    f'rotation="{th:.5f}" name="{arm}-{nm}" id="{i}">')
+        else:
+            out += f'<Bone length="{length:.2f}" rotation="{th - prev:.5f}" name="{arm}-{nm}" id="{i}">'
+        prev = th
+    out += "</Bone>" * (len(BONE_NAMES) - 1) + "</RootBone>"
+    bones[arm] = chain
+    return out
+
+def varuint(n):
+    b = bytearray()
+    while True:
+        byte = n & 0x7F; n >>= 7
+        if n: b.append(byte | 0x80)
+        else:
+            b.append(byte); return bytes(b)
+
+def smooth(x, half):
+    t = min(max((x + half) / (2 * half), 0.0), 1.0)
+    return t * t * (3 - 2 * t)
+
+def skinned_image(name, arm, pivot, cell=(20, 16)):
+    """The image on a grid mesh; each vertex follows upper arm, forearm and hand, blended at the joints."""
+    x0, y0, x1, y1 = meta[name]
+    w, h = x1 - x0, y1 - y0
+    cols, rows = max(2, round(w / cell[0])), max(2, round(h / cell[1]))
+    sh, el, wr, _ = JOINTS[arm]
+    ax = np.subtract(wr, sh) / math.dist(sh, wr)              # along the arm
+    verts, tris = [], []
+    for r in range(rows + 1):
+        for c in range(cols + 1):
+            vx, vy = w * c / cols, h * r / rows
+            p = np.array([x0 + vx, y0 + vy])
+            fore = smooth(float(np.dot(p - el, ax)), 12)
+            hand = smooth(float(np.dot(p - wr, ax)), 8)
+            ws = [1 - fore, fore * (1 - hand), fore * hand]
+            vals = [round(v * 255) for v in ws]
+            vals[int(np.argmax(ws))] += 255 - sum(vals)
+            used = [(k + 1, v) for k, v in enumerate(vals) if v > 0]
+            idx = sum(k << (8 * n) for n, (k, _) in enumerate(used))
+            val = sum(v << (8 * n) for n, (_, v) in enumerate(used))
+            verts.append(f'<MeshVertex x="{vx:.2f}" y="{vy:.2f}" u="{c / cols:.5f}" v="{r / rows:.5f}">'
+                         f'<Weight values="{val}" indices="{idx}"/></MeshVertex>')
+    for r in range(rows):
+        for c in range(cols):
+            a = r * (cols + 1) + c
+            tris += [a, a + 1, a + cols + 2, a, a + cols + 2, a + cols + 1]
+    tb = base64.b64encode(b"".join(varuint(t) for t in tris)).decode()
+    tendons = "".join(
+        f'<Tendon boneId="{bid}" xx="{math.cos(th):.6f}" xy="{math.sin(th):.6f}" yx="{-math.sin(th):.6f}" '
+        f'yy="{math.cos(th):.6f}" tx="{pos[0]:.2f}" ty="{pos[1]:.2f}" name="{nm}"/>'
+        for (bid, th, pos, _), nm in zip(bones[arm], BONE_NAMES))
+    i = nid(); ids[name] = i
+    return (f'<Image x="{x0 - pivot[0]:.1f}" y="{y0 - pivot[1]:.1f}" originX="0" originY="0" '
+            f'assetId="{asset(name)}" name="{name}" id="{i}">'
+            f'<Mesh triangleIndexBytes="{tb}" name="{name}-mesh" id="{nid()}">' + "".join(verts)
+            + f'<Skin tx="{x0 - ART[0]:.2f}" ty="{y0 - ART[1]:.2f}" name="Skin">{tendons}</Skin></Mesh></Image>')
+
 # Outfit slots split across draw depths; each piece gets its own node, all keyed together.
 SLOT_NODES = {"top": ["top-sleeve-far", "top-body", "top-sleeve-near"], "bottom": ["bottom-jeans"],
               "shoes": ["shoes-sneakers"]}
@@ -113,19 +205,26 @@ for s in "lr":
                                            image(f"eyewhite-{s}", HEAD)])]
 iris = {}
 # The mouth is a Solo: one of its children shows (the mannequin's own mouth at rest).
-mouth = (f'<Solo x="0" y="0" activeComponentId="{{active}}" name="Mouth" id="{{solo}}">\n'
-         + "\n".join(image(m, HEAD) for m in MOODS + TALK) + "\n</Solo>")
-ids["Mouth"] = nid()
-mouth = mouth.replace("{active}", ids["mouth"]).replace("{solo}", ids["Mouth"])
+def solo(name, children, active):
+    body_ = "\n".join(children)
+    i = nid(); ids[name] = i
+    return f'<Solo x="0" y="0" activeComponentId="{ids[active]}" name="{name}" id="{i}">\n{body_}\n</Solo>'
+mouth = solo("Mouth", [image(m, HEAD) for m in MOUTHS + TALK], "mouth")
+# Brows: a Solo of pairs (the mannequin's own brows at rest).
+brows = solo("Brows", [node(b, HEAD, HEAD, [image(f"{'eyebrow' if b == 'brows' else b}-{s}", HEAD) for s in "lr"])
+                       for b in BROWS], "brows")
 # Each eye state is one node over both eyes; the blink states sit above the glances.
 eye_patches = [node(f"eyes-{st}", HEAD, HEAD, [image(f"eyes-{st}-{s}", HEAD) for s in "lr"])
                .replace("<Node ", '<Node opacity="0" ', 1) for st in EYE_STATES]   # hidden at rest
 features = node("features", HEAD, HEAD,
-                [image("eyebrow-l", HEAD), image("eyebrow-r", HEAD)] + eye_patches + eyes
+                [brows] + eye_patches + eyes
                 + [image("nose", HEAD), mouth])
 head = node("Head", HEAD, BODY, [image("front-hair", HEAD), features, image("face", HEAD), image("ears", HEAD)])
-arm_near = node("ArmNear", ARM_NEAR, BODY, [image("arm-near", ARM_NEAR)])
-sleeve_near = slot_node("top-sleeve-near", ARM_NEAR, BODY, ["sleeve-near"])
+# Bones first: the skinned images below need their ids.
+near_bones = arm_bones("near", ARM_NEAR)
+far_bones = arm_bones("far", ARM_FAR)
+arm_near = node("ArmNear", ARM_NEAR, BODY, [skinned_image("arm-near", "near", ARM_NEAR), near_bones])
+sleeve_near = node("top-sleeve-near", ARM_NEAR, BODY, [skinned_image("sleeve-near", "near", ARM_NEAR)])
 torso = node("Torso", BODY, BODY, [slot_node("top-body", BODY, BODY, ["hoodie"]), image("tank", BODY)])
 body_front = node("Body", BODY, ART, [head, sleeve_near, torso, arm_near, image("neck", BODY)])
 
@@ -133,14 +232,14 @@ legs = node("Legs", BODY, ART, [slot_node("bottom-jeans", BODY, BODY, ["jeans"])
                                  slot_node("shoes-sneakers", BODY, BODY, ["sneakers"]), image("legs", BODY)])
 
 hair_back = node("HeadBack", HEAD, BODY, [image("back-hair", HEAD)])
-arm_far = node("ArmFar", ARM_FAR, BODY, [slot_node("top-sleeve-far", ARM_FAR, ARM_FAR, ["sleeve-far"]),
-                                         image("arm-far", ARM_FAR)])
+arm_far = node("ArmFar", ARM_FAR, BODY, [node("top-sleeve-far", ARM_FAR, ARM_FAR, [skinned_image("sleeve-far", "far", ARM_FAR)]),
+                                         skinned_image("arm-far", "far", ARM_FAR), far_bones])
 body_back = node("BodyBack", BODY, ART, [hair_back, arm_far])
 scene_nodes = "\n".join([body_front, legs, body_back])
 
 # ---- view model ---------------------------------------------------------------------------
 VM, VMI = nid(), nid()
-BOOLS, NUMBERS = SLOTS + ["talking"], ["mood"]
+BOOLS, NUMBERS = SLOTS + ["talking", "cheer"], ["mood"]
 VMP = {s: nid() for s in BOOLS + NUMBERS}
 viewmodel = (f'<ViewModel defaultInstanceId="{VMI}" name="Hero" id="{VM}">\n'
              + "".join(f'    <ViewModelPropertyBoolean name="{s}" id="{VMP[s]}"/>\n' for s in BOOLS)
@@ -179,7 +278,7 @@ near = [(0, 0.02), (d // 2, -0.012), (d, 0.02)]
 loops.append(anim("Idle", d, [
     track("Body", "rotation", sway), track("BodyBack", "rotation", sway),
     track("Body", "scaleY", breath), track("BodyBack", "scaleY", breath),
-    track("ArmNear", "rotation", near), track("top-sleeve-near", "rotation", near),
+    track("ArmNear", "rotation", near),
     track("ArmFar", "rotation", [(0, 0.01), (d // 2, -0.018), (d, 0.01)]),
 ]))
 
@@ -228,15 +327,45 @@ for s in SLOTS:
     slot_anims[s] = (off, on)
 
 # Mouth: one held pose per mood, and a talk loop (2.4 s, uneven rhythm with short pauses).
-def mouth_keys(seq, end):
+def solo_keys(solo_, seq, end):
     keys = "".join(f'<KeyFrameId value="{ids[m]}" frame="{int(t * S)}"/>' for t, m in seq)
-    return (f'<KeyedObject objectId="{ids["Mouth"]}"><KeyedProperty property="activeComponentId">'
+    return (f'<KeyedObject objectId="{ids[solo_]}"><KeyedProperty property="activeComponentId">'
             f'{keys}<KeyFrameId value="{ids[seq[0][1]]}" frame="{end}"/></KeyedProperty></KeyedObject>')
-mood_anims = [anim(f"mood-{i}", 1, [mouth_keys([(0, m)], 1)], "oneShot") for i, m in enumerate(MOODS)]
+def mouth_keys(seq, end):
+    return solo_keys("Mouth", seq, end)
+mood_anims = [anim(f"mood-{i}", 1, [mouth_keys([(0, m)], 1), solo_keys("Brows", [(0, b)], 1)], "oneShot")
+              for i, (m, b) in enumerate(MOOD_FACES)]
 a, e, o, rest = TALK + ["mouth"]
 talk_seq = [(0, a), (.12, e), (.24, rest), (.34, o), (.48, a), (.6, e), (.72, rest), (.98, a), (1.1, o),
             (1.24, e), (1.36, a), (1.5, rest), (1.8, e), (1.92, a), (2.06, o), (2.2, rest)]
 talk_anim = anim("talk", int(2.4 * S), [mouth_keys(talk_seq, int(2.4 * S))])
+
+# Arms: at rest the elbows breathe with the idle sway; `cheer` raises the near arm in a fist pump
+# (the mix into and out of it is the transition's, so the loop holds only the pump).
+def arm_pose(arm, deltas):
+    """keys for one held pose: each bone's bind rotation plus a delta."""
+    return {f"{arm}-{nm}": rel + dd for (_, _, _, rel), nm, dd in zip(bones[arm], BONE_NAMES, deltas)}
+def pose_tracks(frames, d_):
+    """frames: [(frame, {bone: rotation})] -> one track per bone."""
+    names = frames[0][1].keys()
+    return [track(n, "rotation", [(f, p[n]) for f, p in frames] + [(d_, frames[0][1][n])]) for n in names]
+d = int(4.4 * S)
+arm_rest = {**arm_pose("near", (0, 0, 0)), **arm_pose("far", (0, 0, 0))}
+bent = {**arm_pose("near", (0, -0.07, -0.05)), **arm_pose("far", (0, -0.05, -0.04))}
+arms_rest = anim("arms-rest", d, pose_tracks([(0, arm_rest), (d // 2, bent)], d))
+d = int(0.7 * S)
+# Near arm out to the side (away from the face), forearm up, fist above the shoulder; far arm
+# only bends a little behind the body.
+up = {**arm_pose("near", (0.6, 2.2, 0.3)), **arm_pose("far", (-0.03, -0.15, -0.05))}
+pump = {**arm_pose("near", (0.66, 2.4, 0.45)), **arm_pose("far", (-0.04, -0.2, -0.08))}
+cheer_anim = anim("cheer", d, pose_tracks([(0, up), (d // 2, pump)], d))
+# Raise, 0.3 s: the elbow bends before the arm goes out (mixing straight from rest to the pose
+# swings a straight arm out past the artboard's edge).
+d = int(0.3 * S)
+tuck = {**arm_pose("near", (0.15, 1.5, 0.1)), **arm_pose("far", (-0.02, -0.08, -0.03))}
+raise_frames = [(0, arm_rest), (int(0.12 * S), tuck), (d, up)]
+raise_anim = anim("raise", d, [track(n, "rotation", [(f, p[n]) for f, p in raise_frames]) for n in arm_rest],
+                  "oneShot")
 
 def vm_number(s, value, op=0):
     return (f'<TransitionViewModelCondition opValue="{op}"><TransitionPropertyViewModelComparator><BindablePropertyNumber>'
@@ -273,16 +402,16 @@ for s in SLOTS:
 </StateMachineLayer>''')
 
 # Mouth layer: mood states, all linked to each other and to Talk.
-mood_states = [nid() for _ in MOODS]
+mood_states = [nid() for _ in MOOD_FACES]
 talk_state = nid()
 states = []
 for i, (aid, _) in enumerate(mood_anims):
     tr = [f'<StateTransition stateToId="{talk_state}">{vm_condition("talking", "true")}</StateTransition>']
     tr += [f'<StateTransition stateToId="{mood_states[j]}">{vm_number("mood", j)}</StateTransition>'
-           for j in range(len(MOODS)) if j != i]
+           for j in range(len(MOOD_FACES)) if j != i]
     states.append(f'<AnimationState x="{100 * i}" animationId="{aid}" id="{mood_states[i]}">' + "".join(tr) + '</AnimationState>')
 tr = [f'<StateTransition stateToId="{mood_states[j]}">{vm_condition("talking", "false")}{vm_number("mood", j)}</StateTransition>'
-      for j in range(len(MOODS))]
+      for j in range(len(MOOD_FACES))]
 states.append(f'<AnimationState x="150" y="150" animationId="{talk_anim[0]}" id="{talk_state}">' + "".join(tr) + '</AnimationState>')
 layers.append(f'''<StateMachineLayer name="mouth" id="{nid()}">
     <AnyState x="200" y="-120"/><ExitState x="400" y="-120"/>
@@ -290,7 +419,23 @@ layers.append(f'''<StateMachineLayer name="mouth" id="{nid()}">
     {chr(10).join(states)}
 </StateMachineLayer>''')
 
-all_anims = ([a for _, a in loops] + [a for pair in slot_anims.values() for _, a in pair]
+ar, rs, ch = nid(), nid(), nid()
+layers.append(f'''<StateMachineLayer name="arms" id="{nid()}">
+    <AnyState x="200" y="-120"/><ExitState x="400" y="-120"/>
+    <EntryState><StateTransition stateToId="{ar}"/></EntryState>
+    <AnimationState x="100" animationId="{arms_rest[0]}" id="{ar}">
+        <StateTransition stateToId="{rs}">{vm_condition("cheer", "true")}</StateTransition>
+    </AnimationState>
+    <AnimationState x="200" y="100" animationId="{raise_anim[0]}" id="{rs}">
+        <StateTransition stateToId="{ch}" enableExitTime="true" exitTime="300"/>
+        <StateTransition stateToId="{ar}" duration="300" interpolationType="cubic">{vm_condition("cheer", "false")}</StateTransition>
+    </AnimationState>
+    <AnimationState x="300" animationId="{cheer_anim[0]}" id="{ch}">
+        <StateTransition stateToId="{ar}" duration="450" interpolationType="cubic">{vm_condition("cheer", "false")}</StateTransition>
+    </AnimationState>
+</StateMachineLayer>''')
+
+all_anims = ([a for _, a in loops] + [arms_rest[1], cheer_anim[1], raise_anim[1]] + [a for pair in slot_anims.values() for _, a in pair]
              + [a for _, a in mood_anims] + [talk_anim[1]])
 rml = f'''<Rive version="1" kind="fragment">
 {chr(10).join(assets)}
