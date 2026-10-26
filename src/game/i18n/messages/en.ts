@@ -7,6 +7,7 @@ export const en = {
     close: 'Close',
     affordIn: 'Affordable in ~{duration}',
     exitHint: 'Press back again to exit',
+    updateReady: 'A new version is ready! Tap to restart.',
     rotate: 'Hold your phone upright to play.',
     crashTitle: 'Something went wrong. Your progress is safe.',
     crashRestart: 'Restart the game',

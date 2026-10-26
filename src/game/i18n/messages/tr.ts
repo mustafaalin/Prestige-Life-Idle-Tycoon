@@ -9,6 +9,7 @@ export const tr: Messages = {
     crashTitle: 'Bir şeyler ters gitti. İlerlemen güvende.',
     crashRestart: 'Oyunu yeniden başlat',
     exitHint: 'Çıkmak için bir kez daha geri bas',
+    updateReady: 'Yeni sürüm hazır! Yeniden başlatmak için dokun.',
   },
   hud: {
     perMonth: '{amount}/ay',

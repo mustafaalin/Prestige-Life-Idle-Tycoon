@@ -1,6 +1,6 @@
 # Session Handoff
 
-Son güncelleme: 2026-10-26 (belge sadeleştirildi; lansman animasyon planı onaylandı) · Dal: `v2-rebuild` · Play'de kapalı testte **AAB 33** (gerçek reklamlı ilk sürüm; üretim erişimi bununla istendi, 2026-10-26 reddedildi). Sonraki sürüm kodu **34** (`android/app/build.gradle` `versionCode`). Kullanıcı eski AAB dosyalarını sildi; `~/Downloads/prestige-life-v2-33.aab` güncel kodla yeniden derlendi.
+Son güncelleme: 2026-10-26 (AAB 34 derlendi: beceriler + güncelleme uyarısı) · Dal: `v2-rebuild` · Play'de kapalı testte **AAB 33** (üretim erişimi bununla istendi, 2026-10-26 reddedildi); **AAB 34** `~/Downloads/prestige-life-v2-34.aab` kapalı teste yüklenmeyi bekliyor (kullanıcı yükler; içinde: beceriler, ekran düzeltmeleri, açılışta analytics rızası, müzik, Play güncelleme uyarısı). Sonraki sürüm kodu **35** (`android/app/build.gradle` `versionCode`).
 
 Yeni bir oturumda projeye hızlı dönmek için güncel durum. Oyun v2 olarak yeniden yapılıyor; v1 dondu ve Faz 2.11'de kaldırılacak. Bu belge günlük tutmaz: her oturum sonunda **güncel durumu yansıtacak şekilde yeniden yazılır**, biten işler buradan silinir (kayıtları ilgili belgede ve git geçmişinde). Kararların gerekçesi ve sayılar ilgili belgededir.
 
@@ -82,6 +82,9 @@ Sonraki AAB (34) ya da `npm run phone` ile. Önce **telefondaki mevcut kayıtla*
 9. Hamal / Bulaşıkçı kartında "Güç 2", "Git" Beceriler'i açıyor.
 10. Yeni oyunda: ilk iş → Şans cüzdanla → Rıza "Parkta biraz şınav çek…", el Güç'ün oynat düğmesinde → tezgâh.
 11. Bisiklet hedefi bulaşıkçıdan sonra.
+
+**Güncelleme uyarısı (AAB 34'te geldi, ilk kez 35 yüklenince denenebilir):**
+0. 34 kurulu telefonda 35 kapalı teste çıkınca: açılıştan ~8 sn sonra Play'in "Güncelleme var" penceresi; kabul edince oyun sürerken iner, inince yeşil şerit "Yeni sürüm hazır! Yeniden başlatmak için dokun."; dokununca oyun yeni sürümle açılıyor, kayıt yerinde. Reddedince bir sonraki açılışta yine soruyor. (Play bazen yeni sürümü birkaç saat geç fark eder; Play Store'un önbelleği temizlenirse hızlanır.)
 
 **AAB 33 ve sonrası:**
 12. Gerçek reklam açılıyor, ödül geliyor; yüklenemezse düğme ne yapıyor. **Önce telefon AdMob → Ayarlar → Test cihazları'na eklenmeli** (kendi reklamına tıklamak hesabı riske atar).

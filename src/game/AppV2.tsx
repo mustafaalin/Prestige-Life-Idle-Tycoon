@@ -8,6 +8,7 @@ import { I18nProvider } from "./i18n/I18nProvider";
 import { loadLocale, type Locale } from "./i18n/locales";
 import { useT } from "./i18n/useT";
 import { checkConsentEarly } from "./runtime/ads";
+import { installAppUpdateCheck } from "./runtime/appUpdate";
 import { installBackButton } from "./runtime/backButton";
 import { installCrashReports } from "./runtime/crashReports";
 import {
@@ -60,6 +61,8 @@ export default function AppV2() {
   useEffect(() => installNotificationTracking(), []);
   // Before the prologue, so its events count for the player (runtime/ads.ts).
   useEffect(() => checkConsentEarly(), []);
+  // A newer version on Play: offered a while after launch (runtime/appUpdate.ts).
+  useEffect(() => installAppUpdateCheck(), []);
 
   const loaded = saveText !== undefined && locale !== null;
   useEffect(() => {

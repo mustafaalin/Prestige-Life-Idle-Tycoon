@@ -35,6 +35,7 @@ export type AnalyticsEvent =
   | 'story_view'
   | 'story_gift'
   | 'review_prompt'
+  | 'app_update'
   | 'daughter_named'
   | 'grandchild_named'
   | 'notification_prompt'

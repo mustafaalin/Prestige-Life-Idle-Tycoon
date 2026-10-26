@@ -13,6 +13,7 @@ import { OpportunityBalloon, SceneAdButtons } from '../ads/SceneAds';
 import { RainTimer } from '../scene/RainTimer';
 import { MasteredToast } from '../career/MasteredToast';
 import { SkillToast } from '../self/SkillToast';
+import { UpdateToast } from './UpdateToast';
 import { EventCards } from '../events/EventCards';
 import { Scene } from '../scene/Scene';
 import { classLook, homeArt } from '../scene/stages';
@@ -215,6 +216,7 @@ export function HomeScreen() {
           {/* The job held reaches mastery: a banner at the top, wherever the player is. */}
           <MasteredToast onOpen={() => selectTab('career')} />
           <SkillToast onOpen={() => selectTab('self')} />
+          <UpdateToast />
           {/* The coin shower's countdown, high in the middle of the scene. */}
           {!sheetOpen && (
             <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-[15%]">
