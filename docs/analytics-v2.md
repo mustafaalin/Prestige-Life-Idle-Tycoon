@@ -24,19 +24,19 @@ Koda yeni bir olay ya da parametre eklenince **aynı commit'te** bu belge günce
 | `skipped` | Olay | `story_view` | hikâye "Geç" ile atlandı mı | 2026-10-26 kayıtlı |
 | `quest_id` | Olay | `quest_claim` | ödülü alınan hedef | 2026-10-26 kayıtlı |
 | `career_id` | Olay | `job_take` | geçilen meslek | 2026-10-26 kayıtlı |
-| `course_id` | Olay | `course_start` | başlatılan kurs | bekliyor |
-| `skill_id` | Olay | `skill_train`, `skill_pause`, `skill_collect` | çalışılan beceri | bekliyor |
+| `course_id` | Olay | `course_start` | başlatılan kurs | 2026-10-26 kayıtlı |
+| `skill_id` | Olay | `skill_train`, `skill_pause`, `skill_collect` | çalışılan beceri | 2026-10-26 kayıtlı |
 | `business_id` | Olay | `business_level`, `business_branch`, `manager_hire` | işletme | 2026-10-26 kayıtlı |
 | `level` | Olay | `business_level`, `skill_train`, `skill_collect` | çıkılan seviye | 2026-10-26 kayıtlı |
 | `class_index` | Olay | `class_up`, `story_view`, `retire`, `review_prompt` | sınıf | 2026-10-26 kayıtlı |
 | `product_id` | Olay | `purchase_start`, `purchase_result`, `purchase_applied`, `purchase_revoked` | mağaza ürünü | 2026-10-26 kayıtlı |
-| `item_id` | Olay | `lifestyle_buy` | alınan araç / kıyafet / lüks / eşya | bekliyor |
-| `house_id` | Olay | `home_change` | kiralanan / alınan ev | bekliyor |
-| `card_id` | Olay | `event_card` | açılan olay kartı | bekliyor |
-| `plan` | Olay | `invest_start`, `invest_collect` | seçilen yatırım fırsatı | bekliyor |
-| `life_minutes` | Olay (metrik, Standard) | `class_up` | kahramanın oyun içi yaşı, dakika | bekliyor (yanlışlıkla boyut olarak açıldı: boyut arşivlenip metrik açılmalı) |
-| `class_index` | Kullanıcı | oyuncu özelliği | oyuncunun şu anki sınıfı | bekliyor |
-| `generation` | Kullanıcı | oyuncu özelliği | kaçıncı nesil | bekliyor |
+| `item_id` | Olay | `lifestyle_buy` | alınan araç / kıyafet / lüks / eşya | 2026-10-26 kayıtlı |
+| `house_id` | Olay | `home_change` | kiralanan / alınan ev | 2026-10-26 kayıtlı |
+| `card_id` | Olay | `event_card` | açılan olay kartı | 2026-10-26 kayıtlı |
+| `plan` | Olay | `invest_start`, `invest_collect` | seçilen yatırım fırsatı | 2026-10-26 kayıtlı |
+| `life_minutes` | Olay (metrik, Standard) | `class_up` | kahramanın oyun içi yaşı, dakika | boyut arşivlendi (2026-10-26); metrik olarak açıldığı teyit bekliyor |
+| `class_index` | Kullanıcı | oyuncu özelliği | oyuncunun şu anki sınıfı | 2026-10-26 kayıtlı |
+| `generation` | Kullanıcı | oyuncu özelliği | kaçıncı nesil | 2026-10-26 kayıtlı |
 
 ## Kayıt gerekmeyenler
 
