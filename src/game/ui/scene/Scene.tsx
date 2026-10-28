@@ -24,8 +24,12 @@ import { PointingHand } from '../home/Focusable';
 import { RewardCard } from '../home/RewardCard';
 import { useCoverFit } from './coverFit';
 import { onFindRequest } from './sceneEvents';
-import { poseBox, spriteBox, spriteFilter, vehicleStyle } from './place';
+import { poseBox, rigBox, spriteBox, spriteFilter, vehicleStyle } from './place';
+import { RigCanvas, type RigStatus } from './RigCanvas';
+import { HERO_RIG, HERO_RIG_HEIGHT, SANS_RIG } from './rigs';
+import { useHeroRig } from './heroRig';
 import {
+  FEET_Y,
   classLook,
   heroLook,
   homeArt,
@@ -42,7 +46,8 @@ import { useHeroQuip } from './heroQuips';
 // (stages.ts). Moving house cross-fades the place; a new vehicle drives in; a new outfit is put on.
 // Bottles and cans appear on the ground; tapping one collects it (one tap's money). Now and then
 // Şans brings a wallet he found; catching it in time pays a bonus. The hero's pose follows what
-// happens: collecting, petting Şans, a purchase. Positions are fractions of the 9:16 background;
+// happens: collecting, petting Şans, a purchase. Standing, talking and laughing, the hero and Şans are
+// Rive rigs (rigs.ts, heroRig.ts); the other poses, and anything the rigs can't load for, are pictures. Positions are fractions of the 9:16 background;
 // where things stand and how big they are comes from the stage in stages.ts.
 
 type NewsKind = 'home' | 'vehicle' | 'outfit';
@@ -70,6 +75,9 @@ const LOWEST_SPOT = Math.max(...SPOTS.map(([, y]) => y));
 
 /** An item's tap box is 64 px; its centre stays this far from the screen's edges and the menu's top. */
 const ITEM_EDGE = 40;
+
+/** A rig that takes longer than this to load gives way to the pictures (it takes over when it is there). */
+const RIG_WAIT_MS = 2000;
 
 /** Şans runs in this soon when Old Ray's step sends for his first find. */
 const FIND_CALLED_MS = 1200;
@@ -246,6 +254,30 @@ export function Scene({ covered = false }: { covered?: boolean }) {
     }
   }, [ceremonyWaiting, wornOutfit, shownOutfit, announce, t, name]);
 
+  // ── Rigs ──
+  const [heroRig, setHeroRig] = useState<RigStatus>('loading');
+  const [sansRig, setSansRig] = useState<RigStatus>('loading');
+  // Until a rig is there the pictures it replaces wait a moment, so the hero does not swap drawings
+  // the second the scene opens.
+  const [rigWaitOver, setRigWaitOver] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setRigWaitOver(true), RIG_WAIT_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const rigShows = (status: RigStatus) => (status === 'ready' ? 'rig' : status === 'loading' && !rigWaitOver ? 'none' : 'picture');
+  // The grandfather is pictures only. The rig stands, talks and laughs; a pose drawn as the idle picture
+  // (collecting in an outfit that has no collect picture) is standing too.
+  const heroRigOn = !grandpa;
+  const heroRigPose = pose === 'idle' || pose === 'joy' || hero[pose].src === hero.idle.src;
+  const heroShows = heroRigOn && heroRigPose ? rigShows(heroRig) : 'picture';
+  const heroInputs = useHeroRig({
+    outfitIndex: Math.max(shownOutfit, 0),
+    pose,
+    tent: shownHome === HOUSES[0].id,
+    line: quip ? t(quip) : null,
+    covered,
+  });
+
   // The home shown decides which vehicle has room out front, so both change together after a ceremony.
   const parked = parkedVehicle({ ...game, home: shownHome });
   const vehicle = parked ? vehicleArt(parked.id) : null;
@@ -401,6 +433,11 @@ export function Scene({ covered = false }: { covered?: boolean }) {
   const ready = fit.width > 0;
   const showFind = finding && !asleep && !findHeld;
   const sansVisible = !showFind && !asleep && pose !== 'pet';
+  const sansShows = rigShows(sansRig);
+  const sansInputs = useMemo(
+    () => ({ numbers: { collar: stage.collar }, booleans: { scarf, happy: pose === 'joy' } }),
+    [stage.collar, scarf, pose],
+  );
 
   return (
     <div ref={rootRef} className="absolute inset-0 overflow-hidden bg-[#0d1530]">
@@ -445,13 +482,42 @@ export function Scene({ covered = false }: { covered?: boolean }) {
                 className="absolute pointer-events-none transition-opacity duration-150"
                 style={{
                   ...poseBox(fit, art, home.castX),
-                  opacity: hero[pose].src === art.src ? 1 : 0,
+                  opacity: heroShows === 'picture' && hero[pose].src === art.src ? 1 : 0,
                   transform: art.flip ? 'scaleX(-1)' : undefined,
                   filter: light,
                 }}
               />
             );
           })}
+
+          {heroRigOn && (
+            <RigCanvas
+              rig={HERO_RIG}
+              inputs={heroInputs}
+              paused={covered || heroShows !== 'rig'}
+              onStatus={setHeroRig}
+              className="absolute pointer-events-none transition-opacity duration-150"
+              style={{
+                ...rigBox(fit, HERO_RIG, hero.idle.x, FEET_Y, HERO_RIG_HEIGHT, home.castX),
+                opacity: heroShows === 'rig' ? 1 : 0,
+                filter: light,
+              }}
+            />
+          )}
+
+          {/* Şans' rig sits under his button, which keeps the tap (and its box) of the picture. */}
+          <RigCanvas
+            rig={SANS_RIG}
+            inputs={sansInputs}
+            paused={covered || !sansVisible || sansShows !== 'rig'}
+            onStatus={setSansRig}
+            className={`absolute pointer-events-none ${woke ? 'v2-pop-in' : ''}`}
+            style={{
+              ...rigBox(fit, SANS_RIG, stage.sans.x, stage.sans.y, stage.sans.height, home.castX),
+              opacity: sansVisible && sansShows === 'rig' ? 1 : 0,
+              filter: light,
+            }}
+          />
 
           {sansVisible && (
             <button
@@ -466,7 +532,7 @@ export function Scene({ covered = false }: { covered?: boolean }) {
                 alt=""
                 draggable={false}
                 className="w-full h-full"
-                style={{ filter: light }}
+                style={{ filter: light, opacity: sansShows === 'picture' ? 1 : 0 }}
               />
             </button>
           )}

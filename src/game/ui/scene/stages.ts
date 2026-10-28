@@ -1,6 +1,7 @@
 import { HOUSES } from '../../core/config/housing';
 import { VEHICLES } from '../../core/config/lifestyle';
 import { currentCity } from '../../runtime/city';
+import { COLLAR } from './rigs';
 
 // What the home scene shows (discussion-notes §7, decided 2026-10-10 and 2026-10-11):
 // - the place is the home you live in (its picture is the house's image in config/housing.ts);
@@ -54,6 +55,8 @@ export interface ClassLook {
   /** Şans sitting, and Şans with a found wallet (his collar changes with the class). */
   sans: SpriteArt;
   find: SpriteArt;
+  /** The same collar on Şans' rig (rigs.ts COLLAR). */
+  collar: number;
   /** Şans asleep, for the "while you were away" card: a low, long picture, never put in the sitting dog's box. */
   sleep: string;
 }
@@ -188,6 +191,7 @@ const STREET: ClassLook = {
   itemKind: 'bottles',
   sans: { src: `${DIR}/sans-sit.webp`, x: 0.66, y: 0.748, height: 0.15, aspect: 0.645 },
   find: { src: `${DIR}/sans-wallet.webp`, x: 0.72, y: 0.752, height: 0.15, aspect: 0.929 },
+  collar: COLLAR.rope,
   sleep: `${DIR}/sans-sleep.webp`,
 };
 
@@ -210,18 +214,21 @@ const LOOK_ART: Partial<ClassLook>[] = [
   {
     sans: { src: `${DIR}/sans-sit-leather.webp`, x: 0.66, y: 0.748, height: 0.15, aspect: 0.645 },
     find: { src: `${DIR}/sans-wallet-leather.webp`, x: 0.72, y: 0.752, height: 0.15, aspect: 0.907 },
+    collar: COLLAR.leather,
     sleep: `${DIR}/sans-sleep-leather.webp`,
   },
   // 4 Millionaire: a silver collar (2026-10-15), drawn on the at-ease dog of the gold collar.
   {
     sans: { src: `${DIR}/sans-sit-silver.webp`, x: 0.66, y: 0.748, height: 0.151, aspect: 0.64 },
     find: { src: `${DIR}/sans-wallet-silver.webp`, x: 0.72, y: 0.752, height: 0.148, aspect: 0.89 },
+    collar: COLLAR.silver,
     sleep: `${DIR}/sans-sleep-silver.webp`,
   },
   // 5 Billionaire and up: a gold collar, and a dog at ease (he sits relaxed and trots in with his find).
   {
     sans: { src: `${DIR}/sans-sit-gold.webp`, x: 0.66, y: 0.748, height: 0.151, aspect: 0.631 },
     find: { src: `${DIR}/sans-wallet-gold.webp`, x: 0.72, y: 0.752, height: 0.148, aspect: 0.883 },
+    collar: COLLAR.gold,
     sleep: `${DIR}/sans-sleep-gold.webp`,
   },
 ];

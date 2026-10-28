@@ -5,24 +5,38 @@ with the original pictures' pixels put back by project_layers.py (art/pilot/18-r
 all on the same 1280 canvas, so they stack with no offsets.
 Slots are view model numbers (top, bottom, shoes: 0 = bare, then OUTFITS in the game's order);
 each drives one state machine layer that shows that outfit's parts and hides the others. Arms bend: each arm and sleeve image is a mesh skinned to a
-shoulder -> elbow -> wrist bone chain; `cheer` (boolean) raises the near arm in a fist pump. The face takes two more view model inputs: `talking`
+shoulder -> elbow -> wrist bone chain, which only breathes with the idle (raised arms looked
+comic, 2026-10-27); `pose` (number: 0 rest, 1 cold) shivers the body. The face takes two more view model inputs: `talking`
 (the mouth runs through speech shapes) and `mood` (the mouth and brows at rest, and the face he
-goes back to when he stops talking; see MOOD_FACES). The game sets them; nothing else changes.
+goes back to when he stops talking; see MOOD_FACES). The game sets them; nothing else changes. The
+face of a pose is the game's: cold goes with mood 4 (worried); joy is only mood 2 (laugh).
 Eye and mouth patches come from face_patches.py.
-Usage: python3 scripts/rig/gen3.py art/pilot/18-rig/rive/dressrig
+Usage: python3 scripts/rig/gen3.py art/pilot/18-rig/rive/dressrig [--game]
 """
-import base64, math, os, sys
+import base64, glob, math, os, re, sys
 import numpy as np
 from PIL import Image
 
 PROJ = sys.argv[1]
+# --game: the game's file: see-through background and webp parts (a quarter of the size, no
+# visible change); without it a light grey background for videos, png parts.
+GAME = "--game" in sys.argv
+BOARD_BG = "00000000" if GAME else "FFE8EEF4"
+PART_EXT = "webp" if GAME else "png"
+
+
+def save_part(im, name):
+    """A part image; the png is always written (later steps read it), the webp for the game."""
+    im.save(os.path.join(PROJ, "parts", f"{name}.png"), optimize=True)
+    if GAME:
+        im.save(os.path.join(PROJ, "parts", f"{name}.webp"), "WEBP", quality=90, method=6)
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 R = os.path.join(ROOT, "art/pilot/18-rig/rig-dressed/")
 M, H, J, K = "manken", "hoodie", "jeans", "sneakers"
-# Slot value - 1, in the order of the game's outfits (core/config/lifestyle.ts); the street outfit's
-# parts come from see-through (project_layers.py), the rest from wear_cut.py.
+# Slot value - 1, in the order of the game's outfits (core/config/lifestyle.ts); parts come from
+# see-through (project_layers.py), or from wear_cut.py for a picture see-through has not split yet.
 OUTFITS = ["hoodie", "work", "smart", "coat", "suit", "threepiece", "tux"]
-OX, OY, W, H_ = 170, 0, 730, 1260   # room on the left for the raised arm
+OX, OY, W, H_ = 20, -140, 1200, 1400   # room around the body
 
 # name: (source folder, layer file, slot)
 SRC = {
@@ -39,11 +53,13 @@ SRC = {
 }
 for o in OUTFITS:
     street = o == "hoodie"
-    SRC[f"sleeve-far-{o}"] = (H if street else f"{o}-top", "00-handwear-l", "top")
-    SRC[f"top-{o}"] = (H if street else f"{o}-top", "05-topwear", "top")
-    SRC[f"sleeve-near-{o}"] = (H if street else f"{o}-top", "06-handwear-r", "top")
-    SRC[f"bottom-{o}"] = (J, "03-bottomwear", "bottom") if street else (f"{o}-bottom", "bottomwear", "bottom")
-    SRC[f"shoes-{o}"] = (K, "03-footwear", "shoes") if street else (f"{o}-shoes", "footwear", "shoes")
+    SRC[f"sleeve-far-{o}"] = (H if street else f"{o}-top", "handwear-l", "top")
+    SRC[f"top-{o}"] = (H if street else f"{o}-top", "topwear", "top")
+    SRC[f"sleeve-near-{o}"] = (H if street else f"{o}-top", "handwear-r", "top")
+    SRC[f"bottom-{o}"] = (J if street else f"{o}-bottom", "bottomwear", "bottom")
+    SRC[f"shoes-{o}"] = (K if street else f"{o}-shoes", "footwear", "shoes")
+# see-through filed the tuxedo trousers as legwear (they reach the shoes); the layer is clean.
+SRC["bottom-tux"] = ("tux-bottom", "legwear", "bottom")
 # Patches from the side face close-ups: eye states (blink, half blink, glances) and mouths.
 EYE_STATES = ["blink", "halfblink", "look-left", "neutral"]
 for st in EYE_STATES:
@@ -67,39 +83,39 @@ MOOD_FACES = [("mouth", "brows"),                       # 0 neutral
               ("mouth-talk-o", "brows-raised")]         # 6 surprised
 SLOTS = ["top", "bottom", "shoes"]
 
+def layer_file(src, layer):
+    """A layer by its see-through name; files may carry a stack number (05-topwear.png), which
+    differs from picture to picture."""
+    exact = f"{R}{src}/{layer}.png"
+    if os.path.exists(exact):
+        return exact
+    found = [f for f in glob.glob(f"{R}{src}/*.png") if re.sub(r"^\d+-", "", os.path.basename(f)[:-4]) == layer]
+    if len(found) != 1:
+        sys.exit(f"{src}: {len(found)} files for layer {layer}")
+    return found[0]
+
+
 os.makedirs(os.path.join(PROJ, "parts"), exist_ok=True)
 meta, masks = {}, {}
 for name, (src, layer, _) in SRC.items():
-    im = Image.open(f"{R}{src}/{layer}.png").convert("RGBA")
+    im = Image.open(layer_file(src, layer)).convert("RGBA")
     box = im.getbbox()
-    im.crop(box).save(os.path.join(PROJ, "parts", f"{name}.png"), optimize=True)
+    save_part(im.crop(box), name)
     meta[name] = box
     masks[name] = np.asarray(im)[..., 3] > 128
 
 # The bare near arm is cut in two: its top (under the tank's armhole, which covers the shoulder)
-# draws under the torso, the forearm and hand over it, so a raised hand passes in front of the
-# chest. The cut is above the elbow's blend, where both pieces move rigidly with the upper arm.
+# draws under the torso, the forearm and hand over it, so a hand brought in (cold) passes in front
+# of the chest. The cut is above the elbow's blend, where both pieces move rigidly with the upper arm.
 SPLITS = {"arm-near": 420}
 for name, cut in SPLITS.items():
     src, layer, _ = SRC[name]
-    full = np.asarray(Image.open(f"{R}{src}/{layer}.png").convert("RGBA"))
+    full = np.asarray(Image.open(layer_file(src, layer)).convert("RGBA"))
     for part, rows in (("top", slice(cut, None)), ("low", slice(None, cut))):
         a = full.copy(); a[rows, :, 3] = 0
         im = Image.fromarray(a); box = im.getbbox()
-        im.crop(box).save(os.path.join(PROJ, "parts", f"{name}-{part}.png"), optimize=True)
+        save_part(im.crop(box), f"{name}-{part}")
         meta[f"{name}-{part}"] = box
-
-
-# The raised near hand shows its palm (art/pilot/18-rig/hand-palm.png, art-prompts-v2 §0i): the
-# hanging hand turned over would show its back. Cut from its grey background; the wrist is the bottom.
-_p = np.asarray(Image.open(os.path.join(ROOT, "art/pilot/18-rig/hand-palm.png")).convert("RGB")).astype(float)
-_edge = np.concatenate([_p[:8].reshape(-1, 3), _p[-8:].reshape(-1, 3), _p[:, :8].reshape(-1, 3), _p[:, -8:].reshape(-1, 3)])
-_d = np.linalg.norm(_p - np.median(_edge, axis=0), axis=2)   # the background's own grey
-_palm = Image.fromarray(np.dstack([_p, np.clip((_d - 10) / 16, 0, 1) * 255]).astype(np.uint8))
-_palm = _palm.crop(_palm.getbbox())
-_palm.save(os.path.join(PROJ, "parts", "palm.png"), optimize=True)
-meta["palm"] = (0, 0) + _palm.size
-PALM_HAND = 0.76   # of the picture's height, wrist crease to fingertip (the rest is wrist)
 
 
 def top_centre(name, rows=30):
@@ -129,7 +145,7 @@ assets, asset_ids, ids = [], {}, {}
 def asset(name):
     if name not in asset_ids:
         asset_ids[name] = nid()
-        assets.append(f'    <ImageAsset file="parts/{name}.png" name="{name}" id="{asset_ids[name]}"/>')
+        assets.append(f'    <ImageAsset file="parts/{name}.{PART_EXT}" name="{name}" id="{asset_ids[name]}"/>')
     return asset_ids[name]
 
 def image(name, pivot):
@@ -190,12 +206,12 @@ def varuint(n):
             b.append(byte); return bytes(b)
 
 ELBOW_BLEND = 34   # px on each side of the elbow where the arm curves (narrow = a sharp fold)
-# The hand is mirrored when the arm is up (see hand_turn), so it is cut from the forearm with no
-# blend (see skinned_image); for a sleeve the cut is at the cuff's edge, where the cuff hides it.
+# The hand is cut from the forearm with no blend (see skinned_image); for a sleeve the cut is at
+# the cuff's edge, where the cuff hides it.
 def cuff_row(name):
     """first row below the elbow where the sleeve image is mostly skin (the hand out of the cuff)."""
     src, layer, _ = SRC[name]
-    a = np.asarray(Image.open(f"{R}{src}/{layer}.png").convert("RGBA")).astype(int)
+    a = np.asarray(Image.open(layer_file(src, layer)).convert("RGBA")).astype(int)
     on = a[..., 3] > 128
     skin = on & (a[..., 0] > 150) & (a[..., 0] - a[..., 2] > 40)
     el = JOINTS["near" if "near" in name else "far"][1]
@@ -211,9 +227,8 @@ def smooth(x, half):
 def skinned_image(name, arm, pivot, cell=(20, 16)):
     """The image on a grid mesh; each vertex follows upper arm, forearm and hand (blended at the
     elbow). The hand is its own piece of the mesh, cut from the forearm along a line square to the
-    hand bone (at the wrist, or for a sleeve at the cuff's edge): the hand turns over (mirrored
-    across that bone), and a cut square to the bone maps onto itself, so the two pieces meet with no
-    gap, where any triangle across the cut would twist."""
+    hand bone (at the wrist, or for a sleeve at the cuff's edge). The wrist does not bend, so the
+    two pieces move as one."""
     x0, y0, x1, y1 = meta[name]
     w, h = x1 - x0, y1 - y0
     cols, rows = max(2, round(w / cell[0])), max(2, round(h / cell[1]))
@@ -299,23 +314,10 @@ features = node("features", HEAD, HEAD,
                 + [image("nose", HEAD), mouth])
 head = node("Head", HEAD, BODY, [image("front-hair", HEAD), features, image("face", HEAD), image("ears", HEAD)])
 # Bones first: the skinned images below need their ids.
-# The palm rides on the forearm, its wrist crease at the wrist joint, fingers along the bone; drawn
-# just over the bare forearm (above the torso, under the sleeves' cuffs). Hidden at rest.
-sh_, el_, wr_, tip_ = JOINTS["near"]
-palm_scale = math.dist(wr_, tip_) / (PALM_HAND * meta["palm"][3])
-palm_rules, palm_target = nid(), nid()
-ids["palm"] = nid()
-palm = (f'<Image x="{math.dist(el_, wr_) - (1 - PALM_HAND) * meta["palm"][3] * palm_scale:.2f}" y="0" '
-        f'rotation="{math.pi / 2:.5f}" scaleX="{palm_scale:.4f}" scaleY="{palm_scale:.4f}" originX="0.5" originY="1" '
-        f'opacity="0" assetId="{asset("palm")}" name="palm" id="{ids["palm"]}">'
-        f'<DrawRules drawTargetId="{palm_target}" name="Rules" id="{palm_rules}">'
-        f'<DrawTarget drawableId="ARM_LOW_ID" placementValue="before" name="Over forearm" id="{palm_target}"/>'
-        f'</DrawRules></Image>')
-near_bones = arm_bones("near", ARM_NEAR, {"fore": palm})
+near_bones = arm_bones("near", ARM_NEAR)
 far_bones = arm_bones("far", ARM_FAR)
 arm_near = node("ArmNear", ARM_NEAR, BODY, [skinned_image("arm-near-top", "near", ARM_NEAR), near_bones])
 arm_near_low = node("ArmNearLow", ARM_NEAR, BODY, [skinned_image("arm-near-low", "near", ARM_NEAR)])
-arm_near = arm_near.replace("ARM_LOW_ID", ids["arm-near-low"])
 sleeve_near = node("SleeveNear", ARM_NEAR, BODY, [node(f"top-sleeve-near-{o}", ARM_NEAR, ARM_NEAR,
                                                       [skinned_image(f"sleeve-near-{o}", "near", ARM_NEAR)]) for o in OUTFITS])
 torso = node("Torso", BODY, BODY, [slot_node(f"top-body-{o}", BODY, BODY, [f"top-{o}"]) for o in OUTFITS] + [image("tank", BODY)])
@@ -333,7 +335,7 @@ scene_nodes = "\n".join([body_front, legs, body_back])
 
 # ---- view model ---------------------------------------------------------------------------
 VM, VMI = nid(), nid()
-BOOLS, NUMBERS = ["talking", "cheer"], SLOTS + ["mood"]
+BOOLS, NUMBERS = ["talking"], SLOTS + ["mood", "pose"]
 DEFAULTS = {s: 1 for s in SLOTS}   # the street outfit, the game's first
 VMP = {s: nid() for s in BOOLS + NUMBERS}
 viewmodel = (f'<ViewModel defaultInstanceId="{VMI}" name="Hero" id="{VM}">\n'
@@ -435,51 +437,35 @@ talk_seq = [(0, a), (.12, e), (.24, rest), (.34, o), (.48, a), (.6, e), (.72, re
             (1.24, e), (1.36, a), (1.5, rest), (1.8, e), (1.92, a), (2.06, o), (2.2, rest)]
 talk_anim = anim("talk", int(2.4 * S), [mouth_keys(talk_seq, int(2.4 * S))])
 
-# Arms: at rest the elbows breathe with the idle sway; `cheer` raises the near arm in a fist pump
-# (the mix into and out of it is the transition's, so the loop holds only the pump).
+# Arms: the elbows breathe with the idle sway and the arms never leave the sides (raised arms
+# looked comic; joy is the face alone). `pose` holds a loop of its own (the mix into and out of it
+# is the transition's).
 def arm_pose(arm, deltas):
     """keys for one held pose: each bone's bind rotation plus a delta (upper arm, forearm). The hand
     keeps its bind angle to the forearm: it is cut from it with no blend, so bending the wrist
     would open a wedge at the cut."""
     deltas = tuple(deltas) + (0.0,)
     return {f"{arm}-{nm}": rel + dd for (_, _, _, rel), nm, dd in zip(bones[arm], BONE_NAMES, deltas)}
+def pose(near_, far_):
+    return {**arm_pose("near", near_), **arm_pose("far", far_)}
 def pose_tracks(frames, d_):
     """frames: [(frame, {bone: rotation})] -> one track per bone."""
     names = frames[0][1].keys()
     return [track(n, "rotation", [(f, p[n]) for f, p in frames] + [(d_, frames[0][1][n])]) for n in names]
 d = int(4.4 * S)
-arm_rest = {**arm_pose("near", (0, 0)), **arm_pose("far", (0, 0))}
-bent = {**arm_pose("near", (0, -0.07)), **arm_pose("far", (0, -0.05))}
-# The near hand turns over when the arm is up: the hanging hand (its piece of each arm mesh) folds
-# away to the wrist and the palm picture shows (keys: 1 = hanging hand, -1 = palm).
-def hand_turn(keys):
-    k = lambda f: [(x[0], f(x[1])) + tuple(x[2:]) for x in keys]
-    return "\n".join([track("near-hand", "scaleX", k(lambda v: 1 if v > 0 else 0.001)),
-                       track("near-hand", "scaleY", k(lambda v: 1 if v > 0 else 0.001)),
-                       track("palm", "opacity", k(lambda v: 0 if v > 0 else 1))])
-arms_rest = anim("arms-rest", d, pose_tracks([(0, arm_rest), (d // 2, bent)], d) + [hand_turn([(0, 1), (d, 1)])])
-d = int(0.7 * S)
-# Near arm out to the side (away from the face), forearm up, fist above the shoulder; far arm
-# only bends a little behind the body.
-# The forearm turns the front way round (negative: the hand comes up in front of the chest, as a
-# real wave does); the same angle the back way round would swing a straight arm out sideways.
-TURN = 2 * math.pi
-up = {**arm_pose("near", (0.6, 2.2 - TURN)), **arm_pose("far", (-0.03, -0.15))}
-pump = {**arm_pose("near", (0.66, 2.4 - TURN)), **arm_pose("far", (-0.04, -0.2))}
-cheer_anim = anim("cheer", d, pose_tracks([(0, up), (d // 2, pump)], d) + [hand_turn([(0, -1), (d, -1)])])
-# Raise, 0.45 s: the elbow bends and the hand comes up in front of the chest while the elbow goes
-# out; the wrist turns the hand over on the way.
-d = int(0.45 * S)
-low = {**arm_pose("near", (0.1, -1.3)), **arm_pose("far", (-0.01, -0.05))}
-mid = {**arm_pose("near", (0.4, -2.6)), **arm_pose("far", (-0.02, -0.1))}
-raise_frames = [(0, arm_rest), (int(0.15 * S), low), (int(0.3 * S), mid), (d, up)]
-raise_anim = anim("raise", d, [track(n, "rotation", [(f, p[n]) for f, p in raise_frames]) for n in arm_rest]
-                  + [hand_turn([(0, 1, "hold"), (int(0.17 * S), -1, "hold"), (d, -1, "hold")])], "oneShot")
-# Lower: the raise backwards. The hand turns over in one frame (while the forearm crosses the
-# chest): turning it gradually shows it edge-on, a thin sliver, for a few frames.
-lower_frames = [(f, pose) for f, pose in [(0, up), (d - int(0.3 * S), mid), (d - int(0.15 * S), low), (d, arm_rest)]]
-lower_anim = anim("lower", d, [track(n, "rotation", [(f, p[n]) for f, p in lower_frames]) for n in arm_rest]
-                  + [hand_turn([(0, -1, "hold"), (d - int(0.17 * S), 1, "hold"), (d, 1, "hold")])], "oneShot")
+arms_rest = anim("arms-rest", d, pose_tracks([(0, pose((0, 0), (0, 0))), (d // 2, pose((0, -0.07), (0, -0.05)))], d))
+# Cold, 0.5 s: the head sunk into the shoulders, the upper body shivering (small fast steps,
+# uneven so it does not read as a rhythm; the hanging arms only follow it) and the teeth chattering
+# (this layer keys the mouth over the mood's).
+d = int(0.5 * S)
+shiver = [(0, 0), (4, 0.012), (8, -0.01), (13, 0.014), (17, -0.012), (22, 0.01), (26, -0.014)]
+SUNK = 7   # px the head drops
+chatter = [(t / S, "mouth" if k % 2 else TALK[1]) for k, t in enumerate(range(0, d, 3))]
+cold_anim = anim("cold", d, pose_tracks([(0, pose((0, 0), (0, 0)))], d)
+                 + [track(n, "rotation", shiver + [(d, 0)], "linear") for n in ("Body", "BodyBack")]
+                 + [track(n, "y", [(0, HEAD[1] - BODY[1] + SUNK), (d, HEAD[1] - BODY[1] + SUNK)]) for n in ("Head", "HeadBack")]
+                 + [mouth_keys(chatter, d)])
+POSES = [arms_rest, cold_anim]
 
 def vm_number(s, value, op=0):
     return (f'<TransitionViewModelCondition opValue="{op}"><TransitionPropertyViewModelComparator><BindablePropertyNumber>'
@@ -531,34 +517,25 @@ layers.append(f'''<StateMachineLayer name="mouth" id="{nid()}">
     {chr(10).join(states)}
 </StateMachineLayer>''')
 
-ar, rs, ch, lw = nid(), nid(), nid(), nid()
+pose_states = [nid() for _ in POSES]
+states = [f'<AnimationState x="{100 * v}" animationId="{aid}" id="{pose_states[v]}">'
+          + "".join(f'<StateTransition stateToId="{pose_states[k]}" duration="300" interpolationType="cubic">'
+                    f'{vm_number("pose", k)}</StateTransition>' for k in range(len(POSES)) if k != v)
+          + '</AnimationState>' for v, (aid, _) in enumerate(POSES)]
 layers.append(f'''<StateMachineLayer name="arms" id="{nid()}">
     <AnyState x="200" y="-120"/><ExitState x="400" y="-120"/>
-    <EntryState><StateTransition stateToId="{ar}"/></EntryState>
-    <AnimationState x="100" animationId="{arms_rest[0]}" id="{ar}">
-        <StateTransition stateToId="{rs}">{vm_condition("cheer", "true")}</StateTransition>
-    </AnimationState>
-    <AnimationState x="200" y="100" animationId="{raise_anim[0]}" id="{rs}">
-        <StateTransition stateToId="{ch}" enableExitTime="true" exitTime="450"/>
-        <StateTransition stateToId="{ar}" duration="300" interpolationType="cubic">{vm_condition("cheer", "false")}</StateTransition>
-    </AnimationState>
-    <AnimationState x="300" animationId="{cheer_anim[0]}" id="{ch}">
-        <StateTransition stateToId="{lw}" duration="120" interpolationType="cubic">{vm_condition("cheer", "false")}</StateTransition>
-    </AnimationState>
-    <AnimationState x="200" y="200" animationId="{lower_anim[0]}" id="{lw}">
-        <StateTransition stateToId="{ar}" enableExitTime="true" exitTime="450"/>
-        <StateTransition stateToId="{rs}">{vm_condition("cheer", "true")}</StateTransition>
-    </AnimationState>
+    <EntryState><StateTransition stateToId="{pose_states[0]}"/></EntryState>
+    {chr(10).join(states)}
 </StateMachineLayer>''')
 
-all_anims = ([a for _, a in loops] + [arms_rest[1], cheer_anim[1], raise_anim[1], lower_anim[1]] + [a for anims_ in slot_anims.values() for _, a in anims_]
+all_anims = ([a for _, a in loops] + [a for _, a in POSES] + [a for anims_ in slot_anims.values() for _, a in anims_]
              + [a for _, a in mood_anims] + [talk_anim[1]])
 rml = f'''<Rive version="1" kind="fragment">
 {chr(10).join(assets)}
 {viewmodel}
     <Artboard viewModelId="{VM}" viewModelInstanceId="{VMI}" defaultStateMachineId="0:7" styleId="0:5" width="{W}" height="{H_}" name="Hero" id="0:2">
         <LayoutComponentStyle name="Artboard Style" id="0:5"/>
-        <Fill name="Background"><SolidColor colorValue="FFE8EEF4" name="Color"/></Fill>
+        <Fill name="Background"><SolidColor colorValue="{BOARD_BG}" name="Color"/></Fill>
 {scene_nodes}
         <StateMachine name="State Machine 1" id="0:7">
 {chr(10).join(layers)}

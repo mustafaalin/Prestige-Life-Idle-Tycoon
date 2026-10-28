@@ -452,7 +452,7 @@ Referanslar: 1 `art/pilot/18-rig/manken.png` (belirleyici), 2 kıyafetin bugünk
 
 Not: uzun palto (`coat`) üst parçası kalçayı geçer; bu doğru, kesilmez. Sıra önerisi: önce `work` üçlüsü, Claude kontrol eder (kesme ve hizalama çalışıyor mu), sonra kalan beşi.
 
-## 0i. Kalkık el, avuç içi öne (Rive, 2026-10-26; geldi, onaylandı, rigde)
+## 0i. Kalkık el, avuç içi öne (Rive, 2026-10-26; geldi; 2026-10-27'de el sallama kaldırıldı, resim kullanılmıyor)
 
 **Neden:** sevinçte kalkan sağ elde izleyici elin dış yüzünü görüyor (kullanıcı: "avuç içi değil dış taraf bakıyor"). Sarkık elin resmi ayna çevrilerek kullanılıyordu; ayna avuç içini öne getirmez. Kol kalkınca el bu yeni resimle değişir. Çıktı `art/pilot/18-rig/hand-palm.png` (yanına `-prompt.txt`).
 

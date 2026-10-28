@@ -40,6 +40,7 @@
     "@capawesome/capacitor-app-update": "^8.1.1",
     "@fontsource/fredoka": "^5.3.0",
     "@revenuecat/purchases-capacitor": "^13.7.3",
+    "@rive-app/canvas-lite": "2.44.2",
     "@supabase/supabase-js": "^2.57.4",
     "@types/howler": "^2.2.12",
     "canvas-confetti": "^1.9.4",

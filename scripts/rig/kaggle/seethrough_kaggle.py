@@ -29,7 +29,14 @@ sh(
 sh(f"pip install -q --no-deps -e {REPO}/common")
 sh("ln -sf common/assets assets", cwd=REPO)
 
+# Images already split by an earlier run are left out (a run stops at Kaggle's 12-hour limit,
+# ~70 min per image); empty = every image in the dataset.
+ONLY = {f"wear-{n}.png" for n in (
+    "coat-shoes", "coat-top", "smart-bottom", "smart-top",
+    "suit-bottom", "suit-shoes", "tux-bottom", "tux-shoes",
+)}
 images = sorted(glob.glob("/kaggle/input/**/*.png", recursive=True))
+images = [p for p in images if not ONLY or os.path.basename(p) in ONLY]
 print("images:", images, flush=True)
 src = "/kaggle/working/in"
 os.makedirs(src, exist_ok=True)

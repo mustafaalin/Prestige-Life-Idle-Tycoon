@@ -9,12 +9,19 @@ silhouette edge. At rest the rig then matches the original exactly.
 Also fixes two things see-through got wrong for the rig:
 - the shorts' waistband was painted into the tank layer (it showed above the jeans);
 - the hood's inside was filled dark over the neck; the neck shows there in the original.
+And some trousers are drawn a little slimmer than the mannequin's legs; they are widened over
+the leg that would show beside them, in the colour of the nearest trouser pixel.
+
+The other outfits' pictures (wear-<outfit>-<part>.png) go the same way once their see-through
+layers are in seethrough-<outfit>-<part>/ (scripts/rig/kaggle/import_psd.py); an outfit without
+them keeps wear_cut.py's parts.
 
 Usage: python3 scripts/rig/project_layers.py   (writes art/pilot/18-rig/rig-dressed/<source>/<layer>.png)
 """
-import glob, os
+import glob, os, re, shutil
 import numpy as np
 from PIL import Image, ImageFilter
+from scipy import ndimage
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 R = os.path.join(ROOT, "art/pilot/18-rig/")
@@ -98,4 +105,36 @@ save("hoodie", hoodie)
 
 for src in ("jeans", "sneakers"):
     save(src, project(src, SOURCES[src])[0])
+
+# see-through filed these trousers under another layer name (gen3.py reads the same one).
+TROUSERS = {"tux-bottom": "legwear"}
+HEM = 40   # rows above the hem where the leg (sock, ankle) may show below the trousers
+
+
+def cover_legs(layers, name):
+    """Widen the trousers over the mannequin's leg wherever it would show beside them."""
+    key = next(k for k in layers if re.sub(r"^\d+-", "", k) == name)
+    t = layers[key]
+    legs = manken["02-legwear"][..., 3]
+    rows = np.where((t[..., 3] > 40).any(1))[0]
+    leak = (legs > 8) & (t[..., 3] < np.maximum(legs, 250))   # the leg's soft edge too
+    leak[: rows.min()] = False
+    leak[rows.max() - HEM:] = False
+    if not leak.any():
+        return
+    _, (iy, ix) = ndimage.distance_transform_edt(t[..., 3] <= 200, return_indices=True)
+    t[leak, :3] = t[iy[leak], ix[leak], :3]
+    t[leak, 3] = np.maximum(t[leak, 3], legs[leak])
+    print(f"  {key}: covered {int(leak.sum())} px of leg")
+
+
+# Outfits split by see-through replace wear_cut.py's parts for that picture.
+for d in sorted(glob.glob(f"{R}seethrough-*-*/layers")):
+    src = d.split("seethrough-")[1].split("/")[0]
+    shutil.rmtree(OUT + src, ignore_errors=True)
+    layers = project(src, f"wear-{src}.png")[0]
+    if src.endswith("-bottom"):
+        cover_legs(layers, TROUSERS.get(src, "bottomwear"))
+    save(src, layers)
+    print(src)
 print("done")

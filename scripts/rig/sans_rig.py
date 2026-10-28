@@ -9,7 +9,7 @@ Face patches are cut from the face pictures (sans-base.png with one feature chan
 differ from the base; collars from the wear pictures the same way. All pictures share one canvas.
 View model `Dog`: `happy` (boolean: happy face, fast wag), `collar` (number: 0 none, 1 rope,
 2 leather, 3 silver, 4 gold, 5 ruby), `scarf` (boolean; the scarf sits under the collar).
-Usage: python3 scripts/rig/sans_rig.py art/pilot/19-sans-rig/rive/sansrig
+Usage: python3 scripts/rig/sans_rig.py art/pilot/19-sans-rig/rive/sansrig [--game]
 """
 import base64, math, os, sys
 import cv2
@@ -20,6 +20,18 @@ sys.path.insert(0, os.path.dirname(__file__))
 from sans_cut import cut
 
 PROJ = sys.argv[1]
+# --game: the game's file: see-through background and webp parts (a quarter of the size, no
+# visible change); without it a light grey background for videos, png parts.
+GAME = "--game" in sys.argv
+BOARD_BG = "00000000" if GAME else "FFE8EEF4"
+PART_EXT = "webp" if GAME else "png"
+
+
+def write_part(im, name):
+    """A part image; the png is always written (later steps read it), the webp for the game."""
+    im.save(os.path.join(PROJ, "parts", f"{name}.png"), optimize=True)
+    if GAME:
+        im.save(os.path.join(PROJ, "parts", f"{name}.webp"), "WEBP", quality=90, method=6)
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 D = os.path.join(ROOT, "art/pilot/19-sans-rig/")
 ART = (100, 150)                 # artboard's top left on the canvas
@@ -102,7 +114,7 @@ meta = {}
 def save_part(name, rgba):
     im = Image.fromarray(rgba)
     box = im.getbbox()
-    im.crop(box).save(os.path.join(PROJ, "parts", f"{name}.png"), optimize=True)
+    write_part(im.crop(box), name)
     meta[name] = box
 
 base_rgba = np.asarray(Image.open(D + "rig/sans.png").convert("RGBA"))
@@ -149,7 +161,7 @@ assets, asset_ids, ids = [], {}, {}
 def asset(name):
     if name not in asset_ids:
         asset_ids[name] = nid()
-        assets.append(f'    <ImageAsset file="parts/{name}.png" name="{name}" id="{asset_ids[name]}"/>')
+        assets.append(f'    <ImageAsset file="parts/{name}.{PART_EXT}" name="{name}" id="{asset_ids[name]}"/>')
     return asset_ids[name]
 
 def varuint(n):
@@ -383,7 +395,7 @@ rml = f'''<Rive version="1" kind="fragment">
 {viewmodel}
     <Artboard viewModelId="{VM}" viewModelInstanceId="{VMI}" defaultStateMachineId="0:7" styleId="0:5" width="{W}" height="{H_}" name="Sans" id="0:2">
         <LayoutComponentStyle name="Artboard Style" id="0:5"/>
-        <Fill name="Background"><SolidColor colorValue="FFE8EEF4" name="Color"/></Fill>
+        <Fill name="Background"><SolidColor colorValue="{BOARD_BG}" name="Color"/></Fill>
 {dog}
         <StateMachine name="State Machine 1" id="0:7">
 {chr(10).join(layers)}
